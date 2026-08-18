@@ -1,0 +1,22 @@
+{
+  "name": "luna-portfolio",
+  "private": true,
+  "version": "0.1.0",
+  "workspaces": ["shell"],
+  "scripts": {
+    "dev": "npm --workspace shell run dev",
+    "build": "npm --workspace shell run build",
+    "typecheck": "npm --workspace shell run typecheck"
+  },
+  "dependencies": {
+    "react": "^19.0.0",
+    "react-dom": "^19.0.0"
+  },
+  "devDependencies": {
+    "@types/react": "^19.0.0",
+    "@types/react-dom": "^19.0.0",
+    "@vitejs/plugin-react": "^5.0.0",
+    "typescript": "^5.7.0",
+    "vite": "^7.0.0"
+  }
+}
