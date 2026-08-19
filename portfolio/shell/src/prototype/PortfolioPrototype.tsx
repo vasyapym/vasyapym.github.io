@@ -114,6 +114,8 @@ export default function PortfolioPrototype({
   const [variant, setVariant] = useState<PrototypeVariant>(initialVariant);
   const [scrollProgress, setScrollProgress] = useState(0);
   const project = projects.find((entry) => entry.id === "text-lens") ?? projects[0];
+  const stationHref = comparisonMode ? "#text-lens-station" : "/projects/text-lens";
+  const stationLinkLabel = comparisonMode ? "Open the station" : "Open the full study";
 
   useEffect(() => {
     const updateScrollProgress = () => {
@@ -148,8 +150,15 @@ export default function PortfolioPrototype({
     >
       <div className="observation-shell">
         <ObservationHeader variant={variant} />
-        <ObservationWorld project={project} projects={projects} />
-        <TextLensStation comparisonMode={comparisonMode} project={project} />
+        <ObservationWorld
+          project={project}
+          projects={projects}
+          stationHref={stationHref}
+          stationLinkLabel={stationLinkLabel}
+        />
+        {comparisonMode && (
+          <TextLensStation comparisonMode={comparisonMode} project={project} />
+        )}
         <PrototypeFooter comparisonMode={comparisonMode} />
       </div>
       {comparisonMode && (
@@ -179,9 +188,13 @@ function ObservationHeader({ variant }: { variant: PrototypeVariant }) {
 function ObservationWorld({
   project,
   projects,
+  stationHref,
+  stationLinkLabel,
 }: {
   project?: ProjectModule;
   projects: readonly ProjectModule[];
+  stationHref: string;
+  stationLinkLabel: string;
 }) {
   return (
     <section className="observation-world" aria-labelledby="world-title">
@@ -200,17 +213,29 @@ function ObservationWorld({
         </p>
       </div>
 
-      <AssemblyField project={project} />
+      <AssemblyField
+        project={project}
+        stationHref={stationHref}
+        stationLinkLabel={stationLinkLabel}
+      />
       <ProjectIndex projects={projects} />
 
-      <a className="world-enter" href="#text-lens-station">
+      <a className="world-enter" href={stationHref}>
         Continue to Text Lens <span aria-hidden="true">↓</span>
       </a>
     </section>
   );
 }
 
-function AssemblyField({ project }: { project?: ProjectModule }) {
+function AssemblyField({
+  project,
+  stationHref,
+  stationLinkLabel,
+}: {
+  project?: ProjectModule;
+  stationHref: string;
+  stationLinkLabel: string;
+}) {
   const [partPositions, setPartPositions] = useState(INITIAL_PART_POSITIONS);
   const [activePart, setActivePart] = useState<PartId | null>(null);
   const [draggingPart, setDraggingPart] = useState<PartId | null>(null);
@@ -381,8 +406,8 @@ function AssemblyField({ project }: { project?: ProjectModule }) {
         <span>
           {project?.description ?? "A small reading instrument for seeing the shape inside a draft."}
         </span>
-        <a href="#text-lens-station">
-          Open the station <span aria-hidden="true">↗</span>
+        <a href={stationHref}>
+          {stationLinkLabel} <span aria-hidden="true">↗</span>
         </a>
       </div>
 
