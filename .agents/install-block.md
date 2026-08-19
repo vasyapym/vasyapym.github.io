@@ -1,6 +1,6 @@
 # The canonical install block
 
-One install story, one wording. `README.md`, `.changeset/*`, and every page under `docs/` must say **this** and nothing else. Change it here first, then propagate.
+One install story, one wording. `README.md` and every page under `docs/` must say **this** and nothing else. Change it here first, then propagate.
 
 `mattpocock-skills` is listed in **Claude Code's official marketplace** — configured name `claude-plugins-official`, source repo `anthropics/claude-plugins-official` — which every Claude Code install has out of the box. There is no marketplace to add first. Official Anthropic marketplaces have auto-update enabled by default ([discover-plugins](https://code.claude.com/docs/en/discover-plugins)), so "updates arrive automatically" is a true claim, not a hope.
 
