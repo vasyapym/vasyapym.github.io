@@ -57,7 +57,7 @@ function SpecimenGrid({ projects }: { projects: readonly ProjectModule[] }) {
       <PrototypeMasthead />
       <header className="prototype-intro">
         <p className="prototype-kicker">A small field guide / selected experiments</p>
-        <h1>Small systems, carefully made.</h1>
+        <h1>Small instruments, carefully made.</h1>
         <p className="prototype-intro-note">
           Tools, studies, and questions made to understand how things work.
         </p>
@@ -108,7 +108,7 @@ function PrototypeMasthead() {
   return (
     <div className="prototype-masthead">
       <span className="prototype-wordmark">Selected Experiments</span>
-      <span className="prototype-byline">A personal collection of small systems.</span>
+      <span className="prototype-byline">A personal collection of small instruments.</span>
     </div>
   );
 }
@@ -147,10 +147,10 @@ function EmptySpecimenCard({ index }: { index: number }) {
         <span>{formatIndex(index)}</span>
         <span>Reserved</span>
       </div>
-      <div className="empty-specimen-space" aria-hidden="true" />
+      <div className="empty-specimen-mark" aria-hidden="true"><span>✦</span></div>
       <div className="specimen-card-label">
         <p className="specimen-eyebrow">Next study</p>
-        <h2>Not made yet.</h2>
+        <h2>Next question.</h2>
         <p className="specimen-description">
           A little room for the next question worth following.
         </p>
