@@ -29,7 +29,7 @@ go test ./...
 go run .
 ```
 
-Сервис работает на <http://localhost:8081>. React-сайт использует его endpoint `POST /analyze`.
+Сервис работает на <http://localhost:8081>. React-сайт использует его endpoint `POST /analyze`. Быстрая проверка доступности: `curl http://localhost:8081/healthz`.
 
 ## Структура
 
