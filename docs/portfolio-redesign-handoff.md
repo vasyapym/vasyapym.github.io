@@ -13,6 +13,7 @@ Improve the portfolio shell as a curated collection of roughly 4–8 projects. T
 - **Primary job:** help visitors understand the collection and open a project.
 - **Secondary job:** communicate the author's taste and point of view without making the site about the Luna model.
 - **Naming direction:** use `Selected Experiments`; do not keep `Luna Lab`.
+- **Header treatment:** place `Selected Experiments` in the top-left as a small wordmark.
 - **Language:** use a fully English interface.
 - **Visual direction:** keep the dark experimental/editorial foundation, but bring in the clarity and restraint of information design.
 - **Reference vocabulary:** product-forward, high-contrast, dark, futuristic without sci-fi decoration, bold display type, restrained accent color, modular surfaces, deliberate negative space, and a clear visual hierarchy. References supplied by the user: you.com, grok.com, and Meta AI websites.
@@ -44,7 +45,6 @@ Improve the portfolio shell as a curated collection of roughly 4–8 projects. T
 
 ## Open decisions for the next round
 
-- What exact placement and treatment should `Selected Experiments` have in the header?
 - How should the full metadata card layout remain calm at 4–8 projects and on mobile?
 - Which accent color should each future project receive?
 - What responsive and accessibility constraints must shape the design from the start?
