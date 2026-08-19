@@ -39,6 +39,7 @@ This is a single-context repo: read root `CONTEXT.md` and `docs/adr/` for domain
 ## Response preferences
 
 - Explain code and technical changes in simple Russian unless the user asks for another language.
+- The user is currently learning programming and experimenting. Explain every block of code as if they are a beginner, somewhat comprehensively. Use the `teach` skill (the repository's learning skill) when teaching programming concepts.
 
 ## Git delivery preferences
 
