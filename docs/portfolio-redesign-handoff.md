@@ -109,3 +109,95 @@ Pass 1 implementation is now a historical baseline. Its static shell remains run
 The prototype must answer whether spatial depth creates character or merely adds complexity. It is throwaway visual evidence, not a production architecture decision. Do not change the Go service or analysis behavior.
 
 **Next review.** Compare the two variants for spatial character, artifact interaction, typography/copy quality, and whether Text Lens becomes understandable after one scroll. Record the verdict here before implementing the production shell.
+
+## Visual review feedback — round 2
+
+**Status:** direction is still under review; the production shell remains frozen.
+
+The interaction-first structure is working and should remain: the visitor enters a spatial composition, discovers a project, approaches its station, tries the project, and can continue into the full project page. The overall navigation and narrative skeleton should survive, but the visual composition of each stage may change substantially.
+
+### Refined direction
+
+- Prefer an **abstract museum of unfinished instruments**: a mostly empty spatial field in which project objects appear gradually, rather than a literal room that needs architecture or lore.
+- Use one shared spatial scene on the portfolio landing page. Project pages may then give each project its own interaction and artifact behavior.
+- Support a range of 3D interactions—inspection, rotation, manipulation, layer reveal, spatial movement, and project-specific behavior—but only when the behavior explains or deepens the project.
+- Character should come primarily from **design quality**, not from a narrator, excessive copy, or invented terminology.
+- Technical vocabulary is not the root problem and should not be removed mechanically. Labels, mono type, grids, or sci-fi cues may remain when they serve a real compositional or navigational purpose.
+
+### Non-negotiable quality principle
+
+> **Restraint: few elements, but each chosen precisely.**
+
+Restraint is the main expression of character. Do not add more objects, labels, motion, glow, or lore to compensate for an under-resolved visual idea. Every visible element should earn its place through composition, materiality, typography, interaction, or meaning. The work should feel finished because its decisions are precise—not because the scene is dense.
+
+### Quality bar
+
+The next prototype should be evaluated for:
+
+- material depth and tactile credibility;
+- strong typography and composition;
+- an art direction that does not feel template-derived;
+- responsive, physically convincing interaction;
+- deliberate negative space and a small number of high-confidence elements.
+
+The terminal/control-panel feeling is treated as a symptom of insufficient specificity and finish, not as a ban on technical visual language. The next pass should therefore improve the quality and specificity of the objects, composition, and behavior rather than merely deleting status labels or replacing the palette.
+
+### Still unresolved
+
+- What specific visual and material qualities will define the shared scene?
+- What is the minimum 3D interaction grammar shared by all projects?
+- Which project-specific interaction should Text Lens use?
+- How should an object emerge from the empty field during the first visit?
+
+Do not promote the prototype into production until these questions have been answered and the resulting scene demonstrates restraint, spatial character, and meaningful interaction together.
+
+## Visual review feedback — round 3
+
+The current working direction is now more specific:
+
+- **Material reference:** engineered metal and mechanical detail. Use this as a material and construction language, not as a return to generic control-panel chrome.
+- **Shared landing interaction:** visitors should be able to inspect an object from different angles, drag an object or one of its parts, and scroll to reveal deeper layers. These interactions share one spatial scene rather than requiring a separate world for each project.
+- **Text Lens artifact:** combine sheets or layers of text with an abstract typographic object. The artifact may be enigmatic, but its relationship to text should be discoverable.
+- **Object emergence:** the object should assemble from parts, with the project title and short description establishing context before the object settles into its form. The object may adapt to the identity of the project rather than appearing as a generic symbol.
+- **Clarity:** the title and short description should make the project understandable; the artifact itself is allowed to remain partially mysterious and invite inspection.
+
+The dominant design principle remains:
+
+> **Restraint: few elements, but each chosen precisely.**
+
+The next direction should therefore use a small number of engineered, carefully composed parts and a limited interaction vocabulary. The scene should feel rich because its objects have structure and consequence, not because it contains many simultaneous effects.
+
+### Implementation guardrails for the next prototype
+
+- Keep one shared spatial-scene module behind a small interface for camera/scroll and object selection.
+- Keep project-specific artifact behavior behind the project page or artifact interface; do not put Text Lens conditions into the shared scene.
+- Treat pointer inspection, drag manipulation, and scroll layer reveal as distinct interactions with visible state changes.
+- Preserve the existing navigation and project-loading structure while replacing the current generic world surface and pin behavior.
+- Use the existing React/CSS stack first; introduce a new 3D adapter only if the current implementation cannot provide the required interaction fidelity.
+- Read `skills/engineering/codebase-design/SKILL.md` before restructuring modules, and apply its vocabulary of module, interface, depth, seam, adapter, leverage, and locality.
+- Follow the repository's `CLAUDE.md`/`AGENTS.md` workflow: compare design alternatives before implementation, keep the production UI frozen until the prototype answers the visual question, and run the relevant typecheck/build after code changes.
+
+## Prototype pass 2 — Assembly field / Typographic field
+
+The throwaway prototype now lives in `portfolio/shell/src/prototype/PortfolioPrototype.tsx` and `prototype.css`, behind the existing `/?prototype=room` and `/?prototype=field` routes. The production landing page, project frame, Go service, and analysis contracts remain unchanged.
+
+- **Assembly field (`room`):** a two-part composition with a perspective metal field, a central artifact, and a project caption beside it.
+- **Typographic field (`field`):** a flatter, more open composition where the artifact occupies the field and the project caption sits over the lower edge.
+- Both variants share the same Text Lens artifact so the comparison isolates spatial composition rather than changing the project.
+- The artifact begins exploded and assembles as the visitor scrolls. Pointer movement tilts it on capable devices; each metal/text part can be dragged, and focused parts can be nudged with arrow keys.
+- Text Lens remains a local visual prototype with the same lightweight sample analysis. The full Go-backed analysis behavior is untouched.
+- Reduced motion removes camera and pointer tilt while retaining the object state and keyboard fallback.
+
+**Visual verdict:** pending review. The next decision is whether the engineered material language and restrained assembly interaction create more character than the prior observation-room surface without making the project harder to understand.
+
+## Production promotion — Assembly field
+
+**Decision:** the user reviewed `/?prototype=room` and selected the Assembly field direction as the main portfolio experience.
+
+- The default `/` route now renders the Assembly field without the comparison switcher or prototype-only footer language.
+- `/?prototype=room` remains available as the explicit comparison route; `/?prototype=field` remains the flatter control.
+- Project pages and the Go-backed full Text Lens study remain on the existing project-frame path.
+- The embedded Text Lens station remains the lightweight local interaction from the visual prototype; connecting it to the full analysis adapter is a separate follow-up and does not change the Go service.
+- The production promotion is limited to the portfolio shell and shared frame; no project discovery or service contract changed.
+
+The next review should verify the default route at `/`, then confirm whether the embedded station should use the real analysis adapter before the portfolio is treated as fully production-complete.

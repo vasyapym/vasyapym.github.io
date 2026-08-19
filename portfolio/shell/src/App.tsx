@@ -14,12 +14,15 @@ export default function App() {
   const projectId = projectIdFromPath(pathname);
   const project = projectId ? findProject(projectId) : undefined;
   const prototypeQuery = pathname === "/" ? new URLSearchParams(window.location.search).get("prototype") : null;
-  const prototypeVariant: PrototypeVariant | undefined =
+  const requestedPrototypeVariant: PrototypeVariant | undefined =
     prototypeQuery === "field" || prototypeQuery === "ledger"
       ? "field"
       : prototypeQuery === "room" || prototypeQuery === "specimen"
         ? "room"
         : undefined;
+  const prototypeVariant: PrototypeVariant | undefined =
+    requestedPrototypeVariant ?? (pathname === "/" ? "room" : undefined);
+  const comparisonMode = requestedPrototypeVariant !== undefined;
 
   useEffect(() => {
     const handlePopState = () => setPathname(window.location.pathname);
@@ -40,7 +43,13 @@ export default function App() {
   };
 
   if (prototypeVariant) {
-    return <PortfolioPrototype initialVariant={prototypeVariant} projects={projectModules} />;
+    return (
+      <PortfolioPrototype
+        comparisonMode={comparisonMode}
+        initialVariant={prototypeVariant}
+        projects={projectModules}
+      />
+    );
   }
 
   if (project) {
