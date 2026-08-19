@@ -1,6 +1,6 @@
 # Portfolio redesign — design handoff
 
-**Status:** design tree settled after round 8
+**Status:** approved hybrid direction; implementation pass 1 in progress
 **Implementation status:** do not change the UI yet
 **Last updated:** 2026-08-19
 
@@ -44,11 +44,17 @@ Improve the portfolio shell as a curated collection of roughly 4–8 projects. T
 - A full standalone bio or contact block.
 - Luna-specific branding or model-related framing.
 
+## Approved direction — Signal Grid + Transmission Deck
+
+Use Signal Grid as the structural foundation: a calm, content-first two-column grid, equal project weight, clear title/description hierarchy, and a durable information-design system. Add Transmission Deck as the atmospheric layer: restrained technical rails, status markers, project-type signals, layered card surfaces, and playful speculative details. The atmosphere must never make the project content harder to understand.
+
+The first implementation pass should establish the shared shell, English content, typography, card hierarchy, surface tokens, Text Lens electric-blue accent, and responsive/accessibility rules. Motion and richer speculative details follow as a separate pass after the static hierarchy is reviewed.
+
 ## Open decisions for the next round
 
-- Which two independent visual directions should be carried into comparison?
 - What exact accent token mapping should project types use?
-- Which design direction should be approved for the first implementation pass?
+- Which motion details should survive the first visual review?
+- Which additional project data should be introduced when the collection grows?
 
 ## Independent direction A — Signal Grid
 
@@ -68,6 +74,6 @@ Improve the portfolio shell as a curated collection of roughly 4–8 projects. T
 
 ## Comparison checkpoint
 
-Direction A makes the collection feel like a calm research index: quieter, clearer, and more durable as the number of projects grows. Direction B makes it feel like an active speculative instrument: more memorable, more playful, and closer to the user's science-fiction reference, but with a higher risk of visual noise. Both preserve the settled constraints — English copy, equal project weight, content-first cards, Sora, project-type accents, artwork-only motion, and accessibility defaults. The next decision is whether to choose A, choose B, or take A's information hierarchy with B's atmosphere.
+Direction A makes the collection feel like a calm research index: quieter, clearer, and more durable as the number of projects grows. Direction B makes it feel like an active speculative instrument: more memorable, more playful, and closer to the user's science-fiction reference, but with a higher risk of visual noise. The approved hybrid keeps A's information hierarchy and B's atmosphere.
 
-The design tree is settled. Wait for explicit approval before implementation. Keep each implementation pass small and reviewable; record decisions, alternatives, and outcomes in this handoff.
+Implementation is now approved. Keep each pass small and reviewable: establish the static shell first, review it, then add motion and richer speculative details. Record decisions, alternatives, and outcomes in this handoff.

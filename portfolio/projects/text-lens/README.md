@@ -1,6 +1,6 @@
 # Text Lens
 
-Text Lens is the first Luna Lab project: a small reading-insights tool with a React page and a Go analysis module.
+Text Lens is a small reading-insights tool with a React page and a Go analysis module.
 
 The Go implementation owns the text rules behind `AnalyzeText`. Its HTTP handler is an adapter at the seam, so the behavior can be tested without starting a server and the transport can change without moving the analysis logic into the frontend.
 
