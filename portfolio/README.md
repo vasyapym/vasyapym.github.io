@@ -1,6 +1,6 @@
-# Luna Lab
+# Selected Experiments
 
-A personal portfolio shell for small experiments and self-contained pet projects.
+A portfolio shell for small experiments and self-contained projects.
 
 The shell discovers project modules from `projects/*/project.ts`. A new project can add its own descriptor and page without adding a project-specific branch to the shell. Shared contracts live in `contracts/`, while each project's implementation stays under its own directory.
 

@@ -1,12 +1,12 @@
 import type { ProjectModule } from "../../contracts/project-module";
 const textLens: ProjectModule = {
   id: "text-lens",
-  title: "Линза текста",
-  eyebrow: "Небольшой инструмент для чтения",
-  description: "Вставьте текст и получите ясную картину его формы, темпа и самых повторяющихся идей.",
+  title: "Text Lens",
+  eyebrow: "A small reading tool",
+  description: "Paste a draft and get a clear read on its shape, pace, and repeated ideas.",
   technologies: ["React", "TypeScript", "Go"],
   status: "available",
-  accent: "coral",
+  accent: "blue",
   loadPage: () => import("./web/TextLensPage"),
 };
 

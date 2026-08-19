@@ -7,42 +7,42 @@ type LandingPageProps = {
 
 export default function LandingPage({ projects, onOpenProject }: LandingPageProps) {
   return (
-    <main>
+    <main className="landing-page">
+      <header className="site-header section-shell">
+        <span className="site-wordmark">
+          <span className="site-wordmark-signal" aria-hidden="true" />
+          Selected Experiments
+        </span>
+        <span className="site-status">
+          <span className="status-dot status-dot-blue" aria-hidden="true" />
+          {projects.length.toString().padStart(2, "0")} online
+        </span>
+      </header>
+
       <section className="hero section-shell" aria-labelledby="hero-title">
         <div className="hero-copy">
-          <p className="eyebrow">LUNA LAB / ЛИЧНОЕ ПОРТФОЛИО</p>
+          <p className="eyebrow">PROJECTS / LEARNING BY MAKING</p>
           <h1 id="hero-title">
-            Небольшие эксперименты.
-            <span>Глубокие модули.</span>
+            Projects for learning
+            <span>by making.</span>
           </h1>
           <p className="hero-description">
-            Небольшая коллекция полезных и любопытных вещей. Каждый проект — отдельный
-            мир со своим вопросом, инструментами и взглядом на задачу.
+            Small systems for testing ideas, learning in public, and seeing what happens next.
           </p>
           <a className="text-link" href="#projects">
-            Смотреть проекты <span aria-hidden="true">↓</span>
+            Explore selected experiments <span aria-hidden="true">↓</span>
           </a>
-        </div>
-        <div className="hero-orbit" aria-hidden="true">
-          <div className="orbit orbit-one" />
-          <div className="orbit orbit-two" />
-          <div className="orbit-core">
-            <span>01</span>
-            <small>создавать / изучать / делиться</small>
-          </div>
-          <span className="orbit-dot orbit-dot-one" />
-          <span className="orbit-dot orbit-dot-two" />
         </div>
       </section>
 
       <section className="projects-section section-shell" id="projects" aria-labelledby="projects-title">
         <div className="section-heading">
           <div>
-            <p className="eyebrow">ИЗБРАННЫЕ ПРОЕКТЫ</p>
-            <h2 id="projects-title">Несколько проектов в работе.</h2>
+            <p className="eyebrow">SELECTED EXPERIMENTS</p>
+            <h2 id="projects-title">A small set of working systems.</h2>
           </div>
           <p className="section-note">
-            {projects.length.toString().padStart(2, "0")} {moduleLabel(projects.length)}
+            {projects.length.toString().padStart(2, "0")} {projectCountLabel(projects.length)}
           </p>
         </div>
 
@@ -57,13 +57,15 @@ export default function LandingPage({ projects, onOpenProject }: LandingPageProp
               <span className="project-card-topline">
                 <span>{String(index + 1).padStart(2, "0")}</span>
                 <span className="status-pill">
-                  <span className="status-dot" />
-                  {project.status === "available" ? "Доступен" : "В работе"}
+                  <span className="status-dot" aria-hidden="true" />
+                  {project.status === "available" ? "Available" : "In progress"}
                 </span>
               </span>
+
               <span className="project-card-art" aria-hidden="true">
                 {project.id === "text-lens" ? <TextLensMark /> : <GenericMark />}
               </span>
+
               <span className="project-card-content">
                 <span className="project-card-eyebrow">{project.eyebrow}</span>
                 <span className="project-card-title">{project.title}</span>
@@ -74,15 +76,26 @@ export default function LandingPage({ projects, onOpenProject }: LandingPageProp
                   ))}
                 </span>
               </span>
+
               <span className="project-card-arrow" aria-hidden="true">↗</span>
             </button>
           ))}
         </div>
       </section>
 
+      <section className="about-section section-shell" aria-labelledby="about-title">
+        <div>
+          <p className="eyebrow">FIELD NOTE</p>
+          <h2 id="about-title">A practice of following signals.</h2>
+        </div>
+        <p className="about-copy">
+          These experiments are small signals from a larger practice: making things to understand how they work.
+        </p>
+      </section>
+
       <footer className="footer section-shell">
-        <span>Luna Lab / создаётся открыто</span>
-        <span>Скоро новые эксперименты</span>
+        <span>Built while learning in public</span>
+        <span>More signals incoming</span>
       </footer>
     </main>
   );
@@ -94,7 +107,11 @@ function TextLensMark() {
       <span className="mark-line mark-line-one" />
       <span className="mark-line mark-line-two" />
       <span className="mark-line mark-line-three" />
-      <span className="mark-signal" />
+      <span className="mark-signal">
+        <span className="mark-signal-core" />
+      </span>
+      <span className="mark-orbit mark-orbit-one" />
+      <span className="mark-orbit mark-orbit-two" />
     </span>
   );
 }
@@ -103,15 +120,6 @@ function GenericMark() {
   return <span className="generic-mark">+</span>;
 }
 
-function moduleLabel(count: number) {
-  const lastDigit = count % 10;
-  const lastTwoDigits = count % 100;
-
-  if (lastDigit === 1 && lastTwoDigits !== 11) {
-    return "доступный модуль";
-  }
-  if (lastDigit >= 2 && lastDigit <= 4 && (lastTwoDigits < 12 || lastTwoDigits > 14)) {
-    return "доступных модуля";
-  }
-  return "доступных модулей";
+function projectCountLabel(count: number) {
+  return count === 1 ? "project online" : "projects online";
 }

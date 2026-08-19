@@ -11,14 +11,14 @@ export default function ProjectFrame({ project, onBack }: ProjectFrameProps) {
 
   return (
     <main className="project-frame">
-      <div className="project-frame-nav section-shell">
+      <header className="project-frame-nav section-shell">
         <button className="back-link" type="button" onClick={onBack}>
-          <span aria-hidden="true">←</span> Назад к проектам
+          <span aria-hidden="true">←</span> Back to selected experiments
         </button>
-        <span className="project-frame-label">{project.title}</span>
-      </div>
+        <span className="project-frame-label">Selected Experiments / {project.title}</span>
+      </header>
       <Suspense
-        fallback={<div className="project-loading section-shell">Загрузка модуля…</div>}
+        fallback={<div className="project-loading section-shell">Loading experiment…</div>}
       >
         <ProjectPage />
       </Suspense>

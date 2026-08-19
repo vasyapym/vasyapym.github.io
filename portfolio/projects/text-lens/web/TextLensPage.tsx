@@ -2,7 +2,7 @@ import { useState, type FormEvent } from "react";
 
 const API_URL = import.meta.env.VITE_TEXT_LENS_API_URL ?? "http://localhost:8081";
 const SAMPLE_TEXT =
-  "Хорошие инструменты помогают удерживать сложные идеи. Линза текста показывает форму текста и даёт несколько ориентиров для работы. Она намеренно небольшая: спокойный инструмент для следующей правки.";
+  "Good tools help us hold complex ideas. Text Lens reveals the shape of a draft and offers a few quiet signals for the next revision. It stays intentionally small: a reading tool for noticing what is already there.";
 
 type WordFrequency = {
   word: string;
@@ -44,7 +44,7 @@ export default function TextLensPage() {
       const payload = (await response.json()) as Analysis | ErrorResponse;
 
       if (!response.ok || "error" in payload) {
-        throw new Error("error" in payload ? payload.error : "Анализатор не смог прочитать этот текст.");
+        throw new Error("error" in payload ? payload.error : "The analyzer could not read this text.");
       }
 
       setAnalysis(payload);
@@ -53,8 +53,8 @@ export default function TextLensPage() {
       setRequestState("error");
       setErrorMessage(
         error instanceof Error
-          ? `${error.message} Запустите Go-анализатор командой «cd portfolio/projects/text-lens/service && go run .».`
-          : "Анализатор недоступен. Запустите Go-сервис и попробуйте снова.",
+          ? `${error.message} Start the Go analyzer with “cd portfolio/projects/text-lens/service && go run .”.`
+          : "The analyzer is unavailable. Start the Go service and try again.",
       );
     }
   };
@@ -72,34 +72,34 @@ export default function TextLensPage() {
     <section className="text-lens-page section-shell" aria-labelledby="text-lens-title">
       <div className="sample-hero">
         <div>
-          <p className="eyebrow accent-eyebrow">ЛИНЗА ТЕКСТА / 001</p>
-          <h1 id="text-lens-title">Увидьте форму<br /><span>внутри текста.</span></h1>
+          <p className="eyebrow accent-eyebrow">TEXT LENS / 001</p>
+          <h1 id="text-lens-title">See the shape<br /><span>inside the text.</span></h1>
         </div>
         <p className="sample-intro">
-          Небольшой инструмент для чтения. Вставьте черновик и получите несколько ориентиров
-          по его темпу, структуре и повторяющимся идеям — без превращения текста в оценку.
+          A small reading tool. Paste a draft and get a few signals about its pace, structure,
+          and repeated ideas — without turning the text into a score.
         </p>
       </div>
 
       <form className="analysis-workspace" onSubmit={analyze}>
         <div className="workspace-toolbar">
-          <span className="workspace-label">Ваш текст</span>
+          <span className="workspace-label">Your text</span>
           <button className="sample-button" type="button" onClick={useSample}>
-            Попробовать пример <span aria-hidden="true">↗</span>
+            Try an example <span aria-hidden="true">↗</span>
           </button>
         </div>
         <textarea
-          aria-label="Текст для анализа"
+          aria-label="Text to analyze"
           className="text-input"
           onChange={(event) => setText(event.target.value)}
-          placeholder="Вставьте абзац, заметку или первую строку чего-то нового…"
+          placeholder="Paste a paragraph, a note, or the first line of something new…"
           rows={9}
           value={text}
         />
         <div className="workspace-footer">
-          <span className="input-hint">Go-анализатор работает локально на порту 8081.</span>
+          <span className="input-hint">Go analyzer runs locally on port 8081.</span>
           <button className="analyze-button" disabled={requestState === "loading"} type="submit">
-            {requestState === "loading" ? "Анализируем…" : "Анализировать текст"}
+            {requestState === "loading" ? "Analyzing…" : "Analyze text"}
             <span aria-hidden="true">→</span>
           </button>
         </div>
@@ -111,23 +111,23 @@ export default function TextLensPage() {
         <section className="analysis-results" aria-labelledby="results-title">
           <div className="results-heading">
             <div>
-              <p className="eyebrow accent-eyebrow">СИГНАЛ</p>
-              <h2 id="results-title">Первый понятный срез.</h2>
+              <p className="eyebrow accent-eyebrow">SIGNAL</p>
+              <h2 id="results-title">A first clear read.</h2>
             </div>
             <span className="results-caption">{analysis.paragraphs} {paragraphLabel(analysis.paragraphs)}</span>
           </div>
 
           <div className="metrics-grid">
-            <Metric label="Слова" value={analysis.words} />
-            <Metric label="Предложения" value={analysis.sentences} />
-            <Metric label="Символы" value={analysis.characters} />
-            <Metric label="Время чтения" value={`${analysis.readingTimeMinutes} мин`} />
+            <Metric label="Words" value={analysis.words} />
+            <Metric label="Sentences" value={analysis.sentences} />
+            <Metric label="Characters" value={analysis.characters} />
+            <Metric label="Reading time" value={`${analysis.readingTimeMinutes} min`} />
           </div>
 
           <div className="frequency-panel">
             <div className="frequency-heading">
-              <h3>Повторяющиеся идеи</h3>
-              <span>пять самых частых слов</span>
+              <h3>Repeated signals</h3>
+              <span>five most frequent words</span>
             </div>
             {analysis.frequentWords.length > 0 ? (
               <div className="frequency-list">
@@ -142,7 +142,7 @@ export default function TextLensPage() {
                 ))}
               </div>
             ) : (
-              <p className="empty-frequency">Здесь появятся самые частые слова, когда проявятся закономерности.</p>
+              <p className="empty-frequency">The most frequent words will appear here when patterns emerge.</p>
             )}
           </div>
         </section>
@@ -152,16 +152,7 @@ export default function TextLensPage() {
 }
 
 function paragraphLabel(count: number) {
-  const lastDigit = count % 10;
-  const lastTwoDigits = count % 100;
-
-  if (lastDigit === 1 && lastTwoDigits !== 11) {
-    return "абзац";
-  }
-  if (lastDigit >= 2 && lastDigit <= 4 && (lastTwoDigits < 12 || lastTwoDigits > 14)) {
-    return "абзаца";
-  }
-  return "абзацев";
+  return count === 1 ? "paragraph" : "paragraphs";
 }
 
 function Metric({ label, value }: { label: string; value: number | string }) {
