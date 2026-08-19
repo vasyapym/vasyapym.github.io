@@ -205,3 +205,19 @@ The next review should verify the default route at `/`, then confirm whether the
 ## Project-page visual alignment — Code Layout
 
 Code Layout initially used the earlier flat project-page styling even though the main route had already moved to the Assembly field direction. Its project page now follows the approved visual language: engineered metal surfaces, restrained negative space, layered spatial depth, a small pointer-responsive structure artifact, and typography consistent with the main field. The analyzer interaction remains the same; this change aligns the project frame and visual presentation without changing the Go layout module.
+
+## Visual revision — horizontal negative space and writing width
+
+**Decision:** the spatial field should not read as a full-bleed application surface. Desktop layouts need visible free space on both sides, and the text-writing workspace must remain a deliberately framed, readable object rather than stretching across the viewport.
+
+- Keep the main Assembly field inside a centered shell with generous horizontal gutters.
+- Limit the Text Lens heading, writing workspace, and station footer to a narrower shared measure so the input and output feel like an instrument inside the field, not a page-wide dashboard.
+- Preserve the larger surrounding field and vertical pauses; compactness should come from the width and scale of individual elements, not from removing all negative space.
+- On small screens, allow the shell and workspace to use the available width with a safe mobile gutter; the desktop constraint must not create horizontal scrolling or truncate the writing area.
+- Treat horizontal negative space as a quality gate: no primary text surface or project station should appear edge-to-edge on desktop unless a future project has a specific compositional reason.
+
+This addition operationalizes the existing principle:
+
+> **Restraint: few elements, but each chosen precisely.**
+
+A narrow writing measure is part of the interaction design. It gives text room to breathe, keeps line length readable, and makes the act of writing feel intentional without reducing the analyzer's capability.

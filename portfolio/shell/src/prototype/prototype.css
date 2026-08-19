@@ -44,7 +44,7 @@
 }
 
 .observation-shell {
-  width: min(100% - 64px, 1380px);
+  width: min(100% - 96px, 1160px);
   margin: 0 auto;
   padding-bottom: 7rem;
 }
@@ -712,8 +712,9 @@
 }
 
 .station-section-heading {
+  width: min(100%, 980px);
   align-items: end;
-  margin-bottom: 2rem;
+  margin: 0 auto 2rem;
 }
 
 .station-kicker {
@@ -757,6 +758,8 @@
 
 .station-workspace {
   display: grid;
+  width: min(100%, 980px);
+  margin: 0 auto;
   grid-template-columns: minmax(0, 1.1fr) minmax(320px, 0.9fr);
   border: 1px solid var(--observation-line);
   background:
@@ -930,7 +933,9 @@
 }
 
 .station-footer {
+  width: min(100%, 980px);
   align-items: baseline;
+  margin: 1.5rem auto 0;
   border-top: 1px solid var(--observation-line);
   padding-top: 1rem;
   color: var(--observation-faint);
