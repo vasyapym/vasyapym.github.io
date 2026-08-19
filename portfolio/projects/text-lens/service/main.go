@@ -21,6 +21,7 @@ func main() {
 	origin := getenv("CORS_ORIGIN", "http://localhost:5173")
 
 	mux := http.NewServeMux()
+	mux.HandleFunc("GET /{$}", rootHandler)
 	mux.HandleFunc("GET /healthz", healthHandler)
 	mux.HandleFunc("POST /analyze", analyzeHandler)
 
@@ -31,6 +32,17 @@ func main() {
 
 	log.Printf("Text Lens service listening on http://localhost:%s", port)
 	log.Fatal(server.ListenAndServe())
+}
+
+func rootHandler(writer http.ResponseWriter, _ *http.Request) {
+	writeJSON(writer, http.StatusOK, map[string]any{
+		"service": "text-lens",
+		"status":  "ok",
+		"endpoints": map[string]string{
+			"health":  "GET /healthz",
+			"analyze": "POST /analyze",
+		},
+	})
 }
 
 func healthHandler(writer http.ResponseWriter, _ *http.Request) {
