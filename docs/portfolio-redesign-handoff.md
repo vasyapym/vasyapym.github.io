@@ -201,3 +201,7 @@ The throwaway prototype now lives in `portfolio/shell/src/prototype/PortfolioPro
 - The production promotion is limited to the portfolio shell and shared frame; no project discovery or service contract changed.
 
 The next review should verify the default route at `/`, then confirm whether the embedded station should use the real analysis adapter before the portfolio is treated as fully production-complete.
+
+## Project-page visual alignment — Code Layout
+
+Code Layout initially used the earlier flat project-page styling even though the main route had already moved to the Assembly field direction. Its project page now follows the approved visual language: engineered metal surfaces, restrained negative space, layered spatial depth, a small pointer-responsive structure artifact, and typography consistent with the main field. The analyzer interaction remains the same; this change aligns the project frame and visual presentation without changing the Go layout module.
