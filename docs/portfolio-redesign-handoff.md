@@ -197,10 +197,10 @@ The throwaway prototype now lives in `portfolio/shell/src/prototype/PortfolioPro
 - The default `/` route now renders the Assembly field without the comparison switcher or prototype-only footer language.
 - `/?prototype=room` remains available as the explicit comparison route; `/?prototype=field` remains the flatter control.
 - Project pages and the Go-backed full Text Lens study remain on the existing project-frame path.
-- The embedded Text Lens station remains the lightweight local interaction from the visual prototype; connecting it to the full analysis adapter is a separate follow-up and does not change the Go service.
+- The default landing page keeps the assembly artifact and project index only; the embedded Text Lens station remains available on the explicit comparison routes, while the full analyzer remains at `/projects/text-lens`.
 - The production promotion is limited to the portfolio shell and shared frame; no project discovery or service contract changed.
 
-The next review should verify the default route at `/`, then confirm whether the embedded station should use the real analysis adapter before the portfolio is treated as fully production-complete.
+The next review should verify the default route at `/`, then confirm that the full Text Lens project page is the canonical analyzer experience; the embedded station is comparison-only and does not change the Go service.
 
 ## Project-page visual alignment — Code Layout
 
@@ -221,3 +221,14 @@ This addition operationalizes the existing principle:
 > **Restraint: few elements, but each chosen precisely.**
 
 A narrow writing measure is part of the interaction design. It gives text room to breathe, keeps line length readable, and makes the act of writing feel intentional without reducing the analyzer's capability.
+
+## Landing-page simplification — no duplicated Text Lens station
+
+**Decision:** the default `/` landing page should not repeat the full Text Lens study block beneath the spatial field. The artifact caption and compact project index establish the collection; the complete writing/analyzer experience belongs on `/projects/text-lens`.
+
+- Do not render the embedded `Text Lens / first study` workspace on the default landing route.
+- Keep the direct links from the artifact and the collection index so Text Lens remains easy to open.
+- Preserve the local station on `/?prototype=room` and `/?prototype=field` only as a comparison tool for visual review.
+- Avoid using the same title, description, technology list, and writing surface in multiple consecutive landing-page sections.
+
+This is a reduction in repetition, not a removal of the project. The landing page introduces Text Lens once as an instrument; the project page is where visitors use it.
