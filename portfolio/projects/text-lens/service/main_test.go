@@ -18,6 +18,18 @@ func TestAnalyzeHandlerRejectsEmptyText(t *testing.T) {
 	}
 }
 
+func TestRootHandler(t *testing.T) {
+	recorder := httptest.NewRecorder()
+	rootHandler(recorder, httptest.NewRequest(http.MethodGet, "/", nil))
+
+	if recorder.Code != http.StatusOK {
+		t.Fatalf("status = %d, want %d", recorder.Code, http.StatusOK)
+	}
+	if !strings.Contains(recorder.Body.String(), `"service":"text-lens"`) {
+		t.Fatalf("body = %q, want service info", recorder.Body.String())
+	}
+}
+
 func TestHealthHandler(t *testing.T) {
 	recorder := httptest.NewRecorder()
 	healthHandler(recorder, httptest.NewRequest(http.MethodGet, "/healthz", nil))
