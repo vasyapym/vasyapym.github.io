@@ -1,26 +1,48 @@
-import { useState, type CSSProperties, type PointerEvent } from "react";
+import {
+  useEffect,
+  useState,
+  type CSSProperties,
+  type FormEvent,
+  type PointerEvent,
+} from "react";
 import type { ProjectModule } from "../../../contracts/project-module";
 import "./prototype.css";
 
-export type PrototypeVariant = "specimen" | "ledger";
+export type PrototypeVariant = "room" | "field";
 
 type PortfolioPrototypeProps = {
   projects: readonly ProjectModule[];
   initialVariant: PrototypeVariant;
 };
 
-type MotionMode = "inspection" | "registration";
-
-type FragmentMotion = {
-  x: number;
-  y: number;
+type Analysis = {
+  words: number;
+  characters: number;
+  sentences: number;
+  readingTime: number;
 };
+
+const SAMPLE_TEXT =
+  "Good tools help us hold complex ideas. Text Lens reveals the shape of a draft and offers a few quiet signals for the next revision.";
 
 export default function PortfolioPrototype({
   projects,
   initialVariant,
 }: PortfolioPrototypeProps) {
   const [variant, setVariant] = useState<PrototypeVariant>(initialVariant);
+  const [scrollProgress, setScrollProgress] = useState(0);
+  const project = projects.find((entry) => entry.id === "text-lens") ?? projects[0];
+
+  useEffect(() => {
+    const updateScrollProgress = () => {
+      const travel = Math.max(1, window.innerHeight * 0.85);
+      setScrollProgress(Math.min(1, Math.max(0, window.scrollY / travel)));
+    };
+
+    updateScrollProgress();
+    window.addEventListener("scroll", updateScrollProgress, { passive: true });
+    return () => window.removeEventListener("scroll", updateScrollProgress);
+  }, []);
 
   const selectVariant = (nextVariant: PrototypeVariant) => {
     window.history.replaceState({}, "", `/?prototype=${nextVariant}`);
@@ -33,14 +55,20 @@ export default function PortfolioPrototype({
     window.dispatchEvent(new PopStateEvent("popstate"));
   };
 
+  const pageStyle = {
+    "--scroll-progress": scrollProgress,
+  } as CSSProperties;
+
   return (
-    <main className={`prototype-page prototype-${variant}`}>
-      <div className="prototype-shell">
-        {variant === "specimen" ? (
-          <SpecimenGrid projects={projects} />
-        ) : (
-          <EditorialLedger projects={projects} />
-        )}
+    <main
+      className={`observation-prototype observation-${variant}`}
+      style={pageStyle}
+    >
+      <div className="observation-shell">
+        <ObservationHeader />
+        <ObservationWorld project={project} />
+        <TextLensStation project={project} />
+        <PrototypeFooter />
       </div>
       <PrototypeSwitcher
         activeVariant={variant}
@@ -51,198 +79,179 @@ export default function PortfolioPrototype({
   );
 }
 
-function SpecimenGrid({ projects }: { projects: readonly ProjectModule[] }) {
+function ObservationHeader() {
   return (
-    <>
-      <PrototypeMasthead />
-      <header className="prototype-intro">
-        <p className="prototype-kicker">A small field guide / selected experiments</p>
-        <h1>Small instruments, carefully made.</h1>
-        <p className="prototype-intro-note">
-          Tools, studies, and questions made to understand how things work.
-        </p>
-      </header>
-
-      <section className="specimen-grid" aria-label="Selected experiments">
-        {projects.map((project, index) => (
-          <SpecimenCard key={project.id} index={index} project={project} />
-        ))}
-        {Array.from({ length: Math.max(0, 4 - projects.length) }).map((_, index) => (
-          <EmptySpecimenCard key={`empty-${index}`} index={projects.length + index} />
-        ))}
-      </section>
-
-      <PrototypeNote />
-    </>
+    <header className="observation-header">
+      <a className="observation-wordmark" href="/">
+        Selected Experiments
+      </a>
+      <span className="observation-header-label">Field / 01</span>
+    </header>
   );
 }
 
-function EditorialLedger({ projects }: { projects: readonly ProjectModule[] }) {
+function ObservationWorld({ project }: { project?: ProjectModule }) {
   return (
-    <>
-      <PrototypeMasthead />
-      <header className="prototype-intro ledger-intro">
-        <p className="prototype-kicker">A small field guide / selected experiments</p>
-        <h1>Things made to be looked at closely.</h1>
-        <p className="prototype-intro-note">
-          A short catalogue of tools and studies, each with its own question.
-        </p>
-      </header>
+    <section className="observation-world" aria-labelledby="world-title">
+      <div className="world-topline">
+        <span className="world-kicker">Observation room / field 01</span>
+        <span className="world-coordinate">North / 01.04 / open</span>
+      </div>
 
-      <section className="ledger-list" aria-label="Selected experiments">
-        {projects.map((project, index) => (
-          <LedgerEntry key={project.id} index={index} project={project} />
-        ))}
-        <div className="ledger-placeholder" aria-hidden="true">
-          <span>02</span>
-          <p>Another study will take this place.</p>
+      <div className="world-intro">
+        <div>
+          <p className="world-index">Field guide / a working space</p>
+          <h1 id="world-title">A room for looking closely.</h1>
         </div>
-      </section>
-
-      <PrototypeNote />
-    </>
-  );
-}
-
-function PrototypeMasthead() {
-  return (
-    <div className="prototype-masthead">
-      <span className="prototype-wordmark">Selected Experiments</span>
-      <span className="prototype-byline">A personal collection of small instruments.</span>
-    </div>
-  );
-}
-
-function SpecimenCard({
-  index,
-  project,
-}: {
-  index: number;
-  project: ProjectModule;
-}) {
-  return (
-    <article className="specimen-card">
-      <div className="specimen-card-meta">
-        <span>{formatIndex(index)}</span>
-        <span>{project.status === "available" ? "Available" : "In progress"}</span>
-      </div>
-      <FragmentPreview mode="inspection" />
-      <div className="specimen-card-label">
-        <p className="specimen-eyebrow">{project.eyebrow}</p>
-        <h2>{project.title}</h2>
-        <p className="specimen-description">{project.description}</p>
-        <ProjectFacts technologies={project.technologies} />
-        <a className="specimen-link" href={`/projects/${project.id}`}>
-          Open study <span aria-hidden="true">↗</span>
-        </a>
-      </div>
-    </article>
-  );
-}
-
-function EmptySpecimenCard({ index }: { index: number }) {
-  return (
-    <article className="specimen-card specimen-card-empty">
-      <div className="specimen-card-meta">
-        <span>{formatIndex(index)}</span>
-        <span>Reserved</span>
-      </div>
-      <div className="empty-specimen-mark" aria-hidden="true"><span>✦</span></div>
-      <div className="specimen-card-label">
-        <p className="specimen-eyebrow">Next study</p>
-        <h2>Next question.</h2>
-        <p className="specimen-description">
-          A little room for the next question worth following.
+        <p className="world-caption">
+          An unfinished collection of small instruments, arranged for inspection.
         </p>
       </div>
-    </article>
-  );
-}
 
-function LedgerEntry({
-  index,
-  project,
-}: {
-  index: number;
-  project: ProjectModule;
-}) {
-  return (
-    <article className="ledger-entry">
-      <div className="ledger-entry-index">{formatIndex(index)}</div>
-      <FragmentPreview mode="registration" />
-      <div className="ledger-entry-label">
-        <p className="specimen-eyebrow">{project.eyebrow}</p>
-        <h2>{project.title}</h2>
-        <p className="specimen-description">{project.description}</p>
-        <ProjectFacts technologies={project.technologies} />
-        <p className="ledger-status">
-          {project.status === "available" ? "Available to explore" : "In progress"}
-        </p>
-        <a className="specimen-link" href={`/projects/${project.id}`}>
-          Open study <span aria-hidden="true">↗</span>
-        </a>
-      </div>
-    </article>
-  );
-}
-
-function FragmentPreview({ mode }: { mode: MotionMode }) {
-  const [motion, setMotion] = useState<FragmentMotion>({ x: 0, y: 0 });
-
-  const handlePointerMove = (event: PointerEvent<HTMLDivElement>) => {
-    if (event.pointerType === "touch") {
-      return;
-    }
-
-    const bounds = event.currentTarget.getBoundingClientRect();
-    const x = ((event.clientX - bounds.left) / bounds.width - 0.5) * 10;
-    const y = ((event.clientY - bounds.top) / bounds.height - 0.5) * 10;
-    setMotion({ x, y });
-  };
-
-  const style = {
-    "--fragment-x": `${motion.x}px`,
-    "--fragment-y": `${motion.y}px`,
-  } as CSSProperties;
-
-  return (
-    <div
-      className={`fragment-preview fragment-${mode}`}
-      onPointerLeave={() => setMotion({ x: 0, y: 0 })}
-      onPointerMove={handlePointerMove}
-      style={style}
-    >
-      <div className="fragment-registration-line fragment-registration-line-one" />
-      <div className="fragment-registration-line fragment-registration-line-two" />
-      <div className="fragment-content">
-        <span className="fragment-kicker">Text Lens / sample read</span>
-        <p className="fragment-text">
-          Good tools help us hold <em>complex ideas.</em>
-        </p>
-        <div className="fragment-rule" />
-        <div className="fragment-results">
-          <span><strong>44</strong> words</span>
-          <span><strong>3</strong> sentences</span>
-          <span><strong>1</strong> min read</span>
+      <div className="world-stage">
+        <div className="world-surface" aria-hidden="true">
+          <div className="world-grid" />
+          <div className="world-axis world-axis-horizontal" />
+          <div className="world-axis world-axis-vertical" />
+          <div className="world-orbit world-orbit-one" />
+          <div className="world-orbit world-orbit-two" />
+          <div className="world-node world-node-one" />
+          <div className="world-node world-node-two" />
+          <div className="world-node world-node-three" />
+          <div className="world-depth-mark world-depth-mark-one">FIELD</div>
+          <div className="world-depth-mark world-depth-mark-two">STUDY</div>
         </div>
-        <div className="fragment-bottomline">
-          <span className="fragment-coordinate">READ / 044 / 003</span>
-          <span className="fragment-constellation" aria-hidden="true">
-            <span className="constellation-line constellation-line-one" />
-            <span className="constellation-line constellation-line-two" />
-            <span className="constellation-node constellation-node-one" />
-            <span className="constellation-node constellation-node-two" />
-            <span className="constellation-node constellation-node-three" />
+
+        <div className="world-station-pin">
+          <a
+            className="station-pin"
+            href="#text-lens-station"
+            aria-label="Inspect Text Lens station"
+            onPointerMove={handleStationPointerMove}
+          >
+            <span>01</span>
+          </a>
+          <span className="station-pin-label">
+            <span className="station-pin-term">Instrument</span>
+            {project?.title ?? "Text Lens"}
           </span>
         </div>
       </div>
+
+      <a className="world-enter" href="#text-lens-station">
+        Enter the field <span aria-hidden="true">↓</span>
+      </a>
+    </section>
+  );
+}
+
+function handleStationPointerMove(event: PointerEvent<HTMLAnchorElement>) {
+  if (event.pointerType === "touch") {
+    return;
+  }
+
+  const bounds = event.currentTarget.getBoundingClientRect();
+  const x = ((event.clientX - bounds.left) / bounds.width - 0.5) * 8;
+  const y = ((event.clientY - bounds.top) / bounds.height - 0.5) * 8;
+  event.currentTarget.style.setProperty("--pointer-x", `${x}px`);
+  event.currentTarget.style.setProperty("--pointer-y", `${y}px`);
+}
+
+function TextLensStation({ project }: { project?: ProjectModule }) {
+  const [text, setText] = useState(SAMPLE_TEXT);
+  const [analysis, setAnalysis] = useState<Analysis>(() => analyzeText(SAMPLE_TEXT));
+
+  const runAnalysis = (event: FormEvent<HTMLFormElement>) => {
+    event.preventDefault();
+    setAnalysis(analyzeText(text));
+  };
+
+  return (
+    <section
+      className="station-section"
+      id="text-lens-station"
+      aria-labelledby="station-title"
+    >
+      <div className="station-section-heading">
+        <div>
+          <p className="station-kicker">Station / 01</p>
+          <h2 id="station-title">{project?.title ?? "Text Lens"}</h2>
+        </div>
+        <div className="station-description">
+          <p>{project?.description ?? "A small reading instrument for seeing the shape inside a draft."}</p>
+          <ProjectFacts technologies={project?.technologies ?? ["React", "TypeScript", "Go"]} />
+        </div>
+      </div>
+
+      <form className="station-workspace" onSubmit={runAnalysis}>
+        <div className="station-input-panel">
+          <div className="station-panel-heading">
+            <span>Instrument / input</span>
+            <span>Local reading</span>
+          </div>
+          <label className="station-input-label" htmlFor="prototype-text-input">
+            Text to inspect
+          </label>
+          <textarea
+            id="prototype-text-input"
+            value={text}
+            onChange={(event) => setText(event.target.value)}
+            rows={8}
+          />
+          <div className="station-input-footer">
+            <span>Try a paragraph, note, or first line.</span>
+            <button className="station-action" type="submit">
+              Read text <span aria-hidden="true">↗</span>
+            </button>
+          </div>
+        </div>
+
+        <div className="station-results-panel" aria-live="polite">
+          <div className="station-panel-heading">
+            <span>Study / first read</span>
+            <span>Output</span>
+          </div>
+          <p className="station-results-caption">
+            A few quiet measures, not a score.
+          </p>
+          <div className="station-metrics">
+            <StationMetric label="Words" value={analysis.words} />
+            <StationMetric label="Characters" value={analysis.characters} />
+            <StationMetric label="Sentences" value={analysis.sentences} />
+            <StationMetric label="Reading time" value={`${analysis.readingTime} min`} />
+          </div>
+          <div className="station-reading-mark" aria-hidden="true">
+            <span className="reading-mark-line reading-mark-line-one" />
+            <span className="reading-mark-line reading-mark-line-two" />
+            <span className="reading-mark-node reading-mark-node-one" />
+            <span className="reading-mark-node reading-mark-node-two" />
+            <span className="reading-mark-node reading-mark-node-three" />
+          </div>
+        </div>
+      </form>
+
+      <div className="station-footer">
+        <span>Instrument / Text Lens</span>
+        <a href="/projects/text-lens">
+          Open the full study <span aria-hidden="true">↗</span>
+        </a>
+      </div>
+    </section>
+  );
+}
+
+function StationMetric({ label, value }: { label: string; value: number | string }) {
+  return (
+    <div className="station-metric">
+      <span>{label}</span>
+      <strong>{value}</strong>
     </div>
   );
 }
 
 function ProjectFacts({ technologies }: { technologies: readonly string[] }) {
   return (
-    <p className="project-facts">
+    <p className="station-facts">
       {technologies.map((technology) => (
         <span key={technology}>{technology}</span>
       ))}
@@ -250,11 +259,11 @@ function ProjectFacts({ technologies }: { technologies: readonly string[] }) {
   );
 }
 
-function PrototypeNote() {
+function PrototypeFooter() {
   return (
-    <footer className="prototype-note">
-      <span>Prototype / visual direction only</span>
-      <span>Behaviour and project discovery unchanged</span>
+    <footer className="prototype-footer">
+      <span>Prototype / observation room</span>
+      <span>Visual direction only / behavior unchanged</span>
     </footer>
   );
 }
@@ -269,23 +278,23 @@ function PrototypeSwitcher({
   onSelect: (variant: PrototypeVariant) => void;
 }) {
   return (
-    <nav className="prototype-switcher" aria-label="Prototype variants">
+    <nav className="prototype-switcher" aria-label="Observation room variants">
       <span className="prototype-switcher-label">Compare</span>
       <button
-        aria-pressed={activeVariant === "specimen"}
-        className={activeVariant === "specimen" ? "is-active" : ""}
+        aria-pressed={activeVariant === "room"}
+        className={activeVariant === "room" ? "is-active" : ""}
         type="button"
-        onClick={() => onSelect("specimen")}
+        onClick={() => onSelect("room")}
       >
-        Specimen grid
+        Perspective room
       </button>
       <button
-        aria-pressed={activeVariant === "ledger"}
-        className={activeVariant === "ledger" ? "is-active" : ""}
+        aria-pressed={activeVariant === "field"}
+        className={activeVariant === "field" ? "is-active" : ""}
         type="button"
-        onClick={() => onSelect("ledger")}
+        onClick={() => onSelect("field")}
       >
-        Editorial ledger
+        2.5D field
       </button>
       <button className="prototype-exit" type="button" onClick={onExit}>
         Exit
@@ -294,6 +303,15 @@ function PrototypeSwitcher({
   );
 }
 
-function formatIndex(index: number) {
-  return String(index + 1).padStart(2, "0");
+function analyzeText(text: string): Analysis {
+  const trimmedText = text.trim();
+  const words = trimmedText ? trimmedText.split(/\s+/).length : 0;
+  const sentences = trimmedText ? Math.max(1, (trimmedText.match(/[.!?]+/g) ?? []).length) : 0;
+
+  return {
+    words,
+    characters: text.length,
+    sentences,
+    readingTime: Math.max(1, Math.ceil(words / 200)),
+  };
 }

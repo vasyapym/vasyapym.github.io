@@ -1,14 +1,14 @@
 # Portfolio redesign — design handoff
 
-**Status:** implementation pass 1 delivered; visual review pending
-**Implementation status:** do not change the UI yet
+**Status:** concept reset agreed; comparison prototype pending visual review
+**Implementation status:** production UI is frozen until the comparison prototype is reviewed
 **Last updated:** 2026-08-19
 
 ## Current target
 
-Improve the portfolio shell as a curated collection of roughly 4–8 projects. The first visit should make the collection understandable, create a sense of the author's taste, and make it easy to open a project. Text Lens remains the first project, but the first iteration focuses on the landing page and shared project frame rather than redesigning the Text Lens page itself.
+Reconsider the portfolio shell as a curated collection of roughly 4–8 projects presented inside a small observation room/workshop. The first visit should establish an unusual spatial world, then reveal the real projects through scroll and inspection. Text Lens remains the first instrument; this concept reset includes the landing scene, shared frame, and Text Lens station while leaving analysis behavior unchanged.
 
-## Settled decisions
+## Settled decisions from pass 1
 
 - **Primary job:** help visitors understand the collection and open a project.
 - **Secondary job:** communicate the author's taste and point of view without making the site about the Luna model.
@@ -44,7 +44,7 @@ Improve the portfolio shell as a curated collection of roughly 4–8 projects. T
 - A full standalone bio or contact block.
 - Luna-specific branding or model-related framing.
 
-## Approved direction — Signal Grid + Transmission Deck
+## Superseded direction — Signal Grid + Transmission Deck
 
 Use Signal Grid as the structural foundation: a calm, content-first two-column grid, equal project weight, clear title/description hierarchy, and a durable information-design system. Add Transmission Deck as the atmospheric layer: restrained technical rails, status markers, project-type signals, layered card surfaces, and playful speculative details. The atmosphere must never make the project content harder to understand.
 
@@ -80,4 +80,32 @@ The static hybrid shell is now implemented: the portfolio and Text Lens experien
 
 Direction A makes the collection feel like a calm research index: quieter, clearer, and more durable as the number of projects grows. Direction B makes it feel like an active speculative instrument: more memorable, more playful, and closer to the user's science-fiction reference, but with a higher risk of visual noise. The approved hybrid keeps A's information hierarchy and B's atmosphere.
 
-Implementation is now approved. Keep each pass small and reviewable: establish the static shell first, review it, then add motion and richer speculative details. Record decisions, alternatives, and outcomes in this handoff.
+Pass 1 implementation is now a historical baseline. Its static shell remains runnable, but its visual direction is superseded by the concept reset below. Keep the next pass small and reviewable; do not fold it into production until the prototype has been visually reviewed.
+
+## Concept reset — Observation Room
+
+**Decision.** Reframe `Selected Experiments` as an observation room/workshop rather than a card catalogue. The site should feel geeky through spatial logic, precise objects, neutral instrument labels, meaningful interaction, and overall quality — not through a narrator, lore, or decorative sci-fi vocabulary.
+
+**World.** The visual setting combines an observation room with an abstract spatial field. Fiction is ambient: it lives in depth, distance, object placement, labels, and small easter eggs. No fictional character speaks to the visitor and no lore is required to understand a project.
+
+**Confirmed decisions.**
+
+- Keep the name `Selected Experiments`.
+- Use `Station`, `Instrument`, `Study`, and `Field` as the limited neutral vocabulary.
+- Build a CSS/DOM-perspective spatial world as the primary direction; compare it against a flatter 2.5D control.
+- Show the ambient world first; Text Lens appears as the first station after scroll rather than as an oversized explanatory hero.
+- Let pointer movement make the artifact respond; a click opens the project. Camera behavior remains unresolved until the prototype is seen.
+- Continue the immersive spatial language into project pages; Text Lens contains the full analyzer station with textarea, action, and results.
+- Keep future projects as honest labelled empty slots.
+- Give each real project an interactive artifact and one deliberate oddity in its behavior or output.
+- Use ordinary project titles/descriptions and museum-like captions, with only a few neutral instrument terms around them.
+- Treat typography/spacing, precise copy, artifact fidelity, meaningful interaction, and the spatial world as the quality bar. Collection clarity is intentionally evaluated after the atmospheric pass, but keyboard, mobile, reduced-motion, and 2D fallback remain non-negotiable.
+
+**Prototype brief.** Build two variants on one route with the same Text Lens station and content density:
+
+1. **Perspective room (primary):** CSS/DOM perspective, spatial layers, scroll-based movement, ambient field first, and a full 2D/keyboard fallback.
+2. **2.5D field (control):** flatter layered composition with the same station, scroll path, click behavior, and fallback.
+
+The prototype must answer whether spatial depth creates character or merely adds complexity. It is throwaway visual evidence, not a production architecture decision. Do not change the Go service or analysis behavior.
+
+**Next review.** Compare the two variants for spatial character, artifact interaction, typography/copy quality, and whether Text Lens becomes understandable after one scroll. Record the verdict here before implementing the production shell.

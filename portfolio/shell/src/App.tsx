@@ -15,7 +15,11 @@ export default function App() {
   const project = projectId ? findProject(projectId) : undefined;
   const prototypeQuery = pathname === "/" ? new URLSearchParams(window.location.search).get("prototype") : null;
   const prototypeVariant: PrototypeVariant | undefined =
-    prototypeQuery === "ledger" || prototypeQuery === "specimen" ? prototypeQuery : undefined;
+    prototypeQuery === "field" || prototypeQuery === "ledger"
+      ? "field"
+      : prototypeQuery === "room" || prototypeQuery === "specimen"
+        ? "room"
+        : undefined;
 
   useEffect(() => {
     const handlePopState = () => setPathname(window.location.pathname);
