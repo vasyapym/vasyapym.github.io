@@ -43,4 +43,5 @@ This is a single-context repo: read root `CONTEXT.md` and `docs/adr/` for domain
 ## Git delivery preferences
 
 - For completed code or documentation changes, automatically run the relevant checks, commit only the task's changes, push the branch, open a pull request targeting `main`, and merge it when checks and repository permissions allow. Do not wait for a separate git instruction.
-- Never include `.DS_Store`, unrelated files, or changes made by another agent. Stop and report failures, conflicts, missing authentication, missing PR tooling, or branch-protection blocks instead of forcing a merge.
+- If pull-request tooling is unavailable but direct Git push works, fast-forward the local `main` branch to the tested branch and push `main` to `origin` instead of stopping solely because the PR tool is missing.
+- Never include `.DS_Store`, unrelated files, or changes made by another agent. Stop and report failures, conflicts, missing authentication, or branch protection instead of forcing a merge.
