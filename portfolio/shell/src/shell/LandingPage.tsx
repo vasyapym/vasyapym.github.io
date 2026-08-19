@@ -10,17 +10,17 @@ export default function LandingPage({ projects, onOpenProject }: LandingPageProp
     <main>
       <section className="hero section-shell" aria-labelledby="hero-title">
         <div className="hero-copy">
-          <p className="eyebrow">LUNA LAB / PERSONAL PORTFOLIO</p>
+          <p className="eyebrow">LUNA LAB / ЛИЧНОЕ ПОРТФОЛИО</p>
           <h1 id="hero-title">
-            Small experiments.
-            <span>Deep modules.</span>
+            Небольшие эксперименты.
+            <span>Глубокие модули.</span>
           </h1>
           <p className="hero-description">
-            A growing collection of useful, curious things. Each project is a
-            self-contained world with its own question, tools, and point of view.
+            Небольшая коллекция полезных и любопытных вещей. Каждый проект — отдельный
+            мир со своим вопросом, инструментами и взглядом на задачу.
           </p>
           <a className="text-link" href="#projects">
-            Explore the work <span aria-hidden="true">↓</span>
+            Смотреть проекты <span aria-hidden="true">↓</span>
           </a>
         </div>
         <div className="hero-orbit" aria-hidden="true">
@@ -28,7 +28,7 @@ export default function LandingPage({ projects, onOpenProject }: LandingPageProp
           <div className="orbit orbit-two" />
           <div className="orbit-core">
             <span>01</span>
-            <small>make / learn / share</small>
+            <small>создавать / изучать / делиться</small>
           </div>
           <span className="orbit-dot orbit-dot-one" />
           <span className="orbit-dot orbit-dot-two" />
@@ -38,11 +38,11 @@ export default function LandingPage({ projects, onOpenProject }: LandingPageProp
       <section className="projects-section section-shell" id="projects" aria-labelledby="projects-title">
         <div className="section-heading">
           <div>
-            <p className="eyebrow">SELECTED PROJECTS</p>
-            <h2 id="projects-title">A few things in motion.</h2>
+            <p className="eyebrow">ИЗБРАННЫЕ ПРОЕКТЫ</p>
+            <h2 id="projects-title">Несколько проектов в работе.</h2>
           </div>
           <p className="section-note">
-            {projects.length.toString().padStart(2, "0")} live module{projects.length === 1 ? "" : "s"}
+            {projects.length.toString().padStart(2, "0")} {moduleLabel(projects.length)}
           </p>
         </div>
 
@@ -58,7 +58,7 @@ export default function LandingPage({ projects, onOpenProject }: LandingPageProp
                 <span>{String(index + 1).padStart(2, "0")}</span>
                 <span className="status-pill">
                   <span className="status-dot" />
-                  {project.status === "available" ? "Available" : "In progress"}
+                  {project.status === "available" ? "Доступен" : "В работе"}
                 </span>
               </span>
               <span className="project-card-art" aria-hidden="true">
@@ -81,8 +81,8 @@ export default function LandingPage({ projects, onOpenProject }: LandingPageProp
       </section>
 
       <footer className="footer section-shell">
-        <span>Luna Lab / built in public</span>
-        <span>More experiments soon</span>
+        <span>Luna Lab / создаётся открыто</span>
+        <span>Скоро новые эксперименты</span>
       </footer>
     </main>
   );
@@ -101,4 +101,17 @@ function TextLensMark() {
 
 function GenericMark() {
   return <span className="generic-mark">+</span>;
+}
+
+function moduleLabel(count: number) {
+  const lastDigit = count % 10;
+  const lastTwoDigits = count % 100;
+
+  if (lastDigit === 1 && lastTwoDigits !== 11) {
+    return "доступный модуль";
+  }
+  if (lastDigit >= 2 && lastDigit <= 4 && (lastTwoDigits < 12 || lastTwoDigits > 14)) {
+    return "доступных модуля";
+  }
+  return "доступных модулей";
 }

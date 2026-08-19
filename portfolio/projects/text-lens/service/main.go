@@ -55,12 +55,12 @@ func analyzeHandler(writer http.ResponseWriter, request *http.Request) {
 	decoder.DisallowUnknownFields()
 
 	if err := decoder.Decode(&payload); err != nil {
-		writeError(writer, http.StatusBadRequest, "request body must be JSON with a text field")
+		writeError(writer, http.StatusBadRequest, "тело запроса должно быть JSON с полем text")
 		return
 	}
 
 	if strings.TrimSpace(payload.Text) == "" {
-		writeError(writer, http.StatusBadRequest, "text must not be empty")
+		writeError(writer, http.StatusBadRequest, "поле text не должно быть пустым")
 		return
 	}
 
