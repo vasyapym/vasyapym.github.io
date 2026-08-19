@@ -12,4 +12,4 @@ go test ./...
 go run .
 ```
 
-The service listens on `http://localhost:8081` by default. Set `PORT` to change the port and `CORS_ORIGIN` to change the allowed development origin.
+The service listens on `http://localhost:8081` by default. Opening that URL shows the service endpoints. The API also exposes `GET /healthz` and `POST /analyze`. Set `PORT` to change the port and `CORS_ORIGIN` to change the allowed development origin.
