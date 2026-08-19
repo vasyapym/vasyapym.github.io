@@ -1,6 +1,6 @@
 # Portfolio redesign — design handoff
 
-**Status:** approved hybrid direction; implementation pass 1 in progress
+**Status:** implementation pass 1 delivered; visual review pending
 **Implementation status:** do not change the UI yet
 **Last updated:** 2026-08-19
 
@@ -49,6 +49,10 @@ Improve the portfolio shell as a curated collection of roughly 4–8 projects. T
 Use Signal Grid as the structural foundation: a calm, content-first two-column grid, equal project weight, clear title/description hierarchy, and a durable information-design system. Add Transmission Deck as the atmospheric layer: restrained technical rails, status markers, project-type signals, layered card surfaces, and playful speculative details. The atmosphere must never make the project content harder to understand.
 
 The first implementation pass should establish the shared shell, English content, typography, card hierarchy, surface tokens, Text Lens electric-blue accent, and responsive/accessibility rules. Motion and richer speculative details follow as a separate pass after the static hierarchy is reviewed.
+
+## Pass 1 outcome
+
+The static hybrid shell is now implemented: the portfolio and Text Lens experience use English copy, Sora headings, a near-monochrome surface system, electric-blue Text Lens accents, content-first project cards, a shared English frame, and responsive accessibility foundations. The Go service and project discovery contracts were left unchanged. Pointer inertia, artwork tilt, and richer transmission details remain intentionally deferred until the visual hierarchy has been reviewed.
 
 ## Open decisions for the next round
 
