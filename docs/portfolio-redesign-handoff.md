@@ -50,6 +50,14 @@ Improve the portfolio shell as a curated collection of roughly 4–8 projects. T
 - What exact accent token mapping should project types use?
 - Which design direction should be approved for the first implementation pass?
 
+## Independent direction A — Signal Grid
+
+**Brainstorm.** This direction treats the portfolio as a quiet research index rather than a landing-page spectacle. The strongest signal is the work itself: a precise title and subtitle establish the premise, then an evenly weighted grid lets each experiment stand on its own. The sci-fi quality comes from the language of signals, systems, and observation, while the visual surface stays calm enough to read. The orbit is not a hero illustration; it becomes a small instrument embedded in each card, with pointer motion revealing depth only when the visitor chooses to engage.
+
+**Design plan.** The page begins with the small `Selected Experiments` wordmark in the upper-left, followed by `Projects for learning by making.` and its direct subtitle. There is no oversized hero object. A two-column desktop grid follows, with title and description carrying the hierarchy and a compact artwork zone acting as the card's signal. The global surface is near-black with one restrained radial glow, cards have a quiet radius, and metadata uses mono. Sora supplies the large geometric headings. Text Lens uses electric blue; future project types receive their accents through a deterministic mapping. The two-line speculative about note sits after the grid, before a minimal footer. The orbit and card artwork can respond to the pointer, but text and layout remain stable.
+
+**Execution plan.** The first implementation pass would simplify the page structure and content hierarchy without changing project discovery or the Go service. The second would replace the current visual tokens, typography, card geometry, and responsive rules with this information-design system. The third would add the orbit inertia and artwork-only tilt behind a reduced-motion guard, then verify keyboard focus, contrast, touch behaviour, and mobile density. No implementation starts until this direction has been compared with an independent alternative and explicitly approved.
+
 ## Process checkpoint
 
 The design tree is settled. Produce two independent visual directions, compare them, and wait for explicit approval before implementation. Keep each implementation pass small and reviewable; record decisions, alternatives, and outcomes in this handoff.
