@@ -1,6 +1,6 @@
 # Portfolio redesign — design handoff
 
-**Status:** active grilling, round 7 complete
+**Status:** design tree settled after round 8
 **Implementation status:** do not change the UI yet
 **Last updated:** 2026-08-19
 
@@ -19,13 +19,14 @@ Improve the portfolio shell as a curated collection of roughly 4–8 projects. T
 - **Reference vocabulary:** product-forward, high-contrast, dark, futuristic without sci-fi decoration, bold display type, restrained accent color, modular surfaces, deliberate negative space, and a clear visual hierarchy. References supplied by the user: you.com, grok.com, and Meta AI websites.
 - **First viewport:** use the title `Projects for learning by making.` with the subtitle `Small systems for testing ideas, learning in public, and seeing what happens next.`, followed by a calm project list rather than a dominant hero illustration or dashboard.
 - **Orbit motif:** keep the current orbit idea, but make it a subtle and repeatable design-system motif instead of the main attraction. It may move with the pointer on capable devices.
-- **Project layout:** give projects equal visual weight in the current grid, while keeping the structure extensible to a curated set of 4–8.
+- **Project layout:** give projects equal visual weight in a two-column desktop grid with a compact artwork zone and content-first hierarchy; collapse to one column on mobile while keeping the full metadata visible.
 - **Card content:** retain the current full metadata set for now: number, status, eyebrow, title, description, technologies, and arrow. Keep all of it visible on mobile as well, with title and description taking visual priority over artwork.
-- **Color:** use a near-monochrome global system; each project gets one fixed accent chosen for its character. Text Lens uses electric blue. Do not use a competing global lime/coral/blue palette.
+- **Color:** use a near-monochrome global system; each project gets one accent selected automatically from its project type. Text Lens uses electric blue. Do not use a competing global lime/coral/blue palette.
 - **Surface language:** use a mixed geometry system: subtly rounded cards with sharper metadata and frame elements. Use a nearly flat dark background with one restrained radial glow.
 - **Author presence:** include a two-line process-oriented about section and a small header/footer signature; place the about section after the projects and before the footer. Use the copy `These experiments are small signals from a larger practice: making things to understand how they work.` with a playful speculative voice. Do not add a full standalone bio or contact block in this pass.
 - **Typography:** use `Sora` for expressive geometric/futuristic display headings and keep mono for metadata.
 - **Motion:** make the orbit follow the pointer with inertia and give only the artwork/orbit inside cards a visible-but-calm 3–4° tilt/parallax response; keep text stable. When reduced motion is requested, remove pointer-driven motion but retain ordinary state transitions.
+- **Quality constraints:** preserve keyboard navigation and visible focus, meet WCAG AA text contrast, keep pointer effects non-essential, avoid fake hover on touch, and make the layout fully usable on mobile.
 - **First scope:** redesign the landing page and shared project frame. Do not change the Go service or analysis behaviour.
 - **Success criteria:** within a few seconds, a visitor understands what the collection is; shortly after, they understand what Text Lens does. The design does not need to optimize for a broader catalogue or dashboard yet.
 - **Frame:** use a minimal back link and project label so each project can remain its own world.
@@ -45,10 +46,10 @@ Improve the portfolio shell as a curated collection of roughly 4–8 projects. T
 
 ## Open decisions for the next round
 
-- How should the full metadata card layout remain calm at 4–8 projects and on mobile?
-- Which accent color should each future project receive?
-- What responsive and accessibility constraints must shape the design from the start?
+- Which two independent visual directions should be carried into comparison?
+- What exact accent token mapping should project types use?
+- Which design direction should be approved for the first implementation pass?
 
 ## Process checkpoint
 
-Continue grilling until the design tree is settled. Then produce two independent design directions, compare them, and wait for explicit approval before implementation. Keep each implementation pass small and reviewable; record decisions, alternatives, and outcomes in this handoff.
+The design tree is settled. Produce two independent visual directions, compare them, and wait for explicit approval before implementation. Keep each implementation pass small and reviewable; record decisions, alternatives, and outcomes in this handoff.
