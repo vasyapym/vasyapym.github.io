@@ -148,7 +148,7 @@ export default function PortfolioPrototype({
     >
       <div className="observation-shell">
         <ObservationHeader variant={variant} />
-        <ObservationWorld project={project} />
+        <ObservationWorld project={project} projects={projects} />
         <TextLensStation comparisonMode={comparisonMode} project={project} />
         <PrototypeFooter comparisonMode={comparisonMode} />
       </div>
@@ -176,7 +176,13 @@ function ObservationHeader({ variant }: { variant: PrototypeVariant }) {
   );
 }
 
-function ObservationWorld({ project }: { project?: ProjectModule }) {
+function ObservationWorld({
+  project,
+  projects,
+}: {
+  project?: ProjectModule;
+  projects: readonly ProjectModule[];
+}) {
   return (
     <section className="observation-world" aria-labelledby="world-title">
       <div className="world-topline">
@@ -195,6 +201,7 @@ function ObservationWorld({ project }: { project?: ProjectModule }) {
       </div>
 
       <AssemblyField project={project} />
+      <ProjectIndex projects={projects} />
 
       <a className="world-enter" href="#text-lens-station">
         Continue to Text Lens <span aria-hidden="true">↓</span>
@@ -383,6 +390,45 @@ function AssemblyField({ project }: { project?: ProjectModule }) {
         Move a part to inspect the object. Scroll to reveal its layers, or use the arrow keys when a part is focused.
       </p>
     </div>
+  );
+}
+
+function ProjectIndex({ projects }: { projects: readonly ProjectModule[] }) {
+  return (
+    <section className="project-index" aria-labelledby="project-index-title">
+      <div className="project-index-heading">
+        <div>
+          <p className="project-index-kicker">Instrument index</p>
+          <h2 id="project-index-title">The collection</h2>
+        </div>
+        <span className="project-index-count">
+          {projects.length} {projects.length === 1 ? "instrument" : "instruments"} / available
+        </span>
+      </div>
+
+      <div className="project-index-list">
+        {projects.map((entry, index) => (
+          <a
+            className="project-index-item"
+            href={`/projects/${entry.id}`}
+            key={entry.id}
+          >
+            <span className="project-index-number" aria-hidden="true">
+              {String(index + 1).padStart(2, "0")}
+            </span>
+            <span className="project-index-copy">
+              <strong>{entry.title}</strong>
+              <span>{entry.eyebrow}</span>
+            </span>
+            <span className="project-index-description">{entry.description}</span>
+            <span className="project-index-status">
+              {entry.status === "available" ? "Open" : "In progress"}
+              <span aria-hidden="true">↗</span>
+            </span>
+          </a>
+        ))}
+      </div>
+    </section>
   );
 }
 
