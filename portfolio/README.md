@@ -13,13 +13,6 @@ cd portfolio/projects/code-layout/service
 go run .
 ```
 
-Start the Text Lens analyzer service when using that project:
-
-```bash
-cd portfolio/projects/text-lens/service
-go run .
-```
-
 In a second terminal, start the React shell:
 
 ```bash
@@ -27,7 +20,7 @@ npm --prefix portfolio install
 npm --prefix portfolio run dev
 ```
 
-Open <http://localhost:5173>. The Assembly field is the main route; Practice Map is available at <http://localhost:5173/projects/practice-map>, and Code Layout is available at <http://localhost:5173/projects/code-layout>. The shell runs on port `5173`; Text Lens uses `8081`, and Code Layout uses `8082`.
+Open <http://localhost:5173>. The Assembly field is the main route; Practice Map is available at <http://localhost:5173/projects/practice-map>, and Code Layout is available at <http://localhost:5173/projects/code-layout>. The shell runs on port `5173`; Code Layout uses `8082`.
 
 ## Structure
 
@@ -36,7 +29,6 @@ portfolio/
 ├── contracts/       shared module interfaces
 ├── projects/        self-contained pet projects
 │   ├── code-layout/ source layout summarizer and Go adapter
-│   ├── practice-map/ local-first technical practice dashboard
-│   └── text-lens/   local text analyzer
+│   └── practice-map/ local-first technical practice dashboard
 └── shell/           React/Vite landing page and project host
 ```

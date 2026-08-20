@@ -3,7 +3,6 @@ import {
   useRef,
   useState,
   type CSSProperties,
-  type FormEvent,
   type KeyboardEvent,
   type PointerEvent,
 } from "react";
@@ -23,13 +22,6 @@ type PortfolioPrototypeProps = {
   comparisonMode?: boolean;
 };
 
-type Analysis = {
-  words: number;
-  characters: number;
-  sentences: number;
-  readingTime: number;
-};
-
 type PartPosition = {
   x: number;
   y: number;
@@ -43,9 +35,6 @@ type DragState = {
   originX: number;
   originY: number;
 };
-
-const SAMPLE_TEXT =
-  "Good tools help us hold complex ideas. Text Lens reveals the shape of a draft and offers a few quiet signals for the next revision.";
 
 function initialPartPositions(parts: readonly PartDefinition[]) {
   return parts.reduce<Record<PartId, PartPosition>>(
@@ -63,7 +52,6 @@ export default function PortfolioPrototype({
   comparisonMode = false,
 }: PortfolioPrototypeProps) {
   const [variant, setVariant] = useState<PrototypeVariant>(initialVariant);
-  const project = projects.find((entry) => entry.id === "text-lens") ?? projects[0];
 
   const selectVariant = (nextVariant: PrototypeVariant) => {
     window.history.replaceState({}, "", `/?prototype=${nextVariant}`);
@@ -80,14 +68,7 @@ export default function PortfolioPrototype({
     <main className={`observation-prototype observation-${variant}`}>
       <div className="observation-shell">
         <ObservationHeader variant={variant} />
-        <ObservationWorld
-          project={project}
-          projects={projects}
-          comparisonMode={comparisonMode}
-        />
-        {comparisonMode && (
-          <TextLensStation comparisonMode={comparisonMode} project={project} />
-        )}
+        <ObservationWorld projects={projects} />
         <PrototypeFooter comparisonMode={comparisonMode} />
       </div>
       {comparisonMode && (
@@ -114,15 +95,7 @@ function ObservationHeader({ variant }: { variant: PrototypeVariant }) {
   );
 }
 
-function ObservationWorld({
-  project,
-  projects,
-  comparisonMode,
-}: {
-  project?: ProjectModule;
-  projects: readonly ProjectModule[];
-  comparisonMode: boolean;
-}) {
+function ObservationWorld({ projects }: { projects: readonly ProjectModule[] }) {
   return (
     <section className="observation-world" aria-labelledby="world-title">
       <div className="world-topline">
@@ -140,16 +113,7 @@ function ObservationWorld({
         </p>
       </div>
 
-      <ProjectInstrumentCollection
-        featuredProject={project}
-        projects={projects}
-        comparisonMode={comparisonMode}
-      />
-      {comparisonMode && (
-        <a className="world-enter" href="#text-lens-station">
-          Continue to Text Lens <span aria-hidden="true">↓</span>
-        </a>
-      )}
+      <ProjectInstrumentCollection projects={projects} />
     </section>
   );
 }
@@ -157,11 +121,9 @@ function ObservationWorld({
 function AssemblyField({
   project,
   index,
-  comparisonMode,
 }: {
   project: ProjectModule;
   index: number;
-  comparisonMode: boolean;
 }) {
   const instrument = getInstrumentModel(project.id);
   const fieldRef = useRef<HTMLDivElement>(null);
@@ -193,11 +155,8 @@ function AssemblyField({
     };
   }, []);
   const instrumentNumber = String(index + 1).padStart(2, "0");
-  const isComparisonStation = comparisonMode && project.id === "text-lens";
-  const projectHref = isComparisonStation
-    ? "#text-lens-station"
-    : `/projects/${project.id}`;
-  const projectLinkLabel = isComparisonStation ? "Open the station" : "Open the project";
+  const projectHref = `/projects/${project.id}`;
+  const projectLinkLabel = "Open the project";
   const fieldStyle = {
     "--assembly-progress": assemblyProgress,
   } as CSSProperties;
@@ -350,9 +309,6 @@ function AssemblyField({
           onPointerMove={handleArtifactPointerMove}
           onPointerLeave={resetArtifactPointer}
         >
-          {instrument.hasBackplate && (
-            <div className="artifact-backplate" aria-hidden="true" />
-          )}
           {instrument.parts.map((part) => {
             const position = partPositions[part.id] ?? { x: 0, y: 0 };
             const partStyle = {
@@ -409,22 +365,7 @@ function AssemblyField({
   );
 }
 
-function ProjectInstrumentCollection({
-  featuredProject,
-  projects,
-  comparisonMode,
-}: {
-  featuredProject?: ProjectModule;
-  projects: readonly ProjectModule[];
-  comparisonMode: boolean;
-}) {
-  const orderedProjects = featuredProject
-    ? [
-        featuredProject,
-        ...projects.filter((project) => project.id !== featuredProject.id),
-      ]
-    : projects;
-
+function ProjectInstrumentCollection({ projects }: { projects: readonly ProjectModule[] }) {
   return (
     <section className="instrument-gallery" aria-labelledby="instrument-gallery-title">
       <div className="instrument-gallery-heading">
@@ -438,12 +379,11 @@ function ProjectInstrumentCollection({
       </div>
 
       <div className="instrument-gallery-list">
-        {orderedProjects.map((project, index) => (
+        {projects.map((project, index) => (
           <AssemblyField
             key={project.id}
             project={project}
             index={index}
-            comparisonMode={comparisonMode}
           />
         ))}
       </div>
@@ -452,17 +392,6 @@ function ProjectInstrumentCollection({
 }
 
 function PartMark({ part }: { part: PartDefinition }) {
-  if (part.mark === "lines") {
-    return (
-      <span className="artifact-sheet-mark" aria-hidden="true">
-        <span />
-        <span />
-        <span />
-        <span />
-      </span>
-    );
-  }
-
   if (part.mark === "nodes") {
     return (
       <span className="artifact-node-mark" aria-hidden="true">
@@ -473,10 +402,6 @@ function PartMark({ part }: { part: PartDefinition }) {
         <i />
       </span>
     );
-  }
-
-  if (part.mark === "frame") {
-    return <span className="artifact-frame-mark" aria-hidden="true" />;
   }
 
   if (part.mark === "branches") {
@@ -536,114 +461,10 @@ function PartMark({ part }: { part: PartDefinition }) {
     );
   }
 
-  return <span className="artifact-spine-mark" aria-hidden="true" />;
-}
-
-function TextLensStation({
-  comparisonMode,
-  project,
-}: {
-  comparisonMode: boolean;
-  project?: ProjectModule;
-}) {
-  const [text, setText] = useState(SAMPLE_TEXT);
-  const [analysis, setAnalysis] = useState<Analysis>(() => analyzeText(SAMPLE_TEXT));
-
-  const runAnalysis = (event: FormEvent<HTMLFormElement>) => {
-    event.preventDefault();
-    setAnalysis(analyzeText(text));
-  };
-
   return (
-    <section
-      className="station-section"
-      id="text-lens-station"
-      aria-labelledby="station-title"
-    >
-      <div className="station-section-heading">
-        <div>
-          <p className="station-kicker">Text Lens / first study</p>
-          <h2 id="station-title">{project?.title ?? "Text Lens"}</h2>
-        </div>
-        <div className="station-description">
-          <p>
-            {project?.description ?? "A small reading instrument for seeing the shape inside a draft."}
-          </p>
-          <ProjectFacts technologies={project?.technologies ?? ["React", "TypeScript", "Go"]} />
-        </div>
-      </div>
-
-      <form className="station-workspace" onSubmit={runAnalysis}>
-        <div className="station-input-panel">
-          <div className="station-panel-heading">
-            <span>Input / draft</span>
-            <span>{comparisonMode ? "Local reading" : "First reading"}</span>
-          </div>
-          <label className="station-input-label" htmlFor="prototype-text-input">
-            Your text
-          </label>
-          <textarea
-            id="prototype-text-input"
-            value={text}
-            onChange={(event) => setText(event.target.value)}
-            rows={8}
-          />
-          <div className="station-input-footer">
-            <span>Try a paragraph, note, or first line.</span>
-            <button className="station-action" type="submit">
-              Read text <span aria-hidden="true">↗</span>
-            </button>
-          </div>
-        </div>
-
-        <div className="station-results-panel" aria-live="polite">
-          <div className="station-panel-heading">
-            <span>Output / first read</span>
-            <span>Measures</span>
-          </div>
-          <p className="station-results-caption">
-            A few quiet measures for seeing what is already there.
-          </p>
-          <div className="station-metrics">
-            <StationMetric label="Words" value={analysis.words} />
-            <StationMetric label="Characters" value={analysis.characters} />
-            <StationMetric label="Sentences" value={analysis.sentences} />
-            <StationMetric label="Reading time" value={`${analysis.readingTime} min`} />
-          </div>
-          <div className="station-reading-mark" aria-hidden="true">
-            <span className="reading-mark-sheet reading-mark-sheet-one">shape</span>
-            <span className="reading-mark-sheet reading-mark-sheet-two">pace</span>
-            <span className="reading-mark-sheet reading-mark-sheet-three">signal</span>
-          </div>
-        </div>
-      </form>
-
-      <div className="station-footer">
-        <span>{comparisonMode ? "Text Lens / local prototype" : "Text Lens / reading instrument"}</span>
-        <a href="/projects/text-lens">
-          Open the full study <span aria-hidden="true">↗</span>
-        </a>
-      </div>
-    </section>
-  );
-}
-
-function StationMetric({ label, value }: { label: string; value: number | string }) {
-  return (
-    <div className="station-metric">
-      <span>{label}</span>
-      <strong>{value}</strong>
-    </div>
-  );
-}
-
-function ProjectFacts({ technologies }: { technologies: readonly string[] }) {
-  return (
-    <p className="station-facts">
-      {technologies.map((technology) => (
-        <span key={technology}>{technology}</span>
-      ))}
-    </p>
+    <span className="artifact-type-mark" aria-hidden="true">
+      {part.markLabel ?? "P / I"}
+    </span>
   );
 }
 
@@ -689,19 +510,6 @@ function PrototypeSwitcher({
       </button>
     </nav>
   );
-}
-
-function analyzeText(text: string): Analysis {
-  const trimmedText = text.trim();
-  const words = trimmedText ? trimmedText.split(/\s+/).length : 0;
-  const sentences = trimmedText ? Math.max(1, (trimmedText.match(/[.!?]+/g) ?? []).length) : 0;
-
-  return {
-    words,
-    characters: text.length,
-    sentences,
-    readingTime: Math.max(1, Math.ceil(words / 200)),
-  };
 }
 
 function clamp(value: number, min: number, max: number) {
