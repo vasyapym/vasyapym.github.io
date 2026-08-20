@@ -1,12 +1,14 @@
 # Portfolio redesign — design handoff
 
-**Status:** concept reset agreed; comparison prototype pending visual review
-**Implementation status:** production UI is frozen until the comparison prototype is reviewed
-**Last updated:** 2026-08-19
+> **Retirement note (2026-08-20):** The former analyzer project described in this historical handoff has been removed from the portfolio. The current collection contains Code Layout and Practice Map; older sections below are retained as design history, not as active implementation guidance.
+
+**Status:** historical handoff; the former analyzer is retired
+**Implementation status:** current landing collection contains Code Layout and Practice Map
+**Last updated:** 2026-08-20
 
 ## Current target
 
-Reconsider the portfolio shell as a curated collection of roughly 4–8 projects presented inside a small observation room/workshop. The first visit should establish an unusual spatial world, then reveal the real projects through scroll and inspection. Text Lens remains the first instrument; this concept reset includes the landing scene, shared frame, and Text Lens station while leaving analysis behavior unchanged.
+Reconsider the portfolio shell as a curated collection of roughly 4–8 projects presented inside a small observation room/workshop. The first visit should establish an unusual spatial world, then reveal the real projects through scroll and inspection. The retired analyzer remains the first instrument; this concept reset includes the landing scene, shared frame, and the retired analyzer station while leaving analysis behavior unchanged.
 
 ## Settled decisions from pass 1
 
@@ -21,14 +23,14 @@ Reconsider the portfolio shell as a curated collection of roughly 4–8 projects
 - **Orbit motif:** keep the current orbit idea, but make it a subtle and repeatable design-system motif instead of the main attraction. It may move with the pointer on capable devices.
 - **Project layout:** give projects equal visual weight in a two-column desktop grid with a compact artwork zone and content-first hierarchy; collapse to one column on mobile while keeping the full metadata visible.
 - **Card content:** retain the current full metadata set for now: number, status, eyebrow, title, description, technologies, and arrow. Keep all of it visible on mobile as well, with title and description taking visual priority over artwork.
-- **Color:** use a near-monochrome global system; each project gets one accent selected automatically from its project type. Text Lens uses electric blue. Do not use a competing global lime/coral/blue palette.
+- **Color:** use a near-monochrome global system; each project gets one accent selected automatically from its project type. The retired analyzer uses electric blue. Do not use a competing global lime/coral/blue palette.
 - **Surface language:** use a mixed geometry system: subtly rounded cards with sharper metadata and frame elements. Use a nearly flat dark background with one restrained radial glow.
 - **Author presence:** include a two-line process-oriented about section and a small header/footer signature; place the about section after the projects and before the footer. Use the copy `These experiments are small signals from a larger practice: making things to understand how they work.` with a playful speculative voice. Do not add a full standalone bio or contact block in this pass.
 - **Typography:** use `Sora` for expressive geometric/futuristic display headings and keep mono for metadata.
 - **Motion:** make the orbit follow the pointer with inertia and give only the artwork/orbit inside cards a visible-but-calm 3–4° tilt/parallax response; keep text stable. When reduced motion is requested, remove pointer-driven motion but retain ordinary state transitions.
 - **Quality constraints:** preserve keyboard navigation and visible focus, meet WCAG AA text contrast, keep pointer effects non-essential, avoid fake hover on touch, and make the layout fully usable on mobile.
 - **First scope:** redesign the landing page and shared project frame. Do not change the Go service or analysis behaviour.
-- **Success criteria:** within a few seconds, a visitor understands what the collection is; shortly after, they understand what Text Lens does. The design does not need to optimize for a broader catalogue or dashboard yet.
+- **Success criteria:** within a few seconds, a visitor understands what the collection is; shortly after, they understand what the retired analyzer does. The design does not need to optimize for a broader catalogue or dashboard yet.
 - **Frame:** use a minimal back link and project label so each project can remain its own world.
 - **Scale assumption:** design for a curated set of 4–8 projects, without filters or catalogue machinery until the collection requires them.
 
@@ -38,7 +40,7 @@ Reconsider the portfolio shell as a curated collection of roughly 4–8 projects
 - A Russian-only interface.
 - A large catalogue, filtering, or dashboard model.
 - A featured-card hierarchy that makes one project permanently more important than the others.
-- A full Text Lens workspace redesign in the first pass.
+- A full workspace redesign for the retired analyzer in the first pass.
 - Full shared navigation or an app-like project switcher.
 - A competing global lime/coral/blue palette.
 - A full standalone bio or contact block.
@@ -48,11 +50,11 @@ Reconsider the portfolio shell as a curated collection of roughly 4–8 projects
 
 Use Signal Grid as the structural foundation: a calm, content-first two-column grid, equal project weight, clear title/description hierarchy, and a durable information-design system. Add Transmission Deck as the atmospheric layer: restrained technical rails, status markers, project-type signals, layered card surfaces, and playful speculative details. The atmosphere must never make the project content harder to understand.
 
-The first implementation pass should establish the shared shell, English content, typography, card hierarchy, surface tokens, Text Lens electric-blue accent, and responsive/accessibility rules. Motion and richer speculative details follow as a separate pass after the static hierarchy is reviewed.
+The first implementation pass should establish the shared shell, English content, typography, card hierarchy, surface tokens, the retired analyzer's electric-blue accent, and responsive/accessibility rules. Motion and richer speculative details follow as a separate pass after the static hierarchy is reviewed.
 
 ## Pass 1 outcome
 
-The static hybrid shell is now implemented: the portfolio and Text Lens experience use English copy, Sora headings, a near-monochrome surface system, electric-blue Text Lens accents, content-first project cards, a shared English frame, and responsive accessibility foundations. The Go service and project discovery contracts were left unchanged. Pointer inertia, artwork tilt, and richer transmission details remain intentionally deferred until the visual hierarchy has been reviewed.
+The static hybrid shell is now implemented: the portfolio and the retired analyzer experience use English copy, Sora headings, a near-monochrome surface system, electric-blue accents for the retired analyzer, content-first project cards, a shared English frame, and responsive accessibility foundations. The Go service and project discovery contracts were left unchanged. Pointer inertia, artwork tilt, and richer transmission details remain intentionally deferred until the visual hierarchy has been reviewed.
 
 ## Open decisions for the next round
 
@@ -64,7 +66,7 @@ The static hybrid shell is now implemented: the portfolio and Text Lens experien
 
 **Brainstorm.** This direction treats the portfolio as a quiet research index rather than a landing-page spectacle. The strongest signal is the work itself: a precise title and subtitle establish the premise, then an evenly weighted grid lets each experiment stand on its own. The sci-fi quality comes from the language of signals, systems, and observation, while the visual surface stays calm enough to read. The orbit is not a hero illustration; it becomes a small instrument embedded in each card, with pointer motion revealing depth only when the visitor chooses to engage.
 
-**Design plan.** The page begins with the small `Selected Experiments` wordmark in the upper-left, followed by `Projects for learning by making.` and its direct subtitle. There is no oversized hero object. A two-column desktop grid follows, with title and description carrying the hierarchy and a compact artwork zone acting as the card's signal. The global surface is near-black with one restrained radial glow, cards have a quiet radius, and metadata uses mono. Sora supplies the large geometric headings. Text Lens uses electric blue; future project types receive their accents through a deterministic mapping. The two-line speculative about note sits after the grid, before a minimal footer. The orbit and card artwork can respond to the pointer, but text and layout remain stable.
+**Design plan.** The page begins with the small `Selected Experiments` wordmark in the upper-left, followed by `Projects for learning by making.` and its direct subtitle. There is no oversized hero object. A two-column desktop grid follows, with title and description carrying the hierarchy and a compact artwork zone acting as the card's signal. The global surface is near-black with one restrained radial glow, cards have a quiet radius, and metadata uses mono. Sora supplies the large geometric headings. The retired analyzer uses electric blue; future project types receive their accents through a deterministic mapping. The two-line speculative about note sits after the grid, before a minimal footer. The orbit and card artwork can respond to the pointer, but text and layout remain stable.
 
 **Execution plan.** The first implementation pass would simplify the page structure and content hierarchy without changing project discovery or the Go service. The second would replace the current visual tokens, typography, card geometry, and responsive rules with this information-design system. The third would add the orbit inertia and artwork-only tilt behind a reduced-motion guard, then verify keyboard focus, contrast, touch behaviour, and mobile density. No implementation starts until this direction has been compared with an independent alternative and explicitly approved.
 
@@ -93,22 +95,22 @@ Pass 1 implementation is now a historical baseline. Its static shell remains run
 - Keep the name `Selected Experiments`.
 - Use `Station`, `Instrument`, `Study`, and `Field` as the limited neutral vocabulary.
 - Build a CSS/DOM-perspective spatial world as the primary direction; compare it against a flatter 2.5D control.
-- Show the ambient world first; Text Lens appears as the first station after scroll rather than as an oversized explanatory hero.
+- Show the ambient world first; the retired analyzer appears as the first station after scroll rather than as an oversized explanatory hero.
 - Let pointer movement make the artifact respond; a click opens the project. Camera behavior remains unresolved until the prototype is seen.
-- Continue the immersive spatial language into project pages; Text Lens contains the full analyzer station with textarea, action, and results.
+- Continue the immersive spatial language into project pages; the retired analyzer contains the full analyzer station with textarea, action, and results.
 - Keep future projects as honest labelled empty slots.
 - Give each real project an interactive artifact and one deliberate oddity in its behavior or output.
 - Use ordinary project titles/descriptions and museum-like captions, with only a few neutral instrument terms around them.
 - Treat typography/spacing, precise copy, artifact fidelity, meaningful interaction, and the spatial world as the quality bar. Collection clarity is intentionally evaluated after the atmospheric pass, but keyboard, mobile, reduced-motion, and 2D fallback remain non-negotiable.
 
-**Prototype brief.** Build two variants on one route with the same Text Lens station and content density:
+**Prototype brief.** Build two variants on one route with the same station for the retired analyzer and content density:
 
 1. **Perspective room (primary):** CSS/DOM perspective, spatial layers, scroll-based movement, ambient field first, and a full 2D/keyboard fallback.
 2. **2.5D field (control):** flatter layered composition with the same station, scroll path, click behavior, and fallback.
 
 The prototype must answer whether spatial depth creates character or merely adds complexity. It is throwaway visual evidence, not a production architecture decision. Do not change the Go service or analysis behavior.
 
-**Next review.** Compare the two variants for spatial character, artifact interaction, typography/copy quality, and whether Text Lens becomes understandable after one scroll. Record the verdict here before implementing the production shell.
+**Next review.** Compare the two variants for spatial character, artifact interaction, typography/copy quality, and whether the retired analyzer becomes understandable after one scroll. Record the verdict here before implementing the production shell.
 
 ## Visual review feedback — round 2
 
@@ -146,7 +148,7 @@ The terminal/control-panel feeling is treated as a symptom of insufficient speci
 
 - What specific visual and material qualities will define the shared scene?
 - What is the minimum 3D interaction grammar shared by all projects?
-- Which project-specific interaction should Text Lens use?
+- Which project-specific interaction should the retired analyzer use?
 - How should an object emerge from the empty field during the first visit?
 
 Do not promote the prototype into production until these questions have been answered and the resulting scene demonstrates restraint, spatial character, and meaningful interaction together.
@@ -157,7 +159,7 @@ The current working direction is now more specific:
 
 - **Material reference:** engineered metal and mechanical detail. Use this as a material and construction language, not as a return to generic control-panel chrome.
 - **Shared landing interaction:** visitors should be able to inspect an object from different angles, drag an object or one of its parts, and scroll to reveal deeper layers. These interactions share one spatial scene rather than requiring a separate world for each project.
-- **Text Lens artifact:** combine sheets or layers of text with an abstract typographic object. The artifact may be enigmatic, but its relationship to text should be discoverable.
+- **the retired analyzer artifact:** combine sheets or layers of text with an abstract typographic object. The artifact may be enigmatic, but its relationship to text should be discoverable.
 - **Object emergence:** the object should assemble from parts, with the project title and short description establishing context before the object settles into its form. The object may adapt to the identity of the project rather than appearing as a generic symbol.
 - **Clarity:** the title and short description should make the project understandable; the artifact itself is allowed to remain partially mysterious and invite inspection.
 
@@ -170,7 +172,7 @@ The next direction should therefore use a small number of engineered, carefully 
 ### Implementation guardrails for the next prototype
 
 - Keep one shared spatial-scene module behind a small interface for camera/scroll and object selection.
-- Keep project-specific artifact behavior behind the project page or artifact interface; do not put Text Lens conditions into the shared scene.
+- Keep project-specific artifact behavior behind the project page or artifact interface; do not put the retired analyzer conditions into the shared scene.
 - Treat pointer inspection, drag manipulation, and scroll layer reveal as distinct interactions with visible state changes.
 - Preserve the existing navigation and project-loading structure while replacing the current generic world surface and pin behavior.
 - Use the existing React/CSS stack first; introduce a new 3D adapter only if the current implementation cannot provide the required interaction fidelity.
@@ -183,9 +185,9 @@ The throwaway prototype now lives in `portfolio/shell/src/prototype/PortfolioPro
 
 - **Assembly field (`room`):** a two-part composition with a perspective metal field, a central artifact, and a project caption beside it.
 - **Typographic field (`field`):** a flatter, more open composition where the artifact occupies the field and the project caption sits over the lower edge.
-- Both variants share the same Text Lens artifact so the comparison isolates spatial composition rather than changing the project.
+- Both variants share the same artifact for the retired analyzer so the comparison isolates spatial composition rather than changing the project.
 - The artifact begins exploded and assembles as the visitor scrolls. Pointer movement tilts it on capable devices; each metal/text part can be dragged, and focused parts can be nudged with arrow keys.
-- Text Lens remains a local visual prototype with the same lightweight sample analysis. The full Go-backed analysis behavior is untouched.
+- The retired analyzer remains a local visual prototype with the same lightweight sample analysis. The full Go-backed analysis behavior is untouched.
 - Reduced motion removes camera and pointer tilt while retaining the object state and keyboard fallback.
 
 **Visual verdict:** pending review. The next decision is whether the engineered material language and restrained assembly interaction create more character than the prior observation-room surface without making the project harder to understand.
@@ -196,11 +198,11 @@ The throwaway prototype now lives in `portfolio/shell/src/prototype/PortfolioPro
 
 - The default `/` route now renders the Assembly field without the comparison switcher or prototype-only footer language.
 - `/?prototype=room` remains available as the explicit comparison route; `/?prototype=field` remains the flatter control.
-- Project pages and the Go-backed full Text Lens study remain on the existing project-frame path.
-- The default landing page keeps the assembly artifact and project index only; the embedded Text Lens station remains available on the explicit comparison routes, while the full analyzer remains at `/projects/text-lens`.
+- Project pages and the Go-backed full study for the retired analyzer remain on the existing project-frame path.
+- The default landing page keeps the assembly artifact and project index only; the embedded station for the retired analyzer remains available on the explicit comparison routes, while the full analyzer remains at the retired analyzer route.
 - The production promotion is limited to the portfolio shell and shared frame; no project discovery or service contract changed.
 
-The next review should verify the default route at `/`, then confirm that the full Text Lens project page is the canonical analyzer experience; the embedded station is comparison-only and does not change the Go service.
+The next review should verify the default route at `/`, then confirm that the full project page for the retired analyzer is the canonical analyzer experience; the embedded station is comparison-only and does not change the Go service.
 
 ## Project-page visual alignment — Code Layout
 
@@ -211,7 +213,7 @@ Code Layout initially used the earlier flat project-page styling even though the
 **Decision:** the spatial field should not read as a full-bleed application surface. Desktop layouts need visible free space on both sides, and the text-writing workspace must remain a deliberately framed, readable object rather than stretching across the viewport.
 
 - Keep the main Assembly field inside a centered shell with generous horizontal gutters.
-- Limit the Text Lens heading, writing workspace, and station footer to a narrower shared measure so the input and output feel like an instrument inside the field, not a page-wide dashboard.
+- Limit the retired analyzer heading, writing workspace, and station footer to a narrower shared measure so the input and output feel like an instrument inside the field, not a page-wide dashboard.
 - Preserve the larger surrounding field and vertical pauses; compactness should come from the width and scale of individual elements, not from removing all negative space.
 - On small screens, allow the shell and workspace to use the available width with a safe mobile gutter; the desktop constraint must not create horizontal scrolling or truncate the writing area.
 - Treat horizontal negative space as a quality gate: no primary text surface or project station should appear edge-to-edge on desktop unless a future project has a specific compositional reason.
@@ -222,25 +224,25 @@ This addition operationalizes the existing principle:
 
 A narrow writing measure is part of the interaction design. It gives text room to breathe, keeps line length readable, and makes the act of writing feel intentional without reducing the analyzer's capability.
 
-## Landing-page simplification — no duplicated Text Lens station
+## Landing-page simplification — no duplicated station for the retired analyzer
 
-**Decision:** the default `/` landing page should not repeat the full Text Lens study block beneath the spatial field. The artifact caption and compact project index establish the collection; the complete writing/analyzer experience belongs on `/projects/text-lens`.
+**Decision:** the default `/` landing page should not repeat the full study for the retired analyzer block beneath the spatial field. The artifact caption and compact project index establish the collection; the complete writing/analyzer experience belongs on the retired analyzer route.
 
-- Do not render the embedded `Text Lens / first study` workspace on the default landing route.
-- Keep the direct links from the artifact and the collection index so Text Lens remains easy to open.
+- Do not render the embedded `the retired analyzer / first study` workspace on the default landing route.
+- Keep the direct links from the artifact and the collection index so the retired analyzer remains easy to open.
 - Preserve the local station on `/?prototype=room` and `/?prototype=field` only as a comparison tool for visual review.
 - Avoid using the same title, description, technology list, and writing surface in multiple consecutive landing-page sections.
 
-This is a reduction in repetition, not a removal of the project. The landing page introduces Text Lens once as an instrument; the project page is where visitors use it.
+That earlier pass reduced repetition; the analyzer has since been retired, so no analyzer station remains on the landing page.
 
 ## Instrument collection — one artifact per project
 
 **Decision:** every discovered project must have one interactive spatial instrument on the landing page, not only a row in the project index.
 
-- The first instrument remains Text Lens and keeps the current assembly interaction: scroll reveals layers, pointer movement changes the view, parts can be dragged, and focused parts respond to arrow keys.
+- The first instrument remains the retired analyzer and keeps the current assembly interaction: scroll reveals layers, pointer movement changes the view, parts can be dragged, and focused parts respond to arrow keys.
 - Additional projects use the same small instrument interface but receive their own artifact definition: parts, center mark, material treatment, and project link.
 - The shared interaction implementation stays behind the `AssemblyField` module; project-specific visual data belongs in an instrument definition rather than in repeated event-handling code.
-- Text Lens is kept first for narrative continuity, even when the catalog sorts projects alphabetically.
+- The retired analyzer is kept first for narrative continuity, even when the catalog sorts projects alphabetically.
 - Each instrument must explain which project it represents and provide a direct path to that project's full page.
 - A new project should receive a generic fallback instrument until its specific artifact definition is designed; adding a project must not require duplicating the spatial interaction implementation.
 
@@ -265,7 +267,7 @@ The quality test is now: **small, tactile, and specific**. If an instrument need
 - Present instruments in a compact two-column gallery on desktop and a single-column gallery on mobile.
 - Remove the separate project index when the instrument cards already provide title, description, status, and project links.
 - Keep each card interactive, but give the model a modest amount of space; the full project page owns the deeper experience.
-- Let Text Lens remain first for narrative continuity, while each later project receives its own model geometry.
+- Let the retired analyzer remain first for narrative continuity, while each later project receives its own model geometry.
 - The collection should feel like one exhibition, not a sequence of independent full-screen rooms.
 
 The page-length quality gate is now structural: the collection layout should scale by grid rows, not by one full spatial field per project.
@@ -274,7 +276,7 @@ The page-length quality gate is now structural: the collection layout should sca
 
 **Decision:** shared interaction mechanics must not produce shared-looking projects. The landing field keeps one restrained spatial grammar, but every discovered project receives a distinct object, material cue, and motion verb that comes from what the project actually does.
 
-- **Text Lens** is a reading folio: pages, a binding spine, and a typographic plate stack into a compact instrument. Its scroll behavior is about bringing a draft's layers together.
+- **Retired analyzer** is a reading folio: pages, a binding spine, and a typographic plate stack into a compact instrument. Its scroll behavior is about bringing a draft's layers together.
 - **Code Layout** is a structure map: declaration nodes, a dependency rail, a source block, and an entry point connect as a small graph. Its scroll behavior is about relationships becoming legible, not pages assembling.
 - **Practice Map** is working terrain: a folded map, contour lines, a route, a waypoint, and a compass unfold into a path. Its scroll behavior is about finding the next direction.
 - The shared `AssemblyField` module owns pointer inspection, drag state, scroll progress, keyboard movement, focus state, and reduced-motion behavior. An instrument definition owns the project-specific parts, marks, materials, labels, and motion verb.

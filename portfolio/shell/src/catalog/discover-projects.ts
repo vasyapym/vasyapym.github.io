@@ -4,6 +4,7 @@ type ProjectEntry = {
   default: ProjectModule;
 };
 
+// The project directory is the single source of truth for the landing collection.
 const entries = import.meta.glob("../../../projects/*/project.ts", {
   eager: true,
 }) as Record<string, ProjectEntry>;

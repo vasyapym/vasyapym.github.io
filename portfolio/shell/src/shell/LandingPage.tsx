@@ -63,7 +63,7 @@ export default function LandingPage({ projects, onOpenProject }: LandingPageProp
               </span>
 
               <span className="project-card-art" aria-hidden="true">
-                {project.id === "text-lens" ? <TextLensMark /> : <GenericMark />}
+                <GenericMark />
               </span>
 
               <span className="project-card-content">
@@ -98,21 +98,6 @@ export default function LandingPage({ projects, onOpenProject }: LandingPageProp
         <span>More signals incoming</span>
       </footer>
     </main>
-  );
-}
-
-function TextLensMark() {
-  return (
-    <span className="text-lens-mark">
-      <span className="mark-line mark-line-one" />
-      <span className="mark-line mark-line-two" />
-      <span className="mark-line mark-line-three" />
-      <span className="mark-signal">
-        <span className="mark-signal-core" />
-      </span>
-      <span className="mark-orbit mark-orbit-one" />
-      <span className="mark-orbit mark-orbit-two" />
-    </span>
   );
 }
 

@@ -90,10 +90,6 @@
 
 .world-topline,
 .world-intro,
-.station-section-heading,
-.station-panel-heading,
-.station-input-footer,
-.station-footer,
 .prototype-footer {
   display: flex;
   justify-content: space-between;
@@ -104,12 +100,6 @@
 .world-coordinate,
 .world-index,
 .world-kicker,
-.station-kicker,
-.station-panel-heading,
-.station-input-label,
-.station-input-footer,
-.station-facts,
-.station-footer,
 .prototype-footer,
 .prototype-switcher,
 .assembly-field-note,
@@ -364,48 +354,6 @@
   transition: transform 220ms cubic-bezier(0.2, 0.8, 0.2, 1);
 }
 
-.artifact-backplate,
-.artifact-backplate::before,
-.artifact-backplate::after {
-  position: absolute;
-  content: "";
-}
-
-.artifact-backplate {
-  top: 50%;
-  left: 50%;
-  width: 276px;
-  height: 192px;
-  border: 1px solid rgba(224, 233, 232, 0.3);
-  background:
-    linear-gradient(145deg, rgba(255, 255, 255, 0.18), transparent 24%),
-    linear-gradient(320deg, #20292d, #101619 62%, #4b585c);
-  box-shadow:
-    0 22px 38px rgba(0, 0, 0, 0.35),
-    inset 0 1px rgba(255, 255, 255, 0.16),
-    inset 0 -18px 28px rgba(0, 0, 0, 0.24);
-  transform: translate3d(-50%, -50%, 0) rotate(-2deg);
-  clip-path: polygon(4% 0, 100% 0, 96% 100%, 0 94%);
-}
-
-.artifact-backplate::before {
-  top: 22%;
-  right: 9%;
-  bottom: 22%;
-  left: 9%;
-  border-top: 1px solid var(--observation-line-soft);
-  border-bottom: 1px solid var(--observation-line-soft);
-}
-
-.artifact-backplate::after {
-  top: 18%;
-  right: 18%;
-  bottom: 18%;
-  left: 18%;
-  border: 1px solid var(--instrument-accent-soft);
-  transform: translateZ(18px) rotate(7deg);
-}
-
 .artifact-part {
   position: absolute;
   top: 50%;
@@ -451,84 +399,6 @@
   transition: none;
 }
 
-.artifact-part-sheet {
-  width: 220px;
-  height: 144px;
-  border: 1px solid #d6dddd;
-  color: #182125;
-  background:
-    linear-gradient(106deg, rgba(255, 255, 255, 0.58), transparent 24%),
-    linear-gradient(165deg, #dae1df, #899496);
-  box-shadow: 9px 13px 0 rgba(9, 13, 15, 0.28), inset 0 1px rgba(255, 255, 255, 0.75);
-}
-
-.artifact-sheet-mark {
-  display: grid;
-  width: 70%;
-  gap: 9px;
-}
-
-.artifact-sheet-mark span {
-  display: block;
-  height: 4px;
-  border-radius: 99px;
-  background: rgba(24, 33, 37, 0.54);
-}
-
-.artifact-sheet-mark span:nth-child(2) {
-  width: 72%;
-  background: rgba(24, 33, 37, 0.28);
-}
-
-.artifact-sheet-mark span:nth-child(3) {
-  width: 88%;
-}
-
-.artifact-sheet-mark span:nth-child(4) {
-  width: 48%;
-  background: rgba(24, 33, 37, 0.28);
-}
-
-.artifact-part-frame {
-  width: 286px;
-  height: 188px;
-  border: 2px solid var(--observation-metal);
-  background: rgba(15, 20, 22, 0.12);
-  box-shadow: inset 0 0 0 7px rgba(61, 72, 77, 0.34), 0 12px 26px rgba(0, 0, 0, 0.3);
-}
-
-.artifact-frame-mark {
-  width: 72%;
-  height: 64%;
-  border: 1px solid var(--instrument-accent-soft);
-}
-
-.artifact-frame-mark::before,
-.artifact-frame-mark::after {
-  display: block;
-  width: 18px;
-  height: 18px;
-  border: 1px solid var(--instrument-accent);
-  content: "";
-}
-
-.artifact-frame-mark::before {
-  margin: -9px 0 0 -9px;
-}
-
-.artifact-frame-mark::after {
-  margin: 42px 0 0 calc(100% - 9px);
-}
-
-.artifact-part-type {
-  width: 158px;
-  height: 78px;
-  border: 1px solid var(--instrument-accent);
-  color: var(--instrument-accent-strong);
-  background: linear-gradient(145deg, #29343a, #111719 70%);
-  box-shadow: 0 13px 24px rgba(0, 0, 0, 0.28), inset 0 1px rgba(255, 255, 255, 0.12);
-}
-
 .artifact-part-generic {
   width: 174px;
   height: 118px;
@@ -542,23 +412,6 @@
   font-family: "Newsreader", Georgia, serif;
   font-size: 2.1rem;
   letter-spacing: -0.08em;
-}
-
-.artifact-part-spine {
-  width: 18px;
-  height: 204px;
-  border: 1px solid var(--observation-metal);
-  background: linear-gradient(90deg, #657276, #d2d8d6 46%, #4b575b);
-  box-shadow: 4px 9px 0 rgba(6, 9, 10, 0.35);
-}
-
-.assembly-field-text-lens {
-  --instrument-accent: #a9c9e6;
-  --instrument-accent-strong: #dceafa;
-  --instrument-accent-soft: rgba(169, 201, 230, 0.16);
-  background:
-    linear-gradient(112deg, rgba(255, 255, 255, 0.04), transparent 28%),
-    var(--observation-bg-deep);
 }
 
 .assembly-field-code-layout {
@@ -898,27 +751,6 @@
   box-shadow: 0 0 0 7px rgba(214, 186, 128, 0.08), inset 0 0 0 12px rgba(214, 186, 128, 0.06);
 }
 
-.instrument-gallery-list .artifact-backplate {
-  border-color: rgba(224, 233, 232, 0.24);
-  background:
-    linear-gradient(145deg, rgba(255, 255, 255, 0.14), transparent 24%),
-    linear-gradient(320deg, #303638, #151a1b 62%, #5b5d58);
-  box-shadow:
-    0 16px 28px rgba(0, 0, 0, 0.28),
-    inset 0 1px rgba(255, 255, 255, 0.14),
-    inset 0 -14px 22px rgba(0, 0, 0, 0.2);
-}
-
-.instrument-gallery-list .artifact-backplate::after {
-  border-color: rgba(224, 233, 232, 0.16);
-}
-
-.artifact-spine-mark {
-  width: 3px;
-  height: 78%;
-  background: rgba(15, 20, 22, 0.5);
-}
-
 .artifact-center-label {
   position: absolute;
   top: 50%;
@@ -950,11 +782,6 @@
 .artifact-center-compass .artifact-center-label {
   border-radius: 50%;
   transform: translate(-50%, -50%) translateZ(74px) rotate(calc(-22deg + (var(--assembly-progress) * 42deg)));
-}
-
-.artifact-center-lens .artifact-center-label {
-  color: var(--instrument-accent-strong);
-  transform: translate(-50%, -50%) translateZ(72px) rotate(-3deg);
 }
 
 .assembly-label {
@@ -989,9 +816,7 @@
   line-height: 1.55;
 }
 
-.assembly-label a,
-.world-enter,
-.station-footer a {
+.assembly-label a {
   display: inline-flex;
   align-items: center;
   gap: 0.6rem;
@@ -1009,9 +834,7 @@
   text-transform: uppercase;
 }
 
-.assembly-label a:hover,
-.world-enter:hover,
-.station-footer a:hover {
+.assembly-label a:hover {
   gap: 0.9rem;
   color: var(--instrument-accent-strong);
 }
@@ -1027,15 +850,6 @@
   color: var(--observation-faint);
   font-size: 0.75rem;
   line-height: 1.5;
-}
-
-.world-enter {
-  align-self: flex-start;
-  margin-top: 2rem;
-  font-family: var(--mono);
-  font-size: 0.65rem;
-  letter-spacing: 0.05em;
-  text-transform: uppercase;
 }
 
 .observation-room .assembly-canvas {
@@ -1089,249 +903,6 @@
 
 .observation-field .assembly-instruction {
   padding-right: 35%;
-}
-
-.station-section {
-  min-height: auto;
-  border-top: 1px solid var(--observation-line);
-  padding: clamp(4rem, 7vw, 6rem) 0 6rem;
-  scroll-margin-top: 1rem;
-}
-
-.station-section-heading {
-  width: min(100%, 980px);
-  align-items: end;
-  margin: 0 auto 2rem;
-}
-
-.station-kicker {
-  margin: 0 0 0.8rem;
-  color: var(--observation-accent);
-}
-
-.station-section h2 {
-  margin: 0;
-  color: var(--observation-ink);
-  font-size: clamp(2.8rem, 5.5vw, 5.4rem);
-  font-weight: 500;
-  letter-spacing: -0.1em;
-  line-height: 0.84;
-}
-
-.station-description {
-  max-width: 370px;
-}
-
-.station-description > p {
-  margin: 0;
-  color: var(--observation-muted);
-  font-size: 0.92rem;
-  line-height: 1.65;
-}
-
-.station-facts {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 0.35rem 0.8rem;
-  margin: 1.25rem 0 0;
-  color: var(--observation-faint);
-}
-
-.station-facts span:not(:last-child)::after {
-  margin-left: 0.8rem;
-  color: var(--observation-accent);
-  content: "/";
-}
-
-.station-workspace {
-  display: grid;
-  width: min(100%, 980px);
-  margin: 0 auto;
-  grid-template-columns: minmax(0, 1.1fr) minmax(320px, 0.9fr);
-  border: 1px solid var(--observation-line);
-  background:
-    linear-gradient(140deg, rgba(255, 255, 255, 0.055), transparent 22%),
-    var(--observation-surface);
-  box-shadow: inset 0 1px rgba(255, 255, 255, 0.08);
-}
-
-.station-input-panel,
-.station-results-panel {
-  min-width: 0;
-  padding: 1.25rem;
-}
-
-.station-input-panel {
-  border-right: 1px solid var(--observation-line);
-}
-
-.station-panel-heading {
-  align-items: baseline;
-  border-bottom: 1px solid var(--observation-line-soft);
-  padding-bottom: 0.9rem;
-  color: var(--observation-faint);
-}
-
-.station-panel-heading span:first-child {
-  color: var(--observation-muted);
-}
-
-.station-input-label {
-  display: block;
-  margin-top: 1.5rem;
-  color: var(--observation-accent);
-}
-
-.station-workspace textarea {
-  display: block;
-  width: 100%;
-  min-height: 200px;
-  resize: vertical;
-  border: 0;
-  padding: 1rem 0 0;
-  color: var(--observation-ink);
-  outline: 0;
-  background: transparent;
-  font-family: "Newsreader", Georgia, serif;
-  font-size: clamp(1.35rem, 2.2vw, 2rem);
-  line-height: 1.08;
-}
-
-.station-workspace textarea::placeholder {
-  color: var(--observation-faint);
-}
-
-.station-input-footer {
-  align-items: center;
-  border-top: 1px solid var(--observation-line-soft);
-  padding-top: 1rem;
-  color: var(--observation-faint);
-  line-height: 1.5;
-}
-
-.station-action {
-  display: inline-flex;
-  align-items: center;
-  gap: 0.6rem;
-  border: 1px solid var(--observation-accent);
-  padding: 0.65rem 0.8rem;
-  color: var(--observation-ink);
-  background: transparent;
-  cursor: pointer;
-  font-family: var(--mono);
-  font-size: 0.65rem;
-  letter-spacing: 0.08em;
-  text-transform: uppercase;
-  transition: color 180ms ease, background 180ms ease;
-}
-
-.station-action:hover {
-  color: var(--observation-bg-deep);
-  background: var(--observation-accent);
-}
-
-.station-results-panel {
-  position: relative;
-  overflow: hidden;
-}
-
-.station-results-caption {
-  max-width: 245px;
-  margin: 1.5rem 0;
-  color: var(--observation-muted);
-  font-family: "Newsreader", Georgia, serif;
-  font-size: 1.55rem;
-  letter-spacing: -0.035em;
-  line-height: 1;
-}
-
-.station-metrics {
-  display: grid;
-  grid-template-columns: repeat(2, minmax(0, 1fr));
-  gap: 1px;
-  border-top: 1px solid var(--observation-line-soft);
-  border-left: 1px solid var(--observation-line-soft);
-}
-
-.station-metric {
-  display: flex;
-  min-height: 104px;
-  flex-direction: column;
-  justify-content: space-between;
-  border-right: 1px solid var(--observation-line-soft);
-  border-bottom: 1px solid var(--observation-line-soft);
-  padding: 0.75rem;
-}
-
-.station-metric span {
-  color: var(--observation-faint);
-  font-family: var(--mono);
-  font-size: 0.58rem;
-  letter-spacing: 0.1em;
-  text-transform: uppercase;
-}
-
-.station-metric strong {
-  color: var(--observation-accent-strong);
-  font-size: 2.3rem;
-  font-weight: 500;
-  letter-spacing: -0.09em;
-}
-
-.station-reading-mark {
-  position: relative;
-  height: 108px;
-  margin-top: 1.5rem;
-  opacity: 0.8;
-}
-
-.reading-mark-sheet {
-  position: absolute;
-  display: grid;
-  width: 112px;
-  height: 46px;
-  place-items: center;
-  border: 1px solid var(--observation-line);
-  color: var(--observation-muted);
-  background: linear-gradient(145deg, rgba(255, 255, 255, 0.08), rgba(255, 255, 255, 0.015));
-  font-family: var(--mono);
-  font-size: 0.58rem;
-  letter-spacing: 0.1em;
-  text-transform: uppercase;
-}
-
-.reading-mark-sheet-one {
-  top: 18px;
-  left: 9%;
-  transform: rotate(-8deg);
-}
-
-.reading-mark-sheet-two {
-  top: 42px;
-  left: 33%;
-  color: var(--observation-accent);
-  transform: rotate(5deg);
-}
-
-.reading-mark-sheet-three {
-  top: 12px;
-  right: 8%;
-  transform: rotate(13deg);
-}
-
-.station-footer {
-  width: min(100%, 980px);
-  align-items: baseline;
-  margin: 1.5rem auto 0;
-  border-top: 1px solid var(--observation-line);
-  padding-top: 1rem;
-  color: var(--observation-faint);
-}
-
-.station-footer a {
-  font-family: var(--mono);
-  font-size: 0.65rem;
-  letter-spacing: 0.04em;
 }
 
 .prototype-footer {
@@ -1467,9 +1038,6 @@
   }
 
   .world-intro,
-  .station-section-heading,
-  .station-input-footer,
-  .station-footer,
   .prototype-footer {
     align-items: flex-start;
     flex-direction: column;
@@ -1479,15 +1047,6 @@
   .world-caption {
     max-width: 480px;
     margin: 0;
-  }
-
-  .station-workspace {
-    grid-template-columns: 1fr;
-  }
-
-  .station-input-panel {
-    border-right: 0;
-    border-bottom: 1px solid var(--observation-line);
   }
 
   .prototype-switcher {
@@ -1555,27 +1114,6 @@
 
   .assembly-label strong {
     font-size: 1.8rem;
-  }
-
-  .station-section {
-    padding-top: 4rem;
-  }
-
-  .station-section h2 {
-    font-size: clamp(2.8rem, 15vw, 4.8rem);
-  }
-
-  .station-input-panel,
-  .station-results-panel {
-    padding: 1rem;
-  }
-
-  .station-input-footer {
-    align-items: flex-start;
-  }
-
-  .station-metrics {
-    grid-template-columns: 1fr;
   }
 }
 

@@ -1,11 +1,8 @@
 export type PartId = string;
 
 export type PartMarkKind =
-  | "lines"
   | "nodes"
-  | "frame"
   | "type"
-  | "spine"
   | "branches"
   | "stack"
   | "route"
@@ -14,7 +11,7 @@ export type PartMarkKind =
   | "compass";
 
 export type InstrumentMotion = "stack" | "network" | "terrain";
-export type InstrumentCenter = "lens" | "graph" | "compass" | "generic";
+export type InstrumentCenter = "graph" | "compass" | "generic";
 
 export type PartDefinition = {
   id: PartId;
@@ -36,67 +33,11 @@ export type InstrumentModel = {
   motion: InstrumentMotion;
   centerLabel: string;
   centerMark: InstrumentCenter;
-  hasBackplate: boolean;
   note: string;
   motionLabel: string;
   instruction: string;
   parts: readonly PartDefinition[];
 };
-
-const TEXT_LENS_PARTS: readonly PartDefinition[] = [
-  {
-    id: "sheet",
-    label: "Text sheet",
-    className: "artifact-part-sheet",
-    anchorX: -12,
-    anchorY: -6,
-    mark: "lines",
-    scatterX: -118,
-    scatterY: -58,
-    scatterZ: 96,
-    baseZ: 14,
-    rotation: -8,
-  },
-  {
-    id: "frame",
-    label: "Metal frame",
-    className: "artifact-part-frame",
-    anchorX: 4,
-    anchorY: -2,
-    mark: "frame",
-    scatterX: 126,
-    scatterY: -38,
-    scatterZ: 54,
-    baseZ: 28,
-    rotation: 7,
-  },
-  {
-    id: "type",
-    label: "Typographic plate",
-    className: "artifact-part-type",
-    anchorX: 18,
-    anchorY: 22,
-    mark: "type",
-    scatterX: 82,
-    scatterY: 88,
-    scatterZ: 122,
-    baseZ: 44,
-    rotation: -3,
-  },
-  {
-    id: "spine",
-    label: "Binding spine",
-    className: "artifact-part-spine",
-    anchorX: -26,
-    anchorY: 12,
-    mark: "spine",
-    scatterX: -132,
-    scatterY: 74,
-    scatterZ: 72,
-    baseZ: 36,
-    rotation: 13,
-  },
-];
 
 const CODE_LAYOUT_PARTS: readonly PartDefinition[] = [
   {
@@ -231,7 +172,6 @@ const DEFAULT_INSTRUMENT_MODEL: InstrumentModel = {
   motion: "stack",
   centerLabel: "P / I",
   centerMark: "generic",
-  hasBackplate: false,
   note: "Project / unfinished instrument",
   motionLabel: "Scroll to settle the object",
   instruction: "Drag the object to inspect it, or use the arrow keys when it is focused.",
@@ -239,23 +179,11 @@ const DEFAULT_INSTRUMENT_MODEL: InstrumentModel = {
 };
 
 const INSTRUMENT_MODELS: Readonly<Record<string, InstrumentModel>> = {
-  "text-lens": {
-    className: "assembly-field-text-lens",
-    motion: "stack",
-    centerLabel: "T / L",
-    centerMark: "lens",
-    hasBackplate: true,
-    note: "Text Lens / reading folio",
-    motionLabel: "Scroll to stack the pages",
-    instruction: "Drag a page or plate to inspect the folio. Scroll to stack its signals, or use the arrow keys when a part is focused.",
-    parts: TEXT_LENS_PARTS,
-  },
   "code-layout": {
     className: "assembly-field-code-layout",
     motion: "network",
     centerLabel: "C / L",
     centerMark: "graph",
-    hasBackplate: false,
     note: "Code Layout / structure map",
     motionLabel: "Scroll to connect the structure",
     instruction: "Drag a node or rail to inspect the structure. Scroll to connect its relationships, or use the arrow keys when a part is focused.",
@@ -266,7 +194,6 @@ const INSTRUMENT_MODELS: Readonly<Record<string, InstrumentModel>> = {
     motion: "terrain",
     centerLabel: "P / M",
     centerMark: "compass",
-    hasBackplate: false,
     note: "Practice Map / working terrain",
     motionLabel: "Scroll to unfold the route",
     instruction: "Drag the route or waypoint to inspect the terrain. Scroll to unfold the next path, or use the arrow keys when a part is focused.",
