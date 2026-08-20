@@ -67,20 +67,3 @@ main -> origin/main
 ```
 
 PAT не понадобился: существующая Git-аутентификация позволила выполнить push. `.DS_Store` не добавлялись. PR не создавался, потому что использовался прямой безопасный merge в `main`.
-
-## Workflow principles
-
-1. **Iterate — don't one-shot.**
-   Quality is built up over passes, not produced whole on the first attempt. Treat every deliverable as improvable and work with that assumption baked in: aim for a solid version, then sharpen it, rather than staking everything on a single perfect output. But iteration is refinement, not reinvention — each pass should build on the last, not discard it and start from zero. When you resume or modify work, orient yourself first: read the git history, the handoff files, and prior notes so you're extending the existing trajectory instead of restarting it.
-
-2. **Simplify before you patch.** *(When the task allows it.)*
-   Before fixing a local issue, look for a way to make the surrounding structure simpler and more consistent, so the fix settles naturally into what's already there. Prefer a change that fits the existing shape over one that bolts on a hack, duplicates logic, or carves out a special case. A fix that leaves the whole cleaner than it found it is worth more than one that only closes the immediate gap.
-
-3. **Think in the open, twice, before you execute.**
-   For any non-trivial task, produce a long, thorough piece of writing in three parts — first a brainstorm, then a design plan, then a plan of execution — in flowing prose, not bulleted fragments. Do not begin the task itself. Stop after the writing and wait until it has been read and you've been told to proceed.
-
-   This matters most in a fresh context: once a path is chosen, the alternatives stop being considered, so the choice deserves deliberate attention up front. Accept that there is a real element of variance in what any single attempt produces — the same prompt can yield very different results from one run to the next. So don't trust a single pass to have found the best route.
-
-   The practice: run the brainstorm / design-plan / execution-plan cycle twice, independently (by independently I mean not in one output and not in a row because it will not be useful if so), and carry both through to two implementations. Then compare them against each other. The premise is that for any given problem there exists one optimal approach; the point of generating and comparing divergent attempts is to close in on it and implement it, rather than settling for the first thing that came out.
-
-4. **Every time you change a file, push and open a pull request using an authentication token.**
