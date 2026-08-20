@@ -232,3 +232,52 @@ A narrow writing measure is part of the interaction design. It gives text room t
 - Avoid using the same title, description, technology list, and writing surface in multiple consecutive landing-page sections.
 
 This is a reduction in repetition, not a removal of the project. The landing page introduces Text Lens once as an instrument; the project page is where visitors use it.
+
+## Instrument collection — one artifact per project
+
+**Decision:** every discovered project must have one interactive spatial instrument on the landing page, not only a row in the project index.
+
+- The first instrument remains Text Lens and keeps the current assembly interaction: scroll reveals layers, pointer movement changes the view, parts can be dragged, and focused parts respond to arrow keys.
+- Additional projects use the same small instrument interface but receive their own artifact definition: parts, center mark, material treatment, and project link.
+- The shared interaction implementation stays behind the `AssemblyField` module; project-specific visual data belongs in an instrument definition rather than in repeated event-handling code.
+- Text Lens is kept first for narrative continuity, even when the catalog sorts projects alphabetically.
+- Each instrument must explain which project it represents and provide a direct path to that project's full page.
+- A new project should receive a generic fallback instrument until its specific artifact definition is designed; adding a project must not require duplicating the spatial interaction implementation.
+
+This is the intended deep-module seam: the collection supplies a project and a small instrument definition, while the shared module owns pointer inspection, drag state, scroll assembly, keyboard movement, focus state, and reduced-motion behavior.
+
+## Visual refinement — smaller, more grounded instruments
+
+**Decision:** the instruments should read as small physical objects in a quiet field, not as futuristic control consoles or large sci-fi set pieces.
+
+- Reduce each instrument's field height and artifact scale so the collection can be scanned without every project becoming a full-screen event.
+- Keep the interaction depth—inspection, assembly, dragging, and keyboard movement—but make the object itself visually modest.
+- Prefer neutral metal, paper, charcoal, and warm off-white material cues. Reserve the blue accent for meaningful focus or project-specific signals rather than using it as ambient glow.
+- Reduce radial glows, luminous borders, oversized labels, and technical grid intensity. Negative space should carry more of the atmosphere.
+- Preserve a clear project title, description, and direct link beside each object; the quieter treatment must not reduce discoverability.
+
+The quality test is now: **small, tactile, and specific**. If an instrument needs a large field, strong glow, or futuristic ornament to feel interesting, its form or interaction is not resolved yet.
+
+## Layout refinement — compact instrument gallery
+
+**Decision:** one artifact per project does not mean one full-height field per project. The landing page should let visitors scan the whole collection with substantially less scrolling.
+
+- Present instruments in a compact two-column gallery on desktop and a single-column gallery on mobile.
+- Remove the separate project index when the instrument cards already provide title, description, status, and project links.
+- Keep each card interactive, but give the model a modest amount of space; the full project page owns the deeper experience.
+- Let Text Lens remain first for narrative continuity, while each later project receives its own model geometry.
+- The collection should feel like one exhibition, not a sequence of independent full-screen rooms.
+
+The page-length quality gate is now structural: the collection layout should scale by grid rows, not by one full spatial field per project.
+
+## Visual revision — individualized project instruments
+
+**Decision:** shared interaction mechanics must not produce shared-looking projects. The landing field keeps one restrained spatial grammar, but every discovered project receives a distinct object, material cue, and motion verb that comes from what the project actually does.
+
+- **Text Lens** is a reading folio: pages, a binding spine, and a typographic plate stack into a compact instrument. Its scroll behavior is about bringing a draft's layers together.
+- **Code Layout** is a structure map: declaration nodes, a dependency rail, a source block, and an entry point connect as a small graph. Its scroll behavior is about relationships becoming legible, not pages assembling.
+- **Practice Map** is working terrain: a folded map, contour lines, a route, a waypoint, and a compass unfold into a path. Its scroll behavior is about finding the next direction.
+- The shared `AssemblyField` module owns pointer inspection, drag state, scroll progress, keyboard movement, focus state, and reduced-motion behavior. An instrument definition owns the project-specific parts, marks, materials, labels, and motion verb.
+- The visual system stays reserved: dark neutral surfaces, quiet shadows, one meaningful accent per instrument, no ornamental glow or lore. The object should clarify the project's character rather than perform 3D for its own sake.
+
+The review gate is now stronger than “each project has an artifact”: at rest, the silhouettes must be recognizably different; during scroll, the state change must have a different meaning; and the title and description must remain the shortest path to understanding the project.

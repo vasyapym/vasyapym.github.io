@@ -8,6 +8,11 @@ import {
   type PointerEvent,
 } from "react";
 import type { ProjectModule } from "../../../contracts/project-module";
+import {
+  getInstrumentModel,
+  type PartDefinition,
+  type PartId,
+} from "./instrument-models";
 import "./prototype.css";
 
 export type PrototypeVariant = "room" | "field";
@@ -25,8 +30,6 @@ type Analysis = {
   readingTime: number;
 };
 
-type PartId = "sheet" | "frame" | "type" | "spine";
-
 type PartPosition = {
   x: number;
   y: number;
@@ -41,70 +44,18 @@ type DragState = {
   originY: number;
 };
 
-type PartDefinition = {
-  id: PartId;
-  label: string;
-  className: string;
-  scatterX: number;
-  scatterY: number;
-  scatterZ: number;
-  baseZ: number;
-  rotation: number;
-};
-
 const SAMPLE_TEXT =
   "Good tools help us hold complex ideas. Text Lens reveals the shape of a draft and offers a few quiet signals for the next revision.";
 
-const PARTS: readonly PartDefinition[] = [
-  {
-    id: "sheet",
-    label: "Text sheet",
-    className: "artifact-part-sheet",
-    scatterX: -118,
-    scatterY: -58,
-    scatterZ: 96,
-    baseZ: 14,
-    rotation: -8,
-  },
-  {
-    id: "frame",
-    label: "Metal frame",
-    className: "artifact-part-frame",
-    scatterX: 126,
-    scatterY: -38,
-    scatterZ: 54,
-    baseZ: 28,
-    rotation: 7,
-  },
-  {
-    id: "type",
-    label: "Typographic plate",
-    className: "artifact-part-type",
-    scatterX: 82,
-    scatterY: 88,
-    scatterZ: 122,
-    baseZ: 44,
-    rotation: -3,
-  },
-  {
-    id: "spine",
-    label: "Binding spine",
-    className: "artifact-part-spine",
-    scatterX: -132,
-    scatterY: 74,
-    scatterZ: 72,
-    baseZ: 36,
-    rotation: 13,
-  },
-];
-
-const INITIAL_PART_POSITIONS = PARTS.reduce<Record<PartId, PartPosition>>(
-  (positions, part) => {
-    positions[part.id] = { x: 0, y: 0 };
-    return positions;
-  },
-  {} as Record<PartId, PartPosition>,
-);
+function initialPartPositions(parts: readonly PartDefinition[]) {
+  return parts.reduce<Record<PartId, PartPosition>>(
+    (positions, part) => {
+      positions[part.id] = { x: 0, y: 0 };
+      return positions;
+    },
+    {} as Record<PartId, PartPosition>,
+  );
+}
 
 export default function PortfolioPrototype({
   projects,
@@ -112,21 +63,7 @@ export default function PortfolioPrototype({
   comparisonMode = false,
 }: PortfolioPrototypeProps) {
   const [variant, setVariant] = useState<PrototypeVariant>(initialVariant);
-  const [scrollProgress, setScrollProgress] = useState(0);
   const project = projects.find((entry) => entry.id === "text-lens") ?? projects[0];
-  const stationHref = comparisonMode ? "#text-lens-station" : "/projects/text-lens";
-  const stationLinkLabel = comparisonMode ? "Open the station" : "Open the full study";
-
-  useEffect(() => {
-    const updateScrollProgress = () => {
-      const travel = Math.max(1, window.innerHeight * 0.78);
-      setScrollProgress(Math.min(1, Math.max(0, window.scrollY / travel)));
-    };
-
-    updateScrollProgress();
-    window.addEventListener("scroll", updateScrollProgress, { passive: true });
-    return () => window.removeEventListener("scroll", updateScrollProgress);
-  }, []);
 
   const selectVariant = (nextVariant: PrototypeVariant) => {
     window.history.replaceState({}, "", `/?prototype=${nextVariant}`);
@@ -139,22 +76,14 @@ export default function PortfolioPrototype({
     window.dispatchEvent(new PopStateEvent("popstate"));
   };
 
-  const pageStyle = {
-    "--assembly-progress": scrollProgress,
-  } as CSSProperties;
-
   return (
-    <main
-      className={`observation-prototype observation-${variant}`}
-      style={pageStyle}
-    >
+    <main className={`observation-prototype observation-${variant}`}>
       <div className="observation-shell">
         <ObservationHeader variant={variant} />
         <ObservationWorld
           project={project}
           projects={projects}
-          stationHref={stationHref}
-          stationLinkLabel={stationLinkLabel}
+          comparisonMode={comparisonMode}
         />
         {comparisonMode && (
           <TextLensStation comparisonMode={comparisonMode} project={project} />
@@ -188,13 +117,11 @@ function ObservationHeader({ variant }: { variant: PrototypeVariant }) {
 function ObservationWorld({
   project,
   projects,
-  stationHref,
-  stationLinkLabel,
+  comparisonMode,
 }: {
   project?: ProjectModule;
   projects: readonly ProjectModule[];
-  stationHref: string;
-  stationLinkLabel: string;
+  comparisonMode: boolean;
 }) {
   return (
     <section className="observation-world" aria-labelledby="world-title">
@@ -209,34 +136,71 @@ function ObservationWorld({
           <h1 id="world-title">A field of unfinished instruments.</h1>
         </div>
         <p className="world-caption">
-          Small tools for learning by making. Scroll to assemble the first one, then move closer.
+          Small tools for learning by making. Each object opens differently: read, connect, or find a way through.
         </p>
       </div>
 
-      <AssemblyField
-        project={project}
-        stationHref={stationHref}
-        stationLinkLabel={stationLinkLabel}
+      <ProjectInstrumentCollection
+        featuredProject={project}
+        projects={projects}
+        comparisonMode={comparisonMode}
       />
-      <ProjectIndex projects={projects} />
-
-      <a className="world-enter" href={stationHref}>
-        Continue to Text Lens <span aria-hidden="true">↓</span>
-      </a>
+      {comparisonMode && (
+        <a className="world-enter" href="#text-lens-station">
+          Continue to Text Lens <span aria-hidden="true">↓</span>
+        </a>
+      )}
     </section>
   );
 }
 
 function AssemblyField({
   project,
-  stationHref,
-  stationLinkLabel,
+  index,
+  comparisonMode,
 }: {
-  project?: ProjectModule;
-  stationHref: string;
-  stationLinkLabel: string;
+  project: ProjectModule;
+  index: number;
+  comparisonMode: boolean;
 }) {
-  const [partPositions, setPartPositions] = useState(INITIAL_PART_POSITIONS);
+  const instrument = getInstrumentModel(project.id);
+  const fieldRef = useRef<HTMLDivElement>(null);
+  const [assemblyProgress, setAssemblyProgress] = useState(0);
+  const [partPositions, setPartPositions] = useState(() =>
+    initialPartPositions(instrument.parts),
+  );
+
+  useEffect(() => {
+    const updateAssemblyProgress = () => {
+      if (!fieldRef.current) {
+        return;
+      }
+
+      const bounds = fieldRef.current.getBoundingClientRect();
+      const revealStart = window.innerHeight * 0.35;
+      const revealDistance = Math.max(1, bounds.height * 0.85);
+      setAssemblyProgress(
+        clamp((revealStart - bounds.top) / revealDistance, 0, 1),
+      );
+    };
+
+    updateAssemblyProgress();
+    window.addEventListener("scroll", updateAssemblyProgress, { passive: true });
+    window.addEventListener("resize", updateAssemblyProgress);
+    return () => {
+      window.removeEventListener("scroll", updateAssemblyProgress);
+      window.removeEventListener("resize", updateAssemblyProgress);
+    };
+  }, []);
+  const instrumentNumber = String(index + 1).padStart(2, "0");
+  const isComparisonStation = comparisonMode && project.id === "text-lens";
+  const projectHref = isComparisonStation
+    ? "#text-lens-station"
+    : `/projects/${project.id}`;
+  const projectLinkLabel = isComparisonStation ? "Open the station" : "Open the project";
+  const fieldStyle = {
+    "--assembly-progress": assemblyProgress,
+  } as CSSProperties;
   const [activePart, setActivePart] = useState<PartId | null>(null);
   const [draggingPart, setDraggingPart] = useState<PartId | null>(null);
   const dragRef = useRef<DragState | null>(null);
@@ -250,13 +214,31 @@ function AssemblyField({
     const bounds = artifactRef.current.getBoundingClientRect();
     const x = ((event.clientX - bounds.left) / bounds.width - 0.5) * 10;
     const y = ((event.clientY - bounds.top) / bounds.height - 0.5) * -10;
-    artifactRef.current.style.setProperty("--artifact-tilt-x", `${x}deg`);
-    artifactRef.current.style.setProperty("--artifact-tilt-y", `${y}deg`);
+    const artifactStyle = artifactRef.current.style;
+
+    artifactStyle.setProperty("--artifact-tilt-x", `${x}deg`);
+    artifactStyle.setProperty("--artifact-tilt-y", `${y}deg`);
+
+    if (instrument.motion === "network") {
+      artifactStyle.setProperty("--artifact-shift-x", `${x * 1.4}px`);
+      artifactStyle.setProperty("--artifact-shift-y", `${y * 0.6}px`);
+      artifactStyle.setProperty("--artifact-roll", `${x * 0.35}deg`);
+    }
+
+    if (instrument.motion === "terrain") {
+      artifactStyle.setProperty("--artifact-shift-x", `${x * 0.45}px`);
+      artifactStyle.setProperty("--artifact-shift-y", `${y * 0.45}px`);
+      artifactStyle.setProperty("--artifact-roll", `${x * 0.7}deg`);
+    }
   };
 
   const resetArtifactPointer = () => {
-    artifactRef.current?.style.setProperty("--artifact-tilt-x", "0deg");
-    artifactRef.current?.style.setProperty("--artifact-tilt-y", "0deg");
+    const artifactStyle = artifactRef.current?.style;
+    artifactStyle?.setProperty("--artifact-tilt-x", "0deg");
+    artifactStyle?.setProperty("--artifact-tilt-y", "0deg");
+    artifactStyle?.setProperty("--artifact-shift-x", "0px");
+    artifactStyle?.setProperty("--artifact-shift-y", "0px");
+    artifactStyle?.setProperty("--artifact-roll", "0deg");
   };
 
   const handlePartPointerDown = (
@@ -269,7 +251,7 @@ function AssemblyField({
 
     event.preventDefault();
     event.stopPropagation();
-    const origin = partPositions[id];
+    const origin = partPositions[id] ?? { x: 0, y: 0 };
     dragRef.current = {
       id,
       pointerId: event.pointerId,
@@ -320,8 +302,8 @@ function AssemblyField({
     setPartPositions((current) => ({
       ...current,
       [id]: {
-        x: clamp(current[id].x + x, -132, 132),
-        y: clamp(current[id].y + y, -104, 104),
+        x: clamp((current[id]?.x ?? 0) + x, -132, 132),
+        y: clamp((current[id]?.y ?? 0) + y, -104, 104),
       },
     }));
   };
@@ -347,28 +329,37 @@ function AssemblyField({
   };
 
   return (
-    <div className="assembly-field" aria-describedby="assembly-instructions">
+    <div
+      ref={fieldRef}
+      className={`assembly-field ${instrument.className} assembly-motion-${instrument.motion}`}
+      style={fieldStyle}
+      aria-describedby={`assembly-instructions-${project.id}`}
+    >
       <div className="assembly-field-note" aria-hidden="true">
-        <span>Text Lens / first instrument</span>
-        <span>Scroll to assemble</span>
+        <span>{instrument.note}</span>
+        <span>{instrument.motionLabel}</span>
       </div>
 
       <div className="assembly-canvas">
         <div className="assembly-shadow" aria-hidden="true" />
         <div
           ref={artifactRef}
-          className="assembly-artifact"
+          className={`assembly-artifact artifact-center-${instrument.centerMark}`}
           role="group"
-          aria-label="Interactive Text Lens artifact"
+          aria-label={`Interactive ${project.title} artifact`}
           onPointerMove={handleArtifactPointerMove}
           onPointerLeave={resetArtifactPointer}
         >
-          <div className="artifact-backplate" aria-hidden="true" />
-          {PARTS.map((part) => {
-            const position = partPositions[part.id];
+          {instrument.hasBackplate && (
+            <div className="artifact-backplate" aria-hidden="true" />
+          )}
+          {instrument.parts.map((part) => {
+            const position = partPositions[part.id] ?? { x: 0, y: 0 };
             const partStyle = {
               "--part-x": `${position.x}px`,
               "--part-y": `${position.y}px`,
+              "--anchor-x": `${part.anchorX}px`,
+              "--anchor-y": `${part.anchorY}px`,
               "--scatter-x": `${part.scatterX}px`,
               "--scatter-y": `${part.scatterY}px`,
               "--scatter-z": `${part.scatterZ}px`,
@@ -390,75 +381,78 @@ function AssemblyField({
                 onPointerMove={(event) => handlePartPointerMove(event, part.id)}
                 onPointerUp={(event) => handlePartPointerUp(event, part.id)}
               >
-                <PartMark id={part.id} />
+                <PartMark part={part} />
               </button>
             );
           })}
           <span className="artifact-center-label" aria-hidden="true">
-            T / L
+            {instrument.centerLabel}
           </span>
         </div>
       </div>
 
       <div className="assembly-label">
-        <span className="assembly-label-kicker">First instrument</span>
-        <strong>{project?.title ?? "Text Lens"}</strong>
-        <span>
-          {project?.description ?? "A small reading instrument for seeing the shape inside a draft."}
+        <span className="assembly-label-kicker">
+          {index === 0 ? "First instrument" : `Instrument ${instrumentNumber}`}
         </span>
-        <a href={stationHref}>
-          {stationLinkLabel} <span aria-hidden="true">↗</span>
+        <strong>{project.title}</strong>
+        <span>{project.description}</span>
+        <a href={projectHref}>
+          {projectLinkLabel} <span aria-hidden="true">↗</span>
         </a>
       </div>
 
-      <p className="assembly-instruction" id="assembly-instructions">
-        Move a part to inspect the object. Scroll to reveal its layers, or use the arrow keys when a part is focused.
+      <p className="assembly-instruction" id={`assembly-instructions-${project.id}`}>
+        {instrument.instruction}
       </p>
     </div>
   );
 }
 
-function ProjectIndex({ projects }: { projects: readonly ProjectModule[] }) {
+function ProjectInstrumentCollection({
+  featuredProject,
+  projects,
+  comparisonMode,
+}: {
+  featuredProject?: ProjectModule;
+  projects: readonly ProjectModule[];
+  comparisonMode: boolean;
+}) {
+  const orderedProjects = featuredProject
+    ? [
+        featuredProject,
+        ...projects.filter((project) => project.id !== featuredProject.id),
+      ]
+    : projects;
+
   return (
-    <section className="project-index" aria-labelledby="project-index-title">
-      <div className="project-index-heading">
+    <section className="instrument-gallery" aria-labelledby="instrument-gallery-title">
+      <div className="instrument-gallery-heading">
         <div>
-          <p className="project-index-kicker">Instrument index</p>
-          <h2 id="project-index-title">The collection</h2>
+          <p className="instrument-gallery-kicker">Instrument collection</p>
+          <h2 id="instrument-gallery-title">The collection</h2>
         </div>
-        <span className="project-index-count">
-          {projects.length} {projects.length === 1 ? "instrument" : "instruments"} / available
+        <span className="instrument-gallery-count">
+          {projects.length} {projects.length === 1 ? "instrument" : "instruments"}
         </span>
       </div>
 
-      <div className="project-index-list">
-        {projects.map((entry, index) => (
-          <a
-            className="project-index-item"
-            href={`/projects/${entry.id}`}
-            key={entry.id}
-          >
-            <span className="project-index-number" aria-hidden="true">
-              {String(index + 1).padStart(2, "0")}
-            </span>
-            <span className="project-index-copy">
-              <strong>{entry.title}</strong>
-              <span>{entry.eyebrow}</span>
-            </span>
-            <span className="project-index-description">{entry.description}</span>
-            <span className="project-index-status">
-              {entry.status === "available" ? "Open" : "In progress"}
-              <span aria-hidden="true">↗</span>
-            </span>
-          </a>
+      <div className="instrument-gallery-list">
+        {orderedProjects.map((project, index) => (
+          <AssemblyField
+            key={project.id}
+            project={project}
+            index={index}
+            comparisonMode={comparisonMode}
+          />
         ))}
       </div>
     </section>
   );
 }
 
-function PartMark({ id }: { id: PartId }) {
-  if (id === "sheet") {
+function PartMark({ part }: { part: PartDefinition }) {
+  if (part.mark === "lines") {
     return (
       <span className="artifact-sheet-mark" aria-hidden="true">
         <span />
@@ -469,14 +463,75 @@ function PartMark({ id }: { id: PartId }) {
     );
   }
 
-  if (id === "frame") {
+  if (part.mark === "nodes") {
+    return (
+      <span className="artifact-node-mark" aria-hidden="true">
+        <i />
+        <i />
+        <i />
+        <i />
+        <i />
+      </span>
+    );
+  }
+
+  if (part.mark === "frame") {
     return <span className="artifact-frame-mark" aria-hidden="true" />;
   }
 
-  if (id === "type") {
+  if (part.mark === "branches") {
+    return (
+      <span className="artifact-branch-mark" aria-hidden="true">
+        <i />
+        <i />
+        <i />
+      </span>
+    );
+  }
+
+  if (part.mark === "stack") {
+    return (
+      <span className="artifact-stack-mark" aria-hidden="true">
+        <i />
+        <i />
+        <i />
+        <i />
+      </span>
+    );
+  }
+
+  if (part.mark === "route") {
+    return (
+      <span className="artifact-route-mark" aria-hidden="true">
+        <i />
+        <i />
+        <i />
+      </span>
+    );
+  }
+
+  if (part.mark === "pin") {
+    return <span className="artifact-pin-mark" aria-hidden="true" />;
+  }
+
+  if (part.mark === "contours") {
+    return (
+      <span className="artifact-contour-mark" aria-hidden="true">
+        <i />
+        <i />
+        <i />
+      </span>
+    );
+  }
+
+  if (part.mark === "compass") {
+    return <span className="artifact-compass-mark" aria-hidden="true" />;
+  }
+
+  if (part.mark === "type") {
     return (
       <span className="artifact-type-mark" aria-hidden="true">
-        T / L
+        {part.markLabel ?? "T / L"}
       </span>
     );
   }

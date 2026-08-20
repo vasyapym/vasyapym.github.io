@@ -12,14 +12,17 @@
   --observation-faint: #6d797c;
   --observation-line: rgba(224, 233, 232, 0.2);
   --observation-line-soft: rgba(224, 233, 232, 0.1);
-  --observation-accent: #9fc9ff;
-  --observation-accent-strong: #d2e5ff;
-  --observation-accent-soft: rgba(159, 201, 255, 0.18);
+  --observation-accent: #c8b99f;
+  --observation-accent-strong: #f0e5d3;
+  --observation-accent-soft: rgba(200, 185, 159, 0.16);
+  --instrument-accent: var(--observation-accent);
+  --instrument-accent-strong: var(--observation-accent-strong);
+  --instrument-accent-soft: var(--observation-accent-soft);
   --assembly-progress: 0;
   min-height: 100vh;
   color: var(--observation-ink);
   background:
-    radial-gradient(circle at 50% -8%, rgba(159, 201, 255, 0.1), transparent 32rem),
+    radial-gradient(circle at 50% -8%, rgba(200, 185, 159, 0.045), transparent 32rem),
     linear-gradient(180deg, var(--observation-bg), var(--observation-bg-deep));
   font-family: "Space Grotesk", ui-sans-serif, system-ui, sans-serif;
   font-synthesis: none;
@@ -169,10 +172,109 @@
   overflow: hidden;
   border-top: 1px solid var(--observation-line);
   border-bottom: 1px solid var(--observation-line);
+  --instrument-accent: #c5b89e;
+  --instrument-accent-strong: #eadfcd;
+  --instrument-accent-soft: rgba(197, 184, 158, 0.14);
   background:
     linear-gradient(112deg, rgba(255, 255, 255, 0.035), transparent 26%),
-    radial-gradient(circle at 52% 52%, rgba(159, 201, 255, 0.08), transparent 25rem),
     var(--observation-bg-deep);
+}
+
+.instrument-gallery {
+  margin-top: clamp(3rem, 6vw, 5rem);
+}
+
+.instrument-gallery-heading {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 2rem;
+  margin-bottom: 1.5rem;
+}
+
+.instrument-gallery-kicker {
+  margin: 0 0 0.65rem;
+  color: var(--observation-muted);
+  font-family: var(--mono);
+  font-size: 0.62rem;
+  letter-spacing: 0.09em;
+  text-transform: uppercase;
+}
+
+.instrument-gallery-heading h2 {
+  margin: 0;
+  color: var(--observation-ink);
+  font-size: clamp(2rem, 4vw, 3.5rem);
+  font-weight: 500;
+  letter-spacing: -0.08em;
+  line-height: 0.9;
+}
+
+.instrument-gallery-count {
+  color: var(--observation-faint);
+  font-family: var(--mono);
+  font-size: 0.62rem;
+  letter-spacing: 0.09em;
+  text-transform: uppercase;
+}
+
+.instrument-gallery-list {
+  --instrument-accent: #c5b89e;
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: clamp(1.25rem, 3vw, 2.5rem);
+}
+
+.instrument-gallery-list .assembly-field {
+  min-height: clamp(300px, 32vw, 380px);
+  grid-template-columns: minmax(0, 1fr) minmax(145px, 0.42fr);
+  grid-template-rows: auto minmax(205px, 1fr) auto;
+  margin-top: 0;
+  background:
+    linear-gradient(135deg, rgba(255, 255, 255, 0.028), transparent 32%),
+    #121719;
+}
+
+.instrument-gallery-list .assembly-field::before,
+.instrument-gallery-list .assembly-field::after {
+  opacity: 0.45;
+}
+
+.instrument-gallery-list .assembly-canvas {
+  min-height: 205px;
+}
+
+.instrument-gallery-list .assembly-artifact {
+  scale: 0.74;
+}
+
+.instrument-gallery-list .assembly-shadow {
+  opacity: 0.2;
+  transform: translate3d(0, 86px, 0) rotate(-4deg) scale(0.7);
+}
+
+.instrument-gallery-list .assembly-label {
+  gap: 0.45rem;
+  padding: 0.9rem 0.95rem;
+}
+
+.instrument-gallery-list .assembly-label strong {
+  font-size: 1.35rem;
+}
+
+.instrument-gallery-list .assembly-label-kicker,
+.instrument-gallery-list .assembly-field-note span:first-child,
+.instrument-gallery-list .artifact-center-label {
+  color: var(--instrument-accent);
+}
+
+.instrument-gallery-list .assembly-label a {
+  color: var(--observation-ink);
+}
+
+.instrument-gallery-list .artifact-part.is-active {
+  border-color: var(--instrument-accent) !important;
+  box-shadow: 0 0 0 3px var(--instrument-accent-soft), 0 14px 24px rgba(0, 0, 0, 0.24);
 }
 
 .assembly-field::before,
@@ -254,7 +356,10 @@
   z-index: 2;
   width: 360px;
   height: 280px;
-  transform: rotateX(var(--artifact-tilt-y, 0deg)) rotateY(var(--artifact-tilt-x, 0deg));
+  transform: translate3d(var(--artifact-shift-x, 0px), var(--artifact-shift-y, 0px), 0)
+    rotateX(var(--artifact-tilt-y, 0deg))
+    rotateY(var(--artifact-tilt-x, 0deg))
+    rotateZ(var(--artifact-roll, 0deg));
   transform-style: preserve-3d;
   transition: transform 220ms cubic-bezier(0.2, 0.8, 0.2, 1);
 }
@@ -297,7 +402,7 @@
   right: 18%;
   bottom: 18%;
   left: 18%;
-  border: 1px solid rgba(159, 201, 255, 0.22);
+  border: 1px solid var(--instrument-accent-soft);
   transform: translateZ(18px) rotate(7deg);
 }
 
@@ -307,14 +412,16 @@
   left: 50%;
   display: grid;
   place-items: center;
+  border: 0;
   padding: 0;
+  background: transparent;
   cursor: grab;
   user-select: none;
   touch-action: none;
   transform:
     translate3d(
-      calc(-50% + var(--part-x) + (var(--scatter-x) * (1 - var(--assembly-progress)))),
-      calc(-50% + var(--part-y) + (var(--scatter-y) * (1 - var(--assembly-progress)))),
+      calc(-50% + var(--part-x) + var(--anchor-x) + (var(--scatter-x) * (1 - var(--assembly-progress)))),
+      calc(-50% + var(--part-y) + var(--anchor-y) + (var(--scatter-y) * (1 - var(--assembly-progress)))),
       calc(var(--base-z) + (var(--scatter-z) * (1 - var(--assembly-progress))))
     )
     rotate(var(--part-rotation));
@@ -334,8 +441,8 @@
 }
 
 .artifact-part.is-active {
-  border-color: var(--observation-accent) !important;
-  box-shadow: 0 0 0 5px var(--observation-accent-soft), 0 18px 30px rgba(0, 0, 0, 0.3);
+  border-color: var(--instrument-accent) !important;
+  box-shadow: 0 0 0 5px var(--instrument-accent-soft), 0 18px 30px rgba(0, 0, 0, 0.3);
 }
 
 .artifact-part.is-dragging {
@@ -393,7 +500,7 @@
 .artifact-frame-mark {
   width: 72%;
   height: 64%;
-  border: 1px solid rgba(159, 201, 255, 0.52);
+  border: 1px solid var(--instrument-accent-soft);
 }
 
 .artifact-frame-mark::before,
@@ -401,7 +508,7 @@
   display: block;
   width: 18px;
   height: 18px;
-  border: 1px solid var(--observation-accent);
+  border: 1px solid var(--instrument-accent);
   content: "";
 }
 
@@ -416,10 +523,19 @@
 .artifact-part-type {
   width: 158px;
   height: 78px;
-  border: 1px solid var(--observation-accent);
-  color: var(--observation-accent-strong);
+  border: 1px solid var(--instrument-accent);
+  color: var(--instrument-accent-strong);
   background: linear-gradient(145deg, #29343a, #111719 70%);
   box-shadow: 0 13px 24px rgba(0, 0, 0, 0.28), inset 0 1px rgba(255, 255, 255, 0.12);
+}
+
+.artifact-part-generic {
+  width: 174px;
+  height: 118px;
+  border: 1px solid var(--instrument-accent);
+  color: var(--instrument-accent-strong);
+  background: linear-gradient(145deg, #333b3b, #171c1d 72%);
+  box-shadow: 8px 11px 0 rgba(0, 0, 0, 0.24), inset 0 1px rgba(255, 255, 255, 0.12);
 }
 
 .artifact-type-mark {
@@ -436,6 +552,367 @@
   box-shadow: 4px 9px 0 rgba(6, 9, 10, 0.35);
 }
 
+.assembly-field-text-lens {
+  --instrument-accent: #a9c9e6;
+  --instrument-accent-strong: #dceafa;
+  --instrument-accent-soft: rgba(169, 201, 230, 0.16);
+  background:
+    linear-gradient(112deg, rgba(255, 255, 255, 0.04), transparent 28%),
+    var(--observation-bg-deep);
+}
+
+.assembly-field-code-layout {
+  --instrument-accent: #b9c2bf;
+  --instrument-accent-strong: #e6ebe7;
+  --instrument-accent-soft: rgba(185, 194, 191, 0.16);
+  background:
+    linear-gradient(112deg, rgba(216, 222, 218, 0.055), transparent 30%),
+    #0b1011;
+}
+
+.assembly-field-practice-map {
+  --instrument-accent: #c8a772;
+  --instrument-accent-strong: #ead8b7;
+  --instrument-accent-soft: rgba(200, 167, 114, 0.16);
+  background:
+    linear-gradient(135deg, rgba(200, 167, 114, 0.055), transparent 32%),
+    #111313;
+}
+
+.assembly-motion-network .artifact-part {
+  transform:
+    translate3d(
+      calc(-50% + var(--part-x) + var(--anchor-x) + (var(--scatter-x) * (1 - var(--assembly-progress)))),
+      calc(-50% + var(--part-y) + var(--anchor-y) + (var(--scatter-y) * (1 - var(--assembly-progress)))),
+      calc(var(--base-z) + (var(--scatter-z) * (1 - var(--assembly-progress)) * 0.62))
+    )
+    rotate(calc(var(--part-rotation) + (var(--assembly-progress) * 5deg)))
+    scale(calc(0.88 + (var(--assembly-progress) * 0.12)));
+}
+
+.assembly-motion-terrain .artifact-part {
+  transform:
+    translate3d(
+      calc(-50% + var(--part-x) + var(--anchor-x) + (var(--scatter-x) * (1 - var(--assembly-progress)))),
+      calc(-50% + var(--part-y) + var(--anchor-y) + (var(--scatter-y) * (1 - var(--assembly-progress)) * 0.72)),
+      calc(var(--base-z) + (var(--scatter-z) * (1 - var(--assembly-progress)) * 0.72))
+    )
+    rotate(calc(var(--part-rotation) + ((1 - var(--assembly-progress)) * 9deg)))
+    scale(calc(0.92 + (var(--assembly-progress) * 0.08)));
+}
+
+.artifact-part-code-nodes {
+  width: 154px;
+  height: 116px;
+  border: 0;
+  background: transparent;
+}
+
+.artifact-part-code-rail {
+  width: 246px;
+  height: 20px;
+  border: 1px solid var(--instrument-accent);
+  background: linear-gradient(90deg, rgba(185, 194, 191, 0.18), rgba(185, 194, 191, 0.02));
+  box-shadow: 0 8px 14px rgba(0, 0, 0, 0.2);
+}
+
+.artifact-part-code-source {
+  width: 178px;
+  height: 122px;
+  border: 1px solid rgba(185, 194, 191, 0.62);
+  border-left: 5px solid var(--instrument-accent);
+  background:
+    linear-gradient(145deg, rgba(255, 255, 255, 0.08), transparent 40%),
+    #1a2020;
+  box-shadow: 8px 10px 0 rgba(0, 0, 0, 0.24), inset 0 1px rgba(255, 255, 255, 0.1);
+}
+
+.artifact-part-code-entry {
+  width: 82px;
+  height: 82px;
+  border: 1px solid var(--instrument-accent);
+  border-radius: 50%;
+  color: var(--instrument-accent-strong);
+  background: #1a2020;
+  box-shadow: inset 0 0 0 7px rgba(185, 194, 191, 0.08), 0 12px 22px rgba(0, 0, 0, 0.25);
+}
+
+.artifact-node-mark {
+  display: grid;
+  width: 78%;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 16px 20px;
+  transform: rotate(-8deg);
+}
+
+.artifact-node-mark i {
+  display: block;
+  width: 12px;
+  height: 12px;
+  border: 1px solid var(--instrument-accent);
+  border-radius: 50%;
+  background: var(--instrument-accent-soft);
+  box-shadow: 0 0 0 4px rgba(185, 194, 191, 0.05);
+}
+
+.artifact-node-mark i:nth-child(2),
+.artifact-node-mark i:nth-child(5) {
+  transform: translateY(10px);
+}
+
+.artifact-branch-mark {
+  position: relative;
+  display: block;
+  width: 82%;
+  height: 100%;
+}
+
+.artifact-branch-mark::before,
+.artifact-branch-mark::after {
+  position: absolute;
+  top: 50%;
+  left: 18%;
+  width: 62%;
+  height: 1px;
+  background: var(--instrument-accent);
+  content: "";
+  transform-origin: left center;
+}
+
+.artifact-branch-mark::after {
+  transform: rotate(28deg);
+}
+
+.artifact-branch-mark i {
+  position: absolute;
+  top: 50%;
+  width: 8px;
+  height: 8px;
+  border: 1px solid var(--instrument-accent);
+  border-radius: 50%;
+  background: #0b1011;
+  transform: translateY(-50%);
+}
+
+.artifact-branch-mark i:nth-child(1) {
+  left: 12%;
+}
+
+.artifact-branch-mark i:nth-child(2) {
+  left: 48%;
+  top: 42%;
+}
+
+.artifact-branch-mark i:nth-child(3) {
+  right: 5%;
+  top: 70%;
+}
+
+.artifact-stack-mark {
+  display: grid;
+  width: 74%;
+  gap: 8px;
+}
+
+.artifact-stack-mark i {
+  display: block;
+  height: 4px;
+  border-radius: 99px;
+  background: rgba(230, 235, 231, 0.72);
+}
+
+.artifact-stack-mark i:nth-child(2) {
+  width: 74%;
+  opacity: 0.62;
+}
+
+.artifact-stack-mark i:nth-child(3) {
+  width: 88%;
+  opacity: 0.82;
+}
+
+.artifact-stack-mark i:nth-child(4) {
+  width: 52%;
+  opacity: 0.45;
+}
+
+.artifact-part-map-terrain {
+  width: 278px;
+  height: 168px;
+  border: 1px solid rgba(231, 214, 178, 0.64);
+  color: #261f17;
+  background:
+    linear-gradient(135deg, rgba(255, 247, 225, 0.62), transparent 45%),
+    #86775d;
+  box-shadow: 10px 13px 0 rgba(0, 0, 0, 0.24), inset 0 1px rgba(255, 245, 215, 0.46);
+  clip-path: polygon(3% 8%, 92% 0, 100% 83%, 84% 100%, 9% 91%, 0 32%);
+}
+
+.artifact-part-map-route {
+  width: 282px;
+  height: 58px;
+  border: 0;
+  background: transparent;
+}
+
+.artifact-part-map-pin {
+  width: 42px;
+  height: 58px;
+  border: 0;
+  background: transparent;
+}
+
+.artifact-part-map-compass {
+  width: 98px;
+  height: 98px;
+  border: 1px solid rgba(231, 214, 178, 0.62);
+  border-radius: 50%;
+  background: rgba(29, 31, 29, 0.74);
+  box-shadow: inset 0 0 0 8px rgba(231, 214, 178, 0.08), 0 12px 22px rgba(0, 0, 0, 0.22);
+}
+
+.artifact-contour-mark {
+  position: relative;
+  display: block;
+  width: 82%;
+  height: 72%;
+  overflow: hidden;
+}
+
+.artifact-contour-mark::before,
+.artifact-contour-mark::after,
+.artifact-contour-mark i {
+  position: absolute;
+  border: 1px solid rgba(38, 31, 23, 0.55);
+  border-radius: 50%;
+  content: "";
+}
+
+.artifact-contour-mark::before {
+  inset: 5% 9% 20% 2%;
+}
+
+.artifact-contour-mark::after {
+  inset: 18% 1% 3% 18%;
+}
+
+.artifact-contour-mark i {
+  inset: 28% 23% 13% 14%;
+}
+
+.artifact-route-mark {
+  position: relative;
+  display: block;
+  width: 94%;
+  height: 100%;
+}
+
+.artifact-route-mark::before {
+  position: absolute;
+  top: 50%;
+  right: 3%;
+  left: 3%;
+  height: 3px;
+  border-radius: 99px;
+  background: #d6ba80;
+  content: "";
+  clip-path: polygon(0 38%, 22% 0, 44% 62%, 68% 18%, 100% 52%, 100% 100%, 68% 66%, 44% 100%, 22% 38%, 0 76%);
+  transform: translateY(-50%) scaleX(var(--assembly-progress));
+  transform-origin: left center;
+  transition: transform 480ms cubic-bezier(0.2, 0.8, 0.2, 1);
+}
+
+.artifact-route-mark i {
+  position: absolute;
+  top: 50%;
+  width: 9px;
+  height: 9px;
+  border: 1px solid #e7d6b2;
+  border-radius: 50%;
+  background: #191b19;
+  transform: translate(-50%, -50%);
+}
+
+.artifact-route-mark i:nth-child(1) {
+  left: 7%;
+}
+
+.artifact-route-mark i:nth-child(2) {
+  left: 50%;
+  top: 36%;
+}
+
+.artifact-route-mark i:nth-child(3) {
+  right: 3%;
+}
+
+.artifact-pin-mark {
+  width: 24px;
+  height: 32px;
+  border: 1px solid #d6ba80;
+  border-radius: 50% 50% 50% 0;
+  background: #8f5946;
+  box-shadow: 3px 6px 0 rgba(0, 0, 0, 0.22);
+  transform: rotate(-45deg);
+}
+
+.artifact-pin-mark::after {
+  display: block;
+  width: 7px;
+  height: 7px;
+  margin: 7px auto 0;
+  border-radius: 50%;
+  background: #e7d6b2;
+  content: "";
+}
+
+.artifact-compass-mark {
+  position: relative;
+  display: block;
+  width: 56px;
+  height: 56px;
+  border: 1px solid #d6ba80;
+  border-radius: 50%;
+  transform: rotate(calc(-22deg + (var(--assembly-progress) * 42deg)));
+  transition: transform 480ms cubic-bezier(0.2, 0.8, 0.2, 1);
+}
+
+.artifact-compass-mark::before,
+.artifact-compass-mark::after {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: 1px;
+  height: 80%;
+  background: #d6ba80;
+  content: "";
+  transform: translate(-50%, -50%);
+}
+
+.artifact-compass-mark::after {
+  width: 80%;
+  height: 1px;
+}
+
+.artifact-compass-mark {
+  box-shadow: 0 0 0 7px rgba(214, 186, 128, 0.08), inset 0 0 0 12px rgba(214, 186, 128, 0.06);
+}
+
+.instrument-gallery-list .artifact-backplate {
+  border-color: rgba(224, 233, 232, 0.24);
+  background:
+    linear-gradient(145deg, rgba(255, 255, 255, 0.14), transparent 24%),
+    linear-gradient(320deg, #303638, #151a1b 62%, #5b5d58);
+  box-shadow:
+    0 16px 28px rgba(0, 0, 0, 0.28),
+    inset 0 1px rgba(255, 255, 255, 0.14),
+    inset 0 -14px 22px rgba(0, 0, 0, 0.2);
+}
+
+.instrument-gallery-list .artifact-backplate::after {
+  border-color: rgba(224, 233, 232, 0.16);
+}
+
 .artifact-spine-mark {
   width: 3px;
   height: 78%;
@@ -447,12 +924,37 @@
   top: 50%;
   left: 50%;
   z-index: 4;
-  color: var(--observation-accent);
+  color: var(--instrument-accent);
   font-family: var(--mono);
   font-size: 0.68rem;
   letter-spacing: 0.12em;
   pointer-events: none;
   transform: translate(-50%, -50%) translateZ(66px);
+}
+
+.artifact-center-graph .artifact-center-label,
+.artifact-center-compass .artifact-center-label {
+  display: grid;
+  width: 42px;
+  height: 42px;
+  place-items: center;
+  border: 1px solid var(--instrument-accent);
+  background: rgba(11, 16, 17, 0.72);
+}
+
+.artifact-center-graph .artifact-center-label {
+  border-radius: 8px;
+  transform: translate(-50%, -50%) translateZ(74px) rotate(-8deg);
+}
+
+.artifact-center-compass .artifact-center-label {
+  border-radius: 50%;
+  transform: translate(-50%, -50%) translateZ(74px) rotate(calc(-22deg + (var(--assembly-progress) * 42deg)));
+}
+
+.artifact-center-lens .artifact-center-label {
+  color: var(--instrument-accent-strong);
+  transform: translate(-50%, -50%) translateZ(72px) rotate(-3deg);
 }
 
 .assembly-label {
@@ -469,7 +971,7 @@
 }
 
 .assembly-label-kicker {
-  color: var(--observation-accent);
+  color: var(--instrument-accent);
 }
 
 .assembly-label strong {
@@ -501,7 +1003,7 @@
 .assembly-label a {
   align-self: flex-start;
   margin-top: 0.4rem;
-  color: var(--observation-accent);
+  color: var(--instrument-accent);
   font-family: var(--mono);
   font-size: 0.65rem;
   text-transform: uppercase;
@@ -511,7 +1013,7 @@
 .world-enter:hover,
 .station-footer a:hover {
   gap: 0.9rem;
-  color: var(--observation-accent-strong);
+  color: var(--instrument-accent-strong);
 }
 
 .assembly-instruction {
@@ -536,123 +1038,6 @@
   text-transform: uppercase;
 }
 
-.project-index {
-  margin-top: clamp(4.5rem, 8vw, 7rem);
-  padding-top: 1.35rem;
-  border-top: 1px solid var(--observation-line);
-}
-
-.project-index-heading {
-  display: flex;
-  align-items: baseline;
-  justify-content: space-between;
-  gap: 2rem;
-  margin-bottom: 1.8rem;
-}
-
-.project-index-kicker {
-  margin: 0 0 0.7rem;
-  color: var(--observation-accent);
-  font-family: var(--mono);
-  font-size: 0.62rem;
-  letter-spacing: 0.09em;
-  text-transform: uppercase;
-}
-
-.project-index-heading h2 {
-  margin: 0;
-  color: var(--observation-ink);
-  font-size: clamp(2.2rem, 4vw, 3.8rem);
-  font-weight: 500;
-  letter-spacing: -0.09em;
-  line-height: 0.9;
-}
-
-.project-index-count {
-  color: var(--observation-faint);
-  font-family: var(--mono);
-  font-size: 0.62rem;
-  letter-spacing: 0.09em;
-  text-transform: uppercase;
-}
-
-.project-index-list {
-  border-top: 1px solid var(--observation-line-soft);
-}
-
-.project-index-item {
-  display: grid;
-  grid-template-columns: 3rem minmax(170px, 0.75fr) minmax(240px, 1.2fr) auto;
-  align-items: center;
-  gap: 1rem 2rem;
-  border-bottom: 1px solid var(--observation-line-soft);
-  padding: 1.35rem 0;
-  color: var(--observation-ink);
-  text-decoration: none;
-  transition: background 180ms ease, padding 180ms ease;
-}
-
-.project-index-item:hover {
-  margin-inline: -0.8rem;
-  padding-inline: 0.8rem;
-  background: rgba(159, 201, 255, 0.045);
-}
-
-.project-index-number,
-.project-index-copy span,
-.project-index-status {
-  color: var(--observation-faint);
-  font-family: var(--mono);
-  font-size: 0.62rem;
-  letter-spacing: 0.07em;
-  text-transform: uppercase;
-}
-
-.project-index-number {
-  align-self: start;
-  padding-top: 0.15rem;
-  color: var(--observation-accent);
-}
-
-.project-index-copy {
-  display: flex;
-  min-width: 0;
-  flex-direction: column;
-  gap: 0.35rem;
-}
-
-.project-index-copy strong {
-  color: var(--observation-ink);
-  font-size: 1.25rem;
-  font-weight: 500;
-  letter-spacing: -0.045em;
-}
-
-.project-index-description {
-  max-width: 430px;
-  color: var(--observation-muted);
-  font-size: 0.82rem;
-  line-height: 1.5;
-}
-
-.project-index-status {
-  display: inline-flex;
-  align-items: center;
-  justify-content: flex-end;
-  gap: 0.55rem;
-  color: var(--observation-accent);
-  white-space: nowrap;
-}
-
-.project-index-status span {
-  font-size: 0.9rem;
-  transition: transform 180ms ease;
-}
-
-.project-index-item:hover .project-index-status span {
-  transform: translate(0.2rem, -0.2rem);
-}
-
 .observation-room .assembly-canvas {
   transform: perspective(1100px)
     rotateX(calc(48deg - (var(--assembly-progress) * 3deg)))
@@ -669,7 +1054,6 @@
   grid-template-columns: 1fr;
   background:
     linear-gradient(90deg, transparent 19.8%, var(--observation-line-soft) 20%, transparent 20.1%, transparent 79.8%, var(--observation-line-soft) 80%, transparent 80.1%),
-    radial-gradient(circle at 50% 52%, rgba(159, 201, 255, 0.1), transparent 26rem),
     var(--observation-bg-deep);
 }
 
@@ -685,7 +1069,10 @@
 }
 
 .observation-field .assembly-artifact {
-  transform: rotateX(var(--artifact-tilt-y, 0deg)) rotateY(var(--artifact-tilt-x, 0deg));
+  transform: translate3d(var(--artifact-shift-x, 0px), var(--artifact-shift-y, 0px), 0)
+    rotateX(var(--artifact-tilt-y, 0deg))
+    rotateY(var(--artifact-tilt-x, 0deg))
+    rotateZ(var(--artifact-roll, 0deg));
 }
 
 .observation-field .assembly-label {
@@ -1006,6 +1393,10 @@
 }
 
 @media (max-width: 900px) {
+  .instrument-gallery-list .assembly-field {
+    grid-template-rows: auto minmax(205px, 1fr) auto auto;
+  }
+
   .assembly-field {
     grid-template-columns: 1fr;
     grid-template-rows: auto minmax(360px, 1fr) auto auto;
@@ -1053,13 +1444,30 @@
 }
 
 @media (max-width: 800px) {
+  .instrument-gallery-list .assembly-field {
+    grid-template-rows: auto minmax(205px, 1fr) auto auto;
+  }
+
+  .instrument-gallery-list {
+    grid-template-columns: 1fr;
+  }
+
+  .instrument-gallery-heading {
+    align-items: flex-start;
+    flex-direction: column;
+    gap: 0.75rem;
+  }
+
+  .instrument-gallery-list .assembly-artifact {
+    scale: 0.68;
+  }
+
   .observation-shell {
     width: min(100% - 32px, 1380px);
   }
 
   .world-intro,
   .station-section-heading,
-  .project-index-heading,
   .station-input-footer,
   .station-footer,
   .prototype-footer {
@@ -1075,15 +1483,6 @@
 
   .station-workspace {
     grid-template-columns: 1fr;
-  }
-
-  .project-index-item {
-    grid-template-columns: 2.2rem minmax(0, 0.85fr) minmax(200px, 1fr) auto;
-    gap: 0.8rem 1rem;
-  }
-
-  .project-index-description {
-    max-width: 330px;
   }
 
   .station-input-panel {
@@ -1104,6 +1503,18 @@
 }
 
 @media (max-width: 560px) {
+  .instrument-gallery-list .assembly-field {
+    min-height: 420px;
+  }
+
+  .instrument-gallery-list .assembly-canvas {
+    min-height: 240px;
+  }
+
+  .instrument-gallery-list .assembly-artifact {
+    scale: 0.62;
+  }
+
   .observation-header {
     align-items: flex-start;
     flex-direction: column;
@@ -1152,25 +1563,6 @@
 
   .station-section h2 {
     font-size: clamp(2.8rem, 15vw, 4.8rem);
-  }
-
-  .project-index {
-    margin-top: 5rem;
-  }
-
-  .project-index-item {
-    grid-template-columns: 2rem minmax(0, 1fr);
-    gap: 0.7rem 0.8rem;
-    padding: 1.1rem 0;
-  }
-
-  .project-index-description,
-  .project-index-status {
-    grid-column: 2;
-  }
-
-  .project-index-status {
-    justify-content: flex-start;
   }
 
   .station-input-panel,

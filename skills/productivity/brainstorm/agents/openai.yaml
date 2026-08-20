@@ -1,0 +1,5 @@
+interface:
+  display_name: "Brainstorm"
+  short_description: "Find high-leverage ideas around a change"
+policy:
+  allow_implicit_invocation: false
