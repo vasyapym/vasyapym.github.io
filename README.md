@@ -41,4 +41,7 @@ docs/                документация репозитория
 ## Slash-команды агента
 
 - [`/brainstorm`](./skills/productivity/brainstorm/SKILL.md) — посмотреть на полный diff свежим взглядом и предложить улучшения без изменения файлов.
+- [`/design-iteration`](./skills/productivity/design-iteration/SKILL.md) — воспроизводить визуальное направление по графу решений и фиксированным проверкам.
+- [`/design-planning`](./skills/productivity/design-planning/SKILL.md) — сравнить два направления и выбрать дизайн до реализации.
+- [`/planning`](./skills/productivity/planning/SKILL.md) — превратить выбранное направление в воспроизводимый план изменений и проверок.
 - [`/improve-codebase-architecture`](./skills/engineering/improve-codebase-architecture/SKILL.md) — найти возможности углубить модули и сделать архитектуру тестируемее.

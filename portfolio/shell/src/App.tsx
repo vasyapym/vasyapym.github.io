@@ -1,8 +1,10 @@
-import { useEffect, useState } from "react";
+import { lazy, Suspense, useEffect, useState } from "react";
 import { findProject, projectModules } from "./catalog/discover-projects";
 import LandingPage from "./shell/LandingPage";
 import ProjectFrame from "./shell/ProjectFrame";
-import PortfolioPrototype, { type PrototypeVariant } from "./prototype/PortfolioPrototype";
+import type { PrototypeVariant } from "./prototype/PortfolioPrototype";
+
+const PortfolioPrototype = lazy(() => import("./prototype/PortfolioPrototype"));
 
 function projectIdFromPath(pathname: string): string | undefined {
   const match = pathname.match(/^\/projects\/([^/]+)\/?$/);
@@ -20,8 +22,7 @@ export default function App() {
       : prototypeQuery === "room" || prototypeQuery === "specimen"
         ? "room"
         : undefined;
-  const prototypeVariant: PrototypeVariant | undefined =
-    requestedPrototypeVariant ?? (pathname === "/" ? "room" : undefined);
+  const prototypeVariant: PrototypeVariant | undefined = requestedPrototypeVariant;
   const comparisonMode = requestedPrototypeVariant !== undefined;
 
   useEffect(() => {
@@ -44,11 +45,13 @@ export default function App() {
 
   if (prototypeVariant) {
     return (
-      <PortfolioPrototype
-        comparisonMode={comparisonMode}
-        initialVariant={prototypeVariant}
-        projects={projectModules}
-      />
+      <Suspense fallback={<div className="project-loading section-shell">Loading comparison…</div>}>
+        <PortfolioPrototype
+          comparisonMode={comparisonMode}
+          initialVariant={prototypeVariant}
+          projects={projectModules}
+        />
+      </Suspense>
     );
   }
 

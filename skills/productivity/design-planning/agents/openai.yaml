@@ -1,0 +1,5 @@
+interface:
+  display_name: "Design Planning"
+  short_description: "Compare alternatives before implementation"
+policy:
+  allow_implicit_invocation: false

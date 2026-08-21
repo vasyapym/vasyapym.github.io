@@ -1,18 +1,19 @@
 .practice-map-page {
-  --practice-bg: #0e1315;
-  --practice-surface: #151b1d;
-  --practice-surface-raised: #1b2325;
-  --practice-ink: #eef1ee;
-  --practice-muted: #a6afae;
-  --practice-faint: #71807e;
-  --practice-line: rgba(224, 233, 232, 0.16);
-  --practice-line-soft: rgba(224, 233, 232, 0.09);
-  --practice-accent: #c5b89e;
-  --practice-accent-soft: rgba(197, 184, 158, 0.13);
-  padding-top: clamp(3rem, 7vw, 6rem);
-  padding-bottom: 7rem;
+  --practice-paper: #e4e5e1;
+  --practice-paper-light: #f1f1ec;
+  --practice-paper-deep: #c9c5b9;
+  --practice-ink: #1d1e1c;
+  --practice-soft: #454742;
+  --practice-stone: #73736c;
+  --practice-faint: #999b95;
+  --practice-line: rgba(29, 30, 28, 0.28);
+  --practice-line-soft: rgba(29, 30, 28, 0.15);
+  --practice-accent: #a8652d;
+  --practice-accent-dark: #73431f;
+  padding-top: clamp(3rem, 6vw, 5rem);
+  padding-bottom: 6rem;
   color: var(--practice-ink);
-  font-family: "Space Grotesk", ui-sans-serif, system-ui, sans-serif;
+  font-family: var(--sans);
 }
 
 .practice-map-page * {
@@ -34,11 +35,11 @@
 
 .practice-map-hero {
   display: grid;
-  grid-template-columns: minmax(0, 1.1fr) minmax(220px, 0.45fr);
+  grid-template-columns: minmax(0, 1.1fr) minmax(230px, 0.45fr);
   align-items: end;
-  gap: clamp(2rem, 8vw, 8rem);
+  gap: clamp(2rem, 6vw, 5rem);
   border-bottom: 1px solid var(--practice-line);
-  padding-bottom: clamp(3rem, 6vw, 5rem);
+  padding-bottom: clamp(2.5rem, 5vw, 4.5rem);
 }
 
 .practice-map-eyebrow,
@@ -51,25 +52,26 @@
 .practice-map-export,
 .practice-summary-metric > span,
 .practice-area-count {
-  color: var(--practice-faint);
+  color: var(--practice-stone);
   font-family: var(--mono);
-  font-size: 0.63rem;
-  letter-spacing: 0.09em;
+  font-size: 0.62rem;
+  letter-spacing: 0.07em;
   text-transform: uppercase;
 }
 
 .practice-map-eyebrow {
-  color: var(--practice-accent);
+  color: var(--practice-accent-dark);
 }
 
 .practice-map-hero h1 {
-  max-width: 750px;
-  margin: 1.2rem 0 1.6rem;
+  max-width: 760px;
+  margin: 0.9rem 0 1.2rem;
   color: var(--practice-ink);
-  font-size: clamp(3.4rem, 7vw, 7rem);
-  font-weight: 500;
-  letter-spacing: -0.1em;
-  line-height: 0.88;
+  font-family: var(--display);
+  font-size: clamp(2.8rem, 5.5vw, 5.6rem);
+  font-weight: 700;
+  letter-spacing: -0.06em;
+  line-height: 0.92;
 }
 
 .practice-map-hero h1 span {
@@ -78,28 +80,29 @@
 }
 
 .practice-map-intro {
-  max-width: 540px;
+  max-width: 520px;
   margin: 0;
-  color: var(--practice-muted);
-  font-size: clamp(1rem, 1.5vw, 1.15rem);
+  color: var(--practice-soft);
+  font-size: clamp(1rem, 1.45vw, 1.14rem);
   line-height: 1.65;
 }
 
 .practice-map-hero-note {
   display: grid;
   justify-items: start;
-  gap: 1.25rem;
+  gap: 1.2rem;
   padding-bottom: 0.25rem;
 }
 
 .practice-map-hero-note p {
-  max-width: 220px;
+  max-width: 240px;
   margin: 0;
-  color: var(--practice-muted);
-  font-family: "Newsreader", Georgia, serif;
-  font-size: 1.45rem;
-  letter-spacing: -0.035em;
-  line-height: 1;
+  color: var(--practice-soft);
+  font-family: var(--display);
+  font-size: 1.05rem;
+  font-weight: 500;
+  letter-spacing: -0.04em;
+  line-height: 1.15;
 }
 
 .practice-map-export {
@@ -112,19 +115,20 @@
   color: var(--practice-ink);
   background: transparent;
   cursor: pointer;
-  transition: color 180ms ease, border-color 180ms ease;
+  transition: color 180ms ease, border-color 180ms ease, gap 180ms ease;
 }
 
 .practice-map-export:hover {
+  gap: 0.85rem;
   border-color: var(--practice-accent);
-  color: var(--practice-accent);
+  color: var(--practice-accent-dark);
 }
 
 .practice-summary {
   display: grid;
   grid-template-columns: repeat(4, minmax(0, 1fr));
   gap: 1px;
-  margin-top: clamp(2rem, 4vw, 3rem);
+  margin-top: clamp(1.5rem, 3vw, 2.25rem);
   border-top: 1px solid var(--practice-line-soft);
   border-left: 1px solid var(--practice-line-soft);
   background: var(--practice-line-soft);
@@ -132,46 +136,52 @@
 
 .practice-summary-metric {
   display: grid;
-  min-height: 105px;
+  min-height: 84px;
   align-content: space-between;
   gap: 1rem;
   border-right: 1px solid var(--practice-line-soft);
   border-bottom: 1px solid var(--practice-line-soft);
-  padding: 0.85rem;
-  background: var(--practice-surface);
+  padding: 0.9rem;
+  background: var(--practice-paper-light);
+  transition: background 180ms ease;
+}
+
+.practice-summary-metric:hover {
+  background: var(--practice-paper-light);
 }
 
 .practice-summary-metric strong {
   color: var(--practice-accent);
-  font-size: 2.35rem;
-  font-weight: 500;
-  letter-spacing: -0.09em;
+  font-family: var(--display);
+  font-size: 2.5rem;
+  font-weight: 600;
+  letter-spacing: -0.07em;
   line-height: 0.9;
 }
 
 .practice-map-layout {
   display: grid;
-  grid-template-columns: minmax(180px, 0.28fr) minmax(0, 1fr);
-  gap: clamp(2rem, 6vw, 6rem);
-  margin-top: clamp(4rem, 8vw, 7rem);
+  grid-template-columns: minmax(190px, 0.28fr) minmax(0, 1fr);
+  gap: clamp(1.75rem, 5vw, 5rem);
+  margin-top: clamp(3rem, 6vw, 5rem);
 }
 
 .practice-area-nav {
-  align-self: start;
   position: sticky;
   top: 1.5rem;
+  align-self: start;
 }
 
 .practice-area-nav-heading {
   display: flex;
   justify-content: space-between;
   border-top: 1px solid var(--practice-line);
-  padding-top: 0.9rem;
+  padding-top: 0.85rem;
 }
 
 .practice-area-list {
   display: grid;
-  gap: 0.5rem;
+  gap: 0.45rem;
   margin-top: 1rem;
 }
 
@@ -184,11 +194,11 @@
   border: 1px solid transparent;
   border-bottom-color: var(--practice-line-soft);
   padding: 0.8rem 0;
-  color: var(--practice-muted);
+  color: var(--practice-stone);
   text-align: left;
   background: transparent;
   cursor: pointer;
-  transition: border-color 180ms ease, color 180ms ease, padding 180ms ease;
+  transition: border-color 180ms ease, color 180ms ease, padding 180ms ease, background 180ms ease;
 }
 
 .practice-area-list button:hover,
@@ -196,7 +206,7 @@
   border-color: var(--practice-line);
   padding-inline: 0.7rem;
   color: var(--practice-ink);
-  background: var(--practice-accent-soft);
+  background: rgba(164, 119, 69, 0.1);
 }
 
 .practice-area-list button span {
@@ -206,13 +216,15 @@
 
 .practice-area-list strong {
   color: inherit;
-  font-size: 1.05rem;
-  font-weight: 500;
+  font-family: var(--display);
+  font-size: 1.45rem;
+  font-weight: 600;
   letter-spacing: -0.04em;
+  line-height: 0.98;
 }
 
 .practice-area-list small {
-  color: var(--practice-faint);
+  color: var(--practice-stone);
   font-size: 0.74rem;
   line-height: 1.4;
 }
@@ -220,7 +232,7 @@
 .practice-area-list em {
   color: var(--practice-accent);
   font-family: var(--mono);
-  font-size: 0.7rem;
+  font-size: 0.68rem;
   font-style: normal;
 }
 
@@ -230,22 +242,23 @@
   justify-content: space-between;
   gap: 2rem;
   border-top: 1px solid var(--practice-line);
-  padding-top: 0.9rem;
+  padding-top: 0.85rem;
 }
 
 .practice-area-heading h2 {
-  margin: 0.7rem 0 0;
+  margin: 0.75rem 0 0;
   color: var(--practice-ink);
-  font-size: clamp(2.2rem, 4.5vw, 4.4rem);
-  font-weight: 500;
-  letter-spacing: -0.09em;
-  line-height: 0.9;
+  font-family: var(--display);
+  font-size: clamp(2.5rem, 4vw, 4.3rem);
+  font-weight: 600;
+  letter-spacing: -0.05em;
+  line-height: 0.94;
 }
 
 .practice-area-heading p:last-child {
   max-width: 500px;
   margin: 1rem 0 0;
-  color: var(--practice-muted);
+  color: var(--practice-soft);
   font-size: 0.9rem;
   line-height: 1.6;
 }
@@ -260,7 +273,7 @@
   display: grid;
   grid-template-columns: repeat(2, minmax(0, 1fr));
   gap: 1px;
-  margin-top: 2rem;
+  margin-top: 1.5rem;
   border-top: 1px solid var(--practice-line-soft);
   border-left: 1px solid var(--practice-line-soft);
   background: var(--practice-line-soft);
@@ -273,12 +286,13 @@
   gap: 0.9rem;
   border-right: 1px solid var(--practice-line-soft);
   border-bottom: 1px solid var(--practice-line-soft);
-  padding: 1.1rem;
-  background: var(--practice-surface);
+  padding: 0.9rem;
+  background: var(--practice-paper-light);
+  transition: background 180ms ease, transform 220ms ease, box-shadow 220ms ease;
 }
 
 .practice-topic-card:hover {
-  background: var(--practice-surface-raised);
+  background: var(--practice-paper-light);
 }
 
 .practice-topic-topline {
@@ -289,34 +303,35 @@
 }
 
 .practice-topic-status {
-  color: var(--practice-muted);
+  color: var(--practice-stone);
 }
 
 .practice-topic-status.status-in-progress {
-  color: var(--practice-accent);
+  color: var(--practice-accent-dark);
 }
 
 .practice-topic-status.status-applied {
-  color: #b9cbb7;
+  color: #5c755c;
 }
 
 .practice-topic-status.status-revisit {
-  color: #d2b697;
+  color: #995d3a;
 }
 
 .practice-topic-card h3 {
   margin: 0;
   color: var(--practice-ink);
-  font-size: 1.25rem;
-  font-weight: 500;
-  letter-spacing: -0.05em;
-  line-height: 1;
+  font-family: var(--display);
+  font-size: 1.4rem;
+  font-weight: 600;
+  letter-spacing: -0.04em;
+  line-height: 0.98;
 }
 
 .practice-topic-summary {
   min-height: 3.4em;
   margin: 0;
-  color: var(--practice-muted);
+  color: var(--practice-soft);
   font-size: 0.82rem;
   line-height: 1.5;
 }
@@ -330,10 +345,9 @@
 .practice-concepts span {
   border: 1px solid var(--practice-line);
   padding: 0.28rem 0.4rem;
-  color: var(--practice-faint);
+  color: var(--practice-stone);
   font-family: var(--mono);
-  font-size: 0.58rem;
-  letter-spacing: 0.04em;
+  font-size: 0.57rem;
 }
 
 .practice-topic-details,
@@ -344,25 +358,26 @@
 
 .practice-topic-details summary,
 .practice-topic-feedback summary {
-  color: var(--practice-muted);
+  color: var(--practice-stone);
   cursor: pointer;
   font-family: var(--mono);
-  font-size: 0.63rem;
-  letter-spacing: 0.05em;
+  font-size: 0.61rem;
+  letter-spacing: 0.04em;
   list-style-position: inside;
   text-transform: uppercase;
+  transition: color 180ms ease;
 }
 
 .practice-topic-details summary:hover,
 .practice-topic-feedback summary:hover {
-  color: var(--practice-accent);
+  color: var(--practice-accent-dark);
 }
 
 .practice-topic-details > div {
   display: grid;
   gap: 0.7rem;
   margin-top: 0.8rem;
-  color: var(--practice-muted);
+  color: var(--practice-soft);
   font-size: 0.78rem;
   line-height: 1.5;
 }
@@ -374,10 +389,10 @@
 .practice-topic-details strong {
   display: block;
   margin-bottom: 0.2rem;
-  color: var(--practice-accent);
+  color: var(--practice-accent-dark);
   font-family: var(--mono);
-  font-size: 0.6rem;
-  letter-spacing: 0.06em;
+  font-size: 0.59rem;
+  letter-spacing: 0.05em;
   text-transform: uppercase;
 }
 
@@ -400,10 +415,10 @@
   border-radius: 0;
   padding: 0.45rem 0.5rem;
   color: var(--practice-ink);
-  background: var(--practice-bg);
+  background: var(--practice-paper);
   cursor: pointer;
   font-family: var(--mono);
-  font-size: 0.62rem;
+  font-size: 0.61rem;
 }
 
 .practice-feedback-editor {
@@ -421,10 +436,10 @@
 .practice-feedback-options button {
   border: 1px solid var(--practice-line);
   padding: 0.4rem 0.5rem;
-  color: var(--practice-muted);
+  color: var(--practice-stone);
   background: transparent;
   cursor: pointer;
-  font-size: 0.68rem;
+  font-size: 0.67rem;
   transition: border-color 180ms ease, color 180ms ease, background 180ms ease;
 }
 
@@ -432,7 +447,7 @@
 .practice-feedback-options button.is-active {
   border-color: var(--practice-accent);
   color: var(--practice-ink);
-  background: var(--practice-accent-soft);
+  background: rgba(164, 119, 69, 0.1);
 }
 
 .practice-note-label {
@@ -446,7 +461,7 @@
   border: 1px solid var(--practice-line);
   padding: 0.65rem;
   color: var(--practice-ink);
-  background: var(--practice-bg);
+  background: rgba(236, 232, 223, 0.7);
   font-size: 0.78rem;
   line-height: 1.5;
 }
@@ -459,7 +474,7 @@
   display: flex;
   justify-content: space-between;
   gap: 1rem;
-  margin-top: 4rem;
+  margin-top: 3rem;
   border-top: 1px solid var(--practice-line);
   padding-top: 1rem;
 }
@@ -501,16 +516,18 @@
 
 @media (max-width: 560px) {
   .practice-map-page {
-    padding-top: 3rem;
-    padding-bottom: 5rem;
+    padding-top: 2.5rem;
+    padding-bottom: 4rem;
   }
+
+  .practice-map-hero h1 { font-size: clamp(2.75rem, 12.5vw, 4.5rem); }
 
   .practice-summary {
     grid-template-columns: repeat(2, minmax(0, 1fr));
   }
 
   .practice-summary-metric {
-    min-height: 88px;
+    min-height: 76px;
   }
 
   .practice-area-list {
@@ -532,8 +549,7 @@
   .practice-map-page *,
   .practice-map-page *::before,
   .practice-map-page *::after {
-    transition-duration: 0.01ms !important;
     animation-duration: 0.01ms !important;
-    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
   }
 }

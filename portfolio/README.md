@@ -20,7 +20,7 @@ npm --prefix portfolio install
 npm --prefix portfolio run dev
 ```
 
-Open <http://localhost:5173>. The Assembly field is the main route; Practice Map is available at <http://localhost:5173/projects/practice-map>, and Code Layout is available at <http://localhost:5173/projects/code-layout>. The shell runs on port `5173`; Code Layout uses `8082`.
+Open <http://localhost:5173>. The solid field index is the main route; Practice Map is available at <http://localhost:5173/projects/practice-map>, and Code Layout is available at <http://localhost:5173/projects/code-layout>. The older Assembly field comparison remains available at `/?prototype=room` and `/?prototype=field`. The shell runs on port `5173`; Code Layout uses `8082`.
 
 ## Structure
 

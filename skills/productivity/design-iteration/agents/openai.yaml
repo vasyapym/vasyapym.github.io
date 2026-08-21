@@ -1,0 +1,5 @@
+interface:
+  display_name: "Design Iteration"
+  short_description: "Recreate visual taste from evidence"
+policy:
+  allow_implicit_invocation: false

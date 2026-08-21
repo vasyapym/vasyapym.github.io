@@ -64,17 +64,17 @@ export default function PracticeMapPage() {
     <section className="practice-map-page section-shell" aria-labelledby="practice-map-title">
       <header className="practice-map-hero">
         <div className="practice-map-hero-copy">
-          <p className="eyebrow practice-map-eyebrow">PRACTICE MAP / 001</p>
+          <p className="eyebrow practice-map-eyebrow">PRACTICE MAP / TECHNICAL PRACTICE</p>
           <h1 id="practice-map-title">
-            Keep useful things
-            <span>in view.</span>
+            Practice technical
+            <span>ideas.</span>
           </h1>
           <p className="practice-map-intro">
-            A working map for concepts, small exercises, and the parts worth revisiting.
+            Keep concepts, small exercises, and useful things to revisit in one place.
           </p>
         </div>
         <div className="practice-map-hero-note">
-          <p>Feedback changes the next pass.</p>
+          <p>Track what to revisit.</p>
           <button className="practice-map-export" type="button" onClick={handleCopyFeedback}>
             {copied ? "Review notes copied" : "Copy review notes"}
             <span aria-hidden="true">↗</span>

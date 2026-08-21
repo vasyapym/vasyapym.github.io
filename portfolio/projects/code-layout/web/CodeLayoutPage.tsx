@@ -159,23 +159,22 @@ export default function CodeLayoutPage() {
     <section className="code-layout-page section-shell" aria-labelledby="code-layout-title">
       <div className="code-layout-hero">
         <div className="code-layout-hero-copy">
-          <p className="eyebrow accent-eyebrow">CODE LAYOUT / FIRST INSTRUMENT</p>
+          <p className="eyebrow accent-eyebrow">CODE LAYOUT / SOURCE READING</p>
           <h1 id="code-layout-title">
-            See the structure.
-            <span>inside the code.</span>
+            Understand a source file
+            <span>faster.</span>
           </h1>
           <p className="code-layout-intro">
-            Paste a source file and get a dense structural map: declarations, dependencies, relationships,
-            architecture, and Bitrix signals without carrying the whole file into the next context.
+            Paste a source file to see its declarations, dependencies, relationships, and architecture in one compact view.
           </p>
           <a className="code-layout-enter" href="#code-layout-workspace">
-            Open the instrument <span aria-hidden="true">↓</span>
+            Open Code Layout <span aria-hidden="true">↓</span>
           </a>
         </div>
         <div className="code-layout-artifact-panel" aria-describedby="code-layout-artifact-caption">
           <div className="code-layout-artifact-note" aria-hidden="true">
-            <span>Structure / visible</span>
-            <span>Move closer</span>
+            <span>Declarations / dependencies</span>
+            <span>Source structure</span>
           </div>
           <div
             ref={artifactRef}
@@ -185,19 +184,19 @@ export default function CodeLayoutPage() {
             onPointerMove={handleArtifactPointerMove}
             onPointerLeave={resetArtifactPointer}
           >
-            <span className="code-layout-artifact-plate code-layout-artifact-plate-back">ARCH</span>
-            <span className="code-layout-artifact-plate code-layout-artifact-plate-middle">DEPS</span>
-            <span className="code-layout-artifact-plate code-layout-artifact-plate-front">DECL</span>
+            <span className="code-layout-artifact-plate code-layout-artifact-plate-back">architecture</span>
+            <span className="code-layout-artifact-plate code-layout-artifact-plate-middle">dependencies</span>
+            <span className="code-layout-artifact-plate code-layout-artifact-plate-front">declarations</span>
             <span className="code-layout-artifact-spine" />
             <span className="code-layout-artifact-mark">C / L</span>
           </div>
           <p className="code-layout-artifact-caption" id="code-layout-artifact-caption">
-            A compact map keeps the shape while the source moves on.
+            A compact view of the source structure.
           </p>
         </div>
       </div>
 
-      <form className="code-layout-workspace" onSubmit={analyze}>
+      <form className="code-layout-workspace" id="code-layout-workspace" onSubmit={analyze}>
         <div className="code-layout-toolbar">
           <label>
             Language
@@ -241,9 +240,9 @@ export default function CodeLayoutPage() {
           value={source}
         />
         <div className="code-layout-workspace-footer">
-          <span>One pasted source block · no code is executed.</span>
+          <span>Source stays in this browser · nothing is executed.</span>
           <button className="analyze-button" disabled={requestState === "loading"} type="submit">
-            {requestState === "loading" ? "Mapping…" : "Map the code"}
+            {requestState === "loading" ? "Analyzing…" : "Analyze source"}
             <span aria-hidden="true">→</span>
           </button>
         </div>

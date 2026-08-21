@@ -1,0 +1,5 @@
+interface:
+  display_name: "Planning"
+  short_description: "Make implementation repeatable"
+policy:
+  allow_implicit_invocation: false
