@@ -22,6 +22,10 @@ Every `SKILL.md` is either user-invoked (`disable-model-invocation: true` plus `
 
 To (re)link every skill into the local harness skill directories (`~/.claude/skills`, `~/.agents/skills`), run `scripts/link-skills.sh`. Each entry is a symlink into this repo, so a `git pull` keeps installed skills current; re-run the script after adding, removing, or renaming a skill.
 
+## Workflow principles
+
+The former workflow principles were removed from this file in commit `cb6a358` with the intention of moving them into invokable skills. Use [`/design-iteration`](./skills/productivity/design-iteration/SKILL.md) for an existing visual feedback round, [`/design-planning`](./skills/productivity/design-planning/SKILL.md) to compare alternatives and settle a direction, then [`/planning`](./skills/productivity/planning/SKILL.md) to make the implementation and verification loop reproducible. These skills keep delivery explicit: they do not commit, push, open pull requests, or change external systems.
+
 ## Agent skills
 
 ### Issue tracker
@@ -43,27 +47,6 @@ This is a single-context repo: read root `CONTEXT.md` and `docs/adr/` for domain
 
 ## Git delivery preferences
 
-- For completed code or documentation changes, automatically run the relevant checks, commit only the task's changes, push the branch, open a pull request targeting `main`, and merge it when checks and repository permissions allow. Do not wait for a separate git instruction.
-- If pull-request tooling is unavailable but direct Git push works, fast-forward the local `main` branch to the tested branch and push `main` to `origin` instead of stopping solely because the PR tool is missing.
-- Never include `.DS_Store`, unrelated files, or changes made by another agent. Stop and report failures, conflicts, missing authentication, or branch protection instead of forcing a merge.
-
-## Delivery fallback note
-
-В предыдущей сессии использовался способ доставки без `gh` и без PAT:
-
-- если PR-инструмент доступен — создать PR и выполнить merge;
-- если `gh` отсутствует, но `git push` работает — безопасно выполнить fast-forward в `main` и отправить `main` в `origin`.
-
-Локальный merge был выполнен так:
-
-```text
-5a6872d..b26a898 main -> main
-```
-
-Результат был отправлен на GitHub:
-
-```text
-main -> origin/main
-```
-
-PAT не понадобился: существующая Git-аутентификация позволила выполнить push. `.DS_Store` не добавлялись. PR не создавался, потому что использовался прямой безопасный merge в `main`.
+- Run the relevant checks for completed code or documentation changes, but do not stage, commit, push, open a pull request, or merge unless the current user explicitly asks for that delivery step.
+- Keep delivery separate from implementation so a reviewed working tree can be paused, compared, or handed to another agent without changing repository history.
+- Never include `.DS_Store`, unrelated files, or changes made by another agent. Stop and report failures, conflicts, missing authentication, or branch protection instead of forcing a delivery operation.

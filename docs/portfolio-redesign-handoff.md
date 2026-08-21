@@ -1,285 +1,102 @@
 # Portfolio redesign — design handoff
 
-> **Retirement note (2026-08-20):** The former analyzer project described in this historical handoff has been removed from the portfolio. The current collection contains Code Layout and Practice Map; older sections below are retained as design history, not as active implementation guidance.
+This is the durable design source of truth. Code shows what is implemented; this file records why the direction exists, what the user liked, what was rejected, and what must not be rediscovered by accident.
 
-**Status:** historical handoff; the former analyzer is retired
-**Implementation status:** current landing collection contains Code Layout and Practice Map
-**Last updated:** 2026-08-20
+## Active handoff — Solid field index (2026-08-21)
 
-## Current target
+**Status:** current direction under implementation after the user rejected the soft Readable signal index as visually insubstantial.
 
-Reconsider the portfolio shell as a curated collection of roughly 4–8 projects presented inside a small observation room/workshop. The first visit should establish an unusual spatial world, then reveal the real projects through scroll and inspection. The retired analyzer remains the first instrument; this concept reset includes the landing scene, shared frame, and the retired analyzer station while leaving analysis behavior unchanged.
+### Outcome
 
-## Settled decisions from pass 1
+Make the portfolio feel **solid, quiet, and intentional**. It should read as a small collection of real systems, not a set of floating marketing cards or a decorative editorial world.
 
-- **Primary job:** help visitors understand the collection and open a project.
-- **Secondary job:** communicate the author's taste and point of view without making the site about the Luna model.
-- **Naming direction:** use `Selected Experiments`; do not keep `Luna Lab`.
-- **Header treatment:** place `Selected Experiments` in the top-left as a small wordmark.
-- **Language:** use a fully English interface.
-- **Visual direction:** keep the dark experimental/editorial foundation, but bring in the clarity and restraint of information design.
-- **Reference vocabulary:** product-forward, high-contrast, dark, futuristic without sci-fi decoration, bold display type, restrained accent color, modular surfaces, deliberate negative space, and a clear visual hierarchy. References supplied by the user: you.com, grok.com, and Meta AI websites.
-- **First viewport:** use the title `Projects for learning by making.` with the subtitle `Small systems for testing ideas, learning in public, and seeing what happens next.`, followed by a calm project list rather than a dominant hero illustration or dashboard.
-- **Orbit motif:** keep the current orbit idea, but make it a subtle and repeatable design-system motif instead of the main attraction. It may move with the pointer on capable devices.
-- **Project layout:** give projects equal visual weight in a two-column desktop grid with a compact artwork zone and content-first hierarchy; collapse to one column on mobile while keeping the full metadata visible.
-- **Card content:** retain the current full metadata set for now: number, status, eyebrow, title, description, technologies, and arrow. Keep all of it visible on mobile as well, with title and description taking visual priority over artwork.
-- **Color:** use a near-monochrome global system; each project gets one accent selected automatically from its project type. The retired analyzer uses electric blue. Do not use a competing global lime/coral/blue palette.
-- **Surface language:** use a mixed geometry system: subtly rounded cards with sharper metadata and frame elements. Use a nearly flat dark background with one restrained radial glow.
-- **Author presence:** include a two-line process-oriented about section and a small header/footer signature; place the about section after the projects and before the footer. Use the copy `These experiments are small signals from a larger practice: making things to understand how they work.` with a playful speculative voice. Do not add a full standalone bio or contact block in this pass.
-- **Typography:** use `Sora` for expressive geometric/futuristic display headings and keep mono for metadata.
-- **Motion:** make the orbit follow the pointer with inertia and give only the artwork/orbit inside cards a visible-but-calm 3–4° tilt/parallax response; keep text stable. When reduced motion is requested, remove pointer-driven motion but retain ordinary state transitions.
-- **Quality constraints:** preserve keyboard navigation and visible focus, meet WCAG AA text contrast, keep pointer effects non-essential, avoid fake hover on touch, and make the layout fully usable on mobile.
-- **First scope:** redesign the landing page and shared project frame. Do not change the Go service or analysis behaviour.
-- **Success criteria:** within a few seconds, a visitor understands what the collection is; shortly after, they understand what the retired analyzer does. The design does not need to optimize for a broader catalogue or dashboard yet.
-- **Frame:** use a minimal back link and project label so each project can remain its own world.
-- **Scale assumption:** design for a curated set of 4–8 projects, without filters or catalogue machinery until the collection requires them.
+### Visual system
 
-## Rejected or deferred for now
+- **Surface:** one flat warm-concrete field; no paper texture, radial glow, glass, or soft atmospheric gradient.
+- **Type:** `Archivo` for headings and project names; `IBM Plex Sans` for reading text; `IBM Plex Mono` for short metadata only. Headings are strong but moderate, never viewport-filling.
+- **Structure:** projects are flush horizontal slabs separated by rules, not rounded floating cards. The project artwork is a hard-edged framed block inside each slab.
+- **Weight:** use dark ink, firm rules, solid color blocks, and one project-specific accent. Avoid shadows and excessive border radii.
+- **Copy:** direct and useful. No lore, journal voice, poetic labels, or metadata that does not help orientation.
 
-- A light-only visual direction.
-- A Russian-only interface.
-- A large catalogue, filtering, or dashboard model.
-- A featured-card hierarchy that makes one project permanently more important than the others.
-- A full workspace redesign for the retired analyzer in the first pass.
-- Full shared navigation or an app-like project switcher.
-- A competing global lime/coral/blue palette.
-- A full standalone bio or contact block.
-- Luna-specific branding or model-related framing.
+### Experience
 
-## Superseded direction — Signal Grid + Transmission Deck
+- The first viewport says `Projects for learning by making.` and brings the collection into view quickly.
+- The hero has one compact, solid signal block. It is a compositional anchor, not a story or navigation metaphor.
+- The collection is a single ordered project list on desktop and mobile. Each row exposes number, status, title, description, technologies, artwork, and a direct link.
+- Code Layout and Practice Map retain distinct artwork because the objects explain different project subjects.
+- Project pages use the same type, surface, rule, and control language while preserving their behavior.
+- Motion is limited to scroll reveal, a small artwork inspection response, and the quiet signal pulse. Text and layout remain stable.
 
-Use Signal Grid as the structural foundation: a calm, content-first two-column grid, equal project weight, clear title/description hierarchy, and a durable information-design system. Add Transmission Deck as the atmospheric layer: restrained technical rails, status markers, project-type signals, layered card surfaces, and playful speculative details. The atmosphere must never make the project content harder to understand.
+### Architecture handoff
 
-The first implementation pass should establish the shared shell, English content, typography, card hierarchy, surface tokens, the retired analyzer's electric-blue accent, and responsive/accessibility rules. Motion and richer speculative details follow as a separate pass after the static hierarchy is reviewed.
+- `ProjectPresentation` is the project-owned semantic visual contract.
+- `ProjectArtwork` is the shared artwork renderer and pointer-inspection module; geometry stays inside its implementation.
+- `LandingPage` is the canonical production route. The older spatial prototype remains comparison-only.
+- The Go service, project discovery, local Practice Map state, and Code Layout behavior are unchanged.
 
-## Pass 1 outcome
+### Quality gate
 
-The static hybrid shell is now implemented: the portfolio and the retired analyzer experience use English copy, Sora headings, a near-monochrome surface system, electric-blue accents for the retired analyzer, content-first project cards, a shared English frame, and responsive accessibility foundations. The Go service and project discovery contracts were left unchanged. Pointer inertia, artwork tilt, and richer transmission details remain intentionally deferred until the visual hierarchy has been reviewed.
+- The collection feels materially grounded without becoming a dashboard, terminal, journal, or gallery of generic cards.
+- The first viewport establishes the collection and reaches the first project row without a large empty stage.
+- Headings are readable at 390px, have deliberate line breaks, and do not dominate the useful content.
+- A project can be understood from its title and description without interacting with the artwork.
+- Rules, solid blocks, and accents create hierarchy; they do not become decoration.
+- Keyboard focus, direct links, mobile gutters, WCAG AA contrast, touch behavior, and `prefers-reduced-motion` remain intact.
 
-## Open decisions for the next round
+## Compact decision graph
 
-- What exact accent token mapping should project types use?
-- Which motion details should survive the first visual review?
-- Which additional project data should be introduced when the collection grows?
+The graph is intentionally terse. When a direction is removed, keep its node and add an edge explaining why; never erase the evidence that produced the next direction.
 
-## Independent direction A — Signal Grid
+```mermaid
+flowchart LR
+  A["Assembly field<br/>spatial instruments"] -->|"terminal-like / too much scene"| B["Quiet kinetic studio<br/>paper + serif + orbit"]
+  B -->|"try-hard journal / unreadable generic type"| C["Readable signal index<br/>IBM Plex + soft cards"]
+  C -->|"compact is good; cards and type lack solidity"| D["Solid field index<br/>Archivo + project slabs"]
+```
 
-**Brainstorm.** This direction treats the portfolio as a quiet research index rather than a landing-page spectacle. The strongest signal is the work itself: a precise title and subtitle establish the premise, then an evenly weighted grid lets each experiment stand on its own. The sci-fi quality comes from the language of signals, systems, and observation, while the visual surface stays calm enough to read. The orbit is not a hero illustration; it becomes a small instrument embedded in each card, with pointer motion revealing depth only when the visitor chooses to engage.
+### Superseded nodes
 
-**Design plan.** The page begins with the small `Selected Experiments` wordmark in the upper-left, followed by `Projects for learning by making.` and its direct subtitle. There is no oversized hero object. A two-column desktop grid follows, with title and description carrying the hierarchy and a compact artwork zone acting as the card's signal. The global surface is near-black with one restrained radial glow, cards have a quiet radius, and metadata uses mono. Sora supplies the large geometric headings. The retired analyzer uses electric blue; future project types receive their accents through a deterministic mapping. The two-line speculative about note sits after the grid, before a minimal footer. The orbit and card artwork can respond to the pointer, but text and layout remain stable.
+- **Assembly field** — kept: project-specific objects, meaningful inspection, restrained motion. Rejected: a spatial world becoming the product and terminal/control-panel atmosphere.
+- **Quiet kinetic studio** — kept: restraint and a small kinetic cue. Rejected: paper/journal framing, serif display type, poetic voice, and decorative orbit language.
+- **Readable signal index** — kept: direct hierarchy, readable body text, systemacity, compactness, and project-specific artwork. Rejected: oversized heading moments, soft rounded cards, and a surface that feels generic or lightweight.
 
-**Execution plan.** The first implementation pass would simplify the page structure and content hierarchy without changing project discovery or the Go service. The second would replace the current visual tokens, typography, card geometry, and responsive rules with this information-design system. The third would add the orbit inertia and artwork-only tilt behind a reduced-motion guard, then verify keyboard focus, contrast, touch behaviour, and mobile density. No implementation starts until this direction has been compared with an independent alternative and explicitly approved.
+### Persistent decisions
 
-## Independent direction B — Transmission Deck
+These survive every direction change unless the user explicitly reverses them:
 
-**Brainstorm.** This direction treats the collection as a small speculative instrument rather than an index. The visitor is not browsing a catalogue; they are entering a transmission deck where each project is a station with a status, a signal, and a point of view. The same content-first constraints remain, but the atmosphere is more playful and visibly science-fictional. Thin rails, status marks, and layered surfaces make the system feel active, while the copy gives the page the feeling of an optimistic field report from an unfamiliar place.
+- The primary job is to understand the collection and open a project.
+- The interface is English and the copy is plain.
+- Character comes from design quality, not lore or visual density.
+- Each project owns its semantic visual identity and keeps distinct artwork.
+- Interaction is optional enhancement, never the shortest path to understanding.
+- Accessibility, mobile usability, reduced motion, and project behavior are non-negotiable.
 
-**Design plan.** The small `Selected Experiments` wordmark still anchors the upper-left, but a quiet status line can sit opposite it, showing the collection as an active set rather than a static archive. The title and subtitle remain direct, followed by an equal two-column grid. Each card behaves like a rounded observation window: the number, status, and accent signal sit on a sharp technical rail; the title and description dominate the body; the artwork is a compact instrument at the edge rather than a large illustration. The near-black background gains a single controlled glow and faint depth layers inside cards. Sora headings become more compressed and assertive, mono metadata becomes more visible, and each project-type accent appears as a narrow luminous edge, signal dot, or small field marker. Pointer movement gives the artwork a slightly more apparent 3–4° response, while the orbit creates a soft sense of micro-gravity. The about block becomes a short transmission note after the grid.
+## Append-only iteration ledger
 
-**Execution plan.** The first implementation pass would keep the same semantic page and project contracts but introduce the deck vocabulary: status rails, signal markers, card layers, and the transmission-style about block. The second would tune the surface depth, accent behaviour, typography scale, and compact artwork placement across desktop and mobile. The third would add the pointer-driven field response with the same reduced-motion fallback and accessibility guarantees, then compare whether the extra atmosphere improves discovery or distracts from the projects. No implementation starts until this direction is compared with Signal Grid and explicitly approved.
+Every review adds one compact entry. The **Liked** field becomes a constraint; the **Rejected** field becomes a guardrail; the new direction becomes a graph node only when it is materially different. Do not rewrite old entries to make the path look cleaner.
 
-## Comparison checkpoint
+### Pass 4 — Readable signal index / compactness (2026-08-21)
 
-Direction A makes the collection feel like a calm research index: quieter, clearer, and more durable as the number of projects grows. Direction B makes it feel like an active speculative instrument: more memorable, more playful, and closer to the user's science-fiction reference, but with a higher risk of visual noise. The approved hybrid keeps A's information hierarchy and B's atmosphere.
+- **Liked:** systemacity, direct hierarchy, readable body type, neutral surface, restrained signal, and more compact composition.
+- **Rejected:** journal styling, oversized display type, decorative atmosphere, and generic poetic language.
+- **Carried forward:** project-specific artwork, direct project links, stable text, reduced motion, and clear metadata.
+- **Result:** compactness improved, but the surface still felt like soft generic cards rather than a solid design system.
 
-Pass 1 implementation is now a historical baseline. Its static shell remains runnable, but its visual direction is superseded by the concept reset below. Keep the next pass small and reviewable; do not fold it into production until the prototype has been visually reviewed.
+### Pass 5 — Solid field index (2026-08-21)
 
-## Concept reset — Observation Room
+- **Liked:** compactness remains a requirement; the useful content should arrive early.
+- **Change:** replace the card catalogue with flush project slabs, firm rules, moderate Archivo headings, a flat concrete field, and hard-edged artwork blocks.
+- **Rejected/deferred:** rounded card shells, shadows, soft gradients, oversized headings, decorative signal labels, and a new spatial world.
+- **Quality gate:** the collection must feel grounded and specific at rest, with the projects carrying the visual weight instead of the container treatment.
+- **Next review:** `/`, `/projects/code-layout`, and `/projects/practice-map` at 1440px, 1024px, and 390px; verify keyboard focus, touch fallback, reduced motion, and real copy lengths.
 
-**Decision.** Reframe `Selected Experiments` as an observation room/workshop rather than a card catalogue. The site should feel geeky through spatial logic, precise objects, neutral instrument labels, meaningful interaction, and overall quality — not through a narrator, lore, or decorative sci-fi vocabulary.
+## Deterministic handoff protocol
 
-**World.** The visual setting combines an observation room with an abstract spatial field. Fiction is ambient: it lives in depth, distance, object placement, labels, and small easter eggs. No fictional character speaks to the visitor and no lore is required to understand a project.
+1. Read the active direction, persistent decisions, graph, and latest ledger entry before editing.
+2. Derive the next pass from the latest **Liked** and **Rejected** fields; do not restart from the code's current appearance alone.
+3. Make one coherent visual change and preserve unrelated behavior.
+4. Review the fixed routes, viewports, states, and content lengths named by the entry.
+5. Append the result before beginning another pass. If a trait is removed, collapse it into a graph node with its reason instead of deleting it.
+6. Stop when the quality gate passes. A new aesthetic idea is a new decision and must enter the graph before implementation.
 
-**Confirmed decisions.**
-
-- Keep the name `Selected Experiments`.
-- Use `Station`, `Instrument`, `Study`, and `Field` as the limited neutral vocabulary.
-- Build a CSS/DOM-perspective spatial world as the primary direction; compare it against a flatter 2.5D control.
-- Show the ambient world first; the retired analyzer appears as the first station after scroll rather than as an oversized explanatory hero.
-- Let pointer movement make the artifact respond; a click opens the project. Camera behavior remains unresolved until the prototype is seen.
-- Continue the immersive spatial language into project pages; the retired analyzer contains the full analyzer station with textarea, action, and results.
-- Keep future projects as honest labelled empty slots.
-- Give each real project an interactive artifact and one deliberate oddity in its behavior or output.
-- Use ordinary project titles/descriptions and museum-like captions, with only a few neutral instrument terms around them.
-- Treat typography/spacing, precise copy, artifact fidelity, meaningful interaction, and the spatial world as the quality bar. Collection clarity is intentionally evaluated after the atmospheric pass, but keyboard, mobile, reduced-motion, and 2D fallback remain non-negotiable.
-
-**Prototype brief.** Build two variants on one route with the same station for the retired analyzer and content density:
-
-1. **Perspective room (primary):** CSS/DOM perspective, spatial layers, scroll-based movement, ambient field first, and a full 2D/keyboard fallback.
-2. **2.5D field (control):** flatter layered composition with the same station, scroll path, click behavior, and fallback.
-
-The prototype must answer whether spatial depth creates character or merely adds complexity. It is throwaway visual evidence, not a production architecture decision. Do not change the Go service or analysis behavior.
-
-**Next review.** Compare the two variants for spatial character, artifact interaction, typography/copy quality, and whether the retired analyzer becomes understandable after one scroll. Record the verdict here before implementing the production shell.
-
-## Visual review feedback — round 2
-
-**Status:** direction is still under review; the production shell remains frozen.
-
-The interaction-first structure is working and should remain: the visitor enters a spatial composition, discovers a project, approaches its station, tries the project, and can continue into the full project page. The overall navigation and narrative skeleton should survive, but the visual composition of each stage may change substantially.
-
-### Refined direction
-
-- Prefer an **abstract museum of unfinished instruments**: a mostly empty spatial field in which project objects appear gradually, rather than a literal room that needs architecture or lore.
-- Use one shared spatial scene on the portfolio landing page. Project pages may then give each project its own interaction and artifact behavior.
-- Support a range of 3D interactions—inspection, rotation, manipulation, layer reveal, spatial movement, and project-specific behavior—but only when the behavior explains or deepens the project.
-- Character should come primarily from **design quality**, not from a narrator, excessive copy, or invented terminology.
-- Technical vocabulary is not the root problem and should not be removed mechanically. Labels, mono type, grids, or sci-fi cues may remain when they serve a real compositional or navigational purpose.
-
-### Non-negotiable quality principle
-
-> **Restraint: few elements, but each chosen precisely.**
-
-Restraint is the main expression of character. Do not add more objects, labels, motion, glow, or lore to compensate for an under-resolved visual idea. Every visible element should earn its place through composition, materiality, typography, interaction, or meaning. The work should feel finished because its decisions are precise—not because the scene is dense.
-
-### Quality bar
-
-The next prototype should be evaluated for:
-
-- material depth and tactile credibility;
-- strong typography and composition;
-- an art direction that does not feel template-derived;
-- responsive, physically convincing interaction;
-- deliberate negative space and a small number of high-confidence elements.
-
-The terminal/control-panel feeling is treated as a symptom of insufficient specificity and finish, not as a ban on technical visual language. The next pass should therefore improve the quality and specificity of the objects, composition, and behavior rather than merely deleting status labels or replacing the palette.
-
-### Still unresolved
-
-- What specific visual and material qualities will define the shared scene?
-- What is the minimum 3D interaction grammar shared by all projects?
-- Which project-specific interaction should the retired analyzer use?
-- How should an object emerge from the empty field during the first visit?
-
-Do not promote the prototype into production until these questions have been answered and the resulting scene demonstrates restraint, spatial character, and meaningful interaction together.
-
-## Visual review feedback — round 3
-
-The current working direction is now more specific:
-
-- **Material reference:** engineered metal and mechanical detail. Use this as a material and construction language, not as a return to generic control-panel chrome.
-- **Shared landing interaction:** visitors should be able to inspect an object from different angles, drag an object or one of its parts, and scroll to reveal deeper layers. These interactions share one spatial scene rather than requiring a separate world for each project.
-- **the retired analyzer artifact:** combine sheets or layers of text with an abstract typographic object. The artifact may be enigmatic, but its relationship to text should be discoverable.
-- **Object emergence:** the object should assemble from parts, with the project title and short description establishing context before the object settles into its form. The object may adapt to the identity of the project rather than appearing as a generic symbol.
-- **Clarity:** the title and short description should make the project understandable; the artifact itself is allowed to remain partially mysterious and invite inspection.
-
-The dominant design principle remains:
-
-> **Restraint: few elements, but each chosen precisely.**
-
-The next direction should therefore use a small number of engineered, carefully composed parts and a limited interaction vocabulary. The scene should feel rich because its objects have structure and consequence, not because it contains many simultaneous effects.
-
-### Implementation guardrails for the next prototype
-
-- Keep one shared spatial-scene module behind a small interface for camera/scroll and object selection.
-- Keep project-specific artifact behavior behind the project page or artifact interface; do not put the retired analyzer conditions into the shared scene.
-- Treat pointer inspection, drag manipulation, and scroll layer reveal as distinct interactions with visible state changes.
-- Preserve the existing navigation and project-loading structure while replacing the current generic world surface and pin behavior.
-- Use the existing React/CSS stack first; introduce a new 3D adapter only if the current implementation cannot provide the required interaction fidelity.
-- Read `skills/engineering/codebase-design/SKILL.md` before restructuring modules, and apply its vocabulary of module, interface, depth, seam, adapter, leverage, and locality.
-- Follow the repository's `CLAUDE.md`/`AGENTS.md` workflow: compare design alternatives before implementation, keep the production UI frozen until the prototype answers the visual question, and run the relevant typecheck/build after code changes.
-
-## Prototype pass 2 — Assembly field / Typographic field
-
-The throwaway prototype now lives in `portfolio/shell/src/prototype/PortfolioPrototype.tsx` and `prototype.css`, behind the existing `/?prototype=room` and `/?prototype=field` routes. The production landing page, project frame, Go service, and analysis contracts remain unchanged.
-
-- **Assembly field (`room`):** a two-part composition with a perspective metal field, a central artifact, and a project caption beside it.
-- **Typographic field (`field`):** a flatter, more open composition where the artifact occupies the field and the project caption sits over the lower edge.
-- Both variants share the same artifact for the retired analyzer so the comparison isolates spatial composition rather than changing the project.
-- The artifact begins exploded and assembles as the visitor scrolls. Pointer movement tilts it on capable devices; each metal/text part can be dragged, and focused parts can be nudged with arrow keys.
-- The retired analyzer remains a local visual prototype with the same lightweight sample analysis. The full Go-backed analysis behavior is untouched.
-- Reduced motion removes camera and pointer tilt while retaining the object state and keyboard fallback.
-
-**Visual verdict:** pending review. The next decision is whether the engineered material language and restrained assembly interaction create more character than the prior observation-room surface without making the project harder to understand.
-
-## Production promotion — Assembly field
-
-**Decision:** the user reviewed `/?prototype=room` and selected the Assembly field direction as the main portfolio experience.
-
-- The default `/` route now renders the Assembly field without the comparison switcher or prototype-only footer language.
-- `/?prototype=room` remains available as the explicit comparison route; `/?prototype=field` remains the flatter control.
-- Project pages and the Go-backed full study for the retired analyzer remain on the existing project-frame path.
-- The default landing page keeps the assembly artifact and project index only; the embedded station for the retired analyzer remains available on the explicit comparison routes, while the full analyzer remains at the retired analyzer route.
-- The production promotion is limited to the portfolio shell and shared frame; no project discovery or service contract changed.
-
-The next review should verify the default route at `/`, then confirm that the full project page for the retired analyzer is the canonical analyzer experience; the embedded station is comparison-only and does not change the Go service.
-
-## Project-page visual alignment — Code Layout
-
-Code Layout initially used the earlier flat project-page styling even though the main route had already moved to the Assembly field direction. Its project page now follows the approved visual language: engineered metal surfaces, restrained negative space, layered spatial depth, a small pointer-responsive structure artifact, and typography consistent with the main field. The analyzer interaction remains the same; this change aligns the project frame and visual presentation without changing the Go layout module.
-
-## Visual revision — horizontal negative space and writing width
-
-**Decision:** the spatial field should not read as a full-bleed application surface. Desktop layouts need visible free space on both sides, and the text-writing workspace must remain a deliberately framed, readable object rather than stretching across the viewport.
-
-- Keep the main Assembly field inside a centered shell with generous horizontal gutters.
-- Limit the retired analyzer heading, writing workspace, and station footer to a narrower shared measure so the input and output feel like an instrument inside the field, not a page-wide dashboard.
-- Preserve the larger surrounding field and vertical pauses; compactness should come from the width and scale of individual elements, not from removing all negative space.
-- On small screens, allow the shell and workspace to use the available width with a safe mobile gutter; the desktop constraint must not create horizontal scrolling or truncate the writing area.
-- Treat horizontal negative space as a quality gate: no primary text surface or project station should appear edge-to-edge on desktop unless a future project has a specific compositional reason.
-
-This addition operationalizes the existing principle:
-
-> **Restraint: few elements, but each chosen precisely.**
-
-A narrow writing measure is part of the interaction design. It gives text room to breathe, keeps line length readable, and makes the act of writing feel intentional without reducing the analyzer's capability.
-
-## Landing-page simplification — no duplicated station for the retired analyzer
-
-**Decision:** the default `/` landing page should not repeat the full study for the retired analyzer block beneath the spatial field. The artifact caption and compact project index establish the collection; the complete writing/analyzer experience belongs on the retired analyzer route.
-
-- Do not render the embedded `the retired analyzer / first study` workspace on the default landing route.
-- Keep the direct links from the artifact and the collection index so the retired analyzer remains easy to open.
-- Preserve the local station on `/?prototype=room` and `/?prototype=field` only as a comparison tool for visual review.
-- Avoid using the same title, description, technology list, and writing surface in multiple consecutive landing-page sections.
-
-That earlier pass reduced repetition; the analyzer has since been retired, so no analyzer station remains on the landing page.
-
-## Instrument collection — one artifact per project
-
-**Decision:** every discovered project must have one interactive spatial instrument on the landing page, not only a row in the project index.
-
-- The first instrument remains the retired analyzer and keeps the current assembly interaction: scroll reveals layers, pointer movement changes the view, parts can be dragged, and focused parts respond to arrow keys.
-- Additional projects use the same small instrument interface but receive their own artifact definition: parts, center mark, material treatment, and project link.
-- The shared interaction implementation stays behind the `AssemblyField` module; project-specific visual data belongs in an instrument definition rather than in repeated event-handling code.
-- The retired analyzer is kept first for narrative continuity, even when the catalog sorts projects alphabetically.
-- Each instrument must explain which project it represents and provide a direct path to that project's full page.
-- A new project should receive a generic fallback instrument until its specific artifact definition is designed; adding a project must not require duplicating the spatial interaction implementation.
-
-This is the intended deep-module seam: the collection supplies a project and a small instrument definition, while the shared module owns pointer inspection, drag state, scroll assembly, keyboard movement, focus state, and reduced-motion behavior.
-
-## Visual refinement — smaller, more grounded instruments
-
-**Decision:** the instruments should read as small physical objects in a quiet field, not as futuristic control consoles or large sci-fi set pieces.
-
-- Reduce each instrument's field height and artifact scale so the collection can be scanned without every project becoming a full-screen event.
-- Keep the interaction depth—inspection, assembly, dragging, and keyboard movement—but make the object itself visually modest.
-- Prefer neutral metal, paper, charcoal, and warm off-white material cues. Reserve the blue accent for meaningful focus or project-specific signals rather than using it as ambient glow.
-- Reduce radial glows, luminous borders, oversized labels, and technical grid intensity. Negative space should carry more of the atmosphere.
-- Preserve a clear project title, description, and direct link beside each object; the quieter treatment must not reduce discoverability.
-
-The quality test is now: **small, tactile, and specific**. If an instrument needs a large field, strong glow, or futuristic ornament to feel interesting, its form or interaction is not resolved yet.
-
-## Layout refinement — compact instrument gallery
-
-**Decision:** one artifact per project does not mean one full-height field per project. The landing page should let visitors scan the whole collection with substantially less scrolling.
-
-- Present instruments in a compact two-column gallery on desktop and a single-column gallery on mobile.
-- Remove the separate project index when the instrument cards already provide title, description, status, and project links.
-- Keep each card interactive, but give the model a modest amount of space; the full project page owns the deeper experience.
-- Let the retired analyzer remain first for narrative continuity, while each later project receives its own model geometry.
-- The collection should feel like one exhibition, not a sequence of independent full-screen rooms.
-
-The page-length quality gate is now structural: the collection layout should scale by grid rows, not by one full spatial field per project.
-
-## Visual revision — individualized project instruments
-
-**Decision:** shared interaction mechanics must not produce shared-looking projects. The landing field keeps one restrained spatial grammar, but every discovered project receives a distinct object, material cue, and motion verb that comes from what the project actually does.
-
-- **Retired analyzer** is a reading folio: pages, a binding spine, and a typographic plate stack into a compact instrument. Its scroll behavior is about bringing a draft's layers together.
-- **Code Layout** is a structure map: declaration nodes, a dependency rail, a source block, and an entry point connect as a small graph. Its scroll behavior is about relationships becoming legible, not pages assembling.
-- **Practice Map** is working terrain: a folded map, contour lines, a route, a waypoint, and a compass unfold into a path. Its scroll behavior is about finding the next direction.
-- The shared `AssemblyField` module owns pointer inspection, drag state, scroll progress, keyboard movement, focus state, and reduced-motion behavior. An instrument definition owns the project-specific parts, marks, materials, labels, and motion verb.
-- The visual system stays reserved: dark neutral surfaces, quiet shadows, one meaningful accent per instrument, no ornamental glow or lore. The object should clarify the project's character rather than perform 3D for its own sake.
-
-The review gate is now stronger than “each project has an artifact”: at rest, the silhouettes must be recognizably different; during scroll, the state change must have a different meaning; and the title and description must remain the shortest path to understanding the project.
+The canonical workflow for this protocol is `/design-iteration`; `/design-planning` and `/planning` remain the lower-level choice and execution-plan skills.
