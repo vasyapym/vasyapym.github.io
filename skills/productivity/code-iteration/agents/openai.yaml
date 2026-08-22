@@ -1,0 +1,5 @@
+interface:
+  display_name: "Code Iteration"
+  short_description: "Iterate on code through explicit plans and passes"
+policy:
+  allow_implicit_invocation: false

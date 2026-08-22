@@ -7,6 +7,8 @@ General workflow tools, not code-specific.
 Reachable only when you type them (Claude Code: `disable-model-invocation: true`; Codex: `policy.allow_implicit_invocation: false` in `agents/openai.yaml`).
 
 - **[brainstorm](./brainstorm/SKILL.md)** — Inspect the full diff and surrounding architecture, then propose high-leverage improvements without editing files.
+- **[code-iteration](./code-iteration/SKILL.md)** — Iterate on non-trivial code changes through explicit planning, implementation passes, and verification.
+- **[custom-learning](./custom-learning/SKILL.md)** — Learn technologies one proof-of-skill Subcard at a time through an interactive Practice Map.
 - **[design-iteration](./design-iteration/SKILL.md)** — Recreate visual taste from an append-only decision graph and fixed review evidence.
 - **[design-planning](./design-planning/SKILL.md)** — Compare two design directions and settle the choice before implementation.
 - **[planning](./planning/SKILL.md)** — Turn an approved direction into a repeatable implementation and verification plan.

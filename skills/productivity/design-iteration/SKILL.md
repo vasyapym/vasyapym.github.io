@@ -1,55 +1,57 @@
 ---
 name: design-iteration
-description: Recreate a preferred visual direction through evidence-led design iterations and an append-only decision graph.
-argument-hint: "A visual feedback round or a design handoff to continue"
-disable-model-invocation: true
+description: Run a visual feedback round against an existing implementation and its design handoff; maintain an append-only decision graph.
 ---
 
-# Design iteration
+## What it does
 
-Use this skill when a visual implementation already exists and the user is giving feedback on what to keep, remove, or try next. It turns taste into durable evidence instead of letting each session rediscover a style by luck.
+`design-iteration` runs a visual feedback round against an existing implementation and its design handoff. It extracts the user's liked and rejected qualities, compares alternatives, implements one coherent pass, reviews fixed evidence, and appends the result to an iteration ledger.
 
-## Contract
+Its defining constraint is an **append-only decision graph**. When a direction is replaced, the skill keeps a small node with its useful qualities and rejection reason, then adds an edge to the successor. The next session therefore learns from both approval and failure instead of recreating an old design by luck.
 
-One run has one target and produces four inspectable outputs:
+## When to reach for it
 
-1. a baseline read from the current design handoff, its compact decision graph, the latest ledger entry, and the current implementation;
-2. two genuinely different candidate directions, or one explicitly approved direction supplied by the user;
-3. one coherent implementation pass followed by a fixed visual/accessibility review;
-4. an append-only handoff entry and graph edge describing what was liked, rejected, changed, and verified.
+You invoke this by typing `/design-iteration` — the agent won't reach for it on its own. Use it when a portfolio, product surface, or other visual implementation already exists and you are giving a new review round.
 
-If the direction is still open, stop after the candidates and ask the user to choose. Do not quietly implement the agent's favorite.
+| Situation | Reach for |
+| --- | --- |
+| An existing visual direction needs another feedback pass | `/design-iteration` |
+| The design direction is open before implementation | [design-planning](https://aihero.dev/skills-design-planning) |
+| The chosen direction needs an implementation sequence | [planning](https://aihero.dev/skills-planning) |
+| The question needs a runnable visual comparison | [prototype](https://aihero.dev/skills-prototype) |
 
-## The no-luck algorithm
+## The iteration loop
 
-1. **Load the trajectory.** Read the active handoff, persistent decisions, decision graph, latest iteration entry, relevant ADRs, and recent code history. Treat the handoff as the design memory and the code as evidence of the current implementation, not as the only source of intent.
-2. **Atomize feedback.** Convert the user's words into small constraints under five headings: surface/material, typography, structure, interaction, and content. Separate **Liked**, **Rejected**, and **Unknown**. Never turn an unknown preference into a confident rule.
-3. **Protect history.** Before changing a direction, give the outgoing direction a compact graph node containing its name, the qualities worth carrying, and the reason it was rejected. Add a superseding edge. Do not delete the old prose until its decision-rich content has been compressed into that node.
-4. **Generate alternatives independently.** Build two candidates from the same baseline and constraints. Candidate B must not read Candidate A's proposal. Each candidate states the visual grammar, type/surface/structure choices, motion policy, affected modules, tradeoffs, and fixed review evidence. For a high-impact choice, repeat the planning exercise from a clean context before comparing.
-5. **Choose with a rubric.** Compare user fit, solidity/specificity, legibility, restraint, locality, accessibility, reversibility, and verification cost. Recommend one, but leave the choice to the user unless the user already approved the direction in the invocation.
-6. **Implement one pass.** Change one coherent visual concern. Prefer existing project and artwork contracts. Do not add a library, motion, metadata, or abstraction unless the handoff's constraints and the actual variation justify it.
-7. **Review the same evidence every time.** Use the routes, viewport widths, content lengths, keyboard states, touch fallback, and reduced-motion mode named in the handoff. Check the visual result against the quality gate, not against a vague feeling produced by the latest screenshot.
-8. **Record before continuing.** Append a compact ledger entry with **Liked**, **Rejected**, **Changed**, **Quality gate**, **Next review**, and verification results. If the pass removes a trait, update the graph with a short reason. Never rewrite an earlier entry to make the history look cleaner.
+The skill loads the handoff graph, atomizes feedback into surface, typography, structure, interaction, and content constraints, and protects outgoing decisions before changing them. It compares two independent candidates unless the user has already chosen one, then makes one coherent pass and checks the same routes, viewports, content lengths, focus states, touch fallback, and reduced-motion mode named by the handoff.
 
-## Compact graph format
+The output is not just a screenshot. It is a new ledger entry containing **Liked**, **Rejected**, **Changed**, **Quality gate**, **Next review**, and verification results. That record becomes the input to the next pass.
 
-Use a small Mermaid graph or equivalent text graph. A node needs only:
+## Common questions
 
-- a stable direction name;
-- one line of carried-forward qualities;
-- one line of rejection or supersession reason.
+**Does it keep old design decisions?**
 
-Edges describe the decision: `supersedes`, `too generic`, `unreadable`, `too dense`, or another evidence-backed reason. The graph is the compression layer; detailed visual prose belongs only in the active direction and the latest ledger entry.
+Yes. A removed direction is compressed into a graph node with its name, carried-forward qualities, and rejection reason. The full handoff can stay short because the graph preserves the decision rather than repeating the entire visual description.
 
-## Guardrails
+**Does it always implement immediately?**
 
-- Never infer a permanent preference from one unreviewed screenshot.
-- Never erase a rejected direction without preserving its minimal node and reason.
-- Never use the current CSS as the design source of truth when the handoff disagrees; reconcile the mismatch explicitly.
-- Never let animation, novelty, or a new font compensate for a weak composition.
-- Never make the user repeat a decision already represented in the graph.
-- Never commit, push, open a pull request, or change external systems as part of planning or design review; delivery is a separate explicit step.
+No. If the user has not chosen a direction, it stops after presenting independent candidates. It implements only a direction that is already approved or explicitly selected in the invocation.
 
-## Done when
+**How is this different from `design-planning`?**
 
-The chosen pass is visually reviewed, the fixed checks are green, the user-liked qualities are named as reusable constraints, rejected traits are guarded against, and a fresh agent can continue from the handoff without reconstructing the whole conversation.
+`design-planning` is the choice gate before implementation. `design-iteration` is the recurring loop around an existing visual surface: it reads prior evidence, protects history, implements one pass, and records the review result.
+
+**Can it guarantee a design I like?**
+
+No tool can guarantee taste. It can make the process reproducible: liked traits become constraints, rejected traits become guardrails, alternatives are compared deliberately, and the same visual evidence is reviewed each time. That removes avoidable luck from the loop.
+
+## It's working if
+
+- The skill can state what the user liked before suggesting a new direction.
+- Rejected directions remain discoverable as compact graph nodes.
+- Each pass changes one coherent visual concern rather than restarting the whole identity.
+- The review uses fixed routes and viewports instead of a single convenient screenshot.
+- The next session can continue without asking the user to repeat settled preferences.
+
+## Where it fits
+
+`design-iteration` is a **reach-for-it-anytime visual maintenance loop**. It can follow a prototype or an approved direction and can hand its recorded decision to [design-planning](https://aihero.dev/skills-design-planning) or [planning](https://aihero.dev/skills-planning) when a larger new choice or execution plan is needed. Its closest neighbour is [brainstorm](https://aihero.dev/skills-brainstorm), which proposes fresh ideas around a diff without maintaining design memory. [ask-matt](https://aihero.dev/skills-ask-matt) routes over the whole set.

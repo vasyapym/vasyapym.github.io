@@ -1,0 +1,5 @@
+interface:
+  display_name: "Custom Learning"
+  short_description: "Learn technologies through one proof-of-skill subcard at a time"
+policy:
+  allow_implicit_invocation: false
