@@ -6,7 +6,7 @@ const REDUCED_MOTION_QUERY = "(prefers-reduced-motion: reduce)";
 
 const PAYLOADS = [
   {
-    name: "Luna core",
+    name: "Core",
     label: "01 / emissive",
     detail: "An icosahedral shell with a hot center and a material edge that catches the key light.",
   },
@@ -80,15 +80,15 @@ export default function ExplosionLunaPage() {
     <section className="explosion-page" aria-labelledby="explosion-title">
       <header className="explosion-hero">
         <div>
-          <p className="eyebrow explosion-eyebrow">Explosion Luna / unlisted specimen</p>
+          <p className="eyebrow explosion-eyebrow">Explosion / unlisted specimen</p>
           <h1 id="explosion-title">
             Break the specimen.
             <span>Keep clicking.</span>
           </h1>
           <p className="explosion-intro">
-            The card on the index is a trapdoor, not a route. Every ordinary click is intercepted
-            at the pointer and turned into a Three.js impact: real meshes, depth, sparks, and a
-            few secondary blasts landing nearby.
+            A sealed specimen room built on Three.js. Every ordinary click inside the room is
+            intercepted at the pointer and turned into a local impact: real meshes, depth,
+            sparks, and a few secondary blasts landing nearby.
           </p>
         </div>
         <dl className="explosion-facts">
@@ -123,7 +123,7 @@ export default function ExplosionLunaPage() {
           className={`explosion-stage${!hasScene ? " is-fallback" : ""}`}
           role="button"
           tabIndex={0}
-          aria-label="Explosion Luna specimen room. Click or press Enter to detonate."
+          aria-label="Explosion specimen room. Click or press Enter to detonate."
           onPointerDown={handlePointerDown}
           onKeyDown={handleKeyDown}
         >
@@ -140,7 +140,7 @@ export default function ExplosionLunaPage() {
         </div>
       </section>
 
-      <div className="explosion-payloads" aria-label="Explosion Luna payloads">
+      <div className="explosion-payloads" aria-label="Explosion payloads">
         {PAYLOADS.map((payload) => (
           <article className="explosion-payload" key={payload.name}>
             <h3>{payload.name}</h3>
@@ -152,8 +152,8 @@ export default function ExplosionLunaPage() {
 
       <footer className="explosion-footer">
         <p>
-          The index card keeps its normal link for modified clicks and direct URLs, but a plain
-          primary click stays in place and triggers the impact instead.
+          The detonation is local to the room: the impact lands where you click, and the rest of
+          the page stays still.
         </p>
         <span>Keyboard: <kbd>Enter</kbd> / <kbd>Space</kbd></span>
       </footer>

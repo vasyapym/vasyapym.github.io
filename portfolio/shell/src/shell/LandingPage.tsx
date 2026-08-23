@@ -12,32 +12,6 @@ export default function LandingPage({ projects, onOpenProject }: LandingPageProp
   const pageRef = useRef<HTMLElement>(null);
   const [revealedProjects, setRevealedProjects] = useState<Set<string>>(() => new Set());
   const [revealReady, setRevealReady] = useState(false);
-  const shakeTimeout = useRef<number | null>(null);
-
-  const shakeScreen = () => {
-    if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) {
-      return;
-    }
-    if (shakeTimeout.current !== null) {
-      window.clearTimeout(shakeTimeout.current);
-    }
-    document.body.classList.remove("screen-shake");
-    void document.body.offsetWidth;
-    document.body.classList.add("screen-shake");
-    shakeTimeout.current = window.setTimeout(() => {
-      document.body.classList.remove("screen-shake");
-      shakeTimeout.current = null;
-    }, 520);
-  };
-
-  useEffect(() => {
-    return () => {
-      if (shakeTimeout.current !== null) {
-        window.clearTimeout(shakeTimeout.current);
-      }
-    };
-  }, []);
-
   useEffect(() => {
     const page = pageRef.current;
     if (!page) {
@@ -129,10 +103,6 @@ export default function LandingPage({ projects, onOpenProject }: LandingPageProp
                 onClick={(event) => {
                   if (event.button === 0 && !event.metaKey && !event.ctrlKey && !event.shiftKey && !event.altKey) {
                     event.preventDefault();
-                    if (project.onCardActivate) {
-                      project.onCardActivate({ x: event.clientX, y: event.clientY, shakeScreen });
-                      return;
-                    }
                     onOpenProject(project.id);
                   }
                 }}

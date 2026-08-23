@@ -1,13 +1,12 @@
 import type { ProjectModule } from "../../contracts/project-module";
-import { detonate } from "./web/detonate";
 
 const explosionLuna: ProjectModule = {
-  id: "explosion_luna",
-  title: "Explosion Luna",
+  id: "explosion",
+  title: "Explosion",
   tag: "test",
   eyebrow: "Unlisted kinetic specimen",
   description:
-    "A hidden stress test for the project index. Click the card and the scene breaks open at the point of impact, with no route change.",
+    "A stress test for the specimen room. Open it and every click inside the room breaks the scene open at the point of impact.",
   technologies: ["Three.js", "WebGL", "TypeScript"],
   status: "available",
   accent: "red",
@@ -18,11 +17,11 @@ const explosionLuna: ProjectModule = {
     centerMark: "generic",
     note: "Impact test / repeatable",
     motionLabel: "the specimen fractures",
-    instruction: "Click the card to detonate the specimen at the point of impact.",
+    instruction: "Open the specimen room and click to detonate at the point of impact.",
     parts: [
       {
         id: "luna-shell",
-        label: "Luna shell",
+        label: "Shell",
         className: "presentation-part-luna-shell",
         anchorX: -50,
         anchorY: -18,
@@ -61,7 +60,7 @@ const explosionLuna: ProjectModule = {
       },
       {
         id: "luna-core",
-        label: "Luna core",
+        label: "Core",
         className: "presentation-part-luna-core",
         anchorX: -82,
         anchorY: 42,
@@ -76,11 +75,6 @@ const explosionLuna: ProjectModule = {
     ],
   },
   loadPage: () => import("./web/ExplosionLunaPage"),
-  onCardActivate: ({ x, y, shakeScreen }) => {
-    if (detonate({ x, y })) {
-      shakeScreen();
-    }
-  },
 };
 
 export default explosionLuna;

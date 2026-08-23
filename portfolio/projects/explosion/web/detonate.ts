@@ -36,6 +36,7 @@ type SparkCloud = {
 };
 
 type SceneController = {
+  readonly role: "overlay" | "stage";
   readonly element: HTMLElement;
   readonly renderer: THREE.WebGLRenderer;
   readonly scene: THREE.Scene;
@@ -48,7 +49,10 @@ type SceneController = {
   disposed: boolean;
 };
 
+// Only full-screen overlay controllers occupy this slot. Specimen-room
+// controllers are tracked separately so the two coordinate systems never mix.
 let overlayController: SceneController | null = null;
+let stageController: SceneController | null = null;
 
 const COLORS = [
   0xffc77b,
@@ -154,6 +158,7 @@ function createBurst(scene: THREE.Scene, origin: THREE.Vector3, scale: number, d
   group.position.copy(origin);
   group.scale.setScalar(scale);
   group.userData.delay = delay;
+  group.visible = delay <= 0;
   scene.add(group);
 
   const coreMaterial = createMaterial(new THREE.Color(0xffa14d), 0xff5a20, 0.24);
@@ -250,6 +255,7 @@ function updateBurst(burst: Burst, dt: number): void {
   if (burst.age < 0) {
     return;
   }
+  burst.group.visible = true;
 
   const progress = Math.min(burst.age / BURST_LIFETIME, 1);
   const fade = Math.max(0, 1 - Math.max(0, progress - 0.68) / 0.32);
@@ -313,7 +319,7 @@ function disposeBurst(burst: Burst): void {
   burst.group.removeFromParent();
 }
 
-function createController(element: HTMLElement): SceneController | null {
+function createController(element: HTMLElement, role: SceneController["role"]): SceneController | null {
   const canvas = document.createElement("canvas");
   canvas.className = "explosion-overlay-canvas";
   canvas.setAttribute("aria-hidden", "true");
@@ -345,8 +351,11 @@ function createController(element: HTMLElement): SceneController | null {
     camera.updateProjectionMatrix();
   };
   resize();
+  const resizeObserver = new ResizeObserver(() => resize());
+  resizeObserver.observe(element);
 
   const controller: SceneController = {
+    role,
     element,
     renderer,
     scene,
@@ -360,7 +369,7 @@ function createController(element: HTMLElement): SceneController | null {
       }
       controller.disposed = true;
       cancelAnimationFrame(controller.frame);
-      window.removeEventListener("resize", resize);
+      resizeObserver.disconnect();
       controller.bursts.forEach(disposeBurst);
       controller.bursts.length = 0;
       scene.traverse((object) => {
@@ -380,13 +389,14 @@ function createController(element: HTMLElement): SceneController | null {
       if (overlayController === controller) {
         overlayController = null;
       }
+      if (stageController === controller) {
+        stageController = null;
+      }
     },
     frame: 0,
     disposed: false,
   };
 
-  window.addEventListener("resize", resize);
-  overlayController = controller;
   return controller;
 }
 
@@ -395,10 +405,11 @@ function ensureOverlayController(): SceneController | null {
     return overlayController;
   }
   const element = document.getElementById(OVERLAY_ID) ?? createOverlayElement();
-  const controller = createController(element);
+  const controller = createController(element, "overlay");
   if (!controller) {
     return null;
   }
+  overlayController = controller;
 
   const loop = () => {
     if (controller.disposed) {
@@ -428,9 +439,13 @@ function createOverlayElement(): HTMLElement {
 
 function toWorldPoint(at: DetonationPoint, controller: SceneController): THREE.Vector3 {
   const rect = controller.element.getBoundingClientRect();
+  const width = rect.width > 0 ? rect.width : window.innerWidth;
+  const height = rect.height > 0 ? rect.height : window.innerHeight;
+  const left = rect.width > 0 ? rect.left : 0;
+  const top = rect.height > 0 ? rect.top : 0;
   const ndc = new THREE.Vector3(
-    ((at.x - rect.left) / rect.width) * 2 - 1,
-    -((at.y - rect.top) / rect.height) * 2 + 1,
+    ((at.x - left) / width) * 2 - 1,
+    -((at.y - top) / height) * 2 + 1,
     0,
   );
   ndc.unproject(controller.camera);
@@ -452,7 +467,7 @@ export function detonate(at: DetonationPoint): boolean {
   if (reducedMotion()) {
     return false;
   }
-  const controller = ensureOverlayController();
+  const controller = stageController && !stageController.disposed ? stageController : ensureOverlayController();
   if (!controller) {
     return false;
   }
@@ -469,10 +484,11 @@ export function detonate(at: DetonationPoint): boolean {
 }
 
 export function mountSpecimen(element: HTMLElement): (() => void) | null {
-  const controller = createController(element);
+  const controller = createController(element, "stage");
   if (!controller) {
     return null;
   }
+  stageController = controller;
 
   const specimenGroup = new THREE.Group();
   controller.scene.add(specimenGroup);

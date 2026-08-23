@@ -1589,95 +1589,6 @@ textarea:focus-visible {
   }}
 
 
-/* Explosion Alpha */
-.presentation-explosion-alpha {
-  --project-accent: #ff8a3c;
-  --project-ink: #f3e2cf;
-  --project-surface: #2a1c12;
-  background:
-    radial-gradient(130% 110% at 50% 115%, rgba(255, 138, 60, 0.22), transparent 58%),
-    #140d09;}
-
-
-.presentation-explosion-alpha .project-artwork-note {
-  color: rgba(243, 226, 207, 0.62);}
-
-
-.presentation-explosion-alpha .project-artwork-center {
-  color: #140d09;
-  border-color: var(--project-accent);
-  background: var(--project-accent);
-  box-shadow: 0 0 24px rgba(255, 138, 60, 0.45);}
-
-
-.presentation-part-charge {
-  width: 150px;
-  height: 92px;
-  padding: 14px 18px;
-  border: 1px dashed rgba(255, 138, 60, 0.6);
-  color: var(--project-accent);
-  background: rgba(255, 138, 60, 0.07);}
-
-
-.presentation-part-charge .project-mark-stack {
-  width: 78%;}
-
-
-.presentation-part-shards {
-  width: 128px;
-  height: 94px;
-  color: var(--project-accent);}
-
-
-.presentation-part-fuse {
-  width: 200px;
-  height: 44px;
-  color: var(--project-accent);}
-
-
-.presentation-part-core {
-  width: 64px;
-  height: 64px;
-  border: 1px solid var(--project-accent);
-  border-radius: 50%;
-  color: var(--project-accent);
-  background: radial-gradient(circle at 38% 32%, #ffd9a0, #ff8a3c 52%, #7a2f14);
-  box-shadow: 0 0 26px rgba(255, 138, 60, 0.4);}
-
-
-.presentation-explosion-alpha:hover .presentation-part-core,
-.signal-index-card:focus-visible .presentation-part-core {
-  transform: translate3d(calc(-50% + var(--anchor-x)), calc(-50% + var(--anchor-y) - 4px), calc(var(--base-z) + 10px)) rotate(var(--part-rotation));}
-
-
-.presentation-part-shards .project-mark-nodes {
-  transform: rotate(14deg);}
-
-
-.presentation-part-shards .project-mark-nodes i {
-  clip-path: polygon(50% 0, 100% 62%, 12% 100%);
-  opacity: 0.85;}
-
-
-@keyframes screen-shake {
-  0% { transform: translate3d(0, 0, 0); }
-  12% { transform: translate3d(-8px, 5px, 0) rotate(-0.4deg); }
-  26% { transform: translate3d(7px, -6px, 0) rotate(0.35deg); }
-  42% { transform: translate3d(-6px, -4px, 0) rotate(-0.28deg); }
-  58% { transform: translate3d(5px, 4px, 0) rotate(0.22deg); }
-  74% { transform: translate3d(-3px, 2px, 0) rotate(-0.1deg); }
-  88% { transform: translate3d(2px, -1px, 0); }
-  100% { transform: translate3d(0, 0, 0); }}
-
-
-body.screen-shake {
-  animation: screen-shake 500ms cubic-bezier(0.36, 0.07, 0.19, 0.97) both;}
-@media (prefers-reduced-motion: reduce) {
-  body.screen-shake {
-    animation: none;
-  }}
-
-
 /* Refraction sea hero */
 .signal-index-hero-refraction {
   position: relative;
@@ -1876,7 +1787,7 @@ body.screen-shake {
 }
 
 
-/* Explosion Luna */
+/* Explosion */
 .presentation-explosion-luna {
   --project-accent: #ff8a3c;
   --project-ink: #f2e9da;

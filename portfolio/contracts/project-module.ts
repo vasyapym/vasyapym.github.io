@@ -9,12 +9,6 @@ export type ProjectLink = {
   readonly external?: boolean;
 };
 
-export type ProjectCardActivation = {
-  readonly x: number;
-  readonly y: number;
-  readonly shakeScreen: () => void;
-};
-
 export interface ProjectModule {
   readonly id: string;
   readonly title: string;
