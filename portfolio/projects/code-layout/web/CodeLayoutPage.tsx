@@ -159,7 +159,7 @@ export default function CodeLayoutPage() {
     <section className="code-layout-page section-shell" aria-labelledby="code-layout-title">
       <div className="code-layout-hero">
         <div className="code-layout-hero-copy">
-          <p className="eyebrow accent-eyebrow">CODE LAYOUT / SOURCE READING</p>
+          <p className="eyebrow accent-eyebrow">Code Layout · source reading</p>
           <h1 id="code-layout-title">
             Understand a source file
             <span>faster.</span>
@@ -188,7 +188,6 @@ export default function CodeLayoutPage() {
             <span className="code-layout-artifact-plate code-layout-artifact-plate-middle">dependencies</span>
             <span className="code-layout-artifact-plate code-layout-artifact-plate-front">declarations</span>
             <span className="code-layout-artifact-spine" />
-            <span className="code-layout-artifact-mark">C / L</span>
           </div>
           <p className="code-layout-artifact-caption" id="code-layout-artifact-caption">
             A compact view of the source structure.
@@ -254,7 +253,7 @@ export default function CodeLayoutPage() {
         <section className="code-layout-results" aria-labelledby="layout-results-title">
           <div className="code-layout-results-heading">
             <div>
-              <p className="eyebrow accent-eyebrow">LAYOUT / {result.language.toUpperCase()}</p>
+              <p className="eyebrow accent-eyebrow">Layout · {result.language}</p>
               <h2 id="layout-results-title">A compact structural read.</h2>
             </div>
             <div className="code-layout-result-meta">

@@ -64,7 +64,7 @@ export default function PracticeMapPage() {
     <section className="practice-map-page section-shell" aria-labelledby="practice-map-title">
       <header className="practice-map-hero">
         <div className="practice-map-hero-copy">
-          <p className="eyebrow practice-map-eyebrow">PRACTICE MAP / TECHNICAL PRACTICE</p>
+          <p className="eyebrow practice-map-eyebrow">Practice Map · technical practice</p>
           <h1 id="practice-map-title">
             Practice technical
             <span>ideas.</span>

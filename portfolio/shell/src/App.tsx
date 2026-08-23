@@ -4,6 +4,7 @@ import LandingPage from "./shell/LandingPage";
 import ProjectFrame from "./shell/ProjectFrame";
 import type { PrototypeVariant } from "./prototype/PortfolioPrototype";
 
+const DesignDirections = lazy(() => import("./design-directions/DesignDirections"));
 const PortfolioPrototype = lazy(() => import("./prototype/PortfolioPrototype"));
 
 function projectIdFromPath(pathname: string): string | undefined {
@@ -42,6 +43,14 @@ export default function App() {
     window.scrollTo({ top: 0, behavior: "smooth" });
     setPathname("/");
   };
+
+  if (pathname === "/directions") {
+    return (
+      <Suspense fallback={<div className="project-loading section-shell">Loading directions…</div>}>
+        <DesignDirections projects={projectModules} />
+      </Suspense>
+    );
+  }
 
   if (prototypeVariant) {
     return (

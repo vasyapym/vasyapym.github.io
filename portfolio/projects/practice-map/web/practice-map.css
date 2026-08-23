@@ -53,10 +53,11 @@
 .practice-summary-metric > span,
 .practice-area-count {
   color: var(--practice-stone);
-  font-family: var(--mono);
-  font-size: 0.62rem;
-  letter-spacing: 0.07em;
-  text-transform: uppercase;
+  font-family: var(--sans);
+  font-size: 0.78rem;
+  font-weight: 500;
+  letter-spacing: 0;
+  text-transform: none;
 }
 
 .practice-map-eyebrow {
@@ -68,10 +69,10 @@
   margin: 0.9rem 0 1.2rem;
   color: var(--practice-ink);
   font-family: var(--display);
-  font-size: clamp(2.8rem, 5.5vw, 5.6rem);
-  font-weight: 700;
-  letter-spacing: -0.06em;
-  line-height: 0.92;
+  font-size: clamp(2.5rem, 4vw, 4rem);
+  font-weight: 600;
+  letter-spacing: -0.015em;
+  line-height: 1.02;
 }
 
 .practice-map-hero h1 span {
@@ -83,8 +84,8 @@
   max-width: 520px;
   margin: 0;
   color: var(--practice-soft);
-  font-size: clamp(1rem, 1.45vw, 1.14rem);
-  line-height: 1.65;
+  font-size: clamp(0.98rem, 1.1vw, 1.05rem);
+  line-height: 1.6;
 }
 
 .practice-map-hero-note {
@@ -98,11 +99,11 @@
   max-width: 240px;
   margin: 0;
   color: var(--practice-soft);
-  font-family: var(--display);
-  font-size: 1.05rem;
-  font-weight: 500;
-  letter-spacing: -0.04em;
-  line-height: 1.15;
+  font-family: var(--sans);
+  font-size: 0.95rem;
+  font-weight: 400;
+  letter-spacing: 0;
+  line-height: 1.45;
 }
 
 .practice-map-export {
@@ -110,17 +111,15 @@
   align-items: center;
   gap: 0.6rem;
   border: 0;
-  border-bottom: 1px solid var(--practice-line);
-  padding: 0 0 0.45rem;
+  padding: 0;
   color: var(--practice-ink);
   background: transparent;
   cursor: pointer;
-  transition: color 180ms ease, border-color 180ms ease, gap 180ms ease;
+  transition: color 180ms ease, gap 180ms ease;
 }
 
 .practice-map-export:hover {
   gap: 0.85rem;
-  border-color: var(--practice-accent);
   color: var(--practice-accent-dark);
 }
 
@@ -153,10 +152,10 @@
 .practice-summary-metric strong {
   color: var(--practice-accent);
   font-family: var(--display);
-  font-size: 2.5rem;
+  font-size: 2rem;
   font-weight: 600;
-  letter-spacing: -0.07em;
-  line-height: 0.9;
+  letter-spacing: -0.01em;
+  line-height: 1;
 }
 
 .practice-map-layout {
@@ -217,10 +216,10 @@
 .practice-area-list strong {
   color: inherit;
   font-family: var(--display);
-  font-size: 1.45rem;
+  font-size: 1.2rem;
   font-weight: 600;
-  letter-spacing: -0.04em;
-  line-height: 0.98;
+  letter-spacing: 0;
+  line-height: 1.1;
 }
 
 .practice-area-list small {
@@ -231,8 +230,8 @@
 
 .practice-area-list em {
   color: var(--practice-accent);
-  font-family: var(--mono);
-  font-size: 0.68rem;
+  font-family: var(--sans);
+  font-size: 0.78rem;
   font-style: normal;
 }
 
@@ -249,10 +248,10 @@
   margin: 0.75rem 0 0;
   color: var(--practice-ink);
   font-family: var(--display);
-  font-size: clamp(2.5rem, 4vw, 4.3rem);
+  font-size: clamp(2rem, 3.2vw, 3.4rem);
   font-weight: 600;
-  letter-spacing: -0.05em;
-  line-height: 0.94;
+  letter-spacing: -0.01em;
+  line-height: 1.02;
 }
 
 .practice-area-heading p:last-child {
@@ -322,10 +321,10 @@
   margin: 0;
   color: var(--practice-ink);
   font-family: var(--display);
-  font-size: 1.4rem;
+  font-size: 1.25rem;
   font-weight: 600;
-  letter-spacing: -0.04em;
-  line-height: 0.98;
+  letter-spacing: 0;
+  line-height: 1.1;
 }
 
 .practice-topic-summary {
@@ -346,8 +345,8 @@
   border: 1px solid var(--practice-line);
   padding: 0.28rem 0.4rem;
   color: var(--practice-stone);
-  font-family: var(--mono);
-  font-size: 0.57rem;
+  font-family: var(--sans);
+  font-size: 0.72rem;
 }
 
 .practice-topic-details,
@@ -360,11 +359,12 @@
 .practice-topic-feedback summary {
   color: var(--practice-stone);
   cursor: pointer;
-  font-family: var(--mono);
-  font-size: 0.61rem;
-  letter-spacing: 0.04em;
+  font-family: var(--sans);
+  font-size: 0.78rem;
+  font-weight: 500;
+  letter-spacing: 0;
   list-style-position: inside;
-  text-transform: uppercase;
+  text-transform: none;
   transition: color 180ms ease;
 }
 
@@ -390,10 +390,11 @@
   display: block;
   margin-bottom: 0.2rem;
   color: var(--practice-accent-dark);
-  font-family: var(--mono);
-  font-size: 0.59rem;
-  letter-spacing: 0.05em;
-  text-transform: uppercase;
+  font-family: var(--sans);
+  font-size: 0.75rem;
+  font-weight: 500;
+  letter-spacing: 0;
+  text-transform: none;
 }
 
 .practice-topic-controls {
@@ -417,8 +418,8 @@
   color: var(--practice-ink);
   background: var(--practice-paper);
   cursor: pointer;
-  font-family: var(--mono);
-  font-size: 0.61rem;
+  font-family: var(--sans);
+  font-size: 0.78rem;
 }
 
 .practice-feedback-editor {
@@ -520,7 +521,7 @@
     padding-bottom: 4rem;
   }
 
-  .practice-map-hero h1 { font-size: clamp(2.75rem, 12.5vw, 4.5rem); }
+  .practice-map-hero h1 { font-size: clamp(2.25rem, 8.5vw, 3.2rem); }
 
   .practice-summary {
     grid-template-columns: repeat(2, minmax(0, 1fr));
