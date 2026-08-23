@@ -1,0 +1,92 @@
+import type { ProjectModule } from "../../contracts/project-module";
+
+const eveningForest: ProjectModule = {
+  id: "evening-forest",
+  title: "Evening Forest",
+  eyebrow: "A cozy first-person stroll at dusk",
+  description:
+    "Wander an 8-bit fantasy woodland — swaying pines, drifting fireflies, a looping synth ambience. No missions, no fail state, just the walk.",
+  technologies: [
+    "React Three Fiber",
+    "Three.js",
+    "TypeScript",
+    "Custom shaders",
+    "WebAudio",
+  ],
+  status: "available",
+  accent: "amber",
+  links: [
+    {
+      label: "GitHub repository",
+      href: "https://github.com/vasyapym/luna2/tree/main/portfolio/projects/evening-forest",
+      external: true,
+    },
+  ],
+  presentation: {
+    className: "presentation-evening-forest",
+    motion: "terrain",
+    centerLabel: "E / F",
+    centerMark: "compass",
+    note: "Dusk circuit",
+    motionLabel: "the canopy breathes",
+    instruction:
+      "Walk with WASD, look with the mouse; Esc rests you back here.",
+    parts: [
+      {
+        id: "hillside",
+        label: "Hillside meadow",
+        className: "presentation-part-terrain",
+        anchorX: -18,
+        anchorY: -10,
+        mark: "contours",
+        scatterX: -84,
+        scatterY: -44,
+        scatterZ: 76,
+        baseZ: 14,
+        rotation: -5,
+      },
+      {
+        id: "canopy",
+        label: "Swaying canopy",
+        className: "presentation-part-branches",
+        anchorX: 30,
+        anchorY: 24,
+        mark: "branches",
+        scatterX: 80,
+        scatterY: -28,
+        scatterZ: 54,
+        baseZ: 26,
+        rotation: 6,
+      },
+      {
+        id: "hollow",
+        label: "Firefly hollow",
+        className: "presentation-part-pin",
+        anchorX: 82,
+        anchorY: -36,
+        mark: "pin",
+        scatterX: 62,
+        scatterY: 80,
+        scatterZ: 92,
+        baseZ: 44,
+        rotation: 4,
+      },
+      {
+        id: "wander",
+        label: "Wander dial",
+        className: "presentation-part-compass",
+        anchorX: -80,
+        anchorY: 44,
+        mark: "compass",
+        scatterX: -102,
+        scatterY: 70,
+        scatterZ: 64,
+        baseZ: 32,
+        rotation: -9,
+      },
+    ],
+  },
+  loadPage: () => import("./web/EveningForestPage"),
+};
+
+export default eveningForest;

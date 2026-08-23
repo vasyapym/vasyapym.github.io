@@ -1,0 +1,175 @@
+/* Evening Forest — first-person walking simulator page */
+
+.evening-forest-page {
+  display: flex;
+  flex-direction: column;
+  height: calc(100dvh - 61px);
+  min-height: 480px;
+  color: var(--index-ink);
+}
+
+.evening-forest-intro {
+  display: flex;
+  align-items: baseline;
+  gap: 1.4rem;
+  flex-wrap: wrap;
+  padding-top: 0.9rem;
+  padding-bottom: 0.9rem;
+}
+
+.evening-forest-title {
+  margin: 0;
+  font-family: var(--display);
+  font-size: 1.05rem;
+  font-weight: 600;
+  letter-spacing: 0.01em;
+}
+
+.evening-forest-lede {
+  margin: 0;
+  color: var(--index-muted);
+  font-family: var(--sans);
+  font-size: 0.82rem;
+}
+
+/* --- stage ------------------------------------------------------------- */
+
+.evening-forest-stage {
+  position: relative;
+  flex: 1;
+  overflow: hidden;
+  background: #140b20;
+  border-top: 1px solid var(--index-line);
+}
+
+.evening-forest-stage canvas {
+  display: block;
+  image-rendering: pixelated;
+}
+
+/* --- overlays ----------------------------------------------------------- */
+
+.evening-forest-overlay {
+  position: absolute;
+  inset: 0;
+  z-index: 2;
+  display: grid;
+  place-items: center;
+  padding: 2rem;
+  background:
+    radial-gradient(ellipse at center, rgba(12, 7, 20, 0) 30%, rgba(12, 7, 20, 0.55) 100%);
+}
+
+.evening-forest-enter {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.65rem;
+  max-width: min(26rem, 88vw);
+  padding: 1.6rem 2rem;
+  text-align: center;
+  color: var(--index-ink);
+  background: rgba(16, 10, 26, 0.72);
+  border: 1px solid rgba(255, 180, 94, 0.35);
+  border-radius: 2px;
+  cursor: pointer;
+  transition: border-color 200ms ease, transform 200ms ease;
+}
+
+button.evening-forest-enter:hover,
+button.evening-forest-enter:focus-visible {
+  border-color: rgba(255, 180, 94, 0.8);
+  transform: translateY(-1px);
+  outline: none;
+}
+
+.evening-forest-enter-static {
+  cursor: default;
+}
+
+.evening-forest-enter-eyebrow {
+  color: #ffb45e;
+  font-family: var(--mono);
+  font-size: 0.66rem;
+  font-weight: 500;
+  letter-spacing: 0.22em;
+  text-transform: uppercase;
+}
+
+.evening-forest-enter-title {
+  font-family: var(--display);
+  font-size: 1.5rem;
+  font-weight: 600;
+}
+
+.evening-forest-enter-hint,
+.evening-forest-fallback p {
+  color: var(--index-muted);
+  font-family: var(--sans);
+  font-size: 0.82rem;
+  line-height: 1.5;
+}
+
+.evening-forest-enter-action {
+  margin-top: 0.5rem;
+  padding: 0.5rem 1.1rem;
+  color: #ffb45e;
+  border: 1px solid rgba(255, 180, 94, 0.5);
+  font-family: var(--mono);
+  font-size: 0.72rem;
+  letter-spacing: 0.08em;
+}
+
+.evening-forest-resting-hint {
+  position: absolute;
+  left: 1rem;
+  bottom: 1rem;
+  z-index: 2;
+  padding: 0.35rem 0.7rem;
+  color: rgba(255, 236, 214, 0.75);
+  background: rgba(14, 8, 22, 0.6);
+  border: 1px solid rgba(255, 180, 94, 0.25);
+  font-family: var(--mono);
+  font-size: 0.68rem;
+  letter-spacing: 0.06em;
+  pointer-events: none;
+}
+
+/* --- WebGL fallback ------------------------------------------------------ */
+
+.evening-forest-fallback {
+  height: 100%;
+  display: grid;
+  place-content: center;
+  gap: 0.6rem;
+  text-align: center;
+  padding: 3rem;
+  background: linear-gradient(180deg, #33205c 0%, #7c4470 52%, #e0824a 130%);
+}
+
+.evening-forest-fallback-title {
+  margin: 0;
+  color: var(--index-ink);
+  font-family: var(--display);
+  font-size: 1.1rem;
+  font-weight: 600;
+}
+
+@media (max-width: 720px) {
+  .evening-forest-page {
+    height: auto;
+    min-height: calc(100dvh - 61px);
+  }
+
+  .evening-forest-stage {
+    min-height: 68vh;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .evening-forest-enter,
+  button.evening-forest-enter:hover {
+    transform: none;
+    transition: none;
+  }
+}

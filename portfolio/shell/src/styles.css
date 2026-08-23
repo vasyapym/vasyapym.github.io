@@ -1988,3 +1988,22 @@ body.screen-shake {
   .presentation-part-luna-shards { transform: scale(0.86); }
   .presentation-part-luna-ring { transform: scale(0.82); }
 }
+
+
+/* Evening Forest card artwork */
+.presentation-evening-forest {
+  --project-accent: #ffb45e;
+  background:
+    linear-gradient(180deg, rgba(51, 32, 92, 0.5) 0%, rgba(124, 68, 112, 0.34) 58%, rgba(224, 130, 74, 0.3) 100%),
+    var(--index-surface);
+}
+
+.presentation-evening-forest .project-artwork-center {
+  color: var(--project-accent);
+  border-color: var(--project-accent);
+}
+
+.presentation-evening-forest:hover .project-artwork-center,
+.signal-index-card:focus-visible .presentation-evening-forest .project-artwork-center {
+  box-shadow: 0 0 0 3px rgba(255, 180, 94, 0.16);
+}
