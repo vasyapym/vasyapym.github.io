@@ -13,8 +13,6 @@ export default function LandingPage({ projects, onOpenProject }: LandingPageProp
   const [revealedProjects, setRevealedProjects] = useState<Set<string>>(() => new Set());
   const [revealReady, setRevealReady] = useState(false);
   const shakeTimeout = useRef<number | null>(null);
-  const codeLayoutTitle = projects.find((project) => project.id === "code-layout")?.title ?? "Code Layout";
-  const practiceMapTitle = projects.find((project) => project.id === "practice-map")?.title ?? "Practice Map";
 
   const shakeScreen = () => {
     if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) {
@@ -80,9 +78,7 @@ export default function LandingPage({ projects, onOpenProject }: LandingPageProp
             <span className="signal-index-mark" aria-hidden="true" />
             Selected Experiments
           </a>
-          <span className="signal-index-count">
-            {projects.length.toString().padStart(2, "0")} {projects.length === 1 ? "project" : "projects"}
-          </span>
+          <span className="signal-index-count">{projects.length.toString().padStart(2, "0")}</span>
         </header>
 
         <section className="signal-index-hero signal-index-hero-refraction" aria-labelledby="signal-index-title">
@@ -98,23 +94,25 @@ export default function LandingPage({ projects, onOpenProject }: LandingPageProp
           <div className="signal-index-hero-copy">
             <p className="signal-index-hero-kicker">Prototypes, not promises</p>
             <h1 id="signal-index-title">See the mechanics before you commit.</h1>
-            <p className="signal-index-intro">
-              Every project is a working model that shows how an idea behaves under real use.
-            </p>
             <a className="signal-index-link" href="#projects">
               Run the models <span aria-hidden="true">↓</span>
             </a>
           </div>
           <div className="signal-index-graphic signal-index-beneath" aria-hidden="true">
             <span className="signal-index-beneath-label">beneath the surface</span>
-            <p className="signal-index-beneath-row signal-index-beneath-row-a">
-              <span>01 / tool</span>
-              <strong>{codeLayoutTitle}</strong>
-            </p>
-            <p className="signal-index-beneath-row signal-index-beneath-row-b">
-              <span>02 / map</span>
-              <strong>{practiceMapTitle}</strong>
-            </p>
+            {projects.map((project, index) =>
+              project.tag ? (
+                <p
+                  className={`signal-index-beneath-row ${index % 2 === 0 ? "signal-index-beneath-row-a" : "signal-index-beneath-row-b"}`}
+                  key={project.id}
+                >
+                  <span>
+                    {String(index + 1).padStart(2, "0")} / {project.tag}
+                  </span>
+                  <strong>— {project.title}</strong>
+                </p>
+              ) : null,
+            )}
             <span className="signal-index-beneath-rule" />
           </div>
         </section>
@@ -140,17 +138,18 @@ export default function LandingPage({ projects, onOpenProject }: LandingPageProp
                 }}
               >
                 <div className="signal-index-card-topline">
-                  <span>{String(index + 1).padStart(2, "0")}</span>
-                  <span>{project.status === "available" ? "Available" : "In progress"}</span>
+                  <span className="signal-index-card-tag">
+                    {String(index + 1).padStart(2, "0")}
+                    {project.tag ? ` / ${project.tag}` : ""}
+                  </span>
+                  <span>{project.technologies.join(" · ")}</span>
                 </div>
                 <div className="signal-index-card-body">
                   <div className="signal-index-card-copy">
-                    <p className="signal-index-card-eyebrow">{project.eyebrow}</p>
                     <h3>{project.title}</h3>
                     <p className="signal-index-card-description">{project.description}</p>
                     <div className="signal-index-card-footer">
-                      <span>{project.technologies.join(" · ")}</span>
-                      <span className="signal-index-card-link">Open project <span aria-hidden="true">↗</span></span>
+                      <span className="signal-index-card-link">open <span aria-hidden="true">↗</span></span>
                     </div>
                   </div>
                   <ProjectArtwork project={project} />

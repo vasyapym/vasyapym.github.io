@@ -3,6 +3,7 @@ import type { ProjectModule } from "../../contracts/project-module";
 const bigBangTs: ProjectModule = {
   id: "bigbang-ts",
   title: "bigbang-ts",
+  tag: "sim",
   eyebrow: "A log-time cosmology simulation",
   description: "Watch 13.8 billion years unfold in a GPU-accelerated WebGL simulation, from the Planck epoch to the present day.",
   technologies: ["TypeScript", "Three.js", "WebGL"],

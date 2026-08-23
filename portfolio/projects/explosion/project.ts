@@ -4,6 +4,7 @@ import { detonate } from "./web/detonate";
 const explosionLuna: ProjectModule = {
   id: "explosion_luna",
   title: "Explosion Luna",
+  tag: "test",
   eyebrow: "Unlisted kinetic specimen",
   description:
     "A hidden stress test for the project index. Click the card and the scene breaks open at the point of impact, with no route change.",

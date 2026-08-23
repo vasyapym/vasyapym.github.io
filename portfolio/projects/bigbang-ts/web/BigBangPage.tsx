@@ -11,13 +11,8 @@ export default function BigBangPage() {
             <span>take shape.</span>
           </h1>
           <p className="bigbang-intro">
-            A GPU-accelerated WebGL playback of cosmic history on a logarithmic time axis, from the Planck epoch to 13.8 billion years.
+            Cosmic history on a logarithmic time axis — from the Planck epoch to today.
           </p>
-          <ul className="bigbang-tech-list" aria-label="Technology stack">
-            <li>TypeScript</li>
-            <li>Three.js</li>
-            <li>WebGL</li>
-          </ul>
           <nav className="bigbang-actions" aria-label="Big Bang project links">
             <a className="bigbang-action-primary" href="#bigbang-simulation">
               Open simulation <span aria-hidden="true">↓</span>
@@ -68,7 +63,6 @@ export default function BigBangPage() {
       </section>
 
       <footer className="bigbang-footer">
-        <span>Log-time cosmology / GPU particles</span>
         <a href={GITHUB_URL} rel="noreferrer" target="_blank">
           View source on GitHub <span aria-hidden="true">↗</span>
         </a>

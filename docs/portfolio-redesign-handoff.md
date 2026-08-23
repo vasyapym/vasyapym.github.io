@@ -2,35 +2,50 @@
 
 This is the durable design source of truth. Code shows what is implemented; this file records why the direction exists, what the user liked, what was rejected, and what must not be rediscovered by accident.
 
-## Current active handoff — Refraction sea (2026-08-23)
+## Current active handoff — Ink catalogue (2026-08-23)
 
-**Status:** selected direction after the motion-led draft review (user ranked Refraction sea > Pixel assembly > Darkroom develop); the production homepage hero now follows the Refraction sea treatment.
+**Status:** selected direction after the user named the hero's right-side panel as the design standard (`beneath the surface / 01 / tool — Code Layout / 02 / map — Practice Map`) and asked for that style everywhere plus minimal copy.
 
 ### Outcome
 
-Make the hero feel **dark, fluid, and evidential**. A WebGL caustic field — the liked liquid-glass reference rendered as slow light on a dark sea — becomes the hero's focal element, and the two projects float "beneath the surface" as warped specimen rows. The animation must demonstrate the copy's promise: look through the surface and the mechanics underneath become visible.
+Make the whole portfolio read as **one continuous dark field organized by catalogue notation**. The deep-ink base `#0b1317` leaves the hero band and becomes the page surface; every section speaks the beneath-panel language: translucent bordered surfaces, lowercase IBM Plex Mono microcopy, ochre `NN / tag` marks, and thin light rules. Copy shrinks to the essential identification layer.
 
 ### Visual system
 
-- **Surface:** the dark ink band stays limited to the hero; the collection below remains the warm concrete field. The sea fills the existing hero band only — no extra stage height.
-- **Type:** Source Sans 3 for interface and headings, IBM Plex Mono for catalogue notation. Copy stays direct and plain; the kicker/headline/subheading must not repeat a phrase.
-- **Structure:** two-column hero. Left: kicker `Prototypes, not promises`, H1 `See the mechanics before you commit.`, intro `Every project is a working model that shows how an idea behaves under real use.`, CTA `Run the models ↓`. Right: a translucent "beneath the surface" panel holding the two project rows (01 / tool, 02 / map) under a static SVG displacement warp with a slow CSS drift.
-- **Weight:** deep ink base `#0b1317`, muted teal caustic light, ochre `#d39b61` accent carried over from the catalogue round. Caustic intensity stays low near the copy; a vignette keeps edges calm.
-- **Copy:** no repeated phrase between kicker and intro; the value proposition (see the mechanics before committing) is stated once, plainly.
+- **Surface:** full-page deep ink `#0b1317`. The warm concrete field is retired from the landing. Panels use translucent light fills (`rgba(238, 234, 224, 0.045)`) over thin light lines. The caustic sea stays hero-only.
+- **Type:** Source Sans 3 for headings and reading text; IBM Plex Mono carries all catalogue notation (wordmark, count, kicker, tags, links, chrome labels) in lowercase with slight tracking.
+- **Notation:** every project carries a mono tag (`tool`, `map`, `sim`, `test`) on `ProjectModule.tag`; numbers come from list order. The hero panel derives its inline rows (`01 / tool — Code Layout`) from the same data instead of hardcoding two titles.
+- **Weight:** ochre `#d39b61` is the accent (tags, kicker, hover); bright ochre `#e8b57c` is the focus ring on ink. Project artwork identities stay untouched inside light-lined frames.
+- **Copy:** hero keeps only kicker `Prototypes, not promises`, H1 `See the mechanics before you commit.`, CTA `Run the models ↓`. Cards keep tag row (number/tag + technologies), title, one-line description, and `open ↗`. No status text while everything is available.
 
 ### Experience
 
-- The caustic shader renders behind the copy at low intensity; it pauses when the hero is off-screen, when the tab is hidden, and under `prefers-reduced-motion` (single static frame).
-- If WebGL is unavailable, the canvas falls back to a static two-glow gradient on the same deep ink field.
-- The beneath-panel rows warp through an SVG turbulence filter and drift a few pixels; reduced motion freezes the drift and keeps the warp static.
-- The project list, card activation behavior, direct links, and mobile gutters remain unchanged; the first project still arrives quickly below the hero.
+- The shader still pauses off-screen/hidden tabs and renders a static frame under reduced motion; WebGL failure falls back to the two-glow gradient.
+- Beneath rows keep the SVG displacement warp and alternating drift; reduced motion freezes both.
+- Project-frame chrome is an ink band: back link `← Selected Experiments`, mono lowercase `{title}` label. Tool interiors keep their functional styling; they receive shortened intros and lose decorative captions.
+- Reveal-on-scroll, direct links, keyboard focus, touch fallback, and mobile gutters are unchanged.
 
 ### Quality gate
 
-- The sea reads as an instrument for looking beneath the surface, not as a decorative screensaver; the copy stays dominant.
-- The hero remains dark and specific without becoming a terminal, dashboard, copied-image collage, or large empty stage.
-- The beneath panel previews the actual subjects of Code Layout and Practice Map.
-- Keyboard focus, direct links, WCAG AA contrast, touch behavior, and `prefers-reduced-motion` remain intact.
+- The page must read as one system: if any section still looks like the old light index, the pass failed.
+- Mono notation appears wherever orientation is needed and nowhere as decoration.
+- Muted text on ink keeps ≥4.5:1 contrast; focus rings are visible at every viewport.
+- A project is still identifiable and openable from its card without artwork interaction.
+
+## Superseded handoff — Refraction sea (2026-08-23)
+
+**Status:** superseded by Ink catalogue after the user picked the beneath-surface panel as the design standard; kept as a graph node.
+
+### Carried into Ink catalogue
+
+- The caustic sea as hero focal element, its pause/fallback behavior, and the "mechanics beneath the surface" framing.
+- The dark ink band (now extended full-page), ochre accent, direct copy rules, and fast path to the collection.
+- The two-column hero with the translucent beneath panel, warp filter, and drift.
+
+### Superseded
+
+- The rule that the collection below stays a warm concrete field — the user asked for the panel's style across the entire design.
+- The hardcoded two-row panel and the stacked row layout (replaced by derived inline rows).
 
 ## Superseded handoff — Dark catalogue (2026-08-23)
 
@@ -102,6 +117,7 @@ flowchart LR
   F -->|"useful signal; too much visual weight for the index"| G["Quiet index<br/>compact signal + calmer hierarchy"]
   G -->|"dark catalogue field liked; copied reference image rejected"| H["Dark catalogue<br/>original project specimen plate"]
   H -->|"plate was static; user wanted an animated focal element"| I["Refraction sea<br/>caustic shader + submerged project rows"]
+  I -->|"beneath panel promoted to the standard; full-page ink + copy diet"| J["Ink catalogue<br/>derived tag notation on a full-page ink field"]
 ```
 
 ### Superseded nodes
@@ -113,7 +129,8 @@ flowchart LR
 - **Calm field index** — kept: Source Sans 3, restrained type scale, direct copy, and the flat field. Rejected/refined: a generic hero mark that did not leave a memorable relationship to the projects.
 - **Quiet index** — superseded: keeps the solid field and project slabs, reduces the hero to a small three-point signal, removes the review affordance from production, and lets the project list carry more of the identity.
 - **Dark catalogue** — superseded: kept the dark archival band, ochre accent, and original project evidence; replaced because the plate was static when the user asked for an animated focal element.
-- **Refraction sea** — active: keeps the dark band, direct list, and project-specific evidence; adds a WebGL caustic field as the focal animation and submerges the two project rows beneath a warped surface.
+- **Refraction sea** — superseded: kept the caustic sea hero, beneath panel, and dark band; replaced because its two-tone split (dark hero over light collection) broke the consistency the user asked for when naming the panel the design standard.
+- **Ink catalogue** — active: extends the ink field across the page, derives catalogue rows from a per-project tag, and reduces copy to the identification layer.
 
 ### Kept alternates (motion round runners-up)
 
@@ -198,6 +215,25 @@ Every review adds one compact entry. The **Liked** field becomes a constraint; t
 - **Quality gate:** the sea must read as an instrument, not a screensaver; copy stays dominant; the shader pauses off-screen and on hidden tabs; reduced motion gets a single frame and frozen drift; WebGL failure falls back to a static gradient; the first project still arrives quickly.
 - **Verification:** `npm run typecheck` and `npm run build` pass; routes `/`, `/projects/code-layout`, and `/projects/practice-map` to review at 1440px, 1024px, and 390px with keyboard focus, touch, and reduced-motion checks.
 - **Next review:** confirm caustic intensity keeps AA contrast behind the copy at all three viewports; check shader performance on low-power devices; decide whether the beneath panel's warp scale needs tuning.
+
+### Pass 11 — Evening Forest / first-person showcase project (2026-08-23)
+
+- **Liked:** the landing's dark sea hero gains its first fully self-contained 3D showcase; the terrain-motion card language extends naturally to a walking simulator; dusk palette (violet zenith, amber horizon) echoes the ochre accent without competing with it.
+- **Rejected:** iframe embedding (bigbang-ts pattern) — R3F mounts natively and stays code-split behind `loadPage`; photo-real rendering — contradicts both the 8-bit brief and the shell's flat archival mood.
+- **Carried forward:** project-module discovery contract, per-project semantic identity, reduced-motion and touch fallbacks, no binary assets in the repo.
+- **Changed:** added `projects/evening-forest` — an R3F walking sim with procedural terrain/foliage/fireflies, pointer-lock WASD rig, one custom postprocessing effect (dusk grade + Bayer dither + posterize) over a low-DPR pixelated canvas, and synthesised WebAudio ambience. New dependency group in `shell`: `@react-three/fiber`, `@react-three/drei`, `@react-three/postprocessing`, `postprocessing`; `three` raised to ^0.185.1 for peer compatibility. Landing card uses the existing terrain motion with a warm accent block in `styles.css`.
+- **Quality gate:** the forest must read as an evening instrument, not a tech demo — copy dominance on the landing card holds, the page keeps 60 fps via instancing + low internal resolution, audio starts only from a user gesture, Esc always returns control, and WebGL/touch/reduced-motion states degrade to honest notices instead of broken canvases.
+- **Verification:** `npm --prefix portfolio run typecheck`, `npm run build`, and `node --experimental-strip-types tests/forest.check.ts` pass; `/projects/evening-forest` and `/` reviewed for console errors and focus order at desktop width.
+- **Next review:** tune fog density vs draw distance after playtesting; confirm bloom threshold keeps fireflies readable through the posterize pass; consider a mobile drag-look mode if coarse-pointer visits matter.
+
+### Pass 11 — Ink catalogue / beneath-panel standard (2026-08-23)
+
+- **Liked:** the hero's right-side panel — dark translucent surface, lowercase mono microcopy, ochre `01 / tool` notation, thin rules — named by the user as the design standard for the whole portfolio.
+- **Rejected:** the two-tone split (dark hero over warm-concrete collection); hardcoded hero rows that ignore the real list; redundant copy (hero intro sentence, card eyebrows, status text while everything is available, duplicated technology lists, decorative captions).
+- **Changed:** full-page ink field with new `--ink-*` tokens and an ochre focus ring on dark; wordmark/count/CTA/card links set in mono lowercase; cards restructured to tag row (`NN / tag` + technologies) / title / one-line description / `open ↗`; beneath panel derives inline rows (`01 / tool — Code Layout`) from `ProjectModule.tag` (`tool`, `map`, `sim`, `test`) across all four projects; project-frame chrome becomes an ink band with `← Selected Experiments` and a mono `{title}` label; interiors receive trimmed intros and lose decorative captions; meta description shortened.
+- **Quality gate:** the page reads as one catalogue system at rest; mono notation carries orientation without decoration; muted-on-ink text keeps ≥4.5:1 contrast; focus visible on every surface; reveal/warp/drift behavior and reduced-motion fallbacks unchanged; first project still arrives quickly.
+- **Verification:** `npm run typecheck`, `npm run build`, and `git diff --check` pass; dev-server smoke test returns 200 for `/` and `/projects/code-layout` with the updated meta description. Visual review of `/` plus `/projects/{code-layout,practice-map,bigbang-ts,explosion_luna}` at 1440px, 1024px, and 390px still to confirm: AA contrast for every light-on-dark pair, font-loaded state, no horizontal overflow, keyboard focus, reduced motion.
+- **Next review:** the routes above at three viewports; judge whether the sea's intensity needs lowering now that the surrounding field is also dark.
 
 
 ## Deterministic handoff protocol

@@ -18,6 +18,7 @@ export type ProjectCardActivation = {
 export interface ProjectModule {
   readonly id: string;
   readonly title: string;
+  readonly tag?: string;
   readonly eyebrow: string;
   readonly description: string;
   readonly technologies: readonly string[];
@@ -26,5 +27,4 @@ export interface ProjectModule {
   readonly presentation: ProjectPresentation;
   readonly links?: readonly ProjectLink[];
   readonly loadPage: () => Promise<{ default: ComponentType }>;
-  readonly onCardActivate?: (activation: ProjectCardActivation) => void;
 }

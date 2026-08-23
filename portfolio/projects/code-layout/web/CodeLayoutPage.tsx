@@ -165,13 +165,13 @@ export default function CodeLayoutPage() {
             <span>faster.</span>
           </h1>
           <p className="code-layout-intro">
-            Paste a source file to see its declarations, dependencies, relationships, and architecture in one compact view.
+            Paste a source file. See its declarations, dependencies, and architecture.
           </p>
           <a className="code-layout-enter" href="#code-layout-workspace">
             Open Code Layout <span aria-hidden="true">↓</span>
           </a>
         </div>
-        <div className="code-layout-artifact-panel" aria-describedby="code-layout-artifact-caption">
+        <div className="code-layout-artifact-panel">
           <div className="code-layout-artifact-note" aria-hidden="true">
             <span>Declarations / dependencies</span>
             <span>Source structure</span>
@@ -189,9 +189,6 @@ export default function CodeLayoutPage() {
             <span className="code-layout-artifact-plate code-layout-artifact-plate-front">declarations</span>
             <span className="code-layout-artifact-spine" />
           </div>
-          <p className="code-layout-artifact-caption" id="code-layout-artifact-caption">
-            A compact view of the source structure.
-          </p>
         </div>
       </div>
 
@@ -254,7 +251,7 @@ export default function CodeLayoutPage() {
           <div className="code-layout-results-heading">
             <div>
               <p className="eyebrow accent-eyebrow">Layout · {result.language}</p>
-              <h2 id="layout-results-title">A compact structural read.</h2>
+              <h2 id="layout-results-title">Structure.</h2>
             </div>
             <div className="code-layout-result-meta">
               <span>{result.lineCount} lines</span>

@@ -70,11 +70,10 @@ export default function PracticeMapPage() {
             <span>ideas.</span>
           </h1>
           <p className="practice-map-intro">
-            Keep concepts, small exercises, and useful things to revisit in one place.
+            Concepts, exercises, and notes worth revisiting.
           </p>
         </div>
         <div className="practice-map-hero-note">
-          <p>Track what to revisit.</p>
           <button className="practice-map-export" type="button" onClick={handleCopyFeedback}>
             {copied ? "Review notes copied" : "Copy review notes"}
             <span aria-hidden="true">↗</span>

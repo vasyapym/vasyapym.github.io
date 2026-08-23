@@ -21,7 +21,17 @@
   --index-red: #a6533e;
   --display: "Source Sans 3", ui-sans-serif, system-ui, sans-serif;
   --sans: "Source Sans 3", ui-sans-serif, system-ui, sans-serif;
-  --mono: "IBM Plex Mono", ui-monospace, SFMono-Regular, monospace;}
+  --mono: "IBM Plex Mono", ui-monospace, SFMono-Regular, monospace;
+  --ink-bg: #0b1317;
+  --ink-text: #eeeae0;
+  --ink-muted: rgba(238, 234, 224, 0.68);
+  --ink-faint: rgba(238, 234, 224, 0.48);
+  --ink-line: rgba(238, 234, 224, 0.26);
+  --ink-line-soft: rgba(238, 234, 224, 0.13);
+  --ink-panel: rgba(238, 234, 224, 0.045);
+  --ink-accent: #d39b61;
+  --ink-accent-bright: #e8b57c;
+  --focus-ring: var(--index-blue);}
 
 
 * {
@@ -61,7 +71,7 @@ a:focus-visible,
 input:focus-visible,
 select:focus-visible,
 textarea:focus-visible {
-  outline: 2px solid var(--index-blue);
+  outline: 2px solid var(--focus-ring);
   outline-offset: 4px;}
 
 
@@ -80,12 +90,13 @@ textarea:focus-visible {
   text-transform: none;}
 
 
-/* Solid field index */
+/* Ink catalogue */
 .signal-index {
   min-height: 100vh;
   overflow: hidden;
-  color: var(--index-ink);
-  background: var(--index-bg);}
+  color: var(--ink-text);
+  background: var(--ink-bg);
+  --focus-ring: var(--ink-accent-bright);}
 
 
 .signal-index-shell {
@@ -98,41 +109,34 @@ textarea:focus-visible {
   align-items: center;
   justify-content: space-between;
   gap: 2rem;
-  min-height: 72px;
-  border-bottom: 1px solid var(--index-line);}
+  min-height: 64px;
+  border-bottom: 1px solid var(--ink-line-soft);}
 
 
 .signal-index-wordmark {
   display: inline-flex;
   align-items: center;
   gap: 0.65rem;
-  color: var(--index-ink);
-  font-size: 0.95rem;
-  font-weight: 600;
-  letter-spacing: 0;
-  text-decoration: none;}
+  color: var(--ink-text);
+  font-family: var(--mono);
+  font-size: 0.82rem;
+  font-weight: 500;
+  letter-spacing: 0.04em;
+  text-decoration: none;
+  text-transform: lowercase;}
 
 
 .signal-index-mark {
-  width: 12px;
-  height: 12px;
-  background: var(--index-blue);}
-
-
-.signal-index-count,
-.signal-index-label,
-.signal-index-card-topline,
-.signal-index-card-eyebrow,
-.signal-index-card-footer {
-  font-family: var(--sans);
-  font-size: 0.8rem;
-  font-weight: 500;
-  letter-spacing: 0;
-  text-transform: none;}
+  width: 10px;
+  height: 10px;
+  background: var(--ink-accent);}
 
 
 .signal-index-count {
-  color: var(--index-muted);}
+  color: var(--ink-faint);
+  font-family: var(--mono);
+  font-size: 0.72rem;
+  letter-spacing: 0.06em;}
 
 
 .signal-index-hero {
@@ -149,11 +153,6 @@ textarea:focus-visible {
   z-index: 1;}
 
 
-.signal-index-label {
-  margin: 0;
-  color: var(--index-blue-dark);}
-
-
 .signal-index-hero h1 {
   max-width: 820px;
   margin: 0.9rem 0 1.2rem;
@@ -165,122 +164,34 @@ textarea:focus-visible {
   line-height: 1.02;}
 
 
-.signal-index-hero h1 span {
-  display: block;
-  color: var(--index-blue);}
-
-
-.signal-index-intro {
-  max-width: 500px;
-  margin: 0;
-  color: var(--index-soft);
-  font-size: clamp(0.98rem, 1.1vw, 1.05rem);
-  line-height: 1.6;}
-
-
 .signal-index-link,
 .signal-index-card-link {
   display: inline-flex;
   align-items: center;
   gap: 0.55rem;
-  color: var(--index-ink);
+  color: var(--ink-text);
   text-decoration: none;
   transition: color 180ms ease, gap 180ms ease;}
 
 
 .signal-index-link {
   margin-top: 1.4rem;
-  font-family: var(--sans);
-  font-size: 0.9rem;
-  font-weight: 600;
-  letter-spacing: 0;
-  text-transform: none;}
+  font-family: var(--mono);
+  font-size: 0.78rem;
+  font-weight: 500;
+  letter-spacing: 0.05em;}
 
 
 .signal-index-link:hover,
 .signal-index-card-link:hover {
   gap: 0.85rem;
-  color: var(--index-blue-dark);}
+  color: var(--ink-accent-bright);}
 
 
 .signal-index-graphic {
   position: relative;
-  width: min(100%, 430px);
-  aspect-ratio: 1.5;
   justify-self: end;
-  overflow: hidden;
-  border: 1px solid var(--index-ink);
-  background: var(--index-ink);}
-
-
-.signal-index-graphic svg {
-  display: block;
-  width: 100%;
-  height: 100%;}
-
-
-.signal-index-graphic-field {
-  fill: var(--index-ink);}
-
-
-.signal-index-graphic-caption {
-  fill: var(--index-bg);
-  font-family: var(--mono);
-  font-size: 10px;
-  letter-spacing: 0.12em;}
-
-
-.signal-index-graphic-panel {
-  fill: #d9e0df;
-  stroke: var(--index-blue);
-  stroke-width: 1;}
-
-
-.signal-index-graphic-source-rule {
-  fill: none;
-  stroke: rgba(23, 26, 28, 0.52);
-  stroke-width: 2;}
-
-
-.signal-index-graphic-source-link {
-  fill: none;
-  stroke: var(--index-blue-dark);
-  stroke-width: 2;}
-
-
-.signal-index-graphic-source-node {
-  fill: var(--index-blue);
-  stroke: #d9e0df;
-  stroke-width: 2;}
-
-
-.signal-index-graphic-route-line {
-  fill: none;
-  stroke: var(--index-ochre);
-  stroke-width: 3;}
-
-
-.signal-index-graphic-route-node {
-  fill: var(--index-bg);
-  stroke: var(--index-ochre);
-  stroke-width: 3;}
-
-
-.signal-index-graphic-bridge {
-  fill: none;
-  stroke: rgba(228, 229, 225, 0.42);
-  stroke-dasharray: 3 5;
-  stroke-width: 1;}
-
-
-.signal-index-graphic-center {
-  fill: var(--index-ochre);
-  stroke: var(--index-bg);
-  stroke-width: 2;}
-
-
-.signal-index-graphic-center-dot {
-  fill: var(--index-bg);}
+  overflow: hidden;}
 
 
 .signal-index-projects {
@@ -292,7 +203,7 @@ textarea:focus-visible {
   grid-template-columns: minmax(0, 1fr);
   gap: 0;
   margin-top: 1.5rem;
-  border-top: 2px solid var(--index-ink);}
+  border-top: 1px solid var(--ink-line);}
 
 
 .signal-index-card {
@@ -300,8 +211,8 @@ textarea:focus-visible {
   display: flex;
   min-width: 0;
   flex-direction: column;
-  border-bottom: 1px solid var(--index-line);
-  color: var(--index-ink);
+  border-bottom: 1px solid var(--ink-line-soft);
+  color: var(--ink-text);
   text-decoration: none;
   opacity: 1;
   transform: translateY(0);
@@ -319,7 +230,7 @@ textarea:focus-visible {
 
 .signal-index-card:hover,
 .signal-index-card:focus-visible {
-  background: rgba(251, 250, 245, 0.32);}
+  background: var(--ink-panel);}
 
 
 .signal-index-card-topline {
@@ -328,11 +239,18 @@ textarea:focus-visible {
   justify-content: space-between;
   gap: 1rem;
   padding: 0.8rem 0 0.65rem;
-  color: var(--index-muted);}
+  color: var(--ink-faint);
+  font-family: var(--sans);
+  font-size: 0.76rem;
+  font-weight: 500;}
 
 
-.signal-index-card-topline span:last-child {
-  color: var(--index-blue-dark);}
+.signal-index-card-tag {
+  color: var(--ink-accent);
+  font-family: var(--mono);
+  font-size: 0.66rem;
+  letter-spacing: 0.06em;
+  text-transform: lowercase;}
 
 
 .signal-index-card-body {
@@ -348,7 +266,7 @@ textarea:focus-visible {
   min-height: 220px;
   order: 2;
   overflow: hidden;
-  border: 2px solid var(--index-ink);
+  border: 1px solid var(--ink-line-soft);
   perspective: 900px;
   background: var(--index-ink);}
 
@@ -721,14 +639,9 @@ textarea:focus-visible {
   padding: 0.55rem 0 0;}
 
 
-.signal-index-card-eyebrow {
-  margin: 0;
-  color: var(--index-blue-dark);}
-
-
 .signal-index-card-copy h3 {
-  margin: 0.55rem 0 0;
-  color: var(--index-ink);
+  margin: 0;
+  color: var(--ink-text);
   font-family: var(--display);
   font-size: clamp(1.7rem, 2.2vw, 2.15rem);
   font-weight: 600;
@@ -739,7 +652,7 @@ textarea:focus-visible {
 .signal-index-card-description {
   max-width: 500px;
   margin: 0.65rem 0 0;
-  color: var(--index-soft);
+  color: var(--ink-muted);
   font-size: 0.88rem;
   line-height: 1.55;}
 
@@ -751,17 +664,17 @@ textarea:focus-visible {
   gap: 1rem;
   margin-top: auto;
   padding-top: 1.25rem;
-  color: var(--index-muted);}
+  color: var(--ink-faint);}
 
 
 .signal-index-card-link {
   flex: 0 0 auto;
-  color: var(--index-ink);
-  font-family: var(--sans);
-  font-size: 0.86rem;
-  font-weight: 600;
-  letter-spacing: 0;
-  text-transform: none;}
+  color: var(--ink-text);
+  font-family: var(--mono);
+  font-size: 0.74rem;
+  font-weight: 500;
+  letter-spacing: 0.05em;
+  text-transform: lowercase;}
 
 
 /* Shared project frame */
@@ -772,14 +685,19 @@ textarea:focus-visible {
   font-family: var(--sans);}
 
 
+.project-frame-topbar {
+  background: var(--ink-bg);
+  border-bottom: 1px solid var(--ink-line-soft);
+  --focus-ring: var(--ink-accent-bright);}
+
+
 .project-frame-nav {
   display: flex;
   align-items: center;
   justify-content: space-between;
   width: min(100% - 72px, 1200px);
   min-height: 60px;
-  gap: 2rem;
-  border-bottom: 1px solid var(--index-line);}
+  gap: 2rem;}
 
 
 .back-link {
@@ -787,32 +705,32 @@ textarea:focus-visible {
   align-items: center;
   gap: 0.55rem;
   padding: 0;
-  color: var(--index-soft);
+  color: var(--ink-muted);
   background: transparent;
   cursor: pointer;
-  font-family: var(--sans);
-  font-size: 0.82rem;
+  font-family: var(--mono);
+  font-size: 0.74rem;
   font-weight: 500;
-  letter-spacing: 0;
+  letter-spacing: 0.04em;
   text-transform: none;
   transition: color 180ms ease, gap 180ms ease;}
 
 
 .back-link:hover {
   gap: 0.8rem;
-  color: var(--index-blue-dark);}
+  color: var(--ink-accent-bright);}
 
 
 .project-frame-label {
   max-width: 52%;
   overflow: hidden;
-  color: var(--index-muted);
-  font-family: var(--sans);
-  font-size: 0.78rem;
+  color: var(--ink-faint);
+  font-family: var(--mono);
+  font-size: 0.7rem;
   font-weight: 500;
-  letter-spacing: 0;
+  letter-spacing: 0.05em;
   text-overflow: ellipsis;
-  text-transform: none;
+  text-transform: lowercase;
   white-space: nowrap;}
 
 
@@ -1208,13 +1126,7 @@ textarea:focus-visible {
 
 @media (max-width: 900px) {
   .signal-index-hero,
-  .code-layout-hero { grid-template-columns: 1fr; }
-
-  .signal-index-graphic {
-    width: min(70vw, 360px);
-    min-width: 0;
-    justify-self: center;
-  }}
+  .code-layout-hero { grid-template-columns: 1fr; }}
 
 
 @media (max-width: 700px) {
@@ -1244,7 +1156,6 @@ textarea:focus-visible {
   .signal-index-header { gap: 0.65rem; }
   .signal-index-hero { min-height: auto; padding-top: 2.5rem; padding-bottom: 3rem; }
   .signal-index-hero h1 { font-size: clamp(2.25rem, 8.5vw, 3.2rem); }
-  .signal-index-graphic { width: min(100%, 360px); }
   .signal-index-card-body { gap: 1rem; }
   .signal-index-card-copy h3 { font-size: 1.75rem; }
   .project-artwork { min-height: 190px; }
@@ -1286,9 +1197,11 @@ textarea:focus-visible {
 
 .signal-index-hero-kicker {
   margin: 0 0 0.7rem;
-  color: var(--index-blue-dark);
-  font-size: 0.82rem;
-  font-weight: 500;}
+  font-family: var(--mono);
+  font-size: 0.68rem;
+  font-weight: 500;
+  letter-spacing: 0.06em;
+  text-transform: lowercase;}
 
 
 .signal-index-hero h1 {
@@ -1300,88 +1213,9 @@ textarea:focus-visible {
   line-height: 0.96;}
 
 
-.signal-index-hero h1 span {
-  display: inline;}
-
-
-.signal-index-hero .signal-index-intro {
-  max-width: 430px;
-  margin-top: 1.35rem;
-  font-size: 0.98rem;
-  line-height: 1.55;}
-
-
 .signal-index-link {
   margin-top: 1.15rem;
   font-size: 0.84rem;}
-
-
-.signal-index-graphic {
-  width: min(100%, 300px);
-  aspect-ratio: 1.22;
-  justify-self: end;
-  border: 1px solid var(--index-ink);
-  background: #1b2428;}
-
-
-.signal-index-graphic-label {
-  position: absolute;
-  top: 1rem;
-  left: 1rem;
-  color: var(--index-bg);
-  font-family: var(--mono);
-  font-size: 0.62rem;
-  letter-spacing: 0.04em;}
-
-
-.signal-index-graphic-line {
-  position: absolute;
-  z-index: 1;
-  display: block;
-  width: 44%;
-  height: 1px;
-  background: var(--index-bg);
-  transform-origin: left center;}
-
-
-.signal-index-graphic-line-one {
-  top: 35%;
-  left: 19%;
-  transform: rotate(28deg);}
-
-
-.signal-index-graphic-line-two {
-  top: 57%;
-  left: 49%;
-  transform: rotate(25deg);}
-
-
-.signal-index-graphic-point {
-  position: absolute;
-  z-index: 2;
-  display: block;
-  width: 11px;
-  height: 11px;
-  border: 2px solid #dfe1dd;
-  border-radius: 50%;
-  background: var(--index-blue);}
-
-
-.signal-index-graphic-point-one { top: 28%; left: 17%; }
-.signal-index-graphic-point-two { top: 47%; left: 47%; }
-.signal-index-graphic-point-three { top: 69%; left: 77%; background: var(--index-ochre); }
-
-.signal-index-graphic-center {
-  position: absolute;
-  z-index: 3;
-  top: 48%;
-  left: 46%;
-  display: block;
-  width: 22px;
-  height: 22px;
-  border: 1px solid #dfe1dd;
-  background: var(--index-ochre);
-  transform: rotate(45deg);}
 
 
 .signal-index-projects {
@@ -1426,18 +1260,13 @@ textarea:focus-visible {
 
 
 .signal-index-card-footer {
-  padding-top: 1rem;
-  font-size: 0.76rem;}
+  padding-top: 1rem;}
 
 
 @media (max-width: 900px) {
   .signal-index-hero {
     grid-template-columns: 1fr;
     gap: 2.5rem;
-  }
-
-  .signal-index-graphic {
-    justify-self: center;
   }
 
   .signal-index-card-body {
@@ -1464,11 +1293,11 @@ textarea:focus-visible {
   }
 
   .signal-index-wordmark {
-    font-size: 0.9rem;
+    font-size: 0.76rem;
   }
 
   .signal-index-count {
-    font-size: 0.75rem;
+    font-size: 0.68rem;
   }
 
   .signal-index-hero {
@@ -1485,16 +1314,6 @@ textarea:focus-visible {
     max-width: 340px;
     font-size: clamp(2.3rem, 10.5vw, 3.35rem);
     line-height: 0.94;
-  }
-
-  .signal-index-hero .signal-index-intro {
-    max-width: 340px;
-    margin-top: 1.1rem;
-    font-size: 0.93rem;
-  }
-
-  .signal-index-graphic {
-    width: min(100%, 300px);
   }
 
   .signal-index-projects {
@@ -1600,24 +1419,6 @@ textarea:focus-visible {
   color: var(--index-soft);
   font-size: 1rem;
   line-height: 1.6;}
-
-
-.bigbang-tech-list {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 0.5rem;
-  margin: 1.5rem 0 0;
-  padding: 0;
-  list-style: none;}
-
-
-.bigbang-tech-list li {
-  border: 1px solid var(--index-line);
-  padding: 0.38rem 0.55rem;
-  color: var(--index-blue-dark);
-  background: rgba(251, 250, 245, 0.52);
-  font-size: 0.76rem;
-  font-weight: 500;}
 
 
 .bigbang-actions {
@@ -1929,40 +1730,34 @@ body.screen-shake {
 
 
 .signal-index-hero-refraction .signal-index-hero-kicker {
-  color: #d39b61;
+  color: var(--ink-accent);
 }
 
 
 .signal-index-hero-refraction h1 {
   max-width: 640px;
-  color: #eeeae0;
+  color: var(--ink-text);
   font-size: clamp(2.8rem, 5vw, 5.1rem);
   line-height: 0.93;
 }
 
 
-.signal-index-hero-refraction .signal-index-intro {
-  max-width: 440px;
-  color: rgba(238, 234, 224, 0.72);
-}
-
-
 .signal-index-hero-refraction .signal-index-link {
-  color: #eeeae0;
+  color: var(--ink-text);
 }
 
 
 .signal-index-hero-refraction .signal-index-link:hover,
 .signal-index-hero-refraction .signal-index-link:focus-visible {
-  color: #d39b61;
+  color: var(--ink-accent-bright);
 }
 
 
 .signal-index-beneath {
   position: relative;
   display: grid;
-  gap: 0.9rem;
-  width: min(100%, 340px);
+  gap: 0.85rem;
+  width: min(100%, 360px);
   justify-self: end;
   overflow: hidden;
   border: 1px solid rgba(238, 234, 224, 0.3);
@@ -1983,25 +1778,32 @@ body.screen-shake {
 
 .signal-index-beneath-row {
   display: grid;
-  gap: 0.35rem;
+  grid-template-columns: auto 1fr;
+  align-items: baseline;
+  gap: 0.9rem;
   margin: 0;
   filter: url("#signal-index-sea-warp");
 }
 
 
 .signal-index-beneath-row span {
-  color: #d39b61;
+  color: var(--ink-accent);
   font-family: var(--mono);
-  font-size: 0.56rem;
+  font-size: 0.62rem;
   letter-spacing: 0.05em;
+  text-transform: lowercase;
+  white-space: nowrap;
 }
 
 
 .signal-index-beneath-row strong {
-  color: #eeeae0;
-  font-size: 1.05rem;
+  overflow: hidden;
+  color: var(--ink-text);
+  font-size: 0.98rem;
   font-weight: 600;
   letter-spacing: -0.01em;
+  text-overflow: ellipsis;
+  white-space: nowrap;
 }
 
 
