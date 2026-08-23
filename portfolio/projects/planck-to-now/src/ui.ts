@@ -1,4 +1,11 @@
-import { EPOCHS, LOG_END, LOG_START, fmtSci, fmtTemp, fmtTime } from "./cosmology";
+import {
+  EPOCHS,
+  fmtSci,
+  fmtTemp,
+  fmtTime,
+  fractionToLogt,
+  logtToFraction,
+} from "./cosmology";
 import type { SimState } from "./cosmology";
 
 export interface UiRefs {
@@ -30,10 +37,8 @@ export function grabUi(): UiRefs {
   };
 }
 
-const SPAN = LOG_END - LOG_START;
-
 function pct(logt: number): string {
-  return `${(Math.min(1, Math.max(0, (logt - LOG_START) / SPAN)) * 100).toFixed(2)}%`;
+  return `${(logtToFraction(logt) * 100).toFixed(2)}%`;
 }
 
 export function buildTicks(ui: UiRefs): void {
@@ -46,8 +51,39 @@ export function buildTicks(ui: UiRefs): void {
   }
 }
 
+export function attachTimelineScrub(onScrub: (logt: number) => void): void {
+  const timeline = document.getElementById("timeline");
+  if (!timeline) throw new Error("missing #timeline");
+
+  const scrubTo = (event: PointerEvent): void => {
+    const rect = timeline.getBoundingClientRect();
+    onScrub(fractionToLogt((event.clientX - rect.left) / Math.max(1, rect.width)));
+  };
+
+  let scrubbing = false;
+  timeline.addEventListener("pointerdown", (event) => {
+    event.preventDefault();
+    scrubbing = true;
+    timeline.setPointerCapture(event.pointerId);
+    scrubTo(event);
+  });
+  timeline.addEventListener("pointermove", (event) => {
+    if (scrubbing) scrubTo(event);
+  });
+  const endScrub = (event: PointerEvent) => {
+    if (!scrubbing) return;
+    scrubbing = false;
+    if (timeline.hasPointerCapture(event.pointerId)) {
+      timeline.releasePointerCapture(event.pointerId);
+    }
+  };
+  timeline.addEventListener("pointerup", endScrub);
+  timeline.addEventListener("pointercancel", endScrub);
+}
+
 let lastEpochIdx = -1;
 let lastSpeedText = "";
+let lastStatsHtml = "";
 
 export interface UiExtras {
   playing: boolean;
@@ -63,10 +99,14 @@ export function updateUi(ui: UiRefs, st: SimState, x: UiExtras): void {
     ui.epochdesc.textContent = e.desc;
   }
   const z = Math.max(0, 1 / st.aPhys - 1);
-  ui.stats.innerHTML =
+  const statsHtml =
     `t = <b>${fmtTime(st.tSec)}</b>\n` +
     `T = <b>${fmtTemp(st.tempK)}</b>\n` +
     `a = <b>${fmtSci(st.aPhys)}</b>   z = <b>${fmtSci(z)}</b>`;
+  if (statsHtml !== lastStatsHtml) {
+    lastStatsHtml = statsHtml;
+    ui.stats.innerHTML = statsHtml;
+  }
   ui.cursor.style.left = pct(st.logt);
   ui.paused.style.display = x.playing ? "none" : "block";
   const speedText = `speed \u00d7${x.dps.toFixed(1)}`;

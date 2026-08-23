@@ -20,7 +20,7 @@ npm --prefix portfolio install
 npm --prefix portfolio run dev
 ```
 
-Open <http://localhost:5173>. The solid field index is the main route; Big Bang, Practice Map, and Code Layout are available from the project list. Direct routes are <http://localhost:5173/projects/bigbang-ts>, <http://localhost:5173/projects/practice-map>, and <http://localhost:5173/projects/code-layout>. The older Assembly field comparison remains available at `/?prototype=room` and `/?prototype=field`. The shell runs on port `5173`; Code Layout uses `8082`.
+Open <http://localhost:5173>. The solid field index is the main route; Planck to Now, Practice Map, and Code Layout are available from the project list. Direct routes are <http://localhost:5173/projects/planck-to-now>, <http://localhost:5173/projects/practice-map>, and <http://localhost:5173/projects/code-layout>. The older Assembly field comparison remains available at `/?prototype=room` and `/?prototype=field`. The shell runs on port `5173`; Code Layout uses `8082`.
 
 ## Structure
 
@@ -29,7 +29,10 @@ portfolio/
 ├── contracts/       shared module interfaces
 ├── projects/        self-contained pet projects
 │   ├── code-layout/ source layout summarizer and Go adapter
-│   ├── practice-map/ local-first technical practice dashboard
-│   └── bigbang-ts/   GPU-accelerated cosmology simulation
+│   ├── evening-forest/ 8-bit woodland walking simulator
+│   ├── explosion/     click-to-detonate specimen room
+│   ├── kitty-run/     procedural vector-animation runner game
+│   ├── planck-to-now/ GPU-accelerated cosmology simulation
+│   └── practice-map/  local-first technical practice dashboard
 └── shell/           React/Vite landing page and project host
 ```

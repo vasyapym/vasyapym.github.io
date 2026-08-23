@@ -1,8 +1,8 @@
 import type { ProjectModule } from "../../contracts/project-module";
 
-const bigBangTs: ProjectModule = {
-  id: "bigbang-ts",
-  title: "bigbang-ts",
+const planckToNow: ProjectModule = {
+  id: "planck-to-now",
+  title: "Planck to Now",
   tag: "sim",
   eyebrow: "A log-time cosmology simulation",
   description: "Watch 13.8 billion years unfold in a GPU-accelerated WebGL simulation, from the Planck epoch to the present day.",
@@ -12,16 +12,16 @@ const bigBangTs: ProjectModule = {
   links: [
     {
       label: "GitHub repository",
-      href: "https://github.com/vasyapym/vasyapym.github.io/tree/main/portfolio/projects/bigbang-ts",
+      href: "https://github.com/vasyapym/vasyapym.github.io/tree/main/portfolio/projects/planck-to-now",
       external: true,
     },
     {
       label: "Open standalone view",
-      href: "/bigbang-ts/",
+      href: "/planck-to-now/",
     },
   ],
   presentation: {
-    className: "presentation-bigbang",
+    className: "presentation-planck-to-now",
     motion: "network",
     centerLabel: "B / B",
     centerMark: "generic",
@@ -84,7 +84,7 @@ const bigBangTs: ProjectModule = {
       },
     ],
   },
-  loadPage: () => import("./web/BigBangPage"),
+  loadPage: () => import("./web/PlanckToNowPage"),
 };
 
-export default bigBangTs;
+export default planckToNow;

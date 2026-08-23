@@ -1,6 +1,7 @@
 export const LOG_START = -43;
 export const YR = 3.156e7;
 export const LOG_END = Math.log10(4.35e17);
+export const LOG_SPAN = LOG_END - LOG_START;
 export const RECOMBINATION = 13.08;
 
 const TEQ = 1.5e12;
@@ -97,6 +98,14 @@ export function rateAt(logt: number): number {
     prev = end;
   }
   return (LOG_END - prev) / PACE[PACE.length - 1][1];
+}
+
+export function fractionToLogt(fraction: number): number {
+  return clamp(LOG_START + clamp(fraction, 0, 1) * LOG_SPAN, LOG_START, LOG_END);
+}
+
+export function logtToFraction(logt: number): number {
+  return clamp((logt - LOG_START) / LOG_SPAN, 0, 1);
 }
 
 function visualScale(logt: number): number {

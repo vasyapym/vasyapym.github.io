@@ -4,7 +4,7 @@
   "version": "0.1.0",
   "workspaces": [
     "shell",
-    "projects/bigbang-ts"
+    "projects/planck-to-now"
   ],
   "scripts": {
     "dev": "npm --workspace shell run dev",

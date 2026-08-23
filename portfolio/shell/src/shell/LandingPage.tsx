@@ -69,7 +69,7 @@ export default function LandingPage({ projects, onOpenProject }: LandingPageProp
           </svg>
           <div className="signal-index-hero-copy">
             <p className="signal-index-hero-kicker">prototypes</p>
-            <h1 id="signal-index-title">A collection of digital experiences</h1>
+            <h1 id="signal-index-title">prototypes &amp; small machines</h1>
             <a className="signal-index-link" href="#projects">
               Run the models <span aria-hidden="true">↓</span>
             </a>

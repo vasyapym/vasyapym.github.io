@@ -1,9 +1,9 @@
 {
-  "name": "bigbang-ts",
+  "name": "planck-to-now",
   "version": "0.1.0",
   "private": true,
   "type": "module",
-  "description": "GPU-accelerated WebGL simulation of the Big Bang: inflation to the present day, 13.8 Gyr on log-time.",
+  "description": "GPU-accelerated WebGL playback of cosmic history on a logarithmic time axis, from the Planck epoch to the present day.",
   "scripts": {
     "build": "esbuild src/main.ts --bundle --minify --outfile=dist/main.js",
     "watch": "esbuild src/main.ts --bundle --outfile=dist/main.js --watch",

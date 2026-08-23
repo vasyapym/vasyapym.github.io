@@ -34,7 +34,8 @@
   #paused { top: 26px; left: 50%; transform: translateX(-50%); font-size: 13px; letter-spacing: .5em;
     color: var(--accent); border: 1px solid rgba(255,217,160,.4); padding: 7px 16px 6px 22px; display: none; }
 
-  #timeline { bottom: 64px; left: 50%; transform: translateX(-50%); width: min(760px, 82vw); height: 26px; }
+  #timeline { bottom: 64px; left: 50%; transform: translateX(-50%); width: min(760px, 82vw); height: 26px;
+    cursor: pointer; touch-action: none; }
   #tlbar { position: absolute; top: 11px; left: 0; right: 0; height: 3px;
     background: linear-gradient(90deg, #3a1c08, #7a4a16, #24304f, #4a5a8a); border-radius: 2px; opacity: .85; }
   .tick { position: absolute; top: 8px; width: 1px; height: 9px; background: rgba(180,195,255,.35); }
@@ -72,7 +73,7 @@
   <div class="hud" id="hints">
     <span id="speedlabel">speed ×1.0</span><br />
     <kbd>space</kbd> pause · <kbd>R</kbd> restart · <kbd>↑</kbd><kbd>↓</kbd> speed<br />
-    drag orbit · scroll zoom
+    drag orbit · scroll zoom · drag timeline to scrub
   </div>
   <div class="hud" id="title">The Big Bang<br />log-time playback</div>
 

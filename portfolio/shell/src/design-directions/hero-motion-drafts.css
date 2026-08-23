@@ -11,7 +11,7 @@
   min-height: 100vh;
   color: var(--motion-ink);
   background: var(--motion-bg);
-  font-family: "Source Sans 3", ui-sans-serif, system-ui, sans-serif;
+  font-family: "IBM Plex Sans", ui-sans-serif, system-ui, sans-serif;
   font-synthesis: none;
   text-rendering: optimizeLegibility;
 }
@@ -57,7 +57,7 @@
   justify-self: start;
   gap: 0.55rem;
   color: var(--motion-ink);
-  font-family: "Source Sans 3", ui-sans-serif, sans-serif;
+  font-family: "IBM Plex Sans", ui-sans-serif, sans-serif;
   font-size: 0.96rem;
   font-weight: 600;
   letter-spacing: 0;
@@ -226,7 +226,7 @@
 
 .motion-draft-nav span:first-child {
   color: var(--canvas-ink, #171a1c);
-  font-family: "Source Sans 3", ui-sans-serif, sans-serif;
+  font-family: "IBM Plex Sans", ui-sans-serif, sans-serif;
   font-size: 0.76rem;
   font-weight: 600;
   letter-spacing: 0;
@@ -271,7 +271,7 @@
   gap: 0.55rem;
   margin-top: 1.2rem;
   color: var(--canvas-ink, #171a1c);
-  font-family: "Source Sans 3", ui-sans-serif, sans-serif;
+  font-family: "IBM Plex Sans", ui-sans-serif, sans-serif;
   font-size: 0.82rem;
   font-weight: 600;
   letter-spacing: 0;

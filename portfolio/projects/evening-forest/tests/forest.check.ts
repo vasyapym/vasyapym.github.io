@@ -1,4 +1,4 @@
-// Hand-rolled assertion script, following the bigbang-ts precedent.
+// Hand-rolled assertion script, following the planck-to-now precedent.
 // Run: node --experimental-strip-types tests/forest.check.ts
 // Covers the pure leaf modules only (they must not import three or react).
 

@@ -15,19 +15,26 @@ import {
 import { createParticles } from "./particles";
 import type { ParticleSystem } from "./particles";
 import { createCmbShell, createCoreGlow } from "./backdrop";
-import { buildTicks, grabUi, updateUi } from "./ui";
+import { buildTicks, grabUi, attachTimelineScrub, updateUi } from "./ui";
 import type { UiRefs } from "./ui";
 
 const isCoarse = window.matchMedia("(pointer: coarse)").matches;
 const PARTICLES = isCoarse || window.innerWidth < 800 ? 90_000 : 220_000;
 const BASE_DPS = 1.1;
+const reduceMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+const plasmaDamping = reduceMotion ? 0.12 : 1;
+const sparkDamping = reduceMotion ? 0.3 : 1;
 
-function fail(msg: string): never {
+function showError(msg: string): void {
   const el = document.getElementById("err");
   if (el) {
     el.style.display = "grid";
     el.firstElementChild!.textContent = msg;
   }
+}
+
+function fail(msg: string): never {
+  showError(msg);
   throw new Error(msg);
 }
 
@@ -40,6 +47,11 @@ function createRenderer(): THREE.WebGLRenderer {
 }
 
 const renderer: THREE.WebGLRenderer = createRenderer();
+
+renderer.domElement.addEventListener("webglcontextlost", (event) => {
+  event.preventDefault();
+  showError("WebGL context lost — reload the page to restart the simulation.");
+});
 
 renderer.setPixelRatio(Math.min(window.devicePixelRatio, isCoarse ? 1.5 : 2));
 renderer.setSize(window.innerWidth, window.innerHeight);
@@ -61,7 +73,7 @@ controls.dampingFactor = 0.06;
 controls.enablePan = false;
 controls.minDistance = 8;
 controls.maxDistance = 320;
-controls.autoRotate = true;
+controls.autoRotate = !reduceMotion;
 controls.autoRotateSpeed = 0.45;
 
 const particles: ParticleSystem = createParticles(PARTICLES);
@@ -99,6 +111,10 @@ if (tParam !== null) {
   if (Number.isFinite(v)) logt = Math.min(LOG_END, Math.max(LOG_START, v));
 }
 
+attachTimelineScrub((newLogt) => {
+  logt = newLogt;
+});
+
 function syncBufferHeight(): void {
   particles.uniforms.uH.value = renderer.domElement.height;
 }
@@ -114,16 +130,20 @@ window.addEventListener("resize", onResize);
 syncBufferHeight();
 
 window.addEventListener("keydown", (e) => {
+  if (e.metaKey || e.ctrlKey || e.altKey) return;
   if (e.code === "Space") {
     e.preventDefault();
     playing = !playing;
   } else if (e.code === "KeyR") {
+    e.preventDefault();
     logt = LOG_START;
     flash = 0;
     playing = true;
   } else if (e.code === "ArrowUp") {
+    e.preventDefault();
     dps = Math.min(5, dps * 1.35);
   } else if (e.code === "ArrowDown") {
+    e.preventDefault();
     dps = Math.max(0.3, dps / 1.35);
   }
 });
@@ -149,8 +169,8 @@ function frame(): void {
   u.uA.value = st.vscale;
   u.uTime.value = animTime;
   u.uWeb.value = st.web;
-  u.uPlasma.value = st.plasma;
-  u.uSpark.value = playing ? st.spark : st.spark * 0.25;
+  u.uPlasma.value = st.plasma * plasmaDamping;
+  u.uSpark.value = (playing ? st.spark : st.spark * 0.25) * sparkDamping;
   u.uStar.value = st.star;
   const [r, g, b] = kelvinToRGB(st.tempK);
   u.uHot.value.setRGB(r, g, b).multiplyScalar(0.9 + 0.9 * st.earlyBoost);

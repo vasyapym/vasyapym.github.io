@@ -1,4 +1,13 @@
-import { evaluateState, LOG_START, LOG_END, RECOMBINATION, kelvinToRGB } from "../src/cosmology.ts";
+import {
+  evaluateState,
+  LOG_START,
+  LOG_END,
+  LOG_SPAN,
+  RECOMBINATION,
+  fractionToLogt,
+  logtToFraction,
+  kelvinToRGB,
+} from "../src/cosmology.ts";
 
 let failures = 0;
 function check(name: string, cond: boolean): void {
@@ -53,6 +62,22 @@ check("BBN spark active near t~300 s", evaluateState(2.5).spark > 0.8);
 check("hadron spark active near t~3e-5 s", evaluateState(-4.5).spark > 0.7);
 check("epoch[0] is Planck", evaluateState(LOG_START).epochIdx === 0);
 check("final epoch is Present Day", evaluateState(LOG_END).epochIdx === 10);
+
+check("fraction 0 maps to LOG_START", fractionToLogt(0) === LOG_START);
+check("fraction 1 maps to LOG_END", Math.abs(fractionToLogt(1) - LOG_END) < 1e-9);
+check("negative fraction clamps to LOG_START", fractionToLogt(-3) === LOG_START);
+check("fraction above 1 clamps to LOG_END", Math.abs(fractionToLogt(2.5) - LOG_END) < 1e-9);
+let roundTrip = true;
+for (const lp of probePoints) {
+  const back = fractionToLogt(logtToFraction(lp));
+  if (Math.abs(back - lp) > 1e-9) roundTrip = false;
+}
+check("scrub mapping round-trips probe points", roundTrip);
+const scrubbedRec = evaluateState(fractionToLogt(logtToFraction(RECOMBINATION)));
+check(
+  "scrub to recombination keeps T ~3000 K",
+  scrubbedRec.tempK > 2000 && scrubbedRec.tempK < 5000,
+);
 
 const hotRGB = kelvinToRGB(1e10);
 const warmRGB = kelvinToRGB(3000);

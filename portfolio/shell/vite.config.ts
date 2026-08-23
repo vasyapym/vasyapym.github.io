@@ -6,51 +6,51 @@ import { defineConfig, type Plugin } from "vite";
 import react from "@vitejs/plugin-react";
 
 const shellRoot = dirname(fileURLToPath(import.meta.url));
-const bigBangRoot = resolve(shellRoot, "../projects/bigbang-ts");
-const bigBangIndex = resolve(bigBangRoot, "index.html");
-const bigBangBundle = resolve(bigBangRoot, "dist/main.js");
+const planckToNowRoot = resolve(shellRoot, "../projects/planck-to-now");
+const planckToNowIndex = resolve(planckToNowRoot, "index.html");
+const planckToNowBundle = resolve(planckToNowRoot, "dist/main.js");
 
-function createBigBangBuild(): void {
+function createPlanckToNowBuild(): void {
   const npm = process.platform === "win32" ? "npm.cmd" : "npm";
   execFileSync(npm, ["run", "build"], {
-    cwd: bigBangRoot,
+    cwd: planckToNowRoot,
     stdio: "inherit",
   });
 }
 
-function bigBangStaticPlugin(): Plugin {
+function planckToNowStaticPlugin(): Plugin {
   let built = false;
 
   const ensureBuild = () => {
-    if (!built || !existsSync(bigBangBundle)) {
-      createBigBangBuild();
+    if (!built || !existsSync(planckToNowBundle)) {
+      createPlanckToNowBuild();
       built = true;
     }
   };
 
   const getStaticFile = (pathname: string): string | undefined => {
-    if (pathname === "/bigbang-ts" || pathname === "/bigbang-ts/") {
-      return bigBangIndex;
+    if (pathname === "/planck-to-now" || pathname === "/planck-to-now/") {
+      return planckToNowIndex;
     }
 
-    if (pathname === "/bigbang-ts/dist/main.js") {
-      return bigBangBundle;
+    if (pathname === "/planck-to-now/dist/main.js") {
+      return planckToNowBundle;
     }
 
     return undefined;
   };
 
   return {
-    name: "bigbang-ts-static",
+    name: "planck-to-now-static",
     config() {
       ensureBuild();
     },
     configureServer(server) {
       server.middlewares.use((request, response, next) => {
         const pathname = new URL(request.url ?? "/", "http://localhost").pathname;
-        if (pathname === "/bigbang-ts") {
+        if (pathname === "/planck-to-now") {
           response.statusCode = 301;
-          response.setHeader("Location", "/bigbang-ts/");
+          response.setHeader("Location", "/planck-to-now/");
           response.end();
           return;
         }
@@ -75,20 +75,20 @@ function bigBangStaticPlugin(): Plugin {
       ensureBuild();
       this.emitFile({
         type: "asset",
-        fileName: "bigbang-ts/index.html",
-        source: readFileSync(bigBangIndex),
+        fileName: "planck-to-now/index.html",
+        source: readFileSync(planckToNowIndex),
       });
       this.emitFile({
         type: "asset",
-        fileName: "bigbang-ts/dist/main.js",
-        source: readFileSync(bigBangBundle),
+        fileName: "planck-to-now/dist/main.js",
+        source: readFileSync(planckToNowBundle),
       });
     },
   };
 }
 
 export default defineConfig({
-  plugins: [bigBangStaticPlugin(), react()],
+  plugins: [planckToNowStaticPlugin(), react()],
   server: {
     port: 5173,
   },
