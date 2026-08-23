@@ -2,7 +2,51 @@
 
 This is the durable design source of truth. Code shows what is implemented; this file records why the direction exists, what the user liked, what was rejected, and what must not be rediscovered by accident.
 
-## Active handoff — Quiet index (2026-08-22)
+## Current active handoff — Refraction sea (2026-08-23)
+
+**Status:** selected direction after the motion-led draft review (user ranked Refraction sea > Pixel assembly > Darkroom develop); the production homepage hero now follows the Refraction sea treatment.
+
+### Outcome
+
+Make the hero feel **dark, fluid, and evidential**. A WebGL caustic field — the liked liquid-glass reference rendered as slow light on a dark sea — becomes the hero's focal element, and the two projects float "beneath the surface" as warped specimen rows. The animation must demonstrate the copy's promise: look through the surface and the mechanics underneath become visible.
+
+### Visual system
+
+- **Surface:** the dark ink band stays limited to the hero; the collection below remains the warm concrete field. The sea fills the existing hero band only — no extra stage height.
+- **Type:** Source Sans 3 for interface and headings, IBM Plex Mono for catalogue notation. Copy stays direct and plain; the kicker/headline/subheading must not repeat a phrase.
+- **Structure:** two-column hero. Left: kicker `Prototypes, not promises`, H1 `See the mechanics before you commit.`, intro `Every project is a working model that shows how an idea behaves under real use.`, CTA `Run the models ↓`. Right: a translucent "beneath the surface" panel holding the two project rows (01 / tool, 02 / map) under a static SVG displacement warp with a slow CSS drift.
+- **Weight:** deep ink base `#0b1317`, muted teal caustic light, ochre `#d39b61` accent carried over from the catalogue round. Caustic intensity stays low near the copy; a vignette keeps edges calm.
+- **Copy:** no repeated phrase between kicker and intro; the value proposition (see the mechanics before committing) is stated once, plainly.
+
+### Experience
+
+- The caustic shader renders behind the copy at low intensity; it pauses when the hero is off-screen, when the tab is hidden, and under `prefers-reduced-motion` (single static frame).
+- If WebGL is unavailable, the canvas falls back to a static two-glow gradient on the same deep ink field.
+- The beneath-panel rows warp through an SVG turbulence filter and drift a few pixels; reduced motion freezes the drift and keeps the warp static.
+- The project list, card activation behavior, direct links, and mobile gutters remain unchanged; the first project still arrives quickly below the hero.
+
+### Quality gate
+
+- The sea reads as an instrument for looking beneath the surface, not as a decorative screensaver; the copy stays dominant.
+- The hero remains dark and specific without becoming a terminal, dashboard, copied-image collage, or large empty stage.
+- The beneath panel previews the actual subjects of Code Layout and Practice Map.
+- Keyboard focus, direct links, WCAG AA contrast, touch behavior, and `prefers-reduced-motion` remain intact.
+
+## Superseded handoff — Dark catalogue (2026-08-23)
+
+**Status:** superseded by Refraction sea after the motion-led draft review; kept as a graph node.
+
+### Outcome
+
+Make the portfolio feel **archival, tactile, and quietly technical**, with an original catalogue plate carrying the dark hero. Superseded because the plate was static: the user asked for an advanced animated focal element, and the motion drafts showed the dark mood survives without the plate.
+
+### Carried into Refraction sea
+
+- The dark ink band limited to the hero, the ochre accent, and the archival "evidence of work" framing.
+- Original project-specific geometry instead of copied reference imagery (the beneath panel previews the two real projects).
+- Direct copy, the fast path to the collection, and all list/interaction behavior.
+
+## Superseded handoff — Quiet index (2026-08-22)
 
 **Status:** selected direction after comparing ten visual routes; the production homepage now follows the Quiet index treatment.
 
@@ -56,6 +100,8 @@ flowchart LR
   D -->|"keep solidity; typography and copy still noisy"| E["Calm field index<br/>Source Sans 3 + quiet type"]
   E -->|"generic hero; no memorable effect"| F["Selected systems index<br/>source graph + practice route"]
   F -->|"useful signal; too much visual weight for the index"| G["Quiet index<br/>compact signal + calmer hierarchy"]
+  G -->|"dark catalogue field liked; copied reference image rejected"| H["Dark catalogue<br/>original project specimen plate"]
+  H -->|"plate was static; user wanted an animated focal element"| I["Refraction sea<br/>caustic shader + submerged project rows"]
 ```
 
 ### Superseded nodes
@@ -65,7 +111,14 @@ flowchart LR
 - **Readable signal index** — kept: direct hierarchy, readable body text, systemacity, compactness, and project-specific artwork. Rejected: oversized heading moments, soft rounded cards, and a surface that feels generic or lightweight.
 - **Solid field index** — kept: flush project slabs, firm rules, flat concrete field, and hard-edged artwork. Refined: Archivo/IBM Plex role-splitting, residual all-caps metadata, oversized headings, and auxiliary promotional copy.
 - **Calm field index** — kept: Source Sans 3, restrained type scale, direct copy, and the flat field. Rejected/refined: a generic hero mark that did not leave a memorable relationship to the projects.
-- **Quiet index** — active: keeps the solid field and project slabs, reduces the hero to a small three-point signal, removes the review affordance from production, and lets the project list carry more of the identity.
+- **Quiet index** — superseded: keeps the solid field and project slabs, reduces the hero to a small three-point signal, removes the review affordance from production, and lets the project list carry more of the identity.
+- **Dark catalogue** — superseded: kept the dark archival band, ochre accent, and original project evidence; replaced because the plate was static when the user asked for an animated focal element.
+- **Refraction sea** — active: keeps the dark band, direct list, and project-specific evidence; adds a WebGL caustic field as the focal animation and submerges the two project rows beneath a warped surface.
+
+### Kept alternates (motion round runners-up)
+
+- **Pixel assembly (draft 01)** — liked: bitmap type over the portrait reference, print-born precision. Kept as a candidate for a future type-led pass; not implemented.
+- **Darkroom develop (draft 10)** — liked: cursor-as-developer-light reveal, archival trace mood. Kept as a candidate if the sea ever feels too literal; not implemented.
 
 ### Persistent decisions
 
@@ -125,6 +178,26 @@ Every review adds one compact entry. The **Liked** field becomes a constraint; t
 - **Quality gate:** the first viewport should feel composed and useful at rest; the hero should establish tone without delaying the first project; project rows should remain readable, distinct, and directly openable.
 - **Verification:** `npm run typecheck`, `npm run build`, `git diff --check`, mobile preview at 408px, selection/navigation checks on the comparison route, and no horizontal overflow pass.
 - **Next review:** inspect the Quiet index at 1440px, 1024px, and 390px with real project counts and long descriptions; verify keyboard focus, reduced motion, and whether the compact signal still feels specific rather than decorative.
+
+### Pass 9 — Dark catalogue / original project plate (2026-08-23)
+
+- **Liked:** the dark catalogue draft's contrast, archival mood, tactile image weight, and sharper visual point of view.
+- **Rejected:** copying or collaging the reference image into the production hero; a photo-led treatment that does not explain the actual projects.
+- **Carried forward:** Source Sans 3, direct project list, firm rules, restrained motion, project-specific identity, and a fast path to the collection.
+- **Changed:** replace the compact signal block with an original dark catalogue plate containing Code Layout and Practice Map specimen sheets, catalogue notation, a central stitch marker, and small pointer inspection response. Update the hero copy to `Ideas should leave a trace.` and a direct working-prototype description.
+- **Quality gate:** the hero must feel dark, archival, and specific without becoming a copied-image collage, terminal, dashboard, or large decorative scene.
+- **Next review:** `/`, `/projects/code-layout`, and `/projects/practice-map` at 1440px, 1024px, and 390px; verify keyboard focus, touch fallback, reduced motion, real copy lengths, and the final font-loaded state.
+- **Verification:** `npm run typecheck`, `npm run build`, and `git diff --check` pass; the compiled Dark catalogue hero was visually checked at the available 408px viewport with no horizontal overflow or console errors. The project list remains unchanged and the reduced-motion CSS fallback leaves the catalogue plate stable.
+
+### Pass 10 — Refraction sea / animated focal element (2026-08-23)
+
+- **Liked:** from the motion draft round — the caustic shader sea (draft 02) ranked first, bitmap pixel type (draft 01) second, darkroom reveal (draft 10) third; the dark field, fluid light, and the "mechanics beneath the surface" idea.
+- **Rejected:** the catalogue plate's stillness (no animated focal element); repeating a phrase between kicker and subheading; any full-bleed scene that delays the first project.
+- **Carried forward:** the dark ink hero band, ochre accent, direct copy rules, project-specific evidence in the hero, fast path to the collection, and all list behavior.
+- **Changed:** replace the catalogue plate with a WebGL caustic field (`RefractionField`) behind the hero copy and a translucent beneath-surface panel holding the two project rows under an SVG displacement warp with a slow drift. New hero copy: `Prototypes, not promises` / `See the mechanics before you commit.` / `Every project is a working model that shows how an idea behaves under real use.` CTA: `Run the models ↓`. Meta description updated to match.
+- **Quality gate:** the sea must read as an instrument, not a screensaver; copy stays dominant; the shader pauses off-screen and on hidden tabs; reduced motion gets a single frame and frozen drift; WebGL failure falls back to a static gradient; the first project still arrives quickly.
+- **Verification:** `npm run typecheck` and `npm run build` pass; routes `/`, `/projects/code-layout`, and `/projects/practice-map` to review at 1440px, 1024px, and 390px with keyboard focus, touch, and reduced-motion checks.
+- **Next review:** confirm caustic intensity keeps AA contrast behind the copy at all three viewports; check shader performance on low-power devices; decide whether the beneath panel's warp scale needs tuning.
 
 
 ## Deterministic handoff protocol
