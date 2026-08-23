@@ -1,7 +1,6 @@
 import { useEffect, useRef, useState, type CSSProperties } from "react";
 import type { ProjectModule } from "../../../contracts/project-module";
 import ProjectArtwork from "./ProjectArtwork";
-import RefractionField from "./RefractionField";
 
 type LandingPageProps = {
   projects: readonly ProjectModule[];
@@ -48,15 +47,18 @@ export default function LandingPage({ projects, onOpenProject }: LandingPageProp
     <main ref={pageRef} className="signal-index">
       <div className="signal-index-shell">
         <header className="signal-index-header">
-          <a className="signal-index-wordmark" href="/">
-            <span className="signal-index-mark" aria-hidden="true" />
-            Selected Experiments
-          </a>
+          <div className="signal-index-identity">
+            <a className="signal-index-wordmark" href="/">
+              <span className="signal-index-mark" aria-hidden="true" />
+              Vasily Argounov
+            </a>
+            <span className="signal-index-identity-divider" aria-hidden="true">|</span>
+            <a className="signal-index-contact" href="mailto:vasyapym@gmail.com">vasyapym@gmail.com</a>
+          </div>
           <span className="signal-index-count">{projects.length.toString().padStart(2, "0")}</span>
         </header>
 
         <section className="signal-index-hero signal-index-hero-refraction" aria-labelledby="signal-index-title">
-          <RefractionField className="signal-index-sea" />
           <svg className="signal-index-sea-filter" aria-hidden="true" focusable="false">
             <defs>
               <filter id="signal-index-sea-warp" x="-20%" y="-20%" width="140%" height="140%">
@@ -66,8 +68,8 @@ export default function LandingPage({ projects, onOpenProject }: LandingPageProp
             </defs>
           </svg>
           <div className="signal-index-hero-copy">
-            <p className="signal-index-hero-kicker">Prototypes, not promises</p>
-            <h1 id="signal-index-title">See the mechanics before you commit.</h1>
+            <p className="signal-index-hero-kicker">prototypes</p>
+            <h1 id="signal-index-title">A collection of digital experiences</h1>
             <a className="signal-index-link" href="#projects">
               Run the models <span aria-hidden="true">↓</span>
             </a>
@@ -76,10 +78,7 @@ export default function LandingPage({ projects, onOpenProject }: LandingPageProp
             <span className="signal-index-beneath-label">beneath the surface</span>
             {projects.map((project, index) =>
               project.tag ? (
-                <p
-                  className={`signal-index-beneath-row ${index % 2 === 0 ? "signal-index-beneath-row-a" : "signal-index-beneath-row-b"}`}
-                  key={project.id}
-                >
+                <p className="signal-index-beneath-row" key={project.id}>
                   <span>
                     {String(index + 1).padStart(2, "0")} / {project.tag}
                   </span>

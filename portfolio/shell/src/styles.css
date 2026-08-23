@@ -123,13 +123,39 @@ textarea:focus-visible {
   font-weight: 500;
   letter-spacing: 0.04em;
   text-decoration: none;
-  text-transform: lowercase;}
+  white-space: nowrap;}
 
 
 .signal-index-mark {
   width: 10px;
   height: 10px;
   background: var(--ink-accent);}
+
+
+.signal-index-identity {
+  display: inline-flex;
+  align-items: baseline;
+  gap: 0.65rem;
+  min-width: 0;}
+
+
+.signal-index-identity-divider {
+  color: var(--ink-faint);}
+
+
+.signal-index-contact {
+  color: var(--ink-faint);
+  font-family: var(--mono);
+  font-size: 0.78rem;
+  letter-spacing: 0.04em;
+  text-decoration: none;
+  text-transform: lowercase;
+  white-space: nowrap;}
+
+
+.signal-index-contact:hover,
+.signal-index-contact:focus-visible {
+  color: var(--ink-accent-bright);}
 
 
 .signal-index-count {
@@ -1292,8 +1318,23 @@ textarea:focus-visible {
     gap: 1rem;
   }
 
+  .signal-index-identity {
+    align-items: flex-start;
+    flex-direction: column;
+    gap: 0.2rem;
+    min-width: 0;
+  }
+
+  .signal-index-identity-divider {
+    display: none;
+  }
+
   .signal-index-wordmark {
     font-size: 0.76rem;
+  }
+
+  .signal-index-contact {
+    font-size: 0.7rem;
   }
 
   .signal-index-count {
@@ -1589,7 +1630,7 @@ textarea:focus-visible {
   }}
 
 
-/* Refraction sea hero */
+/* Hero band */
 .signal-index-hero-refraction {
   position: relative;
   isolation: isolate;
@@ -1604,26 +1645,12 @@ textarea:focus-visible {
   bottom: 0;
   left: 50%;
   width: 100vw;
-  background: #0b1317;
-  content: "";
-  transform: translateX(-50%);
-}
-
-
-.signal-index-sea {
-  position: absolute;
-  z-index: -1;
-  inset: 0;
-  width: 100%;
-  height: 100%;
-}
-
-
-.signal-index-sea[data-sea-fallback] {
   background:
     radial-gradient(360px 240px at 72% 28%, rgba(211, 155, 97, 0.2), transparent 70%),
     radial-gradient(440px 280px at 28% 72%, rgba(110, 180, 190, 0.16), transparent 70%),
     #0b1317;
+  content: "";
+  transform: translateX(-50%);
 }
 
 
@@ -1718,27 +1745,6 @@ textarea:focus-visible {
 }
 
 
-.signal-index-beneath-row-a {
-  animation: beneath-drift 9s ease-in-out infinite alternate;
-}
-
-
-.signal-index-beneath-row-b {
-  animation: beneath-drift 11s ease-in-out -3s infinite alternate-reverse;
-}
-
-
-@keyframes beneath-drift {
-  from {
-    transform: translateY(-2px) skewX(0.4deg);
-  }
-
-  to {
-    transform: translateY(3px) skewX(-0.6deg);
-  }
-}
-
-
 .signal-index-beneath-rule {
   height: 1px;
   margin-top: 0.2rem;
@@ -1776,15 +1782,6 @@ textarea:focus-visible {
   .signal-index-beneath {
     width: min(100%, 320px);
   }}
-
-
-@media (prefers-reduced-motion: reduce) {
-  .signal-index-beneath-row-a,
-  .signal-index-beneath-row-b {
-    animation: none;
-    transform: none;
-  }
-}
 
 
 /* Explosion */

@@ -14,7 +14,7 @@ export default function ProjectFrame({ project, onBack }: ProjectFrameProps) {
       <header className="project-frame-topbar">
         <div className="project-frame-nav section-shell">
           <button className="back-link" type="button" onClick={onBack}>
-            <span aria-hidden="true">←</span> Selected Experiments
+            <span aria-hidden="true">←</span> Vasily Argounov
           </button>
           <span className="project-frame-label">{project.title}</span>
         </div>

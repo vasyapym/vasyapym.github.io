@@ -2,9 +2,9 @@
 
 This is the durable design source of truth. Code shows what is implemented; this file records why the direction exists, what the user liked, what was rejected, and what must not be rediscovered by accident.
 
-## Current active handoff — Ink catalogue (2026-08-23)
+## Current active handoff — Ink catalogue (2026-08-23, refined 2026-08-24)
 
-**Status:** selected direction after the user named the hero's right-side panel as the design standard (`beneath the surface / 01 / tool — Code Layout / 02 / map — Practice Map`) and asked for that style everywhere plus minimal copy.
+**Status:** selected direction after the user named the hero's right-side panel as the design standard (`beneath the surface / 01 / tool — Code Layout / 02 / map — Practice Map`) and asked for that style everywhere plus minimal copy. Refined by Pass 12 into a fully static hero with real identity branding.
 
 ### Outcome
 
@@ -12,17 +12,19 @@ Make the whole portfolio read as **one continuous dark field organized by catalo
 
 ### Visual system
 
-- **Surface:** full-page deep ink `#0b1317`. The warm concrete field is retired from the landing. Panels use translucent light fills (`rgba(238, 234, 224, 0.045)`) over thin light lines. The caustic sea stays hero-only.
-- **Type:** Source Sans 3 for headings and reading text; IBM Plex Mono carries all catalogue notation (wordmark, count, kicker, tags, links, chrome labels) in lowercase with slight tracking.
+- **Surface:** full-page deep ink `#0b1317`. The warm concrete field is retired from the landing. Panels use translucent light fills (`rgba(238, 234, 224, 0.045)`) over thin light lines. The caustic sea was retired in Pass 12; the hero band carries the static two-glow ink gradient that used to be its WebGL fallback.
+- **Type:** Source Sans 3 for headings and reading text; IBM Plex Mono carries all catalogue notation (wordmark, count, kicker, tags, links, chrome labels). Mono notation is lowercase except the personal name, which reads proper case.
 - **Notation:** every project carries a mono tag (`tool`, `map`, `sim`, `test`) on `ProjectModule.tag`; numbers come from list order. The hero panel derives its inline rows (`01 / tool — Code Layout`) from the same data instead of hardcoding two titles.
 - **Weight:** ochre `#d39b61` is the accent (tags, kicker, hover); bright ochre `#e8b57c` is the focus ring on ink. Project artwork identities stay untouched inside light-lined frames.
-- **Copy:** hero keeps only kicker `Prototypes, not promises`, H1 `See the mechanics before you commit.`, CTA `Run the models ↓`. Cards keep tag row (number/tag + technologies), title, one-line description, and `open ↗`. No status text while everything is available.
+- **Identity:** the landing header is the owner's name and email — `Vasily Argounov | vasyapym@gmail.com` (name links home, email is a mailto link); `<title>` is `Vasily Argounov`; project-frame chrome links back with `← Vasily Argounov`.
+- **Copy:** hero keeps only kicker `prototypes`, H1 `A collection of digital experiences`, CTA `Run the models ↓`. Cards keep tag row (number/tag + technologies), title, one-line description, and `open ↗`. No status text while everything is available.
 
 ### Experience
 
-- The shader still pauses off-screen/hidden tabs and renders a static frame under reduced motion; WebGL failure falls back to the two-glow gradient.
-- Beneath rows keep the SVG displacement warp and alternating drift; reduced motion freezes both.
-- Project-frame chrome is an ink band: back link `← Selected Experiments`, mono lowercase `{title}` label. Tool interiors keep their functional styling; they receive shortened intros and lose decorative captions.
+- **The hero is fully static** — no shader, no drift, no load-time animation (Pass 12). The page's only motion is the project-card reveal-on-scroll.
+- Beneath rows keep a static SVG displacement warp; no reduced-motion override is needed because nothing moves.
+- WebGL failure is no longer a hero concern — there is no canvas.
+- Project-frame chrome is an ink band: back link `← Vasily Argounov`, mono lowercase `{title}` label. Tool interiors keep their functional styling; they receive shortened intros and lose decorative captions.
 - Reveal-on-scroll, direct links, keyboard focus, touch fallback, and mobile gutters are unchanged.
 
 ### Quality gate
@@ -130,7 +132,7 @@ flowchart LR
 - **Quiet index** — superseded: keeps the solid field and project slabs, reduces the hero to a small three-point signal, removes the review affordance from production, and lets the project list carry more of the identity.
 - **Dark catalogue** — superseded: kept the dark archival band, ochre accent, and original project evidence; replaced because the plate was static when the user asked for an animated focal element.
 - **Refraction sea** — superseded: kept the caustic sea hero, beneath panel, and dark band; replaced because its two-tone split (dark hero over light collection) broke the consistency the user asked for when naming the panel the design standard.
-- **Ink catalogue** — active: extends the ink field across the page, derives catalogue rows from a per-project tag, and reduces copy to the identification layer.
+- **Ink catalogue** — active: extends the ink field across the page, derives catalogue rows from a per-project tag, and reduces copy to the identification layer. Pass 12 refined it into a fully static hero: the caustic sea (carried from Refraction sea) was retired for the public presentation — its static two-glow fallback gradient remains as the hero band's background, and it stays a candidate if a future pass wants an animated focal element back.
 
 ### Kept alternates (motion round runners-up)
 
@@ -235,6 +237,23 @@ Every review adds one compact entry. The **Liked** field becomes a constraint; t
 - **Verification:** `npm run typecheck`, `npm run build`, and `git diff --check` pass; dev-server smoke test returns 200 for `/` and `/projects/code-layout` with the updated meta description. Visual review of `/` plus `/projects/{code-layout,practice-map,bigbang-ts,explosion_luna}` at 1440px, 1024px, and 390px still to confirm: AA contrast for every light-on-dark pair, font-loaded state, no horizontal overflow, keyboard focus, reduced motion.
 - **Next review:** the routes above at three viewports; judge whether the sea's intensity needs lowering now that the surrounding field is also dark.
 
+
+### Pass 12 — Static ink hero / identity header (2026-08-24)
+
+- **Liked:** the catalogue system at rest — full-page ink, mono notation, beneath panel — remains the right public face; the hero's static two-glow gradient (formerly the WebGL fallback) reads calm and professional.
+- **Rejected:** hero motion for a public-facing portfolio (caustic shader animation, beneath-row drift); placeholder branding (`Selected Experiments`, `Prototypes, not promises`) on a personal site.
+- **Changed:** landing header reads `Vasily Argounov | vasyapym@gmail.com` — name links home in proper case, email is a mailto link; project-frame back link becomes `← Vasily Argounov`; `<title>` → `Vasily Argounov`; meta description → `Prototypes — see the mechanics before you commit.`; hero kicker shortened to `prototypes`; `RefractionField` deleted and the static two-glow gradient moved onto the hero band background; beneath-row drift animations, their keyframes, their reduced-motion overrides, and the row-a/row-b variants removed. The static SVG displacement warp on the beneath rows stays (no motion).
+- **Quality gate:** the page stays one calm catalogue system with zero hero animation at load or at rest; identity readable at 390px without overflow or truncation; muted-on-ink contrast ≥4.5:1 for name/email/count; focus visible on wordmark and email links; card reveal-on-scroll unchanged; comparison-only routes untouched.
+- **Verification:** `npm --prefix portfolio run typecheck`, `npm --prefix portfolio run build`, `git diff --check`, and dev-server smoke test pass; see results below.
+- **Next review:** `/` plus `/projects/{code-layout,practice-map,bigbang-ts,explosion_luna}` at 1440px, 1024px, and 390px; judge whether the static gradient needs more presence now that the sea is gone, and whether the proper-case name sits well against lowercase mono notation.
+
+### Pass 13 — Hero statement / collection framing (2026-08-24)
+
+- **Rejected:** `See the mechanics before you commit.` as the public hero statement — the user reframed the site as a portfolio of experiences rather than a lab pitch.
+- **Changed:** H1 → `A collection of digital experiences`; meta description → `Prototypes — a collection of digital experiences.` Kicker `prototypes` stays.
+- **Quality gate:** the first viewport reads as a personal portfolio; copy remains minimal; no other sections touched.
+- **Verification:** typecheck, build, and smoke test pass (same session as Pass 12).
+- **Next review:** unchanged from Pass 12.
 
 ## Deterministic handoff protocol
 
