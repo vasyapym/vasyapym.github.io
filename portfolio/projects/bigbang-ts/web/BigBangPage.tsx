@@ -1,4 +1,4 @@
-const GITHUB_URL = "https://github.com/vasyapym/luna2/tree/main/portfolio/projects/bigbang-ts";
+const GITHUB_URL = "https://github.com/vasyapym/vasyapym.github.io/tree/main/portfolio/projects/bigbang-ts";
 
 export default function BigBangPage() {
   return (

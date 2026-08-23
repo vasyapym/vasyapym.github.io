@@ -12,7 +12,7 @@ const bigBangTs: ProjectModule = {
   links: [
     {
       label: "GitHub repository",
-      href: "https://github.com/vasyapym/luna2/tree/main/portfolio/projects/bigbang-ts",
+      href: "https://github.com/vasyapym/vasyapym.github.io/tree/main/portfolio/projects/bigbang-ts",
       external: true,
     },
     {

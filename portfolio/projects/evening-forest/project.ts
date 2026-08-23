@@ -18,7 +18,7 @@ const eveningForest: ProjectModule = {
   links: [
     {
       label: "GitHub repository",
-      href: "https://github.com/vasyapym/luna2/tree/main/portfolio/projects/evening-forest",
+      href: "https://github.com/vasyapym/vasyapym.github.io/tree/main/portfolio/projects/evening-forest",
       external: true,
     },
   ],
