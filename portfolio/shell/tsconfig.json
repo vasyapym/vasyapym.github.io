@@ -15,5 +15,5 @@
     "noEmit": true,
     "jsx": "react-jsx"
   },
-  "include": ["src", "../contracts", "../projects"]
+  "include": ["src", "../contracts", "../projects/*/project.ts", "../projects/*/web"]
 }

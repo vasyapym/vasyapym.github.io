@@ -2,7 +2,7 @@
   "name": "luna-portfolio",
   "private": true,
   "version": "0.1.0",
-  "workspaces": ["shell"],
+  "workspaces": ["shell", "projects/bigbang-ts"],
   "scripts": {
     "dev": "npm --workspace shell run dev",
     "build": "npm --workspace shell run build",

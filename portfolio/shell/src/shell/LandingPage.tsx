@@ -59,34 +59,27 @@ export default function LandingPage({ projects, onOpenProject }: LandingPageProp
 
         <section className="signal-index-hero" aria-labelledby="signal-index-title">
           <div className="signal-index-hero-copy">
-            <p className="signal-index-label">Selected projects</p>
-            <h1 id="signal-index-title">
-              Projects for learning
-              <span>by making.</span>
-            </h1>
+            <p className="signal-index-hero-kicker">Small systems</p>
+            <h1 id="signal-index-title">Projects that make ideas usable.</h1>
             <p className="signal-index-intro">
-              Small systems for testing ideas, learning in public, and seeing what happens next.
+              Small systems for testing ideas and seeing what happens next.
             </p>
             <a className="signal-index-link" href="#projects">
               See the projects <span aria-hidden="true">↓</span>
             </a>
           </div>
           <div className="signal-index-graphic" aria-hidden="true">
+            <span className="signal-index-graphic-label">signal / 01</span>
             <span className="signal-index-graphic-line signal-index-graphic-line-one" />
             <span className="signal-index-graphic-line signal-index-graphic-line-two" />
-            <span className="signal-index-graphic-point" />
+            <span className="signal-index-graphic-point signal-index-graphic-point-one" />
+            <span className="signal-index-graphic-point signal-index-graphic-point-two" />
+            <span className="signal-index-graphic-point signal-index-graphic-point-three" />
+            <span className="signal-index-graphic-center" />
           </div>
         </section>
 
-        <section className="signal-index-projects" id="projects" aria-labelledby="projects-title">
-          <div className="signal-index-section-heading">
-            <div>
-              <p className="signal-index-label">The collection</p>
-              <h2 id="projects-title">A small set of working systems.</h2>
-            </div>
-            <span className="signal-index-section-count">{projects.length.toString().padStart(2, "0")} total</span>
-          </div>
-
+        <section className="signal-index-projects" id="projects" aria-label="Projects">
           <div className="signal-index-grid">
             {projects.map((project, index) => (
               <a
@@ -123,20 +116,6 @@ export default function LandingPage({ projects, onOpenProject }: LandingPageProp
           </div>
         </section>
 
-        <section className="signal-index-about" aria-labelledby="signal-index-about-title">
-          <div>
-            <p className="signal-index-label">About the collection</p>
-            <h2 id="signal-index-about-title">Making is how I learn.</h2>
-          </div>
-          <p>
-            These experiments are small systems for understanding how things work. Each one starts with a question and ends with something useful to try.
-          </p>
-        </section>
-
-        <footer className="signal-index-footer">
-          <span>Built while learning in public</span>
-          <span>More projects incoming</span>
-        </footer>
       </div>
     </main>
   );
