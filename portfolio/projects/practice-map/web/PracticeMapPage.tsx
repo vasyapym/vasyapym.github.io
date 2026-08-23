@@ -1,4 +1,11 @@
-import { useEffect, useMemo, useState, type ChangeEvent } from "react";
+import {
+  useEffect,
+  useMemo,
+  useRef,
+  useState,
+  type ChangeEvent,
+  type MouseEvent,
+} from "react";
 import {
   curriculum,
   FEEDBACK_LABELS,
@@ -25,6 +32,16 @@ const STATUS_LABELS: Readonly<Record<TopicStatus, string>> = {
   revisit: "Revisit",
   applied: "Applied",
 };
+
+const LESSON_TABS = [
+  { key: "problem", label: "Проблема" },
+  { key: "model", label: "Модель" },
+  { key: "mechanics", label: "Механика" },
+  { key: "pitfalls", label: "Грабли" },
+  { key: "whenNot", label: "Когда НЕ применять" },
+] as const;
+
+type LessonTabKey = (typeof LESSON_TABS)[number]["key"];
 
 export default function PracticeMapPage() {
   const [activeAreaId, setActiveAreaId] = useState(curriculum[0]?.id ?? "");
@@ -183,6 +200,8 @@ function TopicCard({
     onChange(setTopicStatus(state, topic.id, event.target.value as TopicStatus));
   };
 
+  const [lessonOpen, setLessonOpen] = useState(false);
+
   const toggleFeedback = (feedback: FeedbackKind) => {
     onChange(toggleTopicFeedback(state, topic.id, feedback));
   };
@@ -206,6 +225,13 @@ function TopicCard({
       <div className="practice-concepts" aria-label="Concepts">
         {topic.concepts.map((concept) => <span key={concept}>{concept}</span>)}
       </div>
+
+      {topic.lesson && (
+        <button className="practice-lesson-open" type="button" onClick={() => setLessonOpen(true)}>
+          Открыть урок
+          <span aria-hidden="true">→</span>
+        </button>
+      )}
 
       <details className="practice-topic-details">
         <summary>Practice path</summary>
@@ -253,6 +279,14 @@ function TopicCard({
           </label>
         </div>
       </details>
+
+      {lessonOpen && topic.lesson && (
+        <LessonOverlay
+          index={index}
+          topic={topic}
+          onClose={() => setLessonOpen(false)}
+        />
+      )}
     </article>
   );
 }
@@ -262,6 +296,123 @@ function SummaryMetric({ label, value }: { label: string; value: number }) {
     <div className="practice-summary-metric">
       <span>{label}</span>
       <strong>{value}</strong>
+    </div>
+  );
+}
+
+function LessonOverlay({
+  index,
+  topic,
+  onClose,
+}: {
+  index: number;
+  topic: TopicCardDefinition;
+  onClose: () => void;
+}) {
+  const [tab, setTab] = useState<LessonTabKey>("problem");
+  const closeButtonRef = useRef<HTMLButtonElement>(null);
+  const lesson = topic.lesson;
+
+  useEffect(() => {
+    if (!lesson) {
+      return;
+    }
+
+    const handleKeyDown = (event: KeyboardEvent) => {
+      if (event.key === "Escape") {
+        onClose();
+      }
+    };
+
+    window.addEventListener("keydown", handleKeyDown);
+    document.body.style.overflow = "hidden";
+    closeButtonRef.current?.focus();
+
+    return () => {
+      window.removeEventListener("keydown", handleKeyDown);
+      document.body.style.overflow = "";
+    };
+  }, [lesson, onClose]);
+
+  if (!lesson) {
+    return null;
+  }
+
+  const handleBackdropClick = (event: MouseEvent<HTMLDivElement>) => {
+    if (event.target === event.currentTarget) {
+      onClose();
+    }
+  };
+
+  return (
+    <div className="practice-lesson-overlay" onClick={handleBackdropClick} role="presentation">
+      <section aria-label={`Урок: ${topic.title}`} className="practice-lesson-panel" role="dialog">
+        <header className="practice-lesson-header">
+          <div>
+            <p className="practice-lesson-kicker">
+              Урок {String(index + 1).padStart(2, "0")}
+              {typeof topic.complexity === "number" && ` · сложность ${topic.complexity}/5`}
+            </p>
+            <h2>{topic.title}</h2>
+          </div>
+          <button
+            aria-label="Закрыть урок"
+            className="practice-lesson-close"
+            ref={closeButtonRef}
+            type="button"
+            onClick={onClose}
+          >
+            ✕
+          </button>
+        </header>
+
+        {topic.objectives && topic.objectives.length > 0 && (
+          <div className="practice-lesson-objectives">
+            <span>Цели урока</span>
+            <ul>
+              {topic.objectives.map((objective) => <li key={objective}>{objective}</li>)}
+            </ul>
+          </div>
+        )}
+
+        <div aria-label="Разделы урока" className="practice-lesson-tabs">
+          {LESSON_TABS.map(({ key, label }) => (
+            <button
+              className={tab === key ? "is-active" : ""}
+              key={key}
+              type="button"
+              onClick={() => setTab(key)}
+            >
+              {label}
+            </button>
+          ))}
+        </div>
+
+        <div className="practice-lesson-body">
+          {tab === "pitfalls"
+            ? <ul>{lesson.pitfalls.map((pitfall) => <li key={pitfall}>{pitfall}</li>)}</ul>
+            : <p>{lesson[tab]}</p>}
+        </div>
+
+        {topic.examples && topic.examples.length > 0 && (
+          <div className="practice-lesson-examples">
+            <h3>Практика</h3>
+            {topic.examples.map((example) => (
+              <figure className="practice-example" key={example.title}>
+                <figcaption>{example.title}</figcaption>
+                <pre><code>{example.code}</code></pre>
+                <p>{example.explanation}</p>
+              </figure>
+            ))}
+          </div>
+        )}
+
+        {topic.references && topic.references.length > 0 && (
+          <footer className="practice-lesson-footer">
+            <span>Источники: {topic.references.join(" · ")}</span>
+          </footer>
+        )}
+      </section>
     </div>
   );
 }
