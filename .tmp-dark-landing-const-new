@@ -1,0 +1,4 @@
+  const [revealedProjects, setRevealedProjects] = useState<Set<string>>(() => new Set());
+  const [revealReady, setRevealReady] = useState(false);
+  const codeLayoutTitle = projects.find((project) => project.id === "code-layout")?.title ?? "Code Layout";
+  const practiceMapTitle = projects.find((project) => project.id === "practice-map")?.title ?? "Practice Map";

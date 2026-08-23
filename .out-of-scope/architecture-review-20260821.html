@@ -1,0 +1,301 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Architecture review — Selected Experiments</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script type="module">
+      import mermaid from "https://cdn.jsdelivr.net/npm/mermaid@11/dist/mermaid.esm.min.mjs";
+      mermaid.initialize({ startOnLoad: true, theme: "neutral", securityLevel: "loose" });
+    </script>
+    <style>
+      :root {
+        --ink: #202522;
+        --muted: #68716e;
+        --line: #d5d9d3;
+        --paper: #f5f6f2;
+        --blue: #4e6d8b;
+        --rust: #a45b3d;
+        --amber: #a97932;
+      }
+      body { background: var(--paper); color: var(--ink); }
+      .diagram { min-height: 230px; }
+      .module { border: 2px solid #52615d; background: #fff; }
+      .deep { border: 3px solid #263d4c; background: linear-gradient(135deg, #233b4b, #38586a); color: #f4f7f7; }
+      .shallow { border: 1px solid #aab5b1; background: #fff; }
+      .seam { border-left: 2px dashed var(--blue); }
+      .leak { color: #b44235; border-color: #e0aaa5; }
+      .flow { position: relative; }
+      .flow::after { content: "→"; position: absolute; right: -1.2rem; top: 50%; color: #96a09c; font-size: 1.2rem; }
+      .flow:last-child::after { content: ""; }
+      .smallcaps { letter-spacing: .14em; text-transform: uppercase; font-size: .68rem; }
+      .mermaid { background: white; border: 1px solid var(--line); padding: 1rem; }
+    </style>
+  </head>
+  <body class="font-sans">
+    <main class="mx-auto max-w-6xl space-y-10 px-6 py-10 md:px-10">
+      <header class="border-b border-slate-300 pb-8">
+        <div class="flex flex-wrap items-baseline justify-between gap-4">
+          <div>
+            <p class="smallcaps text-slate-500">Selected Experiments / architecture review</p>
+            <h1 class="mt-3 text-4xl font-semibold tracking-tight md:text-6xl">Make the work readable again.</h1>
+          </div>
+          <p class="font-mono text-xs text-slate-500">2026-08-21</p>
+        </div>
+        <div class="mt-6 flex flex-wrap gap-3 text-xs text-slate-600">
+          <span class="rounded-full border border-slate-300 bg-white px-3 py-1">solid box = module</span>
+          <span class="rounded-full border border-slate-300 bg-white px-3 py-1">dashed = seam</span>
+          <span class="rounded-full border border-red-200 bg-red-50 px-3 py-1 text-red-700">red = leakage</span>
+          <span class="rounded-full border border-slate-700 bg-slate-800 px-3 py-1 text-white">dark = deep module</span>
+        </div>
+      </header>
+
+      <section id="candidates" class="space-y-8">
+        <article id="candidate-readable" class="overflow-hidden rounded-2xl border border-slate-300 bg-white shadow-sm">
+          <div class="border-b border-slate-200 p-6 md:p-8">
+            <div class="flex flex-wrap items-center justify-between gap-3">
+              <h2 class="text-2xl font-semibold tracking-tight md:text-3xl">1. Replace authorial theater with a readable collection</h2>
+              <span class="rounded-full bg-emerald-100 px-3 py-1 text-xs font-semibold text-emerald-800">Strong</span>
+            </div>
+            <p class="mt-2 max-w-3xl text-slate-600">The current handoff says “quiet,” but the implementation still asks the typography, orbit, grain, poetic copy, paper surface, and artwork to perform personality at the same time. The result is journal-like and hard to read.</p>
+          </div>
+          <div class="grid gap-6 p-6 md:grid-cols-[.75fr_1.25fr] md:p-8">
+            <div class="space-y-5">
+              <div>
+                <h3 class="smallcaps text-slate-500">Files</h3>
+                <p class="mt-2 font-mono text-xs leading-6 text-slate-600">LandingPage.tsx<br />styles.css<br />practice-map.css<br />portfolio-redesign-handoff.md</p>
+              </div>
+              <div>
+                <h3 class="smallcaps text-slate-500">Problem</h3>
+                <p class="mt-2 text-sm leading-6 text-slate-700">The landing module has a large visual interface — hero metaphor, orbit, grain, serif display type, editorial labels, cards, and about note — but no single readable hierarchy.</p>
+              </div>
+              <div>
+                <h3 class="smallcaps text-slate-500">Solution</h3>
+                <p class="mt-2 text-sm leading-6 text-slate-700">Deepen the landing module around one job: identify the collection and let a visitor choose a project. Use a highly legible display/sans pairing, a restrained surface, plain copy, and one quiet motion cue. Remove anything that does not improve finding or understanding the work.</p>
+              </div>
+              <div>
+                <h3 class="smallcaps text-slate-500">Wins</h3>
+                <ul class="mt-2 list-disc space-y-1 pl-5 text-sm text-slate-700">
+                  <li>locality: hierarchy lives in one module</li>
+                  <li>leverage: every project benefits from the same readable card</li>
+                  <li>tests hit title, description, and link behavior</li>
+                  <li>fewer visual decisions to re-litigate</li>
+                </ul>
+              </div>
+            </div>
+            <div>
+              <h3 class="smallcaps mb-3 text-slate-500">Before / after</h3>
+              <div class="grid gap-4 md:grid-cols-2">
+                <div class="diagram shallow rounded-xl p-4">
+                  <p class="smallcaps text-slate-400">Before / shallow</p>
+                  <div class="mt-6 space-y-3 text-center text-xs">
+                    <div class="rounded border border-rose-200 bg-rose-50 p-3 text-rose-800">poetic hero copy</div>
+                    <div class="rounded border border-rose-200 bg-rose-50 p-3 text-rose-800">Newsreader display type</div>
+                    <div class="rounded border border-rose-200 bg-rose-50 p-3 text-rose-800">orbit + grain + paper</div>
+                    <div class="rounded border border-rose-200 bg-rose-50 p-3 text-rose-800">artwork + labels + note</div>
+                    <div class="font-mono text-[10px] text-red-700">large interface / little clarity</div>
+                  </div>
+                </div>
+                <div class="diagram deep rounded-xl p-4">
+                  <p class="smallcaps text-slate-300">After / deep</p>
+                  <div class="mt-6 space-y-3 text-center text-xs">
+                    <div class="rounded border border-slate-500 bg-slate-700 p-3">collection premise</div>
+                    <div class="rounded border border-slate-500 bg-slate-700 p-3">readable project grid</div>
+                    <div class="rounded border border-slate-500 bg-slate-700 p-3">one restrained motion cue</div>
+                    <div class="mt-5 text-slate-300">many visual details become internal</div>
+                    <div class="font-mono text-[10px] text-slate-300">small interface / more leverage</div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </article>
+
+        <article id="candidate-motion" class="overflow-hidden rounded-2xl border border-slate-300 bg-white shadow-sm">
+          <div class="border-b border-slate-200 p-6 md:p-8">
+            <div class="flex flex-wrap items-center justify-between gap-3">
+              <h2 class="text-2xl font-semibold tracking-tight md:text-3xl">2. Deepen one motion policy module</h2>
+              <span class="rounded-full bg-emerald-100 px-3 py-1 text-xs font-semibold text-emerald-800">Strong</span>
+            </div>
+            <p class="mt-2 max-w-3xl text-slate-600">Pointer, scroll, reset, and reduced-motion behavior is repeated across the landing module, project artwork, Code Layout, and the old spatial prototype. Every visual direction can therefore drift into its own “tasteful” motion language.</p>
+          </div>
+          <div class="grid gap-6 p-6 md:grid-cols-[.75fr_1.25fr] md:p-8">
+            <div class="space-y-5">
+              <div>
+                <h3 class="smallcaps text-slate-500">Files</h3>
+                <p class="mt-2 font-mono text-xs leading-6 text-slate-600">LandingPage.tsx<br />ProjectArtwork.tsx<br />CodeLayoutPage.tsx<br />PortfolioPrototype.tsx<br />styles.css / prototype.css</p>
+              </div>
+              <div>
+                <h3 class="smallcaps text-slate-500">Problem</h3>
+                <p class="mt-2 text-sm leading-6 text-slate-700">The motion interface is spread over imperative event handlers and CSS variables. Reduced-motion rules exist in several implementations, so restraint is a convention rather than a local invariant.</p>
+              </div>
+              <div>
+                <h3 class="smallcaps text-slate-500">Solution</h3>
+                <p class="mt-2 text-sm leading-6 text-slate-700">Create one deep motion module at the seam between interaction state and visual styling. It owns pointer capability, bounded tilt, scroll reveal, reset behavior, and the reduced-motion decision; surfaces only the small state the landing and project modules need.</p>
+              </div>
+              <div>
+                <h3 class="smallcaps text-slate-500">Wins</h3>
+                <ul class="mt-2 list-disc space-y-1 pl-5 text-sm text-slate-700">
+                  <li>locality: one reduced-motion policy</li>
+                  <li>leverage: one bounded response everywhere</li>
+                  <li>the interface is the test surface</li>
+                  <li>prototype motion cannot silently redefine production rules</li>
+                </ul>
+              </div>
+            </div>
+            <div>
+              <h3 class="smallcaps mb-3 text-slate-500">Before / after</h3>
+              <div class="grid gap-4 md:grid-cols-2">
+                <div class="diagram shallow rounded-xl p-4">
+                  <p class="smallcaps text-slate-400">Before / leaking seam</p>
+                  <div class="mt-8 grid grid-cols-2 gap-3 text-center text-xs">
+                    <div class="leak rounded border bg-red-50 p-3">Landing pointer</div>
+                    <div class="leak rounded border bg-red-50 p-3">Artwork pointer</div>
+                    <div class="leak rounded border bg-red-50 p-3">Code pointer</div>
+                    <div class="leak rounded border bg-red-50 p-3">Prototype pointer</div>
+                  </div>
+                  <p class="mt-6 text-center font-mono text-[10px] text-red-700">four implementations / four policies</p>
+                </div>
+                <div class="diagram rounded-xl border-2 border-slate-700 bg-slate-50 p-4">
+                  <p class="smallcaps text-slate-500">After / deep module</p>
+                  <pre class="mermaid mt-5">flowchart TB
+  I[small motion state] --> M[Motion policy module]
+  M --> L[Landing module]
+  M --> A[Project artwork module]
+  M --> C[Code Layout module]
+  M --> P[Prototype adapter]
+  classDef deep fill:#294355,color:#fff,stroke:#203644,stroke-width:3px;
+  class M deep;</pre>
+                </div>
+              </div>
+            </div>
+          </div>
+        </article>
+
+        <article id="candidate-presentation" class="overflow-hidden rounded-2xl border border-slate-300 bg-white shadow-sm">
+          <div class="border-b border-slate-200 p-6 md:p-8">
+            <div class="flex flex-wrap items-center justify-between gap-3">
+              <h2 class="text-2xl font-semibold tracking-tight md:text-3xl">3. Stop project modules from knowing CSS geometry</h2>
+              <span class="rounded-full bg-amber-100 px-3 py-1 text-xs font-semibold text-amber-800">Worth exploring</span>
+            </div>
+            <p class="mt-2 max-w-3xl text-slate-600">`ProjectPresentationPart` exposes class names, anchor coordinates, scatter coordinates, z-depth, and rotation. The project-owned contract is a real seam, but its interface currently leaks the implementation of the artwork renderer.</p>
+          </div>
+          <div class="grid gap-6 p-6 md:grid-cols-[.75fr_1.25fr] md:p-8">
+            <div class="space-y-5">
+              <div>
+                <h3 class="smallcaps text-slate-500">Files</h3>
+                <p class="mt-2 font-mono text-xs leading-6 text-slate-600">contracts/project-presentation.ts<br />projects/*/project.ts<br />shell/src/shell/ProjectArtwork.tsx<br />styles.css</p>
+              </div>
+              <div>
+                <h3 class="smallcaps text-slate-500">Problem</h3>
+                <p class="mt-2 text-sm leading-6 text-slate-700">Changing art direction or typography requires editing project descriptors because semantic identity and renderer geometry share one interface.</p>
+              </div>
+              <div>
+                <h3 class="smallcaps text-slate-500">Solution</h3>
+                <p class="mt-2 text-sm leading-6 text-slate-700">Keep project modules responsible for meaning — artifact kind, labels, and the few parts that matter — and let the deep artwork module derive placement, material, and motion from that recipe. Two real project adapters justify this seam.</p>
+              </div>
+              <div>
+                <h3 class="smallcaps text-slate-500">Wins</h3>
+                <ul class="mt-2 list-disc space-y-1 pl-5 text-sm text-slate-700">
+                  <li>smaller interface for project authors</li>
+                  <li>locality: art direction changes in one module</li>
+                  <li>leverage: new projects avoid coordinate tuning</li>
+                  <li>tests assert meaning, not pixels</li>
+                </ul>
+              </div>
+            </div>
+            <div>
+              <h3 class="smallcaps mb-3 text-slate-500">Before / after</h3>
+              <div class="grid gap-4 md:grid-cols-2">
+                <div class="diagram shallow rounded-xl p-4">
+                  <p class="smallcaps text-slate-400">Before / geometry leaks</p>
+                  <div class="mt-7 space-y-2 font-mono text-[10px]">
+                    <div class="rounded border border-red-200 bg-red-50 p-2 text-red-800">project → className</div>
+                    <div class="rounded border border-red-200 bg-red-50 p-2 text-red-800">project → anchorX / anchorY</div>
+                    <div class="rounded border border-red-200 bg-red-50 p-2 text-red-800">project → scatterX / scatterY / Z</div>
+                    <div class="rounded border border-red-200 bg-red-50 p-2 text-red-800">project → rotation</div>
+                    <div class="mt-4 text-center text-red-700">meaning and implementation coupled</div>
+                  </div>
+                </div>
+                <div class="diagram deep rounded-xl p-4">
+                  <p class="smallcaps text-slate-300">After / semantic seam</p>
+                  <div class="mt-7 space-y-3 text-center text-xs">
+                    <div class="rounded border border-slate-500 bg-slate-700 p-3">project meaning</div>
+                    <div class="mx-auto h-6 w-px bg-slate-400"></div>
+                    <div class="rounded border border-slate-500 bg-slate-700 p-3">deep artwork module</div>
+                    <div class="mx-auto h-6 w-px bg-slate-400"></div>
+                    <div class="rounded border border-slate-500 bg-slate-700 p-3">geometry + material + motion</div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </article>
+
+        <article id="candidate-prototype" class="overflow-hidden rounded-2xl border border-slate-300 bg-white shadow-sm">
+          <div class="border-b border-slate-200 p-6 md:p-8">
+            <div class="flex flex-wrap items-center justify-between gap-3">
+              <h2 class="text-2xl font-semibold tracking-tight md:text-3xl">4. Retire the old spatial prototype from the shipped shell</h2>
+              <span class="rounded-full bg-amber-100 px-3 py-1 text-xs font-semibold text-amber-800">Worth exploring</span>
+            </div>
+            <p class="mt-2 max-w-3xl text-slate-600">The default route changed, but `App`, `PortfolioPrototype`, `prototype.css`, the comparison query aliases, and the historical handoff still keep two visual systems alive. The old implementation is useful evidence, but it is now a competing source of truth.</p>
+          </div>
+          <div class="grid gap-6 p-6 md:grid-cols-[.75fr_1.25fr] md:p-8">
+            <div class="space-y-5">
+              <div>
+                <h3 class="smallcaps text-slate-500">Files</h3>
+                <p class="mt-2 font-mono text-xs leading-6 text-slate-600">App.tsx<br />prototype/PortfolioPrototype.tsx<br />prototype/prototype.css<br />portfolio-redesign-handoff.md</p>
+              </div>
+              <div>
+                <h3 class="smallcaps text-slate-500">Problem</h3>
+                <p class="mt-2 text-sm leading-6 text-slate-700">The deletion test says the comparison route can disappear without removing a user-facing project capability. Keeping it expands the visual implementation and makes future reviews ambiguous.</p>
+              </div>
+              <div>
+                <h3 class="smallcaps text-slate-500">Solution</h3>
+                <p class="mt-2 text-sm leading-6 text-slate-700">Archive the prototype as design evidence outside the shipped shell, then make the current landing module the only production visual source. Preserve the handoff as history, not as a route users can mistake for the product.</p>
+              </div>
+              <div>
+                <h3 class="smallcaps text-slate-500">Wins</h3>
+                <ul class="mt-2 list-disc space-y-1 pl-5 text-sm text-slate-700">
+                  <li>deletion test passes cleanly</li>
+                  <li>locality: one visual source</li>
+                  <li>smaller production bundle</li>
+                  <li>less design drift</li>
+                </ul>
+              </div>
+            </div>
+            <div>
+              <h3 class="smallcaps mb-3 text-slate-500">Before / after</h3>
+              <div class="grid gap-4 md:grid-cols-2">
+                <div class="diagram shallow rounded-xl p-4">
+                  <p class="smallcaps text-slate-400">Before / competing sources</p>
+                  <div class="mt-8 space-y-3 text-center text-xs">
+                    <div class="rounded border border-red-200 bg-red-50 p-3 text-red-800">`/` → Landing module</div>
+                    <div class="rounded border border-red-200 bg-red-50 p-3 text-red-800">`?prototype=room` → spatial module</div>
+                    <div class="rounded border border-red-200 bg-red-50 p-3 text-red-800">historical handoff → old decisions</div>
+                  </div>
+                </div>
+                <div class="diagram deep rounded-xl p-4">
+                  <p class="smallcaps text-slate-300">After / one source</p>
+                  <div class="mt-8 space-y-3 text-center text-xs">
+                    <div class="rounded border border-slate-500 bg-slate-700 p-3">`/` → current landing module</div>
+                    <div class="mx-auto h-8 w-px bg-slate-400"></div>
+                    <div class="rounded border border-slate-500 bg-slate-700 p-3">design history → archive only</div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </article>
+      </section>
+
+      <section id="top-recommendation" class="rounded-2xl border-2 border-slate-700 bg-slate-900 p-6 text-white shadow-lg md:p-8">
+        <p class="smallcaps text-slate-300">Top recommendation</p>
+        <h2 class="mt-3 text-3xl font-semibold tracking-tight">Start with “Replace authorial theater with a readable collection.”</h2>
+        <p class="mt-3 max-w-3xl text-slate-300">It addresses the user-visible failure first: the font and surface are asking to be admired instead of helping a visitor read. Once the landing module has a clear typographic hierarchy, the motion policy and artwork seam can be judged against a stable interface rather than used to compensate for it.</p>
+        <p class="mt-5 font-mono text-xs text-slate-400">Next: choose a candidate to explore. No interfaces are proposed in this report.</p>
+      </section>
+    </main>
+  </body>
+</html>
