@@ -9,6 +9,12 @@ export type ProjectLink = {
   readonly external?: boolean;
 };
 
+export type ProjectCardActivation = {
+  readonly x: number;
+  readonly y: number;
+  readonly shakeScreen: () => void;
+};
+
 export interface ProjectModule {
   readonly id: string;
   readonly title: string;
@@ -20,4 +26,5 @@ export interface ProjectModule {
   readonly presentation: ProjectPresentation;
   readonly links?: readonly ProjectLink[];
   readonly loadPage: () => Promise<{ default: ComponentType }>;
+  readonly onCardActivate?: (activation: ProjectCardActivation) => void;
 }
