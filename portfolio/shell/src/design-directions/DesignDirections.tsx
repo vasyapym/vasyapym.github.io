@@ -1,4 +1,6 @@
-import { useState } from "react";
+import type { ReactNode } from "react";
+import referencePhoto from "../../../../reference-images/reference-1.jpg";
+import liquidGlassPhoto from "../../../../reference-images/young-korean-artists-liquid-glass-sea.png";
 import type { ProjectModule } from "../../../contracts/project-module";
 import "./design-directions.css";
 
@@ -6,353 +8,252 @@ type DesignDirectionsProps = {
   projects: readonly ProjectModule[];
 };
 
-type Direction = {
+type DraftVariant = {
   id: string;
   number: string;
-  title: string;
-  label: string;
-  subtitle: string;
+  name: string;
+  format: string;
+  kicker: string;
+  headline: string;
+  subheadline: string;
+  cta: string;
+  tone: string;
   note: string;
+  media: "photo" | "glass" | "both";
 };
 
-const DIRECTIONS: readonly Direction[] = [
+const DRAFTS: readonly DraftVariant[] = [
   {
-    id: "quiet-index",
+    id: "image-as-place",
     number: "01",
-    title: "Quiet index",
-    label: "Refine the current",
-    subtitle: "Keep the solid field, but make the hierarchy quieter and more assured.",
-    note: "Best if the work should feel calm, mature, and easy to scan.",
+    name: "Image as place",
+    format: "photo-led / right field",
+    kicker: "Experiments for real use",
+    headline: "Make an idea somewhere you can go.",
+    subheadline: "Working interfaces, maps, and simulations for seeing what a thought becomes in the world.",
+    cta: "See the work",
+    tone: "Open, spatial, inviting",
+    note: "The image becomes the environment; the copy stays grounded and direct.",
+    media: "photo",
   },
   {
-    id: "night-lab",
+    id: "liquid-threshold",
     number: "02",
-    title: "Night lab",
-    label: "Keep the instruments",
-    subtitle: "Make the portfolio a dark, tactile workspace where each project is an object.",
-    note: "Best if the portfolio should feel like a place you enter, not a list you browse.",
+    name: "Liquid threshold",
+    format: "glass reference / full bleed",
+    kicker: "Prototypes for uncertainty",
+    headline: "Make the next version visible.",
+    subheadline: "Small software for testing an idea before it hardens into a decision.",
+    cta: "Enter the experiments",
+    tone: "Immersive, fluid, cinematic",
+    note: "The translucent reference image carries the focal weight while the text names the promise.",
+    media: "glass",
   },
   {
-    id: "transit-system",
+    id: "editorial-crop",
     number: "03",
-    title: "Transit system",
-    label: "Make it navigational",
-    subtitle: "Treat projects like stations in a precise public-information system.",
-    note: "Best if clarity, momentum, and a strong visual language matter most.",
+    name: "Editorial crop",
+    format: "photo-led / type over edge",
+    kicker: "Code / maps / models",
+    headline: "Give a question a shape you can work with.",
+    subheadline: "I build clear tools that expose structure, behavior, and the next useful move.",
+    cta: "Inspect the projects",
+    tone: "Precise, editorial, assured",
+    note: "A narrow crop interrupts the type like a printed image pulled into the page.",
+    media: "photo",
   },
   {
-    id: "field-notebook",
+    id: "contact-sheet",
     number: "04",
-    title: "Field notebook",
-    label: "Show the making",
-    subtitle: "Warm paper, annotations, and traces of process turn the index into a working log.",
-    note: "Best if the story behind the experiments should be part of the invitation.",
+    name: "Contact sheet",
+    format: "two references / image sequence",
+    kicker: "Selected experiments",
+    headline: "Try the thought from more than one angle.",
+    subheadline: "A collection of focused tools for looking closer, changing position, and learning by use.",
+    cta: "Browse the set",
+    tone: "Observational, curious, cultured",
+    note: "Two image crops behave like evidence sheets rather than a single hero illustration.",
+    media: "both",
   },
   {
-    id: "command-center",
+    id: "portrait-column",
     number: "05",
-    title: "Command center",
-    label: "Turn up the signal",
-    subtitle: "Use a hard black canvas and one electric accent for a more decisive point of view.",
-    note: "Best if the portfolio needs more edge, contrast, and immediate attitude.",
+    name: "Portrait column",
+    format: "photo-led / left image rail",
+    kicker: "A working collection",
+    headline: "Build the way into the question.",
+    subheadline: "Interfaces and simulations that make difficult ideas easier to enter and easier to test.",
+    cta: "Open a project",
+    tone: "Human, calm, considered",
+    note: "The portrait crop anchors the page like a magazine opener, with the promise carried by type.",
+    media: "photo",
   },
   {
-    id: "soft-studio",
+    id: "glass-window",
     number: "06",
-    title: "Soft studio",
-    label: "Make it welcoming",
-    subtitle: "Round the edges and use gentle material layers to make technical work feel human.",
-    note: "Best if approachability and a lower-pressure first impression are the goal.",
+    name: "Glass window",
+    format: "glass reference / centered object",
+    kicker: "Tools for looking twice",
+    headline: "See what changes when you can touch it.",
+    subheadline: "Interactive work for turning an abstract question into something observable and useful.",
+    cta: "Look closer",
+    tone: "Tactile, quiet, exploratory",
+    note: "The image is treated as a material window rather than a background or decoration.",
+    media: "glass",
   },
   {
-    id: "archive-shelf",
+    id: "dark-catalogue",
     number: "07",
-    title: "Archive shelf",
-    label: "Give it provenance",
-    subtitle: "Frame each project as a catalogued specimen with evidence, labels, and history.",
-    note: "Best if the collection should feel considered, durable, and collectible.",
+    name: "Dark catalogue",
+    format: "photo-led / night field",
+    kicker: "Working prototypes",
+    headline: "Ideas should leave a trace.",
+    subheadline: "A record of tools made to test assumptions, reveal mechanics, and move a project forward.",
+    cta: "Read the traces",
+    tone: "Moody, tactile, confident",
+    note: "A dark treatment makes the image feel archival and gives the copy a sharper contrast.",
+    media: "photo",
   },
   {
-    id: "gallery-wall",
+    id: "overscale-caption",
     number: "08",
-    title: "Gallery wall",
-    label: "Let work lead",
-    subtitle: "Oversize titles and generous image fields make each project feel like an exhibit.",
-    note: "Best if visual impact and a portfolio-like presentation should come first.",
+    name: "Overscale caption",
+    format: "photo-led / type as image",
+    kicker: "Experiments in the open",
+    headline: "Try it in the open.",
+    subheadline: "The browser is the lab: a place to test interfaces, models, and ways of thinking.",
+    cta: "Enter the lab",
+    tone: "Bold, public, immediate",
+    note: "Large type shares the frame with the photograph and becomes part of the visual object.",
+    media: "photo",
   },
   {
-    id: "terminal-view",
+    id: "layered-evidence",
     number: "09",
-    title: "Terminal view",
-    label: "Own the technical",
-    subtitle: "Lean into a developer-native interface with prompts, output, and visible system state.",
-    note: "Best if the audience should immediately know this was made by a builder.",
+    name: "Layered evidence",
+    format: "two references / offset stack",
+    kicker: "Questions in / next moves out",
+    headline: "Turn uncertainty into something you can move through.",
+    subheadline: "Focused systems for finding a route, testing a rule, and making the result legible.",
+    cta: "Find the route",
+    tone: "Layered, intelligent, exploratory",
+    note: "The photo and glass image overlap as two kinds of evidence: place and possibility.",
+    media: "both",
   },
   {
-    id: "signal-atlas",
+    id: "quiet-artifact",
     number: "10",
-    title: "Signal atlas",
-    label: "Connect the work",
-    subtitle: "Place projects in a living constellation so relationships become the main story.",
-    note: "Best if the portfolio should create curiosity before asking for a click.",
+    name: "Quiet artifact",
+    format: "photo-led / generous field",
+    kicker: "Small systems, plainly made",
+    headline: "Useful things begin as experiments.",
+    subheadline: "A small collection of software for making ideas concrete and seeing what happens next.",
+    cta: "View selected work",
+    tone: "Quiet, material, assured",
+    note: "The smallest image treatment leaves room for the work and lets the copy do the explaining.",
+    media: "photo",
   },
 ];
 
 export default function DesignDirections({ projects }: DesignDirectionsProps) {
-  const [selectedId, setSelectedId] = useState<string | null>(null);
-  const primaryProject = projects[0]?.title ?? "Code Layout";
-  const secondaryProject = projects[1]?.title ?? "Practice Map";
-  const selectedDirection = DIRECTIONS.find((direction) => direction.id === selectedId);
+  const projectCount = projects.length.toString().padStart(2, "0");
 
   return (
-    <main className="directions-page">
-      <div className="directions-shell">
-        <header className="directions-header">
-          <a className="directions-home" href="/">
-            <span aria-hidden="true">←</span>
+    <main className="photo-drafts-page">
+      <div className="photo-drafts-shell">
+        <header className="photo-drafts-header">
+          <a className="photo-drafts-home" href="/">
+            <span aria-hidden="true">&lt;-</span>
             Selected Experiments
           </a>
-          <span className="directions-header-center">Design iteration / visual study</span>
-          <span className="directions-header-status" aria-live="polite">
-            {selectedDirection ? `${selectedDirection.number} selected` : "Choose a direction to develop"}
-          </span>
+          <span className="photo-drafts-header-center">Hero drafts / image reference round</span>
+          <span className="photo-drafts-header-status">Static board / {projectCount} projects</span>
         </header>
 
-        <section className="directions-hero" aria-labelledby="directions-title">
+        <section className="photo-drafts-intro" aria-labelledby="photo-drafts-title">
           <div>
-            <p className="directions-eyebrow">10 directions / same projects / different character</p>
-            <h1 id="directions-title">
-              What if the portfolio felt more
-              <span>like itself?</span>
+            <p className="photo-drafts-eyebrow">10 image-led routes / draft level</p>
+            <h1 id="photo-drafts-title">
+              Start with the image,
+              <span>then find the words.</span>
             </h1>
           </div>
-          <div className="directions-hero-aside">
+          <div className="photo-drafts-intro-aside">
             <p>
-              Something is working, but the identity has not fully landed yet. Here are ten coherent ways to push the system without changing what the projects do.
+              These are fast art-direction drafts using the supplied reference images. They compare crop, scale, atmosphere, and type placement before any animation or interaction is designed.
             </p>
-            <span className="directions-hero-rule" aria-hidden="true" />
-            <p className="directions-hero-small">Choose the mood first. We can resolve the details after.</p>
+            <span className="photo-drafts-rule" aria-hidden="true" />
+            <p className="photo-drafts-intro-small">No working controls yet. Choose by number or by the visual treatment you want to develop.</p>
           </div>
         </section>
 
-        <div className="directions-index-bar" aria-hidden="true">
-          <span>01—10</span>
-          <span>Visual directions</span>
-          <span>Code Layout + Practice Map</span>
+        <div className="photo-drafts-index" aria-hidden="true">
+          <span>01-10</span>
+          <span>Photo-led hero drafts</span>
+          <span>2 supplied references</span>
         </div>
 
-        <section className="direction-grid" aria-label="Ten design directions">
-          {DIRECTIONS.map((direction) => (
-            <DirectionCard
-              key={direction.id}
-              direction={direction}
-              primaryProject={primaryProject}
-              secondaryProject={secondaryProject}
-              selected={selectedId === direction.id}
-              onSelect={() => setSelectedId((current) => current === direction.id ? null : direction.id)}
-            />
+        <section className="photo-draft-grid" aria-label="Ten static photo-led hero drafts">
+          {DRAFTS.map((draft) => (
+            <DraftCard draft={draft} key={draft.id} />
           ))}
         </section>
 
-        <footer className="directions-footer">
-          <span>Review surface / not a final implementation</span>
-          <span>{selectedDirection ? `Next: develop “${selectedDirection.title}”` : "Select one card to mark a candidate"}</span>
+        <footer className="photo-drafts-footer">
+          <span>Draft board / production homepage unchanged</span>
+          <span>Next step after selection: refine one composition</span>
         </footer>
       </div>
     </main>
   );
 }
 
-function DirectionCard({
-  direction,
-  primaryProject,
-  secondaryProject,
-  selected,
-  onSelect,
-}: {
-  direction: Direction;
-  primaryProject: string;
-  secondaryProject: string;
-  selected: boolean;
-  onSelect: () => void;
-}) {
+function DraftCard({ draft }: { draft: DraftVariant }) {
   return (
-    <article className={`direction-card direction-${direction.id}${selected ? " is-selected" : ""}`}>
-      <div className="direction-card-head">
-        <span className="direction-number">{direction.number}</span>
-        <span className="direction-label">{direction.label}</span>
+    <article className={`photo-draft photo-draft-${draft.id}`}>
+      <div className="photo-draft-topline">
+        <span>{draft.number}</span>
+        <span>{draft.format}</span>
       </div>
 
-      <DirectionPreview
-        directionId={direction.id}
-        primaryProject={primaryProject}
-        secondaryProject={secondaryProject}
-      />
-
-      <div className="direction-card-copy">
-        <div>
-          <h2>{direction.title}</h2>
-          <p>{direction.subtitle}</p>
+      <div className="photo-draft-canvas">
+        <div className="photo-draft-nav">
+          <span>Selected Experiments</span>
+          <span>Draft hero</span>
         </div>
-        <button type="button" aria-pressed={selected} onClick={onSelect}>
-          {selected ? "Selected" : "Choose this"}
-          <span aria-hidden="true">{selected ? "✓" : "↗"}</span>
-        </button>
+        <div className="photo-draft-copy">
+          <p className="photo-draft-kicker">{draft.kicker}</p>
+          <h2>{draft.headline}</h2>
+          <p className="photo-draft-subheadline">{draft.subheadline}</p>
+          <span className="photo-draft-cta">{draft.cta} <b aria-hidden="true">-&gt;</b></span>
+        </div>
+        <DraftMedia media={draft.media} />
       </div>
-      <p className="direction-card-note">{direction.note}</p>
+
+      <div className="photo-draft-caption">
+        <div>
+          <h3>{draft.name}</h3>
+          <p>{draft.note}</p>
+        </div>
+        <span>{draft.tone}</span>
+      </div>
     </article>
   );
 }
 
-function DirectionPreview({
-  directionId,
-  primaryProject,
-  secondaryProject,
-}: {
-  directionId: string;
-  primaryProject: string;
-  secondaryProject: string;
-}) {
-  if (directionId === "quiet-index") {
+function DraftMedia({ media }: { media: DraftVariant["media"] }): ReactNode {
+  if (media === "glass") {
+    return <img className="draft-image draft-image-glass" src={liquidGlassPhoto} alt="" />;
+  }
+
+  if (media === "both") {
     return (
-      <div className="direction-preview preview-quiet-index">
-        <div className="quiet-preview-header"><span>Selected projects</span><span>02</span></div>
-        <div className="quiet-preview-main">
-          <div>
-            <span className="quiet-preview-kicker">Small systems</span>
-            <strong>Projects that make<br />ideas usable.</strong>
-          </div>
-          <div className="quiet-preview-signal" aria-hidden="true"><i /><i /><i /><b /></div>
-        </div>
-        <div className="quiet-preview-list">
-          <div><span>01</span><strong>{primaryProject}</strong><em>Open ↗</em></div>
-          <div><span>02</span><strong>{secondaryProject}</strong><em>Open ↗</em></div>
-        </div>
+      <div className="draft-image-pair" aria-hidden="true">
+        <img className="draft-image draft-image-photo" src={referencePhoto} alt="" />
+        <img className="draft-image draft-image-glass" src={liquidGlassPhoto} alt="" />
       </div>
     );
   }
 
-  if (directionId === "night-lab") {
-    return (
-      <div className="direction-preview preview-night-lab">
-        <span className="night-preview-stamp">FIELD NOTE / 002</span>
-        <div className="night-preview-orbit night-orbit-one" />
-        <div className="night-preview-orbit night-orbit-two" />
-        <div className="night-preview-object"><span>C / L</span></div>
-        <div className="night-preview-copy"><small>01 / instrument</small><strong>{primaryProject}</strong><em>drag to inspect</em></div>
-        <span className="night-preview-coordinate">x 04 · y 17</span>
-      </div>
-    );
-  }
-
-  if (directionId === "transit-system") {
-    return (
-      <div className="direction-preview preview-transit-system">
-        <div className="transit-preview-top"><span>SELECTED / LINE 01</span><span>02 MIN</span></div>
-        <div className="transit-preview-map">
-          <div className="transit-preview-vertical" />
-          <div className="transit-preview-route"><i /><i /><i /><i /></div>
-          <span className="transit-stop transit-stop-a">Start</span>
-          <span className="transit-stop transit-stop-b">{primaryProject}</span>
-          <span className="transit-stop transit-stop-c">{secondaryProject}</span>
-          <span className="transit-stop transit-stop-d">Next</span>
-        </div>
-        <div className="transit-preview-bottom"><strong>Follow the work</strong><span>Enter at any station →</span></div>
-      </div>
-    );
-  }
-
-  if (directionId === "field-notebook") {
-    return (
-      <div className="direction-preview preview-field-notebook">
-        <div className="notebook-preview-paper">
-          <span className="notebook-preview-date">FIELD NOTE / 07.24</span>
-          <h3>Keep a place<br />for the next pass.</h3>
-          <div className="notebook-preview-checks"><span>✓</span><span>read the structure</span><span>○</span><span>find the route</span><span>→</span><span>make it useful</span></div>
-          <span className="notebook-preview-page">p. 01</span>
-        </div>
-        <div className="notebook-preview-margin" aria-hidden="true"><i /><i /><i /></div>
-      </div>
-    );
-  }
-
-  if (directionId === "command-center") {
-    return (
-      <div className="direction-preview preview-command-center">
-        <div className="command-preview-top"><span>SYS / INDEX_01</span><span className="command-live"><i /> LIVE</span></div>
-        <div className="command-preview-main"><strong>10</strong><span>working<br />systems</span><div className="command-preview-blocks"><i /><i /><i /><i /></div></div>
-        <div className="command-preview-bottom"><span>INPUT: SELECT PROJECT</span><b>ENTER <em>↵</em></b></div>
-      </div>
-    );
-  }
-
-  if (directionId === "soft-studio") {
-    return (
-      <div className="direction-preview preview-soft-studio">
-        <div className="soft-preview-glow soft-glow-one" />
-        <div className="soft-preview-glow soft-glow-two" />
-        <div className="soft-preview-top"><span>selected experiments</span><span>02 projects</span></div>
-        <div className="soft-preview-stack">
-          <div className="soft-preview-card soft-card-main"><small>01 / tool</small><strong>{primaryProject}</strong><span>Understand the shape of a source file.</span><i>↗</i></div>
-          <div className="soft-preview-card soft-card-side"><small>02 / map</small><strong>{secondaryProject}</strong><span>Keep moving.</span></div>
-        </div>
-        <span className="soft-preview-caption">A gentler way in.</span>
-      </div>
-    );
-  }
-
-  if (directionId === "archive-shelf") {
-    return (
-      <div className="direction-preview preview-archive-shelf">
-        <div className="archive-preview-top"><span>ARCHIVE / 2026</span><span>CAT. 02</span></div>
-        <div className="archive-preview-cabinet">
-          <div className="archive-preview-label"><small>CAT. 001 / TOOL</small><strong>{primaryProject}</strong><span>source structure / live</span></div>
-          <div className="archive-preview-label archive-label-second"><small>CAT. 002 / MAP</small><strong>{secondaryProject}</strong><span>technical practice / live</span></div>
-        </div>
-        <span className="archive-preview-stamp">INDEXED<br />AND OPEN</span>
-        <span className="archive-preview-caption">A working collection, kept with care.</span>
-      </div>
-    );
-  }
-
-  if (directionId === "gallery-wall") {
-    return (
-      <div className="direction-preview preview-gallery-wall">
-        <div className="gallery-preview-image"><span>PROJECT<br />01</span><i /></div>
-        <div className="gallery-preview-copy"><small>SELECTED WORK / 2026</small><strong>{primaryProject}</strong><span>View project <b>↗</b></span></div>
-        <div className="gallery-preview-index">01<br /><span>—</span><br />02</div>
-      </div>
-    );
-  }
-
-  if (directionId === "terminal-view") {
-    return (
-      <div className="direction-preview preview-terminal-view">
-        <div className="terminal-preview-bar"><span><i /><i /><i /></span><strong>selected-experiments — zsh</strong><span>⌁</span></div>
-        <div className="terminal-preview-body">
-          <p><b>~/selected-experiments</b> <span>$</span> ls --projects</p>
-          <p className="terminal-output"><em>01</em> {primaryProject}<br /><em>02</em> {secondaryProject}</p>
-          <p><b>~/selected-experiments</b> <span>$</span> open <u>01</u><span className="terminal-preview-cursor">_</span></p>
-        </div>
-        <span className="terminal-preview-status">LOCAL / READY</span>
-      </div>
-    );
-  }
-
-  return (
-    <div className="direction-preview preview-signal-atlas">
-      <div className="atlas-preview-grid" aria-hidden="true" />
-      <div className="atlas-preview-orbit atlas-orbit-one" />
-      <div className="atlas-preview-orbit atlas-orbit-two" />
-      <div className="atlas-preview-link atlas-link-one" />
-      <div className="atlas-preview-link atlas-link-two" />
-      <div className="atlas-preview-node atlas-node-one"><i /></div>
-      <div className="atlas-preview-node atlas-node-two"><i /></div>
-      <div className="atlas-preview-node atlas-node-three"><i /></div>
-      <div className="atlas-preview-center"><span>INDEX</span></div>
-      <div className="atlas-preview-label atlas-label-one"><small>01 / tool</small><strong>{primaryProject}</strong></div>
-      <div className="atlas-preview-label atlas-label-two"><small>02 / map</small><strong>{secondaryProject}</strong></div>
-      <span className="atlas-preview-caption">Everything is connected.</span>
-    </div>
-  );
+  return <img className="draft-image draft-image-photo" src={referencePhoto} alt="" />;
 }
