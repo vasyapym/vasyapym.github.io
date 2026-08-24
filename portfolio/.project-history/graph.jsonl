@@ -43,3 +43,7 @@
 {"type":"edge.added","id":"e21","ts":"2026-08-24T01:47:36.090Z","from":"n13","to":"n14","rel":"continues"}
 {"type":"node.added","id":"n15","ts":"2026-08-24T01:47:37.331Z","kind":"iteration","actor":"user","title":"fix(portfolio): shrink the rendered refraction hero title about 25 percent","artifacts":[{"kind":"git-commit","ref":"4308130"}],"meta":{"source":"auto"}}
 {"type":"edge.added","id":"e22","ts":"2026-08-24T01:47:37.333Z","from":"n14","to":"n15","rel":"continues"}
+{"type":"node.added","id":"n16","ts":"2026-08-24T01:59:56.891Z","kind":"iteration","actor":"user","title":"feat(graph): record settled decisions and plans from any session","artifacts":[{"kind":"git-commit","ref":"d8bd3dd"}],"meta":{"source":"auto"}}
+{"type":"edge.added","id":"e23","ts":"2026-08-24T01:59:56.950Z","from":"n15","to":"n16","rel":"continues"}
+{"type":"node.added","id":"n17","ts":"2026-08-24T02:02:59.011Z","kind":"iteration","actor":"user","title":"chore(portfolio): remove scratch probe page","artifacts":[{"kind":"git-commit","ref":"0c70d48"}],"meta":{"source":"auto"}}
+{"type":"edge.added","id":"e24","ts":"2026-08-24T02:02:59.013Z","from":"n16","to":"n17","rel":"continues"}

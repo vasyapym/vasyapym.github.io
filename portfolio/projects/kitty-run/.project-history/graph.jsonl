@@ -3,3 +3,5 @@
 {"type":"edge.added","id":"e1","ts":"2026-08-24T01:47:35.088Z","from":"n1","to":"n2","rel":"continues"}
 {"type":"node.added","id":"n3","ts":"2026-08-24T01:47:36.664Z","kind":"iteration","actor":"user","title":"feat(portfolio): list every project beneath the surface","artifacts":[{"kind":"git-commit","ref":"1c8bbd1"}],"meta":{"source":"auto"}}
 {"type":"edge.added","id":"e2","ts":"2026-08-24T01:47:36.665Z","from":"n2","to":"n3","rel":"continues"}
+{"type":"node.added","id":"n4","ts":"2026-08-24T01:59:56.961Z","kind":"iteration","actor":"user","title":"feat(graph): record settled decisions and plans from any session","artifacts":[{"kind":"git-commit","ref":"d8bd3dd"}],"meta":{"source":"auto"}}
+{"type":"edge.added","id":"e3","ts":"2026-08-24T01:59:56.961Z","from":"n3","to":"n4","rel":"continues"}

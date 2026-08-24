@@ -21,6 +21,7 @@ A `post-commit` hook (`scripts/project-graph/bin/auto-record.mjs`, wired via `gi
 - **Routing** follows the files touched: `portfolio/projects/<id>/…` goes to that project's graph; any other `portfolio/…` goes to the main-page graph at `portfolio/.project-history/`; everything else (skills, docs, scripts) records nowhere.
 - **Minimal by design**: title = commit subject, one `git-commit` artifact, `meta.source=auto`, chained to the current tip with a `continues` edge. That is enough for a future session to run `project-graph log`, see what changed and check out the diff.
 - **Skipped**: merge commits, subjects containing `[skip graph]`, commits whose sha already appears as a `git-commit` artifact (idempotent), and paths inside `.project-history/`.
+- **One-commit lag, handled**: a record is written after its commit exists, so the hook pre-stages the touched stores — they ship with the next commit without anyone remembering.
 - **Fresh clones** need one command to re-arm the hook: `git config core.hooksPath .githooks`.
 
 Skills append richer nodes (quality gates, handoffs, supersessions) on top of this baseline when they run; the hook guarantees history exists even when they don't.

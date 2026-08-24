@@ -127,6 +127,10 @@ function main() {
   for (const area of areas) {
     console.log(`auto-record: ${recordInto(area, sha, subject)}`);
   }
+
+  // Records necessarily trail their commit (the file changes after it exists),
+  // so pre-stage every touched store to ride along with the next commit.
+  execFileSync("git", ["add", "--", ...areas.map((a) => join(a, STORE_DIR, STORE_FILE))], { cwd: REPO_ROOT });
 }
 
 main();
