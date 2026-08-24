@@ -61,7 +61,16 @@ async function waitForServer(url, tries = 40) {
 
 const server = spawn(
   process.platform === "win32" ? "npm.cmd" : "npm",
-  ["run", "dev", "--", "--port", String(PORT), "--strictPort"],
+  [
+    "run",
+    "dev",
+    "--",
+    "--host",
+    "0.0.0.0",
+    "--port",
+    String(PORT),
+    "--strictPort",
+  ],
   { cwd: shellDir, stdio: "ignore", detached: true },
 );
 process.on("exit", () => {

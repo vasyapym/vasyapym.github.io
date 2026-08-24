@@ -23,7 +23,12 @@ Everything lives inside this directory; no shell routing changes.
   the left half of the stage (`web/ui/TouchControls.tsx`) and drag-to-look on
   the right, tracked per `pointerId` so both thumbs work at once. The maths
   lives in pure `web/lib/touch-input.ts`; the walking rig drains the shared
-  input state once per frame, so camera mutation stays in one place.
+  input state once per frame, so camera mutation stays in one place. The
+  canvas lives in an absolutely positioned host (`evening-forest-canvas-host`)
+  because a `height:100%` renderer wrapper inside a flex-sized stage can
+  collapse to the canvas's intrinsic 150px; and drei's `PointerLockControls`
+  stays unmounted on touch devices — it installs a document-wide
+  click-to-lock handler that would fight the touch flow.
 - **Quality tiers** — coarse-pointer devices render fewer pixels and
   fireflies (`QUALITY_TIERS` in `ForestCanvas.tsx`) while keeping every
   feature; the dither hides the difference.
@@ -49,4 +54,23 @@ Everything lives inside this directory; no shell routing changes.
 npm --prefix portfolio run typecheck
 npm --prefix portfolio run build
 node --experimental-strip-types portfolio/projects/evening-forest/tests/forest.check.ts
+npm --prefix portfolio run test:smoke
 ```
+
+The browser smoke boots the dev server on a scratch port, drives the page in
+a headless iPhone-class Chrome (tap to enter, joystick walk, drag look,
+Rest, re-enter) and fails on any console error or stuck overlay. It uses
+system Chrome via `puppeteer-core`; set `CHROME_PATH` if Chrome lives
+somewhere unusual, and it skips cleanly when no browser exists.
+
+## Test on a real phone
+
+```sh
+npm --prefix portfolio run dev:host
+```
+
+Then open `http://<your-mac-ip>:5173/projects/evening-forest` on the phone
+(same Wi-Fi). Plain `npm run dev` binds to loopback only — the phone cannot
+reach it, which looks exactly like "the page doesn't open". If it still
+refuses to connect, macOS may be blocking inbound Node connections
+(System Settings → Network → Firewall).
