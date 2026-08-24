@@ -9,3 +9,5 @@
 {"type":"edge.added","id":"e4","ts":"2026-08-24T10:09:44.632Z","from":"n4","to":"n5","rel":"continues"}
 {"type":"node.added","id":"n6","ts":"2026-08-24T11:31:41.707Z","kind":"iteration","actor":"user","title":"feat(kitty-run): adopt the landing's ink catalogue system","summary":"Pass 17: page chrome + menu states converted to the ink catalogue standard (kitty-run-field wrapper, hard-edged ink-line stage frame, mono kickers/chips, copy diet); in-game HUD and game modules untouched per user decision. Verified: typecheck, build, kitty-run.check.ts, smoke 200, headless 1440/1024/390."}
 {"type":"edge.added","id":"e5","ts":"2026-08-24T11:31:41.709Z","from":"n5","to":"n6","rel":"continues"}
+{"type":"node.added","id":"n7","ts":"2026-08-24T11:42:28.955Z","kind":"iteration","actor":"user","title":"feat(kitty-run): adopt the landing's ink catalogue system","artifacts":[{"kind":"git-commit","ref":"8deec2a"}],"meta":{"source":"auto"}}
+{"type":"edge.added","id":"e6","ts":"2026-08-24T11:42:28.960Z","from":"n6","to":"n7","rel":"continues"}
