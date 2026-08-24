@@ -223,14 +223,13 @@ export default function KittyRunPage() {
       {status === "ready" && (
         <div className="kitty-run-overlay">
           <button type="button" className="kitty-run-card" onClick={handleStart}>
-            <span className="kitty-run-card-eyebrow">Pastel endless runner</span>
-            <span className="kitty-run-card-title">Hello Kitty Run</span>
+            <span className="kitty-run-card-kicker">ready</span>
             <span className="kitty-run-card-hint">
               {coarse
-                ? "Tap to jump · swipe down to dash"
-                : "Space — jump (twice for double) · Shift — dash · P — pause"}
+                ? "tap to jump · swipe down to dash"
+                : "space — jump · shift — dash · p — pause"}
             </span>
-            <span className="kitty-run-card-action">Start the run</span>
+            <span className="kitty-run-card-action">start</span>
           </button>
         </div>
       )}
@@ -238,10 +237,9 @@ export default function KittyRunPage() {
       {status === "paused" && (
         <div className="kitty-run-overlay">
           <button type="button" className="kitty-run-card" onClick={() => togglePause(world)}>
-            <span className="kitty-run-card-eyebrow">Paused</span>
-            <span className="kitty-run-card-title">Catch your breath</span>
-            <span className="kitty-run-card-hint">P or Esc resumes · R restarts</span>
-            <span className="kitty-run-card-action">Keep running</span>
+            <span className="kitty-run-card-kicker">paused</span>
+            <span className="kitty-run-card-hint">p or esc resumes · r restarts</span>
+            <span className="kitty-run-card-action">resume</span>
           </button>
         </div>
       )}
@@ -249,60 +247,57 @@ export default function KittyRunPage() {
       {status === "over" && (
         <div className="kitty-run-overlay">
           <button type="button" className="kitty-run-card" onClick={handleRestart}>
-            <span className="kitty-run-card-eyebrow">Run over</span>
+            <span className="kitty-run-card-kicker">run over</span>
             <span className="kitty-run-card-title">
               {world.score.toLocaleString()} points
             </span>
             <span className="kitty-run-card-hint">
-              best {best} · {coarse ? "tap to run again" : "Space or R to run again"}
+              best {best} · {coarse ? "tap to run again" : "space or r runs again"}
             </span>
-            <span className="kitty-run-card-action">One more run</span>
+            <span className="kitty-run-card-action">again</span>
           </button>
         </div>
       )}
     </>
   ) : (
     <div className="kitty-run-fallback" role="note">
-      <p className="kitty-run-fallback-title">The run needs WebGL to start.</p>
-      <p>Your browser declined a 3D context, so Kitty waits patiently.</p>
+      <p className="kitty-run-fallback-title">webgl unavailable · run sealed</p>
     </div>
   );
 
   return (
-    <article className="kitty-run-page">
-      <header className="kitty-run-intro section-shell">
-        <h1 className="kitty-run-title">Hello Kitty Run</h1>
-        <p className="kitty-run-lede">
-          A pastel endless runner. Jump the crates, ride the dash, keep the
-          heart combo alive.
-        </p>
-        <button
-          type="button"
-          className="kitty-run-mute"
-          onClick={() => {
-            const next = !muted;
-            setMuted(next);
-            if (!next) ensureSfx();
-          }}
+    <div className="kitty-run-field">
+      <article className="kitty-run-page">
+        <header className="kitty-run-intro section-shell">
+          <h1 className="kitty-run-title">Hello Kitty Run</h1>
+          <button
+            type="button"
+            className="kitty-run-mute"
+            onClick={() => {
+              const next = !muted;
+              setMuted(next);
+              if (!next) ensureSfx();
+            }}
+          >
+            {muted ? "sound off" : "sound on"}
+          </button>
+        </header>
+        <section
+          className="kitty-run-stage"
+          ref={stageRef}
+          onPointerDown={onPointerDown}
+          onPointerMove={onPointerMove}
+          onPointerUp={onPointerUp}
         >
-          {muted ? "sound off" : "sound on"}
-        </button>
-      </header>
-      <section
-        className="kitty-run-stage"
-        ref={stageRef}
-        onPointerDown={onPointerDown}
-        onPointerMove={onPointerMove}
-        onPointerUp={onPointerUp}
-      >
-        {stage}
-      </section>
-      <footer className="kitty-run-attribution section-shell">
-        <p>
-          Hello Kitty © 1976 Sanrio Co., Ltd. This run is an unofficial
-          fan-made tribute — not affiliated with or endorsed by Sanrio.
-        </p>
-      </footer>
-    </article>
+          {stage}
+        </section>
+        <footer className="kitty-run-attribution section-shell">
+          <p>
+            hello kitty © 1976 sanrio co., ltd. unofficial fan tribute — not
+            affiliated with or endorsed by sanrio.
+          </p>
+        </footer>
+      </article>
+    </div>
   );
 }

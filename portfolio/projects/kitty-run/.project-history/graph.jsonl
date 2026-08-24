@@ -5,3 +5,7 @@
 {"type":"edge.added","id":"e2","ts":"2026-08-24T01:47:36.665Z","from":"n2","to":"n3","rel":"continues"}
 {"type":"node.added","id":"n4","ts":"2026-08-24T01:59:56.961Z","kind":"iteration","actor":"user","title":"feat(graph): record settled decisions and plans from any session","artifacts":[{"kind":"git-commit","ref":"d8bd3dd"}],"meta":{"source":"auto"}}
 {"type":"edge.added","id":"e3","ts":"2026-08-24T01:59:56.961Z","from":"n3","to":"n4","rel":"continues"}
+{"type":"node.added","id":"n5","ts":"2026-08-24T10:09:44.630Z","kind":"iteration","actor":"user","title":"copy(portfolio): minimal card blurbs for kitty-run and evening-forest","artifacts":[{"kind":"git-commit","ref":"b19715c"}],"meta":{"source":"auto"}}
+{"type":"edge.added","id":"e4","ts":"2026-08-24T10:09:44.632Z","from":"n4","to":"n5","rel":"continues"}
+{"type":"node.added","id":"n6","ts":"2026-08-24T11:31:41.707Z","kind":"iteration","actor":"user","title":"feat(kitty-run): adopt the landing's ink catalogue system","summary":"Pass 17: page chrome + menu states converted to the ink catalogue standard (kitty-run-field wrapper, hard-edged ink-line stage frame, mono kickers/chips, copy diet); in-game HUD and game modules untouched per user decision. Verified: typecheck, build, kitty-run.check.ts, smoke 200, headless 1440/1024/390."}
+{"type":"edge.added","id":"e5","ts":"2026-08-24T11:31:41.709Z","from":"n5","to":"n6","rel":"continues"}
