@@ -264,6 +264,15 @@ Every review adds one compact entry. The **Liked** field becomes a constraint; t
 - **Verification:** `npm --prefix portfolio run typecheck`, `npm --prefix portfolio run build`, `git diff --check`, `go test ./...` (service), dev-server smoke 200 for `/` and `/projects/code-layout`; headless screenshots at 1440/1024/390 — no horizontal overflow, lowercase mono notation, contrast holds. Results state reviewed statically (same token system).
 - **Next review:** run a real analysis and review the results section at the three widths; decide whether the planck-to-now and practice-map interiors get the same conversion.
 
+### Pass 15 — Ink interior / Explosion conversion (2026-08-24)
+
+- **Liked:** the ink catalogue system as the named standard; the interior now reads as one catalogue with the frame chrome; payload notation rows echo the beneath panel.
+- **Rejected:** the light blue-era interior with rust/red accents as a two-tone break inside one ink frame; marketing copy — eyebrow, intro paragraph, the `A small room for large reactions.` display heading, payload sentences, footer paragraph; uppercase stage notation.
+- **Changed:** `/projects/explosion` converted to a full-bleed ink field via an `explosion-field` wrapper (the shared `.project-frame` stays light for the not-yet-converted interiors): `--ink-*` tokens, `color-scheme: dark`, bright-ochre focus ring; stage re-based on the ink gradient keeping its grid overlay and two-glow depth; payload cards → beneath-panel-style mono tag rows (`01 / core` … `04 / spark cloud`); stage heading collapsed to a mono meta row (`live · click or press enter`, switching to `reduced motion · blast disabled`); stage overlay lowercase (`specimen / lx-01`, `nnn impacts`); footer removed. Copy diet: H1 → `Click anywhere. / It breaks.`, CTA → `Detonate ↓`, fallback → `webgl unavailable · specimen sealed`; landing card description → `Every click inside the room detonates at the point of impact.`; card note → `impact test`. Scene behavior and palette in `detonate.ts` untouched.
+- **Quality gate:** the interior reads as one catalogue system with the frame chrome; muted-on-ink text ≥4.5:1; focus ring visible on the stage and links; detonation behavior, reduced-motion disable, and WebGL fallback unchanged.
+- **Verification:** `npm --prefix portfolio run typecheck`, `npm run build`, and `git diff --check` pass; dev-server smoke returns 200 for `/`, `/projects/explosion`, and `/projects/code-layout` with the identity `<title>`; headless screenshots at 1440/1024/390 show no horizontal overflow, lowercase mono notation, and a coherent fallback state (headless Chrome has no WebGL); landing card shows the shortened description.
+- **Next review:** view `/projects/explosion` with WebGL enabled to judge the scene palette against the ink field; decide whether the remaining light interiors (planck-to-now, practice-map, kitty-run) get the same conversion.
+
 ## Deterministic handoff protocol
 
 1. Read the active direction, persistent decisions, graph, and latest ledger entry before editing.

@@ -1,1 +1,3 @@
 {"type":"node.added","id":"n1","ts":"2026-08-24T01:33:02.763Z","kind":"snapshot","actor":"user","title":"explosion project history"}
+{"type":"node.added","id":"n2","ts":"2026-08-24T09:53:33.709Z","kind":"iteration","actor":"design-iteration","title":"Ink interior / Explosion conversion","summary":"Converted /projects/explosion to the landing's ink catalogue system (explosion-field wrapper, --ink-* tokens, ochre focus ring, mono tag-row payloads) and reduced copy to the identification layer; scene behavior untouched.","artifacts":[{"kind":"doc-anchor","ref":"docs/portfolio-redesign-handoff.md#pass-15"}],"meta":{"gate":"passed","viewports":"1440,1024,390"}}
+{"type":"edge.added","id":"e1","ts":"2026-08-24T09:53:33.711Z","from":"n1","to":"n2","rel":"continues"}

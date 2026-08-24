@@ -6,7 +6,7 @@ const explosionLuna: ProjectModule = {
   tag: "test",
   eyebrow: "Unlisted kinetic specimen",
   description:
-    "A stress test for the specimen room. Open it and every click inside the room breaks the scene open at the point of impact.",
+    "Every click inside the room detonates at the point of impact.",
   technologies: ["Three.js", "WebGL", "TypeScript"],
   status: "available",
   accent: "red",
@@ -15,7 +15,7 @@ const explosionLuna: ProjectModule = {
     motion: "stack",
     centerLabel: "L / X",
     centerMark: "generic",
-    note: "Impact test / repeatable",
+    note: "impact test",
     motionLabel: "the specimen fractures",
     instruction: "Open the specimen room and click to detonate at the point of impact.",
     parts: [

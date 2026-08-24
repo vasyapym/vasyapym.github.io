@@ -4,28 +4,7 @@ import "./explosion-luna.css";
 
 const REDUCED_MOTION_QUERY = "(prefers-reduced-motion: reduce)";
 
-const PAYLOADS = [
-  {
-    name: "Core",
-    label: "01 / emissive",
-    detail: "An icosahedral shell with a hot center and a material edge that catches the key light.",
-  },
-  {
-    name: "Fracture field",
-    label: "02 / tetrahedra",
-    detail: "Low-poly shards with independent spin, drag, gravity, and depth through the camera.",
-  },
-  {
-    name: "Impact rings",
-    label: "03 / wavefront",
-    detail: "Three expanding torus wavefronts make every hit feel spatial rather than flat.",
-  },
-  {
-    name: "Spark cloud",
-    label: "04 / particles",
-    detail: "A lit point cloud carries the burst beyond the mesh silhouette and fades into the field.",
-  },
-];
+const PAYLOADS = ["core", "fracture field", "impact rings", "spark cloud"];
 
 export default function ExplosionLunaPage() {
   const stageRef = useRef<HTMLDivElement>(null);
@@ -77,86 +56,54 @@ export default function ExplosionLunaPage() {
   };
 
   return (
-    <section className="explosion-page" aria-labelledby="explosion-title">
-      <header className="explosion-hero">
-        <div>
-          <p className="eyebrow explosion-eyebrow">Explosion / unlisted specimen</p>
+    <div className="explosion-field">
+      <section className="explosion-page" aria-labelledby="explosion-title">
+        <header className="explosion-hero">
           <h1 id="explosion-title">
-            Break the specimen.
-            <span>Keep clicking.</span>
+            Click anywhere.
+            <span>It breaks.</span>
           </h1>
-          <p className="explosion-intro">
-            A sealed specimen room built on Three.js. Every ordinary click inside the room is
-            intercepted at the pointer and turned into a local impact: real meshes, depth,
-            sparks, and a few secondary blasts landing nearby.
-          </p>
-        </div>
-        <dl className="explosion-facts">
-          <div>
-            <dt>Runtime</dt>
-            <dd>Three.js / WebGL</dd>
-          </div>
-          <div>
-            <dt>Models</dt>
-            <dd>Icosahedron, tetrahedron, octahedron</dd>
-          </div>
-          <div>
-            <dt>State</dt>
-            <dd>{detonationCount.toString().padStart(3, "0")} impacts recorded</dd>
-          </div>
-        </dl>
-      </header>
+          <a className="explosion-enter" href="#explosion-stage">
+            Detonate <span aria-hidden="true">↓</span>
+          </a>
+        </header>
 
-      <section className="explosion-stage-shell" aria-labelledby="explosion-stage-title">
-        <div className="explosion-stage-heading">
-          <div>
-            <p className="eyebrow explosion-eyebrow">Live specimen room</p>
-            <h2 id="explosion-stage-title">A small room for large reactions.</h2>
-          </div>
-          <p className="explosion-stage-status">
-            {reducedMotion ? "Reduced motion is on. The models stay stable and the blast is disabled." : "Click the room or press Enter to trigger a local impact."}
+        <section className="explosion-room" aria-label="Specimen room">
+          <p className="explosion-room-meta">
+            {reducedMotion ? "reduced motion · blast disabled" : "live · click or press enter"}
           </p>
-        </div>
 
-        <div
-          ref={stageRef}
-          className={`explosion-stage${!hasScene ? " is-fallback" : ""}`}
-          role="button"
-          tabIndex={0}
-          aria-label="Explosion specimen room. Click or press Enter to detonate."
-          onPointerDown={handlePointerDown}
-          onKeyDown={handleKeyDown}
-        >
-          <div className="explosion-stage-copy" aria-hidden="true">
-            <span>SPECIMEN / LX-01</span>
-            <strong>{detonationCount.toString().padStart(3, "0")} IMPACTS</strong>
+          <div
+            ref={stageRef}
+            id="explosion-stage"
+            className={`explosion-stage${!hasScene ? " is-fallback" : ""}`}
+            role="button"
+            tabIndex={0}
+            aria-label="Specimen room. Click or press Enter to detonate."
+            onPointerDown={handlePointerDown}
+            onKeyDown={handleKeyDown}
+          >
+            <div className="explosion-stage-copy" aria-hidden="true">
+              <span>specimen / lx-01</span>
+              <strong>{detonationCount.toString().padStart(3, "0")} impacts</strong>
+            </div>
+            {!hasScene ? (
+              <>
+                <span className="explosion-fallback-mark" aria-hidden="true" />
+                <span className="explosion-stage-fallback">webgl unavailable · specimen sealed</span>
+              </>
+            ) : null}
           </div>
-          {!hasScene ? (
-            <>
-              <span className="explosion-fallback-mark" aria-hidden="true" />
-              <span className="explosion-stage-fallback">WebGL is unavailable. The specimen remains sealed.</span>
-            </>
-          ) : null}
-        </div>
+        </section>
+
+        <ul className="explosion-payloads" aria-label="Inside every detonation">
+          {PAYLOADS.map((payload, index) => (
+            <li key={payload}>
+              <span>{String(index + 1).padStart(2, "0")}</span> / {payload}
+            </li>
+          ))}
+        </ul>
       </section>
-
-      <div className="explosion-payloads" aria-label="Explosion payloads">
-        {PAYLOADS.map((payload) => (
-          <article className="explosion-payload" key={payload.name}>
-            <h3>{payload.name}</h3>
-            <span>{payload.label}</span>
-            <p>{payload.detail}</p>
-          </article>
-        ))}
-      </div>
-
-      <footer className="explosion-footer">
-        <p>
-          The detonation is local to the room: the impact lands where you click, and the rest of
-          the page stays still.
-        </p>
-        <span>Keyboard: <kbd>Enter</kbd> / <kbd>Space</kbd></span>
-      </footer>
-    </section>
+    </div>
   );
 }
