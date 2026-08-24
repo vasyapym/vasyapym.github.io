@@ -184,7 +184,7 @@ textarea:focus-visible {
   margin: 0.9rem 0 1.2rem;
   color: var(--index-ink);
   font-family: var(--display);
-  font-size: clamp(2.4rem, 4vw, 4rem);
+  font-size: clamp(1.92rem, 3.2vw, 3.2rem);
   font-weight: 600;
   letter-spacing: -0.015em;
   line-height: 1.02;}
@@ -1181,7 +1181,7 @@ textarea:focus-visible {
 
   .signal-index-header { gap: 0.65rem; }
   .signal-index-hero { min-height: auto; padding-top: 2.5rem; padding-bottom: 3rem; }
-  .signal-index-hero h1 { font-size: clamp(2.25rem, 8.5vw, 3.2rem); }
+  .signal-index-hero h1 { font-size: clamp(1.8rem, 6.8vw, 2.56rem); }
   .signal-index-card-body { gap: 1rem; }
   .signal-index-card-copy h3 { font-size: 1.75rem; }
   .project-artwork { min-height: 190px; }
@@ -1233,7 +1233,7 @@ textarea:focus-visible {
 .signal-index-hero h1 {
   max-width: 700px;
   margin: 0;
-  font-size: clamp(2.6rem, 4.55vw, 4.75rem);
+  font-size: clamp(2.08rem, 3.64vw, 3.8rem);
   font-weight: 600;
   letter-spacing: -0.035em;
   line-height: 0.96;}
@@ -1353,7 +1353,7 @@ textarea:focus-visible {
 
   .signal-index-hero h1 {
     max-width: 340px;
-    font-size: clamp(2.3rem, 10.5vw, 3.35rem);
+    font-size: clamp(1.84rem, 8.4vw, 2.68rem);
     line-height: 0.94;
   }
 
