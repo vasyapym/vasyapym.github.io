@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState, type CSSProperties } from "react";
+import { useEffect, useRef, useState, type CSSProperties, type MouseEvent } from "react";
 import type { ProjectModule } from "../../../contracts/project-module";
 import ProjectArtwork from "./ProjectArtwork";
 
@@ -6,6 +6,67 @@ type LandingPageProps = {
   projects: readonly ProjectModule[];
   onOpenProject: (id: string) => void;
 };
+
+function documentOffsetTop(element: HTMLElement) {
+  let y = 0;
+  let node: HTMLElement | null = element;
+  while (node) {
+    y += node.offsetTop;
+    node = node.offsetParent as HTMLElement | null;
+  }
+  return y;
+}
+
+function animateScrollToCard(projectId: string) {
+  const card = document.getElementById(`project-${projectId}`);
+  if (!card) {
+    return;
+  }
+  if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) {
+    card.scrollIntoView();
+    return;
+  }
+
+  const scrollMargin = parseFloat(getComputedStyle(card).scrollMarginTop || "0");
+  const startY = window.scrollY;
+  const distance = Math.abs(documentOffsetTop(card) - scrollMargin - startY);
+  const nativeMs = 220 + distance * 0.15;
+  const duration = Math.min(1400, Math.max(360, nativeMs * 1.3));
+
+  const start = performance.now();
+  let cancelled = false;
+
+  const cancel = () => {
+    cancelled = true;
+    window.removeEventListener("wheel", cancel);
+    window.removeEventListener("touchstart", cancel);
+  };
+  const easeInOutCubic = (t: number) =>
+    t < 0.5 ? 4 * t * t * t : 1 - (-2 * t + 2) ** 3 / 2;
+
+  const settleMs = 2400;
+  const step = (now: number) => {
+    if (cancelled) {
+      return;
+    }
+    const elapsed = now - start;
+    const t = Math.min(1, elapsed / duration);
+    const targetY = documentOffsetTop(card) - scrollMargin;
+    const position = t >= 1 ? targetY : startY + (targetY - startY) * easeInOutCubic(t);
+    window.scrollTo({ top: position, behavior: "instant" });
+    const chasing = t >= 1 && elapsed < duration + settleMs &&
+      Math.abs(card.getBoundingClientRect().top - scrollMargin) > 2;
+    if (t < 1 || chasing) {
+      requestAnimationFrame(step);
+    } else {
+      cancel();
+    }
+  };
+
+  window.addEventListener("wheel", cancel, { passive: true });
+  window.addEventListener("touchstart", cancel, { passive: true });
+  requestAnimationFrame(step);
+}
 
 export default function LandingPage({ projects, onOpenProject }: LandingPageProps) {
   const pageRef = useRef<HTMLElement>(null);
@@ -74,16 +135,26 @@ export default function LandingPage({ projects, onOpenProject }: LandingPageProp
               Run the models <span aria-hidden="true">↓</span>
             </a>
           </div>
-          <div className="signal-index-graphic signal-index-beneath" aria-hidden="true">
+          <div className="signal-index-graphic signal-index-beneath">
             <span className="signal-index-beneath-label">beneath the surface</span>
             {projects.map((project, index) =>
               project.tag ? (
-                <p className="signal-index-beneath-row" key={project.id}>
+                <a
+                  className="signal-index-beneath-row"
+                  href={`#project-${project.id}`}
+                  key={project.id}
+                  onClick={(event: MouseEvent<HTMLAnchorElement>) => {
+                    if (event.button === 0 && !event.metaKey && !event.ctrlKey && !event.shiftKey && !event.altKey) {
+                      event.preventDefault();
+                      animateScrollToCard(project.id);
+                    }
+                  }}
+                >
                   <span>
                     {String(index + 1).padStart(2, "0")} / {project.tag}
                   </span>
                   <strong>— {project.title}</strong>
-                </p>
+                </a>
               ) : null,
             )}
             <span className="signal-index-beneath-rule" />
@@ -95,6 +166,7 @@ export default function LandingPage({ projects, onOpenProject }: LandingPageProp
             {projects.map((project, index) => (
               <a
                 className={`signal-index-card${revealReady && revealedProjects.has(project.id) ? " is-revealed" : ""}`}
+                id={`project-${project.id}`}
                 data-project-reveal={project.id}
                 href={`/projects/${project.id}`}
                 key={project.id}

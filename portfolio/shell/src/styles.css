@@ -1,5 +1,3 @@
-@import url("https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&family=IBM+Plex+Sans:wght@400;500;600&display=swap");
-
 :root {
   color: #171a1c;
   background: #e4e5e1;
@@ -237,6 +235,7 @@ textarea:focus-visible {
   display: flex;
   min-width: 0;
   flex-direction: column;
+  scroll-margin-top: 1.5rem;
   border-bottom: 1px solid var(--ink-line-soft);
   color: var(--ink-text);
   text-decoration: none;
@@ -1207,8 +1206,8 @@ textarea:focus-visible {
 
 
 .signal-index-hero {
-  grid-template-columns: minmax(0, 1fr) minmax(220px, 0.48fr);
-  gap: clamp(2rem, 7vw, 7rem);
+  grid-template-columns: minmax(0, 1fr) minmax(280px, 0.58fr);
+  gap: clamp(2rem, 6vw, 6rem);
   padding: clamp(3rem, 5vw, 4.5rem) 0 clamp(2.5rem, 4vw, 3.5rem);}
 
 
@@ -1685,12 +1684,12 @@ textarea:focus-visible {
 .signal-index-beneath {
   position: relative;
   display: grid;
-  gap: 0.85rem;
-  width: min(100%, 360px);
-  justify-self: end;
+  gap: 1rem;
+  width: min(100%, 450px);
+  justify-self: center;
   overflow: hidden;
   border: 1px solid rgba(238, 234, 224, 0.3);
-  padding: 1.1rem 1.2rem 1.2rem;
+  padding: 1.35rem 1.5rem 1.5rem;
   background: rgba(11, 19, 23, 0.42);
   backdrop-filter: blur(2px) saturate(1.15);
   -webkit-backdrop-filter: blur(2px) saturate(1.15);
@@ -1700,9 +1699,26 @@ textarea:focus-visible {
 .signal-index-beneath-label {
   color: rgba(238, 234, 224, 0.62);
   font-family: var(--mono);
-  font-size: 0.58rem;
+  font-size: 0.65rem;
   letter-spacing: 0.05em;
 }
+
+
+a.signal-index-beneath-row {
+  color: inherit;
+  text-decoration: none;
+  cursor: pointer;
+  transition: background 180ms ease, border-color 180ms ease;}
+
+a.signal-index-beneath-row:hover,
+a.signal-index-beneath-row:focus-visible {
+  outline: none;
+  border-radius: 2px;
+  background: rgba(238, 234, 224, 0.07);}
+
+a.signal-index-beneath-row:focus-visible {
+  outline: 1px solid var(--ink-accent-bright);
+  outline-offset: 2px;}
 
 
 .signal-index-beneath-row {
@@ -1710,15 +1726,15 @@ textarea:focus-visible {
   grid-template-columns: auto 1fr;
   align-items: baseline;
   gap: 0.9rem;
-  margin: 0;
-  filter: url("#signal-index-sea-warp");
+  margin: 0 -0.45rem;
+  padding: 0 0.45rem;
 }
 
 
 .signal-index-beneath-row span {
   color: var(--ink-accent);
   font-family: var(--mono);
-  font-size: 0.62rem;
+  font-size: 0.7rem;
   letter-spacing: 0.05em;
   text-transform: lowercase;
   white-space: nowrap;
@@ -1728,12 +1744,16 @@ textarea:focus-visible {
 .signal-index-beneath-row strong {
   overflow: hidden;
   color: var(--ink-text);
-  font-size: 0.98rem;
+  font-size: 1.08rem;
   font-weight: 600;
   letter-spacing: -0.01em;
   text-overflow: ellipsis;
   white-space: nowrap;
-}
+  transition: color 180ms ease;}
+
+a.signal-index-beneath-row:hover strong,
+a.signal-index-beneath-row:focus-visible strong {
+  color: var(--ink-accent-bright);}
 
 
 .signal-index-beneath-rule {
