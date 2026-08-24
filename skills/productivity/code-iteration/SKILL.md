@@ -29,6 +29,10 @@ This process is most useful in a fresh context: once a path is chosen, the alter
 
 After changing files, verify the pass and report what changed, what was checked, and what remains uncertain. Commit, push, open a pull request, or change an external system only when the user explicitly requests that delivery step. Never obtain, store, or reuse credentials through this skill, and never publish changes automatically after an individual file edit.
 
+## Project graph
+
+Recording in the project graph (`.project-history/graph.jsonl`; see `docs/agents/project-graph.md` in the skills repo) is unconditional, never optional: if no graph exists yet, run `project-graph init` first instead of skipping the record. Orient from it before reading anything else: `project-graph head --actor code-iteration` shows your current tip and any handoff waiting here. Acknowledge an offered handoff before starting work, and continue from its source node's artifacts rather than re-deriving context. After each coherent pass, append an `iteration` node with a `git-commit` artifact and the checks and quality-gate outcome in `--meta`, chained to the previous tip with `--continues-from` — this append is part of the pass, not an optional extra. When a pass surfaces a visual concern that wants its own feedback round rather more code changes, hand it back explicitly: `project-graph handoff --to design-iteration --from-node <node>`, so `design-iteration` picks up from your evidence instead of a fresh screenshot.
+
 ## Working loop
 
 Orient from the existing trajectory, brainstorm alternatives, choose and explain the design, plan the execution, make one coherent pass, run the relevant checks, compare the result with the quality gate, and record what the next pass should improve. Each pass should leave the code easier to understand or the behavior more reliable than before it began.

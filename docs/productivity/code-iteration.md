@@ -23,6 +23,10 @@ The skill keeps the reasoning visible in three parts. The brainstorm expands the
 
 After planning, the skill makes one coherent change, runs the relevant checks, and compares the result with the quality gate. It extends the existing trajectory by reading history, handoffs, and prior notes instead of treating the current file as the whole context. Delivery remains explicit: the skill does not automatically commit, push, open a pull request, or handle credentials.
 
+## Project graph
+
+Recording in the project graph (`.project-history/graph.jsonl`) is unconditional, never optional: if no graph exists yet, run `project-graph init` first instead of skipping the record. Orient from it before reading anything else: `project-graph head --actor code-iteration` shows your current tip and any handoff waiting here. Acknowledge an offered handoff before starting work, and continue from its source node's artifacts rather than re-deriving context. After each coherent pass, append an `iteration` node with a `git-commit` artifact and the checks and quality-gate outcome in `--meta`, chained to the previous tip with `--continues-from` — this append is part of the pass, not an optional extra. When a pass surfaces a visual concern that wants its own feedback round rather than more code changes, hand it back explicitly with `project-graph handoff --to design-iteration`, so `design-iteration` picks up from your evidence instead of a fresh screenshot.
+
 ## Common questions
 
 **Does it require a long plan for every change?**

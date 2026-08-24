@@ -1,0 +1,39 @@
+{"type":"node.added","id":"n1","ts":"2026-08-23T19:03:52.169Z","kind":"snapshot","actor":"user","title":"Portfolio redesign history (backfilled)"}
+{"type":"node.added","id":"n2","ts":"2026-08-23T19:03:53.064Z","kind":"decision","actor":"user","title":"Assembly field - spatial instruments","artifacts":[{"kind":"doc-anchor","ref":"docs/portfolio-redesign-handoff.md#superseded-nodes"}]}
+{"type":"edge.added","id":"e1","ts":"2026-08-23T19:03:53.066Z","from":"n1","to":"n2","rel":"continues"}
+{"type":"node.added","id":"n3","ts":"2026-08-23T19:03:53.967Z","kind":"decision","actor":"design-iteration","title":"Quiet kinetic studio - paper + serif + orbit"}
+{"type":"edge.added","id":"e2","ts":"2026-08-23T19:03:53.985Z","from":"n2","to":"n3","rel":"continues"}
+{"type":"node.added","id":"n4","ts":"2026-08-23T19:03:55.027Z","kind":"decision","actor":"design-iteration","title":"Readable signal index - IBM Plex + soft cards","meta":{"liked":"systemacity, direct hierarchy, readable body type"}}
+{"type":"edge.added","id":"e3","ts":"2026-08-23T19:03:55.030Z","from":"n3","to":"n4","rel":"continues"}
+{"type":"node.added","id":"n5","ts":"2026-08-23T19:03:55.753Z","kind":"decision","actor":"design-iteration","title":"Solid field index - Archivo + project slabs"}
+{"type":"edge.added","id":"e4","ts":"2026-08-23T19:03:55.754Z","from":"n4","to":"n5","rel":"continues"}
+{"type":"node.added","id":"n6","ts":"2026-08-23T19:03:56.687Z","kind":"decision","actor":"design-iteration","title":"Calm field index - Source Sans 3 + quiet type"}
+{"type":"edge.added","id":"e5","ts":"2026-08-23T19:03:56.689Z","from":"n5","to":"n6","rel":"continues"}
+{"type":"node.added","id":"n7","ts":"2026-08-23T19:03:57.398Z","kind":"decision","actor":"design-iteration","title":"Selected systems index - source graph + practice route"}
+{"type":"edge.added","id":"e6","ts":"2026-08-23T19:03:57.416Z","from":"n6","to":"n7","rel":"continues"}
+{"type":"node.added","id":"n8","ts":"2026-08-23T19:03:58.154Z","kind":"decision","actor":"design-iteration","title":"Quiet index - compact signal + calmer hierarchy"}
+{"type":"edge.added","id":"e7","ts":"2026-08-23T19:03:58.156Z","from":"n7","to":"n8","rel":"continues"}
+{"type":"node.added","id":"n9","ts":"2026-08-23T19:03:58.696Z","kind":"decision","actor":"design-iteration","title":"Dark catalogue - original project specimen plate"}
+{"type":"edge.added","id":"e8","ts":"2026-08-23T19:03:58.698Z","from":"n8","to":"n9","rel":"continues"}
+{"type":"node.added","id":"n10","ts":"2026-08-23T19:03:59.198Z","kind":"decision","actor":"design-iteration","title":"Refraction sea - caustic shader + submerged project rows"}
+{"type":"edge.added","id":"e9","ts":"2026-08-23T19:03:59.200Z","from":"n9","to":"n10","rel":"continues"}
+{"type":"edge.added","id":"e10","ts":"2026-08-23T19:03:59.798Z","from":"n2","to":"n3","rel":"supersedes","rationale":"terminal-like / too much scene"}
+{"type":"node.status","ts":"2026-08-23T19:03:59.800Z","id":"n2","status":"superseded","reason":"terminal-like / too much scene"}
+{"type":"edge.added","id":"e11","ts":"2026-08-23T19:04:00.450Z","from":"n3","to":"n4","rel":"supersedes","rationale":"try-hard journal / unreadable generic type"}
+{"type":"node.status","ts":"2026-08-23T19:04:00.454Z","id":"n3","status":"superseded","reason":"try-hard journal / unreadable generic type"}
+{"type":"edge.added","id":"e12","ts":"2026-08-23T19:04:01.331Z","from":"n4","to":"n5","rel":"supersedes","rationale":"compact is good; cards and type lack solidity"}
+{"type":"node.status","ts":"2026-08-23T19:04:01.333Z","id":"n4","status":"superseded","reason":"compact is good; cards and type lack solidity"}
+{"type":"edge.added","id":"e13","ts":"2026-08-23T19:04:02.161Z","from":"n5","to":"n6","rel":"supersedes","rationale":"keep solidity; typography and copy still noisy"}
+{"type":"node.status","ts":"2026-08-23T19:04:02.163Z","id":"n5","status":"superseded","reason":"keep solidity; typography and copy still noisy"}
+{"type":"edge.added","id":"e14","ts":"2026-08-23T19:04:02.818Z","from":"n6","to":"n7","rel":"supersedes","rationale":"generic hero; no memorable effect"}
+{"type":"node.status","ts":"2026-08-23T19:04:02.820Z","id":"n6","status":"superseded","reason":"generic hero; no memorable effect"}
+{"type":"edge.added","id":"e15","ts":"2026-08-23T19:04:03.879Z","from":"n7","to":"n8","rel":"supersedes","rationale":"useful signal; too much visual weight for the index"}
+{"type":"node.status","ts":"2026-08-23T19:04:03.914Z","id":"n7","status":"superseded","reason":"useful signal; too much visual weight for the index"}
+{"type":"edge.added","id":"e16","ts":"2026-08-23T19:04:04.709Z","from":"n8","to":"n9","rel":"supersedes","rationale":"dark catalogue field liked; copied reference image rejected"}
+{"type":"node.status","ts":"2026-08-23T19:04:04.710Z","id":"n8","status":"superseded","reason":"dark catalogue field liked; copied reference image rejected"}
+{"type":"edge.added","id":"e17","ts":"2026-08-23T19:04:05.693Z","from":"n9","to":"n10","rel":"supersedes","rationale":"plate was static; user wanted an animated focal element"}
+{"type":"node.status","ts":"2026-08-23T19:04:05.694Z","id":"n9","status":"superseded","reason":"plate was static; user wanted an animated focal element"}
+{"type":"node.added","id":"n11","ts":"2026-08-23T19:04:45.937Z","kind":"milestone","actor":"user","title":"Persistent decisions recorded","artifacts":[{"kind":"doc-anchor","ref":"docs/portfolio-redesign-handoff.md#persistent-decisions"}],"meta":{"scope":"survive every direction change unless explicitly reversed"}}
+{"type":"edge.added","id":"e18","ts":"2026-08-23T19:04:46.084Z","from":"n10","to":"n11","rel":"continues"}
+{"type":"node.added","id":"n12","ts":"2026-08-23T19:04:46.847Z","kind":"iteration","actor":"design-iteration","title":"Pass 10 - Refraction sea implemented","artifacts":[{"kind":"doc-anchor","ref":"docs/portfolio-redesign-handoff.md#pass-10-refraction-sea-animated-focal-element"}],"meta":{"gate":"sea reads as an instrument; copy dominant; reduced-motion fallback verified"}}
+{"type":"edge.added","id":"e19","ts":"2026-08-23T19:04:46.850Z","from":"n11","to":"n12","rel":"continues"}

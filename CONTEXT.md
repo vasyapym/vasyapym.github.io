@@ -18,11 +18,18 @@ A `wayfinder` unit — a child **Issue** of a `wayfinder:map` holding a *questio
 **Triage role**:
 A canonical state-machine label applied to an **Issue** during triage (e.g. `needs-triage`, `ready-for-afk`). Each role maps to a real label string in the **Issue tracker** via `docs/agents/triage-labels.md`.
 
+**Project graph**:
+A project's append-only history log (`.project-history/graph.jsonl`) of nodes (iterations, milestones, decisions) and typed edges, queried and extended through `scripts/project-graph`. `code-iteration` and `design-iteration` read it to orient and append to it when a pass completes. _Avoid_: decision graph (that is the prose section inside a design handoff), history file.
+
+**Handoff**:
+An explicit crossing of work between two skills in the **Project graph**, offered by the sender (`project-graph handoff`), acknowledged by the receiver (`ack`), and closed by the receiver's first node (`--via-handoff`). Carries rationale, expected artifacts, and the receiving skill's continuation note. _Avoid_: handoff document (a `/handoff` transit file — different thing).
+
 ## Relationships
 
 - An **Issue tracker** holds many **Issues**
 - An **Issue** carries one **Triage role** at a time
 - A **Decision ticket** is an **Issue** (a child of a `wayfinder:map`)
+- A **Project graph** records many **Handoffs**, each between exactly two skills
 
 ## Flagged ambiguities
 

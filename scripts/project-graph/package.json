@@ -1,0 +1,16 @@
+{
+  "name": "project-graph",
+  "version": "0.1.0",
+  "private": true,
+  "description": "Append-only project history graph with typed handoffs between iteration skills",
+  "type": "module",
+  "bin": {
+    "project-graph": "./bin/project-graph.js"
+  },
+  "engines": {
+    "node": ">=18"
+  },
+  "scripts": {
+    "test": "node --test"
+  }
+}

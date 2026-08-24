@@ -21,6 +21,10 @@ The skill loads the handoff graph, atomizes feedback into surface, typography, s
 
 The output is not just a screenshot. It is a new ledger entry containing **Liked**, **Rejected**, **Changed**, **Quality gate**, **Next review**, and verification results. That record becomes the input to the next pass.
 
+## Project graph
+
+Keeping the project graph (`.project-history/graph.jsonl`) in step with the markdown ledger is unconditional, never optional: if no graph exists yet, run `project-graph init` before the round starts instead of skipping the record. Start every session with `project-graph head --actor design-iteration`: acknowledge any handoff addressed here before working, and orient from the current tip. When a pass completes, append an `iteration` node whose artifacts point at the new ledger entry and the relevant commits, chained with `--continues-from` — this append is part of the pass, not an optional extra. A replaced direction becomes a `decision` node plus a `supersedes` edge carrying the rejection reason — the machine-readable spine of the same append-only decision graph the handoff keeps in prose. When the next round needs implementation or perf work beyond one visual pass, offer it explicitly with `project-graph handoff --to code-iteration`, so `code-iteration` can acknowledge and continue from your evidence instead of rediscovering it.
+
 ## Common questions
 
 **Does it keep old design decisions?**
