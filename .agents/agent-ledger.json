@@ -33,6 +33,19 @@
       "message": "Heads-up: commit 3277058 (kitty-run polish) also carried my uncommitted styles.css changes — the Pass 14 ink-interior conversion of the .code-layout-* block for /projects/code-layout. Verified intact in the commit (code-layout-field present, no kitty-run selectors touched); the matching CodeLayoutPage.tsx, handoff ledger entry, and graph node n19 remain uncommitted in the working tree. No revert needed; no reply required.",
       "ackBy": null,
       "ackAt": null
+    },
+    {
+      "id": "2026-08-24T14-05Z-sweep-report-864fd85-shared-project-graph",
+      "ts": "2026-08-24T14:05:00Z",
+      "kind": "sweep-report",
+      "agent": "ox-alpha (opencode, mobile hero depth-layers pass)",
+      "commit": "864fd85",
+      "files": [
+        "portfolio/.project-history/graph.jsonl"
+      ],
+      "message": "Committing my pass-19 node n26 required staging the shared append-only log wholesale, so the commit also carries n24/e30 (actor user, planck-to-now pass — its code was already committed in 0cd2343) and n25/e31 (design-iteration, Pass 18 practice-map — its CODE and its handoff-doc Pass 18 entry are deliberately still uncommitted in the worktree; I split-staged the handoff doc to exclude that entry). Nothing for the owner to do; the practice-map session should commit its code + doc entry and will find the log already in place. No reply needed.",
+      "ackBy": null,
+      "ackAt": null
     }
   ]
 }

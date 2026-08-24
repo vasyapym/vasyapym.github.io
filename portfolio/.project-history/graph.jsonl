@@ -66,3 +66,5 @@
 {"type":"edge.added","id":"e32","ts":"2026-08-24T13:46:37.267Z","from":"n25","to":"n26","rel":"continues"}
 {"type":"node.added","id":"n27","ts":"2026-08-24T13:57:03.633Z","kind":"iteration","actor":"user","title":"feat(shell): add the /mobile-hero-directions live draft board","artifacts":[{"kind":"git-commit","ref":"c60a415"}],"meta":{"source":"auto"}}
 {"type":"edge.added","id":"e33","ts":"2026-08-24T13:57:03.638Z","from":"n26","to":"n27","rel":"continues"}
+{"type":"node.added","id":"n28","ts":"2026-08-24T13:57:04.117Z","kind":"iteration","actor":"user","title":"feat(shell): port depth layers into the mobile hero (pass 19)","artifacts":[{"kind":"git-commit","ref":"864fd85"}],"meta":{"source":"auto"}}
+{"type":"edge.added","id":"e34","ts":"2026-08-24T13:57:04.120Z","from":"n27","to":"n28","rel":"continues"}
