@@ -1,11 +1,20 @@
-import { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import {
+  Suspense,
+  useCallback,
+  useEffect,
+  useMemo,
+  useRef,
+  useState,
+} from "react";
 import { getAmbience } from "./lib/ambience";
+import { createTouchInputState, resetTouchInputState } from "./lib/touch-input";
 import {
   ForestCanvas,
   hasWebGL,
   useReducedMotion,
   type ForestControlsHandle,
 } from "./scene/ForestCanvas";
+import { TouchControls } from "./ui/TouchControls";
 import "./evening-forest.css";
 
 type DeviceKind = "desktop" | "coarse";
@@ -23,8 +32,14 @@ export default function EveningForestPage() {
   const [device] = useState<DeviceKind>(detectDevice);
   const [webglOk, setWebglOk] = useState(true);
   const [locked, setLocked] = useState(false);
+  const [touchPlaying, setTouchPlaying] = useState(false);
+  const [muted, setMuted] = useState(false);
   const controlsRef = useRef<ForestControlsHandle | null>(null);
   const ambienceRef = useRef<ReturnType<typeof getAmbience> | null>(null);
+  const inputRef = useRef(createTouchInputState());
+
+  // One flag for both input schemes so the overlays and the rig agree.
+  const playing = device === "coarse" ? touchPlaying : locked;
 
   useEffect(() => {
     setWebglOk(hasWebGL());
@@ -47,14 +62,40 @@ export default function EveningForestPage() {
     ambienceRef.current?.setDimmed(true);
   }, []);
 
-  const enterForest = useCallback(() => {
+  const startAmbience = useCallback(() => {
     if (!ambienceRef.current) {
       ambienceRef.current = getAmbience();
     }
     // Created inside the click gesture so autoplay policies are satisfied.
     ambienceRef.current.start();
     ambienceRef.current.setDimmed(false);
-    controlsRef.current?.lock();
+  }, []);
+
+  const enterForest = useCallback(() => {
+    startAmbience();
+    if (device === "coarse") {
+      resetTouchInputState(inputRef.current);
+      setTouchPlaying(true);
+    } else {
+      controlsRef.current?.lock();
+    }
+  }, [device, startAmbience]);
+
+  const restFromTouch = useCallback(() => {
+    resetTouchInputState(inputRef.current);
+    setTouchPlaying(false);
+    ambienceRef.current?.setDimmed(true);
+  }, []);
+
+  const toggleSound = useCallback(() => {
+    setMuted((prev) => {
+      ambienceRef.current?.setMuted(!prev);
+      return !prev;
+    });
+  }, []);
+
+  const handleFootstep = useCallback((intensity: number) => {
+    ambienceRef.current?.footstep(intensity);
   }, []);
 
   const stage = useMemo(() => {
@@ -73,49 +114,51 @@ export default function EveningForestPage() {
     }
     return (
       <>
-        <ForestCanvas
-          reducedMotion={reducedMotion}
-          onLock={handleLock}
-          onUnlock={handleUnlock}
-          controlsRef={controlsRef}
-        />
-        {!locked && (
+        <Suspense fallback={<div className="evening-forest-loading" role="status" />}>
+          <ForestCanvas
+            reducedMotion={reducedMotion}
+            active={playing}
+            touchDevice={device === "coarse"}
+            inputRef={inputRef}
+            onLock={handleLock}
+            onUnlock={handleUnlock}
+            controlsRef={controlsRef}
+            onFootstep={handleFootstep}
+          />
+        </Suspense>
+        {!playing && (
           <div className="evening-forest-overlay">
-            {device === "desktop" ? (
-              <button
-                type="button"
-                className="evening-forest-enter"
-                onClick={enterForest}
-              >
-                <span className="evening-forest-enter-eyebrow">
-                  First-person stroll
-                </span>
-                <span className="evening-forest-enter-title">
-                  Into the trees
-                </span>
-                <span className="evening-forest-enter-hint">
-                  WASD — walk &nbsp;·&nbsp; mouse — look &nbsp;·&nbsp; Esc —
-                  rest
-                </span>
-                <span className="evening-forest-enter-action">
-                  Click to enter the forest
-                </span>
-              </button>
-            ) : (
-              <div className="evening-forest-enter evening-forest-enter-static">
-                <span className="evening-forest-enter-eyebrow">
-                  First-person stroll
-                </span>
-                <span className="evening-forest-enter-title">
-                  Into the trees
-                </span>
-                <span className="evening-forest-enter-hint">
-                  This stroll asks for a keyboard and a mouse. You can still
-                  watch the fireflies.
-                </span>
-              </div>
-            )}
+            <button
+              type="button"
+              className="evening-forest-enter"
+              onClick={enterForest}
+            >
+              <span className="evening-forest-enter-eyebrow">
+                First-person stroll
+              </span>
+              <span className="evening-forest-enter-title">
+                Into the trees
+              </span>
+              <span className="evening-forest-enter-hint">
+                {device === "coarse"
+                  ? "Left thumb — walk · right thumb — look · Rest pauses"
+                  : "WASD — walk · mouse — look · Esc — rest"}
+              </span>
+              <span className="evening-forest-enter-action">
+                {device === "coarse"
+                  ? "Tap to step into the trees"
+                  : "Click to enter the forest"}
+              </span>
+            </button>
           </div>
+        )}
+        {playing && device === "coarse" && (
+          <TouchControls
+            inputRef={inputRef}
+            onPause={restFromTouch}
+            muted={muted}
+            onToggleSound={toggleSound}
+          />
         )}
         {locked && (
           <div className="evening-forest-resting-hint" aria-hidden="true">
@@ -124,7 +167,20 @@ export default function EveningForestPage() {
         )}
       </>
     );
-  }, [webglOk, locked, device, reducedMotion, handleLock, handleUnlock, enterForest]);
+  }, [
+    webglOk,
+    playing,
+    locked,
+    device,
+    reducedMotion,
+    handleLock,
+    handleUnlock,
+    enterForest,
+    restFromTouch,
+    muted,
+    toggleSound,
+    handleFootstep,
+  ]);
 
   return (
     <article className="evening-forest-page">

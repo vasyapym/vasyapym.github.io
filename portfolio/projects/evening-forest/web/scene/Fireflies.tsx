@@ -3,17 +3,21 @@ import * as THREE from "three";
 import { COLORS } from "../lib/palette";
 import { terrainHeight } from "../lib/heightfield";
 import { createRng } from "../lib/rng";
-import { windUniform } from "../lib/clock";
+import { playerPositionUniform, windUniform } from "../lib/clock";
 
-const COUNT = 150;
+const DEFAULT_COUNT = 150;
 
 // Fireflies drift entirely on the GPU: base positions are baked once
 // (seeded), and the vertex shader offsets them with per-firefly phases read
-// from a shared clock — zero CPU work per frame.
+// from a shared clock — zero CPU work per frame. When the walker comes
+// close, a second uniform gently reels them into an orbit around the
+// camera, so walking through the hollow feels like stirring sparks.
 const VERTEX_SHADER = /* glsl */ `
   attribute vec4 aSeed;
   uniform float uTime;
+  uniform vec3 uPlayer;
   varying float vFade;
+  varying float vNear;
 
   void main() {
     vec3 pos = position;
@@ -21,35 +25,44 @@ const VERTEX_SHADER = /* glsl */ `
     pos.z += cos(uTime * (0.19 + aSeed.y * 0.22) + aSeed.z * 40.0) * (1.4 + aSeed.y * 2.2);
     pos.y += sin(uTime * (0.3 + aSeed.z * 0.3) + aSeed.w * 50.0) * (0.35 + aSeed.z * 0.5);
 
+    // Curious fireflies: inside ~12m they drift toward the walker, easing
+    // into a loose ring about two metres out instead of swallowing them.
+    vec3 toPlayer = uPlayer - pos;
+    float dist = length(toPlayer);
+    float pull = smoothstep(12.0, 3.0, dist);
+    pos += (toPlayer / max(dist, 0.001)) * pull * max(dist - 2.2, 0.0) * 0.45;
+
     vec4 mvPosition = modelViewMatrix * vec4(pos, 1.0);
-    float dist = length(mvPosition.xyz);
+    float distView = length(mvPosition.xyz);
     gl_Position = projectionMatrix * mvPosition;
-    gl_PointSize = clamp(260.0 / dist, 1.5, 7.0);
+    gl_PointSize = clamp(260.0 / distView, 1.5, 7.0);
 
     float pulse = 0.45 + 0.55 * sin(uTime * (0.8 + aSeed.w * 1.6) + aSeed.x * 60.0);
-    vFade = pulse * smoothstep(78.0, 16.0, dist);
+    vFade = pulse * smoothstep(78.0, 16.0, distView);
+    vNear = pull;
   }
 `;
 
 const FRAGMENT_SHADER = /* glsl */ `
   uniform vec3 uColor;
   varying float vFade;
+  varying float vNear;
 
   void main() {
     float d = length(gl_PointCoord - vec2(0.5));
     float disc = smoothstep(0.5, 0.12, d);
     if (disc < 0.01) discard;
-    gl_FragColor = vec4(uColor, disc * vFade);
+    gl_FragColor = vec4(uColor, disc * vFade * (1.0 + vNear * 0.7));
   }
 `;
 
-export function Fireflies() {
+export function Fireflies({ count = DEFAULT_COUNT }: { count?: number }) {
   const geometry = useMemo(() => {
     const g = new THREE.BufferGeometry();
-    const positions = new Float32Array(COUNT * 3);
-    const seeds = new Float32Array(COUNT * 4);
+    const positions = new Float32Array(count * 3);
+    const seeds = new Float32Array(count * 4);
     const rand = createRng("evening-forest/fireflies/v1");
-    for (let i = 0; i < COUNT; i += 1) {
+    for (let i = 0; i < count; i += 1) {
       const angle = rand() * Math.PI * 2;
       const radius = Math.sqrt(rand()) * 72;
       const x = Math.cos(angle) * radius;
@@ -65,7 +78,7 @@ export function Fireflies() {
     g.setAttribute("position", new THREE.BufferAttribute(positions, 3));
     g.setAttribute("aSeed", new THREE.BufferAttribute(seeds, 4));
     return g;
-  }, []);
+  }, [count]);
 
   const material = useMemo(
     () =>
@@ -74,6 +87,7 @@ export function Fireflies() {
         fragmentShader: FRAGMENT_SHADER,
         uniforms: {
           uTime: windUniform,
+          uPlayer: playerPositionUniform,
           uColor: { value: COLORS.firefly.clone() },
         },
         transparent: true,

@@ -70,14 +70,18 @@ function ResolutionSync({
   return null;
 }
 
-export function RetroEffects() {
+export function RetroEffects({
+  bloomIntensity = 0.65,
+}: {
+  bloomIntensity?: number;
+}) {
   const ditherRef = useRef<PosterizeDitherEffect | null>(null);
 
   return (
     <EffectComposer multisampling={0}>
       <Bloom
         mipmapBlur
-        intensity={0.65}
+        intensity={bloomIntensity}
         luminanceThreshold={0.52}
         luminanceSmoothing={0.25}
       />

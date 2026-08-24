@@ -8,6 +8,23 @@
   color: var(--index-ink);
 }
 
+/* When the shell supports :has, fill the space under the nav exactly —
+   the nav is taller when its links wrap on small screens, so a hardcoded
+   offset always drifts a few pixels out. */
+@supports selector(:has(*)) {
+  .project-frame:has(.evening-forest-page) {
+    display: flex;
+    flex-direction: column;
+    min-height: 100dvh;
+  }
+
+  .project-frame:has(.evening-forest-page) > .evening-forest-page {
+    flex: 1;
+    height: auto;
+    min-height: 0;
+  }
+}
+
 .evening-forest-intro {
   display: flex;
   align-items: baseline;
@@ -40,11 +57,27 @@
   overflow: hidden;
   background: #140b20;
   border-top: 1px solid var(--index-line);
+  /* The stage owns every gesture while playing — no scroll, no pinch-zoom,
+     no double-tap zoom, no long-press callout on iOS. */
+  touch-action: none;
+  -webkit-user-select: none;
+  user-select: none;
+  -webkit-touch-callout: none;
+  -webkit-tap-highlight-color: transparent;
 }
 
 .evening-forest-stage canvas {
   display: block;
   image-rendering: pixelated;
+}
+
+/* The R3F canvas host. Absolute positioning gives the renderer a definite
+   containing block: a height:100% wrapper inside a flex-sized stage can
+   collapse to the canvas's intrinsic 150px on some layouts, and the
+   ResizeObserver then never re-measures. */
+.evening-forest-canvas-host {
+  position: absolute;
+  inset: 0;
 }
 
 /* --- overlays ----------------------------------------------------------- */
@@ -135,6 +168,19 @@ button.evening-forest-enter:focus-visible {
   pointer-events: none;
 }
 
+/* --- loading fallback ------------------------------------------------------ */
+
+.evening-forest-loading {
+  position: absolute;
+  inset: 0;
+  z-index: 1;
+  background:
+    radial-gradient(ellipse at 50% 78%, rgba(224, 130, 74, 0.25), transparent 55%),
+    linear-gradient(180deg, #181028 0%, #33205c 55%, #6d4457 100%);
+}
+
+/* --- end loading fallback -------------------------------------------------- */
+
 /* --- WebGL fallback ------------------------------------------------------ */
 
 .evening-forest-fallback {
@@ -154,6 +200,122 @@ button.evening-forest-enter:focus-visible {
   font-size: 1.1rem;
   font-weight: 600;
 }
+
+/* --- touch controls ------------------------------------------------------ */
+
+.ef-touch {
+  position: absolute;
+  inset: 0;
+  z-index: 2;
+  /* Matches JOYSTICK_RADIUS in web/lib/touch-input.ts. */
+  --ef-stick-radius: 56px;
+  /* The container itself never catches touches; its zones do. */
+  pointer-events: none;
+}
+
+.ef-touch-zone {
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  pointer-events: auto;
+}
+
+.ef-touch-zone-walk {
+  left: 0;
+  width: 45%;
+}
+
+.ef-touch-zone-look {
+  left: 45%;
+  right: 0;
+}
+
+.ef-touch-hint {
+  position: absolute;
+  bottom: max(1.4rem, env(safe-area-inset-bottom) + 1.1rem);
+  color: rgba(255, 236, 214, 0.55);
+  font-family: var(--mono);
+  font-size: 0.62rem;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  pointer-events: none;
+  animation: ef-touch-hint-in 600ms ease both;
+}
+
+.ef-touch-hint-walk {
+  left: 1.4rem;
+}
+
+.ef-touch-hint-look {
+  right: 1.4rem;
+}
+
+@keyframes ef-touch-hint-in {
+  from {
+    opacity: 0;
+    transform: translateY(4px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.ef-touch-stick-base {
+  position: absolute;
+  width: calc(var(--ef-stick-radius) * 2);
+  height: calc(var(--ef-stick-radius) * 2);
+  transform: translate(-50%, -50%);
+  border-radius: 50%;
+  border: 1px solid rgba(255, 180, 94, 0.5);
+  background: radial-gradient(
+    circle,
+    rgba(255, 180, 94, 0.08) 0%,
+    rgba(16, 10, 26, 0.35) 100%
+  );
+  pointer-events: none;
+}
+
+.ef-touch-stick-knob {
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  width: 44px;
+  height: 44px;
+  margin: -22px 0 0 -22px;
+  border-radius: 50%;
+  background: rgba(255, 214, 150, 0.85);
+  border: 1px solid rgba(255, 180, 94, 0.9);
+  box-shadow: 0 0 12px rgba(255, 180, 94, 0.35);
+}
+
+.ef-touch-buttons {
+  position: absolute;
+  top: calc(env(safe-area-inset-top) + 0.8rem);
+  right: calc(env(safe-area-inset-right) + 0.8rem);
+  display: flex;
+  gap: 0.5rem;
+  pointer-events: auto;
+}
+
+.ef-touch-button {
+  padding: 0.42rem 0.85rem;
+  color: rgba(255, 236, 214, 0.8);
+  background: rgba(14, 8, 22, 0.55);
+  border: 1px solid rgba(255, 180, 94, 0.35);
+  border-radius: 2px;
+  font-family: var(--mono);
+  font-size: 0.64rem;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  cursor: pointer;
+}
+
+.ef-touch-button:active {
+  background: rgba(255, 180, 94, 0.18);
+}
+
+/* --- end touch controls -------------------------------------------------- */
 
 @media (max-width: 720px) {
   .evening-forest-page {

@@ -21,9 +21,15 @@ export class EveningAmbience {
   private timers: number[] = [];
   private voices: { stop: () => void }[] = [];
   private dimmed = false;
+  private muted = false;
+  private stepNoise: AudioBuffer | null = null;
 
   get started(): boolean {
     return this.ctx !== null;
+  }
+
+  get isMuted(): boolean {
+    return this.muted;
   }
 
   // Must be called from a user-gesture handler the first time.
@@ -58,6 +64,11 @@ export class EveningAmbience {
     this.applyLevel();
   }
 
+  setMuted(muted: boolean): void {
+    this.muted = muted;
+    this.applyLevel();
+  }
+
   dispose(): void {
     for (const id of this.timers) window.clearTimeout(id);
     this.timers = [];
@@ -72,11 +83,60 @@ export class EveningAmbience {
 
   private applyLevel(): void {
     if (!this.ctx || !this.master) return;
-    const target = this.dimmed ? DIMMED_LEVEL : MASTER_LEVEL;
+    const target = this.muted ? 0 : this.dimmed ? DIMMED_LEVEL : MASTER_LEVEL;
     const now = this.ctx.currentTime;
     this.master.gain.cancelScheduledValues(now);
     this.master.gain.setValueAtTime(this.master.gain.value, now);
     this.master.gain.linearRampToValueAtTime(target, now + 0.9);
+  }
+
+  // One footfall: a low thump through the ground plus a brighter band of
+  // leaf-litter crunch, both cut from a short shared noise buffer. Random
+  // playback rate and filter positions keep repeated steps from droning.
+  footstep(intensity: number): void {
+    if (!this.ctx || !this.master || this.muted) return;
+    const ctx = this.ctx;
+    if (!this.stepNoise) {
+      const seconds = 0.12;
+      const buffer = ctx.createBuffer(
+        1,
+        Math.ceil(ctx.sampleRate * seconds),
+        ctx.sampleRate,
+      );
+      const data = buffer.getChannelData(0);
+      for (let i = 0; i < data.length; i += 1) {
+        data[i] = Math.random() * 2 - 1;
+      }
+      this.stepNoise = buffer;
+    }
+
+    const t = ctx.currentTime + 0.005;
+    const src = ctx.createBufferSource();
+    src.buffer = this.stepNoise;
+    src.playbackRate.value = 0.85 + Math.random() * 0.3;
+
+    const thump = ctx.createBiquadFilter();
+    thump.type = "lowpass";
+    thump.frequency.value = 180 + Math.random() * 60;
+
+    const crunch = ctx.createBiquadFilter();
+    crunch.type = "bandpass";
+    crunch.frequency.value = 900 + Math.random() * 700;
+    crunch.Q.value = 0.8;
+
+    const peak = 0.1 + intensity * 0.08;
+    const thumpGain = ctx.createGain();
+    thumpGain.gain.setValueAtTime(peak, t);
+    thumpGain.gain.exponentialRampToValueAtTime(0.001, t + 0.11);
+
+    const crunchGain = ctx.createGain();
+    crunchGain.gain.setValueAtTime(peak * 0.35, t);
+    crunchGain.gain.exponentialRampToValueAtTime(0.001, t + 0.07);
+
+    src.connect(thump).connect(thumpGain).connect(this.master);
+    src.connect(crunch).connect(crunchGain).connect(this.master);
+    src.start(t);
+    src.stop(t + 0.14);
   }
 
   private buildWind(ctx: AudioContext, out: GainNode): void {

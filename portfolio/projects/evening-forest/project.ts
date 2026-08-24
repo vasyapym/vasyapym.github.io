@@ -5,7 +5,7 @@ const eveningForest: ProjectModule = {
   title: "Evening Forest",
   eyebrow: "A cozy first-person stroll at dusk",
   description:
-    "Wander an 8-bit fantasy woodland — swaying pines, drifting fireflies, a looping synth ambience. No missions, no fail state, just the walk.",
+    "Wander an 8-bit fantasy woodland on desktop or phone — swaying pines, drifting fireflies, a looping synth ambience. No missions, no fail state, just the walk.",
   technologies: [
     "React Three Fiber",
     "Three.js",
@@ -30,7 +30,7 @@ const eveningForest: ProjectModule = {
     note: "Dusk circuit",
     motionLabel: "the canopy breathes",
     instruction:
-      "Walk with WASD, look with the mouse; Esc rests you back here.",
+      "Walk with WASD and the mouse on desktop, or two thumbs on a phone; Esc (or Rest) brings you back here.",
     parts: [
       {
         id: "hillside",
