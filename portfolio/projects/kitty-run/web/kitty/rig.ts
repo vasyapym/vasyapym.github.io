@@ -65,7 +65,9 @@ export function computePose(m: KittyMotionInput): KittyPose {
 
   const armSwing = m.grounded ? -run * 0.5 : -0.55;
 
-  const visible = m.invulnT <= 0 || Math.sin(m.now * 28) > -0.2;
+  // Invulnerability reads as a gentle blink, not a strobe: mostly on, with
+  // short dips. A fast full-invisible flicker made Kitty look like a ghost.
+  const visible = m.invulnT <= 0 || Math.sin(m.now * 11) > -0.6;
 
   return {
     bobY,

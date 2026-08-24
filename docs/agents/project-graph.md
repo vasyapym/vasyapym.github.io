@@ -133,6 +133,20 @@ project-graph add-node --actor design-iteration --kind iteration --title "Mobile
 
 `portfolio/.project-history/graph.jsonl` holds the backfilled main-page redesign history (nine superseded directions + active one). Each portfolio project keeps its **own** graph at `portfolio/projects/<id>/.project-history/graph.jsonl`, so no single file grows unbounded — resolution walks up from cwd, so work inside a project finds the project's graph first and the shell's only from the shell. `project-graph log` reconstructs an evolution chain; `project-graph mermaid` reproduces the decision graph from `docs/portfolio-redesign-handoff.md`.
 
+## What records, where
+
+Recording does not depend on which skill (if any) is invoked. **Any session** — a `/code-iteration` run, another skill, or a plain conversation — that settles something important appends one node to the graph of the area it concerns before wrapping up:
+
+| Settled outcome | Node kind | Typical source |
+| --- | --- | --- |
+| Implementation pass completed | `iteration` | `code-iteration`, post-commit hook |
+| Visual review round completed | `iteration` | `design-iteration` |
+| Direction chosen or replaced | `decision` (+ `supersedes` edge) | `design-planning`, `brainstorm`, `prototype`, conversation |
+| Execution plan approved | `milestone` | `planning`, conversation |
+| Commit landed | `iteration` (minimal, auto) | post-commit hook |
+
+Routing follows the work's target area (same rule as the hook): portfolio project → its own graph; other portfolio work → the main-page graph; repo-level tooling and docs → no graph. Keep nodes minimal — title states what was settled, `--meta` carries only what a future session would otherwise have to re-derive (quality gate results, rejection reasons, verified viewports).
+
 ## When a skill says "record this in the project graph"
 
 Append the appropriate node via the CLI — never edit the JSONL by hand.

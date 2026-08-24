@@ -17,6 +17,10 @@ It is not a replacement for a code review or architecture survey:
 | Fresh alternatives around the current diff | `brainstorm` |
 | A concrete implementation | `implement` |
 
+## Project graph
+
+When you pick or eliminate candidates during the session, the settled direction becomes a `decision` node in the area's project graph (`docs/agents/project-graph.md`), so future sessions inherit the choice instead of re-deriving it.
+
 ## Common questions
 
 **Will it change files?**

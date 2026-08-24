@@ -1,0 +1,17 @@
+<!doctype html>
+<html>
+<head>
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<style>body{margin:0}</style>
+</head>
+<body>
+<div style="width:100%;height:40px;background:red"></div>
+<div style="width:390px;height:40px;background:blue"></div>
+<p id="out" style="margin:0;font:14px sans-serif"></p>
+<script>
+  const de = document.documentElement;
+  document.getElementById("out").textContent =
+    `innerW=${window.innerWidth} docW=${de.clientWidth} scrollW=${de.scrollWidth} dpr=${window.devicePixelRatio}`;
+</script>
+</body>
+</html>

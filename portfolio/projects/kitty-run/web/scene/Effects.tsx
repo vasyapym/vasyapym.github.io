@@ -31,10 +31,13 @@ export function Effects({
 
   return (
     <EffectComposer multisampling={0}>
+      {/* Threshold sits high enough that Kitty's white body and the pale sky
+          stay out of the glow — only the sun, bow reds and pickup yellows
+          bloom. A low threshold washes the whole scene milky. */}
       <Bloom
-        intensity={0.5}
-        luminanceThreshold={0.62}
-        luminanceSmoothing={0.24}
+        intensity={0.42}
+        luminanceThreshold={0.85}
+        luminanceSmoothing={0.2}
         mipmapBlur
       />
       <ChromaticAberration ref={caRef} offset={[0, 0]} />

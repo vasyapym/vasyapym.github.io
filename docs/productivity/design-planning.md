@@ -43,6 +43,10 @@ They were removed from `CLAUDE.md` in commit `cb6a358` with the intention of mov
 - Production files remain unchanged until approval.
 - The chosen direction leaves a durable handoff entry instead of relying on memory.
 
+## Project graph
+
+When the user's choice lands, the direction becomes a `decision` node (with a `supersedes` edge when it replaces an earlier one) in the area's project graph (`docs/agents/project-graph.md`).
+
 ## Where it fits
 
 `design-planning` is the **choice step** between shaping an idea and planning its build. The usual route is [grill-with-docs](https://aihero.dev/skills-grill-with-docs) → `/design-planning` → [planning](https://aihero.dev/skills-planning) → implementation. It is closest to [brainstorm](https://aihero.dev/skills-brainstorm), which is a read-only source of fresh ideas around an existing diff rather than a decision gate, and [prototype](https://aihero.dev/skills-prototype), which supplies evidence when prose is not enough. [ask-matt](https://aihero.dev/skills-ask-matt) routes over the whole set.

@@ -48,3 +48,5 @@ Every approved design pass leaves a compact durable record:
 - **Next review:** the fixed routes, states, or viewports to inspect.
 
 For a portfolio or other visual product, append this record to its design handoff's iteration ledger. For a domain or architecture decision, use the repository's context or ADR workflow instead.
+
+When the user's choice lands, also append one `decision` node (with a `supersedes` edge when it replaces an earlier direction) to the area's project graph — routing and shape in `docs/agents/project-graph.md`.

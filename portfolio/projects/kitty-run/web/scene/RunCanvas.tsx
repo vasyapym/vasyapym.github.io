@@ -77,7 +77,11 @@ export function RunCanvas({
         stencil: false,
         powerPreference: "high-performance",
       }}
-      camera={{ fov: BASE_FOV, near: 0.1, far: 90, position: [0, 3.2, BASE_CAM_Z] }}
+      // near 2: the scene lives at z <= 0.2 and the camera at z >= 11.5, so
+      // a generous near plane keeps depth precision tight — on 16-bit mobile
+      // depth buffers the Kitty's paper-thin layers otherwise z-fight and
+      // read as transparent.
+      camera={{ fov: BASE_FOV, near: 2, far: 90, position: [0, 3.2, BASE_CAM_Z] }}
       onCreated={({ camera, gl }) => {
         gl.setClearColor(PALETTE.skyBottom);
         camera.lookAt(2.4, 2.6, 0);

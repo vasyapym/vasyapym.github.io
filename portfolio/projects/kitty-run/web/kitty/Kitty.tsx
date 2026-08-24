@@ -51,7 +51,9 @@ type PartProps = {
 };
 
 // One silhouette part: an ink copy slightly grown behind the fill reads as
-// a crisp uniform outline at any resolution.
+// a crisp uniform outline at any resolution. The z gap between the copy and
+// the fill is generous on purpose — thin offsets z-fight on mobile depth
+// buffers and the character turns see-through.
 function Part({
   geometry,
   color,
@@ -67,7 +69,7 @@ function Part({
       {outline > 0 && (
         <mesh
           geometry={geometry}
-          position={position ? [position[0], position[1], z - 0.012] : [0, 0, z - 0.012]}
+          position={position ? [position[0], position[1], z - 0.03] : [0, 0, z - 0.03]}
           rotation={[0, 0, rotation ?? 0]}
           scale={scale * outline}
         >
@@ -176,47 +178,47 @@ export function Kitty({ world }: { world: WorldState }) {
           </group>
 
           {/* dress */}
-          <Part geometry={geo.dress} color={PALETTE.suitPink} z={0.045} outline={1.05} />
+          <Part geometry={geo.dress} color={PALETTE.suitPink} z={0.12} outline={1.05} />
 
           {/* arms pivot at the shoulder */}
           <group ref={armLRef} position={[-0.62, 0.92, 0]}>
-            <Part geometry={geo.arm} color={PALETTE.kittyWhite} z={0.055} outline={1.14} />
+            <Part geometry={geo.arm} color={PALETTE.kittyWhite} z={0.16} outline={1.14} />
           </group>
           <group ref={armRRef} position={[0.62, 0.92, 0]}>
-            <Part geometry={geo.arm} color={PALETTE.kittyWhite} z={0.055} outline={1.14} />
+            <Part geometry={geo.arm} color={PALETTE.kittyWhite} z={0.16} outline={1.14} />
           </group>
 
           {/* head */}
           <group ref={headRef} position={[0, 1.5, 0]}>
-            <group ref={earLRef} position={[-0.58, 0.52, 0.05]}>
+            <group ref={earLRef} position={[-0.58, 0.52, 0.15]}>
               <Part geometry={geo.ear} color={PALETTE.kittyWhite} z={0} outline={1.12} />
             </group>
-            <group ref={earRRef} position={[0.58, 0.52, 0.05]}>
+            <group ref={earRRef} position={[0.58, 0.52, 0.15]}>
               <Part geometry={geo.ear} color={PALETTE.kittyWhite} z={0} outline={1.12} />
             </group>
-            <Part geometry={geo.head} color={PALETTE.kittyWhite} z={0.075} outline={1.045} />
+            <Part geometry={geo.head} color={PALETTE.kittyWhite} z={0.22} outline={1.045} />
 
             <mesh
               ref={eyeLRef}
               geometry={geo.eye}
-              position={[-0.4, 0.06, 0.09]}
+              position={[-0.4, 0.06, 0.27]}
             >
               <meshBasicMaterial color={PALETTE.eyeInk} />
             </mesh>
             <mesh
               ref={eyeRRef}
               geometry={geo.eye}
-              position={[0.4, 0.06, 0.09]}
+              position={[0.4, 0.06, 0.27]}
             >
               <meshBasicMaterial color={PALETTE.eyeInk} />
             </mesh>
-            <mesh geometry={geo.nose} position={[0, -0.16, 0.09]}>
+            <mesh geometry={geo.nose} position={[0, -0.16, 0.27]}>
               <meshBasicMaterial color={PALETTE.noseYellow} />
             </mesh>
-            <mesh geometry={geo.cheek} position={[-0.68, -0.22, 0.088]}>
+            <mesh geometry={geo.cheek} position={[-0.68, -0.22, 0.26]}>
               <meshBasicMaterial color={PALETTE.cheek} />
             </mesh>
-            <mesh geometry={geo.cheek} position={[0.68, -0.22, 0.088]}>
+            <mesh geometry={geo.cheek} position={[0.68, -0.22, 0.26]}>
               <meshBasicMaterial color={PALETTE.cheek} />
             </mesh>
             {[-1, 1].map((side) =>
@@ -224,7 +226,7 @@ export function Kitty({ world }: { world: WorldState }) {
                 <mesh
                   key={`${side}:${i}`}
                   geometry={geo.whisker}
-                  position={[side * 0.88, y, 0.09]}
+                  position={[side * 0.88, y, 0.27]}
                   rotation={[0, 0, side * (0.08 - i * 0.08)]}
                 >
                   <meshBasicMaterial color={PALETTE.outlineInk} />
@@ -233,11 +235,11 @@ export function Kitty({ world }: { world: WorldState }) {
             )}
 
             {/* bow */}
-            <group ref={bowRef} position={[0.52, 0.66, 0.11]}>
+            <group ref={bowRef} position={[0.52, 0.66, 0.32]}>
               <Part
                 geometry={geo.bowLoop}
                 color={PALETTE.bowRed}
-                z={0.002}
+                z={0.004}
                 position={[-0.3, 0]}
                 rotation={0.45}
                 outline={1.12}
@@ -245,7 +247,7 @@ export function Kitty({ world }: { world: WorldState }) {
               <Part
                 geometry={geo.bowLoop}
                 color={PALETTE.bowRed}
-                z={0.002}
+                z={0.004}
                 position={[0.3, 0]}
                 rotation={-0.45}
                 outline={1.12}
@@ -253,7 +255,7 @@ export function Kitty({ world }: { world: WorldState }) {
               <Part
                 geometry={geo.bowKnot}
                 color={PALETTE.bowDeep}
-                z={0.006}
+                z={0.016}
                 outline={1.18}
               />
             </group>

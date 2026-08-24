@@ -17,7 +17,7 @@ Use this skill after a direction has been chosen and before implementation begin
 4. **Sequence the work.** Order the smallest reversible steps. Each step states what becomes demonstrably true, which files or modules it touches, what blocks it, and how it can be reviewed independently. Put simplifying prefactors before the behavior they make easy.
 5. **Define the verification matrix.** List the exact typecheck, build, test, accessibility, and visual checks. For UI work, pin routes, representative content, viewport widths, interaction states, and reduced-motion behavior. For code, name the seam-level behavior and regression case. A check is complete only when it has a clear pass/fail observation.
 6. **Define the iteration loop.** After each coherent pass: inspect the diff, run the smallest relevant check, compare the result with the quality gate from the design handoff, and append the outcome to the iteration ledger. Do not accumulate unrelated polish until the current pass is understood.
-7. **Stop for approval.** Present the plan, dependencies, risk, and verification matrix. Wait for approval before implementation. For work that spans sessions, hand the approved plan to `/to-tickets`; for a small change, hand it to the implementation step directly.
+7. **Stop for approval.** Present the plan, dependencies, risk, and verification matrix. Wait for approval before implementation. For work that spans sessions, hand the approved plan to `/to-tickets`; for a small change, hand it to the implementation step directly. On approval, append one `milestone` node ("plan locked") to the area's project graph — routing and shape in `docs/agents/project-graph.md`.
 
 ## The repeatable loop
 

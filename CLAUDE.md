@@ -40,6 +40,10 @@ The five canonical triage roles map directly to `needs-triage`, `needs-info`, `r
 
 This is a single-context repo: read root `CONTEXT.md` and `docs/adr/` for domain context and decisions. See `docs/agents/domain.md`.
 
+### Project graph
+
+Iterations, decisions, plans, and handoffs append to a per-project history log (`.project-history/graph.jsonl`) via `scripts/project-graph`. Any session that settles something important — a direction, a plan, a verdict, a pass — records one node before wrapping up, skill-invoked or not. See `docs/agents/project-graph.md`.
+
 ## Response preferences
 
 - Explain code and technical changes in simple Russian unless the user asks for another language.

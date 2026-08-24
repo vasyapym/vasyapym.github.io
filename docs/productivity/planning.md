@@ -51,6 +51,10 @@ No. It does not commit, push, open a pull request, or merge. Delivery is an expl
 - The plan contains a fixed review matrix rather than a vague QA promise.
 - A fresh agent can resume at the next step without asking what "done" means.
 
+## Project graph
+
+An approved plan becomes a `milestone` node ("plan locked") in the area's project graph (`docs/agents/project-graph.md`), so the next session starts from what was agreed rather than from a re-telling.
+
 ## Where it fits
 
 `planning` is the **execution-plan step** after a direction has been selected and before a build starts. The usual route is [grill-with-docs](https://aihero.dev/skills-grill-with-docs) → [design-planning](https://aihero.dev/skills-design-planning) → `/planning` → [implement](https://aihero.dev/skills-implement). Its closest neighbour is [to-tickets](https://aihero.dev/skills-to-tickets), which publishes an approved multi-session plan as tracer-bullet tickets; [ask-matt](https://aihero.dev/skills-ask-matt) routes over the whole set.

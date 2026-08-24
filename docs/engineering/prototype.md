@@ -58,6 +58,10 @@ It can be, if you prototype questions you could have answered by talking, or let
 - It is answered in one sitting. If you're still building it a day later, the question was too big; split it.
 - When it's over, main contains the decision and none of the prototype, and the implementation issue points at the branch that still holds it.
 
+## Project graph
+
+The verdict becomes a `decision` node (the question and what it settled) in the area's project graph (`docs/agents/project-graph.md`), next to the primary-source prototype branch it points at.
+
 ## Where it fits
 
 `prototype` is a **reach-for-it-anytime standalone** — you drop into it to settle one design question, then drop back out — and it is also machinery another skill runs on.
