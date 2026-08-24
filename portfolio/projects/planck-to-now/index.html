@@ -3,17 +3,24 @@
 <head>
 <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><circle cx='50' cy='50' r='38' fill='%23ffd9a0'/><circle cx='50' cy='50' r='20' fill='%23fff' /></svg>" />
-    <title>The Big Bang - 13.8 billion years</title>
+    <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><circle cx='50' cy='50' r='38' fill='%23e8b57c'/><circle cx='50' cy='50' r='20' fill='%23eeeae0' /></svg>" />
+    <meta name="theme-color" content="#000000" />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&display=swap" />
+    <title>planck to now</title>
 <style>
   :root {
-    --ink: #dfe6ff;
-    --dim: rgba(200, 212, 255, 0.55);
-    --accent: #ffd9a0;
+    --ink: #eeeae0;
+    --dim: rgba(238, 234, 224, 0.66);
+    --faint: rgba(238, 234, 224, 0.45);
+    --line: rgba(238, 234, 224, 0.26);
+    --accent: #e8b57c;
+    color-scheme: dark;
   }
   * { box-sizing: border-box; }
   html, body { margin: 0; height: 100%; overflow: hidden; background: #000; }
-  body { font-family: ui-monospace, "SF Mono", Menlo, Consolas, monospace; color: var(--ink); }
+  body { font-family: "IBM Plex Mono", ui-monospace, "SF Mono", Menlo, Consolas, monospace; color: var(--ink); }
 
   #app { position: fixed; inset: 0; z-index: 0; }
   #app canvas { display: block; width: 100%; height: 100%; }
@@ -22,35 +29,36 @@
     background: radial-gradient(ellipse at center, transparent 52%, rgba(0,0,0,.62) 100%); }
   #flash { position: fixed; inset: 0; z-index: 3; pointer-events: none; background: #fff; opacity: 0; }
 
-  .hud { position: fixed; z-index: 10; pointer-events: none; text-shadow: 0 0 12px rgba(120,140,255,.45); }
+  .hud { position: fixed; z-index: 10; pointer-events: none; }
 
-  #panel { top: 26px; left: 30px; max-width: 400px; }
-  #epoch { font-size: 21px; letter-spacing: .32em; text-transform: uppercase; color: var(--accent);
-    text-shadow: 0 0 18px rgba(255,190,110,.55); margin: 0 0 6px 0; }
-  #epochdesc { font-size: 11.5px; line-height: 1.5; color: var(--dim); font-style: italic; margin: 0 0 14px 0; }
+  #panel { top: 26px; left: 30px; max-width: 400px; padding: 14px 16px;
+    border: 1px solid rgba(238, 234, 224, 0.2); background: rgba(11, 19, 23, 0.42);
+    backdrop-filter: blur(2px); -webkit-backdrop-filter: blur(2px); }
+  #epoch { font-size: 15px; font-weight: 500; letter-spacing: .05em; text-transform: lowercase; color: var(--accent);
+    margin: 0 0 6px 0; }
+  #epochdesc { font-size: 11.5px; line-height: 1.5; color: var(--dim); margin: 0 0 14px 0; }
   #stats { font-size: 12.5px; line-height: 1.75; white-space: pre; }
-  #stats b { color: #fff; font-weight: 600; }
+  #stats b { color: var(--ink); font-weight: 500; }
 
-  #paused { top: 26px; left: 50%; transform: translateX(-50%); font-size: 13px; letter-spacing: .5em;
-    color: var(--accent); border: 1px solid rgba(255,217,160,.4); padding: 7px 16px 6px 22px; display: none; }
+  #paused { top: 26px; left: 50%; transform: translateX(-50%); font-size: 12px; letter-spacing: .08em;
+    color: var(--accent); border: 1px solid var(--line); padding: 7px 14px; display: none; }
 
   #timeline { bottom: 64px; left: 50%; transform: translateX(-50%); width: min(760px, 82vw); height: 26px;
     cursor: pointer; touch-action: none; }
   #tlbar { position: absolute; top: 11px; left: 0; right: 0; height: 3px;
-    background: linear-gradient(90deg, #3a1c08, #7a4a16, #24304f, #4a5a8a); border-radius: 2px; opacity: .85; }
-  .tick { position: absolute; top: 8px; width: 1px; height: 9px; background: rgba(180,195,255,.35); }
-  #cursor { position: absolute; top: 4px; width: 3px; height: 17px; background: #fff; border-radius: 2px;
-    box-shadow: 0 0 10px #fff, 0 0 22px rgba(255,220,170,.9); margin-left: -1px; }
+    background: linear-gradient(90deg, #241509, #6e4a26, #a87f4e, #e8b57c); opacity: .85; }
+  .tick { position: absolute; top: 8px; width: 1px; height: 9px; background: rgba(238,234,224,.3); }
+  #cursor { position: absolute; top: 4px; width: 3px; height: 17px; background: var(--accent);
+    box-shadow: 0 0 10px rgba(232,181,124,.55); margin-left: -1px; }
 
   #hints { bottom: 20px; right: 24px; font-size: 11px; color: var(--dim); text-align: right; line-height: 1.8; }
-  kbd { display: inline-block; border: 1px solid rgba(200,212,255,.3); border-bottom-width: 2px; border-radius: 4px;
+  kbd { display: inline-block; border: 1px solid var(--line); border-bottom-width: 2px; border-radius: 2px;
     padding: 0 5px; font-size: 10px; color: var(--ink); background: rgba(255,255,255,.05); margin: 0 2px; }
 
-  #title { top: 24px; right: 26px; text-align: right; font-size: 11px; letter-spacing: .28em;
-    color: var(--dim); text-transform: uppercase; }
+  #title { top: 26px; right: 30px; font-size: 11px; letter-spacing: .05em; color: var(--faint); }
 
   #err { position: fixed; inset: 0; z-index: 50; display: none; place-items: center; background: #000;
-    color: #ff9a8a; font-size: 14px; padding: 40px; text-align: center; }
+    color: var(--dim); font-size: 13px; letter-spacing: .05em; padding: 40px; text-align: center; }
 </style>
 </head>
 <body>
@@ -64,7 +72,7 @@
     <div id="stats"></div>
   </div>
 
-  <div class="hud" id="paused">PAUSED</div>
+  <div class="hud" id="paused">paused</div>
   <div class="hud" id="timeline">
     <div id="tlbar"></div>
     <div id="ticks"></div>
@@ -75,9 +83,9 @@
     <kbd>space</kbd> pause · <kbd>R</kbd> restart · <kbd>↑</kbd><kbd>↓</kbd> speed<br />
     drag orbit · scroll zoom · drag timeline to scrub
   </div>
-  <div class="hud" id="title">The Big Bang<br />log-time playback</div>
+  <div class="hud" id="title">planck-to-now</div>
 
-  <div id="err"><div>WebGL is required for this simulation.</div></div>
+  <div id="err"><div>webgl unavailable · simulation sealed</div></div>
 
   <script src="./dist/main.js"></script>
 </body>

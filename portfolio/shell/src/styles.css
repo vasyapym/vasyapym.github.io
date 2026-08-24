@@ -1411,211 +1411,148 @@ textarea:focus-visible {
   transform: translate3d(calc(-50% + var(--anchor-x) + 3px), calc(-50% + var(--anchor-y) - 5px), calc(var(--base-z) + 9px)) rotate(calc(var(--part-rotation) + 2deg));}
 
 
-.planck-to-now-page {
-  padding: 4.5rem 0 5rem;}
+/* Planck to Now */
+.planck-field {
+  min-height: max(480px, calc(100vh - 61px));
+  color: var(--ink-text);
+  background: var(--ink-bg);
+  color-scheme: dark;
+  --focus-ring: var(--ink-accent-bright);}
 
 
-.planck-to-now-hero {
-  display: grid;
-  grid-template-columns: minmax(0, 1.1fr) minmax(220px, 0.55fr);
-  align-items: end;
-  gap: clamp(2rem, 7vw, 7rem);
-  border-bottom: 1px solid var(--index-line);
-  padding-bottom: 4rem;}
+.planck-page {
+  width: min(100% - 72px, 1200px);
+  margin: 0 auto;
+  padding: clamp(3rem, 5vw, 4.5rem) 0 6rem;}
 
 
-.planck-to-now-eyebrow {
-  color: #a8652d;}
+.planck-hero {
+  padding-bottom: clamp(2.5rem, 4vw, 3.5rem);}
 
 
-.planck-to-now-hero h1 {
-  max-width: 680px;
-  margin: 0.9rem 0 1.25rem;
-  color: var(--index-ink);
-  font-family: var(--display);
-  font-size: 4.35rem;
-  font-weight: 600;
-  letter-spacing: -0.035em;
-  line-height: 0.94;}
-
-
-.planck-to-now-hero h1 span {
-  display: block;
-  color: #a8652d;}
-
-
-.planck-to-now-intro {
-  max-width: 510px;
+.planck-hero h1 {
+  max-width: 560px;
   margin: 0;
-  color: var(--index-soft);
-  font-size: 1rem;
-  line-height: 1.6;}
+  font-family: var(--display);
+  font-size: clamp(2rem, 3.3vw, 3rem);
+  font-weight: 600;
+  letter-spacing: -0.03em;
+  line-height: 0.97;}
 
 
-.planck-to-now-actions {
+.planck-hero h1 span {
+  display: block;
+  color: var(--ink-accent);}
+
+
+.planck-actions {
   display: flex;
   flex-wrap: wrap;
-  gap: 1.25rem;
-  margin-top: 1rem;}
+  gap: 1.6rem;
+  margin-top: 1.4rem;}
 
 
-.planck-to-now-actions a,
-.planck-to-now-simulation-heading a,
-.planck-to-now-footer a {
+.planck-actions a {
   display: inline-flex;
   align-items: center;
   gap: 0.55rem;
-  color: var(--index-ink);
-  font-size: 0.86rem;
-  font-weight: 600;
-  text-decoration: none;
-  transition: color 180ms ease, gap 180ms ease, background 180ms ease;}
-
-
-.planck-to-now-action-primary {
-  padding: 0.72rem 0.9rem;
-  color: #f5f8f7 !important;
-  background: var(--index-ink);}
-
-
-.planck-to-now-action-primary:hover,
-.planck-to-now-action-primary:focus-visible {
-  gap: 0.8rem;
-  color: #fff !important;
-  background: var(--index-blue-dark);}
-
-
-.planck-to-now-action-secondary:hover,
-.planck-to-now-action-secondary:focus-visible,
-.planck-to-now-simulation-heading a:hover,
-.planck-to-now-simulation-heading a:focus-visible,
-.planck-to-now-footer a:hover,
-.planck-to-now-footer a:focus-visible {
-  gap: 0.85rem;
-  color: var(--index-blue-dark);}
-
-
-.planck-to-now-facts {
-  display: grid;
-  gap: 0;
-  margin: 0;
-  border-top: 1px solid var(--index-line);}
-
-
-.planck-to-now-facts div {
-  display: grid;
-  grid-template-columns: 0.8fr 1.2fr;
-  gap: 1rem;
-  border-bottom: 1px solid var(--index-line-soft);
-  padding: 0.8rem 0;}
-
-
-.planck-to-now-facts dt,
-.planck-to-now-facts dd {
-  margin: 0;
+  color: var(--ink-text);
+  font-family: var(--mono);
   font-size: 0.78rem;
-  line-height: 1.4;}
+  font-weight: 500;
+  letter-spacing: 0.05em;
+  text-decoration: none;
+  transition: color 180ms ease, gap 180ms ease;}
 
 
-.planck-to-now-facts dt {
-  color: var(--index-muted);}
+.planck-actions a:hover,
+.planck-actions a:focus-visible {
+  gap: 0.85rem;
+  color: var(--ink-accent-bright);}
 
 
-.planck-to-now-facts dd {
-  color: var(--index-ink);
-  font-weight: 500;}
+.planck-simulation {
+  border-top: 1px solid var(--ink-line);
+  padding-top: 1.1rem;}
 
 
-.planck-to-now-simulation-shell {
-  margin-top: 3.5rem;
-  border-top: 2px solid var(--index-ink);}
-
-
-.planck-to-now-simulation-heading {
+.planck-simulation-meta {
   display: flex;
-  align-items: end;
+  align-items: baseline;
   justify-content: space-between;
-  gap: 2rem;
-  padding: 1rem 0;}
+  gap: 1rem;
+  margin: 0 0 1rem;
+  color: var(--ink-faint);
+  font-family: var(--mono);
+  font-size: 0.72rem;
+  letter-spacing: 0.05em;}
 
 
-.planck-to-now-simulation-heading h2 {
-  margin: 0.55rem 0 0;
-  color: var(--index-ink);
-  font-family: var(--display);
-  font-size: 2.25rem;
-  font-weight: 600;
-  letter-spacing: -0.02em;
-  line-height: 1;}
+.planck-simulation-meta a {
+  color: var(--ink-muted);
+  text-decoration: none;
+  transition: color 180ms ease;}
 
 
-.planck-to-now-simulation-frame {
+.planck-simulation-meta a:hover,
+.planck-simulation-meta a:focus-visible {
+  color: var(--ink-accent-bright);}
+
+
+.planck-frame {
   display: block;
   width: 100%;
   height: 680px;
-  border: 1px solid var(--index-ink);
+  border: 1px solid var(--ink-line);
   background: #000;}
 
 
-.planck-to-now-footer {
-  display: flex;
-  justify-content: space-between;
-  gap: 1rem;
-  border-top: 1px solid var(--index-line);
-  padding-top: 1rem;
-  color: var(--index-muted);
-  font-size: 0.78rem;}
+.planck-facts {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  column-gap: 2.5rem;
+  margin: clamp(2.5rem, 4vw, 3.5rem) 0 0;
+  padding: 0;
+  list-style: none;
+  border-top: 1px solid var(--ink-line);}
 
 
-.planck-to-now-footer a {
-  color: var(--index-ink);
-  font-size: 0.78rem;}
+.planck-facts li {
+  padding: 0.85rem 0.2rem;
+  border-bottom: 1px solid var(--ink-line-soft);
+  color: var(--ink-faint);
+  font-family: var(--mono);
+  font-size: 0.78rem;
+  letter-spacing: 0.05em;}
+
+
+.planck-facts li span {
+  color: var(--ink-accent);}
 
 
 @media (max-width: 900px) {
-  .planck-to-now-hero {
-    grid-template-columns: 1fr;
-    gap: 2.5rem;
-  }
-
-  .planck-to-now-facts {
-    max-width: 620px;
-  }
-
-  .planck-to-now-simulation-frame {
+  .planck-frame {
     height: 600px;
   }}
 
 
-@media (max-width: 560px) {
-  .planck-to-now-page {
+@media (max-width: 640px) {
+  .planck-page {
+    width: min(100% - 32px, 1200px);
     padding-top: 3rem;
   }
 
-  .planck-to-now-hero {
-    padding-bottom: 2.75rem;
+  .planck-facts {
+    grid-template-columns: 1fr;
   }
 
-  .planck-to-now-hero h1 {
-    font-size: 2.8rem;
-  }
-
-  .planck-to-now-intro {
-    font-size: 0.93rem;
-  }
-
-  .planck-to-now-simulation-heading,
-  .planck-to-now-footer {
+  .planck-simulation-meta {
     align-items: flex-start;
     flex-direction: column;
-    gap: 0.8rem;
+    gap: 0.35rem;
   }
 
-  .planck-to-now-simulation-heading h2 {
-    font-size: 1.8rem;
-  }
-
-  .planck-to-now-simulation-frame {
+  .planck-frame {
     height: 540px;
   }}
 

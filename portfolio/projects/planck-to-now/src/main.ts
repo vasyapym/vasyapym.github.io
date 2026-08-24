@@ -42,7 +42,7 @@ function createRenderer(): THREE.WebGLRenderer {
   try {
     return new THREE.WebGLRenderer({ antialias: true, powerPreference: "high-performance" });
   } catch {
-    return fail("WebGL is required for this simulation.");
+    return fail("webgl unavailable · simulation sealed");
   }
 }
 
@@ -50,7 +50,7 @@ const renderer: THREE.WebGLRenderer = createRenderer();
 
 renderer.domElement.addEventListener("webglcontextlost", (event) => {
   event.preventDefault();
-  showError("WebGL context lost — reload the page to restart the simulation.");
+  showError("webgl context lost — reload to restart.");
 });
 
 renderer.setPixelRatio(Math.min(window.devicePixelRatio, isCoarse ? 1.5 : 2));

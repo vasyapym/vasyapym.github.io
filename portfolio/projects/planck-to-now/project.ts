@@ -5,7 +5,7 @@ const planckToNow: ProjectModule = {
   title: "Planck to Now",
   tag: "sim",
   eyebrow: "A log-time cosmology simulation",
-  description: "Watch 13.8 billion years unfold in a GPU-accelerated WebGL simulation, from the Planck epoch to the present day.",
+  description: "Scrub cosmic history — from the Planck epoch to now.",
   technologies: ["TypeScript", "Three.js", "WebGL"],
   status: "available",
   accent: "amber",
