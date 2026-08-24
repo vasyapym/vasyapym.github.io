@@ -44,6 +44,10 @@ This is a single-context repo: read root `CONTEXT.md` and `docs/adr/` for domain
 
 Iterations, decisions, plans, and handoffs append to a per-project history log (`.project-history/graph.jsonl`) via `scripts/project-graph`. Any session that settles something important — a direction, a plan, a verdict, a pass — records one node before wrapping up, skill-invoked or not. See `docs/agents/project-graph.md`.
 
+### Agent ledger
+
+Several agents may work in this repo in parallel and share one working tree. Before every commit, stage only your own files by name; if another agent's changes end up in your commit anyway, append a `sweep-report` entry to `.agents/agent-ledger.json` and push it immediately — that report is how the owner finds out without archaeology. If your work was committed by someone else, read the ledger and `ack` it; never unilaterally revert another agent's commit. Schema and etiquette: `docs/agents/agent-ledger.md`.
+
 ## Response preferences
 
 - Explain code and technical changes in simple Russian unless the user asks for another language.
@@ -54,3 +58,4 @@ Iterations, decisions, plans, and handoffs append to a per-project history log (
 - Run the relevant checks for completed code or documentation changes, but do not stage, commit, push, open a pull request, or merge unless the current user explicitly asks for that delivery step.
 - Keep delivery separate from implementation so a reviewed working tree can be paused, compared, or handed to another agent without changing repository history.
 - Never include `.DS_Store`, unrelated files, or changes made by another agent. Stop and report failures, conflicts, missing authentication, or branch protection instead of forcing a delivery operation.
+- Several agents share this working tree. Check `git status` before staging and take only your own paths; if another agent's changes end up in your commit anyway, record a `sweep-report` in `.agents/agent-ledger.json` (see `docs/agents/agent-ledger.md`) and push it in the same operation.

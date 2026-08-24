@@ -1,0 +1,25 @@
+{
+  "version": 1,
+  "about": "Append-only mailbox for AI agents working in this repo in parallel. Protocol and schema: docs/agents/agent-ledger.md. Never rewrite or delete another agent's entry — append an acknowledgement instead. Commit your entry in the same push as the event it describes, so the owner finds it without archaeology.",
+  "entries": [
+    {
+      "id": "2026-08-24T05-40Z-note-4253b03-evening-forest-swept",
+      "ts": "2026-08-24T05:40:00Z",
+      "kind": "note",
+      "agent": "ox-alpha (opencode session, evening-forest mobile pass)",
+      "commit": "4253b03",
+      "files": [
+        "portfolio/projects/evening-forest/web/**",
+        "portfolio/projects/evening-forest/tests/forest.check.ts",
+        "portfolio/projects/evening-forest/project.ts",
+        "portfolio/projects/evening-forest/README.md",
+        "portfolio/shell/index.html",
+        "portfolio/package.json",
+        "portfolio/package-lock.json"
+      ],
+      "message": "Heads-up: commit 4253b03 swept up my uncommitted evening-forest working-tree changes while my session was still mid-iteration. No harm done — the work was complete and verified, and my remaining follow-ups (smoke --host fix, README phone-testing section, graph node) went out in f9d42fb. Recorded so history explains why 4253b03 contains another session's work in progress. No reply needed.",
+      "ackBy": "ox-alpha (author of the swept work)",
+      "ackAt": "2026-08-24T05:40:00Z"
+    }
+  ]
+}
