@@ -20,6 +20,18 @@ export function pickupScore(kind: PickupKind, combo: number): number {
   return PICKUP_BASE[kind] * comboMultiplier(combo);
 }
 
+// Hearts and big hearts mend; with the meter already full they convert to
+// bonus points instead, so a pickup never feels wasted.
+export function healsHeart(kind: PickupKind): boolean {
+  return kind === "heart" || kind === "heal";
+}
+
+export function fullHealthBonus(kind: PickupKind): number {
+  if (kind === "heal") return 50;
+  if (kind === "heart") return 20;
+  return 0;
+}
+
 // Distance alone ticks one point per unit, so the counter always breathes.
 export function distanceScore(distance: number): number {
   return Math.max(0, Math.floor(distance));

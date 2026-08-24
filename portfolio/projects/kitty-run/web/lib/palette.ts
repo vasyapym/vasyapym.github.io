@@ -30,7 +30,7 @@ export const PALETTE = {
   heartGlow: "#ffb3c4",
   star: "#ffd44d",
   starGlow: "#fff3b0",
-  heal: "#ff8fb3",
+  heal: "#e8455f",
 
   ink: "#4a3b52",
   paper: "#fff8fb",

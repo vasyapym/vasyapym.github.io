@@ -13,7 +13,7 @@ import {
   isHazard,
   nextChunkOrigin,
 } from "../lib/spawn.ts";
-import { COMBO_WINDOW, pickupScore } from "../lib/score.ts";
+import { COMBO_WINDOW, fullHealthBonus, healsHeart, pickupScore } from "../lib/score.ts";
 import { TUNING, speedFor } from "../lib/tuning.ts";
 import type { Obstacle, PickupKind, WorldState } from "./world.ts";
 
@@ -83,6 +83,7 @@ function spawnChunk(world: WorldState): void {
     chunkSeed(world.runSeed, world.chunkIndex),
     world.spawnOrigin,
     difficulty,
+    world.speed,
   );
   for (const item of chunk.items) {
     if (isHazard(item.kind)) {
@@ -266,15 +267,27 @@ export function stepWorld(world: WorldState, rawDt: number): void {
     world.combo += 1;
     world.comboTimer = COMBO_WINDOW;
     k.happyT = 0.5;
+
+    // Hearts mend first; with the meter full they convert to bonus points
+    // so the pickup never lands silently.
+    const mends = healsHeart(p.kind) && world.hearts < TUNING.maxHearts;
+    let bonus = 0;
+    if (mends) {
+      world.hearts = Math.min(TUNING.maxHearts, world.hearts + 1);
+      world.heartPulseT = 0.4;
+    } else if (healsHeart(p.kind)) {
+      bonus = fullHealthBonus(p.kind);
+      world.score += bonus;
+    }
+
     world.events.push({
       type: "pickup",
       pickup: p.kind,
       score: gained,
       combo: world.combo,
+      healed: mends,
+      bonus,
     });
-    if (p.kind === "heal") {
-      world.hearts = Math.min(TUNING.maxHearts, world.hearts + 1);
-    }
     slot.active = false;
   }
 
@@ -282,6 +295,7 @@ export function stepWorld(world: WorldState, rawDt: number): void {
 
   world.shake = Math.max(0, world.shake - dt * 2.1);
   world.hitFlash = Math.max(0, world.hitFlash - dt * 2.6);
+  world.heartPulseT = Math.max(0, world.heartPulseT - dt);
   for (const slot of world.floaters.slots) {
     if (!slot.active) continue;
     const f = slot.data;

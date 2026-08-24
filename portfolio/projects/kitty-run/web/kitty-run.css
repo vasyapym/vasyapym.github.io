@@ -84,6 +84,59 @@
   gap: 8px;
 }
 
+.kitty-run-right {
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+}
+
+.kitty-run-pause {
+  position: relative;
+  width: 34px;
+  height: 34px;
+  border-radius: 999px;
+  border: 1px solid rgba(74, 59, 82, 0.22);
+  background: rgba(255, 248, 251, 0.82);
+  cursor: pointer;
+  pointer-events: auto;
+  transition: transform 0.14s ease, background 0.14s ease;
+}
+
+.kitty-run-pause::before,
+.kitty-run-pause::after {
+  content: "";
+  position: absolute;
+  top: 9px;
+  width: 4px;
+  height: 15px;
+  border-radius: 2px;
+  background: #4a3b52;
+}
+
+.kitty-run-pause::before {
+  left: 11px;
+}
+
+.kitty-run-pause::after {
+  right: 11px;
+}
+
+.kitty-run-pause:hover {
+  background: #fff8fb;
+  transform: scale(1.06);
+}
+
+.kitty-run-attribution {
+  margin-top: -12px;
+}
+
+.kitty-run-attribution p {
+  margin: 0;
+  font-size: 12px;
+  line-height: 1.5;
+  opacity: 0.55;
+}
+
 .kitty-run-heart {
   width: 26px;
   height: 24px;
@@ -100,6 +153,10 @@
 }
 
 .kitty-run-heart.is-hurt {
+  animation: kitty-heart-thump 0.4s ease;
+}
+
+.kitty-run-heart.is-gain {
   animation: kitty-heart-thump 0.4s ease;
 }
 
@@ -194,7 +251,12 @@
 }
 
 .kitty-run-floater-heal {
-  color: #ff8fb3;
+  color: #e8455f;
+  font-size: 21px;
+}
+
+.kitty-run-floater-bonus {
+  color: #d9a400;
 }
 
 .kitty-run-floater-hurt {

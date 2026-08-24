@@ -2,7 +2,7 @@
 // vignette, and a chromatic pulse driven by the hit flash. Two effects at
 // rest, three for a few frames after a hit — the 60fps budget stays safe.
 
-import { useRef } from "react";
+import { useMemo, useRef } from "react";
 import { useFrame } from "@react-three/fiber";
 import {
   Bloom,
@@ -22,12 +22,21 @@ export function Effects({
 }) {
   const caRef = useRef<ChromaticAberrationEffect>(null);
 
+  // ?plain skips the post chain entirely — a debug/low-end escape hatch for
+  // weak GPUs where the composer dominates the frame budget.
+  const plain = useMemo(
+    () => new URLSearchParams(window.location.search).has("plain"),
+    [],
+  );
+
   useFrame(() => {
     const effect = caRef.current;
     if (!effect) return;
     const strength = reducedMotion ? 0 : world.hitFlash * 0.0035;
     effect.offset.set(strength, strength * 0.6);
   });
+
+  if (plain) return null;
 
   return (
     <EffectComposer multisampling={0}>

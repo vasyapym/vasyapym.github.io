@@ -52,7 +52,11 @@ export default function ProjectArtwork({ project }: ProjectArtworkProps) {
           </span>
         ))}
         <span className={`project-artwork-center center-${presentation.centerMark}`}>
-          {presentation.centerLabel}
+          {presentation.centerMark === "kitty" ? (
+            <KittyCenterMark />
+          ) : (
+            presentation.centerLabel
+          )}
         </span>
       </div>
       <span className="project-artwork-note">{presentation.note}</span>
@@ -70,6 +74,90 @@ function partStyle(part: ProjectPresentationPart) {
     "--base-z": `${part.baseZ}px`,
     "--part-rotation": `${part.rotation}deg`,
   } as CSSProperties;
+}
+
+// The runner herself, redrawn as flat SVG with the game's exact palette and
+// proportions (head ellipse, ear curves, bow placement), so the landing
+// card and the in-game character read as the same illustration system.
+function KittyCenterMark() {
+  return (
+    <svg viewBox="-1.35 -1.2 2.7 2.2" aria-hidden="true">
+      {/* ears: ink copy grown behind the white fill */}
+      {[-1, 1].map((side) => (
+        <g transform={`translate(${side * 0.58} -0.52)`} key={`ear${side}`}>
+          <path
+            d="M -0.28 0 Q -0.36 -0.3 -0.12 -0.47 Q 0 -0.54 0.12 -0.47 Q 0.36 -0.3 0.28 0 Z"
+            fill="#3a3142"
+            transform="scale(1.12)"
+          />
+          <path
+            d="M -0.28 0 Q -0.36 -0.3 -0.12 -0.47 Q 0 -0.54 0.12 -0.47 Q 0.36 -0.3 0.28 0 Z"
+            fill="#ffffff"
+          />
+        </g>
+      ))}
+      {/* head */}
+      <ellipse rx="1.045" ry="0.878" fill="#3a3142" />
+      <ellipse rx="1" ry="0.84" fill="#ffffff" />
+      {/* face */}
+      <ellipse cx="-0.4" cy="-0.06" rx="0.085" ry="0.135" fill="#3a3142" />
+      <ellipse cx="0.4" cy="-0.06" rx="0.085" ry="0.135" fill="#3a3142" />
+      <ellipse cx="0" cy="0.16" rx="0.13" ry="0.1" fill="#ffd44d" />
+      <ellipse cx="-0.68" cy="0.22" rx="0.14" ry="0.09" fill="#ffc9d8" />
+      <ellipse cx="0.68" cy="0.22" rx="0.14" ry="0.09" fill="#ffc9d8" />
+      {/* whiskers: three per side, fanned */}
+      {[-1, 1].map((side) =>
+        [0.18, 0.02, -0.14].map((y, i) => (
+          <rect
+            key={`w${side}${i}`}
+            x={side === -1 ? -1.06 : 0.7}
+            y={-y - 0.016}
+            width="0.36"
+            height="0.032"
+            fill="#3a3142"
+            transform={`rotate(${side * (0.08 - i * 0.08) * -57.3} ${side * 0.88} ${-y})`}
+          />
+        )),
+      )}
+      {/* bow */}
+      <g transform="translate(0.52 -0.66)">
+        <ellipse
+          cx="-0.3"
+          cy="0"
+          rx="0.381"
+          ry="0.269"
+          fill="#3a3142"
+          transform="rotate(-25.8 -0.3 0)"
+        />
+        <ellipse
+          cx="-0.3"
+          cy="0"
+          rx="0.34"
+          ry="0.24"
+          fill="#e94f64"
+          transform="rotate(-25.8 -0.3 0)"
+        />
+        <ellipse
+          cx="0.3"
+          cy="0"
+          rx="0.381"
+          ry="0.269"
+          fill="#3a3142"
+          transform="rotate(25.8 0.3 0)"
+        />
+        <ellipse
+          cx="0.3"
+          cy="0"
+          rx="0.34"
+          ry="0.24"
+          fill="#e94f64"
+          transform="rotate(25.8 0.3 0)"
+        />
+        <circle r="0.189" fill="#3a3142" />
+        <circle r="0.16" fill="#d13a50" />
+      </g>
+    </svg>
+  );
 }
 
 function PartMark({ part }: { part: ProjectPresentationPart }) {

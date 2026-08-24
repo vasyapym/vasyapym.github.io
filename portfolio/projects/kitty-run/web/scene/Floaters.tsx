@@ -10,7 +10,7 @@ const COUNT = 12;
 
 function floaterText(kind: string, amount: number): string {
   if (kind === "hurt") return "−1";
-  if (kind === "heal") return "+1";
+  if (kind === "heal") return "+♥";
   return `+${amount}`;
 }
 

@@ -29,7 +29,7 @@ function emitFloater(
   world: WorldState,
   x: number,
   y: number,
-  kind: "score" | "heal" | "hurt",
+  kind: "score" | "heal" | "hurt" | "bonus",
   amount: number,
 ): void {
   const slot = world.floaters.acquire();
@@ -69,11 +69,13 @@ function handleEvents(world: WorldState, sfx: Sfx | null, reducedMotion: boolean
       case "pickup": {
         const color: Rgb =
           event.pickup === "star" ? STAR_RGB : event.pickup === "heal" ? HEAL_RGB : HEART_RGB;
-        sfx?.pickup(event.pickup === "heal" ? 0 : event.combo);
-        if (event.pickup === "heal") sfx?.heal();
+        sfx?.pickup(event.combo);
+        if (event.healed) sfx?.heal();
         sparkBurst(world, 0, k.y + 0.9, reducedMotion ? 5 : 10, color, 3);
-        if (event.pickup === "heal") {
+        if (event.healed) {
           emitFloater(world, 0, k.y + 0.9, "heal", 1);
+        } else if (event.bonus > 0) {
+          emitFloater(world, 0, k.y + 0.9, "bonus", event.bonus);
         } else {
           emitFloater(world, 0, k.y + 0.9, "score", event.score);
         }
@@ -97,6 +99,7 @@ function writeHud(world: WorldState, hud: HudRefs): void {
     for (let i = 0; i < children.length; i += 1) {
       children[i].classList.toggle("is-empty", i >= world.hearts);
       children[i].classList.toggle("is-hurt", world.hearts === i + 1 && world.kitty.invulnT > 0.9);
+      children[i].classList.toggle("is-gain", world.heartPulseT > 0 && i + 1 === world.hearts);
     }
   }
   if (hud.combo.current) {

@@ -191,11 +191,22 @@ export default function KittyRunPage() {
           <span className="kitty-run-heart" />
           <span className="kitty-run-heart" />
         </div>
-        <div className="kitty-run-score-box">
-          <span className="kitty-run-score" ref={scoreRef}>
-            0
-          </span>
-          <span className="kitty-run-best">best {best}</span>
+        <div className="kitty-run-right">
+          <div className="kitty-run-score-box">
+            <span className="kitty-run-score" ref={scoreRef}>
+              0
+            </span>
+            <span className="kitty-run-best">best {best}</span>
+          </div>
+          {status === "running" && (
+            <button
+              type="button"
+              className="kitty-run-pause"
+              aria-label="Pause the run"
+              onPointerDown={(event) => event.stopPropagation()}
+              onClick={() => togglePause(world)}
+            />
+          )}
         </div>
         <div className="kitty-run-combo">
           <span ref={comboRef} />
@@ -286,6 +297,12 @@ export default function KittyRunPage() {
       >
         {stage}
       </section>
+      <footer className="kitty-run-attribution section-shell">
+        <p>
+          Hello Kitty © 1976 Sanrio Co., Ltd. This run is an unofficial
+          fan-made tribute — not affiliated with or endorsed by Sanrio.
+        </p>
+      </footer>
     </article>
   );
 }

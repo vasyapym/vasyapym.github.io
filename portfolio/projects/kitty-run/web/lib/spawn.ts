@@ -6,6 +6,7 @@
 
 import { groundY } from "./ground.ts";
 import { createRng, type Rng } from "./rng.ts";
+import { jumpLength } from "./tuning.ts";
 
 export type SpawnKind = "box" | "tall" | "hover" | "heart" | "star" | "heal";
 
@@ -90,7 +91,9 @@ function patternWeight(id: PatternId, difficulty: number): number {
     case "starLine":
       return 1.4;
     case "heal":
-      return difficulty > 0.25 ? 0.5 : 0;
+      // The big cross heart: gated past the opening stretch, then a steady
+      // sight worth detouring for.
+      return difficulty >= 0.2 ? 0.9 : 0;
   }
 }
 
@@ -111,67 +114,81 @@ function hazardY(kind: Extract<SpawnKind, "box" | "tall" | "hover">, x: number):
   return groundY(x) + HOVER_LIFT;
 }
 
-type Builder = (rng: Rng, s: number) => { items: SpawnItem[]; length: number };
+// Space between two hazards inside a pattern: wide enough that a jumped
+// first obstacle leaves a landable window before the second, growing with
+// speed so the reaction window stays constant in seconds. Bounds keep the
+// window sane at the speed extremes.
+function hazardPairGap(speed: number, fraction: number): number {
+  return Math.min(9.8, Math.max(4.8, jumpLength(speed) * fraction + 1.2));
+}
+
+type Builder = (rng: Rng, s: number, speed: number) => { items: SpawnItem[]; length: number };
 
 const BUILDERS: Record<PatternId, Builder> = {
-  rest: (rng, s) => ({ items: [], length: 9 + rng() * 8 }),
+  rest: (rng) => {
+    // Shorter than before, so lulls read as a breath, not a dead zone.
+    // Rising difficulty shifts weight toward hazard patterns anyway.
+    return { items: [], length: 7 + rng() * 5 };
+  },
   singleBox: (_rng, s) => ({
     items: [{ kind: "box", x: s + 6, y: hazardY("box", s + 6) }],
     length: 13,
   }),
-  doubleBox: (_rng, s) => {
+  doubleBox: (_rng, s, speed) => {
     const first = s + 5;
-    const second = s + 9.5;
+    const second = first + hazardPairGap(speed, 0.85);
     return {
       items: [
         { kind: "box", x: first, y: hazardY("box", first) },
         { kind: "box", x: second, y: hazardY("box", second) },
       ],
-      length: 15.5,
+      length: second - s + 6.5,
     };
   },
-  stairs: (_rng, s) => {
+  stairs: (_rng, s, speed) => {
     const step = s + 5;
-    const climb = s + 9.5;
+    const climb = step + hazardPairGap(speed, 0.85);
     return {
       items: [
         { kind: "box", x: step, y: hazardY("box", step) },
         { kind: "tall", x: climb, y: hazardY("tall", climb) },
       ],
-      length: 16.5,
+      length: climb - s + 6.5,
     };
   },
-  hoverGate: (_rng, s) => {
+  hoverGate: (_rng, s, speed) => {
     const gate = s + 6;
-    const crate = s + 11;
+    const crate = gate + hazardPairGap(speed, 0.75);
     return {
       items: [
         { kind: "hover", x: gate, y: hazardY("hover", gate) },
         { kind: "box", x: crate, y: hazardY("box", crate) },
       ],
-      length: 17.5,
+      length: crate - s + 6.5,
     };
   },
-  heartArc: (_rng, s) => {
+  heartArc: (_rng, s, speed) => {
     const items: SpawnItem[] = [];
+    const span = 4.5 + jumpLength(speed) * 0.55;
     for (let i = 0; i < 4; i += 1) {
       const t = i / 3;
-      const x = s + 4.5 + t * 6;
+      const x = s + 4.5 + t * span;
       items.push({
         kind: "heart",
         x,
         y: groundY(x) + 0.9 + 1.7 * Math.sin(Math.PI * t),
       });
     }
-    return { items, length: 14 };
+    return { items, length: 4.5 + span + 5 };
   },
-  starLine: (_rng, s) => {
+  starLine: (_rng, s, speed) => {
     const items: SpawnItem[] = [];
-    for (const offset of [4.5, 7, 9.5]) {
+    const spacing = Math.min(4.4, Math.max(2.5, jumpLength(speed) * 0.42));
+    for (const offset of [4.5, 4.5 + spacing, 4.5 + 2 * spacing]) {
       const x = s + offset;
       items.push({ kind: "star", x, y: groundY(x) + 1.05 });
     }
-    return { items, length: 13 };
+    return { items, length: 4.5 + 2 * spacing + 5 };
   },
   heal: (_rng, s) => {
     const x = s + 5;
@@ -183,10 +200,11 @@ export function buildChunk(
   seed: string,
   origin: number,
   difficulty: number,
+  speed: number,
 ): Chunk {
   const rng = createRng(seed);
   const id = pickPattern(rng, Math.min(1, Math.max(0, difficulty)));
-  const built = BUILDERS[id](rng, origin);
+  const built = BUILDERS[id](rng, origin, speed);
 
   let hazardEnd = Number.NEGATIVE_INFINITY;
   for (const item of built.items) {

@@ -11,7 +11,7 @@ export type ProjectPartMark =
   | "compass";
 
 export type ProjectMotion = "stack" | "network" | "terrain";
-export type ProjectCenter = "graph" | "compass" | "generic";
+export type ProjectCenter = "graph" | "compass" | "generic" | "kitty";
 
 export type ProjectPresentationPart = {
   readonly id: ProjectPartId;

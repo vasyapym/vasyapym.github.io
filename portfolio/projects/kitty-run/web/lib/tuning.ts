@@ -37,3 +37,9 @@ export function speedFor(distance: number): number {
 export function jumpPeak(v: number): number {
   return (v * v) / (2 * TUNING.gravity);
 }
+
+// Horizontal ground covered by one full single jump at the given speed.
+// Pattern spacing scales with this so gaps feel the same at 7 u/s and 14.
+export function jumpLength(speed: number): number {
+  return speed * ((2 * TUNING.jumpV) / TUNING.gravity);
+}

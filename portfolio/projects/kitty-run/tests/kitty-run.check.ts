@@ -8,6 +8,8 @@ import { activeCount, createPool, type PoolSlot } from "../web/lib/pools.ts";
 import {
   comboMultiplier,
   distanceScore,
+  fullHealthBonus,
+  healsHeart,
   pickupScore,
 } from "../web/lib/score.ts";
 import {
@@ -22,7 +24,7 @@ import {
   minHazardGap,
   nextChunkOrigin,
 } from "../web/lib/spawn.ts";
-import { TUNING, jumpPeak, speedFor } from "../web/lib/tuning.ts";
+import { TUNING, jumpLength, jumpPeak, speedFor } from "../web/lib/tuning.ts";
 
 let failures = 0;
 
@@ -115,10 +117,19 @@ check("speed starts gentle", Math.abs(speedFor(0) - TUNING.speedStart) < 1e-6);
 
 let itemsInsideChunks = true;
 let hazardsReachable = true;
+let pacingEven = true;
+let lengthsBounded = true;
 let sawHazard = false;
 let sawHeart = false;
 let sawStar = false;
 let sawHeal = false;
+
+// Inside a multi-hazard pattern the window between two hazards must be
+// landable: never tighter than a whisker over one box, never so wide the
+// pair reads as two separate patterns.
+const MIN_PAIR_GAP = 4.2;
+const MAX_PAIR_GAP = 10.2;
+const MAX_CHUNK_LENGTH = 24;
 
 let origin = 0;
 let prevHazardEnd = Number.NEGATIVE_INFINITY;
@@ -126,7 +137,18 @@ for (let i = 0; i < 240; i += 1) {
   const distance = origin;
   const difficulty = Math.min(1, distance / 800);
   const speed = speedFor(distance);
-  const chunk = buildChunk(chunkSeed("kitty-run/check/v1", i), origin, difficulty);
+  const chunk = buildChunk(chunkSeed("kitty-run/check/v1", i), origin, difficulty, speed);
+
+  if (chunk.length > MAX_CHUNK_LENGTH || chunk.length < 5) lengthsBounded = false;
+
+  const hazardXs = chunk.items
+    .filter((item) => isHazard(item.kind))
+    .map((item) => item.x)
+    .sort((a, b) => a - b);
+  for (let j = 1; j < hazardXs.length; j += 1) {
+    const gap = hazardXs[j] - hazardXs[j - 1];
+    if (gap < MIN_PAIR_GAP || gap > MAX_PAIR_GAP) pacingEven = false;
+  }
 
   for (const item of chunk.items) {
     if (item.x < origin - 1e-9 || item.x > origin + chunk.length + 1e-9) {
@@ -152,13 +174,32 @@ for (let i = 0; i < 240; i += 1) {
 }
 check("every spawn item stays inside its chunk", itemsInsideChunks);
 check("hazard groups leave a recoverable gap", hazardsReachable);
+check("pattern-internal hazard spacing stays landable and paired", pacingEven);
+check("chunk lengths stay bounded", lengthsBounded);
 check("the mix contains every kind", sawHazard && sawHeart && sawStar && sawHeal);
 
-const chunkOne = buildChunk(chunkSeed("kitty-run/check/v1", 7), 100, 0.5);
-const chunkTwo = buildChunk(chunkSeed("kitty-run/check/v1", 7), 100, 0.5);
+const chunkOne = buildChunk(chunkSeed("kitty-run/check/v1", 7), 100, 0.5, 9);
+const chunkTwo = buildChunk(chunkSeed("kitty-run/check/v1", 7), 100, 0.5, 9);
 check("chunk generation is deterministic", JSON.stringify(chunkOne) === JSON.stringify(chunkTwo));
 
-const earlyChunk = buildChunk(chunkSeed("kitty-run/check/v1", 3), 0, 0);
+// Pair spacing must stretch with speed so the reaction window in seconds
+// stays put across the whole ramp. Find any seed that builds a pair.
+function pairGap(chunk: ReturnType<typeof buildChunk>): number {
+  const xs = chunk.items.filter((i) => isHazard(i.kind)).map((i) => i.x).sort((a, b) => a - b);
+  return xs.length > 1 ? xs[xs.length - 1] - xs[0] : 0;
+}
+let pairStretches = false;
+let pairFound = false;
+for (let i = 0; i < 40 && !pairFound; i += 1) {
+  const slowPair = buildChunk(chunkSeed("kitty-run/check/v1", i), 0, 0.9, TUNING.speedStart);
+  if (pairGap(slowPair) <= 0) continue;
+  pairFound = true;
+  const fastPair = buildChunk(chunkSeed("kitty-run/check/v1", i), 0, 0.9, TUNING.speedMax);
+  pairStretches = pairGap(fastPair) > pairGap(slowPair) + jumpLength(TUNING.speedStart) * 0.2;
+}
+check("pair spacing stretches with run speed", pairFound && pairStretches);
+
+const earlyChunk = buildChunk(chunkSeed("kitty-run/check/v1", 3), 0, 0, TUNING.speedStart);
 check("heal is gated behind early difficulty", !earlyChunk.items.some((i) => i.kind === "heal"));
 
 // --- score -------------------------------------------------------------------
@@ -171,6 +212,14 @@ check("heart is worth 10 at x1", pickupScore("heart", 0) === 10);
 check("star is worth 25 at x1", pickupScore("star", 0) === 25);
 check("combo multiplies pickups", pickupScore("heart", 4) === 20);
 check("distance score floors", distanceScore(10.9) === 10 && distanceScore(-4) === 0);
+
+// Hearts mend: hearts and big hearts heal, stars never do; at full health
+// they convert to bonus points instead of landing silently.
+check("hearts and big hearts mend", healsHeart("heart") && healsHeart("heal"));
+check("stars never mend", !healsHeart("star"));
+check("full-health heart converts to bonus", fullHealthBonus("heart") === 20);
+check("full-health big heart converts to a bigger bonus", fullHealthBonus("heal") === 50);
+check("stars carry no full-health bonus", fullHealthBonus("star") === 0);
 
 // --- pools -------------------------------------------------------------------
 

@@ -37,7 +37,7 @@ export type Particle = {
   gravity: number;
 };
 
-export type FloaterKind = "score" | "heal" | "hurt";
+export type FloaterKind = "score" | "heal" | "hurt" | "bonus";
 export type Floater = {
   x: number;
   y: number;
@@ -54,7 +54,14 @@ export type GameEvent =
   | { type: "dash" }
   | { type: "hit" }
   | { type: "gameover" }
-  | { type: "pickup"; pickup: PickupKind; score: number; combo: number };
+  | {
+      type: "pickup";
+      pickup: PickupKind;
+      score: number;
+      combo: number;
+      healed: boolean;
+      bonus: number;
+    };
 
 // The motion fields the Kitty rig consumes to compute a pose.
 export type KittyMotion = {
@@ -76,6 +83,7 @@ export type WorldState = {
   speed: number;
 
   hearts: number;
+  heartPulseT: number;
   score: number;
   combo: number;
   comboTimer: number;
@@ -121,6 +129,7 @@ export function createWorld(best = 0, runSeed = freshSeed()): WorldState {
     speed: TUNING.speedStart,
 
     hearts: TUNING.maxHearts,
+    heartPulseT: 0,
     score: 0,
     combo: 0,
     comboTimer: 0,

@@ -6,7 +6,7 @@ const kittyRun: ProjectModule = {
   tag: "game",
   eyebrow: "A pastel endless runner",
   description:
-    "Kitty runs, you jump and dash. Hearts build a combo, crates break it — a small showcase of procedural vector animation, parallax pastels and game feel.",
+    "Kitty runs, you jump and dash. Hearts mend her three-heart meter, crates break it — a small showcase of procedural vector animation, parallax pastels and game feel. An unofficial fan tribute to Sanrio's Hello Kitty.",
   technologies: [
     "React Three Fiber",
     "Three.js",
@@ -19,8 +19,8 @@ const kittyRun: ProjectModule = {
   presentation: {
     className: "presentation-kitty-run",
     motion: "terrain",
-    centerLabel: "R / D",
-    centerMark: "generic",
+    centerLabel: "",
+    centerMark: "kitty",
     note: "Pastel circuit",
     motionLabel: "the hills roll by",
     instruction: "Jump with Space, dash with Shift; Esc rests you back here.",

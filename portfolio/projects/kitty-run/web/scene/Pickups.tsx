@@ -46,6 +46,7 @@ const STAR_GLOW = new THREE.Color(PALETTE.starGlow);
 export function Pickups({ world }: { world: WorldState }) {
   const heartRef = useRef<THREE.InstancedMesh>(null);
   const starRef = useRef<THREE.InstancedMesh>(null);
+  const crossRef = useRef<THREE.InstancedMesh>(null);
   const glowRef = useRef<THREE.InstancedMesh>(null);
   const dotMap = useMemo(() => softDotTexture(), []);
   const heartGeo = useMemo(() => new THREE.ShapeGeometry(heartShape(), 14), []);
@@ -55,9 +56,11 @@ export function Pickups({ world }: { world: WorldState }) {
   useFrame(() => {
     let heartCount = 0;
     let starCount = 0;
+    let crossCount = 0;
     let glowCount = 0;
     const heartMesh = heartRef.current;
     const starMesh = starRef.current;
+    const crossMesh = crossRef.current;
     const glowMesh = glowRef.current;
 
     for (const slot of world.pickups.slots) {
@@ -69,7 +72,12 @@ export function Pickups({ world }: { world: WorldState }) {
       const bob = Math.sin(world.time * 2.4 + p.phase) * 0.09;
       const spin = world.time * 2.6 + p.phase;
       const isHeart = p.kind !== "star";
-      const scale = p.kind === "heal" ? 0.62 : 0.46;
+      const isHeal = p.kind === "heal";
+      // The big heart pulses so a heal reads as "come get me" even at a
+      // glance; plain combo hearts stay steady and small.
+      const scale = isHeal
+        ? 0.8 + Math.sin(world.time * 4.2 + p.phase) * 0.09
+        : 0.46;
 
       dummy.position.set(vx, p.y + bob, 0);
       dummy.rotation.set(0, spin, 0);
@@ -80,9 +88,23 @@ export function Pickups({ world }: { world: WorldState }) {
         heartMesh?.setMatrixAt(heartCount, dummy.matrix);
         heartMesh?.setColorAt(
           heartCount,
-          p.kind === "heal" ? HEAL_COLOR : HEART_COLOR,
+          isHeal ? HEAL_COLOR : HEART_COLOR,
         );
         heartCount += 1;
+
+        // White cross on the big heart: two bars, billboarded flat.
+        if (crossMesh && isHeal) {
+          dummy.position.set(vx, p.y + bob, 0.02);
+          dummy.rotation.set(0, 0, 0);
+          dummy.scale.setScalar(1);
+          dummy.updateMatrix();
+          crossMesh.setMatrixAt(crossCount, dummy.matrix);
+          crossCount += 1;
+          dummy.rotation.set(0, 0, Math.PI / 2);
+          dummy.updateMatrix();
+          crossMesh.setMatrixAt(crossCount, dummy.matrix);
+          crossCount += 1;
+        }
       } else {
         starMesh?.setMatrixAt(starCount, dummy.matrix);
         starMesh?.setColorAt(starCount, STAR_COLOR);
@@ -92,7 +114,7 @@ export function Pickups({ world }: { world: WorldState }) {
       if (glowMesh) {
         dummy.position.set(vx, p.y + bob, -0.15);
         dummy.rotation.set(0, 0, 0);
-        dummy.scale.setScalar(scale * 3.6);
+        dummy.scale.setScalar(scale * (isHeal ? 4.4 : 3.6));
         dummy.updateMatrix();
         glowMesh.setMatrixAt(glowCount, dummy.matrix);
         glowMesh.setColorAt(
@@ -112,6 +134,10 @@ export function Pickups({ world }: { world: WorldState }) {
       starMesh.count = starCount;
       starMesh.instanceMatrix.needsUpdate = true;
       if (starMesh.instanceColor) starMesh.instanceColor.needsUpdate = true;
+    }
+    if (crossMesh) {
+      crossMesh.count = crossCount;
+      crossMesh.instanceMatrix.needsUpdate = true;
     }
     if (glowMesh) {
       glowMesh.count = glowCount;
@@ -135,6 +161,14 @@ export function Pickups({ world }: { world: WorldState }) {
         frustumCulled={false}
       >
         <meshBasicMaterial side={THREE.DoubleSide} />
+      </instancedMesh>
+      <instancedMesh
+        ref={crossRef}
+        args={[undefined, undefined, MAX_PICKUPS * 2]}
+        frustumCulled={false}
+      >
+        <planeGeometry args={[0.66, 0.19]} />
+        <meshBasicMaterial color="#ffffff" side={THREE.DoubleSide} />
       </instancedMesh>
       <instancedMesh
         ref={glowRef}
