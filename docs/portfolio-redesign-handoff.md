@@ -21,7 +21,7 @@ Make the whole portfolio read as **one continuous dark field organized by catalo
 
 ### Experience
 
-- **The hero is fully static** — no shader, no drift, no load-time animation (Pass 12). The page's only motion is the project-card reveal-on-scroll.
+- **The hero is fully static on ≥561px** — no shader, no drift, no load-time animation (Pass 12). On phones (≤560px, Pass 19) the hero carries one motion idea: three parallax glow layers behind plain catalogue rows plus a one-time staggered entrance; reduced motion freezes everything. The page's other motion is the project-card reveal-on-scroll.
 - Beneath rows keep a static SVG displacement warp; no reduced-motion override is needed because nothing moves.
 - WebGL failure is no longer a hero concern — there is no canvas.
 - Project-frame chrome is an ink band: back link `← Vasily Argounov`, mono lowercase `{title}` label. Tool interiors keep their functional styling; they receive shortened intros and lose decorative captions.
@@ -120,6 +120,7 @@ flowchart LR
   G -->|"dark catalogue field liked; copied reference image rejected"| H["Dark catalogue<br/>original project specimen plate"]
   H -->|"plate was static; user wanted an animated focal element"| I["Refraction sea<br/>caustic shader + submerged project rows"]
   I -->|"beneath panel promoted to the standard; full-page ink + copy diet"| J["Ink catalogue<br/>derived tag notation on a full-page ink field"]
+  J -->|"square box cluttered phones; user picked layered glows + multi-parallax"| K["Mobile depth field<br/>glow layers + parallax rows on phones"]
 ```
 
 ### Superseded nodes
@@ -133,6 +134,7 @@ flowchart LR
 - **Dark catalogue** — superseded: kept the dark archival band, ochre accent, and original project evidence; replaced because the plate was static when the user asked for an animated focal element.
 - **Refraction sea** — superseded: kept the caustic sea hero, beneath panel, and dark band; replaced because its two-tone split (dark hero over light collection) broke the consistency the user asked for when naming the panel the design standard.
 - **Ink catalogue** — active: extends the ink field across the page, derives catalogue rows from a per-project tag, and reduces copy to the identification layer. Pass 12 refined it into a fully static hero: the caustic sea (carried from Refraction sea) was retired for the public presentation — its static two-glow fallback gradient remains as the hero band's background, and it stays a candidate if a future pass wants an animated focal element back.
+- **Mobile depth field** — active, mobile-only refinement of Ink catalogue (Pass 19): on phones (≤560px) the beneath box dissolves into plain catalogue rows over three parallax glow layers with a one-time staggered entrance; Pass 12's static-hero rule now holds for ≥561px only. The 19 unchosen draft treatments remain alternates on `/mobile-hero-directions`.
 
 ### Kept alternates (motion round runners-up)
 
@@ -290,6 +292,15 @@ Every review adds one compact entry. The **Liked** field becomes a constraint; t
 - **Quality gate:** page chrome and menu states read as one catalogue system with the frame chrome; muted-on-ink text ≥4.5:1 (hints and attribution use `--ink-muted`); focus ring visible on the mute toggle and cards; game logic, spawn/tuning/score modules, and HUD behavior unchanged.
 - **Verification:** `npm --prefix portfolio run typecheck`, `npm --prefix portfolio run build`, `node --experimental-strip-types tests/kitty-run.check.ts`, and `git diff --check` pass; dev-server smoke returns 200 for `/projects/kitty-run`; headless Chrome at 1440/1024/390 — `.kitty-run-field` bg `#0b1317` with `color-scheme: dark`, zero-radius stage with the `--ink-line` border, mono mute/kicker/hint, no horizontal overflow, no console errors; Enter → run → Esc → paused card verified (`paused · p or esc resumes · r restarts · resume`).
 - **Next review:** play a full run with WebGL enabled to judge HUD legibility against the ink chrome at the frame edge; decide whether practice-map gets the same conversion (the last light interior).
+
+### Pass 19 — Mobile hero / depth layers (2026-08-24)
+
+- **Liked:** from a 20-variant mobile draft round (`/mobile-hero-directions`, live miniatures at 375–430px) the user picked draft 11 "Depth layers" — three soft glow fields at different parallax depths replacing the square beneath-panel box on phones; the catalogue rows staying as plain notation; calm, GPU-only motion.
+- **Rejected:** the hard-bordered 320px beneath box on mobile (read as a square out of place); the 19 unchosen treatments (orb, blob, ring, diamond, aperture, dot matrix, scanline, arc, split stack, chips, dock, line reveal, counter, marquee, magnetic CTA, ripple, tilt, aurora, grain) — recorded as graph-adjacent alternates, not directions; reversing Pass 12's static-hero rule beyond mobile was not requested.
+- **Changed:** at ≤560px only — the beneath panel loses border/fill/blur/label/warp rule and renders as plain full-width rows; a `.signal-index-hero-depth` field adds far/mid/near glow layers (teal/ochre/bright-ochre, blur 26px) whose translate is driven by a scroll-progress custom property `--hero-p` (rAF-throttled scroll listener in `LandingPage`, gated by `prefers-reduced-motion` and the 560px query); one-time staggered entrance (kicker → H1 → CTA → rows, layers fade) with explicit `to` keyframes. Desktop and tablet (≥561px) keep the Pass 12 static hero and the boxed panel unchanged.
+- **Quality gate:** the mobile hero reads as one ink catalogue with the landing; motion is transform/opacity only and dies under `prefers-reduced-motion` (layers static, no parallax listener, entrances skipped); rows keep ≥44px targets, AA contrast, and focus rings; no horizontal overflow; first project still arrives quickly; desktop pixel-behavior unchanged.
+- **Verification:** `npm --prefix portfolio run typecheck` and `npm --prefix portfolio run build` and `git diff --check` pass; headless Chrome on `/` at 390/768/1440 — zero console errors, zero horizontal overflow; at 390px the panel border/fill compute to 0/transparent, label and rule display none, far layer transform moves 0 → −19.2px after a 700px scroll (parallax live); with emulated `prefers-reduced-motion` `--hero-p` stays unset and layers sit at identity; at 768/1440 the panel keeps its 1px border, fill, and label (unchanged).
+- **Next review:** `/` at 390/430 with a real device hand — judge glow intensity against sunlight and whether the entrance stagger feels slow; decide whether the 561–900px single-column range should adopt the same treatment.
 
 ## Deterministic handoff protocol
 

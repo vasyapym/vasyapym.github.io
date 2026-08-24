@@ -70,8 +70,55 @@ function animateScrollToCard(projectId: string) {
 
 export default function LandingPage({ projects, onOpenProject }: LandingPageProps) {
   const pageRef = useRef<HTMLElement>(null);
+  const heroRef = useRef<HTMLElement>(null);
   const [revealedProjects, setRevealedProjects] = useState<Set<string>>(() => new Set());
   const [revealReady, setRevealReady] = useState(false);
+  useEffect(() => {
+    const hero = heroRef.current;
+    if (!hero) {
+      return;
+    }
+    const motionQuery = window.matchMedia("(prefers-reduced-motion: reduce)");
+    const mobileQuery = window.matchMedia("(max-width: 560px)");
+    let frame = 0;
+    const update = () => {
+      frame = 0;
+      const rect = hero.getBoundingClientRect();
+      const viewportHeight = window.innerHeight || 1;
+      const progress = Math.min(1, Math.max(0, (viewportHeight - rect.top) / (viewportHeight + rect.height)));
+      hero.style.setProperty("--hero-p", progress.toFixed(4));
+    };
+    const schedule = () => {
+      if (!frame) {
+        frame = requestAnimationFrame(update);
+      }
+    };
+    const detach = () => {
+      window.removeEventListener("scroll", schedule);
+      window.removeEventListener("resize", schedule);
+      if (frame) {
+        cancelAnimationFrame(frame);
+        frame = 0;
+      }
+    };
+    const sync = () => {
+      detach();
+      hero.style.removeProperty("--hero-p");
+      if (!motionQuery.matches && mobileQuery.matches) {
+        window.addEventListener("scroll", schedule, { passive: true });
+        window.addEventListener("resize", schedule);
+        update();
+      }
+    };
+    sync();
+    motionQuery.addEventListener("change", sync);
+    mobileQuery.addEventListener("change", sync);
+    return () => {
+      detach();
+      motionQuery.removeEventListener("change", sync);
+      mobileQuery.removeEventListener("change", sync);
+    };
+  }, []);
   useEffect(() => {
     const page = pageRef.current;
     if (!page) {
@@ -119,7 +166,16 @@ export default function LandingPage({ projects, onOpenProject }: LandingPageProp
           <span className="signal-index-count">{projects.length.toString().padStart(2, "0")}</span>
         </header>
 
-        <section className="signal-index-hero signal-index-hero-refraction" aria-labelledby="signal-index-title">
+        <section
+          ref={heroRef}
+          className="signal-index-hero signal-index-hero-refraction"
+          aria-labelledby="signal-index-title"
+        >
+          <div className="signal-index-hero-depth" aria-hidden="true">
+            <i className="signal-index-depth-layer signal-index-depth-far" />
+            <i className="signal-index-depth-layer signal-index-depth-mid" />
+            <i className="signal-index-depth-layer signal-index-depth-near" />
+          </div>
           <svg className="signal-index-sea-filter" aria-hidden="true" focusable="false">
             <defs>
               <filter id="signal-index-sea-warp" x="-20%" y="-20%" width="140%" height="140%">
