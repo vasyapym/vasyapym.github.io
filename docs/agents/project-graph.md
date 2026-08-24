@@ -14,6 +14,17 @@ The file is **append-only**. Never rewrite or delete lines; corrections are new 
 
 Recording is **unconditional**: a missing store is never a reason to skip a record. When either iteration skill starts work in a project without `.project-history/graph.jsonl`, it runs `project-graph init` first, then appends as usual.
 
+## Automatic recording
+
+A `post-commit` hook (`scripts/project-graph/bin/auto-record.mjs`, wired via `git config core.hooksPath .githooks`) appends one minimal `iteration` node per commit automatically — no skill invocation required:
+
+- **Routing** follows the files touched: `portfolio/projects/<id>/…` goes to that project's graph; any other `portfolio/…` goes to the main-page graph at `portfolio/.project-history/`; everything else (skills, docs, scripts) records nowhere.
+- **Minimal by design**: title = commit subject, one `git-commit` artifact, `meta.source=auto`, chained to the current tip with a `continues` edge. That is enough for a future session to run `project-graph log`, see what changed and check out the diff.
+- **Skipped**: merge commits, subjects containing `[skip graph]`, commits whose sha already appears as a `git-commit` artifact (idempotent), and paths inside `.project-history/`.
+- **Fresh clones** need one command to re-arm the hook: `git config core.hooksPath .githooks`.
+
+Skills append richer nodes (quality gates, handoffs, supersessions) on top of this baseline when they run; the hook guarantees history exists even when they don't.
+
 ## Schema
 
 Each line is one JSON event. Events carry `type` and `ts`; everything else is per type.

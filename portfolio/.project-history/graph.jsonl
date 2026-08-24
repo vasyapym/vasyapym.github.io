@@ -37,3 +37,9 @@
 {"type":"edge.added","id":"e18","ts":"2026-08-23T19:04:46.084Z","from":"n10","to":"n11","rel":"continues"}
 {"type":"node.added","id":"n12","ts":"2026-08-23T19:04:46.847Z","kind":"iteration","actor":"design-iteration","title":"Pass 10 - Refraction sea implemented","artifacts":[{"kind":"doc-anchor","ref":"docs/portfolio-redesign-handoff.md#pass-10-refraction-sea-animated-focal-element"}],"meta":{"gate":"sea reads as an instrument; copy dominant; reduced-motion fallback verified"}}
 {"type":"edge.added","id":"e19","ts":"2026-08-23T19:04:46.850Z","from":"n11","to":"n12","rel":"continues"}
+{"type":"node.added","id":"n13","ts":"2026-08-24T01:47:34.347Z","kind":"iteration","actor":"user","title":"feat(evening-forest): play the walk on phones with touch controls","artifacts":[{"kind":"git-commit","ref":"4253b03"}],"meta":{"source":"auto"}}
+{"type":"edge.added","id":"e20","ts":"2026-08-24T01:47:34.348Z","from":"n12","to":"n13","rel":"continues"}
+{"type":"node.added","id":"n14","ts":"2026-08-24T01:47:36.088Z","kind":"iteration","actor":"user","title":"feat(portfolio): shrink hero title about 25 percent","artifacts":[{"kind":"git-commit","ref":"b865780"}],"meta":{"source":"auto"}}
+{"type":"edge.added","id":"e21","ts":"2026-08-24T01:47:36.090Z","from":"n13","to":"n14","rel":"continues"}
+{"type":"node.added","id":"n15","ts":"2026-08-24T01:47:37.331Z","kind":"iteration","actor":"user","title":"fix(portfolio): shrink the rendered refraction hero title about 25 percent","artifacts":[{"kind":"git-commit","ref":"4308130"}],"meta":{"source":"auto"}}
+{"type":"edge.added","id":"e22","ts":"2026-08-24T01:47:37.333Z","from":"n14","to":"n15","rel":"continues"}

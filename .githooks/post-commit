@@ -1,0 +1,3 @@
+#!/bin/sh
+# Auto-record every commit into its project graph (docs/agents/project-graph.md).
+node "$(git rev-parse --show-toplevel)/scripts/project-graph/bin/auto-record.mjs" || true

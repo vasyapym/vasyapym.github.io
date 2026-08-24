@@ -1,1 +1,5 @@
 {"type":"node.added","id":"n1","ts":"2026-08-24T01:33:02.475Z","kind":"snapshot","actor":"user","title":"evening-forest project history"}
+{"type":"node.added","id":"n2","ts":"2026-08-24T01:47:34.327Z","kind":"iteration","actor":"user","title":"feat(evening-forest): play the walk on phones with touch controls","artifacts":[{"kind":"git-commit","ref":"4253b03"}],"meta":{"source":"auto"}}
+{"type":"edge.added","id":"e1","ts":"2026-08-24T01:47:34.336Z","from":"n1","to":"n2","rel":"continues"}
+{"type":"node.added","id":"n3","ts":"2026-08-24T01:47:36.654Z","kind":"iteration","actor":"user","title":"feat(portfolio): list every project beneath the surface","artifacts":[{"kind":"git-commit","ref":"1c8bbd1"}],"meta":{"source":"auto"}}
+{"type":"edge.added","id":"e2","ts":"2026-08-24T01:47:36.656Z","from":"n2","to":"n3","rel":"continues"}
