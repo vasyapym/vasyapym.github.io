@@ -29,7 +29,7 @@
 .kitty-run-stage {
   position: relative;
   margin: 0 auto;
-  width: min(1120px, calc(100vw - 48px));
+  width: min(1120px, 100%);
   height: clamp(420px, 66vh, 700px);
   border-radius: 28px;
   overflow: hidden;
@@ -291,4 +291,73 @@
 
 .kitty-run-debug.is-visible {
   opacity: 0.65;
+}
+
+/* --- small screens -------------------------------------------------------- */
+
+@media (max-width: 700px) {
+  .kitty-run-stage {
+    height: clamp(360px, 62vh, 620px);
+    border-radius: 20px;
+  }
+
+  .kitty-run-hud {
+    padding: 12px 14px;
+  }
+
+  /* The heart shape is an absolute clip-path, so scale the group as one. */
+  .kitty-run-hearts {
+    gap: 6px;
+    transform: scale(0.78);
+    transform-origin: top left;
+  }
+
+  .kitty-run-score {
+    font-size: 21px;
+  }
+
+  .kitty-run-best {
+    font-size: 11px;
+  }
+
+  .kitty-run-combo {
+    left: 14px;
+    top: 46px;
+  }
+
+  .kitty-run-combo span {
+    font-size: 16px;
+  }
+
+  .kitty-run-combo-track {
+    width: 72px;
+  }
+
+  .kitty-run-floater {
+    font-size: 14px;
+  }
+
+  .kitty-run-floater-hurt {
+    font-size: 16px;
+  }
+
+  .kitty-run-overlay {
+    padding: 16px;
+  }
+
+  .kitty-run-card {
+    padding: 24px 26px;
+    border-radius: 20px;
+    gap: 8px;
+  }
+
+  .kitty-run-card-action {
+    margin-top: 6px;
+    padding: 9px 18px;
+    font-size: 13px;
+  }
+
+  .kitty-run-debug {
+    display: none;
+  }
 }

@@ -3,13 +3,10 @@
 // space to stage percentages and faded toward the end of their life.
 
 import { useEffect, useRef } from "react";
+import { frameFor } from "../lib/framing.ts";
 import type { WorldState } from "./world.ts";
 
 const COUNT = 12;
-// World units visible vertically at the play plane (camera z 11.5, fov 38).
-const VIEW_HEIGHT = 7.92;
-const LOOK_X = 2.4;
-const LOOK_Y = 2.6;
 
 function floaterText(kind: string, amount: number): string {
   if (kind === "hurt") return "−1";
@@ -35,6 +32,8 @@ export function Floaters({
       if (!stage) return;
       const width = stage.clientWidth;
       const height = stage.clientHeight;
+      const aspect = width / Math.max(1, height);
+      const frame = frameFor(aspect);
 
       for (let i = 0; i < COUNT; i += 1) {
         const node = nodesRef.current[i];
@@ -52,8 +51,8 @@ export function Floaters({
           node.className = `kitty-run-floater kitty-run-floater-${f.kind}`;
         }
         const vx = f.x - world.distance;
-        const xPercent = 50 + ((vx - LOOK_X) / (VIEW_HEIGHT * (width / height))) * 100;
-        const yPercent = 50 - ((f.y - LOOK_Y) / VIEW_HEIGHT) * 100;
+        const xPercent = 50 + ((vx - frame.lookX) / (frame.viewHeight * aspect)) * 100;
+        const yPercent = 50 - ((f.y - frame.lookY) / frame.viewHeight) * 100;
         node.style.left = `${xPercent}%`;
         node.style.top = `${yPercent}%`;
         node.style.opacity = String(Math.min(1, f.life / (f.maxLife * 0.5)));
