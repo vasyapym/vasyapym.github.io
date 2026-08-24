@@ -156,41 +156,34 @@ export default function CodeLayoutPage() {
   };
 
   return (
-    <section className="code-layout-page section-shell" aria-labelledby="code-layout-title">
-      <div className="code-layout-hero">
-        <div className="code-layout-hero-copy">
-          <p className="eyebrow accent-eyebrow">Code Layout · source reading</p>
-          <h1 id="code-layout-title">
-            Understand a source file
-            <span>faster.</span>
-          </h1>
-          <p className="code-layout-intro">
-            Paste a source file. See its declarations, dependencies, and architecture.
-          </p>
-          <a className="code-layout-enter" href="#code-layout-workspace">
-            Open Code Layout <span aria-hidden="true">↓</span>
-          </a>
-        </div>
-        <div className="code-layout-artifact-panel">
-          <div className="code-layout-artifact-note" aria-hidden="true">
-            <span>Declarations / dependencies</span>
-            <span>Source structure</span>
+    <div className="code-layout-field">
+      <section className="code-layout-page" aria-labelledby="code-layout-title">
+        <div className="code-layout-hero">
+          <div className="code-layout-hero-copy">
+            <h1 id="code-layout-title">
+              Source in.
+              <span>Structure out.</span>
+            </h1>
+            <a className="code-layout-enter" href="#code-layout-workspace">
+              Try it <span aria-hidden="true">↓</span>
+            </a>
           </div>
-          <div
-            ref={artifactRef}
-            className="code-layout-artifact"
-            role="img"
-            aria-label="A layered code structure artifact with declarations, dependencies, and architecture"
-            onPointerMove={handleArtifactPointerMove}
-            onPointerLeave={resetArtifactPointer}
-          >
-            <span className="code-layout-artifact-plate code-layout-artifact-plate-back">architecture</span>
-            <span className="code-layout-artifact-plate code-layout-artifact-plate-middle">dependencies</span>
-            <span className="code-layout-artifact-plate code-layout-artifact-plate-front">declarations</span>
-            <span className="code-layout-artifact-spine" />
+          <div className="code-layout-artifact-panel">
+            <div
+              ref={artifactRef}
+              className="code-layout-artifact"
+              role="img"
+              aria-label="A layered code structure artifact with declarations, dependencies, and architecture"
+              onPointerMove={handleArtifactPointerMove}
+              onPointerLeave={resetArtifactPointer}
+            >
+              <span className="code-layout-artifact-plate code-layout-artifact-plate-back">architecture</span>
+              <span className="code-layout-artifact-plate code-layout-artifact-plate-middle">dependencies</span>
+              <span className="code-layout-artifact-plate code-layout-artifact-plate-front">declarations</span>
+              <span className="code-layout-artifact-spine" />
+            </div>
           </div>
         </div>
-      </div>
 
       <form className="code-layout-workspace" id="code-layout-workspace" onSubmit={analyze}>
         <div className="code-layout-toolbar">
@@ -224,7 +217,7 @@ export default function CodeLayoutPage() {
             />
           </label>
           <button className="code-layout-sample" type="button" onClick={useSample}>
-            Try Bitrix example <span aria-hidden="true">↗</span>
+            Load sample <span aria-hidden="true">↗</span>
           </button>
         </div>
         <textarea
@@ -236,7 +229,7 @@ export default function CodeLayoutPage() {
           value={source}
         />
         <div className="code-layout-workspace-footer">
-          <span>Source stays in this browser · nothing is executed.</span>
+          <span>runs locally · nothing executed</span>
           <button className="analyze-button" disabled={requestState === "loading"} type="submit">
             {requestState === "loading" ? "Analyzing…" : "Analyze source"}
             <span aria-hidden="true">→</span>
@@ -249,15 +242,11 @@ export default function CodeLayoutPage() {
       {result && (
         <section className="code-layout-results" aria-labelledby="layout-results-title">
           <div className="code-layout-results-heading">
-            <div>
-              <p className="eyebrow accent-eyebrow">Layout · {result.language}</p>
-              <h2 id="layout-results-title">Structure.</h2>
-            </div>
+            <h2 id="layout-results-title">layout · {result.language}</h2>
             <div className="code-layout-result-meta">
-              <span>{result.lineCount} lines</span>
-              <span>{Math.round(result.confidence * 100)}% confidence</span>
+              <span>{result.lineCount} lines · {Math.round(result.confidence * 100)}% confidence</span>
               <button className="code-layout-copy" type="button" onClick={copySummary}>
-                {copied ? "Copied" : "Copy layout"}
+                {copied ? "copied" : "copy"}
               </button>
             </div>
           </div>
@@ -276,7 +265,8 @@ export default function CodeLayoutPage() {
           </div>
         </section>
       )}
-    </section>
+      </section>
+    </div>
   );
 }
 

@@ -20,6 +20,19 @@
       "message": "Heads-up: commit 4253b03 swept up my uncommitted evening-forest working-tree changes while my session was still mid-iteration. No harm done — the work was complete and verified, and my remaining follow-ups (smoke --host fix, README phone-testing section, graph node) went out in f9d42fb. Recorded so history explains why 4253b03 contains another session's work in progress. No reply needed.",
       "ackBy": "ox-alpha (author of the swept work)",
       "ackAt": "2026-08-24T05:40:00Z"
+    },
+    {
+      "id": "2026-08-24T08-20Z-note-3277058-code-layout-styles-swept",
+      "ts": "2026-08-24T08:20:00Z",
+      "kind": "note",
+      "agent": "ox-alpha (opencode session, code-layout ink-interior pass)",
+      "commit": "3277058",
+      "files": [
+        "portfolio/shell/src/styles.css"
+      ],
+      "message": "Heads-up: commit 3277058 (kitty-run polish) also carried my uncommitted styles.css changes — the Pass 14 ink-interior conversion of the .code-layout-* block for /projects/code-layout. Verified intact in the commit (code-layout-field present, no kitty-run selectors touched); the matching CodeLayoutPage.tsx, handoff ledger entry, and graph node n19 remain uncommitted in the working tree. No revert needed; no reply required.",
+      "ackBy": null,
+      "ackAt": null
     }
   ]
 }

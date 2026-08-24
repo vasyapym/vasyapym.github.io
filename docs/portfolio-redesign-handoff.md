@@ -255,6 +255,15 @@ Every review adds one compact entry. The **Liked** field becomes a constraint; t
 - **Verification:** typecheck, build, and smoke test pass (same session as Pass 12).
 - **Next review:** unchanged from Pass 12.
 
+### Pass 14 — Ink interior / Code Layout conversion (2026-08-24)
+
+- **Liked:** the landing's ink catalogue system as the named standard; the tool interior now speaks it end to end.
+- **Rejected:** the light blue-era interior (`--index-blue` accents, light surfaces) as a two-tone break inside one ink frame; marketing hero copy — eyebrow, intro paragraph, the `Structure.` display heading, decorative artifact captions.
+- **Changed:** `/projects/code-layout` converted to a full-bleed ink field via a `code-layout-field` wrapper (the shared `.project-frame` stays light for the not-yet-converted interiors): translucent `--ink-panel` surfaces, `--ink-line` rules, zero radii, `color-scheme: dark`; all blue → ochre with the bright-ochre focus ring; Analyze button solid ochre with ink text, no hover lift; toolbar labels, footer note, results heading, and insight values set in lowercase mono; artifact plates recolored to the ink/ochre family over the hero's static two-glow gradient. Copy diet: H1 → `Source in. Structure out.`, CTA → `Try it ↓`, `Load sample ↗`, footer → `runs locally · nothing executed`, results heading collapsed to `layout · {language}` with `n lines · x% confidence · copy` meta.
+- **Quality gate:** the interior reads as one catalogue system with the frame chrome; muted-on-ink text ≥4.5:1; focus ring visible on every control; form behavior and the Go service untouched.
+- **Verification:** `npm --prefix portfolio run typecheck`, `npm --prefix portfolio run build`, `git diff --check`, `go test ./...` (service), dev-server smoke 200 for `/` and `/projects/code-layout`; headless screenshots at 1440/1024/390 — no horizontal overflow, lowercase mono notation, contrast holds. Results state reviewed statically (same token system).
+- **Next review:** run a real analysis and review the results section at the three widths; decide whether the planck-to-now and practice-map interiors get the same conversion.
+
 ## Deterministic handoff protocol
 
 1. Read the active direction, persistent decisions, graph, and latest ledger entry before editing.
