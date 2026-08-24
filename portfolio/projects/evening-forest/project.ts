@@ -6,7 +6,7 @@ const eveningForest: ProjectModule = {
   tag: "walk",
   eyebrow: "A cozy first-person stroll at dusk",
   description:
-    "Wander an 8-bit fantasy woodland on desktop or phone — swaying pines, drifting fireflies, a looping synth ambience. No missions, no fail state, just the walk.",
+    "Wander an 8-bit woodland at dusk — no missions, just the walk.",
   technologies: [
     "React Three Fiber",
     "Three.js",

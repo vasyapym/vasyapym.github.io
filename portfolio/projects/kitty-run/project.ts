@@ -6,7 +6,7 @@ const kittyRun: ProjectModule = {
   tag: "game",
   eyebrow: "A pastel endless runner",
   description:
-    "Kitty runs, you jump and dash. Hearts mend her three-heart meter, crates break it — a small showcase of procedural vector animation, parallax pastels and game feel. An unofficial fan tribute to Sanrio's Hello Kitty.",
+    "Kitty runs, you jump and dash — a pastel endless runner.",
   technologies: [
     "React Three Fiber",
     "Three.js",
