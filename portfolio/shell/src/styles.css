@@ -1915,3 +1915,20 @@ textarea:focus-visible {
 .signal-index-card:focus-visible .presentation-evening-forest .project-artwork-center {
   box-shadow: 0 0 0 3px rgba(255, 180, 94, 0.16);
 }
+
+.presentation-kitty-run {
+  --project-accent: #e94f64;
+  background:
+    linear-gradient(180deg, rgba(159, 217, 246, 0.5) 0%, rgba(255, 226, 238, 0.44) 58%, rgba(247, 185, 205, 0.42) 100%),
+    var(--index-surface);
+}
+
+.presentation-kitty-run .project-artwork-center {
+  color: var(--project-accent);
+  border-color: var(--project-accent);
+}
+
+.presentation-kitty-run:hover .project-artwork-center,
+.signal-index-card:focus-visible .presentation-kitty-run .project-artwork-center {
+  box-shadow: 0 0 0 3px rgba(233, 79, 100, 0.18);
+}
