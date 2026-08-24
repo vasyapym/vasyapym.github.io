@@ -1675,7 +1675,7 @@ textarea:focus-visible {
 .signal-index-hero-refraction h1 {
   max-width: 640px;
   color: var(--ink-text);
-  font-size: clamp(2.8rem, 5vw, 5.1rem);
+  font-size: clamp(2.1rem, 3.75vw, 3.83rem);
   line-height: 0.93;
 }
 
@@ -1776,7 +1776,7 @@ textarea:focus-visible {
 
   .signal-index-hero-refraction h1 {
     max-width: 340px;
-    font-size: clamp(2.5rem, 11vw, 3.6rem);
+    font-size: clamp(1.88rem, 8.25vw, 2.7rem);
   }
 
   .signal-index-beneath {
