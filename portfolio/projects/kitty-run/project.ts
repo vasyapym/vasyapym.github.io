@@ -3,6 +3,7 @@ import type { ProjectModule } from "../../contracts/project-module";
 const kittyRun: ProjectModule = {
   id: "kitty-run",
   title: "Hello Kitty Run",
+  tag: "game",
   eyebrow: "A pastel endless runner",
   description:
     "Kitty runs, you jump and dash. Hearts build a combo, crates break it — a small showcase of procedural vector animation, parallax pastels and game feel.",

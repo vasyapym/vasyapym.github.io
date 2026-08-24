@@ -3,6 +3,7 @@ import type { ProjectModule } from "../../contracts/project-module";
 const eveningForest: ProjectModule = {
   id: "evening-forest",
   title: "Evening Forest",
+  tag: "walk",
   eyebrow: "A cozy first-person stroll at dusk",
   description:
     "Wander an 8-bit fantasy woodland on desktop or phone — swaying pines, drifting fireflies, a looping synth ambience. No missions, no fail state, just the walk.",
