@@ -32,16 +32,26 @@ the route is `/projects/kitty-run`. Shell-side additions: the
 
 - **Hearts mend** — any heart pickup restores one heart of the meter when
   damaged; the big cross-heart always does. At full health both convert to
-  bonus points (+20 / +50), so a pickup never lands silently.
+  bonus points (+20 / +50), so a pickup never lands silently. Hearts are
+  deliberately rare: one slim arc at a time, and the big cross-heart only
+  shows up once the run is properly underway — losing a heart stings.
+- **The ramp bites early** — full speed arrives well inside the first
+  minute, rests shorten, hazard patterns weigh more, and the difficulty
+  span tops out at 650 m; every hazard in the run can still be cleared
+  with a well-timed jump.
 - **Score breathes** — distance ticks one point per metre, so the counter
   moves even between pickups, and every 500 m throws a milestone
   celebration: a rising chime, confetti and a big banner.
 - **Combo** — consecutive pickups raise the score multiplier (every fourth,
   capped ×8); taking a hit resets it.
 - **Race your best-run ghost** — a finished run is stored as its seed plus
-  the timed input list; the next runs reuse that seed, so a translucent
-  Kitty replays your finest hour on the very same track. Beat her score and
-  she is replaced. The sanitizer rejects corrupt or stale storage entries.
+  the timed input list; the next runs reuse that seed, so a spectral
+  blue-violet Kitty replays your finest hour on the very same track. The
+  ghost launches half a second after you (a handicap start), so even a
+  perfect mirror of your best run stays visible as a chase instead of
+  hiding behind Kitty; the HUD chip reads out the live gap (+/- metres,
+  or "out" once she has fallen). Beat her score and she is replaced. The
+  sanitizer rejects corrupt or stale storage entries.
 - **Everything is jumpable** — there are no unjumpable obstacles. The
   checks sweep hundreds of generated chunks and pin every hazard top under
   the double-jump arc, worst-case uphill included; the tall crate stays

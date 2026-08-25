@@ -5,7 +5,9 @@
 export const TUNING = {
   speedStart: 7,
   speedMax: 14,
-  speedRamp: 520,
+  // Reaches the top pace noticeably sooner: the gentle opening is a
+  // courtesy, not the whole game.
+  speedRamp: 420,
 
   gravity: 38,
   // Sized so the tall crate is clearable even taking off on the steepest
@@ -30,6 +32,11 @@ export const TUNING = {
 
   // Every this many metres the run throws a little celebration.
   milestoneStep: 500,
+
+  // The best-run ghost launches this many seconds after the player, so
+  // even a perfect mirror of your finest hour shows a visible chase gap
+  // instead of hiding the spirit directly behind Kitty.
+  ghostStartDelay: 0.45,
 } as const;
 
 export type Tuning = typeof TUNING;

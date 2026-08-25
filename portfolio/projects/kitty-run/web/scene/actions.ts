@@ -13,10 +13,13 @@ function record(world: WorldState, kind: RunInputKind): void {
 
 export function startRun(world: WorldState): void {
   if (world.status !== "ready") return;
-  // Zero the clock so logged input times are run-relative — the ghost
-  // replay depends on it (a fresh ghost starts its own clock at zero,
-  // while the ready screen has been drifting this world forward).
+  // Zero the clock and the odometer: the ready screen drifts the world
+  // forward for atmosphere, and a run must always begin at metre zero —
+  // the ghost replay and the chunk stream both depend on that alignment
+  // (a lingering menu would otherwise gift the player an unclosable lead).
   world.time = 0;
+  world.distance = 0;
+  world.scoredDistance = 0;
   world.inputLog.length = 0;
   world.status = "running";
 }

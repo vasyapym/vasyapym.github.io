@@ -276,15 +276,16 @@
   pointer-events: none;
 }
 
-/* Ghost chip: a quiet label that names the translucent kitty while it
-   races you, so the feature reads at first sight. */
+/* Ghost chip: a quiet label that names the spirit while it races you and
+   reads out the live gap; the cool violet keeps it in the ghost's family. */
 .kitty-run-ghostchip {
   position: absolute;
   left: 24px;
   bottom: 20px;
   padding: 6px 12px;
   border-radius: 999px;
-  background: rgba(74, 59, 82, 0.72);
+  border: 1px solid rgba(255, 255, 255, 0.16);
+  background: rgba(70, 84, 140, 0.78);
   color: #fff8fb;
   font-family: var(--mono);
   font-size: 11.5px;

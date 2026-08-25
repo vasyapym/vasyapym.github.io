@@ -21,7 +21,9 @@ export { startRun, restartRun, togglePause } from "./actions.ts";
 
 const SPAWN_AHEAD = 46;
 const DESPAWN_BEHIND = 18;
-const DIFFICULTY_SPAN = 800;
+// Metres until the pattern mix reaches its hardest weights. Short enough
+// that a decent run meets real resistance inside its first minute.
+const DIFFICULTY_SPAN = 650;
 
 // Attract mode: while the start screen is up the world drifts forward so
 // the scene is already alive before the first click.

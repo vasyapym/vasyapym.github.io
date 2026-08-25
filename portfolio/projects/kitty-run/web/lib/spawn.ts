@@ -88,23 +88,24 @@ const PATTERN_IDS: readonly PatternId[] = [
 function patternWeight(id: PatternId, difficulty: number): number {
   switch (id) {
     case "rest":
-      return 2.2 - difficulty * 0.9;
+      return 1.9 - difficulty * 1.1;
     case "singleBox":
       return 2.4;
     case "doubleBox":
-      return 0.6 + difficulty * 2.2;
+      return 0.7 + difficulty * 2.4;
     case "stairs":
-      return difficulty * 2.4;
+      return difficulty * 2.6;
     case "hoverGate":
-      return difficulty * 2.0;
+      return difficulty * 2.2;
     case "heartArc":
-      return 1.6;
+      // A treat, not a diet: hearts are rare enough that losing one stings.
+      return 0.85;
     case "starLine":
-      return 1.4;
+      return 1.15;
     case "heal":
-      // The big cross heart: gated just past the opening stretch, then a
-      // steady sight worth detouring for.
-      return difficulty >= 0.15 ? 1.2 : 0;
+      // The big cross heart: a mid-run sight worth detouring for, never an
+      // opening-stretch given.
+      return difficulty >= 0.3 ? 0.8 : 0;
   }
 }
 
@@ -183,9 +184,9 @@ const BUILDERS: Record<PatternId, Builder> = {
   },
   heartArc: (_rng, s, speed) => {
     const items: SpawnItem[] = [];
-    const span = 4.5 + jumpLength(speed) * 0.55;
-    for (let i = 0; i < 4; i += 1) {
-      const t = i / 3;
+    const span = 3.4 + jumpLength(speed) * 0.45;
+    for (let i = 0; i < 3; i += 1) {
+      const t = i / 2;
       const x = s + 4.5 + t * span;
       items.push({
         kind: "heart",

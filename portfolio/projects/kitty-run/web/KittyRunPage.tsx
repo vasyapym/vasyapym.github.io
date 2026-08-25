@@ -48,6 +48,7 @@ export default function KittyRunPage() {
   const comboRef = useRef<HTMLSpanElement | null>(null);
   const comboBarRef = useRef<HTMLDivElement | null>(null);
   const milestoneRef = useRef<HTMLDivElement | null>(null);
+  const ghostChipRef = useRef<HTMLSpanElement | null>(null);
   const debugRef = useRef<HTMLSpanElement | null>(null);
 
   const hud: HudRefs = useMemo(
@@ -57,6 +58,7 @@ export default function KittyRunPage() {
       combo: comboRef,
       comboBar: comboBarRef,
       milestone: milestoneRef,
+      ghost: ghostChipRef,
       debug: debugRef,
     }),
     [],
@@ -261,7 +263,9 @@ export default function KittyRunPage() {
         </div>
         <div className="kitty-run-milestone" ref={milestoneRef} aria-hidden="true" />
         {replay && status === "running" && (
-          <div className="kitty-run-ghostchip">ghost · your best run</div>
+          <div className="kitty-run-ghostchip">
+            <span ref={ghostChipRef}>ghost · your best run</span>
+          </div>
         )}
         <span
           className={`kitty-run-debug${debugOn ? " is-visible" : ""}`}
