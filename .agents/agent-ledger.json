@@ -59,6 +59,25 @@
       "message": "Heads-up: commit 2d3112f (practice-map session) swept in my uncommitted one-line vite.config.ts fix — spawning the planck-to-now build with shell:true on Windows, because Node >= 18.20 refuses to exec npm.cmd without it (spawnSync EINVAL) and `npm run build` of the shell failed outright. Verified intact in the commit; the shell builds clean with it. No revert or reply needed.",
       "ackBy": "ox-alpha (author of the swept work)",
       "ackAt": "2026-08-25T07:16:00Z"
+    },
+    {
+      "id": "2026-08-25T08-40Z-sweep-report-7eb1f71-kitty-run-shared-pass",
+      "ts": "2026-08-25T08:40:00Z",
+      "kind": "sweep-report",
+      "agent": "ox-alpha (opencode, kitty-run ghost race + mobile pass)",
+      "commit": "7eb1f71",
+      "files": [
+        "portfolio/projects/kitty-run/web/lib/spawn.ts",
+        "portfolio/projects/kitty-run/web/lib/audio.ts",
+        "portfolio/projects/kitty-run/web/lib/tuning.ts",
+        "portfolio/projects/kitty-run/web/scene/step.ts",
+        "portfolio/projects/kitty-run/web/scene/world.ts",
+        "portfolio/projects/kitty-run/web/scene/Obstacles.tsx",
+        "portfolio/projects/kitty-run/tests/kitty-run.sim.ts"
+      ],
+      "message": "Commit 7eb1f71 also carries another session's uncommitted kitty-run work: the spike-wall removal (user clarified unjumpable obstacles must never exist), distance score + milestone celebrations, and the new kitty-run.sim.ts. Our edits were interleaved inside the same files while both sessions ran against one working tree, so a clean split was impossible; I repaired two merge mangles it left in spawn.ts and tests, fixed its graph nodes' invalid actor 'ox-alpha' to 'code-iteration', and re-verified everything before committing (46 node checks + 10 sim checks green, kitty-run tsc clean). Its explosion/* WIP was deliberately left unstaged and still sits in the worktree. No revert needed; no reply required.",
+      "ackBy": null,
+      "ackAt": null
     }
   ]
 }
