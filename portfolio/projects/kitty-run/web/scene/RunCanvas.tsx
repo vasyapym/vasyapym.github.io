@@ -5,11 +5,12 @@ import { useEffect, useRef, useState } from "react";
 import * as THREE from "three";
 import { Canvas, useFrame } from "@react-three/fiber";
 import { PALETTE } from "../lib/palette.ts";
-import { BASE_CAM_Z, frameFor } from "../lib/framing.ts";
+import { BASE_CAM_Z, BASE_FOV, frameFor } from "../lib/framing.ts";
 import type { Sfx } from "../lib/audio.ts";
 import type { GameStatus, WorldState } from "./world.ts";
 import { Parallax } from "./Parallax";
 import { Ground } from "./Ground";
+import { Shadow } from "./Shadow";
 import { Obstacles } from "./Obstacles";
 import { Pickups } from "./Pickups";
 import { Particles } from "./Particles";
@@ -20,7 +21,6 @@ import { Kitty } from "../kitty/Kitty";
 import type { RunInput } from "../lib/replay.ts";
 
 const CAMERA_BASE = new THREE.Vector3(0, 3.2, BASE_CAM_Z);
-const BASE_FOV = 38;
 
 function CameraRig({ world, reducedMotion }: { world: WorldState; reducedMotion: boolean }) {
   const lookTarget = useRef(new THREE.Vector3());
@@ -83,7 +83,7 @@ export function RunCanvas({
         stencil: false,
         powerPreference: "high-performance",
       }}
-      // near 2: the scene lives at z <= 0.2 and the camera at z >= 11.5, so
+      // near 2: the scene lives at z <= 0.2 and the camera at z >= 16, so
       // a generous near plane keeps depth precision tight — on 16-bit mobile
       // depth buffers the Kitty's paper-thin layers otherwise z-fight and
       // read as transparent.
@@ -96,6 +96,7 @@ export function RunCanvas({
       <CameraRig world={world} reducedMotion={reducedMotion} />
       <Parallax world={world} />
       <Ground world={world} />
+      <Shadow world={world} />
       <Obstacles world={world} />
       <Pickups world={world} />
       <Particles world={world} />

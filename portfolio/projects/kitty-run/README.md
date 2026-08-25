@@ -45,15 +45,17 @@ the route is `/projects/kitty-run`. Shell-side additions: the
 - **Combo** — consecutive pickups raise the score multiplier (every fourth,
   capped ×8); taking a hit resets it.
 - **Race your best-run echo** — a finished run is stored as its seed plus
-  the timed input list; the next runs reuse that seed, so a spectral
-  blue-violet Kitty replays your finest hour on the very same track. The
-  handicap is a distance, not a delay: she waits until you open a
-  two-metre lead, then gives chase, and because both simulations run at
-  the same speed the gap holds steady from launch to finish. A stage-span
-  clamp pins her drawing inside the visible band, so even a big late-run
-  lead never pushes her off a phone screen; the HUD chip reads out the
-  live gap (+/- metres, or "out" once she has fallen). Beat her score and
-  she is replaced. The sanitizer rejects corrupt or stale storage entries.
+  the timed input list; the next runs reuse that seed, so a pale frost-blue
+  Kitty replays your finest hour on the very same track. The
+   handicap is a distance, not a delay: she waits until you open a
+   six-metre lead, then gives chase, and because both simulations run at
+   the same speed the gap holds steady from launch to finish. A stage-span
+   clamp pins her drawing inside the visible band, so even a big late-run
+   lead never pushes her off a phone screen — and when that clamp seats
+   her next to the player she thins to a whisper instead of crowding the
+   sprite. The HUD chip reads out the
+   live gap (+/- metres, or "out" once she has fallen). Beat her score and
+   she is replaced. The sanitizer rejects corrupt or stale storage entries.
 - **Everything is jumpable** — there are no unjumpable obstacles. The
   checks sweep hundreds of generated chunks and pin every hazard top under
   the double-jump arc, worst-case uphill included; the tall crate stays
@@ -80,7 +82,19 @@ the route is `/projects/kitty-run`. Shell-side additions: the
   stage.
 - **Depth discipline** — the camera near plane sits at 2 and the Kitty's
   part layers are separated generously, because thin z offsets z-fight on
-  16-bit mobile depth buffers and read as a see-through character.
+  16-bit mobile depth buffers and read as a see-through character. The
+  best-run echo renders translucent with depth writes on, so its draw
+  order is pinned explicitly (meshes sorted far-to-near once at mount) —
+  otherwise the sort could seat the dress behind the head fill and let
+  the torso shine through.
+- **Contact shadow** — a soft canvas-texture ellipse rides `groundY()`
+  under the Kitty, tightening and fading as she climbs, so she lands *on*
+  the rolling ground at the pulled-back framing instead of floating over
+  it.
+- **First impression** — the ready overlay is a light pastel wash, and its
+  paper card parks in the run-ahead space, so visitors see Kitty idling in
+  her world the moment the page loads; pause and game-over keep the dark,
+  focus-pulling treatment.
 - **Pure simulation** — `web/scene/step.ts` advances the whole run and only
   touches plain data from `web/scene/world.ts`; rendering components read
   the world in their own `useFrame`. React never re-renders for gameplay;
@@ -114,4 +128,5 @@ npm --prefix portfolio run typecheck
 npm --prefix portfolio run build
 node --experimental-strip-types portfolio/projects/kitty-run/tests/kitty-run.check.ts
 node --experimental-strip-types portfolio/projects/kitty-run/tests/kitty-run.sim.ts
+node portfolio/projects/kitty-run/tests/kitty-run.shots.mjs   # visual probe, needs Chrome/Edge
 ```

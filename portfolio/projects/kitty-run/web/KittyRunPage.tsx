@@ -281,8 +281,12 @@ export default function KittyRunPage() {
       </div>
 
       {status === "ready" && (
-        <div className="kitty-run-overlay">
-          <button type="button" className="kitty-run-card" onClick={handleStart}>
+        <div className="kitty-run-overlay kitty-run-overlay--ready">
+          <button
+            type="button"
+            className="kitty-run-card kitty-run-card--ready"
+            onClick={handleStart}
+          >
             <span className="kitty-run-card-kicker">ready</span>
             {replay && (
               <span className="kitty-run-card-echo">your best run will chase you</span>

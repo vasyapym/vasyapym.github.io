@@ -2,8 +2,11 @@
 // fits on screen, and both the three.js rig and the DOM floaters read it,
 // so score pop-ups always land on the pickups they came from.
 
-const BASE_FOV = 38;
-export const BASE_CAM_Z = 11.5;
+// A gentle lens and a roomy camera distance: the character reads as part
+// of the landscape rather than a close-up, which suits the flat vector
+// art and gives players more run-ahead to read.
+export const BASE_FOV = 34;
+export const BASE_CAM_Z = 16;
 const BASE_LOOK_Y = 2.6;
 
 // A portrait phone must still see this many world units across the play
@@ -13,7 +16,7 @@ export const MIN_VIEW_WIDTH = 9;
 // Kitty sits this fraction of the stage width in from the left edge, so
 // the run-ahead side of the screen stays the big side on any aspect.
 const LEAD_FRACTION = 0.2;
-const LEAD_MAX = 2.4;
+const LEAD_MAX = 3.2;
 const LEAD_MIN = 1.2;
 
 // Tall frames see more world vertically; aiming a little higher keeps the
