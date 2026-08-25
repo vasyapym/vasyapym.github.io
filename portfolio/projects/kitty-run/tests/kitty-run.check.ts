@@ -16,15 +16,19 @@ import {
   BOX_HALF,
   HOVER_LIFT,
   HOVER_RADIUS,
+  SPIKE_EXTRA_TIME,
+  SPIKE_TOP,
   TALL_HALF,
   buildChunk,
   chunkSeed,
   firstHazardX,
   isHazard,
   minHazardGap,
+  minSpikeGap,
   nextChunkOrigin,
 } from "../web/lib/spawn.ts";
 import { TUNING, jumpLength, jumpPeak, speedFor } from "../web/lib/tuning.ts";
+import { WORST_SLOPE } from "../web/lib/ground.ts";
 
 let failures = 0;
 
@@ -87,22 +91,39 @@ check("ground stays inside its amplitude band", bounded);
 
 // Tall top sits at 3 * TALL_HALF above the ground (centre 2 * TALL_HALF
 // plus its own half). Collision is a circle: at the apex the circle's
-// bottom is peak + centerLift - radius. A well-timed single jump clears
-// the tall on a tight skilled line; the double jump clears it generously.
+// bottom is peak + centerLift - radius. The uphill term is the mean one:
+// taking off at the steepest climb, half a max-speed jump length before
+// the crate, lifts the crate relative to the arc by slope x distance.
+// Even there a well-timed single jump must clear it — this is the pin
+// that keeps "unjumpable" obstacles out of the fair set.
+const MAX_UPHILL_RISE =
+  WORST_SLOPE * (jumpLength(TUNING.speedMax) / 2);
 check(
-  "well-timed single jump clears the tall obstacle",
-  jumpPeak(TUNING.jumpV) + TUNING.kittyCenterLift - TUNING.kittyRadius >
-    3 * TALL_HALF + 0.1,
+  "well-timed single jump clears the tall obstacle even on the steepest climb",
+  jumpPeak(TUNING.jumpV) + TUNING.kittyCenterLift - TUNING.kittyRadius -
+    MAX_UPHILL_RISE >
+    3 * TALL_HALF + 0.35,
 );
 check(
   "double jump clears the tall obstacle with room",
   jumpPeak(TUNING.jumpV) + jumpPeak(TUNING.doubleJumpV) +
-    TUNING.kittyCenterLift - TUNING.kittyRadius >
+    TUNING.kittyCenterLift - TUNING.kittyRadius -
+    MAX_UPHILL_RISE >
     3 * TALL_HALF + 1.0,
 );
 check(
   "hover gate leaves running headroom",
   HOVER_LIFT - HOVER_RADIUS > TUNING.kittyCenterLift + TUNING.kittyRadius + 0.15,
+);
+
+// The spike wall is the one deliberate exception: no jump arc in the game
+// lifts the collision circle's bottom over its top, so it can only be
+// dashed through.
+check(
+  "double jump cannot clear the spike wall",
+  jumpPeak(TUNING.jumpV) + jumpPeak(TUNING.doubleJumpV) +
+    TUNING.kittyCenterLift - TUNING.kittyRadius <
+    SPIKE_TOP - 0.3,
 );
 
 let speedBanded = true;
@@ -119,6 +140,8 @@ let itemsInsideChunks = true;
 let hazardsReachable = true;
 let pacingEven = true;
 let lengthsBounded = true;
+let gapFloorsMatch = true;
+let spikeRunwaysHold = true;
 let sawHazard = false;
 let sawHeart = false;
 let sawStar = false;
@@ -133,6 +156,7 @@ const MAX_CHUNK_LENGTH = 24;
 
 let origin = 0;
 let prevHazardEnd = Number.NEGATIVE_INFINITY;
+let prevGapFloor = 0;
 for (let i = 0; i < 240; i += 1) {
   const distance = origin;
   const difficulty = Math.min(1, distance / 800);
@@ -140,6 +164,15 @@ for (let i = 0; i < 240; i += 1) {
   const chunk = buildChunk(chunkSeed("kitty-run/check/v1", i), origin, difficulty, speed);
 
   if (chunk.length > MAX_CHUNK_LENGTH || chunk.length < 5) lengthsBounded = false;
+
+  // The chunk's own gap floor is what fairness demands after it — plain
+  // patterns use minHazardGap, spike walls add extra dash-recovery time.
+  const hasSpike = chunk.items.some((item) => item.kind === "spike");
+  const expectedFloor = hasSpike ? minSpikeGap(speed) : minHazardGap(speed);
+  if (Math.abs(chunk.gapFloor - expectedFloor) > 1e-9) gapFloorsMatch = false;
+  if (hasSpike && chunk.gapFloor < minHazardGap(speed) + speed * SPIKE_EXTRA_TIME - 1e-9) {
+    spikeRunwaysHold = false;
+  }
 
   const hazardXs = chunk.items
     .filter((item) => isHazard(item.kind))
@@ -166,9 +199,12 @@ for (let i = 0; i < 240; i += 1) {
   const firstHazard = firstHazardX(chunk);
   if (Number.isFinite(firstHazard) && Number.isFinite(prevHazardEnd)) {
     const gap = firstHazard - prevHazardEnd;
-    if (gap + 1e-6 < minHazardGap(speed)) hazardsReachable = false;
+    if (gap + 1e-6 < prevGapFloor) hazardsReachable = false;
   }
-  if (Number.isFinite(chunk.hazardEnd)) prevHazardEnd = chunk.hazardEnd;
+  if (Number.isFinite(chunk.hazardEnd)) {
+    prevHazardEnd = chunk.hazardEnd;
+    prevGapFloor = chunk.gapFloor;
+  }
 
   origin += nextChunkOrigin(chunk, origin, speed);
 }
@@ -176,7 +212,38 @@ check("every spawn item stays inside its chunk", itemsInsideChunks);
 check("hazard groups leave a recoverable gap", hazardsReachable);
 check("pattern-internal hazard spacing stays landable and paired", pacingEven);
 check("chunk lengths stay bounded", lengthsBounded);
-check("the mix contains every kind", sawHazard && sawHeart && sawStar && sawHeal);
+check("gap floors match their patterns", gapFloorsMatch);
+check("spike walls keep extra dash-recovery runway", spikeRunwaysHold);
+check(
+  "the mix contains every kind",
+  sawHazard && sawHeart && sawStar && sawHeal,
+);
+
+// Spike walls are gated behind the opening stretch, then show up often
+// enough to be part of the run's rhythm.
+let sawSpike = false;
+let spikeOrigin = 0;
+for (let i = 0; i < 240 && !sawSpike; i += 1) {
+  const distance = spikeOrigin;
+  const difficulty = Math.min(1, distance / 800);
+  const speed = speedFor(distance);
+  const chunk = buildChunk(
+    chunkSeed("kitty-run/check/spike-mix/v1", i),
+    spikeOrigin,
+    difficulty,
+    speed,
+  );
+  sawSpike = chunk.items.some((item) => item.kind === "spike");
+  spikeOrigin += nextChunkOrigin(chunk, spikeOrigin, speed);
+}
+check("spike walls join the mix once the ramp is underway", sawSpike);
+
+const firstChunksNoSpike = [0, 1, 2, 3, 4].every((i) =>
+  buildChunk(chunkSeed("kitty-run/check/v1", i), 0, 0, TUNING.speedStart).items.every(
+    (item) => item.kind !== "spike",
+  ),
+);
+check("spike walls are gated behind the opening stretch", firstChunksNoSpike);
 
 const chunkOne = buildChunk(chunkSeed("kitty-run/check/v1", 7), 100, 0.5, 9);
 const chunkTwo = buildChunk(chunkSeed("kitty-run/check/v1", 7), 100, 0.5, 9);

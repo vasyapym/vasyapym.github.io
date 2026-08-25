@@ -15,6 +15,7 @@ export type HudRefs = {
   hearts: React.RefObject<HTMLDivElement | null>;
   combo: React.RefObject<HTMLSpanElement | null>;
   comboBar: React.RefObject<HTMLDivElement | null>;
+  hint: React.RefObject<HTMLDivElement | null>;
   debug?: React.RefObject<HTMLSpanElement | null>;
 };
 
@@ -60,6 +61,14 @@ function handleEvents(world: WorldState, sfx: Sfx | null, reducedMotion: boolean
         break;
       case "dash":
         sfx?.dash();
+        break;
+      case "spikeNear":
+        sfx?.spikeWarn();
+        break;
+      case "spikeThrough":
+        sfx?.dashThrough();
+        sparkBurst(world, 0, k.y + 0.8, reducedMotion ? 6 : 14, HEART_RGB, 3.4);
+        emitFloater(world, 0, k.y + 0.9, "bonus", event.score);
         break;
       case "hit":
         sfx?.hit();
@@ -110,6 +119,9 @@ function writeHud(world: WorldState, hud: HudRefs): void {
   if (hud.comboBar.current) {
     const fraction = world.combo > 0 ? Math.max(0, world.comboTimer / COMBO_WINDOW) : 0;
     hud.comboBar.current.style.transform = `scaleX(${fraction})`;
+  }
+  if (hud.hint.current) {
+    hud.hint.current.classList.toggle("is-visible", world.hintT > 0);
   }
   if (hud.debug?.current) {
     hud.debug.current.textContent = `${world.status} · ${world.distance.toFixed(0)}m · obs ${world.obstacles.slots.filter((s) => s.active).length}`;

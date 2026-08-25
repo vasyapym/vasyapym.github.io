@@ -7,11 +7,14 @@ import { TUNING } from "../lib/tuning.ts";
 
 export type GameStatus = "ready" | "running" | "paused" | "over";
 
-export type ObstacleKind = "box" | "tall" | "hover";
+export type ObstacleKind = "box" | "tall" | "hover" | "spike";
 export type Obstacle = {
   kind: ObstacleKind;
   x: number;
   y: number;
+  // Set once the kitty has dashed through a spike wall, so the pass is
+  // rewarded exactly once per wall.
+  passed: boolean;
 };
 
 export type PickupKind = "heart" | "star" | "heal";
@@ -54,6 +57,10 @@ export type GameEvent =
   | { type: "dash" }
   | { type: "hit" }
   | { type: "gameover" }
+  // First spike wall of the run has come into view — raise the hint once.
+  | { type: "spikeNear" }
+  // The kitty dashed through a spike wall: reward burst and chime.
+  | { type: "spikeThrough"; score: number }
   | {
       type: "pickup";
       pickup: PickupKind;
@@ -92,6 +99,15 @@ export type WorldState = {
   shake: number;
   hitStop: number;
   hitFlash: number;
+
+  // Time left on the "dash through the wall!" hint banner; zero hides it.
+  hintT: number;
+  // Latched once the run's first spike wall has been announced, so the
+  // banner appears a single time per run.
+  spikeWarned: boolean;
+  // True when the run that just ended beat the stored best — the game-over
+  // card wears a little badge.
+  newBest: boolean;
 
   spawnOrigin: number;
   chunkIndex: number;
@@ -139,6 +155,10 @@ export function createWorld(best = 0, runSeed = freshSeed()): WorldState {
     hitStop: 0,
     hitFlash: 0,
 
+    hintT: 0,
+    spikeWarned: false,
+    newBest: false,
+
     spawnOrigin: 14,
     chunkIndex: 0,
 
@@ -162,7 +182,12 @@ export function createWorld(best = 0, runSeed = freshSeed()): WorldState {
       happyT: 0,
     },
 
-    obstacles: createPool(24, () => ({ kind: "box" as ObstacleKind, x: 0, y: 0 })),
+    obstacles: createPool<Obstacle>(24, () => ({
+      kind: "box" as ObstacleKind,
+      x: 0,
+      y: 0,
+      passed: false,
+    })),
     pickups: createPool(48, () => ({
       kind: "heart" as PickupKind,
       x: 0,

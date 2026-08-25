@@ -250,6 +250,31 @@
   transform: scaleX(0);
 }
 
+/* One-shot teaching banner: the first spike wall of a run raises it. */
+.kitty-run-hint {
+  position: absolute;
+  left: 50%;
+  bottom: 64px;
+  transform: translate(-50%, 14px);
+  padding: 9px 18px;
+  border-radius: 999px;
+  background: rgba(74, 59, 82, 0.88);
+  color: #fff8fb;
+  font-family: var(--mono);
+  font-size: 13px;
+  font-weight: 500;
+  letter-spacing: 0.05em;
+  white-space: nowrap;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.22s ease, transform 0.22s ease;
+}
+
+.kitty-run-hint.is-visible {
+  opacity: 1;
+  transform: translate(-50%, 0);
+}
+
 /* --- floaters ------------------------------------------------------------ */
 
 .kitty-run-floaters {
@@ -324,6 +349,24 @@
   font-size: 12px;
   font-weight: 500;
   letter-spacing: 0.05em;
+}
+
+.kitty-run-card-badge {
+  padding: 5px 14px;
+  border-radius: 999px;
+  background: var(--ink-accent-bright, #e94f64);
+  color: #fff8fb;
+  font-family: var(--mono);
+  font-size: 12px;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  animation: kitty-badge-pop 0.45s cubic-bezier(0.2, 1.6, 0.4, 1) both;
+}
+
+@keyframes kitty-badge-pop {
+  from { transform: scale(0.4); opacity: 0; }
+  to { transform: scale(1); opacity: 1; }
 }
 
 .kitty-run-card-title {
@@ -421,6 +464,14 @@
 
   .kitty-run-combo-track {
     width: 72px;
+  }
+
+  .kitty-run-hint {
+    font-size: 11px;
+    bottom: 52px;
+    white-space: normal;
+    text-align: center;
+    max-width: 78%;
   }
 
   .kitty-run-floater {

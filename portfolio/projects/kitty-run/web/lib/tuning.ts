@@ -8,7 +8,9 @@ export const TUNING = {
   speedRamp: 520,
 
   gravity: 38,
-  jumpV: 13.5,
+  // Sized so the tall crate is clearable even taking off on the steepest
+  // uphill stretch at top speed (see the checks + WORST_SLOPE).
+  jumpV: 14.2,
   doubleJumpV: 11.5,
   jumpCutFactor: 0.45,
   coyoteTime: 0.09,

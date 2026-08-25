@@ -46,6 +46,19 @@
       "message": "Committing my pass-19 node n26 required staging the shared append-only log wholesale, so the commit also carries n24/e30 (actor user, planck-to-now pass — its code was already committed in 0cd2343) and n25/e31 (design-iteration, Pass 18 practice-map — its CODE and its handoff-doc Pass 18 entry are deliberately still uncommitted in the worktree; I split-staged the handoff doc to exclude that entry). Nothing for the owner to do; the practice-map session should commit its code + doc entry and will find the log already in place. No reply needed.",
       "ackBy": null,
       "ackAt": null
+    },
+    {
+      "id": "2026-08-25T07-16Z-note-2d3112f-vite-config-shell-fix-swept",
+      "ts": "2026-08-25T07:16:00Z",
+      "kind": "note",
+      "agent": "ox-alpha (opencode, kitty-run fairness + spike-wall pass)",
+      "commit": "2d3112f",
+      "files": [
+        "portfolio/shell/vite.config.ts"
+      ],
+      "message": "Heads-up: commit 2d3112f (practice-map session) swept in my uncommitted one-line vite.config.ts fix — spawning the planck-to-now build with shell:true on Windows, because Node >= 18.20 refuses to exec npm.cmd without it (spawnSync EINVAL) and `npm run build` of the shell failed outright. Verified intact in the commit; the shell builds clean with it. No revert or reply needed.",
+      "ackBy": "ox-alpha (author of the swept work)",
+      "ackAt": "2026-08-25T07:16:00Z"
     }
   ]
 }

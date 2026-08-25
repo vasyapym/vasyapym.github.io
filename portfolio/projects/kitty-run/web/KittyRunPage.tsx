@@ -31,6 +31,7 @@ export default function KittyRunPage() {
   const heartsRef = useRef<HTMLDivElement | null>(null);
   const comboRef = useRef<HTMLSpanElement | null>(null);
   const comboBarRef = useRef<HTMLDivElement | null>(null);
+  const hintRef = useRef<HTMLDivElement | null>(null);
   const debugRef = useRef<HTMLSpanElement | null>(null);
 
   const hud: HudRefs = useMemo(
@@ -39,6 +40,7 @@ export default function KittyRunPage() {
       hearts: heartsRef,
       combo: comboRef,
       comboBar: comboBarRef,
+      hint: hintRef,
       debug: debugRef,
     }),
     [],
@@ -214,6 +216,9 @@ export default function KittyRunPage() {
             <div className="kitty-run-combo-bar" ref={comboBarRef} />
           </div>
         </div>
+        <div className="kitty-run-hint" ref={hintRef} aria-hidden="true">
+          {coarse ? "wall! swipe down — dash through" : "too tall to jump — shift to dash!"}
+        </div>
         <span
           className={`kitty-run-debug${debugOn ? " is-visible" : ""}`}
           ref={debugRef}
@@ -248,6 +253,9 @@ export default function KittyRunPage() {
         <div className="kitty-run-overlay">
           <button type="button" className="kitty-run-card" onClick={handleRestart}>
             <span className="kitty-run-card-kicker">run over</span>
+            {world.newBest && world.score > 0 && (
+              <span className="kitty-run-card-badge">new best!</span>
+            )}
             <span className="kitty-run-card-title">
               {world.score.toLocaleString()} points
             </span>
