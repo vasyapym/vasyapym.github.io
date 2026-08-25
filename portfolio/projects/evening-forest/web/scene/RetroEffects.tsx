@@ -55,6 +55,26 @@ class PosterizeDitherEffect extends Effect {
 
 const PosterizeDither = wrapEffect(PosterizeDitherEffect);
 
+// The postprocessing composer needs renderable float frame buffers; some
+// Safari builds refuse them and would crash the whole canvas. The forest
+// reads fine without the grade — degrade instead of dying.
+function composerSupported(): boolean {
+  if (typeof document === "undefined") return false;
+  try {
+    const canvas = document.createElement("canvas");
+    const gl = canvas.getContext("webgl2") as WebGL2RenderingContext | null;
+    if (!gl) return false;
+    return Boolean(
+      gl.getExtension("EXT_color_buffer_float") ||
+        gl.getExtension("EXT_color_buffer_half_float"),
+    );
+  } catch {
+    return false;
+  }
+}
+
+const composerOk = composerSupported();
+
 // The drawing buffer size changes on resize; keep the dither grid locked to
 // real device pixels so the pattern never swims.
 function ResolutionSync({
@@ -76,6 +96,8 @@ export function RetroEffects({
   bloomIntensity?: number;
 }) {
   const ditherRef = useRef<PosterizeDitherEffect | null>(null);
+
+  if (!composerOk) return null;
 
   return (
     <EffectComposer multisampling={0}>

@@ -2,8 +2,8 @@
 // this to displace vertices, and the walking rig samples it again every frame
 // so the camera always stands on the same ground the trees stand on.
 
-export const TERRAIN_SIZE = 240;
-export const PLAY_RADIUS = 80;
+export const TERRAIN_SIZE = 520;
+export const PLAY_RADIUS = 230;
 export const EYE_HEIGHT = 1.65;
 
 export function smoothstep(edge0: number, edge1: number, x: number): number {
@@ -47,8 +47,10 @@ export function terrainHeight(x: number, z: number): number {
   let h = (valueNoise(x / 34, z / 34) - 0.5) * 4.6;
   h += (valueNoise(x / 11 + 7.3, z / 11 + 2.1) - 0.5) * 1.1;
   // Rising rim near the world edge: a soft wall of hills that the fog eats,
-  // so the playable boundary never reads as a cliff or a texture seam.
-  h += smoothstep(56, 98, Math.hypot(x, z)) * 6.5;
+  // so the playable boundary never reads as a cliff or a texture seam. The
+  // walkable radius ends at 230, and the climb starts before it, so reaching
+  // the edge feels like cresting a ridge rather than hitting glass.
+  h += smoothstep(196, 258, Math.hypot(x, z)) * 8;
   // Gentle flattening underfoot at the spawn clearing.
   const centre = 1 - smoothstep(4, 18, Math.hypot(x, z));
   h *= 1 - centre * 0.6;

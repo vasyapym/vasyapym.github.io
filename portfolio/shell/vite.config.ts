@@ -106,6 +106,20 @@ function spaFallbackPlugin(): Plugin {
 
 export default defineConfig({
   plugins: [planckToNowStaticPlugin(), react(), spaFallbackPlugin()],
+  // es2020 keeps Safari in the game: dev prebundling and builds transpile
+  // newer syntax (class fields, static blocks) that raw-esnext serving
+  // would let crash the lazy chunks on older Safari engines.
+  esbuild: {
+    target: "es2020",
+  },
+  optimizeDeps: {
+    esbuildOptions: {
+      target: "es2020",
+    },
+  },
+  build: {
+    target: "es2020",
+  },
   server: {
     port: 5173,
   },

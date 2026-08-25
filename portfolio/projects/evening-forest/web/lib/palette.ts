@@ -29,6 +29,10 @@ export const PALETTE = {
 
   firefly: "#ffdf8e",
   shaft: "#ffc27d",
+
+  fox: "#c25e2a",
+  foxCream: "#e8d5b0",
+  foxDark: "#5f2f14",
 } as const;
 
 export type PaletteKey = keyof typeof PALETTE;
@@ -39,4 +43,6 @@ export const COLORS = Object.fromEntries(
 
 // Low sun toward -Z: the spawn point faces straight into the sunset.
 export const SUN_DIRECTION = new THREE.Vector3(-0.42, 0.18, -0.86).normalize();
-export const FOG_DENSITY = 0.03;
+// Tuned so the treeline reads to roughly 140m before the murk wins; the
+// world's far edge dissolves instead of stopping.
+export const FOG_DENSITY = 0.0125;

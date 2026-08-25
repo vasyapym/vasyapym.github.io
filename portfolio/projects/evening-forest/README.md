@@ -37,15 +37,28 @@ Everything lives inside this directory; no shell routing changes.
   `onBeforeCompile` and driven by one shared clock uniform.
 - **Fireflies** — GPU-only drift in a points shader seeded deterministically.
   Inside ~12 m they lean toward the walker via a shared player-position
-  uniform, so strolling through the hollow stirs sparks around you.
-- **Terrain** — one displaced plane whose heights come from
+  uniform, so strolling through the hollow stirs sparks around you; stray
+  further than ~46 m and the whole swarm quietly re-seeds around you.
+- **The fox** — a fully procedural animal (`web/scene/fox/`): the brain
+  (`brain.ts`) is dependency-free TypeScript — a wander → alert → curious →
+  flee state machine with a relocation "director" so the fox always lives in
+  the walker's story — and is tick-asserted in `tests/forest.check.ts`. The
+  body (`Fox.tsx`) is primitives only: diagonal-pair trot gait scaled by
+  speed, feet planted on the heightfield, slope-following pitch, banking,
+  tail sway, and head/ear body language. A low emissive lift keeps it warm
+  against the backlit dusk.
+- **Terrain** — one 520 u displaced plane whose heights come from
   `web/lib/heightfield.ts`; the walking rig samples the same function so feet
-  stay on the ground.
+  stay on the ground. The walkable radius is ~230 m, ending in a rim of
+  hills the fog eats. Grass is a single instanced meadow that re-plants
+  itself in whole-tile steps around the walker, so the ground is grassy
+  everywhere without thousands of extra instances.
 - **Ambience** — wind, crickets and an owl are synthesised with WebAudio
   (`web/lib/ambience.ts`); no audio files. Footsteps are cut from the same
   synth — a lowpass thump plus bandpassed leaf crunch fired by each head-bob
   cycle. The context starts inside the click/tap gesture that enters the
-  forest; a Sound button on touch pauses it all.
+  forest; a Sound button on touch pauses it all, and leaving the project
+  closes the context outright (asserted by the smoke test).
 - **Determinism** — all placement uses seeded PRNGs from `web/lib/rng.ts`.
 
 ## Verify

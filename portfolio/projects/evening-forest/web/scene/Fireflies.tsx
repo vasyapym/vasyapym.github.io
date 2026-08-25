@@ -1,4 +1,5 @@
-import { useEffect, useMemo } from "react";
+import { useEffect, useMemo, useRef } from "react";
+import { useFrame } from "@react-three/fiber";
 import * as THREE from "three";
 import { COLORS } from "../lib/palette";
 import { terrainHeight } from "../lib/heightfield";
@@ -79,6 +80,28 @@ export function Fireflies({ count = DEFAULT_COUNT }: { count?: number }) {
     g.setAttribute("aSeed", new THREE.BufferAttribute(seeds, 4));
     return g;
   }, [count]);
+
+  // The hollow travels: once the walker strays too far from the swarm's
+  // centre, the whole cloud quietly re-seeds around them, so fireflies stay
+  // part of every walk instead of being a spawn-area landmark.
+  const anchorRef = useRef(new THREE.Vector3(0, 0, 0));
+  useFrame(() => {
+    if (playerPositionUniform.value.distanceTo(anchorRef.current) < 46) return;
+    anchorRef.current.copy(playerPositionUniform.value);
+    const attr = geometry.getAttribute("position") as THREE.BufferAttribute;
+    const positions = attr.array as Float32Array;
+    const rand = Math.random;
+    for (let i = 0; i < count; i += 1) {
+      const angle = rand() * Math.PI * 2;
+      const radius = 8 + Math.sqrt(rand()) * 64;
+      const x = playerPositionUniform.value.x + Math.cos(angle) * radius;
+      const z = playerPositionUniform.value.z + Math.sin(angle) * radius;
+      positions[i * 3] = x;
+      positions[i * 3 + 1] = terrainHeight(x, z) + 0.5 + rand() * 2.4;
+      positions[i * 3 + 2] = z;
+    }
+    attr.needsUpdate = true;
+  });
 
   const material = useMemo(
     () =>

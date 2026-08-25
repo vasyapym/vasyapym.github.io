@@ -11,6 +11,7 @@ import { Terrain } from "./Terrain";
 import { Trees } from "./Trees";
 import { Grass } from "./Grass";
 import { Fireflies } from "./Fireflies";
+import { Fox } from "./fox/Fox";
 import { LightShafts } from "./LightShafts";
 import { FirstPersonRig } from "./FirstPersonRig";
 import { RetroEffects } from "./RetroEffects";
@@ -88,7 +89,7 @@ export function ForestCanvas({
           stencil: false,
           powerPreference: "high-performance",
         }}
-        camera={{ fov: 72, near: 0.1, far: 340, position: [0, 2.4, 10] }}
+        camera={{ fov: 72, near: 0.1, far: 420, position: [0, 2.4, 10] }}
         onCreated={({ gl, camera }) => {
           gl.setClearColor(COLORS.fog);
           camera.rotation.order = "YXZ";
@@ -120,6 +121,7 @@ export function ForestCanvas({
           <Grass />
           <LightShafts />
           <Fireflies count={quality.fireflies} />
+          <Fox />
           <FirstPersonRig
             reducedMotion={reducedMotion}
             active={active}

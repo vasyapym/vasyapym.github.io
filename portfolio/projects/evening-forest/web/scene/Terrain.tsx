@@ -14,7 +14,7 @@ import { makeGrainTexture } from "../lib/textures";
 // noise field), then multiplied by a neutral grain texture for texture.
 export function Terrain() {
   const geometry = useMemo(() => {
-    const g = new THREE.PlaneGeometry(TERRAIN_SIZE, TERRAIN_SIZE, 130, 130);
+    const g = new THREE.PlaneGeometry(TERRAIN_SIZE, TERRAIN_SIZE, 224, 224);
     g.rotateX(-Math.PI / 2);
     const position = g.attributes.position as THREE.BufferAttribute;
     const colors = new Float32Array(position.count * 3);

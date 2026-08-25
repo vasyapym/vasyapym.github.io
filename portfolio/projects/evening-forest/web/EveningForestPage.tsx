@@ -6,7 +6,7 @@ import {
   useRef,
   useState,
 } from "react";
-import { getAmbience } from "./lib/ambience";
+import { getAmbience, releaseAmbience } from "./lib/ambience";
 import { createTouchInputState, resetTouchInputState } from "./lib/touch-input";
 import {
   ForestCanvas,
@@ -45,10 +45,12 @@ export default function EveningForestPage() {
     setWebglOk(hasWebGL());
   }, []);
 
-  // Duck the ambience while paused; on real unmount leave it silent.
+  // Leaving the project closes the AudioContext outright — silence is the
+  // only acceptable sound after unmount, dimming would keep the wind alive.
   useEffect(() => {
     return () => {
-      ambienceRef.current?.setDimmed(true);
+      releaseAmbience();
+      ambienceRef.current = null;
     };
   }, []);
 
@@ -187,7 +189,8 @@ export default function EveningForestPage() {
       <header className="evening-forest-intro section-shell">
         <h1 className="evening-forest-title">Evening Forest</h1>
         <p className="evening-forest-lede">
-          An 8-bit woodland at dusk. Walk, look, listen — nothing to win.
+          An 8-bit woodland at dusk. Walk, look, listen — you may not be
+          alone.
         </p>
       </header>
       <section className="evening-forest-stage">{stage}</section>

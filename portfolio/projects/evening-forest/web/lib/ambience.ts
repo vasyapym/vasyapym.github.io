@@ -295,3 +295,10 @@ export function getAmbience(): EveningAmbience {
   if (!currentAmbience) currentAmbience = new EveningAmbience();
   return currentAmbience;
 }
+
+// Full teardown for leaving the project: the forest must go silent and the
+// next visit must start from a fresh context, not a zombie of this one.
+export function releaseAmbience(): void {
+  currentAmbience?.dispose();
+  currentAmbience = null;
+}

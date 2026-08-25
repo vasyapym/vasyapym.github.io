@@ -3,11 +3,17 @@ import * as THREE from "three";
 import { mergeGeometries } from "three/examples/jsm/utils/BufferGeometryUtils.js";
 import { COLORS } from "../lib/palette";
 import { scatterCells } from "../lib/rng";
-import { terrainHeight } from "../lib/heightfield";
+import { smoothstep, terrainHeight } from "../lib/heightfield";
 import { applyWind } from "./wind";
 
-const HALF_EXTENT = 84;
+// Covers the full walkable circle (radius 230) plus margin, so the treeline
+// never ends inside the fog.
+const HALF_EXTENT = 235;
 const MIN_RADIUS = 11;
+
+function mix(a: number, b: number, t: number): number {
+  return a + (b - a) * t;
+}
 
 type TreeSpot = {
   x: number;
@@ -29,9 +35,14 @@ function collectSpots(): { pines: TreeSpot[]; broadleaf: TreeSpot[] } {
   });
   for (const cell of cells) {
     const roll = cell.rand();
-    // Density thins toward the foggy rim so the edge dissolves instead of
-    // stopping; the spawn clearing stays open.
-    const density = cell.r > 72 ? 0.34 : cell.r < 20 ? 0.5 : 0.62;
+    // Open spawn clearing, dense woodland belt, then thinning toward the
+    // foggy rim so the far edge dissolves instead of stopping.
+    const density =
+      cell.r < 20
+        ? 0.45
+        : cell.r < 120
+          ? 0.62
+          : mix(0.62, 0.22, smoothstep(120, HALF_EXTENT, cell.r));
     if (roll > density) continue;
     const spot: TreeSpot = {
       x: cell.x,

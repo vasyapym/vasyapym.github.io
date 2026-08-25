@@ -782,6 +782,36 @@ textarea:focus-visible {
   font-size: 0.78rem;}
 
 
+.project-crash {
+  padding-top: 5rem;
+  max-width: 40rem;
+  color: var(--index-muted);
+  font-family: var(--sans);}
+
+.project-crash-title {
+  color: var(--ink-text);
+  font-size: 1.3rem;}
+
+.project-crash-copy {
+  margin: 0.6rem 0 1rem;
+  font-size: 0.85rem;
+  line-height: 1.55;}
+
+.project-crash-detail {
+  margin: 0 0 1.4rem;
+  padding: 0.8rem 1rem;
+  overflow-x: auto;
+  color: var(--index-muted);
+  background: rgba(127, 127, 127, 0.08);
+  border: 1px solid rgba(127, 127, 127, 0.18);
+  border-radius: 6px;
+  font-family: var(--mono);
+  font-size: 0.72rem;
+  line-height: 1.5;
+  white-space: pre-wrap;
+  word-break: break-word;}
+
+
 /* Code Layout */
 .code-layout-field {
   min-height: max(480px, calc(100vh - 61px));

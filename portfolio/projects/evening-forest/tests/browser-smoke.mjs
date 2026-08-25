@@ -106,30 +106,56 @@ try {
     if (msg.type() === "error") problems.push(`console.error: ${msg.text()}`);
   });
 
+  // Track every AudioContext the page ever creates so the leaving-the-forest
+  // step can assert none of them is left playing.
+  await page.evaluateOnNewDocument(() => {
+    const contexts = [];
+    const Native = window.AudioContext;
+    window.AudioContext = class extends Native {
+      constructor(...args) {
+        super(...args);
+        contexts.push(this);
+      }
+    };
+    Object.defineProperty(window, "__audioContexts", {
+      get: () => contexts,
+      configurable: true,
+    });
+  });
+
   const shot = (name) =>
     page.screenshot({ path: join(SHOTS, `${name}.png`) });
   const check = (ok, label) => {
     if (!ok) problems.push(`assert: ${label}`);
     console.log(`${ok ? "ok  " : "FAIL"} ${label}`);
   };
+  // Poll instead of sleeping: a cold Vite start optimizes deps on first run
+  // and mounts late, so fixed waits race the first render.
+  const appears = (selector, timeout = 30000) =>
+    page
+      .waitForSelector(selector, { timeout })
+      .then(() => true)
+      .catch(() => false);
+  const gone = async (selector, settleMs = 800) => {
+    await wait(settleMs);
+    return (await page.$(selector)) === null;
+  };
 
   await page.goto(`${BASE}/projects/evening-forest`, {
     waitUntil: "networkidle0",
     timeout: 45000,
   });
-  await wait(2000);
-  await shot("1-menu");
 
-  check(!!(await page.$(".evening-forest-enter")), "enter button renders");
+  check(await appears(".evening-forest-enter"), "enter button renders");
+  await shot("1-menu");
   check(!!(await page.$(".evening-forest-stage canvas")), "canvas renders");
 
   await page.touchscreen.tap(195, 420);
-  await wait(1000);
-  await shot("2-playing");
-  check(
-    (await page.$(".evening-forest-overlay")) === null,
-    "tap enters the forest",
+  const overlayGone = await appears(".ef-touch").then(async (controls) =>
+    controls && (await gone(".evening-forest-overlay")),
   );
+  await shot("2-playing");
+  check(overlayGone, "tap enters the forest");
   check(!!(await page.$(".ef-touch")), "touch controls mount");
   check(
     (await page.$(".evening-forest-resting-hint")) === null,
@@ -163,13 +189,15 @@ try {
   await shot("4-looked");
 
   const rest = await page.$(".ef-touch-buttons button:last-child");
-  await rest.tap();
-  await wait(600);
-  await shot("5-rested");
-  check(
-    !!(await page.$(".evening-forest-overlay")),
-    "Rest returns the menu overlay",
-  );
+  if (!rest) {
+    problems.push("assert: Rest button exists");
+    console.log("FAIL Rest button exists");
+  } else {
+    await rest.tap();
+    const overlayBack = await appears(".evening-forest-overlay");
+    await shot("5-rested");
+    check(overlayBack, "Rest returns the menu overlay");
+  }
 
   await page.touchscreen.tap(195, 420);
   await wait(800);
@@ -183,6 +211,27 @@ try {
   const before = readFileSync(join(SHOTS, "2-playing.png"));
   const after = readFileSync(join(SHOTS, "3-walking.png"));
   check(!before.equals(after), "view changes while walking");
+
+  // Leaving the project must close the ambience, not just duck it.
+  const runningStates = await page.evaluate(() =>
+    window.__audioContexts.map((ctx) => ctx.state),
+  );
+  check(
+    runningStates.length > 0 && runningStates.every((s) => s === "running"),
+    "ambience context runs while inside the forest",
+  );
+
+  await page.tap(".back-link");
+  check(await appears("main.signal-index"), "leaving returns to the landing page");
+  await wait(600);
+  await shot("6-left");
+  const leftStates = await page.evaluate(() =>
+    window.__audioContexts.map((ctx) => ctx.state),
+  );
+  check(
+    leftStates.length > 0 && leftStates.every((s) => s === "closed"),
+    `audio contexts all closed after leaving (${leftStates.join(", ") || "none"})`,
+  );
 
   await browser.close();
 

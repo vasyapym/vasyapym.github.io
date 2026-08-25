@@ -12,6 +12,7 @@ const eveningForest: ProjectModule = {
     "Three.js",
     "TypeScript",
     "Custom shaders",
+    "Procedural animation",
     "WebAudio",
   ],
   status: "available",
@@ -28,7 +29,7 @@ const eveningForest: ProjectModule = {
     motion: "terrain",
     centerLabel: "E / F",
     centerMark: "compass",
-    note: "Dusk circuit",
+    note: "The long dusk",
     motionLabel: "the canopy breathes",
     instruction:
       "Walk with WASD and the mouse on desktop, or two thumbs on a phone; Esc (or Rest) brings you back here.",
