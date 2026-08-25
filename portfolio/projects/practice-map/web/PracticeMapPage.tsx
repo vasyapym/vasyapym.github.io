@@ -10,11 +10,13 @@ import {
   curriculum,
   FEEDBACK_LABELS,
   type FeedbackKind,
+  type LessonExample,
   type PracticeArea,
   type TopicCard as TopicCardDefinition,
   type TopicStatus,
 } from "./curriculum";
 import {
+  createInitialState,
   formatFeedback,
   loadPracticeState,
   savePracticeState,
@@ -43,10 +45,22 @@ const LESSON_TABS = [
 
 type LessonTabKey = (typeof LESSON_TABS)[number]["key"];
 
+type StatusFilter = TopicStatus | "all";
+
+const STATUS_FILTERS: readonly { key: StatusFilter; label: string }[] = [
+  { key: "all", label: "All" },
+  { key: "queued", label: STATUS_LABELS.queued },
+  { key: "in-progress", label: STATUS_LABELS["in-progress"] },
+  { key: "revisit", label: STATUS_LABELS.revisit },
+  { key: "applied", label: STATUS_LABELS.applied },
+];
+
 export default function PracticeMapPage() {
   const [activeAreaId, setActiveAreaId] = useState(curriculum[0]?.id ?? "");
   const [state, setState] = useState<PracticeState>(() => loadPracticeState(curriculum));
   const [copied, setCopied] = useState(false);
+  const [query, setQuery] = useState("");
+  const [statusFilter, setStatusFilter] = useState<StatusFilter>("all");
 
   const activeArea = useMemo(
     () => curriculum.find((area) => area.id === activeAreaId) ?? curriculum[0],
@@ -95,6 +109,7 @@ export default function PracticeMapPage() {
             {copied ? "Review notes copied" : "Copy review notes"}
             <span aria-hidden="true">↗</span>
           </button>
+          <RouteProgress done={summary.applied} total={summary.total} />
         </div>
       </header>
 
@@ -131,15 +146,81 @@ export default function PracticeMapPage() {
         </aside>
 
         {activeArea && (
-          <PracticeAreaView area={activeArea} state={state} onChange={updateState} />
+          <PracticeAreaView
+            area={activeArea}
+            state={state}
+            onChange={updateState}
+            query={query}
+            statusFilter={statusFilter}
+            onQueryChange={setQuery}
+            onStatusFilterChange={setStatusFilter}
+          />
         )}
       </div>
 
       <footer className="practice-map-footer">
         <span>Local notes · no account · change the map as the work changes</span>
-        <span>{summary.queued} queued</span>
+        <span className="practice-map-footer-meta">
+          <span>{summary.queued} queued</span>
+          <button
+            className="practice-map-reset"
+            type="button"
+            onClick={() => {
+              if (window.confirm("Reset all statuses, feedback, and notes?")) {
+                setState(createInitialState(curriculum));
+                setCopied(false);
+              }
+            }}
+          >
+            Reset progress
+          </button>
+        </span>
       </footer>
     </section>
+  );
+}
+
+function RouteProgress({ done, total }: { done: number; total: number }) {
+  const pathRef = useRef<SVGPathElement>(null);
+  const [pathLength, setPathLength] = useState(0);
+  const pct = total === 0 ? 0 : Math.round((done / total) * 100);
+
+  useEffect(() => {
+    if (pathRef.current) {
+      setPathLength(pathRef.current.getTotalLength());
+    }
+  }, []);
+
+  return (
+    <div
+      aria-label={`${done} of ${total} topics applied`}
+      className="practice-route"
+      role="img"
+    >
+      <div className="practice-route-heading">
+        <span>Route progress</span>
+        <strong>{pct}%</strong>
+      </div>
+      <svg aria-hidden="true" viewBox="0 0 320 36">
+        <path
+          className="practice-route-track"
+          d="M4 28 C 52 8, 96 34, 148 20 S 244 2, 268 18 S 306 30, 316 12"
+          fill="none"
+        />
+        <path
+          className="practice-route-fill"
+          d="M4 28 C 52 8, 96 34, 148 20 S 244 2, 268 18 S 306 30, 316 12"
+          fill="none"
+          ref={pathRef}
+          strokeDasharray={pathLength || 1}
+          strokeDashoffset={(1 - pct / 100) * (pathLength || 1)}
+        />
+        <circle className={`practice-route-end${pct === 100 ? " is-complete" : ""}`} cx="316" cy="12" r="4" />
+      </svg>
+      <span className="practice-route-caption">
+        {done} of {total} applied
+      </span>
+    </div>
   );
 }
 
@@ -147,12 +228,45 @@ function PracticeAreaView({
   area,
   state,
   onChange,
+  query,
+  statusFilter,
+  onQueryChange,
+  onStatusFilterChange,
 }: {
   area: PracticeArea;
   state: PracticeState;
   onChange: (state: PracticeState) => void;
+  query: string;
+  statusFilter: StatusFilter;
+  onQueryChange: (query: string) => void;
+  onStatusFilterChange: (filter: StatusFilter) => void;
 }) {
   const summary = summarizePractice([area], state);
+
+  const statusCounts = useMemo(() => {
+    const counts = new Map<StatusFilter, number>([["all", area.topics.length]]);
+    for (const topic of area.topics) {
+      const status = state.topics[topic.id]?.status ?? "queued";
+      counts.set(status, (counts.get(status) ?? 0) + 1);
+    }
+    return counts;
+  }, [area, state]);
+
+  const visibleTopics = useMemo(() => {
+    const needle = query.trim().toLowerCase();
+    return area.topics.filter((topic) => {
+      if (statusFilter !== "all" && (state.topics[topic.id]?.status ?? "queued") !== statusFilter) {
+        return false;
+      }
+      if (!needle) {
+        return true;
+      }
+      return [topic.title, topic.summary, ...topic.concepts]
+        .join(" ")
+        .toLowerCase()
+        .includes(needle);
+    });
+  }, [area, query, statusFilter, state]);
 
   return (
     <section className="practice-area-view" aria-labelledby="practice-area-title">
@@ -167,18 +281,66 @@ function PracticeAreaView({
         </span>
       </div>
 
-      <div className="practice-topic-grid">
-        {area.topics.map((topic, index) => (
-          <TopicCard
-            key={topic.id}
-            index={index}
-            progress={state.topics[topic.id]}
-            topic={topic}
-            onChange={onChange}
-            state={state}
+      <div className="practice-toolbar">
+        <label className="practice-search">
+          <span aria-hidden="true">⌕</span>
+          <input
+            aria-label="Search topics"
+            placeholder="Search title, summary, or concept…"
+            type="search"
+            value={query}
+            onChange={(event) => onQueryChange(event.target.value)}
           />
-        ))}
+          {query && (
+            <button aria-label="Clear search" className="practice-search-clear" type="button" onClick={() => onQueryChange("")}>
+              ✕
+            </button>
+          )}
+        </label>
+        <div aria-label="Filter by status" className="practice-filter-chips" role="group">
+          {STATUS_FILTERS.map(({ key, label }) => (
+            <button
+              aria-pressed={statusFilter === key}
+              className={statusFilter === key ? "is-active" : ""}
+              key={key}
+              type="button"
+              onClick={() => onStatusFilterChange(key)}
+            >
+              {label}
+              <em>{statusCounts.get(key) ?? 0}</em>
+            </button>
+          ))}
+        </div>
       </div>
+
+      {visibleTopics.length > 0 ? (
+        <div className="practice-topic-grid">
+          {visibleTopics.map((topic) => (
+            <TopicCard
+              key={topic.id}
+              index={area.topics.indexOf(topic)}
+              progress={state.topics[topic.id]}
+              topic={topic}
+              onChange={onChange}
+              state={state}
+            />
+          ))}
+        </div>
+      ) : (
+        <div className="practice-topic-empty">
+          <strong>Nothing on this stretch of the map</strong>
+          <span>No topics match the current search and filter.</span>
+          <button
+            type="button"
+            onClick={() => {
+              onQueryChange("");
+              onStatusFilterChange("all");
+            }}
+          >
+            Clear filters
+          </button>
+        </div>
+      )}
     </section>
   );
 }
@@ -313,6 +475,13 @@ function LessonOverlay({
   const closeButtonRef = useRef<HTMLButtonElement>(null);
   const lesson = topic.lesson;
 
+  const moveTab = (delta: number) => {
+    setTab((current) => {
+      const activeIndex = LESSON_TABS.findIndex(({ key }) => key === current);
+      return LESSON_TABS[(activeIndex + delta + LESSON_TABS.length) % LESSON_TABS.length].key;
+    });
+  };
+
   useEffect(() => {
     if (!lesson) {
       return;
@@ -321,6 +490,19 @@ function LessonOverlay({
     const handleKeyDown = (event: KeyboardEvent) => {
       if (event.key === "Escape") {
         onClose();
+        return;
+      }
+      if (event.key === "ArrowRight") {
+        moveTab(1);
+        return;
+      }
+      if (event.key === "ArrowLeft") {
+        moveTab(-1);
+        return;
+      }
+      const digit = Number(event.key);
+      if (Number.isInteger(digit) && digit >= 1 && digit <= LESSON_TABS.length) {
+        setTab(LESSON_TABS[digit - 1].key);
       }
     };
 
@@ -376,13 +558,14 @@ function LessonOverlay({
         )}
 
         <div aria-label="Разделы урока" className="practice-lesson-tabs">
-          {LESSON_TABS.map(({ key, label }) => (
+          {LESSON_TABS.map(({ key, label }, tabIndex) => (
             <button
               className={tab === key ? "is-active" : ""}
               key={key}
               type="button"
               onClick={() => setTab(key)}
             >
+              <kbd>{tabIndex + 1}</kbd>
               {label}
             </button>
           ))}
@@ -398,11 +581,7 @@ function LessonOverlay({
           <div className="practice-lesson-examples">
             <h3>Практика</h3>
             {topic.examples.map((example) => (
-              <figure className="practice-example" key={example.title}>
-                <figcaption>{example.title}</figcaption>
-                <pre><code>{example.code}</code></pre>
-                <p>{example.explanation}</p>
-              </figure>
+              <ExampleFigure example={example} key={example.title} />
             ))}
           </div>
         )}
@@ -410,9 +589,47 @@ function LessonOverlay({
         {topic.references && topic.references.length > 0 && (
           <footer className="practice-lesson-footer">
             <span>Источники: {topic.references.join(" · ")}</span>
+            <span className="practice-lesson-hint">
+              <kbd>←</kbd> <kbd>→</kbd> разделы · <kbd>Esc</kbd> закрыть
+            </span>
           </footer>
         )}
       </section>
     </div>
+  );
+}
+
+function ExampleFigure({ example }: { example: LessonExample }) {
+  const [copied, setCopied] = useState(false);
+
+  const handleCopy = async () => {
+    if (!navigator.clipboard) {
+      return;
+    }
+    try {
+      await navigator.clipboard.writeText(example.code);
+      setCopied(true);
+      window.setTimeout(() => setCopied(false), 1600);
+    } catch {
+      setCopied(false);
+    }
+  };
+
+  return (
+    <figure className="practice-example" key={example.title}>
+      <figcaption>{example.title}</figcaption>
+      <div className="practice-example-code">
+        <button
+          aria-label="Скопировать код"
+          className={`practice-example-copy${copied ? " is-copied" : ""}`}
+          type="button"
+          onClick={handleCopy}
+        >
+          {copied ? "copied" : "copy"}
+        </button>
+        <pre><code>{example.code}</code></pre>
+      </div>
+      <p>{example.explanation}</p>
+    </figure>
   );
 }
