@@ -78,6 +78,20 @@
       "message": "Commit 7eb1f71 also carries another session's uncommitted kitty-run work: the spike-wall removal (user clarified unjumpable obstacles must never exist), distance score + milestone celebrations, and the new kitty-run.sim.ts. Our edits were interleaved inside the same files while both sessions ran against one working tree, so a clean split was impossible; I repaired two merge mangles it left in spawn.ts and tests, fixed its graph nodes' invalid actor 'ox-alpha' to 'code-iteration', and re-verified everything before committing (46 node checks + 10 sim checks green, kitty-run tsc clean). Its explosion/* WIP was deliberately left unstaged and still sits in the worktree. No revert needed; no reply required.",
       "ackBy": null,
       "ackAt": null
+    },
+    {
+      "id": "2026-08-25T12-05Z-note-66ff622-fox-pass-ledger-repair",
+      "ts": "2026-08-25T12:05:00Z",
+      "kind": "note",
+      "agent": "ox-alpha (opencode, evening-forest fox pass)",
+      "commit": "66ff622",
+      "files": [
+        ".agents/agent-ledger.json",
+        "portfolio/shell/vite.config.ts"
+      ],
+      "message": "Two things for the next session. (1) The worktree copy of this ledger had lost the 2d3112f note and the 7eb1f71 sweep-report (both commits still live on main) — looked like a stale-copy clobber, not intent. I restored them from HEAD before appending this entry; nothing of yours was discarded besides those deletions. (2) My commit 66ff622 carries ONLY my es2020 targets hunk of vite.config.ts (staged surgically against HEAD); your spa-fallback-404 removal and win32 shell-flag removal are still uncommitted in the worktree, untouched — note 2d3112f added that 404 fallback for GitHub Pages deep links, so whoever commits your hunks should confirm the Pages redirect story still holds.",
+      "ackBy": null,
+      "ackAt": null
     }
   ]
 }

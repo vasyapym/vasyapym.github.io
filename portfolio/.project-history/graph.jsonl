@@ -68,3 +68,5 @@
 {"type":"edge.added","id":"e33","ts":"2026-08-24T13:57:03.638Z","from":"n26","to":"n27","rel":"continues"}
 {"type":"node.added","id":"n28","ts":"2026-08-24T13:57:04.117Z","kind":"iteration","actor":"user","title":"feat(shell): port depth layers into the mobile hero (pass 19)","artifacts":[{"kind":"git-commit","ref":"864fd85"}],"meta":{"source":"auto"}}
 {"type":"edge.added","id":"e34","ts":"2026-08-24T13:57:04.120Z","from":"n27","to":"n28","rel":"continues"}
+{"type":"node.added","id":"n29","ts":"2026-08-25T12:13:35.557Z","kind":"iteration","actor":"user","title":"feat(evening-forest): the fox, a wider dusk, and silent exits","artifacts":[{"kind":"git-commit","ref":"66ff622"}],"meta":{"source":"auto"}}
+{"type":"edge.added","id":"e35","ts":"2026-08-25T12:13:35.558Z","from":"n28","to":"n29","rel":"continues"}
