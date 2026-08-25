@@ -7,8 +7,6 @@ import {
   BOX_HALF,
   HOVER_RADIUS,
   PICKUP_RADIUS,
-  SPIKE_HALF_W,
-  SPIKE_TOP,
   TALL_HALF,
   buildChunk,
   chunkSeed,
@@ -106,7 +104,6 @@ function spawnChunk(world: WorldState): void {
       slot.data.kind = item.kind as Obstacle["kind"];
       slot.data.x = item.x;
       slot.data.y = item.y;
-      slot.data.passed = false;
     } else {
       const slot = world.pickups.acquire();
       if (!slot) continue;
@@ -145,6 +142,21 @@ export function stepWorld(world: WorldState, rawDt: number): void {
   const travel = (world.speed + boost) * dt;
   world.distance += travel;
   k.runPhase += dt * (6 + world.speed * 0.9);
+
+  // Distance alone ticks one point per metre, so the counter always
+  // breathes even between pickups.
+  const wholeMeters = Math.floor(world.distance);
+  if (wholeMeters > world.scoredDistance) {
+    world.score += wholeMeters - world.scoredDistance;
+    world.scoredDistance = wholeMeters;
+  }
+
+  // Milestones: crossing a step raises the celebration exactly once.
+  if (world.distance >= world.nextMilestone) {
+    const meters = world.nextMilestone;
+    world.nextMilestone += TUNING.milestoneStep;
+    world.events.push({ type: "milestone", meters });
+  }
 
   // --- input ----------------------------------------------------------------
 
@@ -237,40 +249,6 @@ export function stepWorld(world: WorldState, rawDt: number): void {
   const ky = k.y + TUNING.kittyCenterLift;
   const kr = TUNING.kittyRadius;
 
-  // First spike wall coming into view raises the dash hint, once per run.
-  if (!world.spikeWarned) {
-    for (const slot of world.obstacles.slots) {
-      if (!slot.active || slot.data.kind !== "spike") continue;
-      const vx = slot.data.x - world.distance;
-      if (vx > 0 && vx < 26) {
-        world.spikeWarned = true;
-        world.hintT = 4.5;
-        world.events.push({ type: "spikeNear" });
-        break;
-      }
-    }
-  }
-
-  // Spike walls pay out when dashed through — the skill shot is rewarded
-  // even though the wall can never be jumped.
-  for (const slot of world.obstacles.slots) {
-    if (!slot.active || slot.data.kind !== "spike" || slot.data.passed) {
-      continue;
-    }
-    const o = slot.data;
-    const vx = o.x - world.distance;
-    if (vx < -2 || vx > 2) continue;
-    if (
-      k.dashT > 0 &&
-      circleHitsRect(kx, ky, kr + 0.35, vx, o.y, SPIKE_HALF_W, SPIKE_TOP / 2)
-    ) {
-      o.passed = true;
-      world.score += 25;
-      k.happyT = 0.6;
-      world.events.push({ type: "spikeThrough", score: 25 });
-    }
-  }
-
   if (k.invulnT <= 0 && k.dashT <= 0) {
     for (const slot of world.obstacles.slots) {
       if (!slot.active) continue;
@@ -280,9 +258,7 @@ export function stepWorld(world: WorldState, rawDt: number): void {
       const hit =
         o.kind === "hover"
           ? circleHitsCircle(kx, ky, kr, vx, o.y, HOVER_RADIUS)
-          : o.kind === "spike"
-            ? circleHitsRect(kx, ky, kr, vx, o.y, SPIKE_HALF_W, SPIKE_TOP / 2)
-            : circleHitsBox(kx, ky, kr, vx, o.y, obstacleHalf(o.kind));
+          : circleHitsBox(kx, ky, kr, vx, o.y, obstacleHalf(o.kind));
       if (!hit) continue;
 
       world.hearts -= 1;
@@ -348,7 +324,6 @@ export function stepWorld(world: WorldState, rawDt: number): void {
   world.shake = Math.max(0, world.shake - dt * 2.1);
   world.hitFlash = Math.max(0, world.hitFlash - dt * 2.6);
   world.heartPulseT = Math.max(0, world.heartPulseT - dt);
-  world.hintT = Math.max(0, world.hintT - dt);
   for (const slot of world.floaters.slots) {
     if (!slot.active) continue;
     const f = slot.data;

@@ -5,8 +5,11 @@
 import { useEffect, useRef } from "react";
 import { useFrame } from "@react-three/fiber";
 import { COMBO_WINDOW, writeBestScore } from "../lib/score.ts";
+import { saveReplayIfBest, type RunInput } from "../lib/replay.ts";
+import { buzz } from "../lib/haptics.ts";
 import type { Sfx } from "../lib/audio.ts";
 import { hexRgb, dashTrail, dustPuff, sparkBurst, type Rgb } from "./bursts.ts";
+import { releaseJump, requestDash, requestJump } from "./actions.ts";
 import { stepWorld } from "./step.ts";
 import type { GameStatus, WorldState } from "./world.ts";
 
@@ -15,7 +18,7 @@ export type HudRefs = {
   hearts: React.RefObject<HTMLDivElement | null>;
   combo: React.RefObject<HTMLSpanElement | null>;
   comboBar: React.RefObject<HTMLDivElement | null>;
-  hint: React.RefObject<HTMLDivElement | null>;
+  milestone: React.RefObject<HTMLDivElement | null>;
   debug?: React.RefObject<HTMLSpanElement | null>;
 };
 
@@ -43,7 +46,12 @@ function emitFloater(
   slot.data.kind = kind;
 }
 
-function handleEvents(world: WorldState, sfx: Sfx | null, reducedMotion: boolean): void {
+function handleEvents(
+  world: WorldState,
+  sfx: Sfx | null,
+  reducedMotion: boolean,
+  hud: HudRefs,
+): void {
   for (const event of world.events) {
     const k = world.kitty;
     switch (event.type) {
@@ -62,16 +70,39 @@ function handleEvents(world: WorldState, sfx: Sfx | null, reducedMotion: boolean
       case "dash":
         sfx?.dash();
         break;
-      case "spikeNear":
-        sfx?.spikeWarn();
+      case "milestone": {
+        sfx?.milestone();
+        if (!reducedMotion) buzz([14, 42, 14]);
+        sparkBurst(world, 0, k.y + 1.3, reducedMotion ? 6 : 16, HEART_RGB, 4);
+        sparkBurst(world, 0, k.y + 1.1, reducedMotion ? 4 : 10, STAR_RGB, 2.8);
+        if (hud.milestone.current) {
+          const node = hud.milestone.current;
+          node.textContent = `${event.meters} m!`;
+          const travel = (dy: number): Keyframe[] => [
+            { opacity: 0, transform: `translate(-50%, ${dy}px) scale(0.7)` },
+            { opacity: 1, transform: "translate(-50%, 0) scale(1)", offset: 0.18 },
+            { opacity: 1, transform: "translate(-50%, 0) scale(1)", offset: 0.72 },
+            { opacity: 0, transform: `translate(-50%, ${-dy}px) scale(1)` },
+          ];
+          // Reduced motion gets a plain cross-fade: no drift, no scale.
+          const frames: Keyframe[] = reducedMotion
+            ? [
+                { opacity: 0 },
+                { opacity: 1, offset: 0.2 },
+                { opacity: 1, offset: 0.7 },
+                { opacity: 0 },
+              ]
+            : travel(10);
+          node.animate(frames, {
+            duration: reducedMotion ? 900 : 1700,
+            easing: "ease",
+          });
+        }
         break;
-      case "spikeThrough":
-        sfx?.dashThrough();
-        sparkBurst(world, 0, k.y + 0.8, reducedMotion ? 6 : 14, HEART_RGB, 3.4);
-        emitFloater(world, 0, k.y + 0.9, "bonus", event.score);
-        break;
+      }
       case "hit":
         sfx?.hit();
+        if (!reducedMotion) buzz(70);
         sparkBurst(world, 0, k.y + 0.8, reducedMotion ? 6 : 14, HIT_RGB, 4.2);
         emitFloater(world, 0, k.y + 0.8, "hurt", 1);
         break;
@@ -79,7 +110,10 @@ function handleEvents(world: WorldState, sfx: Sfx | null, reducedMotion: boolean
         const color: Rgb =
           event.pickup === "star" ? STAR_RGB : event.pickup === "heal" ? HEAL_RGB : HEART_RGB;
         sfx?.pickup(event.combo);
-        if (event.healed) sfx?.heal();
+        if (event.healed) {
+          sfx?.heal();
+          if (!reducedMotion) buzz(16);
+        }
         sparkBurst(world, 0, k.y + 0.9, reducedMotion ? 5 : 10, color, 3);
         if (event.healed) {
           emitFloater(world, 0, k.y + 0.9, "heal", 1);
@@ -92,7 +126,16 @@ function handleEvents(world: WorldState, sfx: Sfx | null, reducedMotion: boolean
       }
       case "gameover":
         sfx?.gameover();
+        if (!reducedMotion) buzz([90, 50, 150]);
         writeBestScore(window.localStorage, world.best);
+        // The finished run becomes (or fails to become) the ghost future
+        // runs will race — seed plus timed inputs is the whole recipe.
+        saveReplayIfBest(window.localStorage, {
+          seed: world.runSeed,
+          score: world.score,
+          distance: world.distance,
+          inputs: world.inputLog,
+        });
         break;
     }
   }
@@ -120,9 +163,6 @@ function writeHud(world: WorldState, hud: HudRefs): void {
     const fraction = world.combo > 0 ? Math.max(0, world.comboTimer / COMBO_WINDOW) : 0;
     hud.comboBar.current.style.transform = `scaleX(${fraction})`;
   }
-  if (hud.hint.current) {
-    hud.hint.current.classList.toggle("is-visible", world.hintT > 0);
-  }
   if (hud.debug?.current) {
     hud.debug.current.textContent = `${world.status} · ${world.distance.toFixed(0)}m · obs ${world.obstacles.slots.filter((s) => s.active).length}`;
   }
@@ -130,6 +170,8 @@ function writeHud(world: WorldState, hud: HudRefs): void {
 
 export function GameLoop({
   world,
+  ghost,
+  ghostInputs,
   sfxRef,
   muted,
   hud,
@@ -137,6 +179,11 @@ export function GameLoop({
   onStatus,
 }: {
   world: WorldState;
+  // The simulated best-run world and its recorded inputs. Both come from
+  // storage; either may be absent (first visit, private mode, corrupt
+  // data) — the run then simply has no ghost.
+  ghost?: WorldState | null;
+  ghostInputs?: RunInput[];
   sfxRef: React.RefObject<Sfx | null>;
   muted: boolean;
   hud: HudRefs;
@@ -145,13 +192,45 @@ export function GameLoop({
 }) {
   const prevStatus = useRef<GameStatus>(world.status);
   const dustTimer = useRef(0);
+  const feedCursor = useRef(0);
+  const prevGhostStatus = useRef<GameStatus>("running");
 
   useEffect(() => {
     onStatus(world.status);
   }, [onStatus, world]);
 
+  // A new ghost object means a new race: rewind the feeder.
+  useEffect(() => {
+    feedCursor.current = 0;
+    prevGhostStatus.current = "running";
+  }, [ghost]);
+
   useFrame((_, delta) => {
     stepWorld(world, delta);
+
+    // The ghost lives in its own deterministic simulation — same seed as
+    // this track, same physics, its recorded inputs. Stepping both with
+    // one dt keeps them in lockstep through pauses and hit-stop.
+    if (ghost && ghostInputs && world.status === "running") {
+      const gdt = Math.min(delta, 0.05);
+      while (
+        feedCursor.current < ghostInputs.length &&
+        ghostInputs[feedCursor.current].t <= ghost.time + gdt
+      ) {
+        const inp = ghostInputs[feedCursor.current++];
+        if (inp.kind === "jump") requestJump(ghost);
+        else if (inp.kind === "release") releaseJump(ghost);
+        else requestDash(ghost);
+      }
+      stepWorld(ghost, delta);
+      // Nobody consumes the ghost's cosmetic events; drain or they pile up.
+      ghost.events.length = 0;
+      if (prevGhostStatus.current === "running" && ghost.status !== "running") {
+        const gx = Math.max(-9, Math.min(9, ghost.distance - world.distance));
+        dustPuff(world, gx, ghost.kitty.y, reducedMotion ? 3 : 7);
+      }
+      prevGhostStatus.current = ghost.status;
+    }
 
     // Dash trail runs every frame while dashing, not as a one-off event.
     if (world.kitty.dashT > 0 && !reducedMotion) {
@@ -171,7 +250,7 @@ export function GameLoop({
       dustPuff(world, 0, world.kitty.y, 1);
     }
 
-    handleEvents(world, muted ? null : sfxRef.current, reducedMotion);
+    handleEvents(world, muted ? null : sfxRef.current, reducedMotion, hud);
     writeHud(world, hud);
 
     if (prevStatus.current !== world.status) {

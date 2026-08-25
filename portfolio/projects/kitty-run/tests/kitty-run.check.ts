@@ -16,19 +16,21 @@ import {
   BOX_HALF,
   HOVER_LIFT,
   HOVER_RADIUS,
-  SPIKE_EXTRA_TIME,
-  SPIKE_TOP,
   TALL_HALF,
   buildChunk,
   chunkSeed,
   firstHazardX,
   isHazard,
   minHazardGap,
-  minSpikeGap,
   nextChunkOrigin,
 } from "../web/lib/spawn.ts";
 import { TUNING, jumpLength, jumpPeak, speedFor } from "../web/lib/tuning.ts";
 import { WORST_SLOPE } from "../web/lib/ground.ts";
+import {
+  loadReplay,
+  sanitizeReplay,
+  saveReplayIfBest,
+} from "../web/lib/replay.ts";
 
 let failures = 0;
 
@@ -98,11 +100,12 @@ check("ground stays inside its amplitude band", bounded);
 // that keeps "unjumpable" obstacles out of the fair set.
 const MAX_UPHILL_RISE =
   WORST_SLOPE * (jumpLength(TUNING.speedMax) / 2);
+const WORST_CASE_CLEARANCE =
+  jumpPeak(TUNING.jumpV) + TUNING.kittyCenterLift - TUNING.kittyRadius -
+  MAX_UPHILL_RISE;
 check(
   "well-timed single jump clears the tall obstacle even on the steepest climb",
-  jumpPeak(TUNING.jumpV) + TUNING.kittyCenterLift - TUNING.kittyRadius -
-    MAX_UPHILL_RISE >
-    3 * TALL_HALF + 0.35,
+  WORST_CASE_CLEARANCE > 3 * TALL_HALF + 0.35,
 );
 check(
   "double jump clears the tall obstacle with room",
@@ -114,16 +117,6 @@ check(
 check(
   "hover gate leaves running headroom",
   HOVER_LIFT - HOVER_RADIUS > TUNING.kittyCenterLift + TUNING.kittyRadius + 0.15,
-);
-
-// The spike wall is the one deliberate exception: no jump arc in the game
-// lifts the collision circle's bottom over its top, so it can only be
-// dashed through.
-check(
-  "double jump cannot clear the spike wall",
-  jumpPeak(TUNING.jumpV) + jumpPeak(TUNING.doubleJumpV) +
-    TUNING.kittyCenterLift - TUNING.kittyRadius <
-    SPIKE_TOP - 0.3,
 );
 
 let speedBanded = true;
@@ -138,10 +131,10 @@ check("speed starts gentle", Math.abs(speedFor(0) - TUNING.speedStart) < 1e-6);
 
 let itemsInsideChunks = true;
 let hazardsReachable = true;
+let hazardsJumpable = true;
 let pacingEven = true;
 let lengthsBounded = true;
 let gapFloorsMatch = true;
-let spikeRunwaysHold = true;
 let sawHazard = false;
 let sawHeart = false;
 let sawStar = false;
@@ -154,6 +147,15 @@ const MIN_PAIR_GAP = 4.2;
 const MAX_PAIR_GAP = 10.2;
 const MAX_CHUNK_LENGTH = 24;
 
+// The clearance bar every hazard must stay under: the double-jump apex
+// lifts the collision circle's bottom this high over its take-off ground.
+// The margin also absorbs the worst-case uphill rise, so even taking off
+// on the steepest climb leaves every spawnable top below the arc.
+const JUMP_CLEARANCE =
+  jumpPeak(TUNING.jumpV) + jumpPeak(TUNING.doubleJumpV) +
+  TUNING.kittyCenterLift - TUNING.kittyRadius;
+const JUMP_CLEARANCE_MARGIN = MAX_UPHILL_RISE;
+
 let origin = 0;
 let prevHazardEnd = Number.NEGATIVE_INFINITY;
 let prevGapFloor = 0;
@@ -165,14 +167,8 @@ for (let i = 0; i < 240; i += 1) {
 
   if (chunk.length > MAX_CHUNK_LENGTH || chunk.length < 5) lengthsBounded = false;
 
-  // The chunk's own gap floor is what fairness demands after it — plain
-  // patterns use minHazardGap, spike walls add extra dash-recovery time.
-  const hasSpike = chunk.items.some((item) => item.kind === "spike");
-  const expectedFloor = hasSpike ? minSpikeGap(speed) : minHazardGap(speed);
-  if (Math.abs(chunk.gapFloor - expectedFloor) > 1e-9) gapFloorsMatch = false;
-  if (hasSpike && chunk.gapFloor < minHazardGap(speed) + speed * SPIKE_EXTRA_TIME - 1e-9) {
-    spikeRunwaysHold = false;
-  }
+  // Every chunk demands exactly the standard recoverable gap after it.
+  if (Math.abs(chunk.gapFloor - minHazardGap(speed)) > 1e-9) gapFloorsMatch = false;
 
   const hazardXs = chunk.items
     .filter((item) => isHazard(item.kind))
@@ -192,7 +188,18 @@ for (let i = 0; i < 240; i += 1) {
     if (item.kind === "heal") sawHeal = true;
     if (isHazard(item.kind)) {
       sawHazard = true;
-      if (item.y < 0.2) hazardsReachable = false;
+      // No unjumpable obstacles: every hazard top stays under the arc a
+      // well-timed double jump can reach, measured against its own ground.
+      const half = item.kind === "hover" ? HOVER_RADIUS : BOX_HALF;
+      const topOverGround =
+        item.y + (item.kind === "tall" ? TALL_HALF : half) - groundY(item.x);
+      if (
+        item.y < 0.2 ||
+        topOverGround > JUMP_CLEARANCE - JUMP_CLEARANCE_MARGIN ||
+        (item.kind !== "hover" && topOverGround > WORST_CASE_CLEARANCE)
+      ) {
+        hazardsJumpable = false;
+      }
     }
   }
 
@@ -210,40 +217,14 @@ for (let i = 0; i < 240; i += 1) {
 }
 check("every spawn item stays inside its chunk", itemsInsideChunks);
 check("hazard groups leave a recoverable gap", hazardsReachable);
+check("no unjumpable hazard ever enters the mix", hazardsJumpable);
 check("pattern-internal hazard spacing stays landable and paired", pacingEven);
 check("chunk lengths stay bounded", lengthsBounded);
 check("gap floors match their patterns", gapFloorsMatch);
-check("spike walls keep extra dash-recovery runway", spikeRunwaysHold);
 check(
   "the mix contains every kind",
   sawHazard && sawHeart && sawStar && sawHeal,
 );
-
-// Spike walls are gated behind the opening stretch, then show up often
-// enough to be part of the run's rhythm.
-let sawSpike = false;
-let spikeOrigin = 0;
-for (let i = 0; i < 240 && !sawSpike; i += 1) {
-  const distance = spikeOrigin;
-  const difficulty = Math.min(1, distance / 800);
-  const speed = speedFor(distance);
-  const chunk = buildChunk(
-    chunkSeed("kitty-run/check/spike-mix/v1", i),
-    spikeOrigin,
-    difficulty,
-    speed,
-  );
-  sawSpike = chunk.items.some((item) => item.kind === "spike");
-  spikeOrigin += nextChunkOrigin(chunk, spikeOrigin, speed);
-}
-check("spike walls join the mix once the ramp is underway", sawSpike);
-
-const firstChunksNoSpike = [0, 1, 2, 3, 4].every((i) =>
-  buildChunk(chunkSeed("kitty-run/check/v1", i), 0, 0, TUNING.speedStart).items.every(
-    (item) => item.kind !== "spike",
-  ),
-);
-check("spike walls are gated behind the opening stretch", firstChunksNoSpike);
 
 const chunkOne = buildChunk(chunkSeed("kitty-run/check/v1", 7), 100, 0.5, 9);
 const chunkTwo = buildChunk(chunkSeed("kitty-run/check/v1", 7), 100, 0.5, 9);
@@ -287,6 +268,71 @@ check("stars never mend", !healsHeart("star"));
 check("full-health heart converts to bonus", fullHealthBonus("heart") === 20);
 check("full-health big heart converts to a bigger bonus", fullHealthBonus("heal") === 50);
 check("stars carry no full-health bonus", fullHealthBonus("star") === 0);
+
+// --- replay ------------------------------------------------------------------
+
+const goodReplay = {
+  seed: "kitty-run/run/test/1",
+  score: 123,
+  distance: 456,
+  inputs: [
+    { t: 0.5, kind: "jump" },
+    { t: 0.9, kind: "release" },
+    { t: 1.4, kind: "dash" },
+  ],
+} as const;
+check(
+  "replay sanitizer accepts a well-formed replay",
+  sanitizeReplay(goodReplay) !== null,
+);
+check(
+  "replay sanitizer rejects garbage",
+  sanitizeReplay(null) === null &&
+    sanitizeReplay("nope") === null &&
+    sanitizeReplay({ ...goodReplay, seed: "" }) === null &&
+    sanitizeReplay({ ...goodReplay, score: -1 }) === null &&
+    sanitizeReplay({ ...goodReplay, inputs: [] }) === null,
+);
+check(
+  "replay sanitizer rejects out-of-order or unknown inputs",
+  sanitizeReplay({
+    ...goodReplay,
+    inputs: [{ t: 2, kind: "jump" }, { t: 1, kind: "release" }],
+  }) === null &&
+    sanitizeReplay({
+      ...goodReplay,
+      inputs: [{ t: 1, kind: "teleport" }],
+    }) === null,
+);
+
+function fakeStorage(initial: Record<string, string> = {}): {
+  getItem(key: string): string | null;
+  setItem(key: string, value: string): void;
+} {
+  const map = new Map(Object.entries(initial));
+  return {
+    getItem: (key) => (map.has(key) ? (map.get(key) as string) : null),
+    setItem: (key, value) => void map.set(key, value),
+  };
+}
+
+const replayStore = fakeStorage();
+check("empty storage has no ghost", loadReplay(replayStore) === null);
+check("the first run always becomes the ghost", saveReplayIfBest(replayStore, goodReplay));
+check(
+  "a saved replay round-trips intact",
+  JSON.stringify(loadReplay(replayStore)) ===
+    JSON.stringify(sanitizeReplay(goodReplay)),
+);
+check(
+  "a weaker run does not replace the ghost",
+  !saveReplayIfBest(replayStore, { ...goodReplay, score: 5 }),
+);
+check(
+  "a stronger run replaces the ghost",
+  saveReplayIfBest(replayStore, { ...goodReplay, score: 999 }) &&
+    loadReplay(replayStore)?.score === 999,
+);
 
 // --- pools -------------------------------------------------------------------
 

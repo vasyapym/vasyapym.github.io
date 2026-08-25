@@ -3,8 +3,8 @@
 A pastel endless runner for the portfolio shell. Kitty runs on her own; you
 jump (twice for a double), dash through danger, and keep a three-heart meter
 alive. Hearts and big cross-hearts mend her; crates break her. Chain pickups
-into a combo multiplier for score — and when a towering spike wall rises up,
-the only way through is a well-timed dash.
+into a combo multiplier for score — every hazard in the run can be cleared
+with a well-timed jump.
 
 Hello Kitty © 1976 Sanrio Co., Ltd. This is an unofficial fan-made tribute,
 not affiliated with or endorsed by Sanrio.
@@ -33,12 +33,19 @@ the route is `/projects/kitty-run`. Shell-side additions: the
 - **Hearts mend** — any heart pickup restores one heart of the meter when
   damaged; the big cross-heart always does. At full health both convert to
   bonus points (+20 / +50), so a pickup never lands silently.
+- **Score breathes** — distance ticks one point per metre, so the counter
+  moves even between pickups, and every 500 m throws a milestone
+  celebration: a rising chime, confetti and a big banner.
 - **Combo** — consecutive pickups raise the score multiplier (every fourth,
   capped ×8); taking a hit resets it.
-- **Spike walls** — the one deliberately unjumpable hazard (no jump arc in
-  the game reaches its top, and the checks pin that). Dash through it for a
-  +25 reward; the first wall of a run raises a teaching banner, and every
-  wall leaves extra runway so the dash is back by the next pattern.
+- **Race your best-run ghost** — a finished run is stored as its seed plus
+  the timed input list; the next runs reuse that seed, so a translucent
+  Kitty replays your finest hour on the very same track. Beat her score and
+  she is replaced. The sanitizer rejects corrupt or stale storage entries.
+- **Everything is jumpable** — there are no unjumpable obstacles. The
+  checks sweep hundreds of generated chunks and pin every hazard top under
+  the double-jump arc, worst-case uphill included; the tall crate stays
+  clearable even by a single well-timed jump.
 - **Fair pacing** — hazard pairs space themselves by jump length at the
   current speed, so the reaction window feels the same at 7 u/s and 14;
   every hazard group leaves a recoverable gap after it.
@@ -64,16 +71,24 @@ the route is `/projects/kitty-run`. Shell-side additions: the
   touches plain data from `web/scene/world.ts`; rendering components read
   the world in their own `useFrame`. React never re-renders for gameplay;
   HUD numbers are written straight to DOM nodes.
+- **Headless full-run sim** — `tests/kitty-run.sim.ts` drives the real step
+  function with a lookahead bot for 150 simulated seconds and asserts what
+  only shows up over time: no NaN drift, no unknown hazard kinds,
+  milestones fire once each, and a seeded run replays identically.
 - **Deterministic spawning** — chunks come from `web/lib/spawn.ts` with a
   per-run seed; the fairness invariants (recoverable gaps, landable pair
-  spacing, bounded chunk lengths, worst-case uphill jump clearance, spike
-  walls unjumpable yet always dash-ready) are pinned by the node checks.
+  spacing, bounded chunk lengths, worst-case uphill jump clearance, and no
+  unjumpable hazard in the mix) are pinned by the node checks.
 - **Shared ground truth** — the ribbon meshes, the physics and the obstacle
   placement all sample the same `groundY(x)` from `web/lib/ground.ts`.
 - **Feel** — squash-and-stretch springs, coyote time, variable jump height,
   hit-stop, trauma-based screen shake, dash FOV kick, combo-pitched pickup
   chimes (WebAudio synthesis, no audio files). `prefers-reduced-motion`
   disables shake, hit-stop and most particles.
+- **Touch feel** — the stage swallows scroll/zoom gestures
+  (`touch-action: none`), never selects text or flashes taps mid-swipe;
+  Android gets light haptic accents on hits, heals and milestones; leaving
+  the tab pauses the run and revives the suspended AudioContext on return.
 - **Performance** — instanced meshes for obstacles, pickups, crosses and
   glows, one draw call for all particles, no per-frame allocations in the
   hot path.
@@ -84,4 +99,5 @@ the route is `/projects/kitty-run`. Shell-side additions: the
 npm --prefix portfolio run typecheck
 npm --prefix portfolio run build
 node --experimental-strip-types portfolio/projects/kitty-run/tests/kitty-run.check.ts
+node --experimental-strip-types portfolio/projects/kitty-run/tests/kitty-run.sim.ts
 ```

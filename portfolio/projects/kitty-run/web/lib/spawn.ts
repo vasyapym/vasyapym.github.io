@@ -12,7 +12,6 @@ export type SpawnKind =
   | "box"
   | "tall"
   | "hover"
-  | "spike"
   | "heart"
   | "star"
   | "heal";
@@ -27,9 +26,7 @@ export type Chunk = {
   items: SpawnItem[];
   length: number;
   hazardEnd: number;
-  // Minimum recoverable distance this chunk demands after it. Plain
-  // patterns use minHazardGap; the spike wall demands more so the dash is
-  // back up (or nearly) by the time the next pattern arrives.
+  // Minimum recoverable distance this chunk demands after it.
   gapFloor: number;
 };
 
@@ -40,14 +37,11 @@ export const HOVER_RADIUS = 0.55;
 export const PICKUP_RADIUS = 0.45;
 export const HOVER_LIFT = 2.5;
 
-// The spike wall: a towering candy barrier no jump can clear (even the
-// double jump's best apex sits under its top) — the dash is the only way
-// through, and dashing grants invulnerability.
-export const SPIKE_HALF_W = 0.45;
-export const SPIKE_TOP = 5.2;export function isHazard(kind: SpawnKind): boolean {
-  return (
-    kind === "box" || kind === "tall" || kind === "hover" || kind === "spike"
-  );
+// Every hazard is jumpable: the tallest top (3 * TALL_HALF over the
+// ground) sits under the worst-case single-jump clearance, a pin the node
+// checks hold even on the steepest uphill take-off.
+export function isHazard(kind: SpawnKind): boolean {
+  return kind === "box" || kind === "tall" || kind === "hover";
 }
 
 // After a hazard group the runner needs room to land, read the next
@@ -57,16 +51,6 @@ export const MIN_GAP_FLOOR = 4;
 
 export function minHazardGap(speed: number): number {
   return MIN_GAP_FLOOR + speed * REACTION_TIME;
-}
-
-// Extra runway after a spike wall: on top of the normal reaction gap the
-// wall grants a little under half a dash cooldown of travel, so the
-// ability is usually back by the next pattern even if the dash landed at
-// the last instant.
-export const SPIKE_EXTRA_TIME = 0.35;
-
-export function minSpikeGap(speed: number): number {
-  return minHazardGap(speed) + speed * SPIKE_EXTRA_TIME;
 }
 
 export function nextChunkOrigin(
@@ -86,7 +70,6 @@ type PatternId =
   | "doubleBox"
   | "stairs"
   | "hoverGate"
-  | "spikeWall"
   | "heartArc"
   | "starLine"
   | "heal";
@@ -97,7 +80,6 @@ const PATTERN_IDS: readonly PatternId[] = [
   "doubleBox",
   "stairs",
   "hoverGate",
-  "spikeWall",
   "heartArc",
   "starLine",
   "heal",
@@ -115,10 +97,6 @@ function patternWeight(id: PatternId, difficulty: number): number {
       return difficulty * 2.4;
     case "hoverGate":
       return difficulty * 2.0;
-    case "spikeWall":
-      // Gated past the opening stretch so the dash is second nature by
-      // the time the first wall towers up, then a steady spectacle.
-      return difficulty >= 0.3 ? 0.8 + difficulty * 0.8 : 0;
     case "heartArc":
       return 1.6;
     case "starLine":
@@ -142,12 +120,11 @@ function pickPattern(rng: Rng, difficulty: number): PatternId {
 }
 
 function hazardY(
-  kind: Extract<SpawnKind, "box" | "tall" | "hover" | "spike">,
+  kind: Extract<SpawnKind, "box" | "tall" | "hover">,
   x: number,
 ): number {
   if (kind === "box") return groundY(x) + BOX_HALF;
   if (kind === "tall") return groundY(x) + 2 * TALL_HALF;
-  if (kind === "spike") return groundY(x) + SPIKE_TOP / 2;
   return groundY(x) + HOVER_LIFT;
 }
 
@@ -204,13 +181,6 @@ const BUILDERS: Record<PatternId, Builder> = {
       length: crate - s + 6.5,
     };
   },
-  spikeWall: (_rng, s, speed) => {
-    const wall = s + 7;
-    return {
-      items: [{ kind: "spike", x: wall, y: hazardY("spike", wall) }],
-      length: wall - s + 8,
-    };
-  },
   heartArc: (_rng, s, speed) => {
     const items: SpawnItem[] = [];
     const span = 4.5 + jumpLength(speed) * 0.55;
@@ -251,18 +221,16 @@ export function buildChunk(
   const built = BUILDERS[id](rng, origin, speed);
 
   let hazardEnd = Number.NEGATIVE_INFINITY;
-  let hasSpike = false;
   for (const item of built.items) {
     if (!isHazard(item.kind)) continue;
     if (item.x > hazardEnd) hazardEnd = item.x;
-    if (item.kind === "spike") hasSpike = true;
   }
 
   return {
     items: built.items,
     length: built.length,
     hazardEnd,
-    gapFloor: hasSpike ? minSpikeGap(speed) : minHazardGap(speed),
+    gapFloor: minHazardGap(speed),
   };
 }
 

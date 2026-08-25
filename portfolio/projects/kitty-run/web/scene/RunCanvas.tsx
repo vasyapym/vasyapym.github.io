@@ -15,7 +15,9 @@ import { Pickups } from "./Pickups";
 import { Particles } from "./Particles";
 import { Effects } from "./Effects";
 import { GameLoop, type HudRefs } from "./GameLoop";
+import { Ghost } from "./Ghost";
 import { Kitty } from "../kitty/Kitty";
+import type { RunInput } from "../lib/replay.ts";
 
 const CAMERA_BASE = new THREE.Vector3(0, 3.2, BASE_CAM_Z);
 const BASE_FOV = 38;
@@ -55,6 +57,8 @@ function CameraRig({ world, reducedMotion }: { world: WorldState; reducedMotion:
 
 export function RunCanvas({
   world,
+  ghost,
+  ghostInputs,
   reducedMotion,
   sfxRef,
   muted,
@@ -62,6 +66,8 @@ export function RunCanvas({
   onStatus,
 }: {
   world: WorldState;
+  ghost?: WorldState | null;
+  ghostInputs?: RunInput[];
   reducedMotion: boolean;
   sfxRef: React.RefObject<Sfx | null>;
   muted: boolean;
@@ -94,9 +100,14 @@ export function RunCanvas({
       <Pickups world={world} />
       <Particles world={world} />
       <Kitty world={world} />
+      {ghost && ghostInputs && (
+        <Ghost world={world} ghost={ghost} />
+      )}
       <Effects world={world} reducedMotion={reducedMotion} />
       <GameLoop
         world={world}
+        ghost={ghost}
+        ghostInputs={ghostInputs}
         sfxRef={sfxRef}
         muted={muted}
         hud={hud}

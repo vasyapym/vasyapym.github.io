@@ -1,7 +1,8 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { Sfx } from "./lib/audio.ts";
 import { readBestScore } from "./lib/score.ts";
-import { createWorld, type GameStatus } from "./scene/world.ts";
+import { loadReplay, type StoredReplay } from "./lib/replay.ts";
+import { createWorld, type GameStatus, type WorldState } from "./scene/world.ts";
 import {
   hasWebGL,
   RunCanvas,
@@ -24,6 +25,21 @@ export default function KittyRunPage() {
   const [status, setStatus] = useState<GameStatus>(world.status);
   const [best, setBest] = useState(world.best);
   const [muted, setMuted] = useState(false);
+  // The stored best run: seed plus inputs. When present, new runs reuse
+  // its seed so the ghost races you over the very track it ran.
+  const [replay, setReplay] = useState<StoredReplay | null>(() =>
+    loadReplay(window.localStorage),
+  );
+  // Bumped on every start so the ghost simulation is rebuilt fresh.
+  const [runNonce, setRunNonce] = useState(0);
+
+  const ghost: WorldState | null = useMemo(() => {
+    if (!replay) return null;
+    const sim = createWorld(0, replay.seed);
+    // The ghost never sees a menu; it exists only to run.
+    sim.status = "running";
+    return sim;
+  }, [replay, runNonce]);
 
   const sfxRef = useRef<Sfx | null>(null);
   const stageRef = useRef<HTMLDivElement | null>(null);
@@ -31,7 +47,7 @@ export default function KittyRunPage() {
   const heartsRef = useRef<HTMLDivElement | null>(null);
   const comboRef = useRef<HTMLSpanElement | null>(null);
   const comboBarRef = useRef<HTMLDivElement | null>(null);
-  const hintRef = useRef<HTMLDivElement | null>(null);
+  const milestoneRef = useRef<HTMLDivElement | null>(null);
   const debugRef = useRef<HTMLSpanElement | null>(null);
 
   const hud: HudRefs = useMemo(
@@ -40,19 +56,27 @@ export default function KittyRunPage() {
       hearts: heartsRef,
       combo: comboRef,
       comboBar: comboBarRef,
-      hint: hintRef,
+      milestone: milestoneRef,
       debug: debugRef,
     }),
     [],
   );
 
+  const autostarted = useRef(false);
   useEffect(() => {
     setWebglOk(hasWebGL());
     // Demo/testing hook: the route accepts ?autostart to skip the menu.
-    if (new URLSearchParams(window.location.search).has("autostart")) {
+    // Once per page load — later replay updates must not restart runs.
+    if (
+      !autostarted.current &&
+      new URLSearchParams(window.location.search).has("autostart")
+    ) {
+      autostarted.current = true;
+      if (replay) world.runSeed = replay.seed;
       startRun(world);
+      setRunNonce((n) => n + 1);
     }
-  }, [world]);
+  }, [world, replay]);
 
   const ensureSfx = useCallback((): Sfx | null => {
     if (muted) return null;
@@ -62,30 +86,47 @@ export default function KittyRunPage() {
     return sfx;
   }, [muted]);
 
-  const handleStatus = useCallback((next: GameStatus) => {
-    setStatus(next);
-    if (next === "over") setBest((prev) => Math.max(prev, world.best));
-  }, [world]);
+  const handleStatus = useCallback(
+    (next: GameStatus) => {
+      setStatus(next);
+      if (next === "over") {
+        setBest((prev) => Math.max(prev, world.best));
+        // A finished run may have written a new ghost; pick it up so the
+        // next race uses the fresh replay.
+        setReplay(loadReplay(window.localStorage));
+      }
+    },
+    [world],
+  );
 
   const handleStart = useCallback(() => {
     ensureSfx();
+    if (replay) world.runSeed = replay.seed;
     startRun(world);
-  }, [ensureSfx, world]);
+    setRunNonce((n) => n + 1);
+  }, [ensureSfx, world, replay]);
 
   const handleRestart = useCallback(() => {
     ensureSfx();
     restartRun(world);
-  }, [ensureSfx, world]);
+    if (replay) world.runSeed = replay.seed;
+    setRunNonce((n) => n + 1);
+  }, [ensureSfx, world, replay]);
 
   // --- keyboard ---------------------------------------------------------------
 
   useEffect(() => {
     const onHide = () => {
-      if (document.hidden && world.status === "running") togglePause(world);
+      if (document.hidden) {
+        if (world.status === "running") togglePause(world);
+      } else if (!muted) {
+        // iOS suspends audio contexts in the background; nudge it alive.
+        sfxRef.current?.start();
+      }
     };
     document.addEventListener("visibilitychange", onHide);
     return () => document.removeEventListener("visibilitychange", onHide);
-  }, [world]);
+  }, [world, muted]);
 
   useEffect(() => {
     const onKeyDown = (event: KeyboardEvent) => {
@@ -179,6 +220,8 @@ export default function KittyRunPage() {
     <>
       <RunCanvas
         world={world}
+        ghost={ghost}
+        ghostInputs={replay?.inputs}
         reducedMotion={reducedMotion}
         sfxRef={sfxRef}
         muted={muted}
@@ -216,9 +259,10 @@ export default function KittyRunPage() {
             <div className="kitty-run-combo-bar" ref={comboBarRef} />
           </div>
         </div>
-        <div className="kitty-run-hint" ref={hintRef} aria-hidden="true">
-          {coarse ? "wall! swipe down — dash through" : "too tall to jump — shift to dash!"}
-        </div>
+        <div className="kitty-run-milestone" ref={milestoneRef} aria-hidden="true" />
+        {replay && status === "running" && (
+          <div className="kitty-run-ghostchip">ghost · your best run</div>
+        )}
         <span
           className={`kitty-run-debug${debugOn ? " is-visible" : ""}`}
           ref={debugRef}
@@ -258,6 +302,9 @@ export default function KittyRunPage() {
             )}
             <span className="kitty-run-card-title">
               {world.score.toLocaleString()} points
+            </span>
+            <span className="kitty-run-card-stat">
+              {Math.floor(world.distance).toLocaleString()} m run
             </span>
             <span className="kitty-run-card-hint">
               best {best} · {coarse ? "tap to run again" : "space or r runs again"}

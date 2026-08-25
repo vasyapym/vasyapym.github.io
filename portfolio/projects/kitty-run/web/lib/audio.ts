@@ -94,19 +94,6 @@ export class Sfx {
     this.noise(0.22, 0.16, 1600);
   }
 
-  // Soft two-note alarm when the first spike wall of the run appears.
-  spikeWarn(): void {
-    this.tone({ type: "triangle", from: 330, duration: 0.12, volume: 0.09 });
-    this.tone({ type: "triangle", from: 415, at: 0.13, duration: 0.16, volume: 0.09 });
-  }
-
-  // Bright whoosh-and-chime for dashing clean through a spike wall.
-  dashThrough(): void {
-    this.noise(0.18, 0.14, 2400);
-    this.tone({ type: "sine", from: 660, to: 990, duration: 0.18, volume: 0.11 });
-    this.tone({ type: "sine", from: 1320, at: 0.07, duration: 0.16, volume: 0.07 });
-  }
-
   land(): void {
     this.tone({ type: "sine", from: 150, to: 90, duration: 0.07, volume: 0.07 });
   }
@@ -121,6 +108,20 @@ export class Sfx {
   heal(): void {
     this.tone({ type: "triangle", from: 392, to: 523, duration: 0.18, volume: 0.1 });
     this.tone({ type: "triangle", from: 523, to: 659, at: 0.09, duration: 0.2, volume: 0.1 });
+  }
+
+  // A quick rising arpeggio for milestone celebrations.
+  milestone(): void {
+    const notes = [523, 659, 784, 1047];
+    notes.forEach((hz, i) => {
+      this.tone({
+        type: "triangle",
+        from: hz,
+        at: i * 0.07,
+        duration: 0.16,
+        volume: 0.1,
+      });
+    });
   }
 
   hit(): void {

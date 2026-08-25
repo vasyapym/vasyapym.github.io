@@ -61,6 +61,12 @@
   border: 1px solid var(--ink-line);
   border-radius: 0;
   background: #ffeff5;
+  /* Touch hardening: swipes drive the game, never scroll/zoom the page,
+     no text selection mid-dash, no tap flash on mobile browsers. */
+  touch-action: none;
+  user-select: none;
+  -webkit-user-select: none;
+  -webkit-tap-highlight-color: transparent;
 }
 
 .kitty-run-stage canvas {
@@ -250,29 +256,42 @@
   transform: scaleX(0);
 }
 
-/* One-shot teaching banner: the first spike wall of a run raises it. */
-.kitty-run-hint {
+/* Milestone celebration: "500 m!" pops in, holds, drifts away. The
+   animation is driven per event with the Web Animations API, so the base
+   style just parks it invisible. */
+.kitty-run-milestone {
   position: absolute;
   left: 50%;
-  bottom: 64px;
-  transform: translate(-50%, 14px);
-  padding: 9px 18px;
+  top: 26%;
+  transform: translate(-50%, 0);
+  font-family: var(--display);
+  font-size: clamp(30px, 4.4vw, 46px);
+  font-weight: 700;
+  letter-spacing: -0.01em;
+  color: #e94f64;
+  text-shadow:
+    0 1px 0 rgba(255, 255, 255, 0.85),
+    0 6px 18px rgba(233, 79, 100, 0.35);
+  opacity: 0;
+  pointer-events: none;
+}
+
+/* Ghost chip: a quiet label that names the translucent kitty while it
+   races you, so the feature reads at first sight. */
+.kitty-run-ghostchip {
+  position: absolute;
+  left: 24px;
+  bottom: 20px;
+  padding: 6px 12px;
   border-radius: 999px;
-  background: rgba(74, 59, 82, 0.88);
+  background: rgba(74, 59, 82, 0.72);
   color: #fff8fb;
   font-family: var(--mono);
-  font-size: 13px;
+  font-size: 11.5px;
   font-weight: 500;
   letter-spacing: 0.05em;
   white-space: nowrap;
-  opacity: 0;
   pointer-events: none;
-  transition: opacity 0.22s ease, transform 0.22s ease;
-}
-
-.kitty-run-hint.is-visible {
-  opacity: 1;
-  transform: translate(-50%, 0);
 }
 
 /* --- floaters ------------------------------------------------------------ */
@@ -379,6 +398,14 @@
   font-variant-numeric: tabular-nums;
 }
 
+.kitty-run-card-stat {
+  color: var(--ink-accent);
+  font-family: var(--mono);
+  font-size: 13px;
+  letter-spacing: 0.05em;
+  font-variant-numeric: tabular-nums;
+}
+
 .kitty-run-card-hint {
   color: var(--ink-muted);
   font-family: var(--mono);
@@ -464,14 +491,6 @@
 
   .kitty-run-combo-track {
     width: 72px;
-  }
-
-  .kitty-run-hint {
-    font-size: 11px;
-    bottom: 52px;
-    white-space: normal;
-    text-align: center;
-    max-width: 78%;
   }
 
   .kitty-run-floater {

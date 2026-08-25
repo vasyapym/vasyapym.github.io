@@ -1,12 +1,23 @@
 // Player-facing world mutations: start, pause, restart, jump, dash. The
 // page's input listeners call these; the simulation step consumes what
-// they set.
+// they set. Every action also appends to the run's input log — that log
+// plus the run seed is what the ghost replay needs to reproduce a run.
 
+import type { RunInputKind } from "../lib/replay.ts";
 import { TUNING } from "../lib/tuning.ts";
 import { resetWorld, type WorldState } from "./world.ts";
 
+function record(world: WorldState, kind: RunInputKind): void {
+  world.inputLog.push({ t: world.time, kind });
+}
+
 export function startRun(world: WorldState): void {
   if (world.status !== "ready") return;
+  // Zero the clock so logged input times are run-relative — the ghost
+  // replay depends on it (a fresh ghost starts its own clock at zero,
+  // while the ready screen has been drifting this world forward).
+  world.time = 0;
+  world.inputLog.length = 0;
   world.status = "running";
 }
 
@@ -24,6 +35,7 @@ export function requestJump(world: WorldState): void {
   if (world.status !== "running") return;
   world.jumpQueued = true;
   world.jumpHeld = true;
+  record(world, "jump");
 }
 
 // Early release cuts the jump arc — variable jump height for free.
@@ -32,9 +44,11 @@ export function releaseJump(world: WorldState): void {
   if (world.kitty.vy > 4) {
     world.kitty.vy *= TUNING.jumpCutFactor;
   }
+  if (world.status === "running") record(world, "release");
 }
 
 export function requestDash(world: WorldState): void {
   if (world.status !== "running") return;
   world.dashQueued = true;
+  record(world, "dash");
 }

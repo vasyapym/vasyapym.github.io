@@ -27,6 +27,9 @@ export const TUNING = {
   maxHearts: 3,
   kittyRadius: 0.75,
   kittyCenterLift: 0.95,
+
+  // Every this many metres the run throws a little celebration.
+  milestoneStep: 500,
 } as const;
 
 export type Tuning = typeof TUNING;
