@@ -9,6 +9,7 @@
     "watch": "esbuild src/main.ts --bundle --outfile=dist/main.js --watch",
     "typecheck": "tsc --noEmit",
     "test": "node --experimental-strip-types tests/cosmology.check.ts",
+    "test:smoke": "node tests/browser-smoke.mjs",
     "verify": "npm run typecheck && npm test && npm run build"
   },
   "dependencies": {

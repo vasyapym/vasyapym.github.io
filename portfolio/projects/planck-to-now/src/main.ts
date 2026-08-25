@@ -13,7 +13,9 @@ import {
   kelvinToRGB,
 } from "./cosmology";
 import { createParticles } from "./particles";
-import type { ParticleSystem } from "./particles";
+import type { ParticleSystem, ParticleUniforms } from "./particles";
+import { createGpgpuParticles, gpgpuSupported } from "./gpgpu";
+import type { GpgpuParticles, Poke } from "./gpgpu";
 import { createCmbShell, createCoreGlow } from "./backdrop";
 import { buildTicks, grabUi, attachTimelineScrub, updateUi } from "./ui";
 import type { UiRefs } from "./ui";
@@ -76,8 +78,17 @@ controls.maxDistance = 320;
 controls.autoRotate = !reduceMotion;
 controls.autoRotateSpeed = 0.45;
 
-const particles: ParticleSystem = createParticles(PARTICLES);
-scene.add(particles.points);
+const forceStatic = new URLSearchParams(window.location.search).has("static");
+const gpgpuSys: GpgpuParticles | null =
+  !forceStatic && gpgpuSupported(renderer) ? createGpgpuParticles(renderer, PARTICLES) : null;
+const sys: ParticleSystem | GpgpuParticles = gpgpuSys ?? createParticles(PARTICLES);
+const mode: string = gpgpuSys ? "gpgpu" : "static";
+const renderCount = gpgpuSys ? gpgpuSys.particleCount : PARTICLES;
+(window as unknown as { __p2n_mode?: string }).__p2n_mode = mode;
+
+scene.add(sys.points);
+
+if (gpgpuSys) gpgpuSys.tune.motion = plasmaDamping;
 
 const cmb = createCmbShell();
 scene.add(cmb.mesh);
@@ -98,6 +109,9 @@ composer.addPass(new OutputPass());
 
 const ui: UiRefs = grabUi();
 buildTicks(ui);
+ui.techline.textContent = gpgpuSys
+  ? `gpgpu · ${renderCount.toLocaleString("en-US")} particles · ping-pong fbo`
+  : `vertex-shader · ${renderCount.toLocaleString("en-US")} particles · static buffers`;
 
 let logt = LOG_START;
 let playing = true;
@@ -110,13 +124,53 @@ if (tParam !== null) {
   const v = Number(tParam);
   if (Number.isFinite(v)) logt = Math.min(LOG_END, Math.max(LOG_START, v));
 }
+gpgpuSys?.resetTo(evaluateState(logt).web);
 
+let lastResetAt = 0;
 attachTimelineScrub((newLogt) => {
+  const jumped = Math.abs(newLogt - logt) > 3;
   logt = newLogt;
+  if (gpgpuSys && jumped && performance.now() - lastResetAt > 250) {
+    lastResetAt = performance.now();
+    gpgpuSys.resetTo(evaluateState(newLogt).web);
+  }
+});
+
+const raycaster = new THREE.Raycaster();
+const pokePlane = new THREE.Plane();
+const camDir = new THREE.Vector3();
+const hitPoint = new THREE.Vector3();
+let poke: Poke | null = null;
+let downX = 0;
+let downY = 0;
+let downT = 0;
+
+function screenToWorld(cx: number, cy: number): Poke | null {
+  raycaster.setFromCamera(
+    new THREE.Vector2((cx / window.innerWidth) * 2 - 1, -(cy / window.innerHeight) * 2 + 1),
+    camera,
+  );
+  camera.getWorldDirection(camDir);
+  pokePlane.setFromNormalAndCoplanarPoint(camDir, new THREE.Vector3(0, 0, 0));
+  if (!raycaster.ray.intersectPlane(pokePlane, hitPoint)) return null;
+  return { x: hitPoint.x, y: hitPoint.y, z: hitPoint.z, t0: animTime };
+}
+
+renderer.domElement.addEventListener("pointerdown", (e) => {
+  downX = e.clientX;
+  downY = e.clientY;
+  downT = performance.now();
+});
+
+renderer.domElement.addEventListener("pointerup", (e) => {
+  if (!gpgpuSys || e.button > 0) return;
+  if (performance.now() - downT > 350) return;
+  if (Math.hypot(e.clientX - downX, e.clientY - downY) > 8) return;
+  poke = screenToWorld(e.clientX, e.clientY);
 });
 
 function syncBufferHeight(): void {
-  particles.uniforms.uH.value = renderer.domElement.height;
+  sys.uniforms.uH.value = renderer.domElement.height;
 }
 
 function onResize(): void {
@@ -139,6 +193,7 @@ window.addEventListener("keydown", (e) => {
     logt = LOG_START;
     flash = 0;
     playing = true;
+    gpgpuSys?.resetTo(0);
   } else if (e.code === "ArrowUp") {
     e.preventDefault();
     dps = Math.min(5, dps * 1.35);
@@ -149,11 +204,19 @@ window.addEventListener("keydown", (e) => {
 });
 
 const clock = new THREE.Clock();
+let fpsEma = 60;
+let fpsSince = 0;
 
 function frame(): void {
   requestAnimationFrame(frame);
   const dt = Math.min(0.1, clock.getDelta());
   animTime += dt;
+  if (dt > 0) fpsEma += (1 / dt - fpsEma) * 0.06;
+  fpsSince += dt;
+  if (fpsSince > 0.5) {
+    fpsSince = 0;
+    ui.fps.textContent = String(Math.round(fpsEma));
+  }
 
   if (playing && logt < LOG_END) {
     const next = Math.min(LOG_END, logt + dps * dt);
@@ -165,7 +228,9 @@ function frame(): void {
 
   const st = evaluateState(logt);
 
-  const u = particles.uniforms;
+  gpgpuSys?.step(dt, st, animTime, poke);
+
+  const u: ParticleUniforms = sys.uniforms;
   u.uA.value = st.vscale;
   u.uTime.value = animTime;
   u.uWeb.value = st.web;

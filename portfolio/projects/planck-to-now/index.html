@@ -44,7 +44,7 @@
     color: var(--accent); border: 1px solid var(--line); padding: 7px 14px; display: none; }
 
   #timeline { bottom: 64px; left: 50%; transform: translateX(-50%); width: min(760px, 82vw); height: 26px;
-    cursor: pointer; touch-action: none; }
+    cursor: pointer; touch-action: none; pointer-events: auto; }
   #tlbar { position: absolute; top: 11px; left: 0; right: 0; height: 3px;
     background: linear-gradient(90deg, #241509, #6e4a26, #a87f4e, #e8b57c); opacity: .85; }
   .tick { position: absolute; top: 8px; width: 1px; height: 9px; background: rgba(238,234,224,.3); }
@@ -54,6 +54,10 @@
   #hints { bottom: 20px; right: 24px; font-size: 11px; color: var(--dim); text-align: right; line-height: 1.8; }
   kbd { display: inline-block; border: 1px solid var(--line); border-bottom-width: 2px; border-radius: 2px;
     padding: 0 5px; font-size: 10px; color: var(--ink); background: rgba(255,255,255,.05); margin: 0 2px; }
+
+  #tech { bottom: 20px; left: 24px; font-size: 11px; color: var(--faint); letter-spacing: .04em; }
+
+  @media (max-width: 700px) { #tech { display: none; } }
 
   #title { top: 26px; right: 30px; font-size: 11px; letter-spacing: .05em; color: var(--faint); }
 
@@ -81,8 +85,9 @@
   <div class="hud" id="hints">
     <span id="speedlabel">speed ×1.0</span><br />
     <kbd>space</kbd> pause · <kbd>R</kbd> restart · <kbd>↑</kbd><kbd>↓</kbd> speed<br />
-    drag orbit · scroll zoom · drag timeline to scrub
+    drag orbit · scroll zoom · drag timeline to scrub · click perturbs the field
   </div>
+  <div class="hud" id="tech"><span id="techline">gpgpu</span> · <span id="fps">—</span> fps</div>
   <div class="hud" id="title">planck-to-now</div>
 
   <div id="err"><div>webgl unavailable · simulation sealed</div></div>

@@ -17,6 +17,8 @@ export interface UiRefs {
   ticks: HTMLElement;
   speedlabel: HTMLElement;
   flash: HTMLElement;
+  techline: HTMLElement;
+  fps: HTMLElement;
 }
 
 export function grabUi(): UiRefs {
@@ -34,6 +36,8 @@ export function grabUi(): UiRefs {
     ticks: need("ticks"),
     speedlabel: need("speedlabel"),
     flash: need("flash"),
+    techline: need("techline"),
+    fps: need("fps"),
   };
 }
 
