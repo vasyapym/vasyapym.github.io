@@ -12,6 +12,7 @@ import type { Sfx } from "../lib/audio.ts";
 import { clampInto, stageSpan } from "../lib/framing.ts";
 import { hexRgb, dashTrail, dustPuff, sparkBurst, type Rgb } from "./bursts.ts";
 import { releaseJump, requestDash, requestJump } from "./actions.ts";
+import { pilotSteer } from "../lib/pilot.ts";
 import { stepWorld } from "./step.ts";
 import type { GameStatus, WorldState } from "./world.ts";
 
@@ -130,15 +131,20 @@ function handleEvents(
       case "gameover":
         sfx?.gameover();
         if (!reducedMotion) buzz([90, 50, 150]);
-        writeBestScore(window.localStorage, world.best);
-        // The finished run becomes (or fails to become) the echo future
-        // runs will chase — seed plus timed inputs is the whole recipe.
-        saveReplayIfBest(window.localStorage, {
-          seed: world.runSeed,
-          score: world.score,
-          distance: world.distance,
-          inputs: world.inputLog,
-        });
+        // An autopilot exhibition never touches the visitor's records:
+        // no best score, no echo replay — the bot's perfect run would
+        // otherwise chase every human run forever.
+        if (!world.autopilot) {
+          writeBestScore(window.localStorage, world.best);
+          // The finished run becomes (or fails to become) the echo future
+          // runs will chase — seed plus timed inputs is the whole recipe.
+          saveReplayIfBest(window.localStorage, {
+            seed: world.runSeed,
+            score: world.score,
+            distance: world.distance,
+            inputs: world.inputLog,
+          });
+        }
         break;
     }
   }
@@ -224,6 +230,13 @@ export function GameLoop({
   }, [echo]);
 
   useFrame((state, delta) => {
+    // Autopilot: the lookahead pilot reads the world and sets the same
+    // input flags a player would, one decision per frame, right before
+    // the step consumes them.
+    if (world.autopilot && world.status === "running" && world.hitStop <= 0) {
+      pilotSteer(world);
+    }
+
     stepWorld(world, delta);
 
     // The echo lives in its own deterministic simulation — same seed as

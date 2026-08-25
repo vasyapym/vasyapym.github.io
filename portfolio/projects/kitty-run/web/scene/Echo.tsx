@@ -1,11 +1,12 @@
-// The best-run echo: a translucent afterimage Kitty replaying your finest
-// hour in its own simulation, launched once you open a small lead so the
-// chase is always on screen. Materials are retinted into one spectral
-// family and dimmed once at mount; every frame only moves the group,
-// keeps it inside the visible stage span, pulses the glow and decides
-// whether the echo is on stage at all.
+// The best-run echo: a faded afterimage Kitty replaying your finest hour
+// in its own simulation, launched once you open a small lead so the chase
+// is always on screen. Materials are retinted into one soft pastel family
+// and dimmed once at mount; every frame only moves the group, keeps it
+// inside the visible stage span and decides whether the echo is on stage
+// at all. No aura, no pulse — she reads as a watercolour memory of a run,
+// not a haunting.
 
-import { useEffect, useMemo, useRef } from "react";
+import { useEffect, useRef } from "react";
 import * as THREE from "three";
 import { useFrame } from "@react-three/fiber";
 import { Kitty } from "../kitty/Kitty";
@@ -16,31 +17,31 @@ import {
   STAGE_BEHIND_MARGIN,
 } from "../lib/framing.ts";
 import { PALETTE } from "../lib/palette.ts";
-import { softDotTexture } from "../lib/textures.ts";
 import type { WorldState } from "./world.ts";
 
-const GHOST_OPACITY = 0.72;
+const ECHO_OPACITY = 0.66;
 
-// The spectral restyle: every rig colour maps into one near-white family
-// with only a whisper of cool tint, so the copy reads as a chalk-white
-// afterimage rather than a second Kitty — never a purple one.
-const SPECTRAL: Record<string, string> = {
-  [PALETTE.kittyWhite]: "#ffffff",
-  [PALETTE.suitPink]: "#eef3fe",
-  [PALETTE.bowRed]: "#dbe4fb",
-  [PALETTE.bowDeep]: "#d0dbf9",
-  [PALETTE.noseYellow]: "#f4f7ff",
-  [PALETTE.cheek]: "#e9effe",
+// The restyle: every rig colour maps into one dusty-rose family pulled
+// toward the scene's own pinks, so the copy reads as a faded print of
+// Kitty rather than a second one — and never as the icy specter the old
+// blue-white tint made of her.
+const FADED: Record<string, string> = {
+  [PALETTE.kittyWhite]: "#f9f2f6",
+  [PALETTE.suitPink]: "#f0d3e0",
+  [PALETTE.bowRed]: "#e3b3c7",
+  [PALETTE.bowDeep]: "#dca6bd",
+  [PALETTE.noseYellow]: "#f1e4d4",
+  [PALETTE.cheek]: "#eed3de",
   // outlineInk and eyeInk share one ink hex; both map here together.
-  [PALETTE.outlineInk]: "#a9b7de",
+  [PALETTE.outlineInk]: "#c49cb2",
 };
 
 // When the stage clamp pins the echo next to the player (narrow phones),
-// she thins out instead of crowding the sprite: this floor is her opacity
-// at touching distance, recovering to full one-plus units away.
-const PROXIMITY_MIN = 0.22;
-const PROXIMITY_NEAR = 1.9;
-const PROXIMITY_FAR = 3.1;
+// she eases back a little instead of crowding the sprite — but only to
+// about half strength: the race must stay readable on any screen.
+const PROXIMITY_MIN = 0.5;
+const PROXIMITY_NEAR = 1.6;
+const PROXIMITY_FAR = 2.9;
 
 function proximityFactor(drawnX: number): number {
   const t = (Math.abs(drawnX) - PROXIMITY_NEAR) / (PROXIMITY_FAR - PROXIMITY_NEAR);
@@ -49,7 +50,7 @@ function proximityFactor(drawnX: number): number {
 
 function retint(material: THREE.Material): void {
   material.transparent = true;
-  material.opacity = GHOST_OPACITY;
+  material.opacity = ECHO_OPACITY;
   // Depth writes stay ON: the parts must occlude each other or the
   // translucency stacks into see-through circles. The opaque pass has
   // already written scenery and player depth, so the echo still hides
@@ -57,7 +58,7 @@ function retint(material: THREE.Material): void {
   material.depthWrite = true;
   const basic = material as THREE.MeshBasicMaterial;
   if (basic.color) {
-    const mapped = SPECTRAL[`#${basic.color.getHexString()}`];
+    const mapped = FADED[`#${basic.color.getHexString()}`];
     if (mapped) basic.color.set(mapped);
   }
 }
@@ -69,7 +70,7 @@ function retint(material: THREE.Material): void {
 // sorts its meshes by their actual z (farthest first) and pins an explicit
 // renderOrder: painter's order inside the echo, always. The base offset
 // keeps the whole subtree behind every default-order transparent (glows,
-// particles), which is where a background ghost belongs anyway. Pose
+// particles), which is where a background afterimage belongs anyway. Pose
 // animation only ever moves y or rotates around z, so the ordering computed
 // here at mount stays valid for the life of the component.
 function pinPainterOrder(root: THREE.Object3D): void {
@@ -94,9 +95,7 @@ export function Echo({
   echo: WorldState;
 }) {
   const holder = useRef<THREE.Group>(null);
-  const glow = useRef<THREE.Mesh>(null);
   const bodyMaterials = useRef<THREE.MeshBasicMaterial[]>([]);
-  const glowTexture = useMemo(() => softDotTexture(), []);
 
   useEffect(() => {
     const group = holder.current;
@@ -109,11 +108,7 @@ export function Echo({
         : [mesh.material];
       for (const material of materials) {
         retint(material);
-        // The glow drives its own opacity every frame; everything else
-        // joins the proximity fade.
-        if (obj !== glow.current) {
-          bodyMaterials.current.push(material as THREE.MeshBasicMaterial);
-        }
+        bodyMaterials.current.push(material as THREE.MeshBasicMaterial);
       }
     });
     pinPainterOrder(group);
@@ -141,31 +136,15 @@ export function Echo({
       span,
       offset < 0 ? STAGE_BEHIND_MARGIN : STAGE_AHEAD_MARGIN,
     );
-    // Pinned next to the player? Thin out instead of crowding the sprite.
+    // Pinned next to the player? Ease back instead of crowding the sprite.
     const presence = proximityFactor(group.position.x);
     for (const material of bodyMaterials.current) {
-      material.opacity = GHOST_OPACITY * presence;
-    }
-
-    const glowMesh = glow.current;
-    if (glowMesh) {
-      const material = glowMesh.material as THREE.MeshBasicMaterial;
-      material.opacity = (0.24 + Math.sin(world.time * 3.1) * 0.07) * presence;
+      material.opacity = ECHO_OPACITY * presence;
     }
   });
 
   return (
     <group ref={holder} position={[0, 0, -1.2]}>
-      <mesh ref={glow} position={[0, 1.05, -0.42]} scale={[3.1, 3.5, 1]}>
-        <planeGeometry />
-        <meshBasicMaterial
-          map={glowTexture}
-          color="#c6d4f7"
-          transparent
-          opacity={0.26}
-          depthWrite={false}
-        />
-      </mesh>
       <Kitty world={echo} />
     </group>
   );

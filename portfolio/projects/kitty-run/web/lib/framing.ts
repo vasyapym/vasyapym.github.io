@@ -10,8 +10,10 @@ export const BASE_CAM_Z = 16;
 const BASE_LOOK_Y = 2.6;
 
 // A portrait phone must still see this many world units across the play
-// plane, or obstacles arrive before there is time to react to them.
-export const MIN_VIEW_WIDTH = 9;
+// plane, or obstacles arrive before there is time to react to them. The
+// value is also the portrait zoom-out: eleven units keeps Kitty a figure
+// in the landscape rather than a close-up, with more run-ahead to read.
+export const MIN_VIEW_WIDTH = 11;
 
 // Kitty sits this fraction of the stage width in from the left edge, so
 // the run-ahead side of the screen stays the big side on any aspect.

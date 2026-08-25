@@ -25,7 +25,10 @@ the route is `/projects/kitty-run`. Shell-side additions: the
 - Shift / ↓ / S / swipe down — dash (brief invulnerability, cooldown)
 - P, Esc, or the on-screen pause button — pause; R — restart from the pause
   or game-over screen
-- `?autostart` skips the menu, `?debug` shows a small state readout,
+- "or watch it play itself" on the ready card hands the run to the
+  autopilot; the chip on the right edge takes control back at any moment
+- `?autostart` skips the menu, `?autopilot` starts straight into the
+  bot-driven exhibition, `?debug` shows a small state readout,
   `?plain` skips the post-processing chain on weak GPUs
 
 ## Mechanics
@@ -45,17 +48,27 @@ the route is `/projects/kitty-run`. Shell-side additions: the
 - **Combo** — consecutive pickups raise the score multiplier (every fourth,
   capped ×8); taking a hit resets it.
 - **Race your best-run echo** — a finished run is stored as its seed plus
-  the timed input list; the next runs reuse that seed, so a pale frost-blue
-  Kitty replays your finest hour on the very same track. The
-   handicap is a distance, not a delay: she waits until you open a
-   six-metre lead, then gives chase, and because both simulations run at
-   the same speed the gap holds steady from launch to finish. A stage-span
-   clamp pins her drawing inside the visible band, so even a big late-run
-   lead never pushes her off a phone screen — and when that clamp seats
-   her next to the player she thins to a whisper instead of crowding the
-   sprite. The HUD chip reads out the
-   live gap (+/- metres, or "out" once she has fallen). Beat her score and
-   she is replaced. The sanitizer rejects corrupt or stale storage entries.
+  the timed input list; the next runs reuse that seed, so a soft, faded
+  afterimage of Kitty replays your finest hour on the very same track.
+  The handicap is a distance, not a delay: she waits until you open a
+  four-and-a-half-metre lead, then gives chase, and because both
+  simulations run at the same speed the gap holds steady from launch to
+  finish. A stage-span clamp pins her drawing inside the visible band, so
+  even a big late-run lead never pushes her off a phone screen — and when
+  that clamp seats her next to the player she eases back only to half
+  strength, so the race stays readable everywhere. The restyle maps her
+  into one dusty-rose family with no aura and no pulse: a watercolour
+  memory of a run, not a haunting. The HUD chip reads out the
+  live gap (+/- metres, or "out" once she has fallen). Beat her score and
+  she is replaced. The sanitizer rejects corrupt or stale storage entries.
+- **Autopilot: watch it play itself** — the ready card offers a second
+  button that hands the run to the lookahead pilot from `web/lib/pilot.ts`
+  (the exact bot the headless sim test drives, imported from the same
+  module). It reads only plain world state each frame — nearest grounded
+  crate, half a jump length of lookahead — and sets the same input flags a
+  player would. A bot run is an exhibition: it writes no best score and no
+  echo replay, so its perfect run can never replace your own; the over
+  card says so. `?autopilot` deep-links straight into the demo.
 - **Everything is jumpable** — there are no unjumpable obstacles. The
   checks sweep hundreds of generated chunks and pin every hazard top under
   the double-jump arc, worst-case uphill included; the tall crate stays
@@ -76,7 +89,8 @@ the route is `/projects/kitty-run`. Shell-side additions: the
   dress, whiskers) with an ink copy grown behind each fill as an outline.
 - **Responsive framing** — `web/lib/framing.ts` derives camera distance,
   field of view and the look target from the viewport aspect, guaranteeing
-  a minimum world width on portrait phones; the DOM floaters project with
+  eleven world units of run-ahead on portrait phones (Kitty reads as a
+  figure in the landscape, not a close-up); the DOM floaters project with
   the same function, so pop-ups track pickups on any screen, and the
   best-run echo clamps into the same span, so she is never drawn off
   stage.
@@ -87,6 +101,10 @@ the route is `/projects/kitty-run`. Shell-side additions: the
   order is pinned explicitly (meshes sorted far-to-near once at mount) —
   otherwise the sort could seat the dress behind the head fill and let
   the torso shine through.
+- **One bot, two stages** — `web/lib/pilot.ts` is pure TypeScript with no
+  three.js or React imports, so `tests/kitty-run.sim.ts` drives it headless
+  for its fairness sweep while the browser autopilot runs the same module
+  live. The demo cannot drift from the verification: they are one file.
 - **Contact shadow** — a soft canvas-texture ellipse rides `groundY()`
   under the Kitty, tightening and fading as she climbs, so she lands *on*
   the rolling ground at the pulled-back framing instead of floating over

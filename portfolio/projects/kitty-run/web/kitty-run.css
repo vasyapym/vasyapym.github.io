@@ -296,6 +296,32 @@
   pointer-events: none;
 }
 
+/* Autopilot chip: mirrors the echo chip on the right edge; tapping it
+   hands control back to the visitor mid-run. */
+.kitty-run-pilotchip {
+  position: absolute;
+  right: 24px;
+  bottom: 20px;
+  padding: 6px 12px;
+  border-radius: 999px;
+  border: 1px solid rgba(255, 255, 255, 0.16);
+  background: rgba(70, 84, 140, 0.78);
+  color: #fff8fb;
+  font-family: var(--mono);
+  font-size: 11.5px;
+  font-weight: 500;
+  letter-spacing: 0.05em;
+  white-space: nowrap;
+  pointer-events: auto;
+  cursor: pointer;
+  transition: background 160ms ease, transform 160ms ease;
+}
+
+.kitty-run-pilotchip:hover {
+  background: rgba(70, 84, 140, 0.96);
+  transform: scale(1.04);
+}
+
 /* --- floaters ------------------------------------------------------------ */
 
 .kitty-run-floaters {
@@ -395,6 +421,54 @@
 @keyframes kitty-card-float {
   0%, 100% { transform: translateY(0); }
   50% { transform: translateY(-7px); }
+}
+
+/* The ready column: start card plus the autopilot invitation beneath it.
+   Separate buttons — a control panel, not one giant click target. */
+.kitty-run-ready-stack {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 12px;
+}
+
+/* Autopilot invitation: a quieter paper pill under the start card. It
+   sells the engineering story in one line — the same lookahead bot that
+   verifies every generated track plays the live game on request. */
+.kitty-run-watch {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 3px;
+  max-width: min(430px, 100%);
+  padding: 10px 22px;
+  border: 1px solid #f2cfdd;
+  border-radius: 999px;
+  background: rgba(255, 248, 251, 0.85);
+  color: #4a3b52;
+  cursor: pointer;
+  font-family: var(--mono);
+  text-align: center;
+  transition: border-color 160ms ease, background 160ms ease;
+}
+
+.kitty-run-watch:hover {
+  border-color: #e88bab;
+  background: #fff8fb;
+}
+
+.kitty-run-watch-title {
+  font-size: 12px;
+  font-weight: 700;
+  letter-spacing: 0.07em;
+  text-transform: uppercase;
+  color: #d13a50;
+}
+
+.kitty-run-watch-hint {
+  font-size: 11px;
+  letter-spacing: 0.04em;
+  color: #8a6f7e;
 }
 
 .kitty-run-card-kicker {
@@ -589,6 +663,19 @@
   .kitty-run-card {
     padding: 24px 26px;
     gap: 10px;
+  }
+
+  .kitty-run-ready-stack {
+    gap: 9px;
+  }
+
+  .kitty-run-watch {
+    padding: 9px 18px;
+  }
+
+  .kitty-run-pilotchip {
+    right: 14px;
+    bottom: 16px;
   }
 
   .kitty-run-card-action {

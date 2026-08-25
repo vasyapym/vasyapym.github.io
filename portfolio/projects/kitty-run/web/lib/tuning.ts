@@ -36,9 +36,10 @@ export const TUNING = {
   // The best-run echo waits until the player opens this much of a lead,
   // then gives chase. A distance, not a delay: once launched, both sims
   // run the same track at the same speed, so the gap freezes here instead
-  // of stretching with speed until it left phone screens entirely. Wide
-  // enough that the ghost never crowds the player's sprite.
-  echoGapMetres: 6,
+  // of stretching with speed until it left phone screens entirely. Four
+  // and a half metres keeps the race readable — she runs in view, never
+  // crowding the player's sprite.
+  echoGapMetres: 4.5,
 } as const;
 
 export type Tuning = typeof TUNING;

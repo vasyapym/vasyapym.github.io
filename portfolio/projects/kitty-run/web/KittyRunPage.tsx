@@ -16,6 +16,7 @@ import {
   requestDash,
   requestJump,
 } from "./scene/actions.ts";
+import { resetPilot } from "./lib/pilot.ts";
 import "./kitty-run.css";
 
 export default function KittyRunPage() {
@@ -36,6 +37,12 @@ export default function KittyRunPage() {
   // against the mark that was on the line, not against a replay this very
   // run may have just rewritten.
   const [raceTarget, setRaceTarget] = useState<StoredReplay | null>(null);
+  // Autopilot demo: true while the lookahead pilot drives. A bot run is an
+  // exhibition — it never writes best scores or replays (see GameLoop).
+  const [autoPilot, setAutoPilot] = useState(false);
+  // Remembers that the run just ended was flown by the bot, so the over
+  // card can say so.
+  const [autoRan, setAutoRan] = useState(false);
 
   const echo: WorldState | null = useMemo(() => {
     if (!replay) return null;
@@ -71,18 +78,22 @@ export default function KittyRunPage() {
   const autostarted = useRef(false);
   useEffect(() => {
     setWebglOk(hasWebGL());
-    // Demo/testing hook: the route accepts ?autostart to skip the menu.
-    // Once per page load — later replay updates must not restart runs.
-    if (
-      !autostarted.current &&
-      new URLSearchParams(window.location.search).has("autostart")
-    ) {
-      autostarted.current = true;
-      if (replay) world.runSeed = replay.seed;
-      setRaceTarget(replay);
-      startRun(world);
-      setRunNonce((n) => n + 1);
-    }
+    // Demo/testing hooks: ?autostart skips the menu, ?autopilot starts
+    // straight into the bot-driven exhibition. Once per page load — later
+    // replay updates must not restart runs.
+    if (autostarted.current) return;
+    const params = new URLSearchParams(window.location.search);
+    if (!params.has("autostart") && !params.has("autopilot")) return;
+    autostarted.current = true;
+    const bot = params.has("autopilot");
+    if (replay) world.runSeed = replay.seed;
+    setRaceTarget(replay);
+    world.autopilot = bot;
+    setAutoPilot(bot);
+    setAutoRan(bot);
+    if (bot) resetPilot(world);
+    startRun(world);
+    setRunNonce((n) => n + 1);
   }, [world, replay]);
 
   const ensureSfx = useCallback((): Sfx | null => {
@@ -106,16 +117,37 @@ export default function KittyRunPage() {
     [world],
   );
 
-  const handleStart = useCallback(() => {
-    ensureSfx();
-    if (replay) world.runSeed = replay.seed;
-    setRaceTarget(replay);
-    startRun(world);
-    setRunNonce((n) => n + 1);
-  }, [ensureSfx, world, replay]);
+  const beginRun = useCallback(
+    (bot: boolean) => {
+      ensureSfx();
+      world.autopilot = bot;
+      setAutoPilot(bot);
+      setAutoRan(bot);
+      if (bot) resetPilot(world);
+      if (replay) world.runSeed = replay.seed;
+      setRaceTarget(replay);
+      startRun(world);
+      setRunNonce((n) => n + 1);
+    },
+    [ensureSfx, world, replay],
+  );
+
+  const handleStart = useCallback(() => beginRun(false), [beginRun]);
+  const handleWatch = useCallback(() => beginRun(true), [beginRun]);
+
+  // Mid-run handover: the visitor takes the sticks back from the bot.
+  const takeControl = useCallback(() => {
+    world.autopilot = false;
+    setAutoPilot(false);
+  }, [world]);
 
   const handleRestart = useCallback(() => {
     ensureSfx();
+    // Another run hands control back to the visitor — the bot only drives
+    // when explicitly invited.
+    world.autopilot = false;
+    setAutoPilot(false);
+    setAutoRan(false);
     restartRun(world);
     if (replay) world.runSeed = replay.seed;
     setRaceTarget(replay);
@@ -140,6 +172,8 @@ export default function KittyRunPage() {
   useEffect(() => {
     const onKeyDown = (event: KeyboardEvent) => {
       if (event.repeat) return;
+      // While the autopilot drives, jump/dash keys are spectators' keys —
+      // only screen controls respond.
       switch (event.code) {
         case "Space":
         case "ArrowUp":
@@ -147,7 +181,7 @@ export default function KittyRunPage() {
           event.preventDefault();
           if (world.status === "ready") handleStart();
           else if (world.status === "over") handleRestart();
-          else requestJump(world);
+          else if (!world.autopilot) requestJump(world);
           break;
         case "Enter":
           if (world.status === "ready") handleStart();
@@ -158,7 +192,7 @@ export default function KittyRunPage() {
         case "ArrowDown":
         case "KeyS":
           event.preventDefault();
-          requestDash(world);
+          if (!world.autopilot) requestDash(world);
           break;
         case "KeyP":
         case "Escape":
@@ -172,7 +206,10 @@ export default function KittyRunPage() {
       }
     };
     const onKeyUp = (event: KeyboardEvent) => {
-      if (event.code === "Space" || event.code === "ArrowUp" || event.code === "KeyW") {
+      if (
+        !world.autopilot &&
+        (event.code === "Space" || event.code === "ArrowUp" || event.code === "KeyW")
+      ) {
         releaseJump(world);
       }
     };
@@ -193,7 +230,7 @@ export default function KittyRunPage() {
     (event: React.PointerEvent) => {
       pointerY.current = event.clientY;
       pointerTime.current = performance.now();
-      if (world.status === "running") requestJump(world);
+      if (world.status === "running" && !world.autopilot) requestJump(world);
     },
     [world],
   );
@@ -202,7 +239,7 @@ export default function KittyRunPage() {
     (event: React.PointerEvent) => {
       if (pointerY.current === null) return;
       if (event.clientY - pointerY.current > 42) {
-        requestDash(world);
+        if (!world.autopilot) requestDash(world);
         pointerY.current = null;
       }
     },
@@ -211,7 +248,8 @@ export default function KittyRunPage() {
 
   const onPointerUp = useCallback(() => {
     pointerY.current = null;
-    releaseJump(world);
+    // A spectator lifting their finger must not cut the bot's jump arc.
+    if (!world.autopilot) releaseJump(world);
   }, [world]);
 
   const coarse = useMemo(
@@ -274,6 +312,16 @@ export default function KittyRunPage() {
             <span ref={echoChipRef}>echo · your best run</span>
           </div>
         )}
+        {autoPilot && status === "running" && (
+          <button
+            type="button"
+            className="kitty-run-pilotchip"
+            onPointerDown={(event) => event.stopPropagation()}
+            onClick={takeControl}
+          >
+            autopilot · take control
+          </button>
+        )}
         <span
           className={`kitty-run-debug${debugOn ? " is-visible" : ""}`}
           ref={debugRef}
@@ -282,22 +330,30 @@ export default function KittyRunPage() {
 
       {status === "ready" && (
         <div className="kitty-run-overlay kitty-run-overlay--ready">
-          <button
-            type="button"
-            className="kitty-run-card kitty-run-card--ready"
-            onClick={handleStart}
-          >
-            <span className="kitty-run-card-kicker">ready</span>
-            {replay && (
-              <span className="kitty-run-card-echo">your best run will chase you</span>
-            )}
-            <span className="kitty-run-card-hint">
-              {coarse
-                ? "tap to jump · swipe down to dash"
-                : "space — jump · shift — dash · p — pause"}
-            </span>
-            <span className="kitty-run-card-action">start</span>
-          </button>
+          <div className="kitty-run-ready-stack">
+            <button
+              type="button"
+              className="kitty-run-card kitty-run-card--ready"
+              onClick={handleStart}
+            >
+              <span className="kitty-run-card-kicker">ready</span>
+              {replay && (
+                <span className="kitty-run-card-echo">your best run will chase you</span>
+              )}
+              <span className="kitty-run-card-hint">
+                {coarse
+                  ? "tap to jump · swipe down to dash"
+                  : "space — jump · shift — dash · p — pause"}
+              </span>
+              <span className="kitty-run-card-action">start</span>
+            </button>
+            <button type="button" className="kitty-run-watch" onClick={handleWatch}>
+              <span className="kitty-run-watch-title">or watch it play itself</span>
+              <span className="kitty-run-watch-hint">
+                autopilot · the lookahead bot that verifies every track
+              </span>
+            </button>
+          </div>
         </div>
       )}
 
@@ -324,6 +380,11 @@ export default function KittyRunPage() {
             <span className="kitty-run-card-stat">
               {Math.floor(world.distance).toLocaleString()} m run
             </span>
+            {autoRan && (
+              <span className="kitty-run-card-echo">
+                flown by the engine's test pilot — your records untouched
+              </span>
+            )}
             {raceTarget && (
               <span className="kitty-run-card-echo">
                 {world.distance >= raceTarget.distance

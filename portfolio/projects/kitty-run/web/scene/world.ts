@@ -114,6 +114,12 @@ export type WorldState = {
   jumpHeld: boolean;
   dashQueued: boolean;
 
+  // Autopilot demo: when true the lookahead pilot steers instead of the
+  // visitor (see lib/pilot.ts). The loop refuses to write best scores or
+  // replays for a bot-driven run, so a perfect exhibition never replaces
+  // the player's own echo.
+  autopilot: boolean;
+
   // Timed input log for the current run — the raw material of the
   // best-run echo replay. Zeroed on start, appended by the actions.
   inputLog: RunInput[];
@@ -167,6 +173,7 @@ export function createWorld(best = 0, runSeed = freshSeed()): WorldState {
     jumpQueued: false,
     jumpHeld: false,
     dashQueued: false,
+    autopilot: false,
     inputLog: [],
 
     kitty: {

@@ -1,14 +1,14 @@
-// Headless full-run simulation: drives the real step function with a
-// lookahead bot for minutes of simulated gameplay and asserts the invariants
-// that only show up over time — no NaN drift, no unknown hazard kinds,
-// milestones fire exactly once each, distance scoring keeps pace.
+// Headless full-run simulation: drives the real step function with the
+// lookahead pilot (the very bot the in-game autopilot demo uses) for
+// minutes of simulated gameplay and asserts the invariants that only show
+// up over time — no NaN drift, no unknown hazard kinds, milestones fire
+// exactly once each, distance scoring keeps pace.
 // Run: node --experimental-strip-types tests/kitty-run.sim.ts
 
-import { requestJump, startRun } from "../web/scene/actions.ts";
+import { startRun } from "../web/scene/actions.ts";
 import { createWorld, type WorldState } from "../web/scene/world.ts";
 import { stepWorld } from "../web/scene/step.ts";
-import { jumpLength } from "../web/lib/tuning.ts";
-import { groundY } from "../web/lib/ground.ts";
+import { pilotSteer, resetPilot } from "../web/lib/pilot.ts";
 
 const DT = 1 / 60;
 const MAX_SIM_SECONDS = 150;
@@ -21,65 +21,19 @@ type SimResult = {
   kindsSeen: Set<string>;
 };
 
-// Nearest grounded hazard (crate) ahead. Hover balloons are deliberately
-// ignored: they hang high enough to run under, and jumping into them is
-// the classic rookie mistake.
-function nearestCrate(world: WorldState): { gap: number; top: number } | null {
-  let nearest = Number.POSITIVE_INFINITY;
-  let top = 0;
-  for (const slot of world.obstacles.slots) {
-    if (!slot.active || slot.data.kind === "hover") continue;
-    const vx = slot.data.x - world.distance;
-    if (vx > -1.2 && vx < nearest) {
-      nearest = vx;
-      top = slot.data.y + 0.55 - groundY(slot.data.x);
-    }
-  }
-  return Number.isFinite(nearest) ? { gap: nearest, top } : null;
-}
-
-// Take off so the jump's apex lands on the crate: half a jump length
-// before it, with a little slack for reaction granularity.
 function simulate(runSeed: string): SimResult {
   const world = createWorld(0, runSeed);
   startRun(world);
+  resetPilot(world);
 
   let time = 0;
-  let jumpedThisArc = false;
   const kindsSeen = new Set<string>();
   const milestoneMeters: number[] = [];
   let gameOver = false;
 
   while (time < MAX_SIM_SECONDS && world.status !== "over") {
-    const crate = nearestCrate(world);
-    const gap = crate ? crate.gap : Number.POSITIVE_INFINITY;
-    const halfJump = jumpLength(world.speed) * 0.5;
-
-    if (world.kitty.grounded) {
-      // Take off on the frame the crate enters apex range. The negative
-      // slack covers landings that touch down already inside the window.
-      if (!jumpedThisArc && gap <= halfJump && gap > -0.5) {
-        requestJump(world);
-        jumpedThisArc = true;
-      } else {
-        jumpedThisArc = false;
-      }
-    } else if (world.kitty.jumpsUsed < 2 && world.kitty.jumpsUsed > 0) {
-      // Falling short of a crate still meaningfully ahead AND still low
-      // enough that the descent could clip it — being high or already
-      // above the crate is safe, no extension needed.
-      const fallingShort =
-        world.kitty.vy < 0.5 &&
-        gap > 0.8 &&
-        gap < 1.7 &&
-        world.kitty.y < crate!.top + 0.4;
-      const lateTakeoff = !jumpedThisArc && world.kitty.vy < 1 && gap <= halfJump;
-      if (fallingShort || lateTakeoff) {
-        requestJump(world);
-      }
-    }
-    // No releaseJump here: the bot always takes full-height arcs, the
-    // safest policy against the tall crate.
+    // The shared steering policy — identical code to the browser demo.
+    pilotSteer(world);
 
     stepWorld(world, DT);
     time += DT;

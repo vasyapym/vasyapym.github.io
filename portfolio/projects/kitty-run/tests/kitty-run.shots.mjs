@@ -82,8 +82,8 @@ try {
   });
 
   // A tiny but well-formed best-run replay: two jumps in the first seconds.
-  // The echo reuses its seed, launches once the player opens the six-metre
-  // lead, and stays pinned inside the visible band from there on.
+  // The echo reuses its seed, launches once the player opens the four-and-
+  // a-half-metre lead, and stays pinned inside the visible band from there.
   const seedEcho = async (page) => {
     await page.evaluate(() => {
       localStorage.setItem(
@@ -153,22 +153,60 @@ try {
   });
 
   // The ready card is a visitor's very first impression — photograph it
-  // without autostart.
-  const menuPage = await browser.newPage();
-  await menuPage.setViewport({ width: 1440, height: 810, deviceScaleFactor: 1 });
-  menuPage.on("pageerror", (err) => problems.push(`[menu] pageerror: ${err.message}`));
-  await menuPage.goto(`${BASE}/projects/kitty-run`, {
+  // without autostart, on both stages: the desktop card parks in the
+  // run-ahead space; the phone card centres with the autopilot invitation.
+  async function menuShot(name, viewport) {
+    const menuPage = await browser.newPage();
+    await menuPage.setViewport(viewport);
+    menuPage.on("pageerror", (err) => problems.push(`[menu-${name}] pageerror: ${err.message}`));
+    await menuPage.goto(`${BASE}/projects/kitty-run`, {
+      waitUntil: "networkidle0",
+      timeout: 45000,
+    });
+    // Seed after first paint (localStorage needs an origin), then reload so
+    // the ready card renders with the echo line in place.
+    await seedEcho(menuPage);
+    await menuPage.reload({ waitUntil: "networkidle0", timeout: 45000 });
+    await wait(1500);
+    await menuPage.screenshot({ path: join(SHOTS, `${name}-menu.png`) });
+    await menuPage.close();
+    console.log(`ok   ${name} menu shot captured`);
+  }
+
+  await menuShot("desktop", { width: 1440, height: 810, deviceScaleFactor: 1 });
+  await menuShot("mobile", {
+    width: 390,
+    height: 844,
+    deviceScaleFactor: 2,
+    isMobile: true,
+    hasTouch: true,
+  });
+
+  // The autopilot exhibition: the lookahead pilot drives from launch. The
+  // probe asserts the takeover chip exists and photographs the bot mid-run.
+  const autoPage = await browser.newPage();
+  await autoPage.setViewport({ width: 1440, height: 810, deviceScaleFactor: 1 });
+  autoPage.on("pageerror", (err) => problems.push(`[auto] pageerror: ${err.message}`));
+  await autoPage.goto(`${BASE}/projects/kitty-run`, {
     waitUntil: "networkidle0",
     timeout: 45000,
   });
-  // Seed after first paint (localStorage needs an origin), then reload so
-  // the ready card renders with the echo line in place.
-  await seedEcho(menuPage);
-  await menuPage.reload({ waitUntil: "networkidle0", timeout: 45000 });
-  await wait(1500);
-  await menuPage.screenshot({ path: join(SHOTS, `desktop-menu.png`) });
-  await menuPage.close();
-  console.log("ok   menu shot captured");
+  await seedEcho(autoPage);
+  await autoPage.goto(`${BASE}/projects/kitty-run?autopilot`, {
+    waitUntil: "networkidle0",
+    timeout: 45000,
+  });
+  await wait(7000);
+  if (!(await autoPage.$(".kitty-run-pilotchip"))) {
+    problems.push("[auto] autopilot chip missing while the bot drives");
+  }
+  const autoScore = await autoPage.$eval(".kitty-run-score", (el) => el.textContent);
+  if (!autoScore || Number(autoScore) <= 0) {
+    problems.push(`[auto] bot scored nothing: "${autoScore}"`);
+  }
+  await autoPage.screenshot({ path: join(SHOTS, `desktop-autopilot.png`) });
+  await autoPage.close();
+  console.log("ok   autopilot shot captured");
 
   await browser.close();
 
