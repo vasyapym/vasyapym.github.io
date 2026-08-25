@@ -716,8 +716,9 @@
   position: fixed;
   inset: 0;
   z-index: 60;
-  display: grid;
-  place-items: center;
+  display: flex;
+  align-items: center;
+  justify-content: center;
   padding: clamp(0.75rem, 3vw, 2.5rem);
   background: rgba(4, 8, 10, 0.62);
 }
@@ -735,13 +736,34 @@
 
 .practice-lesson-panel {
   width: min(760px, 100%);
+  min-width: 0;
   max-height: 100%;
   overflow-y: auto;
+  overscroll-behavior: contain;
   border: 1px solid var(--ink-line);
   padding: clamp(1.25rem, 3vw, 2.25rem);
   background: #0e161b;
   box-shadow: 0 24px 80px rgba(0, 0, 0, 0.55);
   animation: practice-lesson-in 220ms ease;
+}
+
+.practice-lesson-progress {
+  position: sticky;
+  top: 0;
+  z-index: 2;
+  height: 2px;
+  margin-block: calc(-1 * clamp(1.25rem, 3vw, 2.25rem)) clamp(1.25rem, 3vw, 2.25rem);
+  margin-inline: calc(-1 * clamp(1.25rem, 3vw, 2.25rem));
+  pointer-events: none;
+}
+
+.practice-lesson-progress span {
+  display: block;
+  height: 100%;
+  background: var(--ink-accent);
+  opacity: 0;
+  transform: scaleX(0);
+  transform-origin: left;
 }
 
 .practice-lesson-header {
@@ -820,16 +842,35 @@
   color: var(--ink-accent);
 }
 
-.practice-lesson-tabs {
+.practice-lesson-tabs,
+.practice-reader-nav {
   display: flex;
-  flex-wrap: wrap;
   gap: 0.4rem;
   margin-top: 1.5rem;
   border-top: 1px solid var(--ink-line-soft);
   padding-top: 1rem;
 }
 
-.practice-lesson-tabs button {
+.practice-lesson-tabs {
+  flex-wrap: wrap;
+}
+
+.practice-reader-nav {
+  overflow-x: auto;
+  scrollbar-width: none;
+}
+
+.practice-reader-nav::-webkit-scrollbar {
+  display: none;
+}
+
+.practice-reader-nav button {
+  flex: 0 0 auto;
+  white-space: nowrap;
+}
+
+.practice-lesson-tabs button,
+.practice-reader-nav button {
   display: inline-flex;
   align-items: center;
   gap: 0.45rem;
@@ -846,6 +887,7 @@
 }
 
 .practice-lesson-tabs button kbd,
+.practice-reader-nav button kbd,
 .practice-lesson-hint kbd {
   padding: 0.05rem 0.32rem;
   color: var(--ink-muted);
@@ -855,13 +897,16 @@
   line-height: 1.4;
 }
 
-.practice-lesson-tabs button.is-active kbd {
+.practice-lesson-tabs button.is-active kbd,
+.practice-reader-nav button.is-active kbd {
   color: var(--ink-bg);
   background: var(--ink-accent);
 }
 
 .practice-lesson-tabs button:hover,
-.practice-lesson-tabs button.is-active {
+.practice-lesson-tabs button.is-active,
+.practice-reader-nav button:hover,
+.practice-reader-nav button.is-active {
   border-color: var(--ink-accent);
   color: var(--ink-text);
   background: var(--ink-panel);
@@ -888,6 +933,58 @@
 
 .practice-lesson-body li::marker {
   color: var(--ink-accent);
+}
+
+.practice-reader {
+  display: grid;
+  gap: 2.25rem;
+  margin-top: 1.5rem;
+}
+
+.practice-reader-section {
+  display: grid;
+  gap: 0.95em;
+  min-width: 0;
+  scroll-margin-top: 0.75rem;
+}
+
+.practice-reader-section h3 {
+  display: flex;
+  align-items: baseline;
+  gap: 0.65rem;
+  margin: 0.35rem 0 0.15rem;
+  color: var(--ink-text);
+  font-family: var(--display);
+  font-size: 1.18rem;
+  font-weight: 600;
+  letter-spacing: -0.01em;
+  line-height: 1.18;
+}
+
+.practice-reader-section h3 span {
+  color: var(--ink-accent);
+  font-family: var(--mono);
+  font-size: 0.72rem;
+  font-weight: 500;
+  letter-spacing: 0.05em;
+}
+
+.practice-reader-section p {
+  margin: 0;
+  color: var(--ink-muted);
+  font-size: 0.95rem;
+  line-height: 1.72;
+}
+
+.practice-reader-examples {
+  display: grid;
+  gap: 0.9rem;
+  margin-top: 0.3rem;
+  min-width: 0;
+}
+
+.practice-reader-examples .practice-example {
+  min-width: 0;
 }
 
 .practice-lesson-examples {
@@ -917,8 +1014,24 @@
   position: relative;
 }
 
+.practice-example-code::after {
+  content: "";
+  position: absolute;
+  inset: 0 0 0 auto;
+  width: 3.5rem;
+  background: linear-gradient(to left, #10191f, transparent);
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 180ms ease;
+}
+
+.practice-example-code.is-scrollable::after {
+  opacity: 1;
+}
+
 .practice-example-copy {
   position: absolute;
+  z-index: 1;
   top: 0.45rem;
   right: 0.45rem;
   border: 1px solid var(--ink-line);
@@ -959,6 +1072,16 @@
   font-size: 0.7rem;
   letter-spacing: 0.03em;
   line-height: 1.5;
+}
+
+.practice-lesson-footer > span:first-child {
+  overflow-wrap: anywhere;
+}
+
+@media (hover: none) {
+  .practice-example-copy {
+    opacity: 1;
+  }
 }
 
 .practice-lesson-hint {
@@ -1062,6 +1185,10 @@
 @media (max-width: 560px) {
   .practice-lesson-overlay {
     padding: 0.6rem;
+  }
+
+  .practice-lesson-panel {
+    max-height: min(100%, calc(100dvh - 1.2rem));
   }
 
   .practice-lesson-header {

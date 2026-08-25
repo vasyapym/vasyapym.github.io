@@ -1,5 +1,6 @@
 import {
   useEffect,
+  useLayoutEffect,
   useMemo,
   useRef,
   useState,
@@ -463,8 +464,88 @@ function LessonOverlay({
   onClose: () => void;
 }) {
   const [tab, setTab] = useState<LessonTabKey>("problem");
+  const [sectionIndex, setSectionIndex] = useState(0);
   const closeButtonRef = useRef<HTMLButtonElement>(null);
+  const panelRef = useRef<HTMLElement>(null);
+  const progressRef = useRef<HTMLSpanElement>(null);
+  const sectionIndexRef = useRef(0);
+  const spyEnabledRef = useRef(true);
+  const settleTimerRef = useRef<number>(undefined);
   const lesson = topic.lesson;
+  const deep = topic.deepLesson;
+
+  const updateProgress = () => {
+    const panel = panelRef.current;
+    const bar = progressRef.current;
+    if (!panel || !bar) {
+      return;
+    }
+    const max = panel.scrollHeight - panel.clientHeight;
+    bar.style.opacity = max <= 4 ? "0" : "1";
+    bar.style.transform = `scaleX(${max <= 4 ? 0 : Math.min(panel.scrollTop / max, 1)})`;
+  };
+
+  const goToSection = (target: number, scroll = true) => {
+    const total = deep?.sections.length ?? 0;
+    const next = Math.max(0, Math.min(target, total - 1));
+    sectionIndexRef.current = next;
+    setSectionIndex(next);
+    const panel = panelRef.current;
+    if (!scroll || !panel) {
+      return;
+    }
+    // Suppress the scrollspy while the programmatic flight is in progress:
+    // its last event otherwise fires before the smooth scroll settles and
+    // names whichever section happened to cross the probe line last.
+    spyEnabledRef.current = false;
+    panel
+      .querySelector(`[data-section-index="${next}"]`)
+      ?.scrollIntoView({
+        behavior: window.matchMedia("(prefers-reduced-motion: reduce)").matches
+          ? "auto"
+          : "smooth",
+        block: "start",
+      });
+    window.clearTimeout(settleTimerRef.current);
+    const settle = () => {
+      spyEnabledRef.current = true;
+      updateActiveFromScroll();
+    };
+    panel.addEventListener("scrollend", settle, { once: true });
+    settleTimerRef.current = window.setTimeout(() => {
+      panel.removeEventListener("scrollend", settle);
+      settle();
+    }, 1200);
+  };
+
+  const moveSection = (delta: number) => {
+    goToSection(sectionIndexRef.current + delta);
+  };
+
+  const sectionTargetsRef = useRef<HTMLElement[]>([]);
+
+  const updateActiveFromScroll = () => {
+    const panel = panelRef.current;
+    if (!panel || !spyEnabledRef.current) {
+      return;
+    }
+    const panelRect = panel.getBoundingClientRect();
+    if (panelRect.height === 0) {
+      return;
+    }
+    const probeY = panelRect.top + Math.min(panelRect.height * 0.25, 260);
+    let current = -1;
+    sectionTargetsRef.current.forEach((element, elementId) => {
+      const rect = element.getBoundingClientRect();
+      if (rect.top <= probeY && rect.bottom > probeY) {
+        current = elementId;
+      }
+    });
+    if (current >= 0 && current !== sectionIndexRef.current) {
+      sectionIndexRef.current = current;
+      setSectionIndex(current);
+    }
+  };
 
   const moveTab = (delta: number) => {
     setTab((current) => {
@@ -474,7 +555,27 @@ function LessonOverlay({
   };
 
   useEffect(() => {
-    if (!lesson) {
+    if (!deep || !panelRef.current || typeof IntersectionObserver === "undefined") {
+      return;
+    }
+    const panel = panelRef.current;
+    sectionTargetsRef.current = Array.from(
+      panel.querySelectorAll<HTMLElement>("[data-section-index]"),
+    );
+    const observer = new IntersectionObserver(
+      () => updateActiveFromScroll(),
+      { root: panel, threshold: [0, 0.25] },
+    );
+    sectionTargetsRef.current.forEach((element) => observer.observe(element));
+    return () => {
+      observer.disconnect();
+      window.clearTimeout(settleTimerRef.current);
+    };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [deep]);
+
+  useEffect(() => {
+    if (!lesson && !deep) {
       return;
     }
 
@@ -484,15 +585,30 @@ function LessonOverlay({
         return;
       }
       if (event.key === "ArrowRight") {
-        moveTab(1);
+        if (deep) {
+          moveSection(1);
+        } else {
+          moveTab(1);
+        }
         return;
       }
       if (event.key === "ArrowLeft") {
-        moveTab(-1);
+        if (deep) {
+          moveSection(-1);
+        } else {
+          moveTab(-1);
+        }
         return;
       }
       const digit = Number(event.key);
-      if (Number.isInteger(digit) && digit >= 1 && digit <= LESSON_TABS.length) {
+      if (!Number.isInteger(digit) || digit < 1) {
+        return;
+      }
+      if (deep) {
+        if (digit <= deep.sections.length) {
+          goToSection(digit - 1);
+        }
+      } else if (digit <= LESSON_TABS.length) {
         setTab(LESSON_TABS[digit - 1].key);
       }
     };
@@ -505,9 +621,15 @@ function LessonOverlay({
       window.removeEventListener("keydown", handleKeyDown);
       document.body.style.overflow = "";
     };
-  }, [lesson, onClose]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [deep, lesson, onClose]);
 
-  if (!lesson) {
+  useEffect(() => {
+    updateProgress();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
+  if (!lesson && !deep) {
     return null;
   }
 
@@ -519,7 +641,17 @@ function LessonOverlay({
 
   return (
     <div className="practice-lesson-overlay" onClick={handleBackdropClick} role="presentation">
-      <section aria-label={`Lesson: ${topic.title}`} className="practice-lesson-panel" role="dialog">
+      <section
+        aria-label={`Lesson: ${topic.title}`}
+        className="practice-lesson-panel"
+        onScroll={updateProgress}
+        ref={panelRef}
+        role="dialog"
+      >
+        <div aria-hidden="true" className="practice-lesson-progress">
+          <span ref={progressRef} />
+        </div>
+
         <header className="practice-lesson-header">
           <div>
             <p className="practice-lesson-kicker">
@@ -548,40 +680,88 @@ function LessonOverlay({
           </div>
         )}
 
-        <div aria-label="Lesson sections" className="practice-lesson-tabs">
-          {LESSON_TABS.map(({ key, label }, tabIndex) => (
-            <button
-              className={tab === key ? "is-active" : ""}
-              key={key}
-              type="button"
-              onClick={() => setTab(key)}
-            >
-              <kbd>{tabIndex + 1}</kbd>
-              {label}
-            </button>
-          ))}
-        </div>
+        {deep ? (
+          <>
+            <nav aria-label="Lesson sections" className="practice-reader-nav">
+              {deep.sections.map((section, navId) => (
+                <button
+                  aria-current={sectionIndex === navId ? "true" : undefined}
+                  className={sectionIndex === navId ? "is-active" : ""}
+                  key={navId}
+                  type="button"
+                  onClick={() => goToSection(navId)}
+                >
+                  <kbd>{navId + 1}</kbd>
+                  {section.heading ?? "intro"}
+                </button>
+              ))}
+            </nav>
 
-        <div className="practice-lesson-body">
-          {tab === "pitfalls"
-            ? <ul>{lesson.pitfalls.map((pitfall) => <li key={pitfall}>{pitfall}</li>)}</ul>
-            : <p>{lesson[tab]}</p>}
-        </div>
+            <div className="practice-reader">
+              {deep.sections.map((section, sectionId) => (
+                <section
+                  className="practice-reader-section"
+                  data-section-index={sectionId}
+                  key={sectionId}
+                >
+                  {section.heading && (
+                    <h3>
+                      <span aria-hidden="true">{String(sectionId + 1).padStart(2, "0")}</span>
+                      {section.heading}
+                    </h3>
+                  )}
+                  {section.paragraphs.map((paragraph, paragraphId) => (
+                    <p key={paragraphId}>{paragraph}</p>
+                  ))}
+                  {section.examples && section.examples.length > 0 && (
+                    <div className="practice-reader-examples">
+                      {section.examples.map((example) => (
+                        <ExampleFigure example={example} key={example.title} />
+                      ))}
+                    </div>
+                  )}
+                </section>
+              ))}
+            </div>
+          </>
+        ) : lesson ? (
+          <>
+            <div aria-label="Lesson sections" className="practice-lesson-tabs">
+              {LESSON_TABS.map(({ key, label }, tabIndex) => (
+                <button
+                  className={tab === key ? "is-active" : ""}
+                  key={key}
+                  type="button"
+                  onClick={() => setTab(key)}
+                >
+                  <kbd>{tabIndex + 1}</kbd>
+                  {label}
+                </button>
+              ))}
+            </div>
 
-        {topic.examples && topic.examples.length > 0 && (
-          <div className="practice-lesson-examples">
-            <h3>examples</h3>
-            {topic.examples.map((example) => (
-              <ExampleFigure example={example} key={example.title} />
-            ))}
-          </div>
-        )}
+            <div className="practice-lesson-body">
+              {tab === "pitfalls"
+                ? <ul>{lesson.pitfalls.map((pitfall) => <li key={pitfall}>{pitfall}</li>)}</ul>
+                : <p>{lesson[tab]}</p>}
+            </div>
+
+            {topic.examples && topic.examples.length > 0 && (
+              <div className="practice-lesson-examples">
+                <h3>examples</h3>
+                {topic.examples.map((example) => (
+                  <ExampleFigure example={example} key={example.title} />
+                ))}
+              </div>
+            )}
+          </>
+        ) : null}
 
         {topic.references && topic.references.length > 0 && (
           <footer className="practice-lesson-footer">
             <span>sources: {topic.references.join(" · ")}</span>
             <span className="practice-lesson-hint">
-              <kbd>←</kbd> <kbd>→</kbd> tabs · <kbd>esc</kbd> closes
+              <kbd>←</kbd> <kbd>→</kbd> {deep ? "sections" : "tabs"} · <kbd>esc</kbd> closes
             </span>
           </footer>
         )}
@@ -592,6 +772,18 @@ function LessonOverlay({
 
 function ExampleFigure({ example }: { example: LessonExample }) {
   const [copied, setCopied] = useState(false);
+  const codeRef = useRef<HTMLPreElement>(null);
+  const [scrollable, setScrollable] = useState(false);
+
+  useLayoutEffect(() => {
+    const element = codeRef.current;
+    if (!element) {
+      return;
+    }
+    const check = () => setScrollable(element.scrollWidth > element.clientWidth + 1);
+    check();
+    document.fonts?.ready.then(check).catch(() => {});
+  }, [example.code]);
 
   const handleCopy = async () => {
     if (!navigator.clipboard) {
@@ -607,9 +799,9 @@ function ExampleFigure({ example }: { example: LessonExample }) {
   };
 
   return (
-    <figure className="practice-example" key={example.title}>
+    <figure className="practice-example">
       <figcaption>{example.title}</figcaption>
-      <div className="practice-example-code">
+      <div className={`practice-example-code${scrollable ? " is-scrollable" : ""}`}>
         <button
           aria-label="Copy code"
           className={`practice-example-copy${copied ? " is-copied" : ""}`}
@@ -618,7 +810,7 @@ function ExampleFigure({ example }: { example: LessonExample }) {
         >
           {copied ? "copied" : "copy"}
         </button>
-        <pre><code>{example.code}</code></pre>
+        <pre ref={codeRef}><code>{example.code}</code></pre>
       </div>
       <p>{example.explanation}</p>
     </figure>
