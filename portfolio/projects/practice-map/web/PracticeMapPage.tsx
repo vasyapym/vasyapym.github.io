@@ -29,18 +29,18 @@ import {
 import "./practice-map.css";
 
 const STATUS_LABELS: Readonly<Record<TopicStatus, string>> = {
-  queued: "Queued",
-  "in-progress": "In progress",
-  revisit: "Revisit",
-  applied: "Applied",
+  queued: "queued",
+  "in-progress": "in progress",
+  revisit: "revisit",
+  applied: "applied",
 };
 
 const LESSON_TABS = [
-  { key: "problem", label: "Проблема" },
-  { key: "model", label: "Модель" },
-  { key: "mechanics", label: "Механика" },
-  { key: "pitfalls", label: "Грабли" },
-  { key: "whenNot", label: "Когда НЕ применять" },
+  { key: "problem", label: "problem" },
+  { key: "model", label: "model" },
+  { key: "mechanics", label: "mechanics" },
+  { key: "pitfalls", label: "pitfalls" },
+  { key: "whenNot", label: "when not" },
 ] as const;
 
 type LessonTabKey = (typeof LESSON_TABS)[number]["key"];
@@ -48,7 +48,7 @@ type LessonTabKey = (typeof LESSON_TABS)[number]["key"];
 type StatusFilter = TopicStatus | "all";
 
 const STATUS_FILTERS: readonly { key: StatusFilter; label: string }[] = [
-  { key: "all", label: "All" },
+  { key: "all", label: "all" },
   { key: "queued", label: STATUS_LABELS.queued },
   { key: "in-progress", label: STATUS_LABELS["in-progress"] },
   { key: "revisit", label: STATUS_LABELS.revisit },
@@ -92,40 +92,35 @@ export default function PracticeMapPage() {
   };
 
   return (
-    <section className="practice-map-page section-shell" aria-labelledby="practice-map-title">
-      <header className="practice-map-hero">
-        <div className="practice-map-hero-copy">
-          <p className="eyebrow practice-map-eyebrow">Practice Map · technical practice</p>
+    <div className="practice-map-field">
+      <section className="practice-map-page section-shell" aria-labelledby="practice-map-title">
+        <header className="practice-map-hero">
           <h1 id="practice-map-title">
-            Practice technical
-            <span>ideas.</span>
+            Read less.
+            <span>Practice more.</span>
           </h1>
-          <p className="practice-map-intro">
-            Concepts, exercises, and notes worth revisiting.
-          </p>
-        </div>
-        <div className="practice-map-hero-note">
-          <button className="practice-map-export" type="button" onClick={handleCopyFeedback}>
-            {copied ? "Review notes copied" : "Copy review notes"}
-            <span aria-hidden="true">↗</span>
-          </button>
-          <RouteProgress done={summary.applied} total={summary.total} />
-        </div>
-      </header>
-
-      <section className="practice-summary" aria-label="Practice summary">
-        <SummaryMetric label="Cards" value={summary.total} />
-        <SummaryMetric label="In progress" value={summary.inProgress} />
-        <SummaryMetric label="Applied" value={summary.applied} />
-        <SummaryMetric label="Revisit" value={summary.revisit} />
-      </section>
-
-      <div className="practice-map-layout">
-        <aside className="practice-area-nav" aria-label="Practice areas">
-          <div className="practice-area-nav-heading">
-            <span>Areas</span>
-            <span>{curriculum.length}</span>
+          <div className="practice-map-hero-note">
+            <button className="practice-map-export" type="button" onClick={handleCopyFeedback}>
+              {copied ? "copied" : "copy review notes"}
+              <span aria-hidden="true">↗</span>
+            </button>
+            <RouteProgress done={summary.applied} total={summary.total} />
           </div>
+        </header>
+
+        <section className="practice-summary" aria-label="Practice summary">
+          <SummaryMetric label="cards" value={summary.total} />
+          <SummaryMetric label="in progress" value={summary.inProgress} />
+          <SummaryMetric label="applied" value={summary.applied} />
+          <SummaryMetric label="revisit" value={summary.revisit} />
+        </section>
+
+        <div className="practice-map-layout">
+          <aside className="practice-area-nav" aria-label="Practice areas">
+            <div className="practice-area-nav-heading practice-map-notation">
+              <span>areas</span>
+              <span>{curriculum.length}</span>
+            </div>
           <div className="practice-area-list">
             {curriculum.map((area) => (
               <button
@@ -159,7 +154,7 @@ export default function PracticeMapPage() {
       </div>
 
       <footer className="practice-map-footer">
-        <span>Local notes · no account · change the map as the work changes</span>
+        <span>local notes · no account</span>
         <span className="practice-map-footer-meta">
           <span>{summary.queued} queued</span>
           <button
@@ -172,11 +167,12 @@ export default function PracticeMapPage() {
               }
             }}
           >
-            Reset progress
+            reset progress
           </button>
         </span>
       </footer>
-    </section>
+      </section>
+    </div>
   );
 }
 
@@ -198,7 +194,7 @@ function RouteProgress({ done, total }: { done: number; total: number }) {
       role="img"
     >
       <div className="practice-route-heading">
-        <span>Route progress</span>
+        <span>route</span>
         <strong>{pct}%</strong>
       </div>
       <svg aria-hidden="true" viewBox="0 0 320 36">
@@ -218,7 +214,7 @@ function RouteProgress({ done, total }: { done: number; total: number }) {
         <circle className={`practice-route-end${pct === 100 ? " is-complete" : ""}`} cx="316" cy="12" r="4" />
       </svg>
       <span className="practice-route-caption">
-        {done} of {total} applied
+        {done}/{total} applied
       </span>
     </div>
   );
@@ -271,13 +267,9 @@ function PracticeAreaView({
   return (
     <section className="practice-area-view" aria-labelledby="practice-area-title">
       <div className="practice-area-heading">
-        <div>
-          <p className="practice-area-kicker">Working map</p>
-          <h2 id="practice-area-title">{area.title}</h2>
-          <p>{area.description}</p>
-        </div>
-        <span className="practice-area-count">
-          {summary.applied} applied · {summary.revisit} to revisit
+        <h2 id="practice-area-title">{area.title}</h2>
+        <span className="practice-area-count practice-map-notation">
+          {summary.applied} applied · {summary.revisit} revisit
         </span>
       </div>
 
@@ -286,7 +278,7 @@ function PracticeAreaView({
           <span aria-hidden="true">⌕</span>
           <input
             aria-label="Search topics"
-            placeholder="Search title, summary, or concept…"
+            placeholder="search…"
             type="search"
             value={query}
             onChange={(event) => onQueryChange(event.target.value)}
@@ -328,8 +320,7 @@ function PracticeAreaView({
         </div>
       ) : (
         <div className="practice-topic-empty">
-          <strong>Nothing on this stretch of the map</strong>
-          <span>No topics match the current search and filter.</span>
+          <strong>nothing here</strong>
           <button
             type="button"
             onClick={() => {
@@ -337,7 +328,7 @@ function PracticeAreaView({
               onStatusFilterChange("all");
             }}
           >
-            Clear filters
+            clear filters
           </button>
         </div>
       )}
@@ -390,22 +381,22 @@ function TopicCard({
 
       {topic.lesson && (
         <button className="practice-lesson-open" type="button" onClick={() => setLessonOpen(true)}>
-          Открыть урок
+          open lesson
           <span aria-hidden="true">→</span>
         </button>
       )}
 
       <details className="practice-topic-details">
-        <summary>Practice path</summary>
+        <summary>practice path</summary>
         <div>
-          <p><strong>Try</strong>{topic.practicePrompt}</p>
-          <p><strong>Check</strong>{topic.checkPrompt}</p>
+          <p><strong>try</strong>{topic.practicePrompt}</p>
+          <p><strong>check</strong>{topic.checkPrompt}</p>
         </div>
       </details>
 
       <div className="practice-topic-controls">
         <label>
-          <span>Status</span>
+          <span>status</span>
           <select aria-label={`Status for ${topic.title}`} value={progress.status} onChange={handleStatusChange}>
             {Object.entries(STATUS_LABELS).map(([value, label]) => (
               <option key={value} value={value}>{label}</option>
@@ -415,7 +406,7 @@ function TopicCard({
       </div>
 
       <details className="practice-topic-feedback">
-        <summary>Leave feedback</summary>
+        <summary>feedback</summary>
         <div className="practice-feedback-editor">
           <div className="practice-feedback-options">
             {(Object.keys(FEEDBACK_LABELS) as FeedbackKind[]).map((feedback) => (
@@ -431,11 +422,11 @@ function TopicCard({
             ))}
           </div>
           <label className="practice-note-label">
-            <span>Note for the next pass</span>
+            <span>note</span>
             <textarea
               value={progress.note}
               onChange={(event) => updateNote(event.target.value)}
-              placeholder="What should become clearer, narrower, or more useful?"
+              placeholder="what to clarify next…"
               rows={3}
             />
           </label>
@@ -528,17 +519,17 @@ function LessonOverlay({
 
   return (
     <div className="practice-lesson-overlay" onClick={handleBackdropClick} role="presentation">
-      <section aria-label={`Урок: ${topic.title}`} className="practice-lesson-panel" role="dialog">
+      <section aria-label={`Lesson: ${topic.title}`} className="practice-lesson-panel" role="dialog">
         <header className="practice-lesson-header">
           <div>
             <p className="practice-lesson-kicker">
-              Урок {String(index + 1).padStart(2, "0")}
-              {typeof topic.complexity === "number" && ` · сложность ${topic.complexity}/5`}
+              lesson {String(index + 1).padStart(2, "0")}
+              {typeof topic.complexity === "number" && ` · ${topic.complexity}/5`}
             </p>
             <h2>{topic.title}</h2>
           </div>
           <button
-            aria-label="Закрыть урок"
+            aria-label="Close lesson"
             className="practice-lesson-close"
             ref={closeButtonRef}
             type="button"
@@ -550,14 +541,14 @@ function LessonOverlay({
 
         {topic.objectives && topic.objectives.length > 0 && (
           <div className="practice-lesson-objectives">
-            <span>Цели урока</span>
+            <span>objectives</span>
             <ul>
               {topic.objectives.map((objective) => <li key={objective}>{objective}</li>)}
             </ul>
           </div>
         )}
 
-        <div aria-label="Разделы урока" className="practice-lesson-tabs">
+        <div aria-label="Lesson sections" className="practice-lesson-tabs">
           {LESSON_TABS.map(({ key, label }, tabIndex) => (
             <button
               className={tab === key ? "is-active" : ""}
@@ -579,7 +570,7 @@ function LessonOverlay({
 
         {topic.examples && topic.examples.length > 0 && (
           <div className="practice-lesson-examples">
-            <h3>Практика</h3>
+            <h3>examples</h3>
             {topic.examples.map((example) => (
               <ExampleFigure example={example} key={example.title} />
             ))}
@@ -588,9 +579,9 @@ function LessonOverlay({
 
         {topic.references && topic.references.length > 0 && (
           <footer className="practice-lesson-footer">
-            <span>Источники: {topic.references.join(" · ")}</span>
+            <span>sources: {topic.references.join(" · ")}</span>
             <span className="practice-lesson-hint">
-              <kbd>←</kbd> <kbd>→</kbd> разделы · <kbd>Esc</kbd> закрыть
+              <kbd>←</kbd> <kbd>→</kbd> tabs · <kbd>esc</kbd> closes
             </span>
           </footer>
         )}
@@ -620,7 +611,7 @@ function ExampleFigure({ example }: { example: LessonExample }) {
       <figcaption>{example.title}</figcaption>
       <div className="practice-example-code">
         <button
-          aria-label="Скопировать код"
+          aria-label="Copy code"
           className={`practice-example-copy${copied ? " is-copied" : ""}`}
           type="button"
           onClick={handleCopy}
