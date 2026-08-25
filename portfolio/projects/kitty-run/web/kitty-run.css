@@ -276,9 +276,10 @@
   pointer-events: none;
 }
 
-/* Ghost chip: a quiet label that names the spirit while it races you and
-   reads out the live gap; the cool violet keeps it in the ghost's family. */
-.kitty-run-ghostchip {
+/* Echo chip: a quiet label that names the best-run echo while it races
+   you and reads out the live gap; the cool violet keeps it in the echo's
+   family. */
+.kitty-run-echochip {
   position: absolute;
   left: 24px;
   bottom: 20px;
@@ -387,6 +388,20 @@
 @keyframes kitty-badge-pop {
   from { transform: scale(0.4); opacity: 0; }
   to { transform: scale(1); opacity: 1; }
+}
+
+/* Echo line on the ready/over cards: the same quiet violet family as the
+   in-run chip, so the best-run race reads as one feature everywhere. */
+.kitty-run-card-echo {
+  padding: 5px 14px;
+  border-radius: 999px;
+  border: 1px solid rgba(255, 255, 255, 0.16);
+  background: rgba(70, 84, 140, 0.78);
+  color: #e4ebff;
+  font-family: var(--mono);
+  font-size: 11.5px;
+  letter-spacing: 0.05em;
+  font-variant-numeric: tabular-nums;
 }
 
 .kitty-run-card-title {

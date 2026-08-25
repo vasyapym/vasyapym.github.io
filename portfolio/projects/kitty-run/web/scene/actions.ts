@@ -1,7 +1,7 @@
 // Player-facing world mutations: start, pause, restart, jump, dash. The
 // page's input listeners call these; the simulation step consumes what
 // they set. Every action also appends to the run's input log — that log
-// plus the run seed is what the ghost replay needs to reproduce a run.
+// plus the run seed is what the echo replay needs to reproduce a run.
 
 import type { RunInputKind } from "../lib/replay.ts";
 import { TUNING } from "../lib/tuning.ts";
@@ -15,7 +15,7 @@ export function startRun(world: WorldState): void {
   if (world.status !== "ready") return;
   // Zero the clock and the odometer: the ready screen drifts the world
   // forward for atmosphere, and a run must always begin at metre zero —
-  // the ghost replay and the chunk stream both depend on that alignment
+  // the echo replay and the chunk stream both depend on that alignment
   // (a lingering menu would otherwise gift the player an unclosable lead).
   world.time = 0;
   world.distance = 0;

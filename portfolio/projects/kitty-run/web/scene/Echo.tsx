@@ -1,24 +1,28 @@
-// The best-run ghost: a translucent spirit Kitty replaying your finest
-// hour in its own simulation, launched a beat after you so the race is
-// always on screen. Materials are retinted into one spectral family and
-// dimmed once at mount; every frame only moves the group, pulses the
-// glow and decides whether the spirit is on stage.
+// The best-run echo: a translucent afterimage Kitty replaying your finest
+// hour in its own simulation, launched once you open a small lead so the
+// chase is always on screen. Materials are retinted into one spectral
+// family and dimmed once at mount; every frame only moves the group,
+// keeps it inside the visible stage span, pulses the glow and decides
+// whether the echo is on stage at all.
 
 import { useEffect, useMemo, useRef } from "react";
 import * as THREE from "three";
 import { useFrame } from "@react-three/fiber";
 import { Kitty } from "../kitty/Kitty";
+import {
+  clampInto,
+  stageSpan,
+  STAGE_AHEAD_MARGIN,
+  STAGE_BEHIND_MARGIN,
+} from "../lib/framing.ts";
 import { PALETTE } from "../lib/palette.ts";
 import { softDotTexture } from "../lib/textures.ts";
 import type { WorldState } from "./world.ts";
 
-// Beyond a screen-width the ghost is offstage anyway; the bound keeps it
-// from drifting far behind on wide monitors.
-const MAX_OFFSET = 9;
 const GHOST_OPACITY = 0.55;
 
 // The spectral restyle: every rig colour maps into one blue-violet
-// family, so the copy reads as a spirit rather than a second Kitty.
+// family, so the copy reads as an afterimage rather than a second Kitty.
 const SPECTRAL: Record<string, string> = {
   [PALETTE.kittyWhite]: "#d9e4fb",
   [PALETTE.suitPink]: "#b7c6f2",
@@ -35,7 +39,7 @@ function retint(material: THREE.Material): void {
   material.opacity = GHOST_OPACITY;
   // Depth writes stay ON: the parts must occlude each other or the
   // translucency stacks into see-through circles. The opaque pass has
-  // already written scenery and player depth, so the spirit still hides
+  // already written scenery and player depth, so the echo still hides
   // cleanly behind the real Kitty wherever they overlap.
   material.depthWrite = true;
   const basic = material as THREE.MeshBasicMaterial;
@@ -45,12 +49,12 @@ function retint(material: THREE.Material): void {
   }
 }
 
-export function Ghost({
+export function Echo({
   world,
-  ghost,
+  echo,
 }: {
   world: WorldState;
-  ghost: WorldState;
+  echo: WorldState;
 }) {
   const holder = useRef<THREE.Group>(null);
   const glow = useRef<THREE.Mesh>(null);
@@ -67,20 +71,28 @@ export function Ghost({
     });
   }, []);
 
-  useFrame(() => {
+  useFrame((state) => {
     const group = holder.current;
     if (!group) return;
-    // ghost.time only moves once the race launches it — until then the
-    // spirit waits in the wings.
-    const offset = ghost.distance - world.distance;
+    // echo.time only moves once the race launches it — until then the
+    // afterimage waits in the wings.
+    const offset = echo.distance - world.distance;
     const onstage =
       world.status === "running" &&
-      ghost.status === "running" &&
-      ghost.time > 0 &&
-      Math.abs(offset) <= MAX_OFFSET;
+      echo.status === "running" &&
+      echo.time > 0 &&
+      Math.abs(offset) <= 12;
     group.visible = onstage;
     if (!onstage) return;
-    group.position.x = offset;
+    // The true gap is the race truth (the HUD chip reads it out); the
+    // drawn position just refuses to leave the stage, so a big late-run
+    // lead pins the echo to the edge instead of losing it entirely.
+    const span = stageSpan(state.size.width / Math.max(1, state.size.height));
+    group.position.x = clampInto(
+      offset,
+      span,
+      offset < 0 ? STAGE_BEHIND_MARGIN : STAGE_AHEAD_MARGIN,
+    );
 
     const glowMesh = glow.current;
     if (glowMesh) {
@@ -101,7 +113,7 @@ export function Ghost({
           depthWrite={false}
         />
       </mesh>
-      <Kitty world={ghost} />
+      <Kitty world={echo} />
     </group>
   );
 }

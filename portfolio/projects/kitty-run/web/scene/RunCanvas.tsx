@@ -15,7 +15,7 @@ import { Pickups } from "./Pickups";
 import { Particles } from "./Particles";
 import { Effects } from "./Effects";
 import { GameLoop, type HudRefs } from "./GameLoop";
-import { Ghost } from "./Ghost";
+import { Echo } from "./Echo";
 import { Kitty } from "../kitty/Kitty";
 import type { RunInput } from "../lib/replay.ts";
 
@@ -57,8 +57,8 @@ function CameraRig({ world, reducedMotion }: { world: WorldState; reducedMotion:
 
 export function RunCanvas({
   world,
-  ghost,
-  ghostInputs,
+  echo,
+  echoInputs,
   reducedMotion,
   sfxRef,
   muted,
@@ -66,8 +66,8 @@ export function RunCanvas({
   onStatus,
 }: {
   world: WorldState;
-  ghost?: WorldState | null;
-  ghostInputs?: RunInput[];
+  echo?: WorldState | null;
+  echoInputs?: RunInput[];
   reducedMotion: boolean;
   sfxRef: React.RefObject<Sfx | null>;
   muted: boolean;
@@ -100,14 +100,14 @@ export function RunCanvas({
       <Pickups world={world} />
       <Particles world={world} />
       <Kitty world={world} />
-      {ghost && ghostInputs && (
-        <Ghost world={world} ghost={ghost} />
+      {echo && echoInputs && (
+        <Echo world={world} echo={echo} />
       )}
       <Effects world={world} reducedMotion={reducedMotion} />
       <GameLoop
         world={world}
-        ghost={ghost}
-        ghostInputs={ghostInputs}
+        echo={echo}
+        echoInputs={echoInputs}
         sfxRef={sfxRef}
         muted={muted}
         hud={hud}

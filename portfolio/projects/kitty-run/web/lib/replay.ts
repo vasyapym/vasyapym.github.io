@@ -1,6 +1,6 @@
 // Best-run replay storage. A replay is the run's seed plus a timed input
 // list — exactly what the deterministic simulation needs to reproduce the
-// whole run, which is how the ghost kitty can race you along the same
+// whole run, which is how the echo kitty can race you along the same
 // track. Lives in localStorage beside the best score; the sanitizer
 // guards against corrupt, stale or hand-edited entries.
 
@@ -20,6 +20,8 @@ export type StoredReplay = {
   inputs: RunInput[];
 };
 
+// The key predates the ghost→echo rename on purpose: changing it would
+// wipe every visitor's saved best for a cosmetic reason.
 export const REPLAY_KEY = "kitty-run.replay.v1";
 
 // A three-minute run at frantic tapping stays under a few hundred
@@ -78,7 +80,7 @@ export function loadReplay(storage: StorageLike | null): StoredReplay | null {
   }
 }
 
-// Only a strictly better run replaces the stored ghost, so a tie never
+// Only a strictly better run replaces the stored echo, so a tie never
 // rewrites history.
 export function saveReplayIfBest(
   storage: StorageLike,
@@ -92,7 +94,7 @@ export function saveReplayIfBest(
     storage.setItem(REPLAY_KEY, JSON.stringify(clean));
     return true;
   } catch {
-    // Private mode or full quota: the ghost simply goes unrecorded.
+    // Private mode or full quota: the echo simply goes unrecorded.
     return false;
   }
 }

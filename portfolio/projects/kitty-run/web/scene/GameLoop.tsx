@@ -9,6 +9,7 @@ import { saveReplayIfBest, type RunInput } from "../lib/replay.ts";
 import { TUNING } from "../lib/tuning.ts";
 import { buzz } from "../lib/haptics.ts";
 import type { Sfx } from "../lib/audio.ts";
+import { clampInto, stageSpan } from "../lib/framing.ts";
 import { hexRgb, dashTrail, dustPuff, sparkBurst, type Rgb } from "./bursts.ts";
 import { releaseJump, requestDash, requestJump } from "./actions.ts";
 import { stepWorld } from "./step.ts";
@@ -20,7 +21,7 @@ export type HudRefs = {
   combo: React.RefObject<HTMLSpanElement | null>;
   comboBar: React.RefObject<HTMLDivElement | null>;
   milestone: React.RefObject<HTMLDivElement | null>;
-  ghost?: React.RefObject<HTMLSpanElement | null>;
+  echo?: React.RefObject<HTMLSpanElement | null>;
   debug?: React.RefObject<HTMLSpanElement | null>;
 };
 
@@ -130,8 +131,8 @@ function handleEvents(
         sfx?.gameover();
         if (!reducedMotion) buzz([90, 50, 150]);
         writeBestScore(window.localStorage, world.best);
-        // The finished run becomes (or fails to become) the ghost future
-        // runs will race — seed plus timed inputs is the whole recipe.
+        // The finished run becomes (or fails to become) the echo future
+        // runs will chase — seed plus timed inputs is the whole recipe.
         saveReplayIfBest(window.localStorage, {
           seed: world.runSeed,
           score: world.score,
@@ -144,7 +145,7 @@ function handleEvents(
   world.events.length = 0;
 }
 
-function writeHud(world: WorldState, ghost: WorldState | null, hud: HudRefs): void {
+function writeHud(world: WorldState, echo: WorldState | null, hud: HudRefs): void {
   if (hud.score.current) {
     hud.score.current.textContent = String(world.score);
   }
@@ -165,14 +166,14 @@ function writeHud(world: WorldState, ghost: WorldState | null, hud: HudRefs): vo
     const fraction = world.combo > 0 ? Math.max(0, world.comboTimer / COMBO_WINDOW) : 0;
     hud.comboBar.current.style.transform = `scaleX(${fraction})`;
   }
-  if (hud.ghost?.current) {
-    const node = hud.ghost.current;
-    if (!ghost) node.textContent = "";
-    else if (ghost.status !== "running") node.textContent = "ghost · out";
-    else if (ghost.time <= 0) node.textContent = "ghost · warming up";
+  if (hud.echo?.current) {
+    const node = hud.echo.current;
+    if (!echo) node.textContent = "";
+    else if (echo.status !== "running") node.textContent = "echo · out";
+    else if (echo.time <= 0) node.textContent = "echo · warming up";
     else {
-      const gap = Math.round(ghost.distance - world.distance);
-      node.textContent = gap >= 0 ? `ghost · +${gap} m` : `ghost · ${gap} m`;
+      const gap = Math.round(echo.distance - world.distance);
+      node.textContent = gap >= 0 ? `echo · +${gap} m` : `echo · ${gap} m`;
     }
   }
   if (hud.debug?.current) {
@@ -182,8 +183,8 @@ function writeHud(world: WorldState, ghost: WorldState | null, hud: HudRefs): vo
 
 export function GameLoop({
   world,
-  ghost,
-  ghostInputs,
+  echo,
+  echoInputs,
   sfxRef,
   muted,
   hud,
@@ -193,9 +194,9 @@ export function GameLoop({
   world: WorldState;
   // The simulated best-run world and its recorded inputs. Both come from
   // storage; either may be absent (first visit, private mode, corrupt
-  // data) — the run then simply has no ghost.
-  ghost?: WorldState | null;
-  ghostInputs?: RunInput[];
+  // data) — the run then simply has no echo.
+  echo?: WorldState | null;
+  echoInputs?: RunInput[];
   sfxRef: React.RefObject<Sfx | null>;
   muted: boolean;
   hud: HudRefs;
@@ -205,60 +206,63 @@ export function GameLoop({
   const prevStatus = useRef<GameStatus>(world.status);
   const dustTimer = useRef(0);
   const feedCursor = useRef(0);
-  const prevGhostStatus = useRef<GameStatus>("running");
-  // Warm-up debt: every new ghost race starts the spirit this many
-  // seconds behind the player. Accumulated from frame deltas while the
-  // run is live, so it cannot race the effect order — the reset in the
-  // ghost effect IS the race start.
-  const ghostWarmup = useRef(0);
+  const prevEchoStatus = useRef<GameStatus>("running");
+  // The launch gate: the echo stays in the wings until the player opens
+  // the tuned lead, then chases for the rest of the run. A plain flag —
+  // reset when the next race's echo object arrives.
+  const echoLaunched = useRef(false);
 
   useEffect(() => {
     onStatus(world.status);
   }, [onStatus, world]);
 
-  // A new ghost object means a new race: rewind the feeder.
+  // A new echo object means a new race: rewind the feeder.
   useEffect(() => {
     feedCursor.current = 0;
-    prevGhostStatus.current = "running";
-    ghostWarmup.current = 0;
-  }, [ghost]);
+    prevEchoStatus.current = "running";
+    echoLaunched.current = false;
+  }, [echo]);
 
-  useFrame((_, delta) => {
+  useFrame((state, delta) => {
     stepWorld(world, delta);
 
-    // The ghost lives in its own deterministic simulation — same seed as
+    // The echo lives in its own deterministic simulation — same seed as
     // this track, same physics, its recorded inputs. Stepping both with
     // one dt keeps them in lockstep through pauses and hit-stop; the
-    // warm-up gate holds the spirit back for its handicap start.
+    // distance gate is the handicap start (see TUNING.echoGapMetres).
     if (
-      ghost &&
-      ghostInputs &&
+      echo &&
+      echoInputs &&
       world.status === "running" &&
       world.hitStop <= 0
     ) {
-      if (ghostWarmup.current < TUNING.ghostStartDelay) {
-        // Same cap as the sim's dt, so the handicap burns in game time
-        // even when frames are slow.
-        ghostWarmup.current += Math.min(delta, 0.05);
-      } else {
+      if (echoLaunched.current || world.distance >= TUNING.echoGapMetres) {
+        echoLaunched.current = true;
         const gdt = Math.min(delta, 0.05);
         while (
-          feedCursor.current < ghostInputs.length &&
-          ghostInputs[feedCursor.current].t <= ghost.time + gdt
+          feedCursor.current < echoInputs.length &&
+          echoInputs[feedCursor.current].t <= echo.time + gdt
         ) {
-          const inp = ghostInputs[feedCursor.current++];
-          if (inp.kind === "jump") requestJump(ghost);
-          else if (inp.kind === "release") releaseJump(ghost);
-          else requestDash(ghost);
+          const inp = echoInputs[feedCursor.current++];
+          if (inp.kind === "jump") requestJump(echo);
+          else if (inp.kind === "release") releaseJump(echo);
+          else requestDash(echo);
         }
-        stepWorld(ghost, delta);
-        // Nobody consumes the ghost's cosmetic events; drain or they pile up.
-        ghost.events.length = 0;
-        if (prevGhostStatus.current === "running" && ghost.status !== "running") {
-          const gx = Math.max(-9, Math.min(9, ghost.distance - world.distance));
-          dustPuff(world, gx, ghost.kitty.y, reducedMotion ? 3 : 7);
+        stepWorld(echo, delta);
+        // Nobody consumes the echo's cosmetic events; drain or they pile up.
+        echo.events.length = 0;
+        if (prevEchoStatus.current === "running" && echo.status !== "running") {
+          const span = stageSpan(
+            state.size.width / Math.max(1, state.size.height),
+          );
+          const gx = clampInto(
+            echo.distance - world.distance,
+            span,
+            0.5,
+          );
+          dustPuff(world, gx, echo.kitty.y, reducedMotion ? 3 : 7);
         }
-        prevGhostStatus.current = ghost.status;
+        prevEchoStatus.current = echo.status;
       }
     }
 
@@ -281,7 +285,7 @@ export function GameLoop({
     }
 
     handleEvents(world, muted ? null : sfxRef.current, reducedMotion, hud);
-    writeHud(world, ghost ?? null, hud);
+    writeHud(world, echo ?? null, hud);
 
     if (prevStatus.current !== world.status) {
       prevStatus.current = world.status;

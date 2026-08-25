@@ -26,17 +26,21 @@ export default function KittyRunPage() {
   const [best, setBest] = useState(world.best);
   const [muted, setMuted] = useState(false);
   // The stored best run: seed plus inputs. When present, new runs reuse
-  // its seed so the ghost races you over the very track it ran.
+  // its seed so the echo races you over the very track it ran.
   const [replay, setReplay] = useState<StoredReplay | null>(() =>
     loadReplay(window.localStorage),
   );
-  // Bumped on every start so the ghost simulation is rebuilt fresh.
+  // Bumped on every start so the echo simulation is rebuilt fresh.
   const [runNonce, setRunNonce] = useState(0);
+  // The replay this run is racing. Frozen at start: the over card compares
+  // against the mark that was on the line, not against a replay this very
+  // run may have just rewritten.
+  const [raceTarget, setRaceTarget] = useState<StoredReplay | null>(null);
 
-  const ghost: WorldState | null = useMemo(() => {
+  const echo: WorldState | null = useMemo(() => {
     if (!replay) return null;
     const sim = createWorld(0, replay.seed);
-    // The ghost never sees a menu; it exists only to run.
+    // The echo never sees a menu; it exists only to run.
     sim.status = "running";
     return sim;
   }, [replay, runNonce]);
@@ -48,7 +52,7 @@ export default function KittyRunPage() {
   const comboRef = useRef<HTMLSpanElement | null>(null);
   const comboBarRef = useRef<HTMLDivElement | null>(null);
   const milestoneRef = useRef<HTMLDivElement | null>(null);
-  const ghostChipRef = useRef<HTMLSpanElement | null>(null);
+  const echoChipRef = useRef<HTMLSpanElement | null>(null);
   const debugRef = useRef<HTMLSpanElement | null>(null);
 
   const hud: HudRefs = useMemo(
@@ -58,7 +62,7 @@ export default function KittyRunPage() {
       combo: comboRef,
       comboBar: comboBarRef,
       milestone: milestoneRef,
-      ghost: ghostChipRef,
+      echo: echoChipRef,
       debug: debugRef,
     }),
     [],
@@ -75,6 +79,7 @@ export default function KittyRunPage() {
     ) {
       autostarted.current = true;
       if (replay) world.runSeed = replay.seed;
+      setRaceTarget(replay);
       startRun(world);
       setRunNonce((n) => n + 1);
     }
@@ -93,7 +98,7 @@ export default function KittyRunPage() {
       setStatus(next);
       if (next === "over") {
         setBest((prev) => Math.max(prev, world.best));
-        // A finished run may have written a new ghost; pick it up so the
+        // A finished run may have written a new echo; pick it up so the
         // next race uses the fresh replay.
         setReplay(loadReplay(window.localStorage));
       }
@@ -104,6 +109,7 @@ export default function KittyRunPage() {
   const handleStart = useCallback(() => {
     ensureSfx();
     if (replay) world.runSeed = replay.seed;
+    setRaceTarget(replay);
     startRun(world);
     setRunNonce((n) => n + 1);
   }, [ensureSfx, world, replay]);
@@ -112,6 +118,7 @@ export default function KittyRunPage() {
     ensureSfx();
     restartRun(world);
     if (replay) world.runSeed = replay.seed;
+    setRaceTarget(replay);
     setRunNonce((n) => n + 1);
   }, [ensureSfx, world, replay]);
 
@@ -222,8 +229,8 @@ export default function KittyRunPage() {
     <>
       <RunCanvas
         world={world}
-        ghost={ghost}
-        ghostInputs={replay?.inputs}
+        echo={echo}
+        echoInputs={replay?.inputs}
         reducedMotion={reducedMotion}
         sfxRef={sfxRef}
         muted={muted}
@@ -263,8 +270,8 @@ export default function KittyRunPage() {
         </div>
         <div className="kitty-run-milestone" ref={milestoneRef} aria-hidden="true" />
         {replay && status === "running" && (
-          <div className="kitty-run-ghostchip">
-            <span ref={ghostChipRef}>ghost · your best run</span>
+          <div className="kitty-run-echochip">
+            <span ref={echoChipRef}>echo · your best run</span>
           </div>
         )}
         <span
@@ -277,6 +284,9 @@ export default function KittyRunPage() {
         <div className="kitty-run-overlay">
           <button type="button" className="kitty-run-card" onClick={handleStart}>
             <span className="kitty-run-card-kicker">ready</span>
+            {replay && (
+              <span className="kitty-run-card-echo">your best run will chase you</span>
+            )}
             <span className="kitty-run-card-hint">
               {coarse
                 ? "tap to jump · swipe down to dash"
@@ -310,6 +320,13 @@ export default function KittyRunPage() {
             <span className="kitty-run-card-stat">
               {Math.floor(world.distance).toLocaleString()} m run
             </span>
+            {raceTarget && (
+              <span className="kitty-run-card-echo">
+                {world.distance >= raceTarget.distance
+                  ? `${Math.max(1, Math.round(world.distance - raceTarget.distance))} m past your best mark`
+                  : `${Math.max(1, Math.round(raceTarget.distance - world.distance))} m short of your best mark`}
+              </span>
+            )}
             <span className="kitty-run-card-hint">
               best {best} · {coarse ? "tap to run again" : "space or r runs again"}
             </span>

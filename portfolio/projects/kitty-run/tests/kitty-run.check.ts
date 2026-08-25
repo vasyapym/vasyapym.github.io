@@ -27,6 +27,12 @@ import {
 import { TUNING, jumpLength, jumpPeak, speedFor } from "../web/lib/tuning.ts";
 import { WORST_SLOPE } from "../web/lib/ground.ts";
 import {
+  clampInto,
+  stageSpan,
+  STAGE_AHEAD_MARGIN,
+  STAGE_BEHIND_MARGIN,
+} from "../web/lib/framing.ts";
+import {
   loadReplay,
   sanitizeReplay,
   saveReplayIfBest,
@@ -118,6 +124,31 @@ check(
   "hover gate leaves running headroom",
   HOVER_LIFT - HOVER_RADIUS > TUNING.kittyCenterLift + TUNING.kittyRadius + 0.15,
 );
+
+// --- echo race ---------------------------------------------------------------
+
+check(
+  "the echo handicap is a distance, not a time delay",
+  !("ghostStartDelay" in TUNING) && TUNING.echoGapMetres > 0,
+);
+// The chase gap must stay visible on every supported stage: after the
+// on-stage clamp (mirrors Echo.tsx) the drawn echo keeps positive
+// daylight from the player's body, from tall portrait to ultrawide.
+let spanHoldsEcho = true;
+for (let aspect = 9 / 19.5; aspect <= 3.2; aspect += 0.05) {
+  const span = stageSpan(aspect);
+  const offset = -TUNING.echoGapMetres;
+  const drawn = clampInto(
+    offset,
+    span,
+    offset < 0 ? STAGE_BEHIND_MARGIN : STAGE_AHEAD_MARGIN,
+  );
+  if (drawn > -(2 * TUNING.kittyRadius + 0.25)) {
+    spanHoldsEcho = false;
+    break;
+  }
+}
+check("every stage keeps a launched echo on screen", spanHoldsEcho);
 
 let speedBanded = true;
 for (let dist = 0; dist <= 5000; dist += 25) {
@@ -317,19 +348,19 @@ function fakeStorage(initial: Record<string, string> = {}): {
 }
 
 const replayStore = fakeStorage();
-check("empty storage has no ghost", loadReplay(replayStore) === null);
-check("the first run always becomes the ghost", saveReplayIfBest(replayStore, goodReplay));
+check("empty storage has no echo", loadReplay(replayStore) === null);
+check("the first run always becomes the echo", saveReplayIfBest(replayStore, goodReplay));
 check(
   "a saved replay round-trips intact",
   JSON.stringify(loadReplay(replayStore)) ===
     JSON.stringify(sanitizeReplay(goodReplay)),
 );
 check(
-  "a weaker run does not replace the ghost",
+  "a weaker run does not replace the echo",
   !saveReplayIfBest(replayStore, { ...goodReplay, score: 5 }),
 );
 check(
-  "a stronger run replaces the ghost",
+  "a stronger run replaces the echo",
   saveReplayIfBest(replayStore, { ...goodReplay, score: 999 }) &&
     loadReplay(replayStore)?.score === 999,
 );

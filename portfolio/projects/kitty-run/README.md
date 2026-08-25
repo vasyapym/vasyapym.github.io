@@ -44,14 +44,16 @@ the route is `/projects/kitty-run`. Shell-side additions: the
   celebration: a rising chime, confetti and a big banner.
 - **Combo** — consecutive pickups raise the score multiplier (every fourth,
   capped ×8); taking a hit resets it.
-- **Race your best-run ghost** — a finished run is stored as its seed plus
+- **Race your best-run echo** — a finished run is stored as its seed plus
   the timed input list; the next runs reuse that seed, so a spectral
   blue-violet Kitty replays your finest hour on the very same track. The
-  ghost launches half a second after you (a handicap start), so even a
-  perfect mirror of your best run stays visible as a chase instead of
-  hiding behind Kitty; the HUD chip reads out the live gap (+/- metres,
-  or "out" once she has fallen). Beat her score and she is replaced. The
-  sanitizer rejects corrupt or stale storage entries.
+  handicap is a distance, not a delay: she waits until you open a
+  two-metre lead, then gives chase, and because both simulations run at
+  the same speed the gap holds steady from launch to finish. A stage-span
+  clamp pins her drawing inside the visible band, so even a big late-run
+  lead never pushes her off a phone screen; the HUD chip reads out the
+  live gap (+/- metres, or "out" once she has fallen). Beat her score and
+  she is replaced. The sanitizer rejects corrupt or stale storage entries.
 - **Everything is jumpable** — there are no unjumpable obstacles. The
   checks sweep hundreds of generated chunks and pin every hazard top under
   the double-jump arc, worst-case uphill included; the tall crate stays
@@ -73,7 +75,9 @@ the route is `/projects/kitty-run`. Shell-side additions: the
 - **Responsive framing** — `web/lib/framing.ts` derives camera distance,
   field of view and the look target from the viewport aspect, guaranteeing
   a minimum world width on portrait phones; the DOM floaters project with
-  the same function, so pop-ups track pickups on any screen.
+  the same function, so pop-ups track pickups on any screen, and the
+  best-run echo clamps into the same span, so she is never drawn off
+  stage.
 - **Depth discipline** — the camera near plane sits at 2 and the Kitty's
   part layers are separated generously, because thin z offsets z-fight on
   16-bit mobile depth buffers and read as a see-through character.

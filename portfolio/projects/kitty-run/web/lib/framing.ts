@@ -8,7 +8,7 @@ const BASE_LOOK_Y = 2.6;
 
 // A portrait phone must still see this many world units across the play
 // plane, or obstacles arrive before there is time to react to them.
-const MIN_VIEW_WIDTH = 9;
+export const MIN_VIEW_WIDTH = 9;
 
 // Kitty sits this fraction of the stage width in from the left edge, so
 // the run-ahead side of the screen stays the big side on any aspect.
@@ -28,6 +28,11 @@ export type Frame = {
   lookY: number;
   viewHeight: number;
 };
+
+// World-x range visible across the play plane for a viewport aspect —
+// the same linear model the floaters use, so anything clamped into this
+// span shares an edge with the pop-ups.
+export type Span = { min: number; max: number };
 
 function leadFor(width: number): number {
   return Math.min(LEAD_MAX, Math.max(LEAD_MIN, width * LEAD_FRACTION));
@@ -68,4 +73,24 @@ export function frameFor(aspect: number): Frame {
     lookY: lookYFor(targetHeight),
     viewHeight: targetHeight,
   };
+}
+
+export function stageSpan(aspect: number): Span {
+  const frame = frameFor(aspect);
+  const halfWidth = (frame.viewHeight * aspect) / 2;
+  return { min: frame.lookX - halfWidth, max: frame.lookX + halfWidth };
+}
+
+// How close to a stage edge a runner-sized body may sit before its far
+// side starts sliding off; the best-run echo's on-stage clamp uses these.
+export const STAGE_BEHIND_MARGIN = 0.9;
+export const STAGE_AHEAD_MARGIN = 1.4;
+
+// Keep x on stage with a margin; a span tighter than two margins (extreme
+// aspect mid-resize) collapses to the centre rather than oscillating.
+export function clampInto(x: number, span: Span, margin: number): number {
+  const lo = span.min + margin;
+  const hi = span.max - margin;
+  if (lo > hi) return (span.min + span.max) / 2;
+  return Math.min(hi, Math.max(lo, x));
 }

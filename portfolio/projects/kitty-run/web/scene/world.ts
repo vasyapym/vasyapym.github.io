@@ -115,7 +115,7 @@ export type WorldState = {
   dashQueued: boolean;
 
   // Timed input log for the current run — the raw material of the
-  // best-run ghost replay. Zeroed on start, appended by the actions.
+  // best-run echo replay. Zeroed on start, appended by the actions.
   inputLog: RunInput[];
 
   kitty: KittyMotion & {

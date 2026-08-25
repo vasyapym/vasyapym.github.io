@@ -33,10 +33,11 @@ export const TUNING = {
   // Every this many metres the run throws a little celebration.
   milestoneStep: 500,
 
-  // The best-run ghost launches this many seconds after the player, so
-  // even a perfect mirror of your finest hour shows a visible chase gap
-  // instead of hiding the spirit directly behind Kitty.
-  ghostStartDelay: 0.45,
+  // The best-run echo waits until the player opens this much of a lead,
+  // then gives chase. A distance, not a delay: once launched, both sims
+  // run the same track at the same speed, so the gap freezes here instead
+  // of stretching with speed until it left phone screens entirely.
+  echoGapMetres: 2,
 } as const;
 
 export type Tuning = typeof TUNING;
