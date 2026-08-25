@@ -1,16 +1,33 @@
-import { useEffect, useRef, useState, type KeyboardEvent, type PointerEvent } from "react";
-import { detonate, hasWebGL, mountSpecimen } from "./detonate";
+import {
+  useEffect,
+  useRef,
+  useState,
+  type KeyboardEvent as ReactKeyboardEvent,
+  type PointerEvent,
+} from "react";
+import { hasWebGL, mountSpecimen, type SpecimenHandle } from "./detonate";
 import "./explosion-luna.css";
 
 const REDUCED_MOTION_QUERY = "(prefers-reduced-motion: reduce)";
 
-const PAYLOADS = ["core", "fracture field", "impact rings", "spark cloud"];
+const TECHNIQUES = [
+  "structural integrity · flood-fill solver",
+  "gpu instancing · two draw calls",
+  "raycast crater carving",
+  "procedural webaudio · zero assets",
+];
+
+type Telemetry = { voxels: number; total: number; debris: number; fps: number };
 
 export default function ExplosionLunaPage() {
   const stageRef = useRef<HTMLDivElement>(null);
+  const handleRef = useRef<SpecimenHandle | null>(null);
   const [reducedMotion, setReducedMotion] = useState(() => window.matchMedia(REDUCED_MOTION_QUERY).matches);
   const [hasScene, setHasScene] = useState(true);
-  const [detonationCount, setDetonationCount] = useState(0);
+  const [impacts, setImpacts] = useState(0);
+  const [muted, setMuted] = useState(false);
+  const [slowMo, setSlowMo] = useState(false);
+  const [telemetry, setTelemetry] = useState<Telemetry>({ voxels: 0, total: 0, debris: 0, fps: 60 });
 
   useEffect(() => {
     const query = window.matchMedia(REDUCED_MOTION_QUERY);
@@ -25,17 +42,53 @@ export default function ExplosionLunaPage() {
       setHasScene(false);
       return;
     }
-    const dispose = mountSpecimen(stage);
-    setHasScene(dispose !== null);
-    return dispose ?? undefined;
+    const handle = mountSpecimen(stage);
+    handleRef.current = handle;
+    setHasScene(handle !== null);
+    if (!handle) {
+      return;
+    }
+    const poll = window.setInterval(() => {
+      setTelemetry({ ...handle.stats });
+    }, 400);
+    return () => {
+      window.clearInterval(poll);
+      handle.dispose();
+      handleRef.current = null;
+    };
   }, []);
+
+  useEffect(() => {
+    if (!hasScene || reducedMotion) {
+      return;
+    }
+    const applyShift = (event: KeyboardEvent) => {
+      if (event.key !== "Shift") {
+        return;
+      }
+      setSlowMo(event.type === "keydown");
+      handleRef.current?.setSlowMo(event.type === "keydown");
+    };
+    const onBlur = () => {
+      setSlowMo(false);
+      handleRef.current?.setSlowMo(false);
+    };
+    window.addEventListener("keydown", applyShift);
+    window.addEventListener("keyup", applyShift);
+    window.addEventListener("blur", onBlur);
+    return () => {
+      window.removeEventListener("keydown", applyShift);
+      window.removeEventListener("keyup", applyShift);
+      window.removeEventListener("blur", onBlur);
+    };
+  }, [hasScene, reducedMotion]);
 
   const triggerDetonation = (x: number, y: number) => {
     if (reducedMotion || !hasScene) {
       return;
     }
-    if (detonate({ x, y })) {
-      setDetonationCount((current) => current + 1);
+    if (handleRef.current?.detonateAt(x, y)) {
+      setImpacts((current) => current + 1);
     }
   };
 
@@ -46,31 +99,51 @@ export default function ExplosionLunaPage() {
     triggerDetonation(event.clientX, event.clientY);
   };
 
-  const handleKeyDown = (event: KeyboardEvent<HTMLDivElement>) => {
+  const handleKeyDown = (event: ReactKeyboardEvent<HTMLDivElement>) => {
     if (event.key !== "Enter" && event.key !== " ") {
       return;
     }
     event.preventDefault();
     const bounds = event.currentTarget.getBoundingClientRect();
-    triggerDetonation(bounds.left + bounds.width * 0.5, bounds.top + bounds.height * 0.44);
+    triggerDetonation(bounds.left + bounds.width * 0.5, bounds.top + bounds.height * 0.52);
   };
+
+  const handleRestore = () => {
+    handleRef.current?.restore();
+    setImpacts(0);
+  };
+
+  const toggleSound = () => {
+    const next = !muted;
+    setMuted(next);
+    handleRef.current?.setMuted(next);
+  };
+
+  const standing =
+    telemetry.total > 0 ? Math.round((telemetry.voxels / telemetry.total) * 100) : 100;
 
   return (
     <div className="explosion-field">
       <section className="explosion-page" aria-labelledby="explosion-title">
         <header className="explosion-hero">
           <h1 id="explosion-title">
-            Click anywhere.
-            <span>It breaks.</span>
+            One monument.
+            <span>Tear it down.</span>
           </h1>
+          <p className="explosion-lede">
+            Every shot carves the structure away for real &mdash; and anything left
+            without support comes down on its own.
+          </p>
           <a className="explosion-enter" href="#explosion-stage">
-            Detonate <span aria-hidden="true">↓</span>
+            Demolish <span aria-hidden="true">↓</span>
           </a>
         </header>
 
         <section className="explosion-room" aria-label="Specimen room">
           <p className="explosion-room-meta">
-            {reducedMotion ? "reduced motion · blast disabled" : "live · click or press enter"}
+            {reducedMotion
+              ? "reduced motion · blasts disabled · restore still works"
+              : "live · shift = slow motion · damage persists until restored"}
           </p>
 
           <div
@@ -84,8 +157,12 @@ export default function ExplosionLunaPage() {
             onKeyDown={handleKeyDown}
           >
             <div className="explosion-stage-copy" aria-hidden="true">
-              <span>specimen / lx-01</span>
-              <strong>{detonationCount.toString().padStart(3, "0")} impacts</strong>
+              <span>lx-01 · {impacts.toString().padStart(3, "0")} shots</span>
+              <strong>{standing}% standing</strong>
+              <span className="explosion-telemetry">
+                {telemetry.voxels} voxels · {telemetry.debris} debris ·{" "}
+                {Math.round(telemetry.fps)} fps
+              </span>
             </div>
             {!hasScene ? (
               <>
@@ -94,12 +171,29 @@ export default function ExplosionLunaPage() {
               </>
             ) : null}
           </div>
+
+          <div className="explosion-controls">
+            <button type="button" className="explosion-control" onClick={handleRestore}>
+              restore monument
+            </button>
+            <button
+              type="button"
+              className="explosion-control"
+              onClick={toggleSound}
+              aria-pressed={!muted}
+            >
+              sound · {muted ? "off" : "on"}
+            </button>
+            <span className="explosion-hint" aria-hidden="true">
+              {slowMo ? "slow motion engaged" : "hold shift — bullet time"}
+            </span>
+          </div>
         </section>
 
-        <ul className="explosion-payloads" aria-label="Inside every detonation">
-          {PAYLOADS.map((payload, index) => (
-            <li key={payload}>
-              <span>{String(index + 1).padStart(2, "0")}</span> / {payload}
+        <ul className="explosion-payloads" aria-label="Techniques inside">
+          {TECHNIQUES.map((technique, index) => (
+            <li key={technique}>
+              <span>{String(index + 1).padStart(2, "0")}</span> / {technique}
             </li>
           ))}
         </ul>

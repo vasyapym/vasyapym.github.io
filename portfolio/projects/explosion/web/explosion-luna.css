@@ -31,6 +31,14 @@
   color: var(--ink-accent);
 }
 
+.explosion-lede {
+  max-width: 520px;
+  margin: 1.1rem 0 0;
+  color: var(--ink-muted);
+  font-size: 0.95rem;
+  line-height: 1.55;
+}
+
 .explosion-enter {
   display: inline-flex;
   align-items: center;
@@ -91,17 +99,11 @@
   outline-offset: 4px;
 }
 
-.explosion-canvas,
 .explosion-fallback-mark {
   position: absolute;
   inset: 0;
   width: 100%;
   height: 100%;
-}
-
-.explosion-canvas {
-  display: block;
-  z-index: 1;
 }
 
 .explosion-stage-copy {
@@ -124,6 +126,52 @@
 .explosion-stage-copy strong {
   color: var(--ink-accent-bright);
   font-weight: 500;
+}
+
+.explosion-stage-copy .explosion-telemetry {
+  color: var(--ink-faint);
+  text-align: right;
+}
+
+.explosion-controls {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.6rem;
+  margin-top: 0.9rem;
+}
+
+.explosion-control {
+  padding: 0.55rem 0.9rem;
+  background: transparent;
+  border: 1px solid var(--ink-line);
+  color: var(--ink-muted);
+  font-family: var(--mono);
+  font-size: 0.72rem;
+  letter-spacing: 0.05em;
+  cursor: pointer;
+  transition:
+    color 160ms ease,
+    border-color 160ms ease,
+    background 160ms ease;
+}
+
+.explosion-control:hover {
+  color: var(--ink-accent-bright);
+  border-color: var(--ink-accent);
+}
+
+.explosion-control:focus-visible {
+  outline: 2px solid var(--focus-ring);
+  outline-offset: 3px;
+}
+
+.explosion-hint {
+  margin-left: auto;
+  color: var(--ink-faint);
+  font-family: var(--mono);
+  font-size: 0.68rem;
+  letter-spacing: 0.05em;
 }
 
 .explosion-stage-fallback {
@@ -207,6 +255,10 @@
     align-items: flex-start;
     flex-direction: column;
     gap: 0.35rem;
+  }
+
+  .explosion-hint {
+    margin-left: 0;
   }
 }
 

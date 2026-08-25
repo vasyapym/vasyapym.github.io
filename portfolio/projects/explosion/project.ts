@@ -3,11 +3,11 @@ import type { ProjectModule } from "../../contracts/project-module";
 const explosionLuna: ProjectModule = {
   id: "explosion",
   title: "Explosion",
-  tag: "test",
-  eyebrow: "Unlisted kinetic specimen",
+  tag: "physics",
+  eyebrow: "Real-time fracture lab",
   description:
-    "Every click inside the room detonates at the point of impact.",
-  technologies: ["Three.js", "WebGL", "TypeScript"],
+    "A voxel monument that holds itself up — carve it away and whatever loses support comes down.",
+  technologies: ["Three.js", "InstancedMesh", "WebAudio", "TypeScript"],
   status: "available",
   accent: "red",
   presentation: {
@@ -15,9 +15,9 @@ const explosionLuna: ProjectModule = {
     motion: "stack",
     centerLabel: "L / X",
     centerMark: "generic",
-    note: "impact test",
-    motionLabel: "the specimen fractures",
-    instruction: "Open the specimen room and click to detonate at the point of impact.",
+    note: "fracture lab",
+    motionLabel: "the monument falls",
+    instruction: "Open the fracture lab and shoot the monument until it falls.",
     parts: [
       {
         id: "luna-shell",
