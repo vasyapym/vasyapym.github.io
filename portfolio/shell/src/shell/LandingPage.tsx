@@ -1,6 +1,8 @@
-import { useEffect, useRef, useState, type CSSProperties, type MouseEvent } from "react";
+import { lazy, Suspense, useEffect, useRef, useState, type CSSProperties, type MouseEvent } from "react";
 import type { ProjectModule } from "../../../contracts/project-module";
 import ProjectArtwork from "./ProjectArtwork";
+
+const HeroField = lazy(() => import("./HeroField"));
 
 type LandingPageProps = {
   projects: readonly ProjectModule[];
@@ -68,34 +70,61 @@ function animateScrollToCard(projectId: string) {
   requestAnimationFrame(step);
 }
 
+function warmProjectPage(project: ProjectModule) {
+  project.loadPage().catch(() => {});
+}
+
+function scheduleIdleWarm(callback: () => void) {
+  if (typeof window.requestIdleCallback === "function") {
+    window.requestIdleCallback(callback, { timeout: 1600 });
+    return;
+  }
+  window.setTimeout(callback, 900);
+}
+
 export default function LandingPage({ projects, onOpenProject }: LandingPageProps) {
   const pageRef = useRef<HTMLElement>(null);
   const heroRef = useRef<HTMLElement>(null);
   const [revealedProjects, setRevealedProjects] = useState<Set<string>>(() => new Set());
   const [revealReady, setRevealReady] = useState(false);
+  const [fieldReady, setFieldReady] = useState(false);
+  useEffect(() => {
+    scheduleIdleWarm(() => setFieldReady(true));
+  }, []);
   useEffect(() => {
     const hero = heroRef.current;
     if (!hero) {
       return;
     }
     const motionQuery = window.matchMedia("(prefers-reduced-motion: reduce)");
-    const mobileQuery = window.matchMedia("(max-width: 560px)");
+    const finePointerQuery = window.matchMedia("(pointer: fine)");
     let frame = 0;
+    let pointerX = 0;
+    let pointerY = 0;
     const update = () => {
       frame = 0;
       const rect = hero.getBoundingClientRect();
       const viewportHeight = window.innerHeight || 1;
       const progress = Math.min(1, Math.max(0, (viewportHeight - rect.top) / (viewportHeight + rect.height)));
       hero.style.setProperty("--hero-p", progress.toFixed(4));
+      hero.style.setProperty("--hero-mx", pointerX.toFixed(4));
+      hero.style.setProperty("--hero-my", pointerY.toFixed(4));
     };
     const schedule = () => {
       if (!frame) {
         frame = requestAnimationFrame(update);
       }
     };
+    const onPointerMove = (event: PointerEvent) => {
+      const rect = hero.getBoundingClientRect();
+      pointerX = ((event.clientX - rect.left) / (rect.width || 1)) * 2 - 1;
+      pointerY = ((event.clientY - rect.top) / (rect.height || 1)) * 2 - 1;
+      schedule();
+    };
     const detach = () => {
       window.removeEventListener("scroll", schedule);
       window.removeEventListener("resize", schedule);
+      hero.removeEventListener("pointermove", onPointerMove);
       if (frame) {
         cancelAnimationFrame(frame);
         frame = 0;
@@ -104,19 +133,25 @@ export default function LandingPage({ projects, onOpenProject }: LandingPageProp
     const sync = () => {
       detach();
       hero.style.removeProperty("--hero-p");
-      if (!motionQuery.matches && mobileQuery.matches) {
-        window.addEventListener("scroll", schedule, { passive: true });
-        window.addEventListener("resize", schedule);
-        update();
+      hero.style.removeProperty("--hero-mx");
+      hero.style.removeProperty("--hero-my");
+      if (motionQuery.matches) {
+        return;
       }
+      window.addEventListener("scroll", schedule, { passive: true });
+      window.addEventListener("resize", schedule);
+      if (finePointerQuery.matches) {
+        hero.addEventListener("pointermove", onPointerMove);
+      }
+      update();
     };
     sync();
     motionQuery.addEventListener("change", sync);
-    mobileQuery.addEventListener("change", sync);
+    finePointerQuery.addEventListener("change", sync);
     return () => {
       detach();
       motionQuery.removeEventListener("change", sync);
-      mobileQuery.removeEventListener("change", sync);
+      finePointerQuery.removeEventListener("change", sync);
     };
   }, []);
   useEffect(() => {
@@ -151,6 +186,14 @@ export default function LandingPage({ projects, onOpenProject }: LandingPageProp
     return () => observer.disconnect();
   }, [projects]);
 
+  useEffect(() => {
+    scheduleIdleWarm(() => {
+      for (const project of projects) {
+        warmProjectPage(project);
+      }
+    });
+  }, [projects]);
+
   return (
     <main ref={pageRef} className="signal-index">
       <div className="signal-index-shell">
@@ -171,9 +214,13 @@ export default function LandingPage({ projects, onOpenProject }: LandingPageProp
           className="signal-index-hero signal-index-hero-refraction"
           aria-labelledby="signal-index-title"
         >
+          {fieldReady ? (
+            <Suspense fallback={null}>
+              <HeroField />
+            </Suspense>
+          ) : null}
           <div className="signal-index-hero-depth" aria-hidden="true">
-            <i className="signal-index-depth-layer signal-index-depth-far" />
-            <i className="signal-index-depth-layer signal-index-depth-mid" />
+            <i className="signal-index-depth-layer signal-index-depth-far" />            <i className="signal-index-depth-layer signal-index-depth-mid" />
             <i className="signal-index-depth-layer signal-index-depth-near" />
           </div>
           <svg className="signal-index-sea-filter" aria-hidden="true" focusable="false">
@@ -227,6 +274,8 @@ export default function LandingPage({ projects, onOpenProject }: LandingPageProp
                 href={`/projects/${project.id}`}
                 key={project.id}
                 style={{ "--card-index": index } as CSSProperties}
+                onPointerEnter={() => warmProjectPage(project)}
+                onFocus={() => warmProjectPage(project)}
                 onClick={(event) => {
                   if (event.button === 0 && !event.metaKey && !event.ctrlKey && !event.shiftKey && !event.altKey) {
                     event.preventDefault();

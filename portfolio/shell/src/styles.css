@@ -721,8 +721,9 @@ textarea:focus-visible {
 /* Shared project frame */
 .project-frame {
   min-height: 100vh;
-  color: var(--index-ink);
-  background: var(--index-bg);
+  color: var(--ink-text);
+  background: var(--ink-bg);
+  --focus-ring: var(--ink-accent-bright);
   font-family: var(--sans);}
 
 
@@ -777,7 +778,7 @@ textarea:focus-visible {
 
 .project-loading {
   padding-top: 5rem;
-  color: var(--index-muted);
+  color: var(--ink-muted);
   font-family: var(--sans);
   font-size: 0.78rem;}
 
@@ -785,7 +786,7 @@ textarea:focus-visible {
 .project-crash {
   padding-top: 5rem;
   max-width: 40rem;
-  color: var(--index-muted);
+  color: var(--ink-muted);
   font-family: var(--sans);}
 
 .project-crash-title {
@@ -801,9 +802,9 @@ textarea:focus-visible {
   margin: 0 0 1.4rem;
   padding: 0.8rem 1rem;
   overflow-x: auto;
-  color: var(--index-muted);
-  background: rgba(127, 127, 127, 0.08);
-  border: 1px solid rgba(127, 127, 127, 0.18);
+  color: var(--ink-muted);
+  background: rgba(238, 234, 224, 0.05);
+  border: 1px solid var(--ink-line-soft);
   border-radius: 6px;
   font-family: var(--mono);
   font-size: 0.72rem;
@@ -1362,19 +1363,19 @@ textarea:focus-visible {
   }
 
   .signal-index-hero {
-    gap: 2rem;
-    padding-top: 2.75rem;
-    padding-bottom: 2.5rem;
+    gap: 2.15rem;
+    padding-top: 1.95rem;
+    padding-bottom: 2.3rem;
   }
 
   .signal-index-hero-kicker {
-    margin-bottom: 0.6rem;
+    margin-bottom: 0.72rem;
   }
 
   .signal-index-hero h1 {
     max-width: 340px;
-    font-size: clamp(1.84rem, 8.4vw, 2.68rem);
-    line-height: 0.94;
+    font-size: clamp(1.72rem, 7.6vw, 2.34rem);
+    line-height: 0.97;
   }
 
   .signal-index-projects {
@@ -1743,27 +1744,48 @@ a.signal-index-beneath-row:focus-visible strong {
 
 @media (max-width: 560px) {
   .signal-index-hero-refraction {
-    gap: 1.6rem;
-    padding-top: 2.75rem;
-    padding-bottom: 2.75rem;
+    gap: 2.15rem;
+    padding-top: 1.95rem;
+    padding-bottom: 2.3rem;
   }
 
   .signal-index-hero-refraction .signal-index-hero-copy {
     padding: 0;
   }
 
+  .signal-index-hero-refraction .signal-index-hero-kicker {
+    margin-bottom: 0.72rem;
+  }
+
   .signal-index-hero-refraction h1 {
     max-width: 340px;
-    font-size: clamp(1.88rem, 8.25vw, 2.7rem);
+    font-size: clamp(1.72rem, 7.6vw, 2.34rem);
+    line-height: 0.97;
+  }
+
+  .signal-index-hero-refraction .signal-index-link {
+    margin-top: 1.6rem;
   }}
 
 
-/* Mobile hero depth field (Pass 18) */
+/* Hero shader field */
+.signal-index-hero-field {
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  display: block;
+  width: 100%;
+  height: 100%;
+  pointer-events: none;
+}
+
+
+/* Hero depth field (Pass 18, now all widths) */
 .signal-index-hero-depth {
   position: absolute;
   inset: 0;
   z-index: -1;
-  display: none;
+  display: block;
   overflow: hidden;
   pointer-events: none;
 }
@@ -1772,7 +1794,7 @@ a.signal-index-beneath-row:focus-visible strong {
   position: absolute;
   border-radius: 50%;
   filter: blur(26px);
-  transform: translate3d(0, calc(var(--hero-p, 0) * var(--depth, 0.5) * -64px), 0);
+  transform: translate3d(calc(var(--hero-mx, 0) * var(--depth, 0.5) * 26px), calc(var(--hero-p, 0) * var(--depth, 0.5) * -64px + var(--hero-my, 0) * var(--depth, 0.5) * 18px), 0);
   will-change: transform;
 }
 
@@ -1823,46 +1845,50 @@ a.signal-index-beneath-row:focus-visible strong {
   }
 }
 
+.signal-index-depth-far,
+.signal-index-depth-mid,
+.signal-index-depth-near {
+  animation: signal-index-hero-fade 0.9s ease both;
+}
+
+.signal-index-depth-far {
+  animation-delay: 0.05s;
+}
+
+.signal-index-depth-mid {
+  animation-delay: 0.17s;
+}
+
+.signal-index-depth-near {
+  animation-delay: 0.29s;
+}
+
+.signal-index-hero-refraction .signal-index-hero-kicker {
+  animation: signal-index-hero-rise 0.72s cubic-bezier(0.22, 1, 0.36, 1) 0.08s both;
+}
+
+.signal-index-hero-refraction h1 {
+  animation: signal-index-hero-rise 0.72s cubic-bezier(0.22, 1, 0.36, 1) 0.14s both;
+}
+
+.signal-index-hero-refraction .signal-index-link {
+  animation: signal-index-hero-rise 0.72s cubic-bezier(0.22, 1, 0.36, 1) 0.48s both;
+}
+
+a.signal-index-beneath-row {
+  animation: signal-index-hero-rise 0.72s cubic-bezier(0.22, 1, 0.36, 1) both;
+}
+
+a.signal-index-beneath-row:nth-of-type(1) { animation-delay: 0.52s; }
+a.signal-index-beneath-row:nth-of-type(2) { animation-delay: 0.63s; }
+a.signal-index-beneath-row:nth-of-type(3) { animation-delay: 0.74s; }
+a.signal-index-beneath-row:nth-of-type(4) { animation-delay: 0.85s; }
+a.signal-index-beneath-row:nth-of-type(5) { animation-delay: 0.96s; }
+a.signal-index-beneath-row:nth-of-type(6) { animation-delay: 1.07s; }
+
 @media (max-width: 560px) {
-  .signal-index-hero-refraction {
-    --hero-p: 0;
-  }
-
-  .signal-index-hero-depth {
-    display: block;
-  }
-
-  .signal-index-depth-far,
-  .signal-index-depth-mid,
-  .signal-index-depth-near {
-    animation: signal-index-hero-fade 0.9s ease both;
-  }
-
-  .signal-index-depth-far {
-    animation-delay: 0.05s;
-  }
-
-  .signal-index-depth-mid {
-    animation-delay: 0.17s;
-  }
-
-  .signal-index-depth-near {
-    animation-delay: 0.29s;
-  }
-
-  .signal-index-hero-refraction .signal-index-hero-kicker {
-    animation: signal-index-hero-rise 0.72s cubic-bezier(0.22, 1, 0.36, 1) 0.08s both;
-  }
-
-  .signal-index-hero-refraction h1 {
-    animation: signal-index-hero-rise 0.72s cubic-bezier(0.22, 1, 0.36, 1) 0.14s both;
-  }
-
-  .signal-index-hero-refraction .signal-index-link {
-    animation: signal-index-hero-rise 0.72s cubic-bezier(0.22, 1, 0.36, 1) 0.48s both;
-  }
-
   .signal-index-beneath {
+    gap: 1.12rem;
     width: 100%;
     border: 0;
     background: none;
@@ -1875,17 +1901,6 @@ a.signal-index-beneath-row:focus-visible strong {
   .signal-index-beneath-rule {
     display: none;
   }
-
-  a.signal-index-beneath-row {
-    animation: signal-index-hero-rise 0.72s cubic-bezier(0.22, 1, 0.36, 1) both;
-  }
-
-  a.signal-index-beneath-row:nth-of-type(1) { animation-delay: 0.52s; }
-  a.signal-index-beneath-row:nth-of-type(2) { animation-delay: 0.63s; }
-  a.signal-index-beneath-row:nth-of-type(3) { animation-delay: 0.74s; }
-  a.signal-index-beneath-row:nth-of-type(4) { animation-delay: 0.85s; }
-  a.signal-index-beneath-row:nth-of-type(5) { animation-delay: 0.96s; }
-  a.signal-index-beneath-row:nth-of-type(6) { animation-delay: 1.07s; }
 }
 
 @media (prefers-reduced-motion: reduce) {

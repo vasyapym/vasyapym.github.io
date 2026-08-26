@@ -36,13 +36,13 @@ export default function App() {
 
   const openProject = (id: string) => {
     window.history.pushState({}, "", `/projects/${id}`);
-    window.scrollTo({ top: 0, behavior: "smooth" });
+    window.scrollTo({ top: 0 });
     setPathname(`/projects/${id}`);
   };
 
   const goHome = () => {
     window.history.pushState({}, "", "/");
-    window.scrollTo({ top: 0, behavior: "smooth" });
+    window.scrollTo({ top: 0 });
     setPathname("/");
   };
 
