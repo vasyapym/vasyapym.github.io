@@ -130,6 +130,9 @@ export type WorldState = {
     coyote: number;
     dashCd: number;
     blinkNext: number;
+    // Seconds since the grounded jump left the ground — the dash's
+    // fresh-jump cancel reads this against TUNING.jumpCancelWindow.
+    jumpAgeT: number;
   };
 
   obstacles: Pool<Obstacle>;
@@ -190,6 +193,7 @@ export function createWorld(best = 0, runSeed = freshSeed()): WorldState {
       blinkShut: 0,
       blinkNext: 2.5,
       happyT: 0,
+      jumpAgeT: 0,
     },
 
     obstacles: createPool<Obstacle>(24, () => ({

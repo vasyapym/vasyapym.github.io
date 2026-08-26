@@ -22,7 +22,11 @@ the route is `/projects/kitty-run`. Shell-side additions: the
 
 - Space / ↑ / W / tap — jump, press again mid-air for a double jump,
   release early for a shorter arc
-- Shift / ↓ / S / swipe down — dash (brief invulnerability, cooldown)
+- Shift / ↓ / S / swipe down — dash (brief invulnerability, cooldown).
+  A dash inside the first ~120 ms of a fresh jump **cancels the jump**:
+  kitty snaps back down and ducks instead. On touch this is what makes
+  ducking reliable — the tap-to-jump fires on finger-down before the
+  gesture is known, so the swipe-down always wins the argument
 - P, Esc, or the on-screen pause button — pause; R — restart from the pause
   or game-over screen
 - "or watch it play itself" on the ready card hands the run to the
@@ -120,7 +124,9 @@ the route is `/projects/kitty-run`. Shell-side additions: the
 - **Headless full-run sim** — `tests/kitty-run.sim.ts` drives the real step
   function with a lookahead bot for 150 simulated seconds and asserts what
   only shows up over time: no NaN drift, no unknown hazard kinds,
-  milestones fire once each, and a seeded run replays identically.
+  milestones fire once each, and a seeded run replays identically. It also
+  pins the fresh-jump dash-cancel (queued, airborne, aged and determinism
+  cases).
 - **Deterministic spawning** — chunks come from `web/lib/spawn.ts` with a
   per-run seed; the fairness invariants (recoverable gaps, landable pair
   spacing, bounded chunk lengths, worst-case uphill jump clearance, and no
@@ -135,6 +141,10 @@ the route is `/projects/kitty-run`. Shell-side additions: the
   (`touch-action: none`), never selects text or flashes taps mid-swipe;
   Android gets light haptic accents on hits, heals and milestones; leaving
   the tab pauses the run and revives the suspended AudioContext on return.
+  Swipes are recognised twice as early as they used to be (short drag or
+  quick flick), and the dash's fresh-jump cancel means a swipe-down can
+  always rescind the tap-jump it accidentally triggered — ducking on a
+  phone is a single decisive gesture, never a fight with the input.
 - **Performance** — instanced meshes for obstacles, pickups, crosses and
   glows, one draw call for all particles, no per-frame allocations in the
   hot path.

@@ -22,6 +22,14 @@ export const TUNING = {
   dashCooldown: 1.4,
   dashBoost: 6,
 
+  // A dash requested this soon after leaving the ground cancels the fresh
+  // jump outright — kitty snaps back down and ducks instead. This is what
+  // makes touch ducking reliable: the tap-to-jump fires on finger-down
+  // before the gesture is known, so a swipe-down must be able to take the
+  // accidental jump back. Long enough to cover human swipe latency
+  // (~50-90 ms), short enough to never eat a deliberate jump.
+  jumpCancelWindow: 0.12,
+
   invulnTime: 1.3,
   hitStopTime: 0.06,
   knockbackV: 6,

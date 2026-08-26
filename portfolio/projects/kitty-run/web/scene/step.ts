@@ -169,6 +169,9 @@ export function stepWorld(world: WorldState, rawDt: number): void {
       k.grounded = false;
       k.coyote = 0;
       k.jumpsUsed = 1;
+      // Birth certificate of this arc: the dash's fresh-jump cancel only
+      // rescues jumps younger than TUNING.jumpCancelWindow.
+      k.jumpAgeT = 0;
       k.squash = Math.min(k.squash, 0) - 0.28;
       world.events.push({ type: "jump" });
     } else if (k.jumpsUsed < TUNING.maxJumps) {
@@ -215,6 +218,7 @@ export function stepWorld(world: WorldState, rawDt: number): void {
   k.dashCd = Math.max(0, k.dashCd - dt);
   k.invulnT = Math.max(0, k.invulnT - dt);
   k.happyT = Math.max(0, k.happyT - dt);
+  k.jumpAgeT = Math.min(10, k.jumpAgeT + dt);
   k.blinkNext -= dt;
   if (k.blinkNext <= 0) {
     k.blinkShut = 0.11;

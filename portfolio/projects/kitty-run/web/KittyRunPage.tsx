@@ -222,14 +222,21 @@ export default function KittyRunPage() {
   }, [world, handleStart, handleRestart]);
 
   // --- touch: tap = jump, swipe down = dash -------------------------------------
+  //
+  // The tap jumps on finger-down for zero-latency feel; the swipe-down is
+  // recognised fast (short drag or quick flick) and — because actions.
+  // requestDash rescinds a fresh jump — the duck always wins over the
+  // accidental hop, however late the gesture resolves.
 
-  const pointerY = useRef<number | null>(null);
-  const pointerTime = useRef(0);
+  const gesture = useRef<{ x: number; y: number; t: number } | null>(null);
 
   const onPointerDown = useCallback(
     (event: React.PointerEvent) => {
-      pointerY.current = event.clientY;
-      pointerTime.current = performance.now();
+      gesture.current = {
+        x: event.clientX,
+        y: event.clientY,
+        t: performance.now(),
+      };
       if (world.status === "running" && !world.autopilot) requestJump(world);
     },
     [world],
@@ -237,20 +244,32 @@ export default function KittyRunPage() {
 
   const onPointerMove = useCallback(
     (event: React.PointerEvent) => {
-      if (pointerY.current === null) return;
-      if (event.clientY - pointerY.current > 42) {
+      const g = gesture.current;
+      if (!g) return;
+      const dy = event.clientY - g.y;
+      const elapsed = performance.now() - g.t;
+      // A decisive downward drag, or a quick downward flick — either
+      // counts immediately so the dash lands while the hazard is close.
+      const flick = dy > 10 && elapsed < 90;
+      if (dy > 26 || flick) {
+        gesture.current = null;
         if (!world.autopilot) requestDash(world);
-        pointerY.current = null;
       }
     },
     [world],
   );
 
-  const onPointerUp = useCallback(() => {
-    pointerY.current = null;
+  const endGesture = useCallback(() => {
+    gesture.current = null;
     // A spectator lifting their finger must not cut the bot's jump arc.
     if (!world.autopilot) releaseJump(world);
   }, [world]);
+
+  const onPointerCancel = useCallback(() => {
+    // Browsers fire this when a scroll/system gesture steals the pointer:
+    // treat it as a plain lift, never as a dash or a cut jump.
+    gesture.current = null;
+  }, []);
 
   const coarse = useMemo(
     () =>
@@ -428,7 +447,8 @@ export default function KittyRunPage() {
           ref={stageRef}
           onPointerDown={onPointerDown}
           onPointerMove={onPointerMove}
-          onPointerUp={onPointerUp}
+          onPointerUp={endGesture}
+          onPointerCancel={onPointerCancel}
         >
           {stage}
         </section>

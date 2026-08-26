@@ -5,9 +5,11 @@
 // exactly once each, distance scoring keeps pace.
 // Run: node --experimental-strip-types tests/kitty-run.sim.ts
 
-import { startRun } from "../web/scene/actions.ts";
+import { requestDash, requestJump, startRun } from "../web/scene/actions.ts";
 import { createWorld, type WorldState } from "../web/scene/world.ts";
 import { stepWorld } from "../web/scene/step.ts";
+import { groundY } from "../web/lib/ground.ts";
+import { TUNING } from "../web/lib/tuning.ts";
 import { pilotSteer, resetPilot } from "../web/lib/pilot.ts";
 
 const DT = 1 / 60;
@@ -96,6 +98,95 @@ check(
   "the whole run replays identically from its seed",
   replay.world.distance === w.distance && replay.world.score === w.score,
 );
+
+// --- fresh-jump dash-cancel (touch ducking) -----------------------------------
+//
+// On touch, tap-to-jump fires on finger-down before the gesture is known;
+// a swipe-down arriving within the cancel window must rescind the hop and
+// duck instead. These checks pin the mechanic the mobile game depends on.
+
+function flatRun(): WorldState {
+  const world = createWorld(0, "kitty-run/cancel/v1");
+  startRun(world);
+  // The ready screen's drift normally seats kitty on the terrain before a
+  // run begins; a headless start skips it, so seat her explicitly — the
+  // first step would otherwise be eaten by the below-ground landing snap.
+  world.kitty.y = groundY(world.distance);
+  return world;
+}
+
+// 1. A queued-but-unstepped jump is taken off the books by a dash.
+{
+  const world = flatRun();
+  requestJump(world);
+  requestDash(world);
+  stepWorld(world, DT);
+  check(
+    "dash cancels a still-queued jump",
+    !world.jumpQueued &&
+      world.kitty.dashT > 0 &&
+      Math.abs(world.kitty.y - groundY(world.distance)) < 0.06,
+  );
+}
+
+// 2. A jump already in the air inside the cancel window snaps back down
+//    and ducks: grounded again, jump state reset, dash engaged.
+{
+  const world = flatRun();
+  requestJump(world);
+  stepWorld(world, DT); // jump consumed, kitty airborne and rising
+  const airborne = !world.kitty.grounded && world.kitty.vy > 0;
+  requestDash(world);
+  stepWorld(world, DT); // dash consumed, cancel applied
+  check(
+    "a fresh airborne jump folds back into a duck",
+    airborne &&
+      world.kitty.dashT > 0 &&
+      world.kitty.jumpsUsed === 0 &&
+      Math.abs(world.kitty.y - groundY(world.distance)) < 0.06,
+  );
+}
+
+// 3. Outside the window the same inputs behave as before: no cancel, the
+//    arc keeps its height and the dash rides along as an air dash.
+{
+  const world = flatRun();
+  requestJump(world);
+  stepWorld(world, DT);
+  // Let the arc age past the cancel window while staying airborne.
+  for (let i = 0; i < Math.ceil(TUNING.jumpCancelWindow / DT) + 12; i += 1) {
+    stepWorld(world, DT);
+  }
+  const aged = !world.kitty.grounded;
+  const heightAtDash = world.kitty.y - groundY(world.distance);
+  requestDash(world);
+  stepWorld(world, DT);
+  check(
+    "an aged jump is never cancelled",
+    aged && world.kitty.dashT > 0 && world.kitty.jumpsUsed === 1 &&
+      world.kitty.y - groundY(world.distance) > heightAtDash * 0.5,
+  );
+}
+
+// 4. The cancel is deterministic: two identical runs reproduce it exactly.
+{
+  const runA = flatRun();
+  const runB = flatRun();
+  requestJump(runA);
+  requestJump(runB);
+  stepWorld(runA, DT);
+  stepWorld(runB, DT);
+  requestDash(runA);
+  requestDash(runB);
+  stepWorld(runA, DT);
+  stepWorld(runB, DT);
+  check(
+    "the jump cancel replays identically",
+    runA.distance === runB.distance &&
+      runA.kitty.y === runB.kitty.y &&
+      runA.inputLog.length === runB.inputLog.length,
+  );
+}
 
 if (failures > 0) {
   console.error(`\n${failures} sim check(s) failed`);
