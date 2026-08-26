@@ -3,18 +3,20 @@ import * as THREE from "three";
 import { COLORS } from "../lib/palette";
 import { terrainHeight } from "../lib/heightfield";
 import { createRng } from "../lib/rng";
-import { windUniform } from "../lib/clock";
+import { daylightGains, windUniform } from "../lib/clock";
 
 const SHAFT_COUNT = 9;
 
 // Fake volumetric shafts: crossed additive gradient planes leaning with the
 // low sun, placed along the spawn meadow. Cheap, but at dusk they sell the
-// whole "light through the trees" mood.
+// whole "light through the trees" mood. uGain fades them out at night —
+// shafts without a low sun are a lie the eye catches.
 const SHAFT_FRAGMENT = /* glsl */ `
   uniform vec3 uColor;
   uniform float uOpacity;
   uniform float uSeed;
   uniform float uTime;
+  uniform float uGain;
   varying vec2 vUv;
 
   void main() {
@@ -22,7 +24,7 @@ const SHAFT_FRAGMENT = /* glsl */ `
       smoothstep(0.0, 0.28, vUv.x) * smoothstep(1.0, 0.72, vUv.x);
     float down = pow(vUv.y, 1.35);
     float shimmer = 0.8 + 0.2 * sin(uTime * 0.45 + uSeed * 17.0);
-    float alpha = across * down * shimmer * uOpacity;
+    float alpha = across * down * shimmer * uOpacity * uGain;
     gl_FragColor = vec4(uColor, alpha);
   }
 `;
@@ -44,6 +46,7 @@ function makeShaftMaterial(seed: number): THREE.ShaderMaterial {
       uOpacity: { value: 0.13 },
       uSeed: { value: seed },
       uTime: windUniform,
+      uGain: daylightGains.shaft,
     },
     transparent: true,
     depthWrite: false,

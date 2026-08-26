@@ -18,6 +18,8 @@ export type TouchControlsProps = {
   onPause: () => void;
   muted: boolean;
   onToggleSound: () => void;
+  mindVisible: boolean;
+  onToggleMind: () => void;
 };
 
 // On-screen controls for phones: the left part of the stage is a
@@ -30,6 +32,8 @@ export function TouchControls({
   onPause,
   muted,
   onToggleSound,
+  mindVisible,
+  onToggleMind,
 }: TouchControlsProps) {
   const [stick, setStick] = useState<StickVisual | null>(null);
   const [walkUsed, setWalkUsed] = useState(false);
@@ -196,6 +200,14 @@ export function TouchControls({
         </div>
       )}
       <div className="ef-touch-buttons">
+        <button
+          type="button"
+          className="ef-touch-button"
+          onClick={onToggleMind}
+          aria-pressed={mindVisible}
+        >
+          Fox mind
+        </button>
         <button
           type="button"
           className="ef-touch-button"

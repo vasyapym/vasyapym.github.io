@@ -27,9 +27,10 @@ const FRAGMENT_SHADER = /* glsl */ `
   void mainImage(const in vec4 inputColor, const in vec2 uv, out vec4 outputColor) {
     vec3 c = inputColor.rgb;
 
-    // Warm the mids slightly, lift the shadows toward violet.
-    c = pow(c, vec3(0.94, 1.03, 0.90));
-    c += vec3(0.012, 0.004, 0.03);
+    // Dusk readability: warm the mids, lift the toe just enough that the
+    // shadow side of the meadow keeps texture after 6-level quantisation.
+    c = pow(c, vec3(0.88, 0.94, 0.86));
+    c += vec3(0.015, 0.008, 0.03);
 
     vec2 pixel = floor(uv * uResolution);
     float bayer = bayer2(pixel * 0.5) * 0.25 + bayer2(pixel);
@@ -108,7 +109,7 @@ export function RetroEffects({
         luminanceSmoothing={0.25}
       />
       <PosterizeDither ref={ditherRef} />
-      <Vignette offset={0.26} darkness={0.62} eskil={false} />
+      <Vignette offset={0.3} darkness={0.42} eskil={false} />
       <ResolutionSync handle={ditherRef} />
     </EffectComposer>
   );

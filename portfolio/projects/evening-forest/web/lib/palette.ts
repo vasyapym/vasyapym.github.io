@@ -3,29 +3,32 @@ import * as THREE from "three";
 // One dusk palette shared by every surface, shader and light. THREE.Color
 // converts hex to linear working space automatically, so authored values can
 // stay in familiar sRGB terms.
+// Values are lifted ~20-30% above pure dusk realism: at 0.36 dpr with
+// 6-level quantisation, physically-plausible darks collapse into mud, so
+// every surface is authored one stop brighter than it "should" be.
 export const PALETTE = {
-  zenith: "#181028",
-  upper: "#33205c",
-  band: "#7c4470",
+  zenith: "#2a1c4e",
+  upper: "#45307a",
+  band: "#96567e",
   horizon: "#e0824a",
-  fog: "#6d4457",
+  fog: "#825364",
 
-  hemiSky: "#6b4fa0",
-  hemiGround: "#241a14",
+  hemiSky: "#7d5fb5",
+  hemiGround: "#33261d",
   directional: "#ffa257",
 
-  terrainLow: "#24371f",
-  terrainMid: "#31502e",
-  terrainDry: "#5a5330",
-  dirt: "#3e3022",
+  terrainLow: "#3d5c33",
+  terrainMid: "#4f7f46",
+  terrainDry: "#857a42",
+  dirt: "#63503a",
 
-  trunk: "#46331f",
-  pine: "#1d3a27",
-  leaf: "#3a5c33",
-  leafAmber: "#9c5a26",
+  trunk: "#5f4630",
+  pine: "#2c5538",
+  leaf: "#527f45",
+  leafAmber: "#c97e3a",
 
-  grassLow: "#26401f",
-  grassTip: "#7a6a2e",
+  grassLow: "#3d6631",
+  grassTip: "#a8933a",
 
   firefly: "#ffdf8e",
   shaft: "#ffc27d",

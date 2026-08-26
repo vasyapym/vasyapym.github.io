@@ -7,6 +7,7 @@ import {
   useState,
 } from "react";
 import { getAmbience, releaseAmbience } from "./lib/ambience";
+import { timeOfDay } from "./lib/clock";
 import { createTouchInputState, resetTouchInputState } from "./lib/touch-input";
 import {
   ForestCanvas,
@@ -15,6 +16,9 @@ import {
   type ForestControlsHandle,
 } from "./scene/ForestCanvas";
 import { TouchControls } from "./ui/TouchControls";
+import { FoxWhisper } from "./ui/FoxWhisper";
+import { FoxMind } from "./ui/FoxMind";
+import { DuskDial } from "./ui/DuskDial";
 import "./evening-forest.css";
 
 type DeviceKind = "desktop" | "coarse";
@@ -34,6 +38,7 @@ export default function EveningForestPage() {
   const [locked, setLocked] = useState(false);
   const [touchPlaying, setTouchPlaying] = useState(false);
   const [muted, setMuted] = useState(false);
+  const [mindVisible, setMindVisible] = useState(false);
   const controlsRef = useRef<ForestControlsHandle | null>(null);
   const ambienceRef = useRef<ReturnType<typeof getAmbience> | null>(null);
   const inputRef = useRef(createTouchInputState());
@@ -52,6 +57,22 @@ export default function EveningForestPage() {
       releaseAmbience();
       ambienceRef.current = null;
     };
+  }, []);
+
+  // The [ and ] keys drag time toward dusk and sunrise while playing; M
+  // toggles the fox-mind readout.
+  useEffect(() => {
+    const nudge = (delta: number) => {
+      timeOfDay.value = Math.min(Math.max(timeOfDay.value + delta, 0), 1);
+    };
+    const onKey = (event: KeyboardEvent) => {
+      if (event.metaKey || event.ctrlKey || event.altKey) return;
+      if (event.code === "BracketLeft") nudge(-0.02);
+      if (event.code === "BracketRight") nudge(0.02);
+      if (event.code === "KeyM") setMindVisible((prev) => !prev);
+    };
+    window.addEventListener("keydown", onKey);
+    return () => window.removeEventListener("keydown", onKey);
   }, []);
 
   const handleLock = useCallback(() => {
@@ -130,41 +151,48 @@ export default function EveningForestPage() {
         </Suspense>
         {!playing && (
           <div className="evening-forest-overlay">
-            <button
-              type="button"
-              className="evening-forest-enter"
-              onClick={enterForest}
-            >
-              <span className="evening-forest-enter-eyebrow">
-                First-person stroll
-              </span>
-              <span className="evening-forest-enter-title">
-                Into the trees
-              </span>
-              <span className="evening-forest-enter-hint">
-                {device === "coarse"
-                  ? "Left thumb — walk · right thumb — look · Rest pauses"
-                  : "WASD — walk · mouse — look · Esc — rest"}
-              </span>
-              <span className="evening-forest-enter-action">
-                {device === "coarse"
-                  ? "Tap to step into the trees"
-                  : "Click to enter the forest"}
-              </span>
-            </button>
+            <div className="evening-forest-menu">
+              <button
+                type="button"
+                className="evening-forest-enter"
+                onClick={enterForest}
+              >
+                <span className="evening-forest-enter-eyebrow">
+                  First-person stroll
+                </span>
+                <span className="evening-forest-enter-title">
+                  Into the trees
+                </span>
+                <span className="evening-forest-enter-hint">
+                  {device === "coarse"
+                    ? "Left thumb — walk · right thumb — look · Rest pauses"
+                    : "WASD — walk · mouse — look · [ ] — time of day · Esc — rest"}
+                </span>
+                <span className="evening-forest-enter-action">
+                  {device === "coarse"
+                    ? "Tap to step into the trees"
+                    : "Click to enter the forest"}
+                </span>
+              </button>
+              <DuskDial />
+            </div>
           </div>
         )}
+        {playing && mindVisible && <FoxMind />}
+        {playing && <FoxWhisper />}
         {playing && device === "coarse" && (
           <TouchControls
             inputRef={inputRef}
             onPause={restFromTouch}
             muted={muted}
             onToggleSound={toggleSound}
+            mindVisible={mindVisible}
+            onToggleMind={() => setMindVisible((prev) => !prev)}
           />
         )}
         {locked && (
           <div className="evening-forest-resting-hint" aria-hidden="true">
-            Esc — rest
+            Esc — rest · M — fox mind
           </div>
         )}
       </>
@@ -175,6 +203,7 @@ export default function EveningForestPage() {
     locked,
     device,
     reducedMotion,
+    mindVisible,
     handleLock,
     handleUnlock,
     enterForest,

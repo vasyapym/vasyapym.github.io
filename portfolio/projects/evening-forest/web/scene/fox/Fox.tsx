@@ -5,12 +5,12 @@ import { COLORS } from "../../lib/palette";
 import { terrainHeight } from "../../lib/heightfield";
 import { createRng } from "../../lib/rng";
 import { playerPositionUniform } from "../../lib/clock";
-import { FoxBrain, type FoxSnapshot } from "./brain";
+import { FoxBrain, FOX_SPAWN, type FoxSnapshot } from "./brain";
+import { foxStore } from "./store";
 
-// Where the fox starts its patrol: just off the spawn vista, close enough
-// to the firefly hollow that first-time visitors meet it early.
-const SPAWN = { x: 7, z: -24 };
-const RELOCATE_RADIUS = 160;
+// The director: a fox left behind quietly rejoins the story. Tight enough
+// that encounters recur every couple of minutes of strolling.
+const RELOCATE_RADIUS = 90;
 const EYE_SAMPLE_STEP = 0.6;
 
 function wrapAngle(angle: number): number {
@@ -41,7 +41,7 @@ export function Fox() {
   const { camera } = useThree();
 
   const brain = useMemo(
-    () => new FoxBrain(SPAWN, createRng("evening-forest/fox/v1")),
+    () => new FoxBrain(FOX_SPAWN, createRng("evening-forest/fox/v1")),
     [],
   );
 
@@ -109,13 +109,22 @@ export function Fox() {
 
   const anim = useRef({
     phase: 0,
-    groundY: terrainHeight(SPAWN.x, SPAWN.z),
+    groundY: terrainHeight(FOX_SPAWN.x, FOX_SPAWN.z),
     lastPlayer: new THREE.Vector3(),
     playerSpeed: 0,
     lastHeading: brain.heading,
     earPose: 0,
     initialized: false,
   });
+
+  // Publish for the DOM UI (whisper hint, mind HUD); disposed on unmount so
+  // a stale snapshot can't outlive the fox.
+  useEffect(
+    () => () => {
+      foxStore.snapshot = null;
+    },
+    [],
+  );
 
   useFrame((_, rawDelta) => {
     const dt = Math.min(rawDelta, 0.05);
@@ -149,6 +158,12 @@ export function Fox() {
       playerPos: { x: player.x, z: player.z },
       playerSpeed: a.playerSpeed,
     });
+
+    // DOM UI bridge: one plain object, polled at human cadence.
+    foxStore.snapshot = {
+      state: snap.state,
+      dist: Math.hypot(snap.pos.x - player.x, snap.pos.z - player.z),
+    };
 
     const root = rootRef.current;
     const body = bodyRef.current;
@@ -240,7 +255,7 @@ export function Fox() {
   });
 
   return (
-    <group ref={rootRef} position={[SPAWN.x, 0, SPAWN.z]}>
+    <group ref={rootRef} position={[FOX_SPAWN.x, 0, FOX_SPAWN.z]}>
       {/* Oversized ~1.4x: at dusk distance and heavy pixelation a real-fox
           scale silhouette turns to mush; games fudge this constantly. */}
       <group scale={1.4}>

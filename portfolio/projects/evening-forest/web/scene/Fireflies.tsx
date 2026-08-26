@@ -4,7 +4,7 @@ import * as THREE from "three";
 import { COLORS } from "../lib/palette";
 import { terrainHeight } from "../lib/heightfield";
 import { createRng } from "../lib/rng";
-import { playerPositionUniform, windUniform } from "../lib/clock";
+import { playerPositionUniform, windUniform, daylightGains } from "../lib/clock";
 
 const DEFAULT_COUNT = 150;
 
@@ -46,6 +46,7 @@ const VERTEX_SHADER = /* glsl */ `
 
 const FRAGMENT_SHADER = /* glsl */ `
   uniform vec3 uColor;
+  uniform float uGain;
   varying float vFade;
   varying float vNear;
 
@@ -53,7 +54,7 @@ const FRAGMENT_SHADER = /* glsl */ `
     float d = length(gl_PointCoord - vec2(0.5));
     float disc = smoothstep(0.5, 0.12, d);
     if (disc < 0.01) discard;
-    gl_FragColor = vec4(uColor, disc * vFade * (1.0 + vNear * 0.7));
+    gl_FragColor = vec4(uColor, disc * vFade * (1.0 + vNear * 0.7) * uGain);
   }
 `;
 
@@ -112,6 +113,7 @@ export function Fireflies({ count = DEFAULT_COUNT }: { count?: number }) {
           uTime: windUniform,
           uPlayer: playerPositionUniform,
           uColor: { value: COLORS.firefly.clone() },
+          uGain: daylightGains.firefly,
         },
         transparent: true,
         depthWrite: false,

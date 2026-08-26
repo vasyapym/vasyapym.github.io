@@ -17,8 +17,20 @@ Everything lives inside this directory; no shell routing changes.
   device pixels and CSS upscales it with `image-rendering: pixelated`, which
   is the pixelation effect and the main performance win at once.
 - **8-bit pass** — a single custom `postprocessing` effect (`web/scene/RetroEffects.tsx`)
-  does dusk grading, ordered dithering (4×4 Bayer) and palette quantisation;
-  plus library `Bloom` and `Vignette` around it.
+  does dusk grading (including a toe lift so shadow side keeps texture
+  through quantisation), ordered dithering (4×4 Bayer) and palette
+  quantisation; plus library `Bloom` and `Vignette` around it.
+- **Daylight engine** — `web/lib/daylight.ts` expands one number (time of
+  day, 0..1) into every lighting decision: five keyframes from golden hour
+  through night to sunrise, smoothly interpolated. The pure module is
+  tick-asserted headlessly; `web/scene/DaylightDriver.tsx` samples it once
+  per frame and drives the sky uniforms, both lights, fog, clear colour and
+  shared effect gains (stars, fireflies, shafts). Light intensities live in
+  classic units in the keyframes and are multiplied by π exactly once, in
+  the driver — three r155+ physical light units otherwise render the whole
+  forest ~3× darker than authored. Visitors drag the dusk dial in the rest
+  menu (or tap `[` / `]` while playing); the right end of the arc is a
+  bright sunrise, so "too dark" is always one slide away from fixed.
 - **Touch play** — phones get the same forest: a dynamic-origin joystick on
   the left half of the stage (`web/ui/TouchControls.tsx`) and drag-to-look on
   the right, tracked per `pointerId` so both thumbs work at once. The maths
@@ -42,11 +54,18 @@ Everything lives inside this directory; no shell routing changes.
 - **The fox** — a fully procedural animal (`web/scene/fox/`): the brain
   (`brain.ts`) is dependency-free TypeScript — a wander → alert → curious →
   flee state machine with a relocation "director" so the fox always lives in
-  the walker's story — and is tick-asserted in `tests/forest.check.ts`. The
-  body (`Fox.tsx`) is primitives only: diagonal-pair trot gait scaled by
-  speed, feet planted on the heightfield, slope-following pitch, banking,
+  the walker's story — and is tick-asserted in `tests/forest.check.ts`. It
+  opens ~11 m ahead of the spawn vista (inside alert radius), so the first
+  thing a visitor sees is the fox freezing to stare back; the director
+  recasts it 28–40 m ahead whenever it falls 90 m behind. The body
+  (`Fox.tsx`) is primitives only: diagonal-pair trot gait scaled by speed,
+  feet planted on the heightfield, slope-following pitch, banking,
   tail sway, and head/ear body language. A low emissive lift keeps it warm
-  against the backlit dusk.
+  against the backlit dusk. The frame loop publishes a plain snapshot into
+  `fox/store.ts`; DOM UI polls it — `web/ui/FoxWhisper.tsx` fires a one-shot
+  "something stirs…" hint on the first close pass of a visit, and
+  `web/ui/FoxMind.tsx` is a live readout of the state machine (toggle with
+  `M`, or the Fox-mind button on touch).
 - **Terrain** — one 520 u displaced plane whose heights come from
   `web/lib/heightfield.ts`; the walking rig samples the same function so feet
   stay on the ground. The walkable radius is ~230 m, ending in a rim of
@@ -69,6 +88,11 @@ npm --prefix portfolio run build
 node --experimental-strip-types portfolio/projects/evening-forest/tests/forest.check.ts
 npm --prefix portfolio run test:smoke
 ```
+
+`tests/visual-probe.mjs` (`npm --prefix portfolio run test:probe`) is a
+screenshot harness: it boots the dev server, enters the forest, drags the
+camera down to the ground and sweeps time to night and sunrise, saving
+frames to `/tmp/ef-probe` for eyeballing light changes.
 
 The browser smoke boots the dev server on a scratch port, drives the page in
 a headless iPhone-class Chrome (tap to enter, joystick walk, drag look,

@@ -5,6 +5,9 @@
 export const TERRAIN_SIZE = 520;
 export const PLAY_RADIUS = 230;
 export const EYE_HEIGHT = 1.65;
+// Where the walker spawns (camera, player-position uniform and the fox's
+// opening geometry all read this one point).
+export const WALKER_START = { x: 0, z: 10 };
 
 export function smoothstep(edge0: number, edge1: number, x: number): number {
   const t = Math.min(Math.max((x - edge0) / (edge1 - edge0), 0), 1);

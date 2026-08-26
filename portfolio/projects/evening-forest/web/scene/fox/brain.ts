@@ -6,6 +6,8 @@
 // walker, freezes, sometimes creeps closer out of curiosity if the walker
 // stands still, and bolts the moment anything moves wrong.
 
+import { WALKER_START } from "../../lib/heightfield.ts";
+
 export type FoxState = "wander" | "alert" | "curious" | "flee";
 
 export type FoxVec = { x: number; z: number };
@@ -34,13 +36,18 @@ const CREEP_SPEED = 0.85;
 // stays consistent with the world's PLAY_RADIUS.
 export const FOX_WORLD_LIMIT = 216;
 
+// The fox opens just inside ALERT radius of WALKER_START and straight
+// ahead of the spawn vista, so the very first thing a visitor sees is the
+// fox freezing to stare back. forest.check.ts asserts the geometry.
+export const FOX_SPAWN = { x: -3, z: -1 };
+
 const TURN_RATE = 3.2;
 const FLEE_TURN_RATE = 6.0;
 // How fast speed approaches its target (per-second exponential rates).
 const ACCEL_WANDER = 4.5;
 const ACCEL_FLEE = 8;
 
-const ALERT_RADIUS = 13;
+export const ALERT_RADIUS = 13;
 // Hysteresis: the walker must retreat this far before the fox relaxes.
 const ALERT_RELEASE_RADIUS = 19;
 const FLEE_RADIUS = 6.5;
@@ -101,8 +108,10 @@ export class FoxBrain {
     const forwardLen = Math.hypot(forward.x, forward.z) || 1;
     const fx = forward.x / forwardLen;
     const fz = forward.z / forwardLen;
-    const lead = 46 + this.rng() * 16;
-    const side = (this.rng() - 0.5) * 34;
+    // Close enough to be met within a minute of strolling, far enough to
+    // keep the "did I just see something?" read.
+    const lead = 28 + this.rng() * 12;
+    const side = (this.rng() - 0.5) * 22;
     const limit = FOX_WORLD_LIMIT - 11;
     let x = playerPos.x + fx * lead - fz * side;
     let z = playerPos.z + fz * lead + fx * side;

@@ -3,10 +3,12 @@ import * as THREE from "three";
 import { Canvas, useFrame } from "@react-three/fiber";
 import { PointerLockControls } from "@react-three/drei";
 import { COLORS, FOG_DENSITY, SUN_DIRECTION } from "../lib/palette";
+import { WALKER_START } from "../lib/heightfield";
 import { windUniform } from "../lib/clock";
 import type { TouchInputState } from "../lib/touch-input";
 import { ForestSettingsContext } from "./settings";
 import { DuskSky } from "./DuskSky";
+import { DaylightDriver } from "./DaylightDriver";
 import { Terrain } from "./Terrain";
 import { Trees } from "./Trees";
 import { Grass } from "./Grass";
@@ -89,7 +91,12 @@ export function ForestCanvas({
           stencil: false,
           powerPreference: "high-performance",
         }}
-        camera={{ fov: 72, near: 0.1, far: 420, position: [0, 2.4, 10] }}
+        camera={{
+          fov: 72,
+          near: 0.1,
+          far: 420,
+          position: [WALKER_START.x, 2.4, WALKER_START.z],
+        }}
         onCreated={({ gl, camera }) => {
           gl.setClearColor(COLORS.fog);
           camera.rotation.order = "YXZ";
@@ -104,18 +111,7 @@ export function ForestCanvas({
           <fogExp2 attach="fog" args={[COLORS.fog.getHex(), FOG_DENSITY]} />
           <WindClock reducedMotion={reducedMotion} />
           <DuskSky />
-          <hemisphereLight
-            args={[COLORS.hemiSky, COLORS.hemiGround, 0.85]}
-          />
-          <directionalLight
-            color={COLORS.directional}
-            intensity={2.1}
-            position={[
-              SUN_DIRECTION.x * 120,
-              SUN_DIRECTION.y * 120,
-              SUN_DIRECTION.z * 120,
-            ]}
-          />
+          <DaylightDriver />
           <Terrain />
           <Trees />
           <Grass />

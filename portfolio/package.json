@@ -11,7 +11,8 @@
     "dev:host": "npm --workspace shell run dev -- --host 0.0.0.0",
     "build": "npm --workspace shell run build",
     "typecheck": "npm --workspace shell run typecheck",
-    "test:smoke": "node projects/evening-forest/tests/browser-smoke.mjs"
+    "test:smoke": "node projects/evening-forest/tests/browser-smoke.mjs",
+    "test:probe": "node projects/evening-forest/tests/visual-probe.mjs"
   },
   "dependencies": {
     "@react-three/postprocessing": "^3.1.0",

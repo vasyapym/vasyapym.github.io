@@ -109,6 +109,53 @@
   transition: border-color 200ms ease, transform 200ms ease;
 }
 
+/* The enter card plus the dusk dial, centered as one column. */
+.evening-forest-menu {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.9rem;
+}
+
+.evening-forest-dial {
+  width: min(26rem, 88vw);
+  padding: 0.8rem 1rem 0.7rem;
+  background: rgba(16, 10, 26, 0.6);
+  border: 1px solid rgba(255, 180, 94, 0.22);
+  border-radius: 2px;
+  display: grid;
+  gap: 0.45rem;
+}
+
+.evening-forest-dial-label {
+  color: var(--index-muted);
+  font-family: var(--mono);
+  font-size: 0.64rem;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+}
+
+.evening-forest-dial-label span[data-phase] {
+  color: #ffb45e;
+}
+
+.evening-forest-dial input[type="range"] {
+  width: 100%;
+  margin: 0;
+  accent-color: #ffb45e;
+  cursor: ew-resize;
+}
+
+.evening-forest-dial-ends {
+  display: flex;
+  justify-content: space-between;
+  color: rgba(255, 236, 214, 0.45);
+  font-family: var(--mono);
+  font-size: 0.58rem;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+}
+
 button.evening-forest-enter:hover,
 button.evening-forest-enter:focus-visible {
   border-color: rgba(255, 180, 94, 0.8);
@@ -168,6 +215,120 @@ button.evening-forest-enter:focus-visible {
   pointer-events: none;
 }
 
+/* One-shot fox proximity whisper; the JS timer and the keyframe share the
+   same 7s lifetime — fade in over the first second, fade out at the end. */
+.evening-forest-whisper {
+  position: absolute;
+  left: 50%;
+  /* Clears the touch-hint row (bottom ≈1.4rem) on phones. */
+  bottom: max(4.2rem, calc(env(safe-area-inset-bottom) + 3.8rem));
+  transform: translateX(-50%);
+  z-index: 2;
+  padding: 0.4rem 0.9rem;
+  color: rgba(255, 236, 214, 0.85);
+  background: rgba(14, 8, 22, 0.55);
+  border: 1px solid rgba(255, 180, 94, 0.3);
+  font-family: var(--mono);
+  font-size: 0.7rem;
+  letter-spacing: 0.08em;
+  white-space: nowrap;
+  pointer-events: none;
+  animation: ef-whisper-cycle 7s ease both;
+}
+
+@keyframes ef-whisper-cycle {
+  0% {
+    opacity: 0;
+    transform: translate(-50%, 6px);
+  }
+  12% {
+    opacity: 1;
+    transform: translate(-50%, 0);
+  }
+  82% {
+    opacity: 1;
+  }
+  100% {
+    opacity: 0;
+  }
+}
+
+/* --- fox mind HUD --------------------------------------------------------- */
+
+.ef-fox-mind {
+  position: absolute;
+  top: calc(env(safe-area-inset-top) + 0.8rem);
+  left: calc(env(safe-area-inset-left) + 0.8rem);
+  z-index: 2;
+  display: grid;
+  gap: 0.2rem;
+  padding: 0.55rem 0.85rem;
+  color: rgba(255, 236, 214, 0.9);
+  background: rgba(14, 8, 22, 0.62);
+  border: 1px solid rgba(255, 180, 94, 0.3);
+  border-radius: 2px;
+  font-family: var(--mono);
+  pointer-events: none;
+  animation: ef-fox-mind-in 400ms ease both;
+}
+
+@keyframes ef-fox-mind-in {
+  from {
+    opacity: 0;
+    transform: translateY(-4px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.ef-fox-mind-head {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  font-size: 0.68rem;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+}
+
+.ef-fox-mind-dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: #9ecf7a;
+}
+
+.ef-fox-mind[data-state="alert"] .ef-fox-mind-dot {
+  background: #ffb45e;
+}
+
+.ef-fox-mind[data-state="curious"] .ef-fox-mind-dot {
+  background: #ff9ecb;
+}
+
+.ef-fox-mind[data-state="flee"] .ef-fox-mind-dot {
+  background: #ff6b57;
+}
+
+.ef-fox-mind-state {
+  color: #ffb45e;
+}
+
+.ef-fox-mind-dist {
+  margin-left: auto;
+  color: rgba(255, 236, 214, 0.55);
+  padding-left: 0.9rem;
+}
+
+.ef-fox-mind-flavor {
+  color: rgba(255, 236, 214, 0.6);
+  font-size: 0.62rem;
+  letter-spacing: 0.04em;
+}
+
+/* --- end fox mind HUD ------------------------------------------------------ */
+
 /* --- loading fallback ------------------------------------------------------ */
 
 .evening-forest-loading {
@@ -176,7 +337,7 @@ button.evening-forest-enter:focus-visible {
   z-index: 1;
   background:
     radial-gradient(ellipse at 50% 78%, rgba(224, 130, 74, 0.25), transparent 55%),
-    linear-gradient(180deg, #181028 0%, #33205c 55%, #6d4457 100%);
+    linear-gradient(180deg, #2a1c4e 0%, #45307a 55%, #825364 100%);
 }
 
 /* --- end loading fallback -------------------------------------------------- */

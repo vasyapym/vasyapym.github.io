@@ -5,6 +5,7 @@
 import { createRng } from "../web/lib/rng.ts";
 import {
   PLAY_RADIUS,
+  WALKER_START,
   smoothstep,
   terrainHeight,
 } from "../web/lib/heightfield.ts";
@@ -17,7 +18,11 @@ import {
   joystickVector,
   lookDelta,
 } from "../web/lib/touch-input.ts";
-import { FoxBrain, FOX_WORLD_LIMIT } from "../web/scene/fox/brain.ts";
+import { FoxBrain, ALERT_RADIUS, FOX_SPAWN, FOX_WORLD_LIMIT } from "../web/scene/fox/brain.ts";
+import {
+  phaseName,
+  sampleDaylight,
+} from "../web/lib/daylight.ts";
 
 let failures = 0;
 
@@ -196,6 +201,31 @@ check(
   FOX_WORLD_LIMIT <= PLAY_RADIUS - 10,
 );
 
+// First-contact guarantee: the fox opens within the alert radius and
+// straight ahead of the spawn vista (the camera faces -Z at entry), so its
+// very first tick is a freeze-and-stare aimed at the visitor.
+const spawnDist = Math.hypot(
+  FOX_SPAWN.x - WALKER_START.x,
+  FOX_SPAWN.z - WALKER_START.z,
+);
+check(
+  "the fox opens inside alert radius of the walker's start",
+  spawnDist < ALERT_RADIUS,
+);
+check(
+  "the fox opens ahead of the spawn vista, not behind it",
+  FOX_SPAWN.z < WALKER_START.z - ALERT_RADIUS * 0.4,
+);
+
+// Opening encounter rehearsal: standing still at the start, the fox should
+// freeze (alert) rather than trot away.
+const openBrain = new FoxBrain(FOX_SPAWN, createRng("fox/check/first-contact"));
+const openSnap = tickFor(openBrain, 0.6, WALKER_START, 0);
+check(
+  "the opening beat is a frozen stare, not a wander-off",
+  openSnap.state === "alert" && openSnap.speed < 0.3,
+);
+
 // A distant walker is none of the fox's business: it trots errands forever.
 const farBrain = new FoxBrain({ x: 6, z: -24 }, createRng("fox/check/far"));
 let farMoved = false;
@@ -320,6 +350,86 @@ for (let t = 0; t < 600; t += STEP) {
   }
 }
 check("ten simulated minutes never leave the world", contained);
+
+// --- daylight ----------------------------------------------------------------
+
+// Sweep the whole arc: every sample must be fully finite and the effect
+// gains must stay in [0, 1] — they multiply alpha channels.
+let daylightSane = true;
+for (let i = 0; i <= 100; i += 1) {
+  const s = sampleDaylight(i / 100);
+  const colors = [
+    s.horizon,
+    s.band,
+    s.upper,
+    s.zenith,
+    s.fog,
+    s.hemiSky,
+    s.hemiGround,
+    s.sunColor,
+  ];
+  const numbers = [
+    s.fogDensity,
+    s.hemiIntensity,
+    s.sunIntensity,
+    ...s.sunDir,
+  ];
+  for (const c of colors) {
+    if (c.some((v) => !Number.isFinite(v) || v < 0 || v > 1)) daylightSane = false;
+  }
+  for (const v of numbers) {
+    if (!Number.isFinite(v)) daylightSane = false;
+  }
+  for (const g of [s.starGain, s.fireflyGain, s.shaftGain]) {
+    if (!(g >= 0 && g <= 1)) daylightSane = false;
+  }
+  if (s.fogDensity <= 0) daylightSane = false;
+}
+check("daylight samples stay finite and in range across the arc", daylightSane);
+
+check(
+  "the dial clamps outside its ends",
+  sampleDaylight(-3).sunIntensity === sampleDaylight(0).sunIntensity &&
+    sampleDaylight(7).sunIntensity === sampleDaylight(1).sunIntensity,
+);
+
+// The two bright anchors really are brighter than the night dip — this is
+// the visitor's "too dark? slide toward an end" guarantee.
+check(
+  "night is dimmer than golden hour and sunrise",
+  sampleDaylight(0.55).hemiIntensity < sampleDaylight(0).hemiIntensity &&
+    sampleDaylight(0.55).hemiIntensity < sampleDaylight(1).hemiIntensity &&
+    sampleDaylight(0.55).sunIntensity < sampleDaylight(1).sunIntensity,
+);
+
+// Stars own the night, fireflies dim at sunrise, shafts need a low sun.
+const noonish = sampleDaylight(0);
+const midnight = sampleDaylight(0.55);
+check(
+  "stars peak at night while shafts vanish",
+  midnight.starGain > noonish.starGain &&
+    midnight.shaftGain < noonish.shaftGain,
+);
+
+// Interpolation continuity: neighbouring steps never jump wildly (the
+// smoothstep between keys keeps relighting cinematic rather than snappy).
+let continuousLight = true;
+let prev = sampleDaylight(0).fogDensity;
+for (let t = 0.004; t <= 1; t += 0.004) {
+  const d = sampleDaylight(t).fogDensity;
+  if (Math.abs(d - prev) > 0.002) continuousLight = false;
+  prev = d;
+}
+check("the daylight arc changes smoothly", continuousLight);
+
+check(
+  "phase names track the arc",
+  phaseName(0) === "Golden hour" &&
+    phaseName(0.3) === "Dusk" &&
+    phaseName(0.55) === "Night" &&
+    phaseName(0.8) === "Pre-dawn" &&
+    phaseName(1) === "Sunrise",
+);
 
 if (failures > 0) {
   console.error(`\n${failures} check(s) failed`);
