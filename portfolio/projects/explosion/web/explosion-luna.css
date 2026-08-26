@@ -77,8 +77,8 @@
   overflow: hidden;
   border: 1px solid var(--ink-line);
   background:
-    radial-gradient(circle at 50% 45%, rgba(211, 155, 97, 0.16), transparent 26%),
-    linear-gradient(140deg, #101a20, #0b1317 66%, #14100d);
+    radial-gradient(circle at 50% 45%, rgba(228, 166, 105, 0.24), transparent 34%),
+    linear-gradient(140deg, #1a2830, #131f26 66%, #221a11);
   cursor: crosshair;
   isolation: isolate;
   touch-action: manipulation;
@@ -87,7 +87,7 @@
 .explosion-stage::before {
   position: absolute;
   inset: 0;
-  background-image: linear-gradient(rgba(238, 234, 224, 0.05) 1px, transparent 1px), linear-gradient(90deg, rgba(238, 234, 224, 0.05) 1px, transparent 1px);
+  background-image: linear-gradient(rgba(238, 234, 224, 0.075) 1px, transparent 1px), linear-gradient(90deg, rgba(238, 234, 224, 0.075) 1px, transparent 1px);
   background-size: 40px 40px;
   content: "";
   mask-image: linear-gradient(to bottom, transparent, black 24%, black 76%, transparent);
@@ -164,6 +164,26 @@
 .explosion-control:focus-visible {
   outline: 2px solid var(--focus-ring);
   outline-offset: 3px;
+}
+
+.explosion-control[aria-pressed="true"] {
+  border-color: var(--ink-accent);
+  color: var(--ink-accent-bright);
+}
+
+/* Floating verdict of the aim preview: "≈ N voxels" trails the crosshair. */
+.explosion-target-chip {
+  position: absolute;
+  z-index: 3;
+  padding: 0.28rem 0.5rem;
+  background: rgba(11, 19, 23, 0.86);
+  border: 1px solid rgba(255, 199, 123, 0.55);
+  color: #ffc77b;
+  font-family: var(--mono);
+  font-size: 0.66rem;
+  letter-spacing: 0.05em;
+  white-space: nowrap;
+  pointer-events: none;
 }
 
 .explosion-hint {

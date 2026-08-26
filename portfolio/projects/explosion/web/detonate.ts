@@ -13,6 +13,29 @@ const BLAST_RADIUS = 3.4;
 const DEBRIS_GRAVITY = -13;
 const SPARK_COUNT = 80;
 const BUILD_DURATION = 1.15;
+const DOOM_TINT = new THREE.Color(0xff4d1a);
+// Load-path x-ray gradient: load-bearing voxels burn hot near the ground,
+// relaxed ones cool off toward the top.
+const XRAY_HOT = new THREE.Color(0xff5a20);
+const XRAY_COOL = new THREE.Color(0x5bb6bd);
+// Overloaded blocks shimmer toward this ember in normal view.
+const EMBER_GLOW = new THREE.Color(0xffa14d);
+// A cascade this large engages the collapse camera. Long enough that even
+// on software-rendered low-end devices — where frames crawl while hundreds
+// of debris pieces simulate — the dilated time is actually seen.
+const COLLAPSE_CAM_THRESHOLD = 50;
+const COLLAPSE_CAM_DURATION = 2600;
+// Stress model: a voxel carries its own weight plus everything above it that
+// routes through it. STRESS_CAPACITY is the load (in voxel weights) a column
+// segment is built to bear; calibrated against the blueprint so the intact
+// monument idles near 20% while a lone surviving pillar after a cut spikes
+// past 80% — past STRESS_GLOW a block shimmers ember in normal view,
+// telegraphing the weak point.
+const STRESS_CAPACITY = 300;
+const STRESS_GLOW = 0.72;
+// How fast displayed stress chases solved stress (per second) — this lag is
+// what makes load paths visibly reroute after a shot.
+const STRESS_RELAX = 4.2;
 
 function random(min: number, max: number): number {
   return min + Math.random() * (max - min);
@@ -25,6 +48,9 @@ export type SpecimenStats = {
   total: number;
   debris: number;
   fps: number;
+  slowmo: boolean;
+  peakStress: number;
+  engagements: number;
 };
 
 export type SpecimenHandle = {
@@ -32,6 +58,7 @@ export type SpecimenHandle = {
   restore: () => void;
   setMuted: (muted: boolean) => void;
   setSlowMo: (on: boolean) => void;
+  setXray: (on: boolean) => void;
   readonly stats: SpecimenStats;
   dispose: () => void;
 };
@@ -125,10 +152,10 @@ function buildBlueprint(): { filled: Uint8Array; colors: Float32Array; count: nu
 
   const colors = new Float32Array(VOXEL_COUNT * 3);
   const palette: Record<number, number> = {
-    [BASALT]: 0x3a362f,
+    [BASALT]: 0x5a5446,
     [BONE]: 0xe9e0d0,
     [OCHRE]: 0xff9d4d,
-    [LINTEL]: 0xcfc4ae,
+    [LINTEL]: 0xd8cdb6,
     [EMBER]: 0xffc77b,
     [TEAL]: 0x5bb6bd,
   };
@@ -209,7 +236,7 @@ export function mountSpecimen(element: HTMLElement): SpecimenHandle | null {
 
   const reduced = reducedMotion();
   const scene = new THREE.Scene();
-  scene.fog = new THREE.FogExp2(0x0b1317, 0.02);
+  scene.fog = new THREE.FogExp2(0x182830, 0.014);
 
   const camera = new THREE.PerspectiveCamera(40, 1, 0.1, 120);
   const CAMERA_POS = new THREE.Vector3(0, 4.7, 13.6);
@@ -217,8 +244,9 @@ export function mountSpecimen(element: HTMLElement): SpecimenHandle | null {
   camera.position.copy(CAMERA_POS);
   camera.lookAt(CAMERA_TARGET);
 
-  scene.add(new THREE.AmbientLight(0x9a938a, 1.1));
-  const keyLight = new THREE.DirectionalLight(0xffd9ae, 2.4);
+  scene.add(new THREE.AmbientLight(0xa8a29a, 1.55));
+  scene.add(new THREE.HemisphereLight(0xc4dbe8, 0x453a2d, 0.85));
+  const keyLight = new THREE.DirectionalLight(0xffd9ae, 3.2);
   keyLight.position.set(-7, 11, 8);
   scene.add(keyLight);
   const rimLight = new THREE.PointLight(0x4bb3c5, 30, 30, 2);
@@ -230,7 +258,7 @@ export function mountSpecimen(element: HTMLElement): SpecimenHandle | null {
 
   const ground = new THREE.Mesh(
     new THREE.CircleGeometry(34, 48),
-    new THREE.MeshStandardMaterial({ color: 0x10171c, roughness: 0.96, metalness: 0 }),
+    new THREE.MeshStandardMaterial({ color: 0x24313a, roughness: 0.94, metalness: 0 }),
   );
   ground.rotation.x = -Math.PI / 2;
   scene.add(ground);
@@ -271,7 +299,7 @@ export function mountSpecimen(element: HTMLElement): SpecimenHandle | null {
   structure.instanceMatrix.setUsage(THREE.DynamicDrawUsage);
   scene.add(structure);
 
-  const debrisCapacity = element.clientWidth < 720 || window.innerWidth < 720 ? 900 : 1600;
+  const debrisCapacity = element.clientWidth < 720 || window.innerWidth < 720 ? 900 : 1800;
   const debrisMesh = new THREE.InstancedMesh(boxGeometry, structureMaterial.clone(), debrisCapacity);
   debrisMesh.frustumCulled = false;
   debrisMesh.instanceMatrix.setUsage(THREE.DynamicDrawUsage);
@@ -315,9 +343,31 @@ export function mountSpecimen(element: HTMLElement): SpecimenHandle | null {
     total: blueprint.count,
     debris: 0,
     fps: 60,
+    slowmo: false,
+    peakStress: 0,
+    engagements: 0,
   };
 
   let pendingCrumble: { index: number; at: number }[] = [];
+  // Voxel indices already condemned to crumble. Guards against stacking
+  // duplicate timers when repeated blasts re-run the solver over a region
+  // that is still standing but already falling on a delay.
+  const doomedSet = new Set<number>();
+  // Solved vs displayed stress per voxel. Displayed chases solved, and the
+  // instance colors are repainted from displayed — that lag animates load
+  // paths rerouting after every shot.
+  const stressTarget = new Float32Array(VOXEL_COUNT);
+  const stressShown = new Float32Array(VOXEL_COUNT);
+  const loadScratch = new Float32Array(VOXEL_COUNT);
+  // Voxel indices whose solved stress exceeds the glow threshold. Kept as a
+  // small list so the per-frame shimmer can repaint a handful of instances
+  // instead of the whole mesh — repainting all instance colors every frame
+  // starved low-end (software-rendered) GPUs.
+  let overloaded: number[] = [];
+  let xray = false;
+  let collapseCamUntil = 0;
+  let slowMoHeld = false;
+  let dolly = 0;
   let simTime = 0;
   let timeScale = 1;
   let timeScaleTarget = 1;
@@ -362,6 +412,8 @@ export function mountSpecimen(element: HTMLElement): SpecimenHandle | null {
 
   const tmpColor = new THREE.Color();
   populateStructure(false);
+  computeStressTargets();
+  snapStress();
 
   function destroyVoxel(v: number, impact: THREE.Vector3 | null): Debris | null {
     const instance = instanceOfVoxel[v];
@@ -370,6 +422,7 @@ export function mountSpecimen(element: HTMLElement): SpecimenHandle | null {
     }
     filled[v] = 0;
     instanceOfVoxel[v] = -1;
+    doomedSet.delete(v);
 
     const last = structure.count - 1;
     const movedVoxel = voxelOfInstance[last];
@@ -427,14 +480,19 @@ export function mountSpecimen(element: HTMLElement): SpecimenHandle | null {
   }
 
   function spawnDebris(item: Debris): void {
+    let slot: number;
     if (debrisCount >= debrisCapacity) {
-      debris.shift();
-      debrisCount -= 1;
+      // Pool full: the oldest piece is recycled in place, so record order,
+      // mesh slots and instance colors stay aligned (a shift() here used to
+      // desync colors from their slots on big cascades).
+      slot = 0;
+      debris[0] = item;
+    } else {
+      slot = debrisCount;
+      debris.push(item);
+      debrisCount += 1;
     }
-    debris.push(item);
-    debrisCount += 1;
     debrisMesh.count = debrisCount;
-    const slot = debrisCount - 1;
     tmpColor.setRGB(item.cr, item.cg, item.cb);
     debrisMesh.setColorAt(slot, tmpColor);
     if (debrisMesh.instanceColor) {
@@ -483,14 +541,299 @@ export function mountSpecimen(element: HTMLElement): SpecimenHandle | null {
     return unsupported;
   }
 
-  function scheduleCrumble(indices: number[]): void {
+  function scheduleCrumble(indices: number[]): number {
+    let fresh = 0;
     for (const v of indices) {
+      if (doomedSet.has(v)) {
+        continue;
+      }
+      doomedSet.add(v);
       const y = Math.floor(v / (GRID_D * GRID_W));
       pendingCrumble.push({
         index: v,
-        at: simTime + random(0.05, 0.3) + (y / GRID_H) * 0.28,
+        at: simTime + random(0.04, 0.22) + (y / GRID_H) * 0.18,
       });
+      tintDoomed(v);
+      fresh += 1;
     }
+    return fresh;
+  }
+
+  // The integrity fixpoint: after any change to what is standing, re-run the
+  // flood-fill from the ground and condemn whatever is no longer connected —
+  // whether it lost its support to a blast or to another group finishing its
+  // own fall. Nothing can hang in the air waiting for a second click.
+  function condemnUnsupported(): number {
+    const fresh = scheduleCrumble(solveSupport());
+    if (fresh > 0) {
+      computeStressTargets();
+      // Signature moment: a major load path giving way dilates time while
+      // the span comes down. Checked here rather than in the click handler,
+      // so cascades that grow through the crumble chain engage it too.
+      if (doomedSet.size >= COLLAPSE_CAM_THRESHOLD && performance.now() >= collapseCamUntil) {
+        collapseCamUntil = performance.now() + COLLAPSE_CAM_DURATION;
+        stats.slowmo = true;
+        stats.engagements += 1;
+      }
+    }
+    return fresh;
+  }
+
+  // Doomed voxels announce themselves: shifted toward hot ember the moment
+  // the solver condemns them, so a delayed collapse never reads as a dead
+  // click.
+  function tintDoomed(v: number): void {
+    const instance = instanceOfVoxel[v];
+    if (instance === -1 || !structure.instanceColor) {
+      return;
+    }
+    tmpColor.fromArray(blueprint.colors, v * 3).lerp(DOOM_TINT, 0.62);
+    structure.setColorAt(instance, tmpColor);
+    structure.instanceColor.needsUpdate = true;
+  }
+
+  function tremblePending(): void {
+    if (pendingCrumble.length === 0) {
+      return;
+    }
+    let touched = false;
+    for (const task of pendingCrumble) {
+      if (task.at <= simTime) {
+        continue;
+      }
+      const instance = instanceOfVoxel[task.index];
+      if (instance === -1) {
+        continue;
+      }
+      const x = task.index % GRID_W;
+      const y = Math.floor(task.index / (GRID_D * GRID_W));
+      const z = Math.floor(task.index / GRID_W) % GRID_D;
+      voxelWorld(x, y, z, tmpVec);
+      dummy.position.copy(tmpVec);
+      dummy.position.x += random(-1, 1) * 0.02;
+      dummy.position.z += random(-1, 1) * 0.02;
+      dummy.rotation.set(0, 0, 0);
+      dummy.scale.setScalar(0.9 + Math.sin(simTime * 36 + task.index) * 0.08);
+      dummy.updateMatrix();
+      structure.setMatrixAt(instance, dummy.matrix);
+      touched = true;
+    }
+    if (touched) {
+      structure.instanceMatrix.needsUpdate = true;
+    }
+  }
+
+  // Breadth-first distance from the ground through standing voxels — how
+  // deep each block sits in the load path it carries.
+  function supportDepths(): { depth: Int16Array; max: number } {
+    const depth = new Int16Array(VOXEL_COUNT).fill(-1);
+    const queue: number[] = [];
+    for (let x = 0; x < GRID_W; x += 1) {
+      for (let z = 0; z < GRID_D; z += 1) {
+        const v = voxelIndex(x, 0, z);
+        if (filled[v]) {
+          depth[v] = 0;
+          queue.push(v);
+        }
+      }
+    }
+    let max = 0;
+    for (let head = 0; head < queue.length; head += 1) {
+      const v = queue[head];
+      const d = depth[v];
+      if (d > max) {
+        max = d;
+      }
+      const x = v % GRID_W;
+      const y = Math.floor(v / (GRID_D * GRID_W));
+      const z = Math.floor(v / GRID_W) % GRID_D;
+      const neighbors = [
+        x > 0 ? v - 1 : -1,
+        x < GRID_W - 1 ? v + 1 : -1,
+        z > 0 ? v - GRID_W : -1,
+        z < GRID_D - 1 ? v + GRID_W : -1,
+        y > 0 ? v - GRID_W * GRID_D : -1,
+        y < GRID_H - 1 ? v + GRID_W * GRID_D : -1,
+      ];
+      for (const n of neighbors) {
+        if (n >= 0 && filled[n] && depth[n] === -1) {
+          depth[n] = d + 1;
+          queue.push(n);
+        }
+      }
+    }
+    return { depth, max };
+  }
+
+  // The stress solver: loads enter at every standing voxel (self weight)
+  // and flow down the BFS tree from supportDepths — each voxel splits its
+  // accumulated load evenly among the neighbours one step closer to the
+  // ground. Where paths converge (a lone surviving pillar, a narrowed
+  // arch haunch) load piles up and stress crosses capacity.
+  function computeStressTargets(): void {
+    const { depth, max } = supportDepths();
+    stressTarget.fill(0);
+    loadScratch.fill(0);
+    if (max <= 0) {
+      stats.peakStress = 0;
+      return;
+    }
+    const buckets: number[][] = Array.from({ length: max + 1 }, () => []);
+    for (let v = 0; v < VOXEL_COUNT; v += 1) {
+      if (!filled[v] || depth[v] < 0) {
+        continue;
+      }
+      loadScratch[v] = 1;
+      buckets[depth[v]].push(v);
+    }
+    let peakLoad = 0;
+    const parentCount = [0, 0, 0, 0, 0, 0];
+    const parents = [0, 0, 0, 0, 0, 0];
+    for (let d = max; d >= 1; d -= 1) {
+      for (const v of buckets[d]) {
+        let count = 0;
+        const x = v % GRID_W;
+        const y = Math.floor(v / (GRID_D * GRID_W));
+        const z = Math.floor(v / GRID_W) % GRID_D;
+        const neighbors = [
+          x > 0 ? v - 1 : -1,
+          x < GRID_W - 1 ? v + 1 : -1,
+          z > 0 ? v - GRID_W : -1,
+          z < GRID_D - 1 ? v + GRID_W : -1,
+          y > 0 ? v - GRID_W * GRID_D : -1,
+          y < GRID_H - 1 ? v + GRID_W * GRID_D : -1,
+        ];
+        for (let i = 0; i < 6; i += 1) {
+          const n = neighbors[i];
+          parents[count] = n;
+          parentCount[count] = 0;
+          if (n >= 0 && filled[n] && depth[n] === d - 1) {
+            parentCount[count] = 1;
+            count += 1;
+          }
+        }
+        if (count > 0) {
+          const share = loadScratch[v] / count;
+          for (let i = 0; i < 6; i += 1) {
+            if (parentCount[i]) {
+              loadScratch[parents[i]] += share;
+            }
+          }
+        }
+        if (loadScratch[v] > peakLoad) {
+          peakLoad = loadScratch[v];
+        }
+      }
+    }
+    for (const v of buckets[0]) {
+      if (loadScratch[v] > peakLoad) {
+        peakLoad = loadScratch[v];
+      }
+    }
+    let peakStress = 0;
+    overloaded = [];
+    for (let v = 0; v < VOXEL_COUNT; v += 1) {
+      if (!filled[v] || depth[v] < 0) {
+        continue;
+      }
+      const s = Math.min(loadScratch[v] / STRESS_CAPACITY, 1);
+      stressTarget[v] = s;
+      if (s > peakStress) {
+        peakStress = s;
+      }
+      if (s > STRESS_GLOW) {
+        overloaded.push(v);
+      }
+    }
+    stats.peakStress = peakStress;
+  }
+
+  function snapStress(): void {
+    stressShown.set(stressTarget);
+  }
+
+  // Instance colors are repainted from displayed stress: blueprint palette
+  // normally (overloaded blocks shimmer ember), solved heat map in x-ray,
+  // with condemned voxels overriding both so a delayed collapse never
+  // reads as a dead click.
+  function paintStructureColors(nowMs: number): void {
+    for (let v = 0; v < VOXEL_COUNT; v += 1) {
+      const instance = instanceOfVoxel[v];
+      if (instance === -1) {
+        continue;
+      }
+      if (doomedSet.has(v)) {
+        tmpColor.fromArray(blueprint.colors, v * 3).lerp(DOOM_TINT, 0.62);
+      } else if (xray) {
+        const s = stressShown[v];
+        tmpColor.copy(XRAY_COOL).lerp(XRAY_HOT, s * s * (3 - 2 * s));
+        tmpColor.multiplyScalar(0.92 + ((v * 2654435761) % 97) / 97 * 0.14);
+      } else {
+        tmpColor.fromArray(blueprint.colors, v * 3);
+        const s = stressShown[v];
+        if (s > STRESS_GLOW) {
+          const k = (s - STRESS_GLOW) / (1 - STRESS_GLOW);
+          tmpColor.lerp(EMBER_GLOW, k * 0.55);
+          tmpColor.multiplyScalar(1 + Math.sin(nowMs * 0.005 + v * 0.37) * 0.09 * k);
+        }
+      }
+      structure.setColorAt(instance, tmpColor);
+    }
+    if (structure.instanceColor) {
+      structure.instanceColor.needsUpdate = true;
+    }
+  }
+
+  // Steady-state shimmer: repaint only the overloaded subset so the glow
+  // breathes without touching the rest of the mesh.
+  function paintOverload(nowMs: number): void {
+    for (const v of overloaded) {
+      const instance = instanceOfVoxel[v];
+      if (instance === -1 || doomedSet.has(v)) {
+        continue;
+      }
+      const k = Math.max((stressShown[v] - STRESS_GLOW) / (1 - STRESS_GLOW), 0);
+      tmpColor.fromArray(blueprint.colors, v * 3).lerp(EMBER_GLOW, k * 0.55);
+      tmpColor.multiplyScalar(1 + Math.sin(nowMs * 0.005 + v * 0.37) * 0.09 * k);
+      structure.setColorAt(instance, tmpColor);
+    }
+    if (structure.instanceColor) {
+      structure.instanceColor.needsUpdate = true;
+    }
+  }
+
+  // Advance displayed stress toward the solved targets. While values are
+  // still morphing, repaint the full mesh; once settled, only the few
+  // overloaded voxels shimmer.
+  function updateStressColors(dtRaw: number, nowMs: number): void {
+    const step = Math.min(1, dtRaw * STRESS_RELAX);
+    let maxDelta = 0;
+    for (let v = 0; v < VOXEL_COUNT; v += 1) {
+      const delta = stressTarget[v] - stressShown[v];
+      if (delta !== 0) {
+        stressShown[v] += delta * step;
+        const magnitude = delta < 0 ? -delta : delta;
+        if (magnitude > maxDelta) {
+          maxDelta = magnitude;
+        }
+      }
+    }
+    if (maxDelta > 0.004) {
+      paintStructureColors(nowMs);
+      return;
+    }
+    if (!xray && overloaded.length > 0) {
+      paintOverload(nowMs);
+    }
+  }
+
+  function setXray(on: boolean): void {
+    if (xray === on) {
+      return;
+    }
+    xray = on;
+    snapStress();
+    paintStructureColors(performance.now());
   }
 
   function processPending(): void {
@@ -516,6 +859,9 @@ export function mountSpecimen(element: HTMLElement): SpecimenHandle | null {
     stats.voxels = countFilled();
     if (crumbled > 0) {
       sfx.crackle(crumbled);
+      // Voxels just fell — whatever hung only on them must follow.
+      condemnUnsupported();
+      computeStressTargets();
     }
   }
 
@@ -691,6 +1037,135 @@ export function mountSpecimen(element: HTMLElement): SpecimenHandle | null {
   const ndc = new THREE.Vector2();
   const blastPlane = new THREE.Plane(new THREE.Vector3(0, 0, 1), 0);
 
+  // Where a charge detonates for a hit at `point`, approached along
+  // `direction`: march the ray through the struck material and sit the
+  // charge at the middle of the filled run it meets. Solid pillars get cut
+  // clean through their whole depth, while thin hollow shells catch the
+  // burst inside themselves instead of letting it pop in the void behind.
+  const MARCH_STEP = CELL * 0.34;
+  function marchRunDepth(point: THREE.Vector3, direction: THREE.Vector3): number {
+    let runDepth = MARCH_STEP;
+    while (runDepth < CELL * 5) {
+      tmpVec.copy(point).addScaledVector(direction, runDepth);
+      const mx = Math.round(tmpVec.x / CELL + (GRID_W - 1) / 2);
+      const my = Math.round(tmpVec.y / CELL - 0.5);
+      const mz = Math.round(tmpVec.z / CELL + (GRID_D - 1) / 2);
+      if (
+        mx < 0 || mx >= GRID_W || my < 0 || my >= GRID_H || mz < 0 || mz >= GRID_D ||
+        !filled[voxelIndex(mx, my, mz)]
+      ) {
+        break;
+      }
+      runDepth += MARCH_STEP;
+    }
+    return runDepth;
+  }
+
+  // Grid-space blast sphere for a charge of the given radius at a surface
+  // hit, plus how many standing voxels it would take out.
+  function carvePlan(
+    point: THREE.Vector3,
+    direction: THREE.Vector3,
+    radius: number,
+  ): { cx: number; cy: number; cz: number; r: number; victims: number } {
+    const runDepth = marchRunDepth(point, direction);
+    const pushIn = Math.min(Math.max(runDepth * 0.5, MARCH_STEP), runDepth);
+    tmpVec.copy(point).addScaledVector(direction, pushIn);
+    const cx = clampGrid(Math.round(tmpVec.x / CELL + (GRID_W - 1) / 2), GRID_W);
+    const cy = clampGrid(Math.round(tmpVec.y / CELL - 0.5), GRID_H);
+    const cz = clampGrid(Math.round(tmpVec.z / CELL + (GRID_D - 1) / 2), GRID_D);
+    const r = Math.ceil(radius);
+    const radiusSq = radius * radius;
+    let victims = 0;
+    for (let dx = -r; dx <= r; dx += 1) {
+      for (let dy = -r; dy <= r; dy += 1) {
+        for (let dz = -r; dz <= r; dz += 1) {
+          if (dx * dx + dy * dy + dz * dz > radiusSq) {
+            continue;
+          }
+          const x = cx + dx;
+          const y = cy + dy;
+          const z = cz + dz;
+          if (x < 0 || x >= GRID_W || y < 0 || y >= GRID_H || z < 0 || z >= GRID_D) {
+            continue;
+          }
+          if (filled[voxelIndex(x, y, z)]) {
+            victims += 1;
+          }
+        }
+      }
+    }
+    return { cx, cy, cz, r, victims };
+  }
+
+  // Aim preview: a ghost ring where the next charge would land plus a chip
+  // telling the visitor exactly how many voxels it would take out — the
+  // solver's verdict before the shot is fired.
+  const previewRing = new THREE.Mesh(
+    new THREE.TorusGeometry(BLAST_RADIUS * CELL * 0.85, 0.018, 8, 48),
+    new THREE.MeshBasicMaterial({
+      color: 0xffc77b,
+      transparent: true,
+      opacity: 0.45,
+      blending: THREE.AdditiveBlending,
+      depthWrite: false,
+    }),
+  );
+  previewRing.visible = false;
+  scene.add(previewRing);
+
+  const targetChip = document.createElement("span");
+  targetChip.className = "explosion-target-chip";
+  targetChip.setAttribute("aria-hidden", "true");
+  targetChip.style.display = "none";
+  element.appendChild(targetChip);
+
+  const updatePreview = (clientX: number, clientY: number): void => {
+    if (reduced || building) {
+      hidePreview();
+      return;
+    }
+    const rect = element.getBoundingClientRect();
+    ndc.set(
+      ((clientX - rect.left) / rect.width) * 2 - 1,
+      -((clientY - rect.top) / rect.height) * 2 + 1,
+    );
+    raycaster.setFromCamera(ndc, camera);
+    const hit = raycaster.intersectObject(structure)[0];
+    if (!hit || hit.instanceId === undefined) {
+      hidePreview();
+      return;
+    }
+    const plan = carvePlan(hit.point, raycaster.ray.direction, BLAST_RADIUS);
+    previewRing.position.copy(hit.point);
+    previewRing.lookAt(camera.position);
+    previewRing.visible = true;
+    targetChip.textContent = `≈ ${plan.victims} voxels`;
+    targetChip.style.display = "block";
+    targetChip.style.left = `${clientX - rect.left + 14}px`;
+    targetChip.style.top = `${clientY - rect.top + 10}px`;
+  };
+
+  function hidePreview(): void {
+    if (previewRing.visible) {
+      previewRing.visible = false;
+    }
+    if (targetChip.style.display !== "none") {
+      targetChip.style.display = "none";
+    }
+  }
+
+  const onPreviewMove = (event: PointerEvent): void => {
+    if (event.pointerType === "touch") {
+      return;
+    }
+    updatePreview(event.clientX, event.clientY);
+  };
+  const onPreviewLeave = () => hidePreview();
+
+  element.addEventListener("pointermove", onPreviewMove);
+  element.addEventListener("pointerleave", onPreviewLeave);
+
   function detonateAt(clientX: number, clientY: number): boolean {
     if (reduced || building) {
       return false;
@@ -720,23 +1195,21 @@ export function mountSpecimen(element: HTMLElement): SpecimenHandle | null {
 
     let destroyed = 0;
     if (hit && hit.instanceId !== undefined) {
-      // Charge penetrates along the ray so thick sections are cut through
-      // instead of getting a surface scuff.
-      const carveCenter = hit.point.clone().addScaledVector(raycaster.ray.direction, 0.45);
-      const cx = clampGrid(Math.round(carveCenter.x / CELL + (GRID_W - 1) / 2), GRID_W);
-      const cy = clampGrid(Math.round(carveCenter.y / CELL - 0.5), GRID_H);
-      const cz = clampGrid(Math.round(carveCenter.z / CELL + (GRID_D - 1) / 2), GRID_D);
-      const r = Math.ceil(BLAST_RADIUS);
-      for (let dx = -r; dx <= r; dx += 1) {
-        for (let dy = -r; dy <= r; dy += 1) {
-          for (let dz = -r; dz <= r; dz += 1) {
+      // Radius rolls once per shot, not per voxel: every direct hit takes a
+      // real, predictable bite instead of occasionally scuffing thin
+      // sections for near-zero damage.
+      const shotRadius = BLAST_RADIUS * random(0.92, 1);
+      const plan = carvePlan(hit.point, raycaster.ray.direction, shotRadius);
+      for (let dx = -plan.r; dx <= plan.r; dx += 1) {
+        for (let dy = -plan.r; dy <= plan.r; dy += 1) {
+          for (let dz = -plan.r; dz <= plan.r; dz += 1) {
             const distSq = dx * dx + dy * dy + dz * dz;
-            if (distSq > BLAST_RADIUS * BLAST_RADIUS * random(0.78, 1)) {
+            if (distSq > shotRadius * shotRadius) {
               continue;
             }
-            const x = cx + dx;
-            const y = cy + dy;
-            const z = cz + dz;
+            const x = plan.cx + dx;
+            const y = plan.cy + dy;
+            const z = plan.cz + dz;
             if (x < 0 || x >= GRID_W || y < 0 || y >= GRID_H || z < 0 || z >= GRID_D) {
               continue;
             }
@@ -752,18 +1225,39 @@ export function mountSpecimen(element: HTMLElement): SpecimenHandle | null {
           }
         }
       }
+      // Belt and braces: nothing may eat a direct hit. If grid-border
+      // rounding swallowed the whole sphere, the struck voxel comes out
+      // anyway.
+      if (destroyed === 0) {
+        const item = destroyVoxel(voxelOfInstance[hit.instanceId], impactPoint);
+        if (item) {
+          spawnDebris(item);
+          destroyed += 1;
+        }
+      }
     }
 
     stats.voxels = countFilled();
-    shakeAmp = Math.min(shakeAmp + 0.4, 1.05);
-    flashLight.position.copy(impactPoint).add(tmpVec.set(0, 0.4, 1.6));
-    flashLight.intensity = 70;
-    fireShockwave(impactPoint, hit ? 1 : 0.55);
-    fireSparks(impactPoint, hit ? 1 : 0.6);
-    sfx.boom(hit ? 1 : 0.45);
+    if (hit) {
+      shakeAmp = Math.min(shakeAmp + 0.4, 1.05);
+      flashLight.position.copy(impactPoint).add(tmpVec.set(0, 0.4, 1.6));
+      flashLight.intensity = 70;
+      fireShockwave(impactPoint, 1);
+      fireSparks(impactPoint, 1);
+      sfx.boom(1);
+    } else {
+      // Missed the monument: honest feedback only — a faint pressure ring
+      // and a thud. No flash, no shake, no fake explosion.
+      fireShockwave(impactPoint, 0.28);
+      sfx.thud();
+    }
 
     if (destroyed > 0) {
-      scheduleCrumble(solveSupport());
+      // Integrity fixpoint + fresh stress solve: the heat map visibly
+      // reroutes over the next few frames. The collapse cam engages inside
+      // condemnUnsupported when the condemned mass is large enough.
+      condemnUnsupported();
+      computeStressTargets();
     }
     return true;
   }
@@ -772,19 +1266,24 @@ export function mountSpecimen(element: HTMLElement): SpecimenHandle | null {
     sfx.resume();
     filled.set(blueprint.filled);
     pendingCrumble = [];
+    doomedSet.clear();
     debris.length = 0;
     debrisCount = 0;
     debrisMesh.count = 0;
     stats.voxels = blueprint.count;
     stats.debris = 0;
+    computeStressTargets();
+    snapStress();
     if (reduced) {
       populateStructure(false);
+      paintStructureColors(performance.now());
       renderOnce();
       return;
     }
     building = true;
     buildStart = performance.now();
     populateStructure(true);
+    paintStructureColors(performance.now());
     sfx.rebuild();
   }
 
@@ -820,6 +1319,8 @@ export function mountSpecimen(element: HTMLElement): SpecimenHandle | null {
       });
       gl.setPixelRatio(Math.min(window.devicePixelRatio || 1, 1.75));
       gl.setClearColor(0x000000, 0);
+      gl.toneMapping = THREE.ACESFilmicToneMapping;
+      gl.toneMappingExposure = 1.18;
       gl.outputColorSpace = THREE.SRGBColorSpace;
       return gl;
     } catch {
@@ -913,6 +1414,7 @@ export function mountSpecimen(element: HTMLElement): SpecimenHandle | null {
       restore,
       setMuted: (muted: boolean) => sfx.setMuted(muted),
       setSlowMo: () => undefined,
+      setXray: () => undefined,
       stats,
       dispose,
     };
@@ -924,12 +1426,20 @@ export function mountSpecimen(element: HTMLElement): SpecimenHandle | null {
     frame = requestAnimationFrame(loop);
     const dtRaw = Math.min((nowMs - last) / 1000, 0.05);
     last = nowMs;
+    // Bullet time comes from held shift; the collapse camera dilates time
+    // on its own for a moment after a major load path gives way.
+    const autoSlow = nowMs < collapseCamUntil;
+    timeScaleTarget = slowMoHeld ? 0.22 : autoSlow ? 0.3 : 1;
+    stats.slowmo = timeScale < 0.75;
+    dolly += ((autoSlow ? 1 : 0) - dolly) * Math.min(1, dtRaw * 3.4);
     timeScale += (timeScaleTarget - timeScale) * Math.min(1, dtRaw * 9);
     const dt = dtRaw * timeScale;
     simTime += dt;
 
     updateBuilding(nowMs);
     processPending();
+    tremblePending();
+    updateStressColors(dtRaw, nowMs);
     updateDebris(dt);
     updateSparks(dt);
     updateShockwaves(dt);
@@ -937,13 +1447,13 @@ export function mountSpecimen(element: HTMLElement): SpecimenHandle | null {
 
     flashLight.intensity *= Math.exp(-9 * dtRaw);
     surveyRing.rotation.z += dt * 0.3;
-    keyLight.intensity = 2.4 + Math.sin(nowMs * 0.0011) * 0.18;
+    keyLight.intensity = 3.2 + Math.sin(nowMs * 0.0011) * 0.22;
 
     shakeAmp *= Math.exp(-5.2 * dtRaw);
     camera.position.set(
       CAMERA_POS.x + Math.sin(nowMs * 0.041) * shakeAmp * 0.22,
-      CAMERA_POS.y + Math.sin(nowMs * 0.053) * shakeAmp * 0.18,
-      CAMERA_POS.z,
+      CAMERA_POS.y + Math.sin(nowMs * 0.053) * shakeAmp * 0.18 + dolly * 0.3,
+      CAMERA_POS.z - dolly * 0.95,
     );
     camera.lookAt(CAMERA_TARGET);
 
@@ -955,6 +1465,11 @@ export function mountSpecimen(element: HTMLElement): SpecimenHandle | null {
   function dispose(): void {
     cancelAnimationFrame(frame);
     resizeObserver.disconnect();
+    element.removeEventListener("pointermove", onPreviewMove);
+    element.removeEventListener("pointerleave", onPreviewLeave);
+    targetChip.remove();
+    previewRing.geometry.dispose();
+    (previewRing.material as THREE.Material).dispose();
     sfx.dispose();
     scene.traverse((object) => {
       if (!(object instanceof THREE.Mesh) && !(object instanceof THREE.Points)) {
@@ -977,8 +1492,9 @@ export function mountSpecimen(element: HTMLElement): SpecimenHandle | null {
     restore,
     setMuted: (muted: boolean) => sfx.setMuted(muted),
     setSlowMo: (on: boolean) => {
-      timeScaleTarget = on ? 0.22 : 1;
+      slowMoHeld = on;
     },
+    setXray,
     stats,
     dispose,
   };

@@ -13,11 +13,20 @@ const REDUCED_MOTION_QUERY = "(prefers-reduced-motion: reduce)";
 const TECHNIQUES = [
   "structural integrity · flood-fill solver",
   "gpu instancing · two draw calls",
-  "raycast crater carving",
+  "adaptive charge depth · ray-marched",
+  "live stress solver · loads reroute on impact",
   "procedural webaudio · zero assets",
 ];
 
-type Telemetry = { voxels: number; total: number; debris: number; fps: number };
+type Telemetry = {
+  voxels: number;
+  total: number;
+  debris: number;
+  fps: number;
+  slowmo: boolean;
+  peakStress: number;
+  engagements: number;
+};
 
 export default function ExplosionLunaPage() {
   const stageRef = useRef<HTMLDivElement>(null);
@@ -27,7 +36,16 @@ export default function ExplosionLunaPage() {
   const [impacts, setImpacts] = useState(0);
   const [muted, setMuted] = useState(false);
   const [slowMo, setSlowMo] = useState(false);
-  const [telemetry, setTelemetry] = useState<Telemetry>({ voxels: 0, total: 0, debris: 0, fps: 60 });
+  const [xray, setXray] = useState(false);
+  const [telemetry, setTelemetry] = useState<Telemetry>({
+    voxels: 0,
+    total: 0,
+    debris: 0,
+    fps: 60,
+    slowmo: false,
+    peakStress: 0,
+    engagements: 0,
+  });
 
   useEffect(() => {
     const query = window.matchMedia(REDUCED_MOTION_QUERY);
@@ -69,16 +87,28 @@ export default function ExplosionLunaPage() {
       setSlowMo(event.type === "keydown");
       handleRef.current?.setSlowMo(event.type === "keydown");
     };
+    const applyXrayKey = (event: KeyboardEvent) => {
+      if (event.key !== "x" && event.key !== "X") {
+        return;
+      }
+      setXray((current) => {
+        const next = !current;
+        handleRef.current?.setXray(next);
+        return next;
+      });
+    };
     const onBlur = () => {
       setSlowMo(false);
       handleRef.current?.setSlowMo(false);
     };
     window.addEventListener("keydown", applyShift);
     window.addEventListener("keyup", applyShift);
+    window.addEventListener("keydown", applyXrayKey);
     window.addEventListener("blur", onBlur);
     return () => {
       window.removeEventListener("keydown", applyShift);
       window.removeEventListener("keyup", applyShift);
+      window.removeEventListener("keydown", applyXrayKey);
       window.removeEventListener("blur", onBlur);
     };
   }, [hasScene, reducedMotion]);
@@ -119,6 +149,12 @@ export default function ExplosionLunaPage() {
     handleRef.current?.setMuted(next);
   };
 
+  const toggleXray = () => {
+    const next = !xray;
+    setXray(next);
+    handleRef.current?.setXray(next);
+  };
+
   const standing =
     telemetry.total > 0 ? Math.round((telemetry.voxels / telemetry.total) * 100) : 100;
 
@@ -132,7 +168,8 @@ export default function ExplosionLunaPage() {
           </h1>
           <p className="explosion-lede">
             Every shot carves the structure away for real &mdash; and anything left
-            without support comes down on its own.
+            without support comes down on its own. Flip the x-ray to watch the
+            load paths decide.
           </p>
           <a className="explosion-enter" href="#explosion-stage">
             Demolish <span aria-hidden="true">↓</span>
@@ -153,16 +190,17 @@ export default function ExplosionLunaPage() {
             role="button"
             tabIndex={0}
             aria-label="Specimen room. Click or press Enter to detonate."
+            data-engagements={telemetry.engagements}
             onPointerDown={handlePointerDown}
             onKeyDown={handleKeyDown}
           >
             <div className="explosion-stage-copy" aria-hidden="true">
               <span>lx-01 · {impacts.toString().padStart(3, "0")} shots</span>
               <strong>{standing}% standing</strong>
-              <span className="explosion-telemetry">
-                {telemetry.voxels} voxels · {telemetry.debris} debris ·{" "}
-                {Math.round(telemetry.fps)} fps
-              </span>
+                <span className="explosion-telemetry">
+                  {telemetry.voxels} voxels · {telemetry.debris} debris · peak{" "}
+                  {Math.round(telemetry.peakStress * 100)}% stress · {Math.round(telemetry.fps)} fps
+                </span>
             </div>
             {!hasScene ? (
               <>
@@ -173,19 +211,39 @@ export default function ExplosionLunaPage() {
           </div>
 
           <div className="explosion-controls">
-            <button type="button" className="explosion-control" onClick={handleRestore}>
+            <button
+              type="button"
+              className="explosion-control explosion-control-restore"
+              onClick={handleRestore}
+            >
               restore monument
             </button>
             <button
               type="button"
-              className="explosion-control"
+              className="explosion-control explosion-control-xray"
+              onClick={toggleXray}
+              aria-pressed={xray}
+            >
+              x-ray · {xray ? "on" : "off"}
+            </button>
+            <button
+              type="button"
+              className="explosion-control explosion-control-sound"
               onClick={toggleSound}
               aria-pressed={!muted}
             >
               sound · {muted ? "off" : "on"}
             </button>
             <span className="explosion-hint" aria-hidden="true">
-              {slowMo ? "slow motion engaged" : "hold shift — bullet time"}
+              {slowMo
+                ? "slow motion engaged"
+                : telemetry.slowmo
+                  ? "time dilated — collapse cam"
+                  : xray
+                    ? "stress map · hot = carrying the span"
+                    : telemetry.peakStress > 0.72
+                      ? "overloaded columns glowing · press x — stress map"
+                      : "hold shift — bullet time · press x — stress map"}
             </span>
           </div>
         </section>

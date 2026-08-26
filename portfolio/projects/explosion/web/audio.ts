@@ -73,6 +73,26 @@ export class DetonationSfx {
     sub.stop(t0 + 0.55);
   }
 
+  // A missed shot: short, dull, quiet. The sonic opposite of boom() so the
+  // ear always knows whether the charge connected.
+  thud(): void {
+    if (!this.ctx || !this.master || this.muted) {
+      return;
+    }
+    const ctx = this.ctx;
+    const t0 = ctx.currentTime;
+    const osc = ctx.createOscillator();
+    osc.type = "sine";
+    osc.frequency.setValueAtTime(110, t0);
+    osc.frequency.exponentialRampToValueAtTime(46, t0 + 0.11);
+    const gain = ctx.createGain();
+    gain.gain.setValueAtTime(0.22, t0);
+    gain.gain.exponentialRampToValueAtTime(0.001, t0 + 0.15);
+    osc.connect(gain).connect(this.master);
+    osc.start(t0);
+    osc.stop(t0 + 0.17);
+  }
+
   crackle(count: number): void {
     if (!this.ctx || !this.master || this.muted) {
       return;
