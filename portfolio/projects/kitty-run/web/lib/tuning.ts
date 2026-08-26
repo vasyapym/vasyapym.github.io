@@ -22,6 +22,14 @@ export const TUNING = {
   dashCooldown: 1.4,
   dashBoost: 6,
 
+  // Bullet time: every dash dips the whole simulation's clock to this
+  // fraction of real time, then eases back at bulletRecovery per sim
+  // second. Deep enough to read instantly, shallow enough to never feel
+  // like a pause; both the player and the echo sim dilate identically,
+  // so the race stays in lockstep.
+  bulletTimeScale: 0.35,
+  bulletRecovery: 5.5,
+
   // A dash requested this soon after leaving the ground cancels the fresh
   // jump outright — kitty snaps back down and ducks instead. This is what
   // makes touch ducking reliable: the tap-to-jump fires on finger-down

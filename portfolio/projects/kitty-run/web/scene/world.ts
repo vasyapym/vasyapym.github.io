@@ -102,6 +102,12 @@ export type WorldState = {
   hitStop: number;
   hitFlash: number;
 
+  // The simulation's own clock rate, 1 = real time. A dash dips this to
+  // TUNING.bulletTimeScale; step.ts eases it back. The game loop scales
+  // every sim delta by it — player, echo, particles and all — so the
+  // whole world breathes in slow motion together.
+  timeScale: number;
+
   // True when the run that just ended beat the stored best — the game-over
   // card wears a little badge.
   newBest: boolean;
@@ -167,6 +173,7 @@ export function createWorld(best = 0, runSeed = freshSeed()): WorldState {
     shake: 0,
     hitStop: 0,
     hitFlash: 0,
+    timeScale: 1,
 
     newBest: false,
 

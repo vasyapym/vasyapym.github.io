@@ -1,13 +1,30 @@
-# Hello Kitty Run
+# Cat Runner
 
-A pastel endless runner for the portfolio shell. Kitty runs on her own; you
+A pastel endless runner for the portfolio shell. The cat runs on her own; you
 jump (twice for a double), dash through danger, and keep a three-heart meter
 alive. Hearts and big cross-hearts mend her; crates break her. Chain pickups
 into a combo multiplier for score — every hazard in the run can be cleared
 with a well-timed jump.
 
-Hello Kitty © 1976 Sanrio Co., Ltd. This is an unofficial fan-made tribute,
-not affiliated with or endorsed by Sanrio.
+Three features carry the engineering story:
+
+- **Bullet-time dash** — every dash dips the whole simulation clock to
+  0.35× and wells it back up. The dilation is deterministic: the player
+  sim, the echo sim, particles and the camera all scale from one delta,
+  so the ghost race stays in exact lockstep through every slow-motion
+  stretch. The lens breathes with the dip (FOV punch), a rose vignette
+  blooms from the clock depth, and speed lines tear past while the world
+  crawls.
+- **Adaptive soundtrack** — no audio files. A Web Audio lookahead
+  scheduler sequences a C–Am–F–G chiptune bed whose tempo follows the
+  run speed (96→132 bpm); arp, hats and kick gate in as speed and combo
+  build, a combo ≥ 8 adds a sparkle line, hits duck the bed, and
+  pause/mute fade it to silence. It shares one AudioContext and master
+  bus with the sound effects.
+- **Race your best-run echo** — a finished run is stored as seed plus
+  timed inputs; a faded afterimage replays it on the very same track and
+  gives chase once you open a lead. Same seed, same physics, same
+  bullet-time — a deterministic replay you can outrun.
 
 ## How it fits the shell
 
@@ -22,15 +39,16 @@ the route is `/projects/kitty-run`. Shell-side additions: the
 
 - Space / ↑ / W / tap — jump, press again mid-air for a double jump,
   release early for a shorter arc
-- Shift / ↓ / S / swipe down — dash (brief invulnerability, cooldown).
+- Shift / ↓ / S / swipe down / **the on-screen dash pad** — dash (brief
+  invulnerability, cooldown ring on the pad itself).
   A dash inside the first ~120 ms of a fresh jump **cancels the jump**:
   kitty snaps back down and ducks instead. On touch this is what makes
   ducking reliable — the tap-to-jump fires on finger-down before the
-  gesture is known, so the swipe-down always wins the argument
+  gesture is known, so the dash pad always wins the argument
 - P, Esc, or the on-screen pause button — pause; R — restart from the pause
   or game-over screen
 - "or watch it play itself" on the ready card hands the run to the
-  autopilot; the chip on the right edge takes control back at any moment
+  autopilot; the red chip on the right edge takes control back at any moment
 - `?autostart` skips the menu, `?autopilot` starts straight into the
   bot-driven exhibition, `?debug` shows a small state readout,
   `?plain` skips the post-processing chain on weak GPUs
@@ -51,6 +69,17 @@ the route is `/projects/kitty-run`. Shell-side additions: the
   celebration: a rising chime, confetti and a big banner.
 - **Combo** — consecutive pickups raise the score multiplier (every fourth,
   capped ×8); taking a hit resets it.
+- **Bullet time** — the dash dips the simulation clock to 0.35× and eases
+  back exponentially in sim time, so the slow tail stretches in real time
+  exactly as much as the world is slowed. The dip starts on the step
+  after the dash trigger, so the launch itself stays snappy. The checks
+  pin the dip depth (steerable, never a pause) and the recovery (wells
+  back up well inside the dash cooldown).
+- **Adaptive soundtrack** — the music engine is a plain class driven from
+  the game loop: one `update(world, muted)` per frame eases the bed gain
+  and schedules any notes inside a 140 ms lookahead window. Tempo, layer
+  gates and the sparkle line are pure functions of live world state, so
+  the score follows the run rather than a timeline.
 - **Race your best-run echo** — a finished run is stored as its seed plus
   the timed input list; the next runs reuse that seed, so a soft, faded
   afterimage of Kitty replays your finest hour on the very same track.
@@ -62,8 +91,7 @@ the route is `/projects/kitty-run`. Shell-side additions: the
   that clamp seats her next to the player she eases back only to half
   strength, so the race stays readable everywhere. The restyle maps her
   into one dusty-rose family with no aura and no pulse: a watercolour
-  memory of a run, not a haunting. The HUD chip reads out the
-  live gap (+/- metres, or "out" once she has fallen). Beat her score and
+  memory of a run, not a haunting. Beat her score and
   she is replaced. The sanitizer rejects corrupt or stale storage entries.
 - **Autopilot: watch it play itself** — the ready card offers a second
   button that hands the run to the lookahead pilot from `web/lib/pilot.ts`
@@ -134,17 +162,20 @@ the route is `/projects/kitty-run`. Shell-side additions: the
 - **Shared ground truth** — the ribbon meshes, the physics and the obstacle
   placement all sample the same `groundY(x)` from `web/lib/ground.ts`.
 - **Feel** — squash-and-stretch springs, coyote time, variable jump height,
-  hit-stop, trauma-based screen shake, dash FOV kick, combo-pitched pickup
-  chimes (WebAudio synthesis, no audio files). `prefers-reduced-motion`
-  disables shake, hit-stop and most particles.
+  hit-stop, trauma-based screen shake, dash FOV kick, bullet-time dilation,
+  combo-pitched pickup chimes and an adaptive procedural soundtrack (all
+  WebAudio synthesis, no audio files). `prefers-reduced-motion` disables
+  shake, hit-stop, most particles and the bullet-time lens/vignette (the
+  slow-mo itself stays — it is gameplay information).
 - **Touch feel** — the stage swallows scroll/zoom gestures
   (`touch-action: none`), never selects text or flashes taps mid-swipe;
   Android gets light haptic accents on hits, heals and milestones; leaving
   the tab pauses the run and revives the suspended AudioContext on return.
-  Swipes are recognised twice as early as they used to be (short drag or
-  quick flick), and the dash's fresh-jump cancel means a swipe-down can
-  always rescind the tap-jump it accidentally triggered — ducking on a
-  phone is a single decisive gesture, never a fight with the input.
+  A dedicated on-screen dash pad (bottom-right thumb corner, conic
+  cooldown ring painted by the game loop) makes ducking a single
+  decisive press; the swipe-down gesture and the fresh-jump dash-cancel
+  remain as backups, so a dash can always rescind the tap-jump it
+  accidentally triggered.
 - **Performance** — instanced meshes for obstacles, pickups, crosses and
   glows, one draw call for all particles, no per-frame allocations in the
   hot path.

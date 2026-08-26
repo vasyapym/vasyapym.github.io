@@ -9,8 +9,9 @@ import { saveReplayIfBest, type RunInput } from "../lib/replay.ts";
 import { TUNING } from "../lib/tuning.ts";
 import { buzz } from "../lib/haptics.ts";
 import type { Sfx } from "../lib/audio.ts";
+import type { Soundtrack } from "../lib/music.ts";
 import { clampInto, stageSpan } from "../lib/framing.ts";
-import { hexRgb, dashTrail, dustPuff, sparkBurst, type Rgb } from "./bursts.ts";
+import { hexRgb, dashTrail, dustPuff, sparkBurst, speedLine, type Rgb } from "./bursts.ts";
 import { releaseJump, requestDash, requestJump } from "./actions.ts";
 import { pilotSteer } from "../lib/pilot.ts";
 import { stepWorld } from "./step.ts";
@@ -22,7 +23,10 @@ export type HudRefs = {
   combo: React.RefObject<HTMLSpanElement | null>;
   comboBar: React.RefObject<HTMLDivElement | null>;
   milestone: React.RefObject<HTMLDivElement | null>;
-  echo?: React.RefObject<HTMLSpanElement | null>;
+  // The touch dash pad: the loop paints its cooldown ring every frame.
+  dash?: React.RefObject<HTMLButtonElement | null>;
+  // Bullet-time vignette: opacity follows the clock's dip.
+  bullet?: React.RefObject<HTMLDivElement | null>;
   debug?: React.RefObject<HTMLSpanElement | null>;
 };
 
@@ -53,6 +57,7 @@ function emitFloater(
 function handleEvents(
   world: WorldState,
   sfx: Sfx | null,
+  track: Soundtrack | null,
   reducedMotion: boolean,
   hud: HudRefs,
 ): void {
@@ -106,6 +111,7 @@ function handleEvents(
       }
       case "hit":
         sfx?.hit();
+        track?.duck();
         if (!reducedMotion) buzz(70);
         sparkBurst(world, 0, k.y + 0.8, reducedMotion ? 6 : 14, HIT_RGB, 4.2);
         emitFloater(world, 0, k.y + 0.8, "hurt", 1);
@@ -151,7 +157,7 @@ function handleEvents(
   world.events.length = 0;
 }
 
-function writeHud(world: WorldState, echo: WorldState | null, hud: HudRefs): void {
+function writeHud(world: WorldState, hud: HudRefs): void {
   if (hud.score.current) {
     hud.score.current.textContent = String(world.score);
   }
@@ -172,15 +178,20 @@ function writeHud(world: WorldState, echo: WorldState | null, hud: HudRefs): voi
     const fraction = world.combo > 0 ? Math.max(0, world.comboTimer / COMBO_WINDOW) : 0;
     hud.comboBar.current.style.transform = `scaleX(${fraction})`;
   }
-  if (hud.echo?.current) {
-    const node = hud.echo.current;
-    if (!echo) node.textContent = "";
-    else if (echo.status !== "running") node.textContent = "echo · out";
-    else if (echo.time <= 0) node.textContent = "echo · warming up";
-    else {
-      const gap = Math.round(echo.distance - world.distance);
-      node.textContent = gap >= 0 ? `echo · +${gap} m` : `echo · ${gap} m`;
-    }
+  if (hud.dash?.current) {
+    // --cd reads 1 (just dashed) → 0 (ready); the ring's filled arc is
+    // drawn as 1 - cd, so it sweeps closed as the dash comes back.
+    const button = hud.dash.current;
+    const cd = Math.min(
+      1,
+      Math.max(0, world.kitty.dashCd / (TUNING.dashCooldown + TUNING.dashDuration)),
+    );
+    button.style.setProperty("--cd", cd.toFixed(3));
+    button.classList.toggle("is-cooling", cd > 0);
+  }
+  if (hud.bullet?.current) {
+    const depth = Math.max(0, Math.min(1, (1 - world.timeScale) * 1.15));
+    hud.bullet.current.style.opacity = depth.toFixed(3);
   }
   if (hud.debug?.current) {
     hud.debug.current.textContent = `${world.status} · ${world.distance.toFixed(0)}m · obs ${world.obstacles.slots.filter((s) => s.active).length}`;
@@ -192,6 +203,7 @@ export function GameLoop({
   echo,
   echoInputs,
   sfxRef,
+  trackRef,
   muted,
   hud,
   reducedMotion,
@@ -204,6 +216,9 @@ export function GameLoop({
   echo?: WorldState | null;
   echoInputs?: RunInput[];
   sfxRef: React.RefObject<Sfx | null>;
+  // The adaptive soundtrack, when its AudioContext exists (first gesture
+  // onward). The loop conducts it once per frame.
+  trackRef?: React.RefObject<Soundtrack | null>;
   muted: boolean;
   hud: HudRefs;
   reducedMotion: boolean;
@@ -237,7 +252,12 @@ export function GameLoop({
       pilotSteer(world);
     }
 
-    stepWorld(world, delta);
+    // One clock for the whole frame: the sim's own timeScale (dipped by
+    // a dash, eased back in step.ts) scales every delta below — player,
+    // echo, particles, dust. The world breathes in slow motion together.
+    const sdt = Math.min(delta * world.timeScale, 0.05);
+
+    stepWorld(world, sdt);
 
     // The echo lives in its own deterministic simulation — same seed as
     // this track, same physics, its recorded inputs. Stepping both with
@@ -251,7 +271,7 @@ export function GameLoop({
     ) {
       if (echoLaunched.current || world.distance >= TUNING.echoGapMetres) {
         echoLaunched.current = true;
-        const gdt = Math.min(delta, 0.05);
+        const gdt = Math.min(sdt, 0.05);
         while (
           feedCursor.current < echoInputs.length &&
           echoInputs[feedCursor.current].t <= echo.time + gdt
@@ -261,7 +281,10 @@ export function GameLoop({
           else if (inp.kind === "release") releaseJump(echo);
           else requestDash(echo);
         }
-        stepWorld(echo, delta);
+        // The echo steps with the same scaled delta: its own timeScale
+        // dips when its replayed dash fires, so both sims stay in exact
+        // lockstep through every slow-motion stretch.
+        stepWorld(echo, sdt);
         // Nobody consumes the echo's cosmetic events; drain or they pile up.
         echo.events.length = 0;
         if (prevEchoStatus.current === "running" && echo.status !== "running") {
@@ -285,8 +308,16 @@ export function GameLoop({
       if (world.kitty.dashT > DASH_TAIL_TIME) dashTrail(world, 0, world.kitty.y + 0.4);
     }
 
+    // Bullet-time streaks: while the clock is dipped, pale lines tear
+    // backward past the cat. Emission is per real frame, so the slow
+    // world fills with fast light — the contrast is the effect.
+    if (!reducedMotion && world.status === "running" && world.timeScale < 0.85) {
+      speedLine(world, world.kitty.y + 0.2 + Math.random() * 1.9);
+      speedLine(world, world.kitty.y + 0.2 + Math.random() * 1.9);
+    }
+
     // A soft trot of dust while grounded keeps the run feeling weighted.
-    dustTimer.current -= delta;
+    dustTimer.current -= sdt;
     if (
       !reducedMotion &&
       world.status === "running" &&
@@ -297,8 +328,11 @@ export function GameLoop({
       dustPuff(world, 0, world.kitty.y, 1);
     }
 
-    handleEvents(world, muted ? null : sfxRef.current, reducedMotion, hud);
-    writeHud(world, echo ?? null, hud);
+    handleEvents(world, muted ? null : sfxRef.current, muted ? null : trackRef?.current ?? null, reducedMotion, hud);
+    // The soundtrack conducts itself from the live world every frame —
+    // tempo from speed, layers from intensity, silence from state.
+    trackRef?.current?.update(world, muted);
+    writeHud(world, hud);
 
     if (prevStatus.current !== world.status) {
       prevStatus.current = world.status;

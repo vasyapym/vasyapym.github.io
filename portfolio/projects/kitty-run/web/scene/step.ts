@@ -188,6 +188,9 @@ export function stepWorld(world: WorldState, rawDt: number): void {
       k.dashT = TUNING.dashDuration;
       k.dashCd = TUNING.dashCooldown + TUNING.dashDuration;
       world.shake = Math.min(1, world.shake + 0.16);
+      // Bullet time: the clock dips from the NEXT step on — this step
+      // finishes at full speed, so the dash's own launch stays snappy.
+      world.timeScale = TUNING.bulletTimeScale;
       world.events.push({ type: "dash" });
     }
   }
@@ -327,6 +330,10 @@ export function stepWorld(world: WorldState, rawDt: number): void {
 
   // --- decay ----------------------------------------------------------------------
 
+  // Bullet-time recovery: exponential ease back to full speed in sim
+  // time, so the slow-mo tail stretches in real time exactly as much as
+  // the world itself is slowed — the classic "time wells back up" feel.
+  world.timeScale += (1 - world.timeScale) * Math.min(1, TUNING.bulletRecovery * dt);
   world.shake = Math.max(0, world.shake - dt * 2.1);
   world.hitFlash = Math.max(0, world.hitFlash - dt * 2.6);
   world.heartPulseT = Math.max(0, world.heartPulseT - dt);

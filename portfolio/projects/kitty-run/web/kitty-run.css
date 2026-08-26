@@ -153,19 +153,6 @@
   transform: scale(1.06);
 }
 
-.kitty-run-attribution {
-  margin-top: -12px;
-}
-
-.kitty-run-attribution p {
-  margin: 0;
-  color: var(--ink-muted);
-  font-family: var(--mono);
-  font-size: 12px;
-  letter-spacing: 0.04em;
-  line-height: 1.6;
-}
-
 .kitty-run-heart {
   width: 26px;
   height: 24px;
@@ -276,37 +263,71 @@
   pointer-events: none;
 }
 
-/* Echo chip: a quiet label that names the best-run echo while it races
-   you and reads out the live gap; the cool violet keeps it in the echo's
-   family. */
-.kitty-run-echochip {
+/* Touch dash pad: a thumb-sized button in the bottom-right corner. The
+   cooldown ring is a conic gradient driven by the game loop through the
+   --cd custom property (1 = just dashed, 0 = ready), so the arc sweeps
+   closed as the dash comes back and the pad visibly "charges up". */
+.kitty-run-dash {
   position: absolute;
-  left: 24px;
-  bottom: 20px;
-  padding: 6px 12px;
+  right: 20px;
+  bottom: 18px;
+  width: 66px;
+  height: 66px;
   border-radius: 999px;
-  border: 1px solid rgba(255, 255, 255, 0.16);
-  background: rgba(70, 84, 140, 0.78);
-  color: #fff8fb;
+  border: none;
+  background: rgba(255, 248, 251, 0.9);
+  color: #d13a50;
   font-family: var(--mono);
-  font-size: 11.5px;
-  font-weight: 500;
-  letter-spacing: 0.05em;
-  white-space: nowrap;
-  pointer-events: none;
+  font-size: 13px;
+  font-weight: 700;
+  letter-spacing: 0.09em;
+  text-transform: uppercase;
+  box-shadow: 0 4px 14px rgba(138, 60, 84, 0.25);
+  pointer-events: auto;
+  cursor: pointer;
+  touch-action: manipulation;
+  transition: transform 0.12s ease, background 0.12s ease, opacity 0.2s ease;
 }
 
-/* Autopilot chip: mirrors the echo chip on the right edge; tapping it
-   hands control back to the visitor mid-run. */
+.kitty-run-dash::before {
+  content: "";
+  position: absolute;
+  inset: -6px;
+  border-radius: 50%;
+  background: conic-gradient(
+    #e94f64 calc((1 - var(--cd, 0)) * 360deg),
+    rgba(74, 59, 82, 0.16) 0
+  );
+  -webkit-mask: radial-gradient(farthest-side, transparent calc(100% - 5px), #000 calc(100% - 4px));
+  mask: radial-gradient(farthest-side, transparent calc(100% - 5px), #000 calc(100% - 4px));
+}
+
+.kitty-run-dash:hover {
+  background: #fff8fb;
+  transform: scale(1.05);
+}
+
+.kitty-run-dash:active {
+  transform: scale(0.9);
+}
+
+.kitty-run-dash.is-cooling {
+  color: rgba(209, 58, 80, 0.45);
+  background: rgba(255, 248, 251, 0.62);
+}
+
+/* Autopilot chip: mirrors the dash pad on the bottom edge while the bot
+   drives; tapping it hands control back to the visitor mid-run. Bow-red,
+   so every tappable control shares one accent family. */
 .kitty-run-pilotchip {
   position: absolute;
   right: 24px;
   bottom: 20px;
-  padding: 6px 12px;
+  padding: 8px 14px;
   border-radius: 999px;
-  border: 1px solid rgba(255, 255, 255, 0.16);
-  background: rgba(70, 84, 140, 0.78);
-  color: #fff8fb;
+  border: 1px solid rgba(255, 255, 255, 0.28);
+  background: rgba(209, 58, 80, 0.92);
+  color: #fff6f0;
   font-family: var(--mono);
   font-size: 11.5px;
   font-weight: 500;
@@ -318,8 +339,22 @@
 }
 
 .kitty-run-pilotchip:hover {
-  background: rgba(70, 84, 140, 0.96);
+  background: rgba(209, 58, 80, 1);
   transform: scale(1.04);
+}
+
+/* Bullet-time vignette: a rose wash that blooms from the edges while the
+   dash holds the clock down. Opacity is written every frame by the game
+   loop from world.timeScale, so it blooms and recedes with the dip. */
+.kitty-run-bullet {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  opacity: 0;
+  background:
+    radial-gradient(ellipse at 50% 55%, transparent 46%, rgba(233, 79, 100, 0.32) 100%),
+    radial-gradient(ellipse at 50% 55%, transparent 72%, rgba(209, 58, 80, 0.2) 100%);
+  mix-blend-mode: multiply;
 }
 
 /* --- floaters ------------------------------------------------------------ */
@@ -497,25 +532,25 @@
   to { transform: scale(1); opacity: 1; }
 }
 
-/* Echo line on the ready/over cards: the same quiet violet family as the
-   in-run chip, so the best-run race reads as one feature everywhere. */
+/* Echo line on the ready/over cards: the same bow-red accent family as
+   the in-run HUD, so race notes read as part of the game, not a widget. */
 .kitty-run-card-echo {
   padding: 5px 14px;
   border-radius: 999px;
-  border: 1px solid rgba(255, 255, 255, 0.16);
-  background: rgba(70, 84, 140, 0.78);
-  color: #e4ebff;
+  border: 1px solid rgba(233, 79, 100, 0.4);
+  background: rgba(233, 79, 100, 0.16);
+  color: #ffc9d6;
   font-family: var(--mono);
   font-size: 11.5px;
   letter-spacing: 0.05em;
   font-variant-numeric: tabular-nums;
 }
 
-/* On the paper ready card the pill flips to violet-on-light. */
+/* On the paper ready card the pill flips to rose-on-light. */
 .kitty-run-card--ready .kitty-run-card-echo {
-  border-color: rgba(70, 84, 140, 0.22);
-  background: rgba(147, 169, 232, 0.18);
-  color: #46548c;
+  border-color: rgba(209, 58, 80, 0.26);
+  background: rgba(233, 79, 100, 0.08);
+  color: #b23248;
 }
 
 .kitty-run-card-title {
@@ -676,6 +711,15 @@
   .kitty-run-pilotchip {
     right: 14px;
     bottom: 16px;
+  }
+
+  /* The dash pad grows a little and tucks into the thumb corner. */
+  .kitty-run-dash {
+    right: 14px;
+    bottom: 14px;
+    width: 74px;
+    height: 74px;
+    font-size: 14px;
   }
 
   .kitty-run-card-action {

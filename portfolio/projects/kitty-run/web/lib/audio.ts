@@ -15,6 +15,16 @@ export class Sfx {
     return this.ctx !== null;
   }
 
+  // The soundtrack shares this context and master bus, so one mute
+  // gesture silences the whole page and one context resume wakes both.
+  get context(): AudioContext | null {
+    return this.ctx;
+  }
+
+  get output(): GainNode | null {
+    return this.master;
+  }
+
   // Must be called from a user-gesture handler the first time.
   start(): void {
     if (this.ctx) {

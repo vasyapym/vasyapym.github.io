@@ -17,6 +17,8 @@ import {
   requestJump,
 } from "./scene/actions.ts";
 import { resetPilot } from "./lib/pilot.ts";
+import { buzz } from "./lib/haptics.ts";
+import { Soundtrack } from "./lib/music.ts";
 import "./kitty-run.css";
 
 export default function KittyRunPage() {
@@ -53,13 +55,17 @@ export default function KittyRunPage() {
   }, [replay, runNonce]);
 
   const sfxRef = useRef<Sfx | null>(null);
+  // The adaptive soundtrack rides the same AudioContext as the sfx; it
+  // is created lazily inside the first user gesture, beside the sfx.
+  const trackRef = useRef<Soundtrack | null>(null);
   const stageRef = useRef<HTMLDivElement | null>(null);
   const scoreRef = useRef<HTMLSpanElement | null>(null);
   const heartsRef = useRef<HTMLDivElement | null>(null);
   const comboRef = useRef<HTMLSpanElement | null>(null);
   const comboBarRef = useRef<HTMLDivElement | null>(null);
   const milestoneRef = useRef<HTMLDivElement | null>(null);
-  const echoChipRef = useRef<HTMLSpanElement | null>(null);
+  const dashRef = useRef<HTMLButtonElement | null>(null);
+  const bulletRef = useRef<HTMLDivElement | null>(null);
   const debugRef = useRef<HTMLSpanElement | null>(null);
 
   const hud: HudRefs = useMemo(
@@ -69,7 +75,8 @@ export default function KittyRunPage() {
       combo: comboRef,
       comboBar: comboBarRef,
       milestone: milestoneRef,
-      echo: echoChipRef,
+      dash: dashRef,
+      bullet: bulletRef,
       debug: debugRef,
     }),
     [],
@@ -101,6 +108,9 @@ export default function KittyRunPage() {
     if (!sfxRef.current) sfxRef.current = new Sfx();
     const sfx = sfxRef.current;
     sfx.start();
+    if (!trackRef.current && sfx.context && sfx.output) {
+      trackRef.current = new Soundtrack(sfx.context, sfx.output);
+    }
     return sfx;
   }, [muted]);
 
@@ -290,11 +300,13 @@ export default function KittyRunPage() {
         echoInputs={replay?.inputs}
         reducedMotion={reducedMotion}
         sfxRef={sfxRef}
+        trackRef={trackRef}
         muted={muted}
         hud={hud}
         onStatus={handleStatus}
       />
       <Floaters world={world} stageRef={stageRef} />
+      <div className="kitty-run-bullet" ref={bulletRef} aria-hidden="true" />
 
       <div className="kitty-run-hud">
         <div className="kitty-run-hearts" ref={heartsRef} aria-hidden="true">
@@ -326,10 +338,20 @@ export default function KittyRunPage() {
           </div>
         </div>
         <div className="kitty-run-milestone" ref={milestoneRef} aria-hidden="true" />
-        {replay && status === "running" && (
-          <div className="kitty-run-echochip">
-            <span ref={echoChipRef}>echo · your best run</span>
-          </div>
+        {status === "running" && !autoPilot && (
+          <button
+            type="button"
+            className="kitty-run-dash"
+            ref={dashRef}
+            aria-label="Dash"
+            onPointerDown={(event) => {
+              event.stopPropagation();
+              requestDash(world);
+              buzz(10);
+            }}
+          >
+            dash
+          </button>
         )}
         {autoPilot && status === "running" && (
           <button
@@ -361,7 +383,7 @@ export default function KittyRunPage() {
               )}
               <span className="kitty-run-card-hint">
                 {coarse
-                  ? "tap to jump · swipe down to dash"
+                  ? "tap to jump · dash pad blasts through"
                   : "space — jump · shift — dash · p — pause"}
               </span>
               <span className="kitty-run-card-action">start</span>
@@ -429,7 +451,7 @@ export default function KittyRunPage() {
     <div className="kitty-run-field">
       <article className="kitty-run-page">
         <header className="kitty-run-intro section-shell">
-          <h1 className="kitty-run-title">Hello Kitty Run</h1>
+          <h1 className="kitty-run-title">Cat Runner</h1>
           <button
             type="button"
             className="kitty-run-mute"
@@ -452,12 +474,6 @@ export default function KittyRunPage() {
         >
           {stage}
         </section>
-        <footer className="kitty-run-attribution section-shell">
-          <p>
-            hello kitty © 1976 sanrio co., ltd. unofficial fan tribute — not
-            affiliated with or endorsed by sanrio.
-          </p>
-        </footer>
       </article>
     </div>
   );

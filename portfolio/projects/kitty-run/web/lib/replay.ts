@@ -20,9 +20,11 @@ export type StoredReplay = {
   inputs: RunInput[];
 };
 
-// The key predates the ghost→echo rename on purpose: changing it would
-// wipe every visitor's saved best for a cosmetic reason.
-export const REPLAY_KEY = "kitty-run.replay.v1";
+// v2: the bullet-time dash made world.time dilate while dashing, so
+// timestamps recorded under the old constant clock mistime their jumps on
+// replay. Mechanical breakage, not cosmetic — the old entries are dropped
+// and the next best run re-seeds the echo.
+export const REPLAY_KEY = "kitty-run.replay.v2";
 
 // A three-minute run at frantic tapping stays under a few hundred
 // entries; the cap only exists so a hostile payload cannot bloat storage.

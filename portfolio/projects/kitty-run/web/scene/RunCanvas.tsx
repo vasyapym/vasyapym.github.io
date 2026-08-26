@@ -7,6 +7,7 @@ import { Canvas, useFrame } from "@react-three/fiber";
 import { PALETTE } from "../lib/palette.ts";
 import { BASE_CAM_Z, BASE_FOV, frameFor } from "../lib/framing.ts";
 import type { Sfx } from "../lib/audio.ts";
+import type { Soundtrack } from "../lib/music.ts";
 import type { GameStatus, WorldState } from "./world.ts";
 import { Parallax } from "./Parallax";
 import { Ground } from "./Ground";
@@ -44,9 +45,12 @@ function CameraRig({ world, reducedMotion }: { world: WorldState; reducedMotion:
     );
     state.camera.lookAt(lookTarget.current);
 
-    // The dash widens the view for a burst of speed; ease back after.
+    // The dash widens the view for a burst of speed; bullet time pushes
+    // further still — the lens breathes with the clock dip and eases
+    // back as the world wells up to full speed again.
     const dashKick = reducedMotion ? 0 : frame.fov * 0.13;
-    const targetFov = frame.fov + dashKick + shake * 2;
+    const bulletKick = reducedMotion ? 0 : (1 - Math.min(1, world.timeScale)) * frame.fov * 0.4;
+    const targetFov = frame.fov + dashKick + bulletKick + shake * 2;
     const camera = state.camera as THREE.PerspectiveCamera;
     camera.fov += (targetFov - camera.fov) * Math.min(1, 9 * delta);
     camera.updateProjectionMatrix();
@@ -61,15 +65,20 @@ export function RunCanvas({
   echoInputs,
   reducedMotion,
   sfxRef,
+  trackRef,
   muted,
   hud,
   onStatus,
 }: {
   world: WorldState;
+  // The simulated best-run world and its recorded inputs. Both come from
+  // storage; either may be absent (first visit, private mode, corrupt
+  // data) — the run then simply has no echo.
   echo?: WorldState | null;
   echoInputs?: RunInput[];
   reducedMotion: boolean;
   sfxRef: React.RefObject<Sfx | null>;
+  trackRef?: React.RefObject<Soundtrack | null>;
   muted: boolean;
   hud: HudRefs;
   onStatus: (status: GameStatus) => void;
@@ -110,6 +119,7 @@ export function RunCanvas({
         echo={echo}
         echoInputs={echoInputs}
         sfxRef={sfxRef}
+        trackRef={trackRef}
         muted={muted}
         hud={hud}
         reducedMotion={reducedMotion}

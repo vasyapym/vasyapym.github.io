@@ -87,7 +87,7 @@ try {
   const seedEcho = async (page) => {
     await page.evaluate(() => {
       localStorage.setItem(
-        "kitty-run.replay.v1",
+        "kitty-run.replay.v2",
         JSON.stringify({
           seed: "kitty-run/run/probe/1",
           score: 900,
@@ -106,7 +106,7 @@ try {
 
   const problems = [];
 
-  async function runViewport(name, viewport) {
+  async function runViewport(name, viewport, withBullet = false) {
     const page = await browser.newPage();
     await page.setViewport(viewport);
     page.on("pageerror", (err) => problems.push(`[${name}] pageerror: ${err.message}`));
@@ -133,6 +133,17 @@ try {
     // Give the run long enough to pass the echo launch gate and settle.
     await wait(7000);
     await page.screenshot({ path: join(SHOTS, `${name}-running.png`) });
+    if (withBullet) {
+      // Fire a dash and photograph the bullet-time stretch: vignette up,
+      // speed lines flying, FOV pushed wide.
+      await page.keyboard.press("Shift");
+      await wait(120);
+      await page.screenshot({ path: join(SHOTS, `${name}-bullettime.png`) });
+      const bulletOpacity = await page.$eval(".kitty-run-bullet", (el) => el.style.opacity);
+      if (Number(bulletOpacity) <= 0.05) {
+        problems.push(`[${name}] bullet vignette never bloomed (opacity ${bulletOpacity})`);
+      }
+    }
     const canvas = await page.$(".kitty-run-stage canvas");
     if (!canvas) problems.push(`[${name}] no stage canvas`);
     await page.close();
@@ -143,7 +154,7 @@ try {
     width: 1440,
     height: 810,
     deviceScaleFactor: 1,
-  });
+  }, true);
   await runViewport("mobile", {
     width: 390,
     height: 844,
@@ -207,6 +218,36 @@ try {
   await autoPage.screenshot({ path: join(SHOTS, `desktop-autopilot.png`) });
   await autoPage.close();
   console.log("ok   autopilot shot captured");
+
+  // The sound path: clicking start is the user gesture that creates the
+  // AudioContext, the sfx and the adaptive soundtrack. Run a few seconds
+  // with sound on, pause and resume (the music must fade out and back),
+  // then assert the whole thing stayed error-free.
+  const soundPage = await browser.newPage();
+  await soundPage.setViewport({ width: 1440, height: 810, deviceScaleFactor: 1 });
+  soundPage.on("pageerror", (err) => problems.push(`[sound] pageerror: ${err.message}`));
+  soundPage.on("console", (msg) => {
+    if (msg.type() === "error" && !msg.text().includes("navigator.vibrate")) {
+      problems.push(`[sound] console.error: ${msg.text()}`);
+    }
+  });
+  await soundPage.goto(`${BASE}/projects/kitty-run`, {
+    waitUntil: "networkidle0",
+    timeout: 45000,
+  });
+  await soundPage.click(".kitty-run-card--ready");
+  await wait(3000);
+  await soundPage.keyboard.press("KeyP");
+  await wait(600);
+  await soundPage.keyboard.press("KeyP");
+  await wait(1200);
+  const soundScore = await soundPage.$eval(".kitty-run-score", (el) => el.textContent);
+  if (!soundScore || Number(soundScore) <= 0) {
+    problems.push(`[sound] run made no progress: "${soundScore}"`);
+  }
+  await soundPage.screenshot({ path: join(SHOTS, `desktop-sound.png`) });
+  await soundPage.close();
+  console.log("ok   sound shot captured");
 
   await browser.close();
 

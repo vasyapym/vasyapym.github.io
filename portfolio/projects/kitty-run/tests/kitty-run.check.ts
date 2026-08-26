@@ -125,6 +125,22 @@ check(
   HOVER_LIFT - HOVER_RADIUS > TUNING.kittyCenterLift + TUNING.kittyRadius + 0.15,
 );
 
+// --- bullet time ---------------------------------------------------------------
+
+// The dip must read as slow motion without ever feeling like a pause:
+// deep enough to see, shallow enough to keep steering, and the recovery
+// fast enough that a dash's slow tail ends well inside the cooldown.
+check(
+  "bullet time dips deep but stays steerable",
+  TUNING.bulletTimeScale > 0.2 && TUNING.bulletTimeScale < 0.6,
+);
+check(
+  "bullet time wells back up well inside the dash cooldown",
+  TUNING.bulletRecovery >= 4 &&
+    -Math.log(0.05 / 0.65) / TUNING.bulletRecovery <
+      TUNING.dashCooldown * 0.6,
+);
+
 // --- echo race ---------------------------------------------------------------
 
 check(
