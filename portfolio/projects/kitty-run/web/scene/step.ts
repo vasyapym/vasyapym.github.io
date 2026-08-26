@@ -91,6 +91,17 @@ function obstacleHalf(kind: Obstacle["kind"]): number {
   return kind === "box" ? BOX_HALF : TALL_HALF;
 }
 
+function fireDash(world: WorldState): void {
+  const k = world.kitty;
+  k.dashT = TUNING.dashDuration;
+  k.dashCd = TUNING.dashCooldown + TUNING.dashDuration;
+  world.shake = Math.min(1, world.shake + 0.16);
+  // Bullet time: the clock dips from the NEXT step on — this step
+  // finishes at full speed, so the dash's own launch stays snappy.
+  world.timeScale = TUNING.bulletTimeScale;
+  world.events.push({ type: "dash" });
+}
+
 function spawnChunk(world: WorldState): void {
   const difficulty = Math.min(1, world.distance / DIFFICULTY_SPAN);
   const chunk = buildChunk(
@@ -185,14 +196,16 @@ export function stepWorld(world: WorldState, rawDt: number): void {
   if (world.dashQueued) {
     world.dashQueued = false;
     if (k.dashCd <= 0) {
-      k.dashT = TUNING.dashDuration;
-      k.dashCd = TUNING.dashCooldown + TUNING.dashDuration;
-      world.shake = Math.min(1, world.shake + 0.16);
-      // Bullet time: the clock dips from the NEXT step on — this step
-      // finishes at full speed, so the dash's own launch stays snappy.
-      world.timeScale = TUNING.bulletTimeScale;
-      world.events.push({ type: "dash" });
+      fireDash(world);
+    } else {
+      // Pressed while cooling down: hold the press briefly and fire it
+      // the moment the dash comes back (see TUNING.dashBuffer).
+      k.dashBufferT = TUNING.dashBuffer;
     }
+  } else if (k.dashBufferT > 0 && k.dashCd <= 0) {
+    // The buffered press releases the instant the cooldown ends.
+    k.dashBufferT = 0;
+    fireDash(world);
   }
 
   // --- vertical physics -----------------------------------------------------
@@ -219,6 +232,7 @@ export function stepWorld(world: WorldState, rawDt: number): void {
   k.squash -= k.squash * Math.min(1, 9 * dt);
   k.dashT = Math.max(0, k.dashT - dt);
   k.dashCd = Math.max(0, k.dashCd - dt);
+  k.dashBufferT = Math.max(0, k.dashBufferT - dt);
   k.invulnT = Math.max(0, k.invulnT - dt);
   k.happyT = Math.max(0, k.happyT - dt);
   k.jumpAgeT = Math.min(10, k.jumpAgeT + dt);

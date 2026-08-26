@@ -69,6 +69,11 @@ the route is `/projects/kitty-run`. Shell-side additions: the
   celebration: a rising chime, confetti and a big banner.
 - **Combo** — consecutive pickups raise the score multiplier (every fourth,
   capped ×8); taking a hit resets it.
+- **Forgiving dashes** — the invulnerable window is a generous 0.32 s (a
+  full hazard crossing at top speed, so a beat early or late still
+  lands), the cooldown is a short 1.2 s, and a press during the cooldown
+  is buffered for 0.28 s: it fires the instant the dash comes back.
+  Near-miss presses become slightly-early dashes instead of dead inputs.
 - **Bullet time** — the dash dips the simulation clock to 0.35× and eases
   back exponentially in sim time, so the slow tail stretches in real time
   exactly as much as the world is slowed. The dip starts on the step
@@ -175,7 +180,8 @@ the route is `/projects/kitty-run`. Shell-side additions: the
   cooldown ring painted by the game loop) makes ducking a single
   decisive press; the swipe-down gesture and the fresh-jump dash-cancel
   remain as backups, so a dash can always rescind the tap-jump it
-  accidentally triggered.
+  accidentally triggered. Presses during the cooldown are buffered, so
+  an early tap still fires the moment the dash is back.
 - **Performance** — instanced meshes for obstacles, pickups, crosses and
   glows, one draw call for all particles, no per-frame allocations in the
   hot path.

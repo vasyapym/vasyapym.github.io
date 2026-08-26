@@ -135,6 +135,9 @@ export type WorldState = {
     jumpsUsed: number;
     coyote: number;
     dashCd: number;
+    // Seconds left on the dash input buffer: a press during the cooldown
+    // arms this, and the step fires the dash the moment the cooldown ends.
+    dashBufferT: number;
     blinkNext: number;
     // Seconds since the grounded jump left the ground — the dash's
     // fresh-jump cancel reads this against TUNING.jumpCancelWindow.
@@ -194,6 +197,7 @@ export function createWorld(best = 0, runSeed = freshSeed()): WorldState {
       coyote: 0,
       dashT: 0,
       dashCd: 0,
+      dashBufferT: 0,
       invulnT: 0,
       runPhase: 0,
       squash: 0,

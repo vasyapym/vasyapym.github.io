@@ -18,9 +18,18 @@ export const TUNING = {
   coyoteTime: 0.09,
   maxJumps: 2,
 
-  dashDuration: 0.22,
-  dashCooldown: 1.4,
+  // Generous on purpose: 0.32 s of invulnerability covers a full hazard
+  // crossing at top speed, so a dash a beat early or late still lands.
+  dashDuration: 0.32,
+  // Short enough that a burned dash comes back inside a breath.
+  dashCooldown: 1.2,
   dashBoost: 6,
+
+  // Input buffer: a dash pressed while cooling down is remembered this
+  // long and fires the instant the cooldown ends. Near-miss presses
+  // become slightly-early dashes instead of dead inputs — the single
+  // biggest "the dash demands exact timing" fix.
+  dashBuffer: 0.28,
 
   // Bullet time: every dash dips the whole simulation's clock to this
   // fraction of real time, then eases back at bulletRecovery per sim

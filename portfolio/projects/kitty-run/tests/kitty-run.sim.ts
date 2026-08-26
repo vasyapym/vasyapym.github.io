@@ -188,6 +188,46 @@ function flatRun(): WorldState {
   );
 }
 
+// --- dash input buffer ----------------------------------------------------------
+//
+// A dash pressed while the cooldown runs must not die silently: within
+// TUNING.dashBuffer of the press it fires the instant the cooldown ends.
+// These checks pin the mechanic that makes dash timing forgiving.
+
+// 5. A press just before the cooldown ends fires on the dot, no second
+//    press needed.
+{
+  const world = flatRun();
+  requestDash(world);
+  stepWorld(world, DT); // dash fires, cooldown starts
+  const cdTotal = TUNING.dashCooldown + TUNING.dashDuration;
+  // Step to ~0.1 s before the cooldown ends, then press again.
+  const preEnd = Math.floor((cdTotal - 0.1) / DT);
+  for (let i = 0; i < preEnd; i += 1) stepWorld(world, DT);
+  requestDash(world);
+  for (let i = 0; i < 8; i += 1) stepWorld(world, DT);
+  check(
+    "a dash pressed just before cooldown ends fires on the dot",
+    world.kitty.dashT > 0,
+  );
+}
+
+// 6. A press early in a long cooldown expires without firing — the
+//    buffer is a grace note, not an autopilot.
+{
+  const world = flatRun();
+  requestDash(world);
+  stepWorld(world, DT);
+  for (let i = 0; i < 6; i += 1) stepWorld(world, DT); // 0.1 s in
+  requestDash(world); // ~1.4 s of cooldown left — far past the buffer
+  const staleSteps = Math.ceil((TUNING.dashBuffer + 0.1) / DT);
+  for (let i = 0; i < staleSteps; i += 1) stepWorld(world, DT);
+  check(
+    "a stale buffered dash expires without firing",
+    world.kitty.dashT === 0 && world.kitty.dashCd > 0,
+  );
+}
+
 if (failures > 0) {
   console.error(`\n${failures} sim check(s) failed`);
   process.exit(1);
