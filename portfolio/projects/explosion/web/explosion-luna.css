@@ -74,6 +74,7 @@
 .explosion-stage {
   position: relative;
   min-height: 560px;
+  min-height: clamp(500px, 62vh, 720px);
   overflow: hidden;
   border: 1px solid var(--ink-line);
   background:
@@ -268,7 +269,7 @@
   }
 
   .explosion-stage {
-    min-height: 500px;
+    min-height: min(560px, 72vh);
   }
 
   .explosion-stage-copy {

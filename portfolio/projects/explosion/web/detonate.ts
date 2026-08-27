@@ -10,6 +10,7 @@ const GRID_D = 7;
 const VOXEL_COUNT = GRID_W * GRID_H * GRID_D;
 
 const BLAST_RADIUS = 3.4;
+const COLLAPSE_CAM_THRESHOLD = 50;
 const DEBRIS_GRAVITY = -13;
 const SPARK_COUNT = 80;
 const BUILD_DURATION = 1.15;
@@ -23,7 +24,6 @@ const EMBER_GLOW = new THREE.Color(0xffa14d);
 // A cascade this large engages the collapse camera. Long enough that even
 // on software-rendered low-end devices — where frames crawl while hundreds
 // of debris pieces simulate — the dilated time is actually seen.
-const COLLAPSE_CAM_THRESHOLD = 50;
 const COLLAPSE_CAM_DURATION = 2600;
 // Stress model: a voxel carries its own weight plus everything above it that
 // routes through it. STRESS_CAPACITY is the load (in voxel weights) a column
@@ -143,6 +143,26 @@ function buildBlueprint(): { filled: Uint8Array; colors: Float32Array; count: nu
     }
   }
 
+  // Secondary specimens make the lab readable from a distance and give
+  // visitors more than one demolition target: pylons, a bridge and a tower.
+  const addPillar = (x: number, z: number, height: number, kind: number) => {
+    for (let y = 0; y < height; y += 1) {
+      for (let dx = 0; dx < 2; dx += 1) {
+        for (let dz = 0; dz < 2; dz += 1) {
+          put(x + dx, y, z + dz, kind);
+        }
+      }
+    }
+  };
+  addPillar(0, 0, 18, LINTEL);
+  addPillar(23, 0, 14, OCHRE);
+  for (let x = 7; x <= 17; x += 1) {
+    for (let z = 0; z < GRID_D; z += 1) {
+      put(x, 8, z, LINTEL);
+      if (x % 3 === 0) put(x, 9, z, BONE);
+    }
+  }
+
   let count = 0;
   for (let i = 0; i < VOXEL_COUNT; i += 1) {
     if (filled[i]) {
@@ -239,7 +259,7 @@ export function mountSpecimen(element: HTMLElement): SpecimenHandle | null {
   scene.fog = new THREE.FogExp2(0x182830, 0.014);
 
   const camera = new THREE.PerspectiveCamera(40, 1, 0.1, 120);
-  const CAMERA_POS = new THREE.Vector3(0, 4.7, 13.6);
+  const CAMERA_POS = new THREE.Vector3(0, 4.7, 20.5);
   const CAMERA_TARGET = new THREE.Vector3(0, 3.85, 0);
   camera.position.copy(CAMERA_POS);
   camera.lookAt(CAMERA_TARGET);
@@ -859,7 +879,9 @@ export function mountSpecimen(element: HTMLElement): SpecimenHandle | null {
     stats.voxels = countFilled();
     if (crumbled > 0) {
       sfx.crackle(crumbled);
-      // Voxels just fell — whatever hung only on them must follow.
+      // Recompute only after the whole due batch has been removed. This is
+      // an integrity fixpoint: newly unsupported voxels are condemned, but
+      // never resurrected by a second pass through stale instance indices.
       condemnUnsupported();
       computeStressTargets();
     }
