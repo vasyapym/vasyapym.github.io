@@ -3,7 +3,6 @@
 // gameplay. Pools keep the whole run allocation-free.
 
 import { createPool, type Pool } from "../lib/pools.ts";
-import type { RunInput } from "../lib/replay.ts";
 import { TUNING } from "../lib/tuning.ts";
 
 export type GameStatus = "ready" | "running" | "paused" | "over";
@@ -55,8 +54,6 @@ export type GameEvent =
   | { type: "dash" }
   | { type: "hit" }
   | { type: "gameover" }
-  // The run crossed a milestone distance — celebrate it.
-  | { type: "milestone"; meters: number }
   | {
       type: "pickup";
       pickup: PickupKind;
@@ -88,29 +85,13 @@ export type WorldState = {
   hearts: number;
   heartPulseT: number;
   score: number;
-  // The whole-metre mark already converted into score points, so the
-  // counter ticks once per metre without double counting.
-  scoredDistance: number;
   combo: number;
   comboTimer: number;
   best: number;
 
-  // Distance of the next milestone celebration.
-  nextMilestone: number;
-
   shake: number;
   hitStop: number;
   hitFlash: number;
-
-  // The simulation's own clock rate, 1 = real time. A dash dips this to
-  // TUNING.bulletTimeScale; step.ts eases it back. The game loop scales
-  // every sim delta by it — player, echo, particles and all — so the
-  // whole world breathes in slow motion together.
-  timeScale: number;
-
-  // True when the run that just ended beat the stored best — the game-over
-  // card wears a little badge.
-  newBest: boolean;
 
   spawnOrigin: number;
   chunkIndex: number;
@@ -120,28 +101,12 @@ export type WorldState = {
   jumpHeld: boolean;
   dashQueued: boolean;
 
-  // Autopilot demo: when true the lookahead pilot steers instead of the
-  // visitor (see lib/pilot.ts). The loop refuses to write best scores or
-  // replays for a bot-driven run, so a perfect exhibition never replaces
-  // the player's own echo.
-  autopilot: boolean;
-
-  // Timed input log for the current run — the raw material of the
-  // best-run echo replay. Zeroed on start, appended by the actions.
-  inputLog: RunInput[];
-
   kitty: KittyMotion & {
     y: number;
     jumpsUsed: number;
     coyote: number;
     dashCd: number;
-    // Seconds left on the dash input buffer: a press during the cooldown
-    // arms this, and the step fires the dash the moment the cooldown ends.
-    dashBufferT: number;
     blinkNext: number;
-    // Seconds since the grounded jump left the ground — the dash's
-    // fresh-jump cancel reads this against TUNING.jumpCancelWindow.
-    jumpAgeT: number;
   };
 
   obstacles: Pool<Obstacle>;
@@ -166,19 +131,13 @@ export function createWorld(best = 0, runSeed = freshSeed()): WorldState {
     hearts: TUNING.maxHearts,
     heartPulseT: 0,
     score: 0,
-    scoredDistance: 0,
     combo: 0,
     comboTimer: 0,
     best,
 
-    nextMilestone: TUNING.milestoneStep,
-
     shake: 0,
     hitStop: 0,
     hitFlash: 0,
-    timeScale: 1,
-
-    newBest: false,
 
     spawnOrigin: 14,
     chunkIndex: 0,
@@ -186,8 +145,6 @@ export function createWorld(best = 0, runSeed = freshSeed()): WorldState {
     jumpQueued: false,
     jumpHeld: false,
     dashQueued: false,
-    autopilot: false,
-    inputLog: [],
 
     kitty: {
       y: 0,
@@ -197,21 +154,15 @@ export function createWorld(best = 0, runSeed = freshSeed()): WorldState {
       coyote: 0,
       dashT: 0,
       dashCd: 0,
-      dashBufferT: 0,
       invulnT: 0,
       runPhase: 0,
       squash: 0,
       blinkShut: 0,
       blinkNext: 2.5,
       happyT: 0,
-      jumpAgeT: 0,
     },
 
-    obstacles: createPool<Obstacle>(24, () => ({
-      kind: "box" as ObstacleKind,
-      x: 0,
-      y: 0,
-    })),
+    obstacles: createPool(24, () => ({ kind: "box" as ObstacleKind, x: 0, y: 0 })),
     pickups: createPool(48, () => ({
       kind: "heart" as PickupKind,
       x: 0,

@@ -1,8 +1,12 @@
 import { lazy, Suspense, useEffect, useRef, useState, type CSSProperties, type MouseEvent } from "react";
 import type { ProjectModule } from "../../../contracts/project-module";
 import ProjectArtwork from "./ProjectArtwork";
+import type { HeroFieldInfo } from "./HeroField";
 
-const HeroField = lazy(() => import("./HeroField"));
+const heroFieldChunk = import("./HeroField");
+const HeroField = lazy(() => heroFieldChunk);
+
+const BENEATH_VISIBLE = 4;
 
 type LandingPageProps = {
   projects: readonly ProjectModule[];
@@ -85,12 +89,20 @@ function scheduleIdleWarm(callback: () => void) {
 export default function LandingPage({ projects, onOpenProject }: LandingPageProps) {
   const pageRef = useRef<HTMLElement>(null);
   const heroRef = useRef<HTMLElement>(null);
-  const [revealedProjects, setRevealedProjects] = useState<Set<string>>(() => new Set());
+  const [revealedProjects, setRevealedProjects] = useState<ReadonlyMap<string, number>>(
+    () => new Map(),
+  );
   const [revealReady, setRevealReady] = useState(false);
-  const [fieldReady, setFieldReady] = useState(false);
+  const [heroLive, setHeroLive] = useState(false);
+  const [fieldInfo, setFieldInfo] = useState<HeroFieldInfo | null>(null);
   useEffect(() => {
-    scheduleIdleWarm(() => setFieldReady(true));
+    const timer = window.setTimeout(() => setHeroLive(true), 150);
+    return () => window.clearTimeout(timer);
   }, []);
+  const handleFieldReady = (info: HeroFieldInfo) => {
+    setFieldInfo(info.particles > 0 ? info : null);
+    setHeroLive(true);
+  };
   useEffect(() => {
     const hero = heroRef.current;
     if (!hero) {
@@ -167,16 +179,19 @@ export default function LandingPage({ projects, onOpenProject }: LandingPageProp
     const observer = new IntersectionObserver(
       (entries) => {
         setRevealedProjects((current) => {
-          const next = new Set(current);
+          let batch = 0;
+          const next = new Map(current);
           for (const entry of entries) {
-            if (entry.isIntersecting) {
-              const projectId = (entry.target as HTMLElement).dataset.projectReveal;
-              if (projectId) {
-                next.add(projectId);
-              }
+            if (!entry.isIntersecting) {
+              continue;
+            }
+            const projectId = (entry.target as HTMLElement).dataset.projectReveal;
+            if (projectId && !next.has(projectId)) {
+              next.set(projectId, Math.min(batch, 5) * 90);
+              batch += 1;
             }
           }
-          return next;
+          return next.size === current.size ? current : next;
         });
       },
       { threshold: 0.12, rootMargin: "0px 0px -8%" },
@@ -212,13 +227,12 @@ export default function LandingPage({ projects, onOpenProject }: LandingPageProp
         <section
           ref={heroRef}
           className="signal-index-hero signal-index-hero-refraction"
+          data-hero-live={heroLive ? "" : undefined}
           aria-labelledby="signal-index-title"
         >
-          {fieldReady ? (
-            <Suspense fallback={null}>
-              <HeroField />
-            </Suspense>
-          ) : null}
+          <Suspense fallback={null}>
+            <HeroField onReady={handleFieldReady} />
+          </Suspense>
           <div className="signal-index-hero-depth" aria-hidden="true">
             <i className="signal-index-depth-layer signal-index-depth-far" />            <i className="signal-index-depth-layer signal-index-depth-mid" />
             <i className="signal-index-depth-layer signal-index-depth-near" />
@@ -243,7 +257,9 @@ export default function LandingPage({ projects, onOpenProject }: LandingPageProp
             {projects.map((project, index) =>
               project.tag ? (
                 <a
-                  className="signal-index-beneath-row"
+                  className={`signal-index-beneath-row${
+                    index >= BENEATH_VISIBLE ? " signal-index-beneath-row-extra" : ""
+                  }`}
                   href={`#project-${project.id}`}
                   key={project.id}
                   onClick={(event: MouseEvent<HTMLAnchorElement>) => {
@@ -260,8 +276,20 @@ export default function LandingPage({ projects, onOpenProject }: LandingPageProp
                 </a>
               ) : null,
             )}
+            <a
+              className="signal-index-beneath-more"
+              href="#projects"
+              aria-label={`See all ${projects.length} projects`}
+            >
+              all {String(projects.length).padStart(2, "0")} <span aria-hidden="true">↓</span>
+            </a>
             <span className="signal-index-beneath-rule" />
           </div>
+          {fieldInfo ? (
+            <p className="signal-index-field-note" aria-hidden="true">
+              gpgpu · {fieldInfo.particles.toLocaleString("en-US")} particles · ping-pong fbo
+            </p>
+          ) : null}
         </section>
 
         <section className="signal-index-projects" id="projects" aria-label="Projects">
@@ -273,7 +301,7 @@ export default function LandingPage({ projects, onOpenProject }: LandingPageProp
                 data-project-reveal={project.id}
                 href={`/projects/${project.id}`}
                 key={project.id}
-                style={{ "--card-index": index } as CSSProperties}
+                style={{ "--reveal-delay": `${revealedProjects.get(project.id) ?? 0}ms` } as CSSProperties}
                 onPointerEnter={() => warmProjectPage(project)}
                 onFocus={() => warmProjectPage(project)}
                 onClick={(event) => {

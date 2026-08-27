@@ -20,7 +20,7 @@ npm --prefix portfolio install
 npm --prefix portfolio run dev
 ```
 
-Open <http://localhost:5173>. The solid field index is the main route; Planck to Now, Practice Map, Code Layout, Evening Forest, and Cat Runner are available from the project list. Direct routes are <http://localhost:5173/projects/planck-to-now>, <http://localhost:5173/projects/practice-map>, <http://localhost:5173/projects/code-layout>, <http://localhost:5173/projects/evening-forest>, and <http://localhost:5173/projects/kitty-run>. The older Assembly field comparison remains available at `/?prototype=room` and `/?prototype=field`. The shell runs on port `5173`; Code Layout uses `8082`.
+Open <http://localhost:5173>. The solid field index is the main route; Planck to Now, Practice Map, Code Layout, Evening Forest, and Hello Kitty Run are available from the project list. Direct routes are <http://localhost:5173/projects/planck-to-now>, <http://localhost:5173/projects/practice-map>, <http://localhost:5173/projects/code-layout>, <http://localhost:5173/projects/evening-forest>, and <http://localhost:5173/projects/kitty-run>. The older Assembly field comparison remains available at `/?prototype=room` and `/?prototype=field`. The shell runs on port `5173`; Code Layout uses `8082`.
 
 ## Structure
 

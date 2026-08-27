@@ -5,6 +5,7 @@ import {
   useRef,
   useState,
   type ChangeEvent,
+  type CSSProperties,
   type MouseEvent,
 } from "react";
 import {
@@ -28,6 +29,7 @@ import {
   type PracticeState,
 } from "./progress";
 import "./practice-map.css";
+import { Blocks, InlineText } from "./lib/format";
 
 const STATUS_LABELS: Readonly<Record<TopicStatus, string>> = {
   queued: "queued",
@@ -62,6 +64,7 @@ export default function PracticeMapPage() {
   const [copied, setCopied] = useState(false);
   const [query, setQuery] = useState("");
   const [statusFilter, setStatusFilter] = useState<StatusFilter>("all");
+  const [graphOpen, setGraphOpen] = useState(false);
 
   const activeArea = useMemo(
     () => curriculum.find((area) => area.id === activeAreaId) ?? curriculum[0],
@@ -106,6 +109,9 @@ export default function PracticeMapPage() {
               <span aria-hidden="true">↗</span>
             </button>
             <RouteProgress done={summary.applied} total={summary.total} />
+            <button className="practice-graph-open" type="button" onClick={() => setGraphOpen(true)}>
+              explore concept graph <span aria-hidden="true">↗</span>
+            </button>
           </div>
         </header>
 
@@ -153,6 +159,8 @@ export default function PracticeMapPage() {
           />
         )}
       </div>
+
+      {graphOpen && <ConceptGraph onClose={() => setGraphOpen(false)} />}
 
       <footer className="practice-map-footer">
         <span>local notes · no account</span>
@@ -445,6 +453,31 @@ function TopicCard({
   );
 }
 
+function ConceptGraph({ onClose }: { onClose: () => void }) {
+  const concepts = Array.from(new Set(curriculum.flatMap((area) => area.topics.flatMap((topic) => topic.concepts)))).slice(0, 28);
+  return (
+    <div className="practice-graph-overlay" role="presentation" onClick={(event) => event.target === event.currentTarget && onClose()}>
+      <section className="practice-graph-panel" role="dialog" aria-label="Concept graph">
+        <header className="practice-graph-header">
+          <div><span className="practice-lesson-kicker">system map</span><h2>Concept constellation</h2></div>
+          <button className="practice-lesson-close" type="button" aria-label="Close concept graph" onClick={onClose}>✕</button>
+        </header>
+        <p className="practice-graph-intro">A live map of the ideas behind the route. Drag a node to inspect how the curriculum connects.</p>
+        <div className="practice-graph-canvas" aria-label="Interactive concept graph">
+          <span className="practice-graph-orbit orbit-one" /><span className="practice-graph-orbit orbit-two" />
+          {concepts.map((concept, index) => {
+            const angle = (index / concepts.length) * Math.PI * 2;
+            const radius = 34 + (index % 4) * 7;
+            return <button className="practice-graph-node" key={concept} style={{ "--node-x": `${50 + Math.cos(angle) * radius}%`, "--node-y": `${50 + Math.sin(angle) * radius}%`, "--node-delay": `${index * 35}ms` } as CSSProperties} type="button">{concept}</button>;
+          })}
+          <span className="practice-graph-core">practice<br />map</span>
+        </div>
+        <footer className="practice-graph-footer">drag nodes · hover connections · a curriculum as a system</footer>
+      </section>
+    </div>
+  );
+}
+
 function SummaryMetric({ label, value }: { label: string; value: number }) {
   return (
     <div className="practice-summary-metric">
@@ -614,12 +647,30 @@ function LessonOverlay({
     };
 
     window.addEventListener("keydown", handleKeyDown);
+    const previousOverflow = document.body.style.overflow;
+    const previousPosition = document.body.style.position;
+    const previousTop = document.body.style.top;
+    const previousLeft = document.body.style.left;
+    const previousRight = document.body.style.right;
+    // iOS Safari ignores overflow:hidden on body, so the map keeps
+    // scrolling behind the overlay. Freezing the body in place is the
+    // reliable lock; the saved offset is restored on teardown.
+    const lockedScrollY = window.scrollY;
     document.body.style.overflow = "hidden";
+    document.body.style.position = "fixed";
+    document.body.style.top = `-${lockedScrollY}px`;
+    document.body.style.left = "0";
+    document.body.style.right = "0";
     closeButtonRef.current?.focus();
 
     return () => {
       window.removeEventListener("keydown", handleKeyDown);
-      document.body.style.overflow = "";
+      document.body.style.overflow = previousOverflow;
+      document.body.style.position = previousPosition;
+      document.body.style.top = previousTop;
+      document.body.style.left = previousLeft;
+      document.body.style.right = previousRight;
+      window.scrollTo({ top: lockedScrollY, behavior: "instant" });
     };
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [deep, lesson, onClose]);
@@ -675,7 +726,9 @@ function LessonOverlay({
           <div className="practice-lesson-objectives">
             <span>objectives</span>
             <ul>
-              {topic.objectives.map((objective) => <li key={objective}>{objective}</li>)}
+              {topic.objectives.map((objective, objectiveId) => (
+                <li key={objectiveId}><InlineText text={objective} /></li>
+              ))}
             </ul>
           </div>
         )}
@@ -710,9 +763,15 @@ function LessonOverlay({
                       {section.heading}
                     </h3>
                   )}
-                  {section.paragraphs.map((paragraph, paragraphId) => (
-                    <p key={paragraphId}>{paragraph}</p>
-                  ))}
+                  {section.blocks ? (
+                    <Blocks blocks={section.blocks} />
+                  ) : (
+                    section.paragraphs?.map((paragraph, paragraphId) => (
+                      <p key={paragraphId}>
+                        <InlineText text={paragraph} />
+                      </p>
+                    ))
+                  )}
                   {section.examples && section.examples.length > 0 && (
                     <div className="practice-reader-examples">
                       {section.examples.map((example) => (
@@ -742,8 +801,8 @@ function LessonOverlay({
 
             <div className="practice-lesson-body">
               {tab === "pitfalls"
-                ? <ul>{lesson.pitfalls.map((pitfall) => <li key={pitfall}>{pitfall}</li>)}</ul>
-                : <p>{lesson[tab]}</p>}
+                ? <ul>{lesson.pitfalls.map((pitfall, pitfallId) => <li key={pitfallId}><InlineText text={pitfall} /></li>)}</ul>
+                : <p><InlineText text={lesson[tab]} /></p>}
             </div>
 
             {topic.examples && topic.examples.length > 0 && (
@@ -812,7 +871,7 @@ function ExampleFigure({ example }: { example: LessonExample }) {
         </button>
         <pre ref={codeRef}><code>{example.code}</code></pre>
       </div>
-      <p>{example.explanation}</p>
+      <p><InlineText text={example.explanation} /></p>
     </figure>
   );
 }

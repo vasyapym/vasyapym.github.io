@@ -98,23 +98,3 @@ export function dashTrail(world: WorldState, x: number, y: number): void {
     drag: 3,
   });
 }
-
-// Bullet-time speed lines: pale streaks tearing backward past the cat
-// while the world crawls. Low drag and high velocity make the round
-// particles read as motion lines at 60 fps.
-export function speedLine(world: WorldState, y: number): void {
-  const pale = hexRgb("#ffe9f0");
-  emit(world, {
-    x: 1.5 + Math.random() * 7,
-    y,
-    vx: -13 - Math.random() * 9,
-    vy: 0,
-    life: 0.26 + Math.random() * 0.16,
-    size: 0.26 + Math.random() * 0.34,
-    r: pale[0],
-    g: pale[1],
-    b: pale[2],
-    gravity: 0,
-    drag: 0.6,
-  });
-}

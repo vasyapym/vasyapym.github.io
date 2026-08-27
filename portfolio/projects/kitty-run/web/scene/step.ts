@@ -21,9 +21,7 @@ export { startRun, restartRun, togglePause } from "./actions.ts";
 
 const SPAWN_AHEAD = 46;
 const DESPAWN_BEHIND = 18;
-// Metres until the pattern mix reaches its hardest weights. Short enough
-// that a decent run meets real resistance inside its first minute.
-const DIFFICULTY_SPAN = 650;
+const DIFFICULTY_SPAN = 800;
 
 // Attract mode: while the start screen is up the world drifts forward so
 // the scene is already alive before the first click.
@@ -54,20 +52,8 @@ function circleHitsBox(
   by: number,
   half: number,
 ): boolean {
-  return circleHitsRect(cx, cy, r, bx, by, half, half);
-}
-
-function circleHitsRect(
-  cx: number,
-  cy: number,
-  r: number,
-  bx: number,
-  by: number,
-  halfW: number,
-  halfH: number,
-): boolean {
-  const nearestX = clamp(cx, bx - halfW, bx + halfW);
-  const nearestY = clamp(cy, by - halfH, by + halfH);
+  const nearestX = clamp(cx, bx - half, bx + half);
+  const nearestY = clamp(cy, by - half, by + half);
   const dx = cx - nearestX;
   const dy = cy - nearestY;
   return dx * dx + dy * dy < r * r;
@@ -89,17 +75,6 @@ function circleHitsCircle(
 
 function obstacleHalf(kind: Obstacle["kind"]): number {
   return kind === "box" ? BOX_HALF : TALL_HALF;
-}
-
-function fireDash(world: WorldState): void {
-  const k = world.kitty;
-  k.dashT = TUNING.dashDuration;
-  k.dashCd = TUNING.dashCooldown + TUNING.dashDuration;
-  world.shake = Math.min(1, world.shake + 0.16);
-  // Bullet time: the clock dips from the NEXT step on — this step
-  // finishes at full speed, so the dash's own launch stays snappy.
-  world.timeScale = TUNING.bulletTimeScale;
-  world.events.push({ type: "dash" });
 }
 
 function spawnChunk(world: WorldState): void {
@@ -156,21 +131,6 @@ export function stepWorld(world: WorldState, rawDt: number): void {
   world.distance += travel;
   k.runPhase += dt * (6 + world.speed * 0.9);
 
-  // Distance alone ticks one point per metre, so the counter always
-  // breathes even between pickups.
-  const wholeMeters = Math.floor(world.distance);
-  if (wholeMeters > world.scoredDistance) {
-    world.score += wholeMeters - world.scoredDistance;
-    world.scoredDistance = wholeMeters;
-  }
-
-  // Milestones: crossing a step raises the celebration exactly once.
-  if (world.distance >= world.nextMilestone) {
-    const meters = world.nextMilestone;
-    world.nextMilestone += TUNING.milestoneStep;
-    world.events.push({ type: "milestone", meters });
-  }
-
   // --- input ----------------------------------------------------------------
 
   if (world.jumpQueued) {
@@ -180,9 +140,6 @@ export function stepWorld(world: WorldState, rawDt: number): void {
       k.grounded = false;
       k.coyote = 0;
       k.jumpsUsed = 1;
-      // Birth certificate of this arc: the dash's fresh-jump cancel only
-      // rescues jumps younger than TUNING.jumpCancelWindow.
-      k.jumpAgeT = 0;
       k.squash = Math.min(k.squash, 0) - 0.28;
       world.events.push({ type: "jump" });
     } else if (k.jumpsUsed < TUNING.maxJumps) {
@@ -196,16 +153,11 @@ export function stepWorld(world: WorldState, rawDt: number): void {
   if (world.dashQueued) {
     world.dashQueued = false;
     if (k.dashCd <= 0) {
-      fireDash(world);
-    } else {
-      // Pressed while cooling down: hold the press briefly and fire it
-      // the moment the dash comes back (see TUNING.dashBuffer).
-      k.dashBufferT = TUNING.dashBuffer;
+      k.dashT = TUNING.dashDuration;
+      k.dashCd = TUNING.dashCooldown + TUNING.dashDuration;
+      world.shake = Math.min(1, world.shake + 0.16);
+      world.events.push({ type: "dash" });
     }
-  } else if (k.dashBufferT > 0 && k.dashCd <= 0) {
-    // The buffered press releases the instant the cooldown ends.
-    k.dashBufferT = 0;
-    fireDash(world);
   }
 
   // --- vertical physics -----------------------------------------------------
@@ -232,10 +184,8 @@ export function stepWorld(world: WorldState, rawDt: number): void {
   k.squash -= k.squash * Math.min(1, 9 * dt);
   k.dashT = Math.max(0, k.dashT - dt);
   k.dashCd = Math.max(0, k.dashCd - dt);
-  k.dashBufferT = Math.max(0, k.dashBufferT - dt);
   k.invulnT = Math.max(0, k.invulnT - dt);
   k.happyT = Math.max(0, k.happyT - dt);
-  k.jumpAgeT = Math.min(10, k.jumpAgeT + dt);
   k.blinkNext -= dt;
   if (k.blinkNext <= 0) {
     k.blinkShut = 0.11;
@@ -296,7 +246,6 @@ export function stepWorld(world: WorldState, rawDt: number): void {
       world.events.push({ type: "hit" });
       if (world.hearts <= 0) {
         world.hearts = 0;
-        world.newBest = world.score > world.best;
         world.best = Math.max(world.best, world.score);
         world.status = "over";
         world.events.push({ type: "gameover" });
@@ -344,10 +293,6 @@ export function stepWorld(world: WorldState, rawDt: number): void {
 
   // --- decay ----------------------------------------------------------------------
 
-  // Bullet-time recovery: exponential ease back to full speed in sim
-  // time, so the slow-mo tail stretches in real time exactly as much as
-  // the world itself is slowed — the classic "time wells back up" feel.
-  world.timeScale += (1 - world.timeScale) * Math.min(1, TUNING.bulletRecovery * dt);
   world.shake = Math.max(0, world.shake - dt * 2.1);
   world.hitFlash = Math.max(0, world.hitFlash - dt * 2.6);
   world.heartPulseT = Math.max(0, world.heartPulseT - dt);

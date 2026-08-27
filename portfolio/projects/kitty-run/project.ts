@@ -2,18 +2,17 @@ import type { ProjectModule } from "../../contracts/project-module";
 
 const kittyRun: ProjectModule = {
   id: "kitty-run",
-  title: "Cat Runner",
+  title: "Hello Kitty Run",
   tag: "game",
   eyebrow: "A pastel endless runner",
   description:
-    "A pastel endless runner with a bullet-time dash, a ghost of your best run, and a soundtrack that plays along.",
+    "Kitty runs, you jump and dash — a pastel endless runner.",
   technologies: [
     "React Three Fiber",
     "Three.js",
     "TypeScript",
     "Procedural vector art",
     "WebAudio",
-    "Deterministic simulation",
   ],
   status: "available",
   accent: "pink",

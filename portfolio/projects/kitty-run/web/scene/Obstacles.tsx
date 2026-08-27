@@ -5,11 +5,7 @@
 import { useMemo, useRef } from "react";
 import * as THREE from "three";
 import { useFrame } from "@react-three/fiber";
-import {
-  BOX_HALF,
-  HOVER_RADIUS,
-  TALL_HALF,
-} from "../lib/spawn.ts";
+import { BOX_HALF, HOVER_RADIUS, TALL_HALF } from "../lib/spawn.ts";
 import { crateTexture } from "../lib/textures.ts";
 import type { WorldState } from "./world.ts";
 

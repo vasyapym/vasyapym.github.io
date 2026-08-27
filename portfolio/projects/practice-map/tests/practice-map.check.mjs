@@ -108,6 +108,27 @@ try {
   const chipCount = await page.$$eval(".practice-reader-nav button", (b) => b.length);
   check(chipCount >= 10, `section nav lists all sections (${chipCount})`);
 
+  const typography = await page.evaluate(() => {
+    const reader = document.querySelector(".practice-reader");
+    return {
+      lists: reader.querySelectorAll("ul, ol").length,
+      items: reader.querySelectorAll("li").length,
+      callouts: reader.querySelectorAll(".practice-callout").length,
+      code: reader.querySelectorAll("p > code, li > code, aside code").length,
+      bold: reader.querySelectorAll("strong").length,
+    };
+  });
+  check(
+    typography.lists >= 4 && typography.items >= 10,
+    `formatted lists render (lists=${typography.lists}, items=${typography.items})`,
+  );
+  check(typography.callouts >= 2, `callouts render (${typography.callouts})`);
+  check(
+    typography.code >= 5 && typography.bold >= 3,
+    `inline markup renders (code=${typography.code}, strong=${typography.bold})`,
+  );
+  await shot("desktop-deep-typography");
+
   const fitsDesktop = await page.evaluate(() => {
     const rect = document.querySelector(".practice-lesson-panel").getBoundingClientRect();
     return rect.top >= 0 && rect.bottom <= window.innerHeight;
@@ -150,6 +171,34 @@ try {
   await page.close();
 
   // --- mobile: fit, reachability, touch affordances -------------------------
+
+  const walkHorizontalEscape = () =>
+    page.evaluate(() => {
+      const panel = document.querySelector(".practice-lesson-panel");
+      if (!panel) return ["panel missing"];
+      const escapes = [];
+      for (const element of panel.querySelectorAll("*")) {
+        const rect = element.getBoundingClientRect();
+        if (rect.width === 0 && rect.height === 0) continue;
+        if (rect.right <= window.innerWidth + 1 && rect.left >= -1) continue;
+        // Anything clipped by a scrollable/hiding ancestor is reachable by
+        // scrolling that container (reader chips, code blocks) — not a leak.
+        let clipped = false;
+        for (let node = element.parentElement; node && node !== panel; node = node.parentElement) {
+          const overflowX = getComputedStyle(node).overflowX;
+          if (overflowX === "auto" || overflowX === "scroll" || overflowX === "hidden") {
+            clipped = true;
+            break;
+          }
+        }
+        if (!clipped) {
+          escapes.push(
+            `${element.tagName.toLowerCase()}.${String(element.className).split(" ")[0]} right=${Math.round(rect.right)} left=${Math.round(rect.left)}`,
+          );
+        }
+      }
+      return escapes;
+    });
 
   page = await browser.newPage();
   attachConsole(page);
@@ -210,9 +259,55 @@ try {
   );
   check(noOverflowOverlay, "no horizontal overflow inside the overlay");
 
+  const escapes390 = await walkHorizontalEscape();
+  check(escapes390.length === 0, `no descendant escapes the panel at 390px${escapes390.length ? `: ${escapes390.slice(0, 4).join(" | ")}` : ""}`);
+
   await page.keyboard.press("Escape");
   await wait(400);
   check((await page.$(".practice-lesson-overlay")) === null, "Escape closes on mobile too");
+
+  // --- narrow phone (iPhone SE class): the real-device regression ------------
+
+  await page.setViewport({
+    width: 320,
+    height: 568,
+    deviceScaleFactor: 2,
+    isMobile: true,
+    hasTouch: true,
+  });
+  await page.reload({ waitUntil: "networkidle0", timeout: 45000 });
+
+  const noOverflowNarrow = await page.evaluate(
+    () => document.scrollingElement.scrollWidth <= window.innerWidth,
+  );
+  check(noOverflowNarrow, "no horizontal overflow on the map at 320px");
+
+  await page.tap(".practice-topic-card .practice-lesson-open");
+  check(await appears(".practice-reader"), "deep reader opens at 320px");
+
+  const fitsNarrow = await page.evaluate(() => {
+    const rect = document.querySelector(".practice-lesson-panel").getBoundingClientRect();
+    return (
+      rect.top >= -1 &&
+      rect.bottom <= window.innerHeight + 1 &&
+      rect.left >= -1 &&
+      rect.right <= window.innerWidth + 1
+    );
+  });
+  check(fitsNarrow, "panel fits the viewport on both axes at 320px");
+
+  const escapesNarrow = await walkHorizontalEscape();
+  check(escapesNarrow.length === 0, `no descendant escapes the panel at 320px${escapesNarrow.length ? `: ${escapesNarrow.slice(0, 4).join(" | ")}` : ""}`);
+  await shot("narrow-deep-top");
+
+  await page.evaluate(() => {
+    const panel = document.querySelector(".practice-lesson-panel");
+    panel.scrollTop = panel.scrollHeight;
+  });
+  await wait(600);
+  const escapesNarrowBottom = await walkHorizontalEscape();
+  check(escapesNarrowBottom.length === 0, "no descendant escapes the panel at 320px after full scroll");
+  await shot("narrow-deep-bottom");
 
   await page.close();
   await browser.close();

@@ -7,3 +7,5 @@
 {"type":"edge.added","id":"e3","ts":"2026-08-25T13:46:37.659Z","from":"n3","to":"n4","rel":"continues"}
 {"type":"node.added","id":"n5","ts":"2026-08-25T13:53:25.720Z","kind":"iteration","actor":"user","title":"feat(practice-map): deep-lesson reader, mobile overlay repair, two flagship lessons","artifacts":[{"kind":"git-commit","ref":"4d6b4b0"}],"meta":{"source":"auto"}}
 {"type":"edge.added","id":"e4","ts":"2026-08-25T13:53:25.723Z","from":"n4","to":"n5","rel":"continues"}
+{"type":"node.added","id":"n6","ts":"2026-08-27T06:00:58.720Z","kind":"iteration","actor":"user","title":"feat(portfolio): silk GPGPU trails without worms, compact mobile hero, lean Hello Kitty Run","artifacts":[{"kind":"git-commit","ref":"ec63c3a"}],"meta":{"source":"auto"}}
+{"type":"edge.added","id":"e5","ts":"2026-08-27T06:00:58.721Z","from":"n5","to":"n6","rel":"continues"}

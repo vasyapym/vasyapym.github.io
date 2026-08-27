@@ -1,12 +1,11 @@
 import { execFileSync } from "node:child_process";
-import { copyFileSync, existsSync, readFileSync } from "node:fs";
+import { existsSync, readFileSync } from "node:fs";
 import { dirname, resolve } from "node:path";
 import { fileURLToPath } from "node:url";
 import { defineConfig, type Plugin } from "vite";
 import react from "@vitejs/plugin-react";
 
 const shellRoot = dirname(fileURLToPath(import.meta.url));
-const shellDist = resolve(shellRoot, "dist");
 const planckToNowRoot = resolve(shellRoot, "../projects/planck-to-now");
 const planckToNowIndex = resolve(planckToNowRoot, "index.html");
 const planckToNowBundle = resolve(planckToNowRoot, "dist/main.js");
@@ -16,9 +15,6 @@ function createPlanckToNowBuild(): void {
   execFileSync(npm, ["run", "build"], {
     cwd: planckToNowRoot,
     stdio: "inherit",
-    // Node >= 18.20 refuses to spawn .cmd shims without a shell
-    // (CVE-2024-27980 hardening), so Windows needs this flag.
-    shell: process.platform === "win32",
   });
 }
 
@@ -91,21 +87,8 @@ function planckToNowStaticPlugin(): Plugin {
   };
 }
 
-function spaFallbackPlugin(): Plugin {
-  return {
-    name: "spa-fallback-404",
-    apply: "build",
-    closeBundle() {
-      const indexPath = resolve(shellDist, "index.html");
-      if (existsSync(indexPath)) {
-        copyFileSync(indexPath, resolve(shellDist, "404.html"));
-      }
-    },
-  };
-}
-
 export default defineConfig({
-  plugins: [planckToNowStaticPlugin(), react(), spaFallbackPlugin()],
+  plugins: [planckToNowStaticPlugin(), react()],
   // es2020 keeps Safari in the game: dev prebundling and builds transpile
   // newer syntax (class fields, static blocks) that raw-esnext serving
   // would let crash the lazy chunks on older Safari engines.

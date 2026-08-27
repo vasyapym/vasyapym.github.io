@@ -15,16 +15,6 @@ export class Sfx {
     return this.ctx !== null;
   }
 
-  // The soundtrack shares this context and master bus, so one mute
-  // gesture silences the whole page and one context resume wakes both.
-  get context(): AudioContext | null {
-    return this.ctx;
-  }
-
-  get output(): GainNode | null {
-    return this.master;
-  }
-
   // Must be called from a user-gesture handler the first time.
   start(): void {
     if (this.ctx) {
@@ -118,20 +108,6 @@ export class Sfx {
   heal(): void {
     this.tone({ type: "triangle", from: 392, to: 523, duration: 0.18, volume: 0.1 });
     this.tone({ type: "triangle", from: 523, to: 659, at: 0.09, duration: 0.2, volume: 0.1 });
-  }
-
-  // A quick rising arpeggio for milestone celebrations.
-  milestone(): void {
-    const notes = [523, 659, 784, 1047];
-    notes.forEach((hz, i) => {
-      this.tone({
-        type: "triangle",
-        from: hz,
-        at: i * 0.07,
-        duration: 0.16,
-        volume: 0.1,
-      });
-    });
   }
 
   hit(): void {

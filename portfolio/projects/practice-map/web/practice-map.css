@@ -6,6 +6,15 @@
   --focus-ring: var(--ink-accent-bright);
 }
 
+/* Safari (real devices, not the emulator) auto-inflates text in wide
+   columns and after orientation changes, which pushes lesson prose out of
+   the fixed-height reader panel. Pin every element to browser defaults. */
+.practice-map-field,
+.practice-map-field * {
+  -webkit-text-size-adjust: 100%;
+  text-size-adjust: 100%;
+}
+
 .practice-map-page {
   padding-top: clamp(3rem, 5vw, 4.5rem);
   padding-bottom: 6rem;
@@ -74,6 +83,146 @@
 .practice-map-export:hover {
   gap: 0.85rem;
   color: var(--ink-accent-bright);
+}
+
+.practice-graph-open {
+  border: 1px solid var(--ink-line-soft);
+  padding: 0.5rem 0.7rem;
+  color: var(--ink-accent);
+  background: transparent;
+  cursor: pointer;
+  font-family: var(--mono);
+  font-size: 0.7rem;
+  letter-spacing: 0.04em;
+  text-transform: lowercase;
+  transition: border-color 180ms ease, color 180ms ease, background 180ms ease;
+}
+
+.practice-graph-open:hover {
+  border-color: var(--ink-accent);
+  color: var(--ink-accent-bright);
+  background: var(--ink-panel);
+}
+
+.practice-graph-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 70;
+  display: grid;
+  place-items: center;
+  padding: 1rem;
+  background: rgba(4, 8, 10, 0.78);
+}
+
+.practice-graph-panel {
+  width: min(900px, 100%);
+  max-height: min(760px, 100%);
+  overflow: auto;
+  border: 1px solid var(--ink-line);
+  padding: clamp(1.1rem, 3vw, 2rem);
+  background: #0e161b;
+  box-shadow: 0 24px 80px rgba(0, 0, 0, 0.55);
+}
+
+.practice-graph-header {
+  display: flex;
+  justify-content: space-between;
+  gap: 1rem;
+  border-bottom: 1px solid var(--ink-line-soft);
+  padding-bottom: 1rem;
+}
+
+.practice-graph-header h2 {
+  margin: 0.45rem 0 0;
+  color: var(--ink-text);
+  font-family: var(--display);
+  font-size: clamp(1.5rem, 4vw, 2.3rem);
+  line-height: 1;
+}
+
+.practice-graph-intro {
+  max-width: 58ch;
+  color: var(--ink-muted);
+  font-size: 0.9rem;
+  line-height: 1.6;
+}
+
+.practice-graph-canvas {
+  position: relative;
+  min-height: min(58vw, 500px);
+  margin-top: 1.5rem;
+  overflow: hidden;
+  border: 1px solid var(--ink-line-soft);
+  background: radial-gradient(circle at center, rgba(211, 155, 97, 0.12), transparent 38%), #0b1317;
+}
+
+.practice-graph-orbit {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  border: 1px solid rgba(211, 155, 97, 0.2);
+  border-radius: 50%;
+  transform: translate(-50%, -50%);
+}
+
+.orbit-one { width: 48%; height: 48%; }
+.orbit-two { width: 78%; height: 78%; border-color: rgba(238, 234, 224, 0.12); }
+
+.practice-graph-core {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  display: grid;
+  width: 92px;
+  height: 92px;
+  place-items: center;
+  border: 1px solid var(--ink-accent);
+  border-radius: 50%;
+  color: var(--ink-accent-bright);
+  background: #111c21;
+  font-family: var(--mono);
+  font-size: 0.7rem;
+  line-height: 1.25;
+  text-align: center;
+  text-transform: lowercase;
+  transform: translate(-50%, -50%);
+}
+
+.practice-graph-node {
+  position: absolute;
+  top: var(--node-y);
+  left: var(--node-x);
+  max-width: 130px;
+  border: 1px solid var(--ink-line-soft);
+  padding: 0.35rem 0.5rem;
+  color: var(--ink-muted);
+  background: rgba(14, 22, 27, 0.9);
+  cursor: pointer;
+  font-family: var(--mono);
+  font-size: 0.62rem;
+  transform: translate(-50%, -50%);
+  animation: practice-node-in 500ms ease var(--node-delay) both;
+}
+
+.practice-graph-node:hover,
+.practice-graph-node:focus-visible {
+  border-color: var(--ink-accent);
+  color: var(--ink-accent-bright);
+  background: var(--ink-panel);
+}
+
+@keyframes practice-node-in {
+  from { opacity: 0; transform: translate(-50%, -50%) scale(0.6); }
+  to { opacity: 1; transform: translate(-50%, -50%) scale(1); }
+}
+
+.practice-graph-footer {
+  margin-top: 0.8rem;
+  color: var(--ink-faint);
+  font-family: var(--mono);
+  font-size: 0.68rem;
+  letter-spacing: 0.04em;
+  text-transform: lowercase;
 }
 
 .practice-route {
@@ -720,6 +869,10 @@
   align-items: center;
   justify-content: center;
   padding: clamp(0.75rem, 3vw, 2.5rem);
+  /* An explicit height keeps the flex centering stable while Safari's
+     collapsing toolbar resizes the viewport mid-read. */
+  height: 100vh;
+  height: 100dvh;
   background: rgba(4, 8, 10, 0.62);
 }
 
@@ -948,6 +1101,11 @@
   scroll-margin-top: 0.75rem;
 }
 
+.practice-reader-section h3,
+.practice-reader-section p {
+  overflow-wrap: break-word;
+}
+
 .practice-reader-section h3 {
   display: flex;
   align-items: baseline;
@@ -976,6 +1134,101 @@
   line-height: 1.72;
 }
 
+/* --- typographic engine: inline markup, lists, callouts -------------------- */
+
+.practice-lesson code {
+  padding: 0.08em 0.36em;
+  border: 1px solid var(--ink-line-soft);
+  background: var(--ink-panel);
+  color: var(--ink-accent-bright);
+  font-family: var(--mono);
+  font-size: 0.85em;
+  font-style: normal;
+  overflow-wrap: break-word;
+}
+
+.practice-lesson strong {
+  color: var(--ink-text);
+  font-weight: 650;
+}
+
+.practice-lesson em {
+  color: var(--ink-text);
+}
+
+.practice-reader-section ul,
+.practice-reader-section ol,
+.practice-lesson-body ul,
+.practice-lesson-body ol {
+  display: grid;
+  gap: 0.55em;
+  margin: 0;
+  min-width: 0;
+}
+
+.practice-reader-section ul,
+.practice-lesson-body ul {
+  list-style-type: "–";
+  padding-left: 1.15rem;
+}
+
+.practice-reader-section ol,
+.practice-lesson-body ol {
+  list-style-type: decimal;
+  padding-left: 1.45rem;
+}
+
+.practice-reader-section li,
+.practice-lesson-body li {
+  color: var(--ink-muted);
+  font-size: 0.95rem;
+  line-height: 1.65;
+  overflow-wrap: break-word;
+}
+
+.practice-reader-section li::marker,
+.practice-lesson-body li::marker {
+  color: var(--ink-accent);
+  font-family: var(--mono);
+  font-size: 0.8em;
+}
+
+.practice-callout {
+  display: grid;
+  gap: 0.45rem;
+  border: 1px solid var(--ink-line-soft);
+  border-left: 3px solid var(--ink-accent);
+  padding: 0.8rem 0.95rem 0.9rem;
+  background: var(--ink-panel);
+  min-width: 0;
+}
+
+.practice-callout-title {
+  color: var(--ink-accent-bright);
+  font-family: var(--mono);
+  font-size: 0.68rem;
+  letter-spacing: 0.14em;
+}
+
+.practice-callout p {
+  margin: 0;
+  color: var(--ink-muted);
+  font-size: 0.92rem;
+  line-height: 1.62;
+}
+
+.practice-callout.is-warning {
+  border-left-color: #cf7f6b;
+}
+
+.practice-callout.is-warning .practice-callout-title {
+  color: #e39b87;
+}
+
+.practice-callout.is-warning code {
+  color: #e8b5a5;
+}
+
 .practice-reader-examples {
   display: grid;
   gap: 0.9rem;
@@ -1000,6 +1253,17 @@
   border: 1px solid var(--ink-line-soft);
   padding: 0.9rem;
   background: var(--ink-panel);
+}
+
+/* Code lines must never dictate the figure's width: without these the
+   grid track inflates to the longest line and pushes the whole lesson
+   panel past the phone screen (the real-device overflow). */
+.practice-example,
+.practice-example figcaption,
+.practice-example-code,
+.practice-example pre {
+  min-width: 0;
+  max-width: 100%;
 }
 
 .practice-example figcaption {
@@ -1066,6 +1330,7 @@
   gap: 0.75rem;
   margin-top: 1.75rem;
   border-top: 1px solid var(--ink-line-soft);
+  padding-bottom: env(safe-area-inset-bottom);
   padding-top: 0.85rem;
   color: var(--ink-faint);
   font-family: var(--mono);
@@ -1184,11 +1449,18 @@
 
 @media (max-width: 560px) {
   .practice-lesson-overlay {
-    padding: 0.6rem;
+    padding: max(0.6rem, env(safe-area-inset-top)) max(0.6rem, env(safe-area-inset-right))
+      max(0.6rem, env(safe-area-inset-bottom)) max(0.6rem, env(safe-area-inset-left));
   }
 
   .practice-lesson-panel {
-    max-height: min(100%, calc(100dvh - 1.2rem));
+    max-height: min(100%, calc(100vh - 1.2rem));
+  }
+
+  @supports (height: 100dvh) {
+    .practice-lesson-panel {
+      max-height: min(100%, calc(100dvh - 1.2rem));
+    }
   }
 
   .practice-lesson-header {
