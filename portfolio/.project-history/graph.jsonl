@@ -97,3 +97,5 @@
 {"type":"edge.added","id":"e47","ts":"2026-08-27T08:18:55.036Z","from":"n41","to":"n42","rel":"continues"}
 {"type":"node.added","id":"n43","ts":"2026-08-27T08:23:39.673Z","kind":"iteration","actor":"user","title":"fix(portfolio): dist 404.html now carries the built SPA document","artifacts":[{"kind":"git-commit","ref":"0117a57"}],"meta":{"source":"auto"}}
 {"type":"edge.added","id":"e48","ts":"2026-08-27T08:23:39.686Z","from":"n42","to":"n43","rel":"continues"}
+{"type":"node.added","id":"n44","ts":"2026-08-27T08:23:49.789Z","kind":"iteration","actor":"user","title":"restore(kitty-run): Cat Runner rebrand and the features 02e637a stripped","artifacts":[{"kind":"git-commit","ref":"9dc79fc"}],"meta":{"source":"auto"}}
+{"type":"edge.added","id":"e49","ts":"2026-08-27T08:23:49.794Z","from":"n43","to":"n44","rel":"continues"}

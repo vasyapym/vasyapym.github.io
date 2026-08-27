@@ -17,3 +17,5 @@
 {"type":"edge.added","id":"e8","ts":"2026-08-27T06:01:27.666Z","from":"n8","to":"n9","rel":"continues"}
 {"type":"node.added","id":"n10","ts":"2026-08-27T08:18:46.090Z","kind":"iteration","actor":"code-iteration","title":"Restore Cat Runner rebrand and feature set reverted by 02e637a","summary":"Subtree restored from cd36bf7 (rebrand back to Cat Runner, attribution removed, bullet-time dash, adaptive soundtrack, autopilot, best-run echo, haptics, sim/shots tests). graph.jsonl kept at tip n9. Checks: kitty-run.check.ts all pass.","meta":{"restored-from":"cd36bf7","gate":"passed"}}
 {"type":"edge.added","id":"e9","ts":"2026-08-27T08:18:46.099Z","from":"n9","to":"n10","rel":"continues"}
+{"type":"node.added","id":"n11","ts":"2026-08-27T08:23:49.799Z","kind":"iteration","actor":"user","title":"restore(kitty-run): Cat Runner rebrand and the features 02e637a stripped","artifacts":[{"kind":"git-commit","ref":"9dc79fc"}],"meta":{"source":"auto"}}
+{"type":"edge.added","id":"e10","ts":"2026-08-27T08:23:49.806Z","from":"n10","to":"n11","rel":"continues"}
