@@ -340,6 +340,8 @@ textarea:focus-visible {
   padding-bottom: 1.5rem;}
 
 
+/* Pass 22 quiet specimens: no page-level ornament — the illustration is the
+   only content. Shared tokens here tune the de-decorated parts and captions. */
 .project-artwork {
   position: relative;
   min-height: 220px;
@@ -347,29 +349,9 @@ textarea:focus-visible {
   overflow: hidden;
   border: 1px solid var(--ink-line-soft);
   perspective: 900px;
+  --panel-line: rgba(238, 234, 224, 0.18);
+  --art-pin: #dd6f63;
   background: var(--index-ink);}
-
-
-.project-artwork::before {
-  position: absolute;
-  top: 50%;
-  right: 8%;
-  left: 8%;
-  height: 2px;
-  background: linear-gradient(90deg, transparent, rgba(228, 229, 225, 0.5), transparent);
-  content: "";}
-
-
-.project-artwork::after {
-  position: absolute;
-  top: 12%;
-  right: 12%;
-  width: 28%;
-  aspect-ratio: 1;
-  border: 2px solid rgba(228, 229, 225, 0.3);
-  border-radius: 50%;
-  content: "";
-  transform: scaleX(0.55);}
 
 
 .project-artwork-object {
@@ -426,18 +408,20 @@ textarea:focus-visible {
   transform: translate3d(calc(-50% + var(--anchor-x) + 3px), calc(-50% + var(--anchor-y) - 6px), calc(var(--base-z) + 9px)) rotate(calc(var(--part-rotation) + 2deg));}
 
 
+/* Pass 22 tinted ink fields: one identity hue per project over the deep-ink
+   value, so the six cards read as one dark catalogue family. */
 .presentation-code-layout {
-  --project-accent: var(--index-blue);
-  --project-ink: #253a4b;
-  --project-surface: #cfd9dd;
-  background: #b9c8d0;}
+  --project-accent: #86aed4;
+  --project-ink: #0e161e;
+  --project-surface: rgba(134, 174, 212, 0.08);
+  background: linear-gradient(165deg, #13202b 0%, #0d161e 68%);}
 
 
 .presentation-practice-map {
-  --project-accent: var(--index-ochre);
-  --project-ink: #43382d;
-  --project-surface: #d8c8ac;
-  background: #cdbd9f;}
+  --project-accent: #cf9d63;
+  --project-ink: #171310;
+  --project-surface: rgba(207, 157, 99, 0.09);
+  background: linear-gradient(165deg, #1c1711 0%, #120f0c 68%);}
 
 
 .presentation-part-nodes {
@@ -455,10 +439,9 @@ textarea:focus-visible {
 .presentation-part-sheet {
   width: 156px;
   height: 108px;
-  border: 1px solid rgba(37, 58, 75, 0.55);
-  color: var(--project-ink);
-  background: var(--project-surface);
-  box-shadow: 8px 9px 0 rgba(32, 42, 45, 0.11);}
+  border: 1px solid rgba(134, 174, 212, 0.34);
+  color: var(--project-accent);
+  background: var(--project-surface);}
 
 
 .presentation-part-entry {
@@ -467,15 +450,14 @@ textarea:focus-visible {
   border: 1px solid var(--project-accent);
   border-radius: 50%;
   color: var(--project-accent);
-  background: rgba(248, 250, 248, 0.58);}
+  background: var(--project-surface);}
 
 
 .presentation-part-terrain {
   width: 216px;
   height: 130px;
-  border: 1px solid rgba(67, 56, 45, 0.5);
+  border: 1px solid var(--panel-line);
   background: var(--project-surface);
-  box-shadow: 8px 10px 0 rgba(32, 42, 45, 0.1);
   clip-path: polygon(3% 8%, 92% 0, 100% 83%, 84% 100%, 9% 91%, 0 32%);}
 
 
@@ -488,7 +470,7 @@ textarea:focus-visible {
 .presentation-part-pin {
   width: 34px;
   height: 48px;
-  color: var(--index-red);}
+  color: var(--art-pin);}
 
 
 .presentation-part-compass {
@@ -497,8 +479,7 @@ textarea:focus-visible {
   border: 1px solid var(--project-accent);
   border-radius: 50%;
   color: var(--project-accent);
-  background: rgba(248, 250, 248, 0.46);
-  box-shadow: inset 0 0 0 7px rgba(67, 56, 45, 0.06);}
+  background: var(--project-surface);}
 
 
 .project-mark {
@@ -520,7 +501,7 @@ textarea:focus-visible {
   height: 9px;
   border: 1px solid currentColor;
   border-radius: 50%;
-  background: rgba(78, 109, 139, 0.1);}
+  background: none;}
 
 
 .project-mark-nodes i:nth-child(2),
@@ -592,14 +573,15 @@ textarea:focus-visible {
 .project-mark-contours {
   width: 84%;
   height: 70%;
-  overflow: hidden;}
+  overflow: hidden;
+  opacity: 0.45;}
 
 
 .project-mark-contours::before,
 .project-mark-contours::after,
 .project-mark-contours i {
   position: absolute;
-  border: 1px solid rgba(67, 56, 45, 0.5);
+  border: 1px solid var(--project-accent);
   border-radius: 50%;
   content: "";}
 
@@ -646,7 +628,7 @@ textarea:focus-visible {
   height: 29px;
   border: 1px solid currentColor;
   border-radius: 50% 50% 50% 0;
-  background: var(--index-red);
+  background: var(--art-pin);
   transform: rotate(-45deg);}
 
 
@@ -692,7 +674,7 @@ textarea:focus-visible {
   place-items: center;
   border: 1px solid var(--project-accent);
   color: var(--project-accent);
-  background: rgba(248, 250, 248, 0.78);
+  background: rgba(11, 19, 23, 0.72);
   font-family: var(--mono);
   font-size: 0.56rem;
   letter-spacing: 0.06em;
@@ -715,7 +697,7 @@ textarea:focus-visible {
   width: 100%;
   height: 100%;
   overflow: visible;
-  filter: drop-shadow(0 3px 4px rgba(74, 59, 82, 0.25));
+  filter: drop-shadow(0 2px 6px rgba(0, 0, 0, 0.35));
 }
 
 .project-artwork-note {
@@ -724,11 +706,11 @@ textarea:focus-visible {
   right: 1rem;
   bottom: 0.8rem;
   left: 1rem;
-  color: rgba(23, 26, 28, 0.68);
-  font-family: var(--sans);
-  font-size: 0.75rem;
-  letter-spacing: 0;
-}
+  color: var(--ink-muted);
+  font-family: var(--mono);
+  font-size: 0.62rem;
+  letter-spacing: 0.05em;
+  text-transform: lowercase;}
 
 
 .signal-index-card-copy {
@@ -1443,10 +1425,9 @@ textarea:focus-visible {
 .presentation-part-cosmic-field {
   width: 218px;
   height: 128px;
-  border: 1px solid rgba(223, 230, 255, 0.42);
+  border: 1px solid rgba(223, 230, 255, 0.3);
   color: var(--project-accent);
-  background: #101d34;
-  box-shadow: 9px 10px 0 rgba(0, 0, 0, 0.22);}
+  background: #101d34;}
 
 
 .presentation-part-timeline {
@@ -1467,11 +1448,6 @@ textarea:focus-visible {
   width: 54px;
   height: 54px;
   color: #ff9f6e;}
-
-
-.presentation-planck-to-now .project-artwork-center {
-  color: #07101e;
-  background: var(--project-accent);}
 
 
 .project-artwork:hover .presentation-part-cosmic-field,
@@ -2033,40 +2009,27 @@ a.signal-index-beneath-row:focus-visible strong {
   --project-surface: #171013;
   position: relative;
   background:
-    radial-gradient(circle at 48% 48%, rgba(255, 128, 65, 0.26), transparent 26%),
-    linear-gradient(135deg, #201114, #0b1013 70%);
+    radial-gradient(circle at 48% 48%, rgba(255, 128, 65, 0.14), transparent 30%),
+    linear-gradient(135deg, #1a1013, #0b1013 70%);
 }
 
 .presentation-explosion-luna::before {
   position: absolute;
   inset: 10% 12%;
-  border: 1px solid rgba(242, 233, 218, 0.18);
+  border: 1px solid rgba(242, 233, 218, 0.14);
   border-radius: 50%;
   content: "";
   transform: scaleY(0.42);
 }
 
-.presentation-explosion-luna .project-artwork-note {
-  color: rgba(242, 233, 218, 0.72);
-  font-family: var(--mono);
-  font-size: 0.62rem;
-}
-
-.presentation-explosion-luna .project-artwork-center {
-  border-color: #ffbd6f;
-  color: #23120e;
-  background: #ff8a3c;
-  box-shadow: 0 0 22px rgba(255, 138, 60, 0.72), 0 0 0 5px rgba(255, 138, 60, 0.08);
-}
-
 .presentation-part-luna-shell {
   width: 156px;
   height: 112px;
-  border: 1px solid rgba(255, 191, 111, 0.56);
+  border: 1px solid rgba(255, 191, 111, 0.42);
   border-radius: 46% 54% 52% 48%;
   color: #ffbd6f;
-  background: rgba(255, 138, 60, 0.08);
-  box-shadow: inset 0 0 22px rgba(255, 138, 60, 0.12), 10px 12px 0 rgba(0, 0, 0, 0.18);
+  background: rgba(255, 138, 60, 0.07);
+  box-shadow: inset 0 0 16px rgba(255, 138, 60, 0.08);
 }
 
 .presentation-part-luna-shards {
@@ -2092,24 +2055,13 @@ a.signal-index-beneath-row:focus-visible strong {
   border-radius: 50%;
   color: #ffe3b1;
   background: radial-gradient(circle at 35% 30%, #fff0c8, #ff8a3c 48%, #7e2f22 100%);
-  box-shadow: 0 0 30px rgba(255, 119, 72, 0.72);
+  box-shadow: 0 0 14px rgba(255, 119, 72, 0.38);
 }
 
 .presentation-explosion-luna:hover .presentation-part-luna-core,
 .signal-index-card:hover .presentation-part-luna-core,
 .signal-index-card:focus-visible .presentation-part-luna-core {
   transform: translate3d(calc(-50% + var(--anchor-x)), calc(-50% + var(--anchor-y) - 5px), calc(var(--base-z) + 12px)) rotate(var(--part-rotation));
-}
-
-.presentation-explosion-luna:hover .presentation-part-luna-shell,
-.signal-index-card:hover .presentation-part-luna-shell,
-.signal-index-card:focus-visible .presentation-part-luna-shell {
-  animation: luna-shell-pulse 1.2s ease-in-out infinite alternate;
-}
-
-@keyframes luna-shell-pulse {
-  from { box-shadow: inset 0 0 22px rgba(255, 138, 60, 0.1), 10px 12px 0 rgba(0, 0, 0, 0.18); }
-  to { box-shadow: inset 0 0 34px rgba(255, 138, 60, 0.32), 10px 12px 0 rgba(0, 0, 0, 0.18); }
 }
 
 .explosion-overlay {
@@ -2128,14 +2080,6 @@ a.signal-index-beneath-row:focus-visible strong {
   height: 100%;
 }
 
-@media (prefers-reduced-motion: reduce) {
-  .presentation-explosion-luna:hover .presentation-part-luna-shell,
-  .signal-index-card:hover .presentation-part-luna-shell,
-  .signal-index-card:focus-visible .presentation-part-luna-shell {
-    animation: none;
-  }
-}
-
 @media (max-width: 700px) {
   .presentation-part-luna-shell { transform: scale(0.86); }
   .presentation-part-luna-shards { transform: scale(0.86); }
@@ -2147,29 +2091,21 @@ a.signal-index-beneath-row:focus-visible strong {
 }
 
 
-/* Evening Forest card artwork */
+/* Evening Forest + Kitty Run card artwork */
 .presentation-evening-forest {
   --project-accent: #ffb45e;
+  --project-ink: #12101a;
+  --project-surface: rgba(255, 180, 94, 0.08);
   background:
-    linear-gradient(180deg, rgba(51, 32, 92, 0.5) 0%, rgba(124, 68, 112, 0.34) 58%, rgba(224, 130, 74, 0.3) 100%),
-    var(--index-surface);
-}
-
-.presentation-evening-forest .project-artwork-center {
-  color: var(--project-accent);
-  border-color: var(--project-accent);
+    linear-gradient(180deg, rgba(64, 40, 104, 0.4) 0%, rgba(110, 56, 88, 0.28) 58%, rgba(150, 78, 48, 0.26) 100%),
+    #0d1017;
 }
 
 .presentation-kitty-run {
-  --project-accent: #e94f64;
-  background:
-    linear-gradient(180deg, rgba(159, 217, 246, 0.5) 0%, rgba(255, 226, 238, 0.44) 58%, rgba(247, 185, 205, 0.42) 100%),
-    var(--index-surface);
-}
-
-.presentation-kitty-run .project-artwork-center {
-  color: var(--project-accent);
-  border-color: var(--project-accent);
+  --project-accent: #dc7f95;
+  --project-ink: #160f16;
+  --project-surface: rgba(220, 127, 149, 0.09);
+  background: linear-gradient(180deg, #201321 0%, #150f17 70%);
 }
 
 .presentation-kitty-run:hover .project-artwork-center,
@@ -2207,7 +2143,7 @@ a.signal-index-beneath-row:focus-visible strong {
   width: 100%;
   height: 100%;
   overflow: visible;
-  filter: drop-shadow(0 3px 4px rgba(20, 16, 26, 0.28));
+  filter: drop-shadow(0 2px 6px rgba(0, 0, 0, 0.35));
   transition: transform 260ms cubic-bezier(0.22, 1, 0.36, 1);
 }
 
