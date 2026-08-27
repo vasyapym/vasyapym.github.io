@@ -1711,9 +1711,7 @@ textarea:focus-visible {
   overflow: hidden;
   border: 1px solid rgba(238, 234, 224, 0.3);
   padding: 1.35rem 1.5rem 1.5rem;
-  background: rgba(11, 19, 23, 0.42);
-  backdrop-filter: blur(2px) saturate(1.15);
-  -webkit-backdrop-filter: blur(2px) saturate(1.15);
+  background: rgba(11, 19, 23, 0.72);
 }
 
 

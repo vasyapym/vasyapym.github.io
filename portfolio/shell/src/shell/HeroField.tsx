@@ -35,6 +35,14 @@ float fbm(vec2 p) {
   return value;
 }
 
+// Two-octave variant for domain-warp inputs only: warp coordinates tolerate
+// less detail than the final band field, cutting most of the wash pass ALU.
+// Amplitudes are renormalized (1.34) so warp ranges match fbm().
+float fbmWarp(vec2 p) {
+  vec2 q = mat2(0.8, 0.6, -0.6, 0.8) * p * 2.03;
+  return (0.5 * noise(p) + 0.29 * noise(q)) * 1.34;
+}
+
 // One dissipation profile shared by every layer (aurora wash, direct
 // particles, trail composite) so the light never terminates at a boundary.
 float edgeFade(vec2 uv) {
@@ -67,9 +75,9 @@ void main() {
   float sn = sin(swirlAngle);
   vec2 swirled = anchor + vec2(rel.x * cs - rel.y * sn, rel.x * sn + rel.y * cs);
 
-  vec2 q = vec2(fbm(swirled * 1.35 + t * 0.6), fbm(swirled * 1.35 - vec2(0.23, 0.41) * t));
-  vec2 r = vec2(fbm(swirled * 1.7 + q * 1.15 + vec2(1.7, 9.2)),
-                fbm(swirled * 1.7 + q * 1.15 + vec2(8.3, 2.8)));
+  vec2 q = vec2(fbmWarp(swirled * 1.35 + t * 0.6), fbmWarp(swirled * 1.35 - vec2(0.23, 0.41) * t));
+  vec2 r = vec2(fbmWarp(swirled * 1.7 + q * 1.15 + vec2(1.7, 9.2)),
+                fbmWarp(swirled * 1.7 + q * 1.15 + vec2(8.3, 2.8)));
   float f = fbm(swirled * 1.5 + r);
 
   float band = smoothstep(0.34, 0.84, f);
@@ -301,13 +309,24 @@ const TRAIL_SCALE = 0.75;
 const TRAIL_DECAY_RATE = 3.0;
 
 // Adaptive resolution: start sharp, step down when the frame budget slips,
-// climb back when it recovers. Ladder rungs multiply the capped device ratio.
+// climb back when frames stay within vsync jitter. Rung values multiply the
+// capped device ratio.
 const QUALITY_LADDER = [1, 0.85, 0.72, 0.6];
-const MOBILE_QUALITY_CEILING = 0.85;
+const MOBILE_START_SCALE = 0.85;
 const FRAME_BUDGET_DOWN_MS = 21;
-const FRAME_BUDGET_UP_MS = 10.5;
+// A frame is "long" once it overshoots the display refresh cadence by this
+// margin: rare long frames mean headroom, many mean the GPU is saturated.
+const LONG_FRAME_FLOOR_MS = 23;
+const LONG_FRAME_FACTOR = 1.55;
+const CLIMB_LONG_SHARE = 0.03;
+const REFRESH_TRACKER_MS = 16.7;
 
-export function qualityStep(scale: number, avgFrameMs: number, ceiling = 1): number {
+export function qualityStep(
+  scale: number,
+  saturated: boolean,
+  climbing: boolean,
+  ceiling = 1,
+): number {
   const rungs = QUALITY_LADDER.filter((rung) => rung <= ceiling + 1e-6);
   if (!rungs.length) {
     return scale;
@@ -319,10 +338,10 @@ export function qualityStep(scale: number, avgFrameMs: number, ceiling = 1): num
       break;
     }
   }
-  if (avgFrameMs > FRAME_BUDGET_DOWN_MS && idx < rungs.length - 1) {
+  if (saturated && idx < rungs.length - 1) {
     return rungs[idx + 1];
   }
-  if (avgFrameMs < FRAME_BUDGET_UP_MS && idx > 0) {
+  if (climbing && !saturated && idx > 0) {
     return rungs[idx - 1];
   }
   return scale;
@@ -589,10 +608,11 @@ export default function HeroField({ onReady }: { onReady?: (info: HeroFieldInfo)
     let aspect = 1;
     let area = 1;
     let driftT = Math.random() * 120;
-    const resCeiling = finePointerQuery.matches ? 1 : MOBILE_QUALITY_CEILING;
-    let resScale = resCeiling;
+    let resScale = finePointerQuery.matches ? 1 : MOBILE_START_SCALE;
+    let refreshMs = REFRESH_TRACKER_MS;
     let frameEmaMs = 0;
     let frameCount = 0;
+    let longFrames = 0;
     let lastQualityAt = 0;
     
 
@@ -753,15 +773,26 @@ export default function HeroField({ onReady }: { onReady?: (info: HeroFieldInfo)
       if (rawFrameMs > 0 && rawFrameMs < 250) {
         frameEmaMs = frameEmaMs === 0 ? rawFrameMs : frameEmaMs + (rawFrameMs - frameEmaMs) * 0.12;
         frameCount += 1;
+        const longLimit = Math.max(LONG_FRAME_FLOOR_MS, refreshMs * LONG_FRAME_FACTOR);
+        if (rawFrameMs > longLimit) {
+          longFrames += 1;
+        }
+        if (rawFrameMs > 4 && rawFrameMs < refreshMs) {
+          refreshMs = rawFrameMs;
+        }
       }
       if (frameCount >= 72 && now - lastQualityAt > 1200) {
-        const nextScale = qualityStep(resScale, frameEmaMs, resCeiling);
+        const saturated = frameEmaMs > FRAME_BUDGET_DOWN_MS;
+        const longShare = longFrames / Math.max(frameCount, 1);
+        const climbing = !saturated && longShare <= CLIMB_LONG_SHARE;
+        const nextScale = qualityStep(resScale, saturated, climbing);
         if (nextScale !== resScale) {
           resScale = nextScale;
           resize();
         }
         lastQualityAt = now;
         frameCount = 0;
+        longFrames = 0;
       }
       const drifting = !finePointerQuery.matches || now - lastMoveAt > 4000;
       if (drifting) {
