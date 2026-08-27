@@ -13,7 +13,7 @@ const practiceMap: ProjectModule = {
     className: "presentation-practice-map",
     motion: "terrain",
     centerLabel: "P / M",
-    centerMark: "compass",
+    centerMark: "trail",
     note: "Practice route",
     motionLabel: "the route unfolds",
     instruction: "Follow a route, mark a place, and leave a note for the next pass.",

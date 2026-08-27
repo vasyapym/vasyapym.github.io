@@ -14,7 +14,7 @@ const explosionLuna: ProjectModule = {
     className: "presentation-explosion-luna",
     motion: "stack",
     centerLabel: "L / X",
-    centerMark: "generic",
+    centerMark: "blast",
     note: "fracture lab",
     motionLabel: "the monument falls",
     instruction: "Open the fracture lab and shoot the monument until it falls.",

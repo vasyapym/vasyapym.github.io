@@ -232,6 +232,7 @@ textarea:focus-visible {
 
 .signal-index-card {
   --reveal-delay: 0ms;
+  position: relative;
   display: flex;
   min-width: 0;
   flex-direction: column;
@@ -244,7 +245,25 @@ textarea:focus-visible {
   transition:
     opacity 500ms ease var(--reveal-delay),
     transform 500ms cubic-bezier(0.2, 0.8, 0.2, 1) var(--reveal-delay),
-    background 200ms ease 0ms;}
+    background 200ms ease 0ms,
+    border-color 200ms ease 0ms;}
+
+
+/* Top accent hairline sweeps in when a card gains attention. */
+.signal-index-card::before {
+  content: "";
+  position: absolute;
+  z-index: 1;
+  top: -1px;
+  right: 0;
+  left: 0;
+  height: 1px;
+  background: linear-gradient(90deg, var(--ink-accent), rgba(211, 155, 97, 0.04));
+  pointer-events: none;
+  opacity: 0;
+  transform: scaleX(0);
+  transform-origin: left center;
+  transition: opacity 240ms ease, transform 340ms cubic-bezier(0.22, 1, 0.36, 1);}
 
 
 .signal-index-reveal-ready .signal-index-card:not(.is-revealed) {
@@ -254,7 +273,43 @@ textarea:focus-visible {
 
 .signal-index-card:hover,
 .signal-index-card:focus-visible {
-  background: var(--ink-panel);}
+  background: var(--ink-panel);
+  border-bottom-color: var(--ink-line);}
+
+
+.signal-index-card:hover::before,
+.signal-index-card:focus-visible::before {
+  opacity: 1;
+  transform: scaleX(1);}
+
+
+.signal-index-card-copy h3 {
+  transition: color 180ms ease;}
+
+
+.signal-index-card:hover h3,
+.signal-index-card:focus-visible h3 {
+  color: var(--ink-accent-bright);}
+
+
+.signal-index-card-link {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.55rem;
+  transition: gap 180ms ease, color 180ms ease;}
+
+.signal-index-card-link [aria-hidden] {
+  transition: transform 180ms cubic-bezier(0.22, 1, 0.36, 1);}
+
+
+.signal-index-card:hover .signal-index-card-link,
+.signal-index-card:focus-visible .signal-index-card-link {
+  gap: 0.85rem;
+  color: var(--ink-accent-bright);}
+
+.signal-index-card:hover .signal-index-card-link [aria-hidden],
+.signal-index-card:focus-visible .signal-index-card-link [aria-hidden] {
+  transform: translate(2px, -2px);}
 
 
 .signal-index-card-topline {
@@ -342,26 +397,31 @@ textarea:focus-visible {
 
 
 .project-artwork:hover .project-artwork-part,
+.signal-index-card:hover .project-artwork-part,
 .signal-index-card:focus-visible .project-artwork-part {
   filter: brightness(1.04);}
 
 
 .project-artwork:hover .presentation-part-nodes,
+.signal-index-card:hover .presentation-part-nodes,
 .signal-index-card:focus-visible .presentation-part-nodes {
   transform: translate3d(calc(-50% + var(--anchor-x) - 3px), calc(-50% + var(--anchor-y) - 3px), calc(var(--base-z) + 6px)) rotate(calc(var(--part-rotation) - 1deg));}
 
 
 .project-artwork:hover .presentation-part-branches,
+.signal-index-card:hover .presentation-part-branches,
 .signal-index-card:focus-visible .presentation-part-branches {
   transform: translate3d(calc(-50% + var(--anchor-x) + 3px), calc(-50% + var(--anchor-y) + 2px), calc(var(--base-z) + 8px)) rotate(calc(var(--part-rotation) + 1deg));}
 
 
 .project-artwork:hover .presentation-part-route,
+.signal-index-card:hover .presentation-part-route,
 .signal-index-card:focus-visible .presentation-part-route {
   transform: translate3d(calc(-50% + var(--anchor-x) + 3px), calc(-50% + var(--anchor-y) - 2px), calc(var(--base-z) + 7px)) rotate(calc(var(--part-rotation) + 1deg));}
 
 
 .project-artwork:hover .presentation-part-pin,
+.signal-index-card:hover .presentation-part-pin,
 .signal-index-card:focus-visible .presentation-part-pin {
   transform: translate3d(calc(-50% + var(--anchor-x) + 3px), calc(-50% + var(--anchor-y) - 6px), calc(var(--base-z) + 9px)) rotate(calc(var(--part-rotation) + 2deg));}
 
@@ -694,7 +754,13 @@ textarea:focus-visible {
   margin: 0.65rem 0 0;
   color: var(--ink-muted);
   font-size: 0.88rem;
-  line-height: 1.55;}
+  line-height: 1.55;
+  transition: color 180ms ease;}
+
+
+.signal-index-card:hover .signal-index-card-description,
+.signal-index-card:focus-visible .signal-index-card-description {
+  color: rgba(238, 234, 224, 0.86);}
 
 
 .signal-index-card-footer {
@@ -1409,18 +1475,22 @@ textarea:focus-visible {
 
 
 .project-artwork:hover .presentation-part-cosmic-field,
+.signal-index-card:hover .presentation-part-cosmic-field,
 .signal-index-card:focus-visible .presentation-part-cosmic-field {
   transform: translate3d(calc(-50% + var(--anchor-x) - 3px), calc(-50% + var(--anchor-y) - 3px), calc(var(--base-z) + 7px)) rotate(calc(var(--part-rotation) - 1deg));}
 
 
 .project-artwork:hover .presentation-part-timeline,
+.signal-index-card:hover .presentation-part-timeline,
 .signal-index-card:focus-visible .presentation-part-timeline {
   transform: translate3d(calc(-50% + var(--anchor-x) + 3px), calc(-50% + var(--anchor-y) - 2px), calc(var(--base-z) + 8px)) rotate(calc(var(--part-rotation) + 1deg));}
 
 
 .project-artwork:hover .presentation-part-present-day,
+.signal-index-card:hover .presentation-part-present-day,
 .signal-index-card:focus-visible .presentation-part-present-day,
 .project-artwork:hover .presentation-part-first-light,
+.signal-index-card:hover .presentation-part-first-light,
 .signal-index-card:focus-visible .presentation-part-first-light {
   transform: translate3d(calc(-50% + var(--anchor-x) + 3px), calc(-50% + var(--anchor-y) - 5px), calc(var(--base-z) + 9px)) rotate(calc(var(--part-rotation) + 2deg));}
 
@@ -1795,6 +1865,14 @@ a.signal-index-beneath-row:focus-visible strong {
   display: block;
   overflow: hidden;
   pointer-events: none;
+  -webkit-mask-image:
+    linear-gradient(to right, transparent, #000 7%, #000 93%, transparent),
+    linear-gradient(to bottom, transparent, #000 8%, #000 92%, transparent);
+  -webkit-mask-composite: source-in;
+  mask-image:
+    linear-gradient(to right, transparent, #000 7%, #000 93%, transparent),
+    linear-gradient(to bottom, transparent, #000 8%, #000 92%, transparent);
+  mask-composite: intersect;
 }
 
 .signal-index-depth-layer {
@@ -2020,11 +2098,13 @@ a.signal-index-beneath-row:focus-visible strong {
 }
 
 .presentation-explosion-luna:hover .presentation-part-luna-core,
+.signal-index-card:hover .presentation-part-luna-core,
 .signal-index-card:focus-visible .presentation-part-luna-core {
   transform: translate3d(calc(-50% + var(--anchor-x)), calc(-50% + var(--anchor-y) - 5px), calc(var(--base-z) + 12px)) rotate(var(--part-rotation));
 }
 
 .presentation-explosion-luna:hover .presentation-part-luna-shell,
+.signal-index-card:hover .presentation-part-luna-shell,
 .signal-index-card:focus-visible .presentation-part-luna-shell {
   animation: luna-shell-pulse 1.2s ease-in-out infinite alternate;
 }
@@ -2052,6 +2132,7 @@ a.signal-index-beneath-row:focus-visible strong {
 
 @media (prefers-reduced-motion: reduce) {
   .presentation-explosion-luna:hover .presentation-part-luna-shell,
+  .signal-index-card:hover .presentation-part-luna-shell,
   .signal-index-card:focus-visible .presentation-part-luna-shell {
     animation: none;
   }
@@ -2081,11 +2162,6 @@ a.signal-index-beneath-row:focus-visible strong {
   border-color: var(--project-accent);
 }
 
-.presentation-evening-forest:hover .project-artwork-center,
-.signal-index-card:focus-visible .presentation-evening-forest .project-artwork-center {
-  box-shadow: 0 0 0 3px rgba(255, 180, 94, 0.16);
-}
-
 .presentation-kitty-run {
   --project-accent: #e94f64;
   background:
@@ -2099,7 +2175,80 @@ a.signal-index-beneath-row:focus-visible strong {
 }
 
 .presentation-kitty-run:hover .project-artwork-center,
+.signal-index-card:hover .presentation-kitty-run .project-artwork-center,
 .signal-index-card:focus-visible .presentation-kitty-run .project-artwork-center {
   box-shadow: none;
   transform: translate(-50%, -50%) translateZ(78px) scale(1.14) rotate(-4deg);
+}
+
+
+/* Custom center artworks (Pass C) — the five projects that only had
+   monogram chips now carry their own flat-SVG mark, kitty-style. */
+.project-artwork-center.center-filetree,
+.project-artwork-center.center-fox,
+.project-artwork-center.center-blast,
+.project-artwork-center.center-spiral,
+.project-artwork-center.center-trail {
+  width: 124px;
+  height: 102px;
+  border: none;
+  background: transparent;
+  overflow: visible;
+}
+
+.project-artwork-center.center-filetree { width: 116px; height: 96px; }
+.project-artwork-center.center-blast { width: 108px; height: 108px; }
+.project-artwork-center.center-spiral { width: 128px; height: 104px; }
+
+.project-artwork-center.center-filetree svg,
+.project-artwork-center.center-fox svg,
+.project-artwork-center.center-blast svg,
+.project-artwork-center.center-spiral svg,
+.project-artwork-center.center-trail svg {
+  display: block;
+  width: 100%;
+  height: 100%;
+  overflow: visible;
+  filter: drop-shadow(0 3px 4px rgba(20, 16, 26, 0.28));
+  transition: transform 260ms cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+.signal-index-card:hover .center-filetree svg,
+.signal-index-card:focus-visible .center-filetree svg {
+  transform: rotate(-3deg) scale(1.05);
+}
+
+.signal-index-card:hover .center-fox svg,
+.signal-index-card:focus-visible .center-fox svg {
+  transform: scale(1.07);
+}
+
+.signal-index-card:hover .center-blast svg,
+.signal-index-card:focus-visible .center-blast svg {
+  transform: scale(1.09);
+}
+
+.signal-index-card:hover .center-spiral svg,
+.signal-index-card:focus-visible .center-spiral svg {
+  transform: rotate(8deg) scale(1.06);
+}
+
+.signal-index-card:hover .center-trail svg,
+.signal-index-card:focus-visible .center-trail svg {
+  transform: translateX(3px) scale(1.06);
+}
+
+@media (max-width: 700px) {
+  .project-artwork-center.center-filetree,
+  .project-artwork-center.center-fox,
+  .project-artwork-center.center-spiral,
+  .project-artwork-center.center-trail {
+    width: 92px;
+    height: 76px;
+  }
+
+  .project-artwork-center.center-blast {
+    width: 84px;
+    height: 84px;
+  }
 }

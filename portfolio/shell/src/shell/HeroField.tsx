@@ -34,6 +34,13 @@ float fbm(vec2 p) {
   }
   return value;
 }
+
+// One dissipation profile shared by every layer (aurora wash, direct
+// particles, trail composite) so the light never terminates at a boundary.
+float edgeFade(vec2 uv) {
+  return smoothstep(0.0, 0.1, uv.x) * smoothstep(1.0, 0.86, uv.x)
+       * smoothstep(0.0, 0.18, uv.y) * smoothstep(1.0, 0.82, uv.y);
+}
 `;
 
 const FRAG = `#version 300 es
@@ -76,10 +83,9 @@ void main() {
   vec3 col = mix(teal, amber, clamp(vein * 1.05, 0.0, 1.0));
   col = mix(col, bright, clamp(halo * 0.7, 0.0, 1.0));
 
-  float edgeFade = smoothstep(0.0, 0.16, uv.y) * smoothstep(1.0, 0.84, uv.y)
-                 * smoothstep(0.0, 0.09, uv.x) * smoothstep(1.0, 0.91, uv.x);
+  float bounded = edgeFade(uv);
   float intensity = band * 0.33 + vein * 0.42 + halo * 0.34;
-  float alpha = clamp(intensity, 0.0, 1.0) * edgeFade * 0.8;
+  float alpha = clamp(intensity, 0.0, 1.0) * bounded * 0.8;
   float grain = (hash(gl_FragCoord.xy) - 0.5) * (1.6 / 255.0);
   float a = max(alpha + grain, 0.0);
 
@@ -143,9 +149,11 @@ uniform float u_pixelScale;
 uniform float u_energy;
 uniform float u_dt;
 uniform float u_stretchCap;
+uniform float u_edgeFadeAmt;
 out vec3 v_color;
 out float v_alpha;
 out float v_edge;
+out float v_fade;
 
 void main() {
   int corner = gl_VertexID % 6;
@@ -174,7 +182,10 @@ void main() {
   vec2 pos = mix(b - dir, b, t) + n * halfW * s;
   v_edge = s;
 
-  vec2 clip = vec2(pos.x / u_aspect.x, pos.y) * 2.0 - 1.0;
+  vec2 suv = vec2(pos.x / u_aspect.x, pos.y);
+  v_fade = mix(1.0, edgeFade(suv), clamp(u_edgeFadeAmt, 0.0, 1.0));
+
+  vec2 clip = vec2(suv.x, suv.y) * 2.0 - 1.0;
   gl_Position = vec4(clip, 0.0, 1.0);
 }`;
 
@@ -183,11 +194,12 @@ precision highp float;
 in vec3 v_color;
 in float v_alpha;
 in float v_edge;
+in float v_fade;
 out vec4 fragColor;
 
 void main() {
   float soft = 1.0 - v_edge * v_edge * 0.8;
-  float a = v_alpha * soft;
+  float a = v_alpha * soft * v_fade;
   fragColor = vec4(v_color * a, a);
 }`;
 
@@ -222,6 +234,7 @@ void main() {
   vec4 t = texture(u_trail, v_uv);
   vec3 mapped = vec3(1.0) - exp(-t.rgb * 1.6);
   float a = 1.0 - exp(-t.a * 1.6);
+  a *= edgeFade(v_uv);
   fragColor = vec4(mapped * a, a);
 }`;
 
@@ -283,10 +296,37 @@ function supportsFloatBlend(gl: Gl): boolean {
   return false;
 }
 
-const DPR_CAP = 1.75;
-const RENDER_SCALE = 0.85;
+const DPR_CAP = 2.0;
 const TRAIL_SCALE = 0.75;
 const TRAIL_DECAY_RATE = 3.0;
+
+// Adaptive resolution: start sharp, step down when the frame budget slips,
+// climb back when it recovers. Ladder rungs multiply the capped device ratio.
+const QUALITY_LADDER = [1, 0.85, 0.72, 0.6];
+const MOBILE_QUALITY_CEILING = 0.85;
+const FRAME_BUDGET_DOWN_MS = 21;
+const FRAME_BUDGET_UP_MS = 10.5;
+
+export function qualityStep(scale: number, avgFrameMs: number, ceiling = 1): number {
+  const rungs = QUALITY_LADDER.filter((rung) => rung <= ceiling + 1e-6);
+  if (!rungs.length) {
+    return scale;
+  }
+  let idx = rungs.length - 1;
+  for (let i = 0; i < rungs.length; i++) {
+    if (rungs[i] <= scale + 1e-6) {
+      idx = i;
+      break;
+    }
+  }
+  if (avgFrameMs > FRAME_BUDGET_DOWN_MS && idx < rungs.length - 1) {
+    return rungs[idx + 1];
+  }
+  if (avgFrameMs < FRAME_BUDGET_UP_MS && idx > 0) {
+    return rungs[idx - 1];
+  }
+  return scale;
+}
 
 function compile(gl: Gl, type: number, source: string): WebGLShader | null {
   const shader = gl.createShader(type);
@@ -402,6 +442,7 @@ function createParticleSystem(gl: Gl, aspect: number, area: number): ParticleSys
         "u_pixelScale",
         "u_energy",
         "u_dt",
+        "u_edgeFadeAmt",
       ]),
       textures,
       fbos,
@@ -522,6 +563,7 @@ export default function HeroField({ onReady }: { onReady?: (info: HeroFieldInfo)
       depth: false,
       stencil: false,
       premultipliedAlpha: true,
+      powerPreference: "high-performance",
     }) as Gl | null;
     if (!gl) {
       return;
@@ -547,6 +589,11 @@ export default function HeroField({ onReady }: { onReady?: (info: HeroFieldInfo)
     let aspect = 1;
     let area = 1;
     let driftT = Math.random() * 120;
+    const resCeiling = finePointerQuery.matches ? 1 : MOBILE_QUALITY_CEILING;
+    let resScale = resCeiling;
+    let frameEmaMs = 0;
+    let frameCount = 0;
+    let lastQualityAt = 0;
     
 
     const markLive = () => {
@@ -605,6 +652,7 @@ export default function HeroField({ onReady }: { onReady?: (info: HeroFieldInfo)
       gl.uniform1f(particles.drawUniforms.u_pixelScale, 1 / canvas.width);
       gl.uniform1f(particles.drawUniforms.u_energy, energy.value);
       gl.uniform1f(particles.drawUniforms.u_dt, dt);
+      gl.uniform1f(particles.drawUniforms.u_edgeFadeAmt, 1);
       gl.drawArrays(gl.TRIANGLES, 0, particles.count * 6);
     };
 
@@ -632,6 +680,7 @@ export default function HeroField({ onReady }: { onReady?: (info: HeroFieldInfo)
       gl.uniform1f(particles.drawUniforms.u_pixelScale, 1 / trails.width);
       gl.uniform1f(particles.drawUniforms.u_energy, energy.value);
       gl.uniform1f(particles.drawUniforms.u_dt, dt);
+      gl.uniform1f(particles.drawUniforms.u_edgeFadeAmt, 0);
       gl.drawArrays(gl.TRIANGLES, 0, particles.count * 6);
       gl.bindFramebuffer(gl.FRAMEBUFFER, null);
       trails.front = back;
@@ -675,9 +724,11 @@ export default function HeroField({ onReady }: { onReady?: (info: HeroFieldInfo)
       }
       aspect = rect.width / rect.height;
       area = rect.width * rect.height;
-      const dpr = Math.min(window.devicePixelRatio || 1, DPR_CAP) * RENDER_SCALE;
+      const dpr = Math.min(window.devicePixelRatio || 1, DPR_CAP) * resScale;
       const width = Math.max(2, Math.round(rect.width * dpr));
       const height = Math.max(2, Math.round(rect.height * dpr));
+      canvas.dataset.heroScale = resScale.toFixed(2);
+      canvas.dataset.heroDpr = dpr.toFixed(3);
       if (canvas.width !== width || canvas.height !== height) {
         canvas.width = width;
         canvas.height = height;
@@ -696,8 +747,22 @@ export default function HeroField({ onReady }: { onReady?: (info: HeroFieldInfo)
 
     const tick = (now: number) => {
       raf = 0;
-      const dt = Math.min(0.05, (now - lastFrameAt) / 1000 || 0.016);
+      const rawFrameMs = now - lastFrameAt;
+      const dt = Math.min(0.05, rawFrameMs / 1000 || 0.016);
       lastFrameAt = now;
+      if (rawFrameMs > 0 && rawFrameMs < 250) {
+        frameEmaMs = frameEmaMs === 0 ? rawFrameMs : frameEmaMs + (rawFrameMs - frameEmaMs) * 0.12;
+        frameCount += 1;
+      }
+      if (frameCount >= 72 && now - lastQualityAt > 1200) {
+        const nextScale = qualityStep(resScale, frameEmaMs, resCeiling);
+        if (nextScale !== resScale) {
+          resScale = nextScale;
+          resize();
+        }
+        lastQualityAt = now;
+        frameCount = 0;
+      }
       const drifting = !finePointerQuery.matches || now - lastMoveAt > 4000;
       if (drifting) {
         driftT += dt;

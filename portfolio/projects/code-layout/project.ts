@@ -13,7 +13,7 @@ const codeLayout: ProjectModule = {
     className: "presentation-code-layout",
     motion: "network",
     centerLabel: "C / L",
-    centerMark: "graph",
+    centerMark: "filetree",
     note: "Structure map",
     motionLabel: "connections appear",
     instruction: "Move through the structure and let the relationships become legible.",

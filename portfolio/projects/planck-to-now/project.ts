@@ -24,7 +24,7 @@ const planckToNow: ProjectModule = {
     className: "presentation-planck-to-now",
     motion: "network",
     centerLabel: "B / B",
-    centerMark: "generic",
+    centerMark: "spiral",
     note: "Cosmic timeline",
     motionLabel: "the universe expands",
     instruction: "Follow the timeline from the first hot particles to the cosmic web.",

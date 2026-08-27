@@ -28,7 +28,7 @@ const eveningForest: ProjectModule = {
     className: "presentation-evening-forest",
     motion: "terrain",
     centerLabel: "E / F",
-    centerMark: "compass",
+    centerMark: "fox",
     note: "The long dusk",
     motionLabel: "the canopy breathes",
     instruction:
