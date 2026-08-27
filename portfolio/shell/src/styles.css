@@ -1794,15 +1794,15 @@ a.signal-index-beneath-row:focus-visible strong {
   .signal-index-hero-refraction .signal-index-link {
     margin-top: 0.9rem;
     font-size: 0.76rem;
-  }
-
-  .signal-index-field-note {
-    display: none;
   }}
 
 
-/* Hero shader field */
-.signal-index-hero-field {
+/* Hero field: slow atmosphere. A seeded value-noise heightfield, domain-warped
+   so the layers marble like mud, rendered as a low-res Canvas2D fog (1 px per
+   4 css px) upscaled by the browser — soft by construction, identical on every
+   platform, no WebGL. Side masks fade the haze out before the canvas edge;
+   the blur merges the fog cells into weather. */
+.signal-index-hero-canvas {
   position: absolute;
   inset: 0;
   z-index: -1;
@@ -1810,78 +1810,33 @@ a.signal-index-beneath-row:focus-visible strong {
   width: 100%;
   height: 100%;
   pointer-events: none;
-  opacity: 0;
-  transition: opacity 650ms ease;
+  filter: blur(12px) saturate(1.05);
+  animation: signal-index-hero-fade 1.1s ease 0.05s both;
+  -webkit-mask-image: linear-gradient(90deg, transparent 0, #000 120px, #000 calc(100% - 120px), transparent 100%);
+  mask-image: linear-gradient(90deg, transparent 0, #000 120px, #000 calc(100% - 120px), transparent 100%);
 }
 
-.signal-index-hero-field.signal-index-field-live {
-  opacity: 1;
+@keyframes signal-index-hero-fade {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
 }
 
-.signal-index-field-note {
-  position: absolute;
-  right: 0;
-  bottom: 0.5rem;
-  margin: 0;
-  color: var(--ink-faint);
-  font-family: var(--mono);
-  font-size: 0.6rem;
-  letter-spacing: 0.06em;
-  text-transform: lowercase;
+@media (max-width: 700px) {
+  .signal-index-hero-canvas {
+    filter: blur(9px) saturate(1.05);
+    -webkit-mask-image: linear-gradient(90deg, transparent 0, #000 56px, #000 calc(100% - 56px), transparent 100%);
+    mask-image: linear-gradient(90deg, transparent 0, #000 56px, #000 calc(100% - 56px), transparent 100%);
+  }
 }
 
-
-/* Hero depth field (Pass 18, now all widths) */
-.signal-index-hero-depth {
-  position: absolute;
-  inset: 0;
-  z-index: -1;
-  display: block;
-  overflow: hidden;
-  pointer-events: none;
-  -webkit-mask-image:
-    linear-gradient(to right, transparent, #000 7%, #000 93%, transparent),
-    linear-gradient(to bottom, transparent, #000 8%, #000 92%, transparent);
-  -webkit-mask-composite: source-in;
-  mask-image:
-    linear-gradient(to right, transparent, #000 7%, #000 93%, transparent),
-    linear-gradient(to bottom, transparent, #000 8%, #000 92%, transparent);
-  mask-composite: intersect;
-}
-
-.signal-index-depth-layer {
-  position: absolute;
-  border-radius: 50%;
-  filter: blur(26px);
-  transform: translate3d(calc(var(--hero-mx, 0) * var(--depth, 0.5) * 26px), calc(var(--hero-p, 0) * var(--depth, 0.5) * -64px + var(--hero-my, 0) * var(--depth, 0.5) * 18px), 0);
-  will-change: transform;
-}
-
-.signal-index-depth-far {
-  top: 4%;
-  left: -14%;
-  width: 270px;
-  height: 270px;
-  background: radial-gradient(closest-side, rgba(110, 180, 190, 0.2), transparent);
-  --depth: 0.3;
-}
-
-.signal-index-depth-mid {
-  top: 30%;
-  right: -16%;
-  width: 230px;
-  height: 230px;
-  background: radial-gradient(closest-side, rgba(211, 155, 97, 0.24), transparent);
-  --depth: 0.6;
-}
-
-.signal-index-depth-near {
-  bottom: 2%;
-  left: 8%;
-  width: 190px;
-  height: 190px;
-  background: radial-gradient(closest-side, rgba(232, 181, 124, 0.17), transparent);
-  --depth: 1;
+@media (prefers-reduced-motion: reduce) {
+  .signal-index-hero-canvas {
+    animation: none;
+  }
 }
 
 @keyframes signal-index-hero-rise {
@@ -1895,60 +1850,28 @@ a.signal-index-beneath-row:focus-visible strong {
   }
 }
 
-@keyframes signal-index-hero-fade {
-  from {
-    opacity: 0;
-  }
-  to {
-    opacity: 1;
-  }
+.signal-index-hero-refraction .signal-index-hero-kicker {
+  animation: signal-index-hero-rise 0.72s cubic-bezier(0.22, 1, 0.36, 1) 0.08s both;
 }
 
-@media (prefers-reduced-motion: no-preference) {
-  .signal-index-depth-layer,
-  .signal-index-hero-refraction .signal-index-hero-kicker,
-  .signal-index-hero-refraction h1,
-  .signal-index-hero-refraction .signal-index-link,
-  .signal-index-hero-refraction a.signal-index-beneath-row,
-  .signal-index-beneath-more {
-    opacity: 0;
-  }
-
-  .signal-index-hero[data-hero-live] .signal-index-depth-layer {
-    animation: signal-index-hero-fade 0.9s ease both;
-  }
-
-  .signal-index-hero[data-hero-live] .signal-index-depth-far { animation-delay: 0.02s; }
-  .signal-index-hero[data-hero-live] .signal-index-depth-mid { animation-delay: 0.12s; }
-  .signal-index-hero[data-hero-live] .signal-index-depth-near { animation-delay: 0.22s; }
-
-  .signal-index-hero[data-hero-live] .signal-index-hero-kicker {
-    animation: signal-index-hero-rise 0.72s cubic-bezier(0.22, 1, 0.36, 1) both;
-  }
-
-  .signal-index-hero[data-hero-live] h1 {
-    animation: signal-index-hero-rise 0.72s cubic-bezier(0.22, 1, 0.36, 1) 0.07s both;
-  }
-
-  .signal-index-hero[data-hero-live] .signal-index-link {
-    animation: signal-index-hero-rise 0.72s cubic-bezier(0.22, 1, 0.36, 1) 0.16s both;
-  }
-
-  .signal-index-hero[data-hero-live] a.signal-index-beneath-row {
-    animation: signal-index-hero-rise 0.72s cubic-bezier(0.22, 1, 0.36, 1) both;
-  }
-
-  .signal-index-hero[data-hero-live] a.signal-index-beneath-row:nth-of-type(1) { animation-delay: 0.26s; }
-  .signal-index-hero[data-hero-live] a.signal-index-beneath-row:nth-of-type(2) { animation-delay: 0.34s; }
-  .signal-index-hero[data-hero-live] a.signal-index-beneath-row:nth-of-type(3) { animation-delay: 0.42s; }
-  .signal-index-hero[data-hero-live] a.signal-index-beneath-row:nth-of-type(4) { animation-delay: 0.50s; }
-  .signal-index-hero[data-hero-live] a.signal-index-beneath-row:nth-of-type(5) { animation-delay: 0.58s; }
-  .signal-index-hero[data-hero-live] a.signal-index-beneath-row:nth-of-type(6) { animation-delay: 0.66s; }
-
-  .signal-index-hero[data-hero-live] .signal-index-beneath-more {
-    animation: signal-index-hero-rise 0.72s cubic-bezier(0.22, 1, 0.36, 1) 0.56s both;
-  }
+.signal-index-hero-refraction h1 {
+  animation: signal-index-hero-rise 0.72s cubic-bezier(0.22, 1, 0.36, 1) 0.14s both;
 }
+
+.signal-index-hero-refraction .signal-index-link {
+  animation: signal-index-hero-rise 0.72s cubic-bezier(0.22, 1, 0.36, 1) 0.48s both;
+}
+
+a.signal-index-beneath-row {
+  animation: signal-index-hero-rise 0.72s cubic-bezier(0.22, 1, 0.36, 1) both;
+}
+
+a.signal-index-beneath-row:nth-of-type(1) { animation-delay: 0.52s; }
+a.signal-index-beneath-row:nth-of-type(2) { animation-delay: 0.63s; }
+a.signal-index-beneath-row:nth-of-type(3) { animation-delay: 0.74s; }
+a.signal-index-beneath-row:nth-of-type(4) { animation-delay: 0.85s; }
+a.signal-index-beneath-row:nth-of-type(5) { animation-delay: 0.96s; }
+a.signal-index-beneath-row:nth-of-type(6) { animation-delay: 1.07s; }
 
 .signal-index-beneath-more {
   display: none;
@@ -1998,6 +1921,16 @@ a.signal-index-beneath-row:focus-visible strong {
     font-size: 0.7rem;
     letter-spacing: 0.05em;
     text-decoration: none;
+  }
+}
+
+
+@media (prefers-reduced-motion: reduce) {
+  .signal-index-hero-refraction .signal-index-hero-kicker,
+  .signal-index-hero-refraction h1,
+  .signal-index-hero-refraction .signal-index-link,
+  .signal-index-hero-refraction a.signal-index-beneath-row {
+    animation: none;
   }
 }
 

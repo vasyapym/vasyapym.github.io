@@ -1,10 +1,7 @@
-import { lazy, Suspense, useEffect, useRef, useState, type CSSProperties, type MouseEvent } from "react";
+import { useEffect, useRef, useState, type CSSProperties, type MouseEvent } from "react";
 import type { ProjectModule } from "../../../contracts/project-module";
+import HeroAtmosphere from "./HeroAtmosphere";
 import ProjectArtwork from "./ProjectArtwork";
-import type { HeroFieldInfo } from "./HeroField";
-
-const heroFieldChunk = import("./HeroField");
-const HeroField = lazy(() => heroFieldChunk);
 
 const BENEATH_VISIBLE = 4;
 
@@ -93,79 +90,6 @@ export default function LandingPage({ projects, onOpenProject }: LandingPageProp
     () => new Map(),
   );
   const [revealReady, setRevealReady] = useState(false);
-  const [heroLive, setHeroLive] = useState(false);
-  const [fieldInfo, setFieldInfo] = useState<HeroFieldInfo | null>(null);
-  useEffect(() => {
-    const timer = window.setTimeout(() => setHeroLive(true), 150);
-    return () => window.clearTimeout(timer);
-  }, []);
-  const handleFieldReady = (info: HeroFieldInfo) => {
-    setFieldInfo(info.particles > 0 ? info : null);
-    setHeroLive(true);
-  };
-  useEffect(() => {
-    const hero = heroRef.current;
-    if (!hero) {
-      return;
-    }
-    const motionQuery = window.matchMedia("(prefers-reduced-motion: reduce)");
-    const finePointerQuery = window.matchMedia("(pointer: fine)");
-    let frame = 0;
-    let pointerX = 0;
-    let pointerY = 0;
-    const update = () => {
-      frame = 0;
-      const rect = hero.getBoundingClientRect();
-      const viewportHeight = window.innerHeight || 1;
-      const progress = Math.min(1, Math.max(0, (viewportHeight - rect.top) / (viewportHeight + rect.height)));
-      hero.style.setProperty("--hero-p", progress.toFixed(4));
-      hero.style.setProperty("--hero-mx", pointerX.toFixed(4));
-      hero.style.setProperty("--hero-my", pointerY.toFixed(4));
-    };
-    const schedule = () => {
-      if (!frame) {
-        frame = requestAnimationFrame(update);
-      }
-    };
-    const onPointerMove = (event: PointerEvent) => {
-      const rect = hero.getBoundingClientRect();
-      pointerX = ((event.clientX - rect.left) / (rect.width || 1)) * 2 - 1;
-      pointerY = ((event.clientY - rect.top) / (rect.height || 1)) * 2 - 1;
-      schedule();
-    };
-    const detach = () => {
-      window.removeEventListener("scroll", schedule);
-      window.removeEventListener("resize", schedule);
-      hero.removeEventListener("pointermove", onPointerMove);
-      if (frame) {
-        cancelAnimationFrame(frame);
-        frame = 0;
-      }
-    };
-    const sync = () => {
-      detach();
-      hero.style.removeProperty("--hero-p");
-      hero.style.removeProperty("--hero-mx");
-      hero.style.removeProperty("--hero-my");
-      if (motionQuery.matches) {
-        return;
-      }
-      window.addEventListener("scroll", schedule, { passive: true });
-      window.addEventListener("resize", schedule);
-      if (finePointerQuery.matches) {
-        hero.addEventListener("pointermove", onPointerMove);
-      }
-      update();
-    };
-    sync();
-    motionQuery.addEventListener("change", sync);
-    finePointerQuery.addEventListener("change", sync);
-    return () => {
-      detach();
-      motionQuery.removeEventListener("change", sync);
-      finePointerQuery.removeEventListener("change", sync);
-    };
-  }, []);
   useEffect(() => {
     const page = pageRef.current;
     if (!page) {
@@ -226,17 +150,9 @@ export default function LandingPage({ projects, onOpenProject }: LandingPageProp
 
         <section
           ref={heroRef}
-          className="signal-index-hero signal-index-hero-refraction"
-          data-hero-live={heroLive ? "" : undefined}
-          aria-labelledby="signal-index-title"
+          className="signal-index-hero signal-index-hero-refraction"          aria-labelledby="signal-index-title"
         >
-          <Suspense fallback={null}>
-            <HeroField onReady={handleFieldReady} />
-          </Suspense>
-          <div className="signal-index-hero-depth" aria-hidden="true">
-            <i className="signal-index-depth-layer signal-index-depth-far" />            <i className="signal-index-depth-layer signal-index-depth-mid" />
-            <i className="signal-index-depth-layer signal-index-depth-near" />
-          </div>
+          <HeroAtmosphere />
           <svg className="signal-index-sea-filter" aria-hidden="true" focusable="false">
             <defs>
               <filter id="signal-index-sea-warp" x="-20%" y="-20%" width="140%" height="140%">
@@ -285,11 +201,6 @@ export default function LandingPage({ projects, onOpenProject }: LandingPageProp
             </a>
             <span className="signal-index-beneath-rule" />
           </div>
-          {fieldInfo ? (
-            <p className="signal-index-field-note" aria-hidden="true">
-              gpgpu · {fieldInfo.particles.toLocaleString("en-US")} particles · ping-pong fbo
-            </p>
-          ) : null}
         </section>
 
         <section className="signal-index-projects" id="projects" aria-label="Projects">

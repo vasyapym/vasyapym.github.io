@@ -12,7 +12,13 @@ const planckToNowBundle = resolve(planckToNowRoot, "dist/main.js");
 
 function createPlanckToNowBuild(): void {
   const npm = process.platform === "win32" ? "npm.cmd" : "npm";
-  execFileSync(npm, ["run", "build"], { cwd: planckToNowRoot, stdio: "inherit" });
+  execFileSync(npm, ["run", "build"], {
+    cwd: planckToNowRoot,
+    stdio: "inherit",
+    // Node >= 18.20 refuses to spawn .cmd shims without a shell
+    // (CVE-2024-27980 hardening), so Windows needs this flag.
+    shell: process.platform === "win32",
+  });
 }
 
 function spaFallbackPlugin(): Plugin {
