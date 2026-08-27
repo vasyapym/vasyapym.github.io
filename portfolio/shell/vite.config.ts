@@ -18,6 +18,7 @@ function createPlanckToNowBuild(): void {
 function spaFallbackPlugin(): Plugin {
   return {
     name: "spa-fallback",
+    enforce: "post",
     configureServer(server) {
       server.middlewares.use((request, _response, next) => {
         const pathname = new URL(request.url ?? "/", "http://localhost").pathname;
@@ -27,8 +28,12 @@ function spaFallbackPlugin(): Plugin {
         next();
       });
     },
-    generateBundle() {
-      this.emitFile({ type: "asset", fileName: "404.html", source: readFileSync(resolve(shellRoot, "index.html")) });
+    generateBundle(_options, bundle) {
+      const htmlAsset = bundle["index.html"];
+      if (!htmlAsset || htmlAsset.type !== "asset") {
+        throw new Error("spa-fallback: built index.html missing from the bundle");
+      }
+      this.emitFile({ type: "asset", fileName: "404.html", source: String(htmlAsset.source) });
     },
   };
 }
