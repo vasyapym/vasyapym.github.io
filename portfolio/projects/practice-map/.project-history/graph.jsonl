@@ -11,3 +11,5 @@
 {"type":"edge.added","id":"e5","ts":"2026-08-27T06:00:58.721Z","from":"n5","to":"n6","rel":"continues"}
 {"type":"node.added","id":"n7","ts":"2026-08-27T06:01:27.666Z","kind":"iteration","actor":"user","title":"feat(portfolio): silk GPGPU trails without worms, compact mobile hero, lean Hello Kitty Run","artifacts":[{"kind":"git-commit","ref":"02e637a"}],"meta":{"source":"auto"}}
 {"type":"edge.added","id":"e6","ts":"2026-08-27T06:01:27.667Z","from":"n6","to":"n7","rel":"continues"}
+{"type":"node.added","id":"n8","ts":"2026-08-27T09:56:37.774Z","kind":"iteration","actor":"user","title":"feat(portfolio): hero at native density on all platforms, unbounded light fade, card hover polish, five custom artworks","artifacts":[{"kind":"git-commit","ref":"a3e6607"}],"meta":{"source":"auto"}}
+{"type":"edge.added","id":"e7","ts":"2026-08-27T09:56:37.774Z","from":"n7","to":"n8","rel":"continues"}

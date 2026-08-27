@@ -7,3 +7,5 @@
 {"type":"edge.added","id":"e3","ts":"2026-08-25T10:46:41.259Z","from":"n3","to":"n4","rel":"continues"}
 {"type":"node.added","id":"n5","ts":"2026-08-25T10:53:47.053Z","kind":"iteration","actor":"user","title":"feat(planck-to-now): simulate particles on the GPU with ping-pong FBO physics","artifacts":[{"kind":"git-commit","ref":"ef91648"}],"meta":{"source":"auto"}}
 {"type":"edge.added","id":"e4","ts":"2026-08-25T10:53:47.072Z","from":"n4","to":"n5","rel":"continues"}
+{"type":"node.added","id":"n6","ts":"2026-08-27T09:56:37.772Z","kind":"iteration","actor":"user","title":"feat(portfolio): hero at native density on all platforms, unbounded light fade, card hover polish, five custom artworks","artifacts":[{"kind":"git-commit","ref":"a3e6607"}],"meta":{"source":"auto"}}
+{"type":"edge.added","id":"e5","ts":"2026-08-27T09:56:37.773Z","from":"n5","to":"n6","rel":"continues"}

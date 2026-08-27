@@ -17,3 +17,5 @@
 {"type":"edge.added","id":"e7","ts":"2026-08-25T14:21:03.108Z","from":"n9","to":"n10","rel":"continues"}
 {"type":"node.added","id":"n11","ts":"2026-08-26T05:15:25.172Z","kind":"iteration","actor":"user","title":"feat(evening-forest): the daylight engine, a guaranteed fox, and a readable dusk","artifacts":[{"kind":"git-commit","ref":"dbc7b11"}],"meta":{"source":"auto"}}
 {"type":"edge.added","id":"e8","ts":"2026-08-26T05:15:25.175Z","from":"n10","to":"n11","rel":"continues"}
+{"type":"node.added","id":"n12","ts":"2026-08-27T09:56:37.770Z","kind":"iteration","actor":"user","title":"feat(portfolio): hero at native density on all platforms, unbounded light fade, card hover polish, five custom artworks","artifacts":[{"kind":"git-commit","ref":"a3e6607"}],"meta":{"source":"auto"}}
+{"type":"edge.added","id":"e9","ts":"2026-08-27T09:56:37.771Z","from":"n11","to":"n12","rel":"continues"}

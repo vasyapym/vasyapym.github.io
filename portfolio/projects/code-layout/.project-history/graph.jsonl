@@ -1,3 +1,5 @@
 {"type":"node.added","id":"n1","ts":"2026-08-24T01:33:01.940Z","kind":"snapshot","actor":"user","title":"code-layout project history"}
 {"type":"node.added","id":"n2","ts":"2026-08-24T09:01:44.490Z","kind":"iteration","actor":"user","title":"feat(code-layout): adopt the landing's ink catalogue system","artifacts":[{"kind":"git-commit","ref":"f16f663"}],"meta":{"source":"auto"}}
 {"type":"edge.added","id":"e1","ts":"2026-08-24T09:01:44.493Z","from":"n1","to":"n2","rel":"continues"}
+{"type":"node.added","id":"n3","ts":"2026-08-27T09:56:37.744Z","kind":"iteration","actor":"user","title":"feat(portfolio): hero at native density on all platforms, unbounded light fade, card hover polish, five custom artworks","artifacts":[{"kind":"git-commit","ref":"a3e6607"}],"meta":{"source":"auto"}}
+{"type":"edge.added","id":"e2","ts":"2026-08-27T09:56:37.745Z","from":"n2","to":"n3","rel":"continues"}
