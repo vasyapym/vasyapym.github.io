@@ -12,39 +12,43 @@ const planckToNowBundle = resolve(planckToNowRoot, "dist/main.js");
 
 function createPlanckToNowBuild(): void {
   const npm = process.platform === "win32" ? "npm.cmd" : "npm";
-  execFileSync(npm, ["run", "build"], {
-    cwd: planckToNowRoot,
-    stdio: "inherit",
-  });
+  execFileSync(npm, ["run", "build"], { cwd: planckToNowRoot, stdio: "inherit" });
+}
+
+function spaFallbackPlugin(): Plugin {
+  return {
+    name: "spa-fallback",
+    configureServer(server) {
+      server.middlewares.use((request, _response, next) => {
+        const pathname = new URL(request.url ?? "/", "http://localhost").pathname;
+        if (request.method === "GET" && /^\/projects\/[^/]+\/?$/.test(pathname) && !pathname.includes(".")) {
+          request.url = "/";
+        }
+        next();
+      });
+    },
+    generateBundle() {
+      this.emitFile({ type: "asset", fileName: "404.html", source: readFileSync(resolve(shellRoot, "index.html")) });
+    },
+  };
 }
 
 function planckToNowStaticPlugin(): Plugin {
   let built = false;
-
   const ensureBuild = () => {
     if (!built || !existsSync(planckToNowBundle)) {
       createPlanckToNowBuild();
       built = true;
     }
   };
-
   const getStaticFile = (pathname: string): string | undefined => {
-    if (pathname === "/planck-to-now" || pathname === "/planck-to-now/") {
-      return planckToNowIndex;
-    }
-
-    if (pathname === "/planck-to-now/dist/main.js") {
-      return planckToNowBundle;
-    }
-
+    if (pathname === "/planck-to-now" || pathname === "/planck-to-now/") return planckToNowIndex;
+    if (pathname === "/planck-to-now/dist/main.js") return planckToNowBundle;
     return undefined;
   };
-
   return {
     name: "planck-to-now-static",
-    config() {
-      ensureBuild();
-    },
+    config() { ensureBuild(); },
     configureServer(server) {
       server.middlewares.use((request, response, next) => {
         const pathname = new URL(request.url ?? "/", "http://localhost").pathname;
@@ -54,56 +58,26 @@ function planckToNowStaticPlugin(): Plugin {
           response.end();
           return;
         }
-
         const file = getStaticFile(pathname);
-
-        if (!file) {
-          next();
-          return;
-        }
-
+        if (!file) { next(); return; }
         ensureBuild();
         response.statusCode = 200;
-        response.setHeader(
-          "Content-Type",
-          file.endsWith(".js") ? "application/javascript; charset=utf-8" : "text/html; charset=utf-8",
-        );
+        response.setHeader("Content-Type", file.endsWith(".js") ? "application/javascript; charset=utf-8" : "text/html; charset=utf-8");
         response.end(readFileSync(file));
       });
     },
     generateBundle() {
       ensureBuild();
-      this.emitFile({
-        type: "asset",
-        fileName: "planck-to-now/index.html",
-        source: readFileSync(planckToNowIndex),
-      });
-      this.emitFile({
-        type: "asset",
-        fileName: "planck-to-now/dist/main.js",
-        source: readFileSync(planckToNowBundle),
-      });
+      this.emitFile({ type: "asset", fileName: "planck-to-now/index.html", source: readFileSync(planckToNowIndex) });
+      this.emitFile({ type: "asset", fileName: "planck-to-now/dist/main.js", source: readFileSync(planckToNowBundle) });
     },
   };
 }
 
 export default defineConfig({
-  plugins: [planckToNowStaticPlugin(), react()],
-  // es2020 keeps Safari in the game: dev prebundling and builds transpile
-  // newer syntax (class fields, static blocks) that raw-esnext serving
-  // would let crash the lazy chunks on older Safari engines.
-  esbuild: {
-    target: "es2020",
-  },
-  optimizeDeps: {
-    esbuildOptions: {
-      target: "es2020",
-    },
-  },
-  build: {
-    target: "es2020",
-  },
-  server: {
-    port: 5173,
-  },
+  plugins: [planckToNowStaticPlugin(), spaFallbackPlugin(), react()],
+  esbuild: { target: "es2020" },
+  optimizeDeps: { esbuildOptions: { target: "es2020" } },
+  build: { target: "es2020" },
+  server: { port: 5173 },
 });

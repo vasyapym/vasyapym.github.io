@@ -35,9 +35,9 @@ export default function App() {
   }, []);
 
   const openProject = (id: string) => {
-    window.history.pushState({}, "", `/projects/${id}`);
+    window.history.pushState({}, "", `/projects/${id}/`);
     window.scrollTo({ top: 0 });
-    setPathname(`/projects/${id}`);
+    setPathname(`/projects/${id}/`);
   };
 
   const goHome = () => {
