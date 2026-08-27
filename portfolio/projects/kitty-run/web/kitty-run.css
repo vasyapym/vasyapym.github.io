@@ -61,6 +61,12 @@
   border: 1px solid var(--ink-line);
   border-radius: 0;
   background: #ffeff5;
+  /* Touch hardening: swipes drive the game, never scroll/zoom the page,
+     no text selection mid-dash, no tap flash on mobile browsers. */
+  touch-action: none;
+  user-select: none;
+  -webkit-user-select: none;
+  -webkit-tap-highlight-color: transparent;
 }
 
 .kitty-run-stage canvas {
@@ -145,19 +151,6 @@
 .kitty-run-pause:hover {
   background: #fff8fb;
   transform: scale(1.06);
-}
-
-.kitty-run-attribution {
-  margin-top: -12px;
-}
-
-.kitty-run-attribution p {
-  margin: 0;
-  color: var(--ink-muted);
-  font-family: var(--mono);
-  font-size: 12px;
-  letter-spacing: 0.04em;
-  line-height: 1.6;
 }
 
 .kitty-run-heart {
@@ -250,6 +243,120 @@
   transform: scaleX(0);
 }
 
+/* Milestone celebration: "500 m!" pops in, holds, drifts away. The
+   animation is driven per event with the Web Animations API, so the base
+   style just parks it invisible. */
+.kitty-run-milestone {
+  position: absolute;
+  left: 50%;
+  top: 26%;
+  transform: translate(-50%, 0);
+  font-family: var(--display);
+  font-size: clamp(30px, 4.4vw, 46px);
+  font-weight: 700;
+  letter-spacing: -0.01em;
+  color: #e94f64;
+  text-shadow:
+    0 1px 0 rgba(255, 255, 255, 0.85),
+    0 6px 18px rgba(233, 79, 100, 0.35);
+  opacity: 0;
+  pointer-events: none;
+}
+
+/* Touch dash pad: a thumb-sized button in the bottom-right corner. The
+   cooldown ring is a conic gradient driven by the game loop through the
+   --cd custom property (1 = just dashed, 0 = ready), so the arc sweeps
+   closed as the dash comes back and the pad visibly "charges up". */
+.kitty-run-dash {
+  position: absolute;
+  right: 20px;
+  bottom: 18px;
+  width: 66px;
+  height: 66px;
+  border-radius: 999px;
+  border: none;
+  background: rgba(255, 248, 251, 0.9);
+  color: #d13a50;
+  font-family: var(--mono);
+  font-size: 13px;
+  font-weight: 700;
+  letter-spacing: 0.09em;
+  text-transform: uppercase;
+  box-shadow: 0 4px 14px rgba(138, 60, 84, 0.25);
+  pointer-events: auto;
+  cursor: pointer;
+  touch-action: manipulation;
+  transition: transform 0.12s ease, background 0.12s ease, opacity 0.2s ease;
+}
+
+.kitty-run-dash::before {
+  content: "";
+  position: absolute;
+  inset: -6px;
+  border-radius: 50%;
+  background: conic-gradient(
+    #e94f64 calc((1 - var(--cd, 0)) * 360deg),
+    rgba(74, 59, 82, 0.16) 0
+  );
+  -webkit-mask: radial-gradient(farthest-side, transparent calc(100% - 5px), #000 calc(100% - 4px));
+  mask: radial-gradient(farthest-side, transparent calc(100% - 5px), #000 calc(100% - 4px));
+}
+
+.kitty-run-dash:hover {
+  background: #fff8fb;
+  transform: scale(1.05);
+}
+
+.kitty-run-dash:active {
+  transform: scale(0.9);
+}
+
+.kitty-run-dash.is-cooling {
+  color: rgba(209, 58, 80, 0.45);
+  background: rgba(255, 248, 251, 0.62);
+}
+
+/* Autopilot chip: mirrors the dash pad on the bottom edge while the bot
+   drives; tapping it hands control back to the visitor mid-run. Bow-red,
+   so every tappable control shares one accent family. */
+.kitty-run-pilotchip {
+  position: absolute;
+  right: 24px;
+  bottom: 20px;
+  padding: 8px 14px;
+  border-radius: 999px;
+  border: 1px solid rgba(255, 255, 255, 0.28);
+  background: rgba(209, 58, 80, 0.92);
+  color: #fff6f0;
+  font-family: var(--mono);
+  font-size: 11.5px;
+  font-weight: 500;
+  letter-spacing: 0.05em;
+  white-space: nowrap;
+  pointer-events: auto;
+  cursor: pointer;
+  transition: background 160ms ease, transform 160ms ease;
+}
+
+.kitty-run-pilotchip:hover {
+  background: rgba(209, 58, 80, 1);
+  transform: scale(1.04);
+}
+
+/* Bullet-time vignette: a rose wash that blooms from the edges while the
+   dash holds the clock down. Opacity is written every frame by the game
+   loop from world.timeScale, so it blooms and recedes with the dip. */
+.kitty-run-bullet {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  opacity: 0;
+  background:
+    radial-gradient(ellipse at 50% 55%, transparent 46%, rgba(233, 79, 100, 0.32) 100%),
+    radial-gradient(ellipse at 50% 55%, transparent 72%, rgba(209, 58, 80, 0.2) 100%);
+  mix-blend-mode: multiply;
+}
+
 /* --- floaters ------------------------------------------------------------ */
 
 .kitty-run-floaters {
@@ -318,12 +425,132 @@
   border-color: var(--ink-accent);
 }
 
+/* The ready state is the shop window: a light pastel wash instead of the
+   dark scrim, so visitors see Kitty idling in her world behind the card.
+   The card parks in the run-ahead space (right third), leaving Kitty —
+   who idles at her lead position on the left — fully in view. */
+.kitty-run-overlay--ready {
+  place-items: center end;
+  padding-right: 11%;
+  background: rgba(255, 243, 248, 0.34);
+  backdrop-filter: blur(2px);
+}
+
+.kitty-run-card--ready {
+  border: 1px solid #f2cfdd;
+  background: rgba(255, 248, 251, 0.94);
+  color: #4a3b52;
+  box-shadow: 0 18px 44px rgba(138, 111, 168, 0.28);
+}
+
+.kitty-run-card--ready:hover {
+  border-color: #e88bab;
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  .kitty-run-card--ready {
+    animation: kitty-card-float 3.6s ease-in-out infinite;
+  }
+}
+
+@keyframes kitty-card-float {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-7px); }
+}
+
+/* The ready column: start card plus the autopilot invitation beneath it.
+   Separate buttons — a control panel, not one giant click target. */
+.kitty-run-ready-stack {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 12px;
+}
+
+/* Autopilot invitation: a quieter paper pill under the start card. It
+   sells the engineering story in one line — the same lookahead bot that
+   verifies every generated track plays the live game on request. */
+.kitty-run-watch {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 3px;
+  max-width: min(430px, 100%);
+  padding: 10px 22px;
+  border: 1px solid #f2cfdd;
+  border-radius: 999px;
+  background: rgba(255, 248, 251, 0.85);
+  color: #4a3b52;
+  cursor: pointer;
+  font-family: var(--mono);
+  text-align: center;
+  transition: border-color 160ms ease, background 160ms ease;
+}
+
+.kitty-run-watch:hover {
+  border-color: #e88bab;
+  background: #fff8fb;
+}
+
+.kitty-run-watch-title {
+  font-size: 12px;
+  font-weight: 700;
+  letter-spacing: 0.07em;
+  text-transform: uppercase;
+  color: #d13a50;
+}
+
+.kitty-run-watch-hint {
+  font-size: 11px;
+  letter-spacing: 0.04em;
+  color: #8a6f7e;
+}
+
 .kitty-run-card-kicker {
   color: var(--ink-accent);
   font-family: var(--mono);
   font-size: 12px;
   font-weight: 500;
   letter-spacing: 0.05em;
+}
+
+.kitty-run-card-badge {
+  padding: 5px 14px;
+  border-radius: 999px;
+  background: var(--ink-accent-bright, #e94f64);
+  color: #fff8fb;
+  font-family: var(--mono);
+  font-size: 12px;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  animation: kitty-badge-pop 0.45s cubic-bezier(0.2, 1.6, 0.4, 1) both;
+}
+
+@keyframes kitty-badge-pop {
+  from { transform: scale(0.4); opacity: 0; }
+  to { transform: scale(1); opacity: 1; }
+}
+
+/* Echo line on the ready/over cards: the same bow-red accent family as
+   the in-run HUD, so race notes read as part of the game, not a widget. */
+.kitty-run-card-echo {
+  padding: 5px 14px;
+  border-radius: 999px;
+  border: 1px solid rgba(233, 79, 100, 0.4);
+  background: rgba(233, 79, 100, 0.16);
+  color: #ffc9d6;
+  font-family: var(--mono);
+  font-size: 11.5px;
+  letter-spacing: 0.05em;
+  font-variant-numeric: tabular-nums;
+}
+
+/* On the paper ready card the pill flips to rose-on-light. */
+.kitty-run-card--ready .kitty-run-card-echo {
+  border-color: rgba(209, 58, 80, 0.26);
+  background: rgba(233, 79, 100, 0.08);
+  color: #b23248;
 }
 
 .kitty-run-card-title {
@@ -333,6 +560,14 @@
   font-weight: 600;
   letter-spacing: -0.01em;
   line-height: 1;
+  font-variant-numeric: tabular-nums;
+}
+
+.kitty-run-card-stat {
+  color: var(--ink-accent);
+  font-family: var(--mono);
+  font-size: 13px;
+  letter-spacing: 0.05em;
   font-variant-numeric: tabular-nums;
 }
 
@@ -357,6 +592,24 @@
 
 .kitty-run-card:hover .kitty-run-card-action {
   background: var(--ink-accent-bright);
+}
+
+/* Ready card children: ink on paper, bow-red action. */
+.kitty-run-card--ready .kitty-run-card-kicker {
+  color: #e8455f;
+}
+
+.kitty-run-card--ready .kitty-run-card-hint {
+  color: #8a6f7e;
+}
+
+.kitty-run-card--ready .kitty-run-card-action {
+  background: #e94f64;
+  color: #fff8fb;
+}
+
+.kitty-run-card--ready:hover .kitty-run-card-action {
+  background: #d13a50;
 }
 
 .kitty-run-debug {
@@ -435,9 +688,38 @@
     padding: 16px;
   }
 
+  /* Small screens centre the ready card again: there is no room to park
+     it beside Kitty without pushing it off stage. */
+  .kitty-run-overlay--ready {
+    place-items: center;
+    padding-right: 16px;
+  }
+
   .kitty-run-card {
     padding: 24px 26px;
     gap: 10px;
+  }
+
+  .kitty-run-ready-stack {
+    gap: 9px;
+  }
+
+  .kitty-run-watch {
+    padding: 9px 18px;
+  }
+
+  .kitty-run-pilotchip {
+    right: 14px;
+    bottom: 16px;
+  }
+
+  /* The dash pad grows a little and tucks into the thumb corner. */
+  .kitty-run-dash {
+    right: 14px;
+    bottom: 14px;
+    width: 74px;
+    height: 74px;
+    font-size: 14px;
   }
 
   .kitty-run-card-action {

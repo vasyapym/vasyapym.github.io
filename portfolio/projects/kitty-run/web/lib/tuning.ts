@@ -5,18 +5,47 @@
 export const TUNING = {
   speedStart: 7,
   speedMax: 14,
-  speedRamp: 520,
+  // Reaches the top pace noticeably sooner: the gentle opening is a
+  // courtesy, not the whole game.
+  speedRamp: 420,
 
   gravity: 38,
-  jumpV: 13.5,
+  // Sized so the tall crate is clearable even taking off on the steepest
+  // uphill stretch at top speed (see the checks + WORST_SLOPE).
+  jumpV: 14.2,
   doubleJumpV: 11.5,
   jumpCutFactor: 0.45,
   coyoteTime: 0.09,
   maxJumps: 2,
 
-  dashDuration: 0.22,
-  dashCooldown: 1.4,
+  // Generous on purpose: 0.32 s of invulnerability covers a full hazard
+  // crossing at top speed, so a dash a beat early or late still lands.
+  dashDuration: 0.32,
+  // Short enough that a burned dash comes back inside a breath.
+  dashCooldown: 1.2,
   dashBoost: 6,
+
+  // Input buffer: a dash pressed while cooling down is remembered this
+  // long and fires the instant the cooldown ends. Near-miss presses
+  // become slightly-early dashes instead of dead inputs — the single
+  // biggest "the dash demands exact timing" fix.
+  dashBuffer: 0.28,
+
+  // Bullet time: every dash dips the whole simulation's clock to this
+  // fraction of real time, then eases back at bulletRecovery per sim
+  // second. Deep enough to read instantly, shallow enough to never feel
+  // like a pause; both the player and the echo sim dilate identically,
+  // so the race stays in lockstep.
+  bulletTimeScale: 0.35,
+  bulletRecovery: 5.5,
+
+  // A dash requested this soon after leaving the ground cancels the fresh
+  // jump outright — kitty snaps back down and ducks instead. This is what
+  // makes touch ducking reliable: the tap-to-jump fires on finger-down
+  // before the gesture is known, so a swipe-down must be able to take the
+  // accidental jump back. Long enough to cover human swipe latency
+  // (~50-90 ms), short enough to never eat a deliberate jump.
+  jumpCancelWindow: 0.12,
 
   invulnTime: 1.3,
   hitStopTime: 0.06,
@@ -25,6 +54,17 @@ export const TUNING = {
   maxHearts: 3,
   kittyRadius: 0.75,
   kittyCenterLift: 0.95,
+
+  // Every this many metres the run throws a little celebration.
+  milestoneStep: 500,
+
+  // The best-run echo waits until the player opens this much of a lead,
+  // then gives chase. A distance, not a delay: once launched, both sims
+  // run the same track at the same speed, so the gap freezes here instead
+  // of stretching with speed until it left phone screens entirely. Four
+  // and a half metres keeps the race readable — she runs in view, never
+  // crowding the player's sprite.
+  echoGapMetres: 4.5,
 } as const;
 
 export type Tuning = typeof TUNING;

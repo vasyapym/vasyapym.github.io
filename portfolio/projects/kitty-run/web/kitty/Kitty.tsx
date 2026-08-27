@@ -1,4 +1,4 @@
-// The procedural Hello Kitty: flat vector shapes (THREE.ShapeGeometry)
+// The procedural cat hero: flat vector shapes (THREE.ShapeGeometry)
 // layered with an inverted-hull style ink outline behind each fill, posed
 // every frame from the pure rig. React renders the parts once; useFrame
 // writes transforms directly.

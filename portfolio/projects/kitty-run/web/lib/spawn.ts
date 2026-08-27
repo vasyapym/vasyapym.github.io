@@ -8,7 +8,13 @@ import { groundY } from "./ground.ts";
 import { createRng, type Rng } from "./rng.ts";
 import { jumpLength } from "./tuning.ts";
 
-export type SpawnKind = "box" | "tall" | "hover" | "heart" | "star" | "heal";
+export type SpawnKind =
+  | "box"
+  | "tall"
+  | "hover"
+  | "heart"
+  | "star"
+  | "heal";
 
 export type SpawnItem = {
   kind: SpawnKind;
@@ -20,6 +26,8 @@ export type Chunk = {
   items: SpawnItem[];
   length: number;
   hazardEnd: number;
+  // Minimum recoverable distance this chunk demands after it.
+  gapFloor: number;
 };
 
 // Shared geometry so the scene renderer and the tests agree on sizes.
@@ -29,6 +37,9 @@ export const HOVER_RADIUS = 0.55;
 export const PICKUP_RADIUS = 0.45;
 export const HOVER_LIFT = 2.5;
 
+// Every hazard is jumpable: the tallest top (3 * TALL_HALF over the
+// ground) sits under the worst-case single-jump clearance, a pin the node
+// checks hold even on the steepest uphill take-off.
 export function isHazard(kind: SpawnKind): boolean {
   return kind === "box" || kind === "tall" || kind === "hover";
 }
@@ -49,7 +60,7 @@ export function nextChunkOrigin(
 ): number {
   return Math.max(
     chunk.length,
-    chunk.hazardEnd - origin + minHazardGap(speed),
+    chunk.hazardEnd - origin + chunk.gapFloor,
   );
 }
 
@@ -77,23 +88,24 @@ const PATTERN_IDS: readonly PatternId[] = [
 function patternWeight(id: PatternId, difficulty: number): number {
   switch (id) {
     case "rest":
-      return 2.2 - difficulty * 0.9;
+      return 1.9 - difficulty * 1.1;
     case "singleBox":
       return 2.4;
     case "doubleBox":
-      return 0.6 + difficulty * 2.2;
+      return 0.7 + difficulty * 2.4;
     case "stairs":
-      return difficulty * 2.4;
+      return difficulty * 2.6;
     case "hoverGate":
-      return difficulty * 2.0;
+      return difficulty * 2.2;
     case "heartArc":
-      return 1.6;
+      // A treat, not a diet: hearts are rare enough that losing one stings.
+      return 0.85;
     case "starLine":
-      return 1.4;
+      return 1.15;
     case "heal":
-      // The big cross heart: gated past the opening stretch, then a steady
-      // sight worth detouring for.
-      return difficulty >= 0.2 ? 0.9 : 0;
+      // The big cross heart: a mid-run sight worth detouring for, never an
+      // opening-stretch given.
+      return difficulty >= 0.3 ? 0.8 : 0;
   }
 }
 
@@ -108,7 +120,10 @@ function pickPattern(rng: Rng, difficulty: number): PatternId {
   return "rest";
 }
 
-function hazardY(kind: Extract<SpawnKind, "box" | "tall" | "hover">, x: number): number {
+function hazardY(
+  kind: Extract<SpawnKind, "box" | "tall" | "hover">,
+  x: number,
+): number {
   if (kind === "box") return groundY(x) + BOX_HALF;
   if (kind === "tall") return groundY(x) + 2 * TALL_HALF;
   return groundY(x) + HOVER_LIFT;
@@ -169,9 +184,9 @@ const BUILDERS: Record<PatternId, Builder> = {
   },
   heartArc: (_rng, s, speed) => {
     const items: SpawnItem[] = [];
-    const span = 4.5 + jumpLength(speed) * 0.55;
-    for (let i = 0; i < 4; i += 1) {
-      const t = i / 3;
+    const span = 3.4 + jumpLength(speed) * 0.45;
+    for (let i = 0; i < 3; i += 1) {
+      const t = i / 2;
       const x = s + 4.5 + t * span;
       items.push({
         kind: "heart",
@@ -208,10 +223,16 @@ export function buildChunk(
 
   let hazardEnd = Number.NEGATIVE_INFINITY;
   for (const item of built.items) {
-    if (isHazard(item.kind) && item.x > hazardEnd) hazardEnd = item.x;
+    if (!isHazard(item.kind)) continue;
+    if (item.x > hazardEnd) hazardEnd = item.x;
   }
 
-  return { items: built.items, length: built.length, hazardEnd };
+  return {
+    items: built.items,
+    length: built.length,
+    hazardEnd,
+    gapFloor: minHazardGap(speed),
+  };
 }
 
 // Convenience for callers that want a little length jitter without losing

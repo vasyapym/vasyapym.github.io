@@ -15,3 +15,5 @@
 {"type":"edge.added","id":"e7","ts":"2026-08-27T06:00:58.715Z","from":"n7","to":"n8","rel":"continues"}
 {"type":"node.added","id":"n9","ts":"2026-08-27T06:01:27.665Z","kind":"iteration","actor":"user","title":"feat(portfolio): silk GPGPU trails without worms, compact mobile hero, lean Hello Kitty Run","artifacts":[{"kind":"git-commit","ref":"02e637a"}],"meta":{"source":"auto"}}
 {"type":"edge.added","id":"e8","ts":"2026-08-27T06:01:27.666Z","from":"n8","to":"n9","rel":"continues"}
+{"type":"node.added","id":"n10","ts":"2026-08-27T08:18:46.090Z","kind":"iteration","actor":"code-iteration","title":"Restore Cat Runner rebrand and feature set reverted by 02e637a","summary":"Subtree restored from cd36bf7 (rebrand back to Cat Runner, attribution removed, bullet-time dash, adaptive soundtrack, autopilot, best-run echo, haptics, sim/shots tests). graph.jsonl kept at tip n9. Checks: kitty-run.check.ts all pass.","meta":{"restored-from":"cd36bf7","gate":"passed"}}
+{"type":"edge.added","id":"e9","ts":"2026-08-27T08:18:46.099Z","from":"n9","to":"n10","rel":"continues"}
