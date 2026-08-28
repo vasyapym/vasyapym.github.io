@@ -122,8 +122,77 @@ export default function LandingPage({ projects, onOpenProject }: LandingPageProp
     );
 
     cards.forEach((card) => observer.observe(card));
-    return () => observer.disconnect();
+
+    // Section-level reveal (hairline draw-in) uses its own observer: a tall
+    // section can never reach a 12% visible ratio, so it triggers on any pixel.
+    const sections = Array.from(page.querySelectorAll<HTMLElement>("[data-section-reveal]"));
+    const sectionObserver = new IntersectionObserver(
+      (entries) => {
+        for (const entry of entries) {
+          if (!entry.isIntersecting) {
+            continue;
+          }
+          entry.target.classList.add("is-revealed");
+          sectionObserver.unobserve(entry.target);
+        }
+      },
+      { threshold: 0, rootMargin: "0px 0px -8%" },
+    );
+    sections.forEach((section) => sectionObserver.observe(section));
+
+    return () => {
+      observer.disconnect();
+      sectionObserver.disconnect();
+    };
   }, [projects]);
+
+  useEffect(() => {
+    const hero = heroRef.current;
+    if (!hero) {
+      return;
+    }
+    if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) {
+      return;
+    }
+
+    let frame = 0;
+    let cancelled = false;
+    let lastValue = -1;
+
+    const update = () => {
+      frame = 0;
+      if (cancelled) {
+        return;
+      }
+      const span = hero.offsetHeight * 0.9;
+      const ratio = span > 0 ? Math.min(1, Math.max(0, window.scrollY / span)) : 0;
+      if (Math.abs(ratio - lastValue) < 0.004) {
+        return;
+      }
+      lastValue = ratio;
+      hero.style.setProperty("--hero-exit", ratio.toFixed(4));
+    };
+
+    const schedule = () => {
+      if (frame !== 0 || cancelled) {
+        return;
+      }
+      frame = window.requestAnimationFrame(update);
+    };
+
+    update();
+    window.addEventListener("scroll", schedule, { passive: true });
+    window.addEventListener("resize", schedule, { passive: true });
+
+    return () => {
+      cancelled = true;
+      if (frame !== 0) {
+        window.cancelAnimationFrame(frame);
+      }
+      window.removeEventListener("scroll", schedule);
+      window.removeEventListener("resize", schedule);
+    };
+  }, []);
 
   useEffect(() => {
     scheduleIdleWarm(() => {
@@ -136,22 +205,23 @@ export default function LandingPage({ projects, onOpenProject }: LandingPageProp
   return (
     <main ref={pageRef} className="signal-index">
       <div className="signal-index-shell">
-        <header className="signal-index-header">
-          <div className="signal-index-identity">
-            <a className="signal-index-wordmark" href="/">
-              <span className="signal-index-mark" aria-hidden="true" />
-              Vasily Argounov
-            </a>
-            <span className="signal-index-identity-divider" aria-hidden="true">|</span>
-            <a className="signal-index-contact" href="mailto:vasyapym@gmail.com">vasyapym@gmail.com</a>
-          </div>
-          <span className="signal-index-count">{projects.length.toString().padStart(2, "0")}</span>
-        </header>
-
         <section
           ref={heroRef}
-          className="signal-index-hero signal-index-hero-refraction"          aria-labelledby="signal-index-title"
+          className="signal-index-hero signal-index-hero-atmosphere"
+          aria-labelledby="signal-index-title"
         >
+          <header className="signal-index-header">
+            <div className="signal-index-identity">
+              <a className="signal-index-wordmark" href="/">
+                <span className="signal-index-mark" aria-hidden="true" />
+                Vasily Argounov
+              </a>
+              <span className="signal-index-identity-divider" aria-hidden="true">|</span>
+              <a className="signal-index-contact" href="mailto:vasyapym@gmail.com">vasyapym@gmail.com</a>
+            </div>
+            <span className="signal-index-count">{projects.length.toString().padStart(2, "0")}</span>
+          </header>
+
           <HeroAtmosphere />
           <svg className="signal-index-sea-filter" aria-hidden="true" focusable="false">
             <defs>
@@ -203,7 +273,12 @@ export default function LandingPage({ projects, onOpenProject }: LandingPageProp
           </div>
         </section>
 
-        <section className="signal-index-projects" id="projects" aria-label="Projects">
+        <section
+          className="signal-index-projects"
+          id="projects"
+          aria-label="Projects"
+          data-section-reveal=""
+        >
           <div className="signal-index-grid">
             {projects.map((project, index) => (
               <a

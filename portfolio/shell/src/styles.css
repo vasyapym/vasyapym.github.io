@@ -107,8 +107,7 @@ textarea:focus-visible {
   align-items: center;
   justify-content: space-between;
   gap: 2rem;
-  min-height: 64px;
-  border-bottom: 1px solid var(--ink-line-soft);}
+  min-height: 64px;}
 
 
 .signal-index-wordmark {
@@ -163,29 +162,77 @@ textarea:focus-visible {
   letter-spacing: 0.06em;}
 
 
+/* Consolidated hero — folds in the "Quiet index" + "Hero band" static
+   overrides so the cascade no longer depends on override ordering. The
+   identity header overlays the fog; --hero-exit (set from JS) fades the
+   whole first screen away as it scrolls off. */
 .signal-index-hero {
-  display: grid;
-  grid-template-columns: minmax(0, 1.2fr) minmax(220px, 0.65fr);
-  align-items: center;
-  gap: clamp(2rem, 5vw, 6rem);
-  min-height: auto;
-  padding: clamp(3.5rem, 6vw, 5rem) 0 clamp(3.5rem, 6vw, 5rem);}
-
-
-.signal-index-hero-copy {
   position: relative;
-  z-index: 1;}
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(280px, 0.58fr);
+  align-items: center;
+  gap: clamp(2rem, 6vw, 6rem);
+  min-height: 100vh;
+  min-height: 100svh;
+  padding: clamp(3rem, 5vw, 4.5rem) 0 clamp(2.5rem, 4vw, 3.5rem);
+  isolation: isolate;
+  color: #eeeae0;
+  opacity: calc(1 - var(--hero-exit, 0));}
+
+
+.signal-index-hero .signal-index-header {
+  position: absolute;
+  top: 0;
+  right: 0;
+  left: 0;
+  z-index: 2;
+  background: transparent;
+  border-bottom: 0;}
+
+
+.signal-index-hero .signal-index-hero-copy {
+  position: relative;
+  z-index: 1;
+  padding: clamp(1.5rem, 3vw, 2.5rem) 0;}
+
+
+.signal-index-hero .signal-index-hero-kicker {
+  margin: 0 0 0.7rem;
+  font-family: var(--mono);
+  font-size: 0.68rem;
+  font-weight: 500;
+  letter-spacing: 0.06em;
+  text-transform: lowercase;
+  color: var(--ink-accent);}
 
 
 .signal-index-hero h1 {
-  max-width: 820px;
-  margin: 0.9rem 0 1.2rem;
-  color: var(--index-ink);
+  max-width: 640px;
+  margin: 0;
   font-family: var(--display);
-  font-size: clamp(1.92rem, 3.2vw, 3.2rem);
+  font-size: clamp(2.1rem, 3.75vw, 3.83rem);
   font-weight: 600;
-  letter-spacing: -0.015em;
-  line-height: 1.02;}
+  letter-spacing: -0.035em;
+  line-height: 0.93;
+  color: var(--ink-text);}
+
+
+.signal-index-hero .signal-index-link {
+  margin-top: 1.15rem;
+  font-size: 0.84rem;
+  color: var(--ink-text);}
+
+
+.signal-index-hero .signal-index-link:hover,
+.signal-index-hero .signal-index-link:focus-visible {
+  color: var(--ink-accent-bright);}
+
+
+@media (max-width: 900px) {
+  .signal-index-hero {
+    grid-template-columns: 1fr;
+    gap: 2.5rem;
+  }}
 
 
 .signal-index-link,
@@ -226,8 +273,29 @@ textarea:focus-visible {
   display: grid;
   grid-template-columns: minmax(0, 1fr);
   gap: 0;
-  margin-top: 1.5rem;
-  border-top: 1px solid var(--ink-line);}
+  margin-top: 1.5rem;}
+
+
+/* Projects grid top hairline — draws in once when the section reveals. */
+.signal-index-grid::before {
+  content: "";
+  position: absolute;
+  top: 0;
+  right: 0;
+  left: 0;
+  height: 1px;
+  background: var(--ink-line);
+  transform-origin: left center;
+  transform: scaleX(1);
+  transition: transform 700ms cubic-bezier(0.22, 1, 0.36, 1);}
+
+
+.signal-index-grid {
+  position: relative;}
+
+
+.signal-index-reveal-ready .signal-index-projects:not(.is-revealed) .signal-index-grid::before {
+  transform: scaleX(0);}
 
 
 .signal-index-card {
@@ -243,8 +311,8 @@ textarea:focus-visible {
   opacity: 1;
   transform: translateY(0);
   transition:
-    opacity 500ms ease var(--reveal-delay),
-    transform 500ms cubic-bezier(0.2, 0.8, 0.2, 1) var(--reveal-delay),
+    opacity 680ms ease var(--reveal-delay),
+    transform 680ms cubic-bezier(0.22, 1, 0.36, 1) var(--reveal-delay),
     background 200ms ease 0ms,
     border-color 200ms ease 0ms;}
 
@@ -269,6 +337,35 @@ textarea:focus-visible {
 .signal-index-reveal-ready .signal-index-card:not(.is-revealed) {
   opacity: 0;
   transform: translateY(20px);}
+
+
+/* Inner stagger: topline -> copy -> artwork, gated so nothing hides without JS. */
+.signal-index-reveal-ready .signal-index-card .signal-index-card-topline,
+.signal-index-reveal-ready .signal-index-card .signal-index-card-copy,
+.signal-index-reveal-ready .signal-index-card .project-artwork {
+  opacity: 0;
+  transform: translateY(14px);
+  transition:
+    opacity 680ms ease,
+    transform 680ms cubic-bezier(0.22, 1, 0.36, 1);}
+
+
+.signal-index-reveal-ready .signal-index-card.is-revealed .signal-index-card-topline {
+  opacity: 1;
+  transform: none;
+  transition-delay: calc(var(--reveal-delay) + 0ms);}
+
+
+.signal-index-reveal-ready .signal-index-card.is-revealed .signal-index-card-copy {
+  opacity: 1;
+  transform: none;
+  transition-delay: calc(var(--reveal-delay) + 70ms);}
+
+
+.signal-index-reveal-ready .signal-index-card.is-revealed .project-artwork {
+  opacity: 1;
+  transform: none;
+  transition-delay: calc(var(--reveal-delay) + 140ms);}
 
 
 .signal-index-card:hover,
@@ -1219,7 +1316,6 @@ textarea:focus-visible {
 .code-layout-insight p { margin: 0; color: var(--ink-faint); font-family: var(--mono); font-size: 0.74rem; }
 
 @media (max-width: 900px) {
-  .signal-index-hero,
   .code-layout-hero { grid-template-columns: 1fr; }}
 
 
@@ -1248,8 +1344,6 @@ textarea:focus-visible {
   }
 
   .signal-index-header { gap: 0.65rem; }
-  .signal-index-hero { min-height: auto; padding-top: 2.5rem; padding-bottom: 3rem; }
-  .signal-index-hero h1 { font-size: clamp(1.35rem, 5.1vw, 1.92rem); }
   .signal-index-card-body { gap: 1rem; }
   .signal-index-card-copy h3 { font-size: 1.75rem; }
   .project-artwork { min-height: 190px; }
@@ -1281,35 +1375,6 @@ textarea:focus-visible {
 /* Quiet index */
 .signal-index-header {
   min-height: 64px;}
-
-
-.signal-index-hero {
-  grid-template-columns: minmax(0, 1fr) minmax(280px, 0.58fr);
-  gap: clamp(2rem, 6vw, 6rem);
-  padding: clamp(3rem, 5vw, 4.5rem) 0 clamp(2.5rem, 4vw, 3.5rem);}
-
-
-.signal-index-hero-kicker {
-  margin: 0 0 0.7rem;
-  font-family: var(--mono);
-  font-size: 0.68rem;
-  font-weight: 500;
-  letter-spacing: 0.06em;
-  text-transform: lowercase;}
-
-
-.signal-index-hero h1 {
-  max-width: 700px;
-  margin: 0;
-  font-size: clamp(1.56rem, 2.73vw, 2.85rem);
-  font-weight: 600;
-  letter-spacing: -0.035em;
-  line-height: 0.96;}
-
-
-.signal-index-link {
-  margin-top: 1.15rem;
-  font-size: 0.84rem;}
 
 
 .signal-index-projects {
@@ -1358,11 +1423,6 @@ textarea:focus-visible {
 
 
 @media (max-width: 900px) {
-  .signal-index-hero {
-    grid-template-columns: 1fr;
-    gap: 2.5rem;
-  }
-
   .signal-index-card-body {
     grid-template-columns: minmax(0, 0.9fr) minmax(280px, 1fr);
   }}
@@ -1617,64 +1677,11 @@ textarea:focus-visible {
   }}
 
 
-/* Hero band */
-.signal-index-hero-refraction {
-  position: relative;
-  isolation: isolate;
-  color: #eeeae0;
-}
-
-
-.signal-index-hero-refraction::before {
-  position: absolute;
-  z-index: -2;
-  top: 0;
-  bottom: 0;
-  left: 50%;
-  width: 100vw;
-  background:
-    radial-gradient(360px 240px at 72% 28%, rgba(211, 155, 97, 0.2), transparent 70%),
-    radial-gradient(440px 280px at 28% 72%, rgba(110, 180, 190, 0.16), transparent 70%),
-    #0b1317;
-  content: "";
-  transform: translateX(-50%);
-}
-
-
 .signal-index-sea-filter {
   position: absolute;
   width: 0;
   height: 0;
   overflow: hidden;
-}
-
-
-.signal-index-hero-refraction .signal-index-hero-copy {
-  padding: clamp(1.5rem, 3vw, 2.5rem) 0;
-}
-
-
-.signal-index-hero-refraction .signal-index-hero-kicker {
-  color: var(--ink-accent);
-}
-
-
-.signal-index-hero-refraction h1 {
-  max-width: 640px;
-  color: var(--ink-text);
-  font-size: clamp(2.1rem, 3.75vw, 3.83rem);
-  line-height: 0.93;
-}
-
-
-.signal-index-hero-refraction .signal-index-link {
-  color: var(--ink-text);
-}
-
-
-.signal-index-hero-refraction .signal-index-link:hover,
-.signal-index-hero-refraction .signal-index-link:focus-visible {
-  color: var(--ink-accent-bright);
 }
 
 
@@ -1760,38 +1767,34 @@ a.signal-index-beneath-row:focus-visible strong {
 
 
 @media (max-width: 900px) {
-  .signal-index-hero-refraction {
-    grid-template-columns: 1fr;
-  }
-
   .signal-index-beneath {
     justify-self: center;
   }}
 
 
 @media (max-width: 560px) {
-  .signal-index-hero-refraction {
+  .signal-index-hero-atmosphere {
     gap: 1.8rem;
     padding-top: 1.45rem;
     padding-bottom: 1.9rem;
   }
 
-  .signal-index-hero-refraction .signal-index-hero-copy {
+  .signal-index-hero-atmosphere .signal-index-hero-copy {
     padding: 0;
   }
 
-  .signal-index-hero-refraction .signal-index-hero-kicker {
+  .signal-index-hero-atmosphere .signal-index-hero-kicker {
     margin-bottom: 0.6rem;
     font-size: 0.64rem;
   }
 
-  .signal-index-hero-refraction h1 {
+  .signal-index-hero-atmosphere h1 {
     max-width: 340px;
     font-size: clamp(1.26rem, 5.5vw, 1.56rem);
     line-height: 0.98;
   }
 
-  .signal-index-hero-refraction .signal-index-link {
+  .signal-index-hero-atmosphere .signal-index-link {
     margin-top: 0.9rem;
     font-size: 0.76rem;
   }}
@@ -1850,15 +1853,15 @@ a.signal-index-beneath-row:focus-visible strong {
   }
 }
 
-.signal-index-hero-refraction .signal-index-hero-kicker {
+.signal-index-hero-atmosphere .signal-index-hero-kicker {
   animation: signal-index-hero-rise 0.72s cubic-bezier(0.22, 1, 0.36, 1) 0.08s both;
 }
 
-.signal-index-hero-refraction h1 {
+.signal-index-hero-atmosphere h1 {
   animation: signal-index-hero-rise 0.72s cubic-bezier(0.22, 1, 0.36, 1) 0.14s both;
 }
 
-.signal-index-hero-refraction .signal-index-link {
+.signal-index-hero-atmosphere .signal-index-link {
   animation: signal-index-hero-rise 0.72s cubic-bezier(0.22, 1, 0.36, 1) 0.48s both;
 }
 
@@ -1926,10 +1929,10 @@ a.signal-index-beneath-row:nth-of-type(6) { animation-delay: 1.07s; }
 
 
 @media (prefers-reduced-motion: reduce) {
-  .signal-index-hero-refraction .signal-index-hero-kicker,
-  .signal-index-hero-refraction h1,
-  .signal-index-hero-refraction .signal-index-link,
-  .signal-index-hero-refraction a.signal-index-beneath-row {
+  .signal-index-hero-atmosphere .signal-index-hero-kicker,
+  .signal-index-hero-atmosphere h1,
+  .signal-index-hero-atmosphere .signal-index-link,
+  .signal-index-hero-atmosphere a.signal-index-beneath-row {
     animation: none;
   }
 }
