@@ -246,6 +246,9 @@ textarea:focus-visible {
   .signal-index-hero {
     grid-template-columns: 1fr;
     gap: 2.5rem;
+    /* Pack the stacked copy + index together and center the group;
+       stretch would otherwise strand the two blocks apart on tall screens. */
+    align-content: center;
   }}
 
 
@@ -1807,8 +1810,10 @@ a.signal-index-beneath-row:focus-visible strong {
 
 @media (max-width: 560px) {
   .signal-index-hero-atmosphere {
+    /* 64px absolute header + breathing room: centered content must never
+       tuck under the identity block on short phones. */
     gap: 1.8rem;
-    padding-top: 1.45rem;
+    padding-top: calc(64px + 1.25rem);
     padding-bottom: 1.9rem;
   }
 
@@ -1919,15 +1924,6 @@ a.signal-index-beneath-row:nth-of-type(4) { animation-delay: 0.85s; }
 a.signal-index-beneath-row:nth-of-type(5) { animation-delay: 0.96s; }
 a.signal-index-beneath-row:nth-of-type(6) { animation-delay: 1.07s; }
 
-.signal-index-beneath-more {
-  display: none;
-}
-
-.signal-index-beneath-more:hover,
-.signal-index-beneath-more:focus-visible {
-  color: var(--ink-accent-bright);
-}
-
 @media (max-width: 560px) {
   .signal-index-beneath {
     gap: 0.85rem;
@@ -1944,8 +1940,9 @@ a.signal-index-beneath-row:nth-of-type(6) { animation-delay: 1.07s; }
     display: none;
   }
 
-  .signal-index-beneath-row-extra {
-    display: none;
+  .signal-index-beneath-row {
+    align-items: center;
+    min-height: 44px;
   }
 
   .signal-index-beneath-row span {
@@ -1954,19 +1951,6 @@ a.signal-index-beneath-row:nth-of-type(6) { animation-delay: 1.07s; }
 
   .signal-index-beneath-row strong {
     font-size: 0.88rem;
-  }
-
-  .signal-index-beneath-more {
-    display: inline-flex;
-    justify-content: center;
-    align-items: center;
-    gap: 0.55rem;
-    margin-top: 0.35rem;
-    color: var(--ink-muted);
-    font-family: var(--mono);
-    font-size: 0.7rem;
-    letter-spacing: 0.05em;
-    text-decoration: none;
   }
 }
 

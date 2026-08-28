@@ -3,8 +3,6 @@ import type { ProjectModule } from "../../../contracts/project-module";
 import HeroGlyphField from "./HeroGlyphField";
 import ProjectArtwork from "./ProjectArtwork";
 
-const BENEATH_VISIBLE = 4;
-
 type LandingPageProps = {
   projects: readonly ProjectModule[];
   onOpenProject: (id: string) => void;
@@ -283,35 +281,25 @@ export default function LandingPage({ projects, onOpenProject }: LandingPageProp
           </div>
           <div className="signal-index-graphic signal-index-beneath">
             <span className="signal-index-beneath-label">beneath the surface</span>
-            {projects.map((project, index) =>
-              project.tag ? (
-                <a
-                  className={`signal-index-beneath-row${
-                    index >= BENEATH_VISIBLE ? " signal-index-beneath-row-extra" : ""
-                  }`}
-                  href={`#project-${project.id}`}
-                  key={project.id}
-                  onClick={(event: MouseEvent<HTMLAnchorElement>) => {
-                    if (event.button === 0 && !event.metaKey && !event.ctrlKey && !event.shiftKey && !event.altKey) {
-                      event.preventDefault();
-                      animateScrollToCard(project.id);
-                    }
-                  }}
-                >
-                  <span>
-                    {String(index + 1).padStart(2, "0")} / {project.tag}
-                  </span>
-                  <strong>— {project.title}</strong>
-                </a>
-              ) : null,
-            )}
-            <a
-              className="signal-index-beneath-more"
-              href="#projects"
-              aria-label={`See all ${projects.length} projects`}
-            >
-              all {String(projects.length).padStart(2, "0")} <span aria-hidden="true">↓</span>
-            </a>
+            {projects.map((project, index) => (
+              <a
+                className="signal-index-beneath-row"
+                href={`#project-${project.id}`}
+                key={project.id}
+                onClick={(event: MouseEvent<HTMLAnchorElement>) => {
+                  if (event.button === 0 && !event.metaKey && !event.ctrlKey && !event.shiftKey && !event.altKey) {
+                    event.preventDefault();
+                    animateScrollToCard(project.id);
+                  }
+                }}
+              >
+                <span>
+                  {String(index + 1).padStart(2, "0")}
+                  {project.tag ? ` / ${project.tag}` : ""}
+                </span>
+                <strong>— {project.title}</strong>
+              </a>
+            ))}
             <span className="signal-index-beneath-rule" />
           </div>
         </section>
