@@ -1,6 +1,6 @@
 import { useEffect, useRef, useState, type CSSProperties, type MouseEvent } from "react";
 import type { ProjectModule } from "../../../contracts/project-module";
-import HeroGlyphField from "./HeroGlyphField";
+import HeroField from "./HeroField";
 import ProjectArtwork from "./ProjectArtwork";
 
 type LandingPageProps = {
@@ -97,33 +97,60 @@ export default function LandingPage({ projects, onOpenProject }: LandingPageProp
     page.classList.add("signal-index-reveal-ready");
     setRevealReady(true);
 
-    const cards = Array.from(page.querySelectorAll<HTMLElement>("[data-project-reveal]"));
+    const cards = Array.from(
+      page.querySelectorAll<HTMLElement>("[data-project-reveal]"),
+    );
+
+    // One-way reveal: once a card is revealed it stays revealed. Cards already
+    // in view at load (mobile: first rows under the short hugging hero) arrive
+    // in the first callback and are staggered; cards below the fold reveal as
+    // they are scrolled to. animateScrollToCard, #project-<id> deep links and
+    // browser scroll restoration all bring the target card into the observer's
+    // band, so the target is revealed by the time scrolling settles.
+    const revealCard = (id: string, delay: number) => {
+      setRevealedProjects((current) => {
+        if (current.has(id)) {
+          return current;
+        }
+        const next = new Map(current);
+        next.set(id, delay);
+        return next;
+      });
+    };
+
     const observer = new IntersectionObserver(
       (entries) => {
-        setRevealedProjects((current) => {
-          let batch = 0;
-          const next = new Map(current);
-          for (const entry of entries) {
-            if (!entry.isIntersecting) {
-              continue;
-            }
-            const projectId = (entry.target as HTMLElement).dataset.projectReveal;
-            if (projectId && !next.has(projectId)) {
-              next.set(projectId, Math.min(batch, 5) * 90);
-              batch += 1;
-            }
+        let batch = 0;
+        for (const entry of entries) {
+          if (!entry.isIntersecting) {
+            continue;
           }
-          return next.size === current.size ? current : next;
-        });
+          const card = entry.target as HTMLElement;
+          const id = card.dataset.projectReveal;
+          if (id) {
+            revealCard(id, Math.min(batch, 5) * 90);
+            batch += 1;
+          }
+          observer.unobserve(card);
+        }
       },
-      { threshold: 0.12, rootMargin: "0px 0px -8%" },
+      { threshold: 0, rootMargin: "0px 0px -12% 0px" },
     );
 
     cards.forEach((card) => observer.observe(card));
 
-    // Section-level reveal (hairline draw-in) uses its own observer: a tall
-    // section can never reach a 12% visible ratio, so it triggers on any pixel.
-    const sections = Array.from(page.querySelectorAll<HTMLElement>("[data-section-reveal]"));
+    // Deep-link safety: an on-load #project-<id> hash makes the browser jump to
+    // that card, which may land it past the observer band — reveal it up front.
+    const hash = window.location.hash;
+    if (hash.startsWith("#project-")) {
+      revealCard(hash.slice("#project-".length), 0);
+    }
+
+    // Section-level reveal (hairline draw-in): a tall section can never reach a
+    // 12% ratio, so it triggers on any pixel.
+    const sections = Array.from(
+      page.querySelectorAll<HTMLElement>("[data-section-reveal]"),
+    );
     const sectionObserver = new IntersectionObserver(
       (entries) => {
         for (const entry of entries) {
@@ -262,7 +289,7 @@ export default function LandingPage({ projects, onOpenProject }: LandingPageProp
             <span className="signal-index-count">{projects.length.toString().padStart(2, "0")}</span>
           </header>
 
-          <HeroGlyphField />
+          <HeroField />
           <svg className="signal-index-sea-filter" aria-hidden="true" focusable="false">
             <defs>
               <filter id="signal-index-sea-warp" x="-20%" y="-20%" width="140%" height="140%">
@@ -277,7 +304,7 @@ export default function LandingPage({ projects, onOpenProject }: LandingPageProp
             <a className="signal-index-link" href="#projects">
               Run the models <span aria-hidden="true">↓</span>
             </a>
-            <p className="signal-index-hero-note">live field&nbsp;· procedural heightfield&nbsp;→ glyph raster&nbsp;· canvas2d&nbsp;· no webgl</p>
+            <p className="signal-index-hero-note">live field&nbsp;· curl-noise flow&nbsp;→ streamline filings&nbsp;· canvas2d&nbsp;· no webgl</p>
           </div>
           <div className="signal-index-graphic signal-index-beneath">
             <span className="signal-index-beneath-label">beneath the surface</span>
