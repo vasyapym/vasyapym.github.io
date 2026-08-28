@@ -178,16 +178,15 @@ textarea:focus-visible {
   letter-spacing: 0.06em;}
 
 
-/* Type-led hero — the giant Unbounded headline is the main object; the canvas
-   (signal-index-hero-texture) is a demoted texture layer behind it. Single
-   centered column: copy owns the middle row, the beneath catalogue is a quiet
-   rail at the bottom. --hero-exit (set from JS) fades the whole first screen
-   away as it scrolls off. */
-.signal-index-hero {
+/* Fluid hero — a live incompressible-fluid simulation (HeroFluid) is the main
+   object, a full-bleed crisp ordered-dithered raster behind the copy. The type
+   is pulled back to editorial weight and sits over the ink on a flat (never
+   blurred) scrim so contrast holds. Rows: header (absolute) · copy owns the
+   centre · the beneath catalogue is a quiet rail at the bottom. --hero-exit
+   (set from JS) fades the whole first screen away as it scrolls off. */
+.signal-index-hero-fluid {
   position: relative;
   display: grid;
-  /* minmax(0, 1fr): the single column may never grow past the shell to the
-     headline's min-content — the font-size fit (below) keeps words inside. */
   grid-template-columns: minmax(0, 1fr);
   grid-template-rows: auto 1fr auto;
   align-items: stretch;
@@ -199,7 +198,7 @@ textarea:focus-visible {
   opacity: calc(1 - var(--hero-exit, 0));}
 
 
-.signal-index-hero .signal-index-header {
+.signal-index-hero-fluid .signal-index-header {
   position: absolute;
   top: 0;
   right: 0;
@@ -209,40 +208,59 @@ textarea:focus-visible {
   border-bottom: 0;}
 
 
-.signal-index-hero-copy {
+/* The simulation canvas — a genuine full-hero backdrop, not a masked strip.
+   Crisp by construction: NO mask-as-blur, NO filter, opacity-only intro. It
+   never eats pointer events; the component samples the pointer from window. */
+.signal-index-hero-fluid-canvas {
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+  display: block;
+  width: 100%;
+  height: 100%;
+  pointer-events: none;
+  opacity: 0;
+  animation: signal-index-fluid-fade 1.3s ease 0.15s both;}
+
+
+.signal-index-hero-fluid .signal-index-hero-copy {
   position: relative;
   z-index: 1;
   grid-row: 2;
+  justify-self: start;
+  max-width: min(38rem, 100%);
   align-self: center;
-  padding: clamp(1.5rem, 3vw, 2.5rem) 0;}
+  padding: clamp(1.25rem, 2.4vw, 1.9rem) clamp(1.25rem, 2.4vw, 1.9rem)
+    clamp(1.4rem, 2.6vw, 2rem);
+  /* Flat scrim (allowed): a solid, low-opacity panel — not a blur — so the
+     type clears 4.5:1 even over the brightest ochre curls. */
+  background: rgba(9, 15, 18, 0.62);
+  border: 1px solid var(--ink-line-soft);
+  border-left: 2px solid var(--ink-accent-deep);}
 
 
 .signal-index-hero-kicker {
-  margin: 0 0 clamp(0.9rem, 2vw, 1.6rem);
+  margin: 0 0 clamp(0.7rem, 1.6vw, 1.1rem);
   font-family: var(--mono);
   font-size: 0.7rem;
   font-weight: 500;
   letter-spacing: 0.34em;
   text-transform: lowercase;
-  color: var(--ink-accent);
+  color: var(--ink-accent-bright);
   opacity: 0;
   animation: signal-index-type-kicker 0.7s cubic-bezier(0.22, 1, 0.36, 1) 0.1s both;}
 
 
-/* Giant display headline — Unbounded, viewport-filling, three masked lines
-   that rise on entrance. font-variation-settings is NEVER tweened across this
-   headline (layout thrash); only the small amp glyph breathes weight. */
+/* Editorial headline — pulled back from viewport-filling display type (the
+   named attempt-2 failure). IBM Plex Sans, confident but restrained, so the
+   fluid carries the impression. Three masked lines still rise on entrance. */
 .signal-index-hero-headline {
   margin: 0;
-  font-family: var(--unbounded);
-  font-weight: 700;
-  /* Fit, not guess: "prototypes" (the longest line) measures ~6.9em in
-     Unbounded 700, so the size derives from the real shell width
-     (100vw - 72px margins, /7.4 leaves classic-scrollbar slack); the cap
-     keeps the word inside the 1280px rail on wide screens. */
-  font-size: clamp(2.9rem, calc((100vw - 72px) / 7.4), 11.5rem);
-  line-height: 0.9;
-  letter-spacing: -0.03em;
+  font-family: var(--display);
+  font-weight: 600;
+  font-size: clamp(2.2rem, calc((100vw - 72px) / 15.5), 4.6rem);
+  line-height: 0.98;
+  letter-spacing: -0.02em;
   text-transform: lowercase;
   color: var(--ink-text);}
 
@@ -265,53 +283,38 @@ textarea:focus-visible {
 .signal-index-hero-line:nth-child(3) .signal-index-hero-line-in { animation-delay: 0.48s; }
 
 
-/* The one ochre "live" glyph — discrete-step weight breathing, no continuous
-   variation tween, so no headline reflow. */
 .signal-index-hero-amp {
-  color: var(--ink-accent-deep);
-  font-variation-settings: "wght" 300;
-  animation: signal-index-type-amp 4.6s steps(1, end) 1.4s infinite;}
+  color: var(--ink-accent-bright);
+  font-weight: 700;}
 
 
 .signal-index-hero-note {
-  margin: clamp(1.1rem, 2.4vw, 1.9rem) 0 0;
+  margin: clamp(1rem, 2vw, 1.5rem) 0 0;
   font-family: var(--mono);
   font-size: 0.72rem;
   font-weight: 400;
   letter-spacing: 0.02em;
-  color: var(--ink-faint);
+  color: var(--ink-muted);
   opacity: 0;
   animation: signal-index-type-kicker 0.8s cubic-bezier(0.22, 1, 0.36, 1) 0.7s both;}
 
 
-/* Canvas texture behind the type. */
-.signal-index-hero-texture {
-  position: absolute;
-  inset: 0;
-  z-index: -1;
-  display: block;
-  width: 100%;
-  height: 100%;
-  pointer-events: none;
-  opacity: 0;
-  animation: signal-index-texture-fade 1.3s ease 0.15s both;
-  -webkit-mask-image: linear-gradient(90deg, transparent 0, #000 120px, #000 calc(100% - 120px), transparent 100%);
-  mask-image: linear-gradient(90deg, transparent 0, #000 120px, #000 calc(100% - 120px), transparent 100%);}
-
-
-/* "beneath the surface" index — a quiet corner rail under the headline. */
-.signal-index-hero .signal-index-beneath {
+/* "beneath the surface" index — a quiet corner rail under the copy, lifted
+   over the canvas on its own flat scrim for legibility against the ink. */
+.signal-index-hero-fluid .signal-index-beneath {
   position: relative;
   z-index: 1;
   grid-row: 3;
   align-self: end;
   justify-self: stretch;
   display: grid;
-  /* 320px minimum => 3 columns on the 1280px rail: every "NN / tag — Title"
-     row stays on one line (6 x ~198px columns forced awkward wraps). */
   grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
   gap: 0.2rem 2rem;
-  padding-top: 1.1rem;
+  padding: 1.1rem clamp(1rem, 2vw, 1.5rem) 0.6rem;
+  /* 0.78, not 0.58: brightest ochre dither plumes sit under these rows; the
+     heavier flat scrim keeps --ink-muted text above 4.5:1 (pass-22 precedent
+     of darkening a panel to compensate a removed effect). */
+  background: rgba(9, 15, 18, 0.78);
   border-top: 1px solid var(--ink-line-soft);}
 
 
@@ -354,19 +357,13 @@ textarea:focus-visible {
   to { opacity: 1; transform: translateY(0); }
 }
 
-@keyframes signal-index-texture-fade {
+@keyframes signal-index-fluid-fade {
   0% { opacity: 0; }
-  60% { opacity: 0.7; }
   100% { opacity: 1; }
 }
 
-@keyframes signal-index-type-amp {
-  0% { font-variation-settings: "wght" 300; }
-  50% { font-variation-settings: "wght" 640; }
-}
-
 @media (max-width: 900px) {
-  .signal-index-hero {
+  .signal-index-hero-fluid {
     gap: 2rem;
   }}
 
@@ -1878,7 +1875,11 @@ textarea:focus-visible {
 
 
 @media (max-width: 560px) {
-  .signal-index-hero {
+  /* Hero hugs content (no 100svh floor). Copy top clears the 64px absolute
+     header (≥84px at 320×568). All six catalogue rows show in one column,
+     rows ≥44px, zero horizontal overflow at 320px. The fluid canvas fills the
+     content-hugged height and is self-driven, so it lives without input. */
+  .signal-index-hero-fluid {
     grid-template-rows: auto auto auto;
     min-height: auto;
     padding-top: calc(64px + 1.25rem);
@@ -1886,10 +1887,12 @@ textarea:focus-visible {
     gap: 1.5rem;
   }
 
-  .signal-index-hero-copy {
+  .signal-index-hero-fluid .signal-index-hero-copy {
     grid-row: auto;
+    justify-self: stretch;
+    max-width: none;
     align-self: start;
-    padding: 0;
+    padding: 1rem 1rem 1.1rem;
   }
 
   .signal-index-hero-kicker {
@@ -1899,43 +1902,35 @@ textarea:focus-visible {
   }
 
   .signal-index-hero-headline {
-    /* Bold, not timid, on a small display: still viewport-scaled, tighter
-       leading, breaks kept as three lines by the markup. The size is fitted
-       to the mobile shell width (100vw - 32px margins, measured "prototypes"
-       ~6.9em in Unbounded 700) so the longest line always fits — 320px too. */
-    font-size: clamp(2.2rem, calc((100vw - 32px) / 7.1), 4.4rem);
-    line-height: 0.92;
-    letter-spacing: -0.025em;
+    font-size: clamp(2rem, calc((100vw - 32px) / 8.4), 3.1rem);
+    line-height: 0.98;
+    letter-spacing: -0.02em;
   }
 
   .signal-index-hero-note {
     margin-top: 1rem;
-    font-size: 0.64rem;
+    font-size: 0.62rem;
   }
 
-  .signal-index-hero .signal-index-beneath {
+  .signal-index-hero-fluid .signal-index-beneath {
     grid-row: auto;
     align-self: start;
     grid-template-columns: 1fr;
   }}
 
 
-/* Hero texture layer — sparse breathing dot-field behind the Unbounded type.
-   Self-driven (alive with zero input), pointer warms nearby dots to ochre.
-   Crisp: NO blur, NO fog. Opacity-only intro. Narrower edge mask on phones. */
-@media (max-width: 700px) {
-  .signal-index-hero-texture {
-    -webkit-mask-image: linear-gradient(90deg, transparent 0, #000 40px, #000 calc(100% - 40px), transparent 100%);
-    mask-image: linear-gradient(90deg, transparent 0, #000 40px, #000 calc(100% - 40px), transparent 100%);
-  }
-}
-
 @media (prefers-reduced-motion: reduce) {
-  .signal-index-hero-texture,
+  /* The canvas paints one intentional warm static frame from JS (matchMedia
+     gate); here we only neutralise the DOM entrance animations. Copy stays
+     visible — nothing hidden. */
+  .signal-index-hero-fluid-canvas {
+    animation: none;
+    opacity: 1;
+  }
+
   .signal-index-hero-line-in,
   .signal-index-hero-kicker,
-  .signal-index-hero-note,
-  .signal-index-hero-amp {
+  .signal-index-hero-note {
     animation: none;
   }
 
@@ -1946,8 +1941,7 @@ textarea:focus-visible {
   .signal-index-hero-kicker,
   .signal-index-hero-note {
     opacity: 1;
-  }
-}
+  }}
 
 
 /* Explosion */

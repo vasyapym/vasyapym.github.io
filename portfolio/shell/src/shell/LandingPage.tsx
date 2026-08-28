@@ -1,6 +1,6 @@
 import { useEffect, useRef, useState, type CSSProperties, type MouseEvent } from "react";
 import type { ProjectModule } from "../../../contracts/project-module";
-import HeroTexture from "./HeroTexture";
+import HeroFluid from "./HeroFluid";
 import ProjectArtwork from "./ProjectArtwork";
 
 type LandingPageProps = {
@@ -324,7 +324,7 @@ export default function LandingPage({ projects, onOpenProject }: LandingPageProp
       <div className="signal-index-shell">
         <section
           ref={heroRef}
-          className="signal-index-hero signal-index-hero-type"
+          className="signal-index-hero signal-index-hero-fluid"
           aria-labelledby="signal-index-title"
         >
           <header className="signal-index-header">
@@ -339,9 +339,9 @@ export default function LandingPage({ projects, onOpenProject }: LandingPageProp
             <span className="signal-index-count">{projects.length.toString().padStart(2, "0")}</span>
           </header>
 
-          <HeroTexture />
+          <HeroFluid />
           <div className="signal-index-hero-copy">
-            <p className="signal-index-hero-kicker">tinkering</p>
+            <p className="signal-index-hero-kicker">currents</p>
             <h1
               id="signal-index-title"
               className="signal-index-hero-headline"
@@ -360,7 +360,7 @@ export default function LandingPage({ projects, onOpenProject }: LandingPageProp
               </span>
             </h1>
             <p className="signal-index-hero-note">
-              kinetic type&nbsp;· unbounded&nbsp;· breathing dot-field&nbsp;· canvas2d&nbsp;· no webgl
+              stable-fluids&nbsp;· ordered-dither&nbsp;· canvas2d&nbsp;· no webgl
             </p>
           </div>
           <div className="signal-index-graphic signal-index-beneath">
