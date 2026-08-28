@@ -102,6 +102,20 @@ textarea:focus-visible {
   margin: 0 auto;}
 
 
+/* Film grain — static, landing page only. soft-light lifts mid-tone noise on
+   near-black without crushing darks (plain alpha barely reads on #0b1317). */
+.signal-index::after {
+  content: "";
+  position: fixed;
+  inset: 0;
+  z-index: 4;
+  pointer-events: none;
+  opacity: 0.06;
+  mix-blend-mode: soft-light;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='180' height='180'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='2' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+  background-size: 180px 180px;}
+
+
 .signal-index-header {
   display: flex;
   align-items: center;
@@ -164,8 +178,8 @@ textarea:focus-visible {
 
 /* Consolidated hero — folds in the "Quiet index" + "Hero band" static
    overrides so the cascade no longer depends on override ordering. The
-   identity header overlays the fog; --hero-exit (set from JS) fades the
-   whole first screen away as it scrolls off. */
+   identity header overlays the glyph field; --hero-exit (set from JS) fades
+   the whole first screen away as it scrolls off. */
 .signal-index-hero {
   position: relative;
   display: grid;
@@ -372,6 +386,25 @@ textarea:focus-visible {
 .signal-index-card:focus-visible {
   background: var(--ink-panel);
   border-bottom-color: var(--ink-line);}
+
+
+/* Cursor-tracked card bloom. The card establishes a stacking context (its
+   base transform), so z-index:-1 paints above the panel background and
+   below content; the ::before hairline (z-index:1) is untouched. */
+.signal-index-card::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  pointer-events: none;
+  opacity: 0;
+  background: radial-gradient(300px circle at var(--mx, 50%) var(--my, 50%), rgba(232, 181, 124, 0.08), transparent 70%);
+  transition: opacity 240ms ease;}
+
+
+.signal-index-card:hover::after,
+.signal-index-card:focus-visible::after {
+  opacity: 1;}
 
 
 .signal-index-card:hover::before,
@@ -1800,12 +1833,11 @@ a.signal-index-beneath-row:focus-visible strong {
   }}
 
 
-/* Hero field: slow atmosphere. A seeded value-noise heightfield, domain-warped
-   so the layers marble like mud, rendered as a low-res Canvas2D fog (1 px per
-   4 css px) upscaled by the browser — soft by construction, identical on every
-   platform, no WebGL. Side masks fade the haze out before the canvas edge;
-   the blur merges the fog cells into weather. */
-.signal-index-hero-canvas {
+/* Live glyph field — the hero backdrop is a software rasterizer: a seeded
+   value-noise heightfield rendered as monospace glyphs from a DPR-aware
+   atlas. Crisp by design: NO blur (crisp glyphs are the whole point). Side
+   masks dissolve the field before the shell edge (carried from the fog). */
+.signal-index-hero-glyphs {
   position: absolute;
   inset: 0;
   z-index: -1;
@@ -1813,13 +1845,12 @@ a.signal-index-beneath-row:focus-visible strong {
   width: 100%;
   height: 100%;
   pointer-events: none;
-  filter: blur(12px) saturate(1.05);
-  animation: signal-index-hero-fade 1.1s ease 0.05s both;
+  animation: signal-index-glyphs-fade 1.1s ease 0.05s both;
   -webkit-mask-image: linear-gradient(90deg, transparent 0, #000 120px, #000 calc(100% - 120px), transparent 100%);
   mask-image: linear-gradient(90deg, transparent 0, #000 120px, #000 calc(100% - 120px), transparent 100%);
 }
 
-@keyframes signal-index-hero-fade {
+@keyframes signal-index-glyphs-fade {
   from {
     opacity: 0;
   }
@@ -1829,15 +1860,14 @@ a.signal-index-beneath-row:focus-visible strong {
 }
 
 @media (max-width: 700px) {
-  .signal-index-hero-canvas {
-    filter: blur(9px) saturate(1.05);
+  .signal-index-hero-glyphs {
     -webkit-mask-image: linear-gradient(90deg, transparent 0, #000 56px, #000 calc(100% - 56px), transparent 100%);
     mask-image: linear-gradient(90deg, transparent 0, #000 56px, #000 calc(100% - 56px), transparent 100%);
   }
 }
 
 @media (prefers-reduced-motion: reduce) {
-  .signal-index-hero-canvas {
+  .signal-index-hero-glyphs {
     animation: none;
   }
 }
@@ -1863,6 +1893,19 @@ a.signal-index-beneath-row:focus-visible strong {
 
 .signal-index-hero-atmosphere .signal-index-link {
   animation: signal-index-hero-rise 0.72s cubic-bezier(0.22, 1, 0.36, 1) 0.48s both;
+}
+
+/* Notation caption — joins the hero entrance choreography between H1 and CTA. */
+.signal-index-hero-note {
+  margin: 0.9rem 0 0;
+  font-family: var(--mono);
+  font-size: 0.68rem;
+  letter-spacing: 0.05em;
+  color: var(--ink-muted);
+}
+
+.signal-index-hero-atmosphere .signal-index-hero-note {
+  animation: signal-index-hero-rise 0.72s cubic-bezier(0.22, 1, 0.36, 1) 0.30s both;
 }
 
 a.signal-index-beneath-row {
@@ -1931,6 +1974,7 @@ a.signal-index-beneath-row:nth-of-type(6) { animation-delay: 1.07s; }
 @media (prefers-reduced-motion: reduce) {
   .signal-index-hero-atmosphere .signal-index-hero-kicker,
   .signal-index-hero-atmosphere h1,
+  .signal-index-hero-atmosphere .signal-index-hero-note,
   .signal-index-hero-atmosphere .signal-index-link,
   .signal-index-hero-atmosphere a.signal-index-beneath-row {
     animation: none;

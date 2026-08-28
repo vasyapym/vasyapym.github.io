@@ -1,6 +1,6 @@
 import { useEffect, useRef, useState, type CSSProperties, type MouseEvent } from "react";
 import type { ProjectModule } from "../../../contracts/project-module";
-import HeroAtmosphere from "./HeroAtmosphere";
+import HeroGlyphField from "./HeroGlyphField";
 import ProjectArtwork from "./ProjectArtwork";
 
 const BENEATH_VISIBLE = 4;
@@ -195,6 +195,48 @@ export default function LandingPage({ projects, onOpenProject }: LandingPageProp
   }, []);
 
   useEffect(() => {
+    const finePointer = window.matchMedia("(pointer: fine)");
+    const reduceMotion = window.matchMedia("(prefers-reduced-motion: reduce)");
+    if (!finePointer.matches || reduceMotion.matches) {
+      return undefined;
+    }
+    const grid = pageRef.current?.querySelector<HTMLElement>(".signal-index-grid");
+    if (!grid) {
+      return undefined;
+    }
+    let raf = 0;
+    let pending: { card: HTMLElement; x: number; y: number } | null = null;
+    const flush = () => {
+      raf = 0;
+      if (!pending) {
+        return;
+      }
+      pending.card.style.setProperty("--mx", `${pending.x}px`);
+      pending.card.style.setProperty("--my", `${pending.y}px`);
+      pending = null;
+    };
+    const onMove = (event: PointerEvent) => {
+      const target = event.target as HTMLElement | null;
+      const card = target?.closest<HTMLElement>(".signal-index-card") ?? null;
+      if (!card) {
+        return;
+      }
+      const rect = card.getBoundingClientRect();
+      pending = { card, x: event.clientX - rect.left, y: event.clientY - rect.top };
+      if (raf === 0) {
+        raf = requestAnimationFrame(flush);
+      }
+    };
+    grid.addEventListener("pointermove", onMove, { passive: true });
+    return () => {
+      grid.removeEventListener("pointermove", onMove);
+      if (raf !== 0) {
+        cancelAnimationFrame(raf);
+      }
+    };
+  }, []);
+
+  useEffect(() => {
     scheduleIdleWarm(() => {
       for (const project of projects) {
         warmProjectPage(project);
@@ -222,7 +264,7 @@ export default function LandingPage({ projects, onOpenProject }: LandingPageProp
             <span className="signal-index-count">{projects.length.toString().padStart(2, "0")}</span>
           </header>
 
-          <HeroAtmosphere />
+          <HeroGlyphField />
           <svg className="signal-index-sea-filter" aria-hidden="true" focusable="false">
             <defs>
               <filter id="signal-index-sea-warp" x="-20%" y="-20%" width="140%" height="140%">
@@ -237,6 +279,7 @@ export default function LandingPage({ projects, onOpenProject }: LandingPageProp
             <a className="signal-index-link" href="#projects">
               Run the models <span aria-hidden="true">↓</span>
             </a>
+            <p className="signal-index-hero-note">live field&nbsp;· procedural heightfield&nbsp;→ glyph raster&nbsp;· canvas2d&nbsp;· no webgl</p>
           </div>
           <div className="signal-index-graphic signal-index-beneath">
             <span className="signal-index-beneath-label">beneath the surface</span>

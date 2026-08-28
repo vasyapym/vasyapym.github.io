@@ -1,19 +1,20 @@
 import { useEffect, useRef } from "react";
 
-// The hero backdrop is a slow atmosphere. A seeded value-noise heightfield is
-// domain-warped — its sample coordinates are themselves pushed around by two
-// other noise fields — so the layers marble into each other like mud or ink
-// in water. The fog is computed at one pixel per 4 css px and the browser
-// upscales it with bilinear smoothing: soft by construction, bit-identical on
-// every platform, no WebGL and no platform-dependent shaders (the old WebGL
-// hero rendered as smoke on iOS and mud on Windows — this is the same feel
-// without the variance). The pointer is a gentle heat source: the haze
-// thickens and swells under the cursor, then settles. There are no readouts,
-// markers, or rings — the field is weather, not an instrument panel.
-// prefers-reduced-motion collapses everything to a single static render.
+// The hero backdrop is a live glyph field: a tiny software rasterizer that
+// samples the same seeded value-noise heightfield the retired fog used
+// (domain-warped fBm + slow drift + long tide + a Gaussian pointer heat
+// source) but renders it as the site's own monospace notation instead of
+// pixels. Field height per grid cell selects a character from a density ramp
+// and a colour tier (cool teal in the troughs -> warm amber at the crests);
+// cells below a quiet-zone floor are skipped so the field reads sparse and
+// instrument-like. The hot path avoids fillText entirely: every ramp glyph is
+// pre-rasterised once, per colour tier, into a DPR-aware offscreen atlas, and
+// each visible cell is a single drawImage blit with a globalAlpha write — cheap
+// enough to hold ~30fps field updates on mid-range mobile while staying crisp
+// at DPR 2-3. No WebGL, no blur (crisp glyphs are the whole point), platform
+// -identical output. prefers-reduced-motion collapses to one static frame.
 
 const SEED = 20260827;
-const RES_DIV = 4;
 const BASE_OCTAVES = 3;
 const WARP_OCTAVES = 2;
 const FREQ = 1 / 260;
@@ -25,9 +26,23 @@ const TIDE_PERIOD = 26;
 const TIDE_AMP = 0.05;
 const SWIRL_SIGMA = 150;
 const SWIRL_AMP = 0.5;
-const FOG_MAX_ALPHA = 0.45;
+
+const CELL_DESKTOP = 13;
+const CELL_MOBILE = 11;
+const MOBILE_MAX = 700;
+const RAMP = "·:;+=*#%@";
+const COLOR_TIERS = 6;
+const FONT_RATIO = 1.0;
+const QUIET_THRESHOLD = 0.2;
+const ALPHA_CEIL = 0.55;
+const COPY_DIM = 0.35;
+const COPY_DIM_FRAC = 0.52;
+const DPR_CAP = 3;
 const UPDATE_MS = 1000 / 30;
 const FRAME_BUDGET_MS = 26;
+
+const COOL: [number, number, number] = [110, 180, 190];
+const WARM: [number, number, number] = [211, 155, 97];
 
 function hash2(ix: number, iy: number, seed: number): number {
   let h = (Math.imul(ix, 0x27d4eb2d) ^ Math.imul(iy, 0x165667b1) ^ Math.imul(seed, 0x9e3779b9)) | 0;
@@ -69,7 +84,7 @@ function smoothstep(t: number): number {
   return c * c * (3 - 2 * c);
 }
 
-export default function HeroAtmosphere() {
+export default function HeroGlyphField() {
   const canvasRef = useRef<HTMLCanvasElement>(null);
 
   useEffect(() => {
@@ -88,6 +103,8 @@ export default function HeroAtmosphere() {
 
     const initScene = () => {
       const reduce = reduceQuery.matches;
+      const dpr = Math.min(window.devicePixelRatio || 1, DPR_CAP);
+
       let raf = 0;
       let running = false;
       let inView = true;
@@ -95,9 +112,9 @@ export default function HeroAtmosphere() {
 
       let cssW = 0;
       let cssH = 0;
-      let fw = 0;
-      let fh = 0;
-      let image: ImageData | null = null;
+      let cellPx = CELL_DESKTOP;
+      let cols = 0;
+      let rows = 0;
       let octaves = BASE_OCTAVES;
       let frameEma = 0;
       let draws = 0;
@@ -105,35 +122,62 @@ export default function HeroAtmosphere() {
       let lastT = -1;
       let lastDrawT = 0;
 
+      const atlas = document.createElement("canvas");
+      let atlasTile = 1;
+
       const swirl = { x: -1e4, y: -1e4, tx: -1e4, ty: -1e4, active: false };
+
+      const buildAtlas = () => {
+        const ax = atlas.getContext("2d");
+        if (!ax) {
+          return;
+        }
+        atlasTile = Math.max(1, Math.round(cellPx * dpr));
+        atlas.width = RAMP.length * atlasTile;
+        atlas.height = COLOR_TIERS * atlasTile;
+        ax.clearRect(0, 0, atlas.width, atlas.height);
+        ax.textAlign = "center";
+        ax.textBaseline = "middle";
+        ax.font = `${Math.round(cellPx * FONT_RATIO * dpr)}px "IBM Plex Mono", ui-monospace, monospace`;
+        for (let tier = 0; tier < COLOR_TIERS; tier += 1) {
+          const f = tier / (COLOR_TIERS - 1);
+          const r = Math.round(COOL[0] + (WARM[0] - COOL[0]) * f);
+          const g = Math.round(COOL[1] + (WARM[1] - COOL[1]) * f);
+          const b = Math.round(COOL[2] + (WARM[2] - COOL[2]) * f);
+          ax.fillStyle = `rgb(${r}, ${g}, ${b})`;
+          for (let gi = 0; gi < RAMP.length; gi += 1) {
+            ax.fillText(RAMP[gi], gi * atlasTile + atlasTile / 2, tier * atlasTile + atlasTile / 2);
+          }
+        }
+      };
 
       const resize = () => {
         const rect = host.getBoundingClientRect();
         cssW = Math.max(1, Math.round(rect.width));
         cssH = Math.max(1, Math.round(rect.height));
-        fw = Math.max(1, Math.ceil(cssW / RES_DIV));
-        fh = Math.max(1, Math.ceil(cssH / RES_DIV));
-        canvas.width = fw;
-        canvas.height = fh;
-        image = ctx.createImageData(fw, fh);
+        cellPx = cssW <= MOBILE_MAX ? CELL_MOBILE : CELL_DESKTOP;
+        cols = Math.ceil(cssW / cellPx);
+        rows = Math.ceil(cssH / cellPx);
+        canvas.width = Math.round(cssW * dpr);
+        canvas.height = Math.round(cssH * dpr);
+        ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+        ctx.imageSmoothingEnabled = false;
+        buildAtlas();
       };
 
-      const drawFog = (t: number) => {
-        if (!image) {
-          return;
-        }
-        const data = image.data;
+      const draw = (t: number) => {
+        ctx.clearRect(0, 0, cssW, cssH);
         const driftX = t * DRIFT_X;
         const driftY = t * DRIFT_Y;
         const tide = Math.sin((t * Math.PI * 2) / TIDE_PERIOD) * TIDE_AMP;
         const warpT = t * 0.026;
         const sigma2 = 2 * SWIRL_SIGMA * SWIRL_SIGMA;
         const swirlReach = 9 * sigma2;
-        let o = 0;
-        for (let j = 0; j < fh; j += 1) {
-          const y = j * RES_DIV;
-          for (let i = 0; i < fw; i += 1) {
-            const x = i * RES_DIV;
+        const dimEdge = cssW * COPY_DIM_FRAC;
+        for (let j = 0; j < rows; j += 1) {
+          const y = (j + 0.5) * cellPx;
+          for (let i = 0; i < cols; i += 1) {
+            const x = (i + 0.5) * cellPx;
             const warpX = fbm(x * WARP_FREQ + warpT, y * WARP_FREQ - warpT * 0.63, WARP_OCTAVES, SEED + 911);
             const warpY = fbm(x * WARP_FREQ - warpT * 0.81, y * WARP_FREQ + warpT * 0.47, WARP_OCTAVES, SEED + 577);
             let v = fbm(
@@ -152,15 +196,32 @@ export default function HeroAtmosphere() {
               }
             }
             const rise = smoothstep((v + 0.35) / 1.15);
+            if (rise < QUIET_THRESHOLD) {
+              continue;
+            }
+            let alpha = rise * ALPHA_CEIL;
+            if (x < dimEdge) {
+              alpha *= COPY_DIM + (1 - COPY_DIM) * smoothstep(x / dimEdge);
+            }
+            const g = (rise - QUIET_THRESHOLD) / (1 - QUIET_THRESHOLD);
+            const gi = Math.min(RAMP.length - 1, Math.floor(g * RAMP.length));
             const warm = smoothstep((v - 0.3) / 0.5);
-            data[o] = 110 + 101 * warm;
-            data[o + 1] = 180 - 25 * warm;
-            data[o + 2] = 190 - 93 * warm;
-            data[o + 3] = rise * FOG_MAX_ALPHA * 255;
-            o += 4;
+            const tier = Math.min(COLOR_TIERS - 1, Math.floor(warm * COLOR_TIERS));
+            ctx.globalAlpha = alpha;
+            ctx.drawImage(
+              atlas,
+              gi * atlasTile,
+              tier * atlasTile,
+              atlasTile,
+              atlasTile,
+              i * cellPx,
+              j * cellPx,
+              cellPx,
+              cellPx,
+            );
           }
         }
-        ctx.putImageData(image, 0, 0);
+        ctx.globalAlpha = 1;
       };
 
       const tick = (nowMs: number) => {
@@ -176,7 +237,7 @@ export default function HeroAtmosphere() {
         if (lastDrawT === 0 || nowMs - lastDrawT >= UPDATE_MS) {
           const cost = lastDrawT === 0 ? 16 : nowMs - lastDrawT;
           lastDrawT = nowMs;
-          drawFog(t);
+          draw(t);
           frameEma = frameEma === 0 ? cost : frameEma * 0.94 + cost * 0.06;
           draws += 1;
           if (draws > 60 && frameEma > FRAME_BUDGET_MS && octaves > 2) {
@@ -242,7 +303,7 @@ export default function HeroAtmosphere() {
       const resizeObserver = new ResizeObserver(() => {
         resize();
         if (reduce) {
-          drawFog(0);
+          draw(0);
         } else if (!running) {
           syncRunning();
         }
@@ -251,12 +312,24 @@ export default function HeroAtmosphere() {
 
       resize();
       if (reduce) {
-        drawFog(0);
+        draw(0);
       } else {
         host.addEventListener("pointermove", onPointerMove, { passive: true });
         host.addEventListener("pointerleave", onPointerLeave, { passive: true });
         syncRunning();
       }
+
+      // Webfont may arrive after mount: rebuild the atlas with real Plex Mono
+      // glyphs once available, then repaint (static frame under reduce).
+      document.fonts.ready.then(() => {
+        if (disposed) {
+          return;
+        }
+        buildAtlas();
+        if (reduce || !running) {
+          draw(reduce ? 0 : lastT < 0 ? 0 : lastT);
+        }
+      });
 
       return () => {
         disposed = true;
@@ -286,5 +359,5 @@ export default function HeroAtmosphere() {
     };
   }, []);
 
-  return <canvas ref={canvasRef} className="signal-index-hero-canvas" aria-hidden="true" />;
+  return <canvas ref={canvasRef} className="signal-index-hero-glyphs" aria-hidden="true" />;
 }
