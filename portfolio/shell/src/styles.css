@@ -258,7 +258,7 @@ textarea:focus-visible {
   margin: 0;
   font-family: var(--display);
   font-weight: 600;
-  font-size: clamp(2.2rem, calc((100vw - 72px) / 15.5), 4.6rem);
+  font-size: clamp(1.76rem, calc((100vw - 72px) / 19.4), 3.68rem);
   line-height: 0.98;
   letter-spacing: -0.02em;
   text-transform: lowercase;
@@ -1902,7 +1902,7 @@ textarea:focus-visible {
   }
 
   .signal-index-hero-headline {
-    font-size: clamp(2rem, calc((100vw - 32px) / 8.4), 3.1rem);
+    font-size: clamp(1.6rem, calc((100vw - 32px) / 10.5), 2.48rem);
     line-height: 0.98;
     letter-spacing: -0.02em;
   }
