@@ -101,22 +101,66 @@ function FiletreeCenterMark() {
   );
 }
 
-// Evening Forest: the resident between two dusk pines, flattened to one
-// amber tone over ink lines.
+// Evening Forest: an 8-bit fox — chunky crisp cells echoing the project's
+// own Bayer-dithered 8-bit render — seated between two dusk pines, with a
+// white-tipped tail, on the violet→amber wash.
 function FoxCenterMark() {
   return (
-    <svg viewBox="0 0 120 100" aria-hidden="true">
-      <polygon points="24,12 37,56 11,56" fill="#241420" opacity="0.85" />
-      <polygon points="96,14 109,58 83,58" fill="#241420" opacity="0.85" />
-      <ellipse cx="60" cy="90" rx="26" ry="4" fill="#241420" opacity="0.3" />
-      <g>
-        <path d="M 43 38 L 36 16 L 53 29 Z" fill="#e29b62" />
-        <path d="M 77 38 L 84 16 L 67 29 Z" fill="#e29b62" />
-        <circle cx="60" cy="50" r="21" fill="#e29b62" />
-        <ellipse cx="51.5" cy="47" rx="2.5" ry="3.2" fill="#241420" />
-        <ellipse cx="68.5" cy="47" rx="2.5" ry="3.2" fill="#241420" />
-        <ellipse cx="60" cy="57.5" rx="10" ry="7" fill="#f2e4d4" />
-        <path d="M 57.2 54.6 L 62.8 54.6 L 60 58.6 Z" fill="#241420" />
+    <svg viewBox="0 0 120 96" shapeRendering="crispEdges" aria-hidden="true">
+      {/* dusk ground line */}
+      <rect x="8" y="80" width="104" height="8" fill="#3a2740" />
+      {/* pines */}
+      <g fill="#2e2140">
+        <rect x="8" y="16" width="8" height="8" />
+        <rect x="0" y="24" width="16" height="8" />
+        <rect x="0" y="32" width="16" height="8" />
+        <rect x="8" y="40" width="8" height="40" />
+        <rect x="104" y="16" width="8" height="8" />
+        <rect x="104" y="24" width="16" height="8" />
+        <rect x="104" y="32" width="16" height="8" />
+        <rect x="104" y="40" width="8" height="40" />
+      </g>
+      {/* fox — amber body/head/ears/tail */}
+      <g fill="#e29b62">
+        <rect x="40" y="8" width="16" height="8" />
+        <rect x="64" y="8" width="16" height="8" />
+        <rect x="40" y="16" width="40" height="8" />
+        <rect x="40" y="24" width="8" height="8" />
+        <rect x="56" y="24" width="8" height="8" />
+        <rect x="72" y="24" width="8" height="8" />
+        <rect x="40" y="32" width="8" height="8" />
+        <rect x="72" y="32" width="8" height="8" />
+        <rect x="48" y="40" width="8" height="8" />
+        <rect x="64" y="40" width="8" height="8" />
+        <rect x="40" y="48" width="16" height="8" />
+        <rect x="64" y="48" width="32" height="8" />
+        <rect x="40" y="56" width="8" height="8" />
+        <rect x="72" y="56" width="24" height="8" />
+        <rect x="40" y="64" width="48" height="8" />
+        <rect x="56" y="72" width="8" height="8" />
+      </g>
+      {/* fox — cream muzzle, chest, tail tip */}
+      <g fill="#f2e4d4">
+        <rect x="48" y="32" width="24" height="8" />
+        <rect x="56" y="48" width="8" height="8" />
+        <rect x="48" y="56" width="24" height="8" />
+        <rect x="88" y="64" width="16" height="8" />
+        <rect x="88" y="72" width="16" height="8" />
+      </g>
+      {/* fox — ink ear tips, eyes, nose, paws */}
+      <g fill="#241420">
+        <rect x="40" y="0" width="8" height="8" />
+        <rect x="72" y="0" width="8" height="8" />
+        <rect x="48" y="24" width="8" height="8" />
+        <rect x="64" y="24" width="8" height="8" />
+        <rect x="56" y="40" width="8" height="8" />
+        <rect x="48" y="72" width="8" height="8" />
+        <rect x="64" y="72" width="8" height="8" />
+      </g>
+      {/* firefly accents */}
+      <g fill="#ffb45e">
+        <rect x="24" y="40" width="8" height="8" />
+        <rect x="88" y="16" width="8" height="8" />
       </g>
     </svg>
   );
