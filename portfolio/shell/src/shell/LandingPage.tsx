@@ -1,6 +1,6 @@
 import { useEffect, useRef, useState, type CSSProperties, type MouseEvent } from "react";
 import type { ProjectModule } from "../../../contracts/project-module";
-import HeroField from "./HeroField";
+import HeroTexture from "./HeroTexture";
 import ProjectArtwork from "./ProjectArtwork";
 
 type LandingPageProps = {
@@ -101,12 +101,12 @@ export default function LandingPage({ projects, onOpenProject }: LandingPageProp
       page.querySelectorAll<HTMLElement>("[data-project-reveal]"),
     );
 
-    // One-way reveal: once a card is revealed it stays revealed. Cards already
-    // in view at load (mobile: first rows under the short hugging hero) arrive
-    // in the first callback and are staggered; cards below the fold reveal as
-    // they are scrolled to. animateScrollToCard, #project-<id> deep links and
-    // browser scroll restoration all bring the target card into the observer's
-    // band, so the target is revealed by the time scrolling settles.
+    // Coarse pointers reveal earlier and tighter so the wipe reads during fast
+    // touch scrolling (desktop keeps the calmer numbers).
+    const coarse = window.matchMedia("(pointer: coarse)").matches;
+    const bandFactor = coarse ? 0.94 : 0.88;
+    const stagger = coarse ? 70 : 90;
+
     const revealCard = (id: string, delay: number) => {
       setRevealedProjects((current) => {
         if (current.has(id)) {
@@ -118,32 +118,78 @@ export default function LandingPage({ projects, onOpenProject }: LandingPageProp
       });
     };
 
-    const observer = new IntersectionObserver(
-      (entries) => {
-        let batch = 0;
-        for (const entry of entries) {
-          if (!entry.isIntersecting) {
-            continue;
-          }
-          const card = entry.target as HTMLElement;
-          const id = card.dataset.projectReveal;
-          if (id) {
-            revealCard(id, Math.min(batch, 5) * 90);
-            batch += 1;
-          }
-          observer.unobserve(card);
+    // SOURCE OF TRUTH = scroll-position math, not IntersectionObserver delivery.
+    // The mobile straddler bug (a card at top:-2px that IO never reported) is
+    // impossible here: every un-revealed card is tested against the reveal band
+    // on every settled frame. GUARANTEE: no card stays hidden while any part of
+    // it is inside the viewport, for any velocity, order, restoration or deep
+    // link. 6 cards => a getBoundingClientRect sweep is trivially cheap.
+    const revealed = new Set<string>();
+    const revealBand = () => window.innerHeight * bandFactor;
+
+    let batchAt = 0;
+    let batchSize = 0;
+
+    const sweep = () => {
+      // A card is revealed the moment ANY part of it sits above the reveal band
+      // and below the top edge (rect.top < band && rect.bottom > 0). Reading
+      // scroll geometry directly is immune to the IO straddler miss.
+      const band = revealBand();
+      const now = performance.now();
+      if (now - batchAt > 260) {
+        batchSize = 0;
+      }
+      for (const card of cards) {
+        const id = card.dataset.projectReveal;
+        if (!id || revealed.has(id)) {
+          continue;
         }
-      },
-      { threshold: 0, rootMargin: "0px 0px -12% 0px" },
-    );
+        const rect = card.getBoundingClientRect();
+        if (rect.top < band && rect.bottom > 0) {
+          revealed.add(id);
+          revealCard(id, Math.min(batchSize, 5) * stagger);
+          batchSize += 1;
+          batchAt = now;
+        }
+      }
+    };
 
-    cards.forEach((card) => observer.observe(card));
+    let ticking = false;
+    const onScroll = () => {
+      if (ticking) {
+        return;
+      }
+      ticking = true;
+      window.requestAnimationFrame(() => {
+        ticking = false;
+        sweep();
+      });
+    };
 
-    // Deep-link safety: an on-load #project-<id> hash makes the browser jump to
-    // that card, which may land it past the observer band — reveal it up front.
+    window.addEventListener("scroll", onScroll, { passive: true });
+    window.addEventListener("resize", onScroll, { passive: true });
+
+    // Mount check + deferred checks catch: initial in-view rows, browser scroll
+    // restoration (fires after paint), and animateScrollToCard smooth-scroll
+    // settling. Cheap belt-and-braces — 6 rects.
+    sweep();
+    const t1 = window.setTimeout(sweep, 120);
+    const t2 = window.setTimeout(sweep, 700);
+
+    // IO stays purely as an extra low-power trigger; correctness never depends
+    // on it (the straddler bug is why). It just calls the same sweep.
+    const optimizerIO = new IntersectionObserver(() => onScroll(), {
+      threshold: 0,
+      rootMargin: "0px 0px -6% 0px",
+    });
+    cards.forEach((card) => optimizerIO.observe(card));
+
+    // Deep-link safety: reveal the hash target immediately regardless of band.
     const hash = window.location.hash;
     if (hash.startsWith("#project-")) {
-      revealCard(hash.slice("#project-".length), 0);
+      const id = hash.slice("#project-".length);
+      revealed.add(id);
+      revealCard(id, 0);
     }
 
     // Section-level reveal (hairline draw-in): a tall section can never reach a
@@ -166,8 +212,12 @@ export default function LandingPage({ projects, onOpenProject }: LandingPageProp
     sections.forEach((section) => sectionObserver.observe(section));
 
     return () => {
-      observer.disconnect();
+      window.removeEventListener("scroll", onScroll);
+      window.removeEventListener("resize", onScroll);
+      optimizerIO.disconnect();
       sectionObserver.disconnect();
+      window.clearTimeout(t1);
+      window.clearTimeout(t2);
     };
   }, [projects]);
 
@@ -274,7 +324,7 @@ export default function LandingPage({ projects, onOpenProject }: LandingPageProp
       <div className="signal-index-shell">
         <section
           ref={heroRef}
-          className="signal-index-hero signal-index-hero-atmosphere"
+          className="signal-index-hero signal-index-hero-type"
           aria-labelledby="signal-index-title"
         >
           <header className="signal-index-header">
@@ -289,22 +339,29 @@ export default function LandingPage({ projects, onOpenProject }: LandingPageProp
             <span className="signal-index-count">{projects.length.toString().padStart(2, "0")}</span>
           </header>
 
-          <HeroField />
-          <svg className="signal-index-sea-filter" aria-hidden="true" focusable="false">
-            <defs>
-              <filter id="signal-index-sea-warp" x="-20%" y="-20%" width="140%" height="140%">
-                <feTurbulence type="fractalNoise" baseFrequency="0.012 0.05" numOctaves="2" seed="7" result="sea-noise" />
-                <feDisplacementMap in="SourceGraphic" in2="sea-noise" scale="7" xChannelSelector="R" yChannelSelector="G" />
-              </filter>
-            </defs>
-          </svg>
+          <HeroTexture />
           <div className="signal-index-hero-copy">
             <p className="signal-index-hero-kicker">tinkering</p>
-            <h1 id="signal-index-title">prototypes &amp; small machines</h1>
-            <a className="signal-index-link" href="#projects">
-              Run the models <span aria-hidden="true">↓</span>
-            </a>
-            <p className="signal-index-hero-note">live field&nbsp;· curl-noise flow&nbsp;→ streamline filings&nbsp;· canvas2d&nbsp;· no webgl</p>
+            <h1
+              id="signal-index-title"
+              className="signal-index-hero-headline"
+              aria-label="prototypes & small machines"
+            >
+              <span className="signal-index-hero-line" aria-hidden="true">
+                <span className="signal-index-hero-line-in">prototypes</span>
+              </span>
+              <span className="signal-index-hero-line" aria-hidden="true">
+                <span className="signal-index-hero-line-in">
+                  <span className="signal-index-hero-amp">&amp;</span> small
+                </span>
+              </span>
+              <span className="signal-index-hero-line" aria-hidden="true">
+                <span className="signal-index-hero-line-in">machines</span>
+              </span>
+            </h1>
+            <p className="signal-index-hero-note">
+              kinetic type&nbsp;· unbounded&nbsp;· breathing dot-field&nbsp;· canvas2d&nbsp;· no webgl
+            </p>
           </div>
           <div className="signal-index-graphic signal-index-beneath">
             <span className="signal-index-beneath-label">beneath the surface</span>

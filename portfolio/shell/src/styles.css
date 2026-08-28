@@ -18,6 +18,7 @@
   --index-ochre: #a8652d;
   --index-red: #a6533e;
   --display: "IBM Plex Sans", ui-sans-serif, system-ui, sans-serif;
+  --unbounded: "Unbounded", "IBM Plex Sans", ui-sans-serif, system-ui, sans-serif;
   --sans: "IBM Plex Sans", ui-sans-serif, system-ui, sans-serif;
   --mono: "IBM Plex Mono", ui-monospace, SFMono-Regular, monospace;
   --ink-bg: #0b1317;
@@ -29,6 +30,7 @@
   --ink-panel: rgba(238, 234, 224, 0.045);
   --ink-accent: #d39b61;
   --ink-accent-bright: #e8b57c;
+  --ink-accent-deep: #b97f45;
   --focus-ring: var(--index-blue);}
 
 
@@ -176,16 +178,19 @@ textarea:focus-visible {
   letter-spacing: 0.06em;}
 
 
-/* Consolidated hero — folds in the "Quiet index" + "Hero band" static
-   overrides so the cascade no longer depends on override ordering. The
-   identity header overlays the glyph field; --hero-exit (set from JS) fades
-   the whole first screen away as it scrolls off. */
+/* Type-led hero — the giant Unbounded headline is the main object; the canvas
+   (signal-index-hero-texture) is a demoted texture layer behind it. Single
+   centered column: copy owns the middle row, the beneath catalogue is a quiet
+   rail at the bottom. --hero-exit (set from JS) fades the whole first screen
+   away as it scrolls off. */
 .signal-index-hero {
   position: relative;
   display: grid;
-  grid-template-columns: minmax(0, 1fr) minmax(280px, 0.58fr);
-  align-items: center;
-  gap: clamp(2rem, 6vw, 6rem);
+  /* minmax(0, 1fr): the single column may never grow past the shell to the
+     headline's min-content — the font-size fit (below) keeps words inside. */
+  grid-template-columns: minmax(0, 1fr);
+  grid-template-rows: auto 1fr auto;
+  align-items: stretch;
   min-height: 100vh;
   min-height: 100svh;
   padding: clamp(3rem, 5vw, 4.5rem) 0 clamp(2.5rem, 4vw, 3.5rem);
@@ -199,56 +204,170 @@ textarea:focus-visible {
   top: 0;
   right: 0;
   left: 0;
-  z-index: 2;
+  z-index: 3;
   background: transparent;
   border-bottom: 0;}
 
 
-.signal-index-hero .signal-index-hero-copy {
+.signal-index-hero-copy {
   position: relative;
   z-index: 1;
+  grid-row: 2;
+  align-self: center;
   padding: clamp(1.5rem, 3vw, 2.5rem) 0;}
 
 
-.signal-index-hero .signal-index-hero-kicker {
-  margin: 0 0 0.7rem;
+.signal-index-hero-kicker {
+  margin: 0 0 clamp(0.9rem, 2vw, 1.6rem);
   font-family: var(--mono);
-  font-size: 0.68rem;
+  font-size: 0.7rem;
   font-weight: 500;
-  letter-spacing: 0.06em;
+  letter-spacing: 0.34em;
+  text-transform: lowercase;
+  color: var(--ink-accent);
+  opacity: 0;
+  animation: signal-index-type-kicker 0.7s cubic-bezier(0.22, 1, 0.36, 1) 0.1s both;}
+
+
+/* Giant display headline — Unbounded, viewport-filling, three masked lines
+   that rise on entrance. font-variation-settings is NEVER tweened across this
+   headline (layout thrash); only the small amp glyph breathes weight. */
+.signal-index-hero-headline {
+  margin: 0;
+  font-family: var(--unbounded);
+  font-weight: 700;
+  /* Fit, not guess: "prototypes" (the longest line) measures ~6.9em in
+     Unbounded 700, so the size derives from the real shell width
+     (100vw - 72px margins, /7.4 leaves classic-scrollbar slack); the cap
+     keeps the word inside the 1280px rail on wide screens. */
+  font-size: clamp(2.9rem, calc((100vw - 72px) / 7.4), 11.5rem);
+  line-height: 0.9;
+  letter-spacing: -0.03em;
+  text-transform: lowercase;
+  color: var(--ink-text);}
+
+
+.signal-index-hero-line {
+  display: block;
+  overflow: hidden;
+  padding-bottom: 0.04em;}
+
+
+.signal-index-hero-line-in {
+  display: block;
+  transform: translateY(110%);
+  will-change: transform;
+  animation: signal-index-type-rise 0.9s cubic-bezier(0.22, 1, 0.36, 1) both;}
+
+
+.signal-index-hero-line:nth-child(1) .signal-index-hero-line-in { animation-delay: 0.24s; }
+.signal-index-hero-line:nth-child(2) .signal-index-hero-line-in { animation-delay: 0.36s; }
+.signal-index-hero-line:nth-child(3) .signal-index-hero-line-in { animation-delay: 0.48s; }
+
+
+/* The one ochre "live" glyph — discrete-step weight breathing, no continuous
+   variation tween, so no headline reflow. */
+.signal-index-hero-amp {
+  color: var(--ink-accent-deep);
+  font-variation-settings: "wght" 300;
+  animation: signal-index-type-amp 4.6s steps(1, end) 1.4s infinite;}
+
+
+.signal-index-hero-note {
+  margin: clamp(1.1rem, 2.4vw, 1.9rem) 0 0;
+  font-family: var(--mono);
+  font-size: 0.72rem;
+  font-weight: 400;
+  letter-spacing: 0.02em;
+  color: var(--ink-faint);
+  opacity: 0;
+  animation: signal-index-type-kicker 0.8s cubic-bezier(0.22, 1, 0.36, 1) 0.7s both;}
+
+
+/* Canvas texture behind the type. */
+.signal-index-hero-texture {
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  display: block;
+  width: 100%;
+  height: 100%;
+  pointer-events: none;
+  opacity: 0;
+  animation: signal-index-texture-fade 1.3s ease 0.15s both;
+  -webkit-mask-image: linear-gradient(90deg, transparent 0, #000 120px, #000 calc(100% - 120px), transparent 100%);
+  mask-image: linear-gradient(90deg, transparent 0, #000 120px, #000 calc(100% - 120px), transparent 100%);}
+
+
+/* "beneath the surface" index — a quiet corner rail under the headline. */
+.signal-index-hero .signal-index-beneath {
+  position: relative;
+  z-index: 1;
+  grid-row: 3;
+  align-self: end;
+  justify-self: stretch;
+  display: grid;
+  /* 320px minimum => 3 columns on the 1280px rail: every "NN / tag — Title"
+     row stays on one line (6 x ~198px columns forced awkward wraps). */
+  grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+  gap: 0.2rem 2rem;
+  padding-top: 1.1rem;
+  border-top: 1px solid var(--ink-line-soft);}
+
+
+.signal-index-beneath-label {
+  grid-column: 1 / -1;
+  margin-bottom: 0.5rem;
+  font-family: var(--mono);
+  font-size: 0.64rem;
+  letter-spacing: 0.28em;
   text-transform: lowercase;
   color: var(--ink-accent);}
 
 
-.signal-index-hero h1 {
-  max-width: 640px;
-  margin: 0;
-  font-family: var(--display);
-  font-size: clamp(2.1rem, 3.75vw, 3.83rem);
-  font-weight: 600;
-  letter-spacing: -0.035em;
-  line-height: 0.93;
-  color: var(--ink-text);}
+.signal-index-beneath-row {
+  display: flex;
+  align-items: baseline;
+  gap: 0.5rem;
+  min-height: 44px;
+  padding: 0.3rem 0;
+  font-family: var(--mono);
+  font-size: 0.76rem;
+  color: var(--ink-muted);
+  text-decoration: none;
+  transition: color 200ms ease;}
 
 
-.signal-index-hero .signal-index-link {
-  margin-top: 1.15rem;
-  font-size: 0.84rem;
-  color: var(--ink-text);}
+.signal-index-beneath-row:hover,
+.signal-index-beneath-row:focus-visible { color: var(--ink-text); }
+.signal-index-beneath-row span { color: var(--ink-faint); }
+.signal-index-beneath-row strong { font-weight: 500; }
+.signal-index-beneath-rule { display: none; }
 
 
-.signal-index-hero .signal-index-link:hover,
-.signal-index-hero .signal-index-link:focus-visible {
-  color: var(--ink-accent-bright);}
+@keyframes signal-index-type-rise {
+  to { transform: translateY(0); }
+}
 
+@keyframes signal-index-type-kicker {
+  from { opacity: 0; transform: translateY(12px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes signal-index-texture-fade {
+  0% { opacity: 0; }
+  60% { opacity: 0.7; }
+  100% { opacity: 1; }
+}
+
+@keyframes signal-index-type-amp {
+  0% { font-variation-settings: "wght" 300; }
+  50% { font-variation-settings: "wght" 640; }
+}
 
 @media (max-width: 900px) {
   .signal-index-hero {
-    grid-template-columns: 1fr;
-    gap: 2.5rem;
-    /* Pack the stacked copy + index together and center the group;
-       stretch would otherwise strand the two blocks apart on tall screens. */
-    align-content: center;
+    gap: 2rem;
   }}
 
 
@@ -1758,276 +1877,75 @@ textarea:focus-visible {
   }}
 
 
-.signal-index-sea-filter {
-  position: absolute;
-  width: 0;
-  height: 0;
-  overflow: hidden;
-}
-
-
-.signal-index-beneath {
-  position: relative;
-  display: grid;
-  gap: 1rem;
-  width: min(100%, 450px);
-  justify-self: center;
-  overflow: hidden;
-  border: 1px solid rgba(238, 234, 224, 0.3);
-  padding: 1.35rem 1.5rem 1.5rem;
-  background: rgba(11, 19, 23, 0.72);
-}
-
-
-.signal-index-beneath-label {
-  color: rgba(238, 234, 224, 0.62);
-  font-family: var(--mono);
-  font-size: 0.65rem;
-  letter-spacing: 0.05em;
-}
-
-
-a.signal-index-beneath-row {
-  color: inherit;
-  text-decoration: none;
-  cursor: pointer;
-  transition: background 180ms ease, border-color 180ms ease;}
-
-a.signal-index-beneath-row:hover,
-a.signal-index-beneath-row:focus-visible {
-  outline: none;
-  border-radius: 2px;
-  background: rgba(238, 234, 224, 0.07);}
-
-a.signal-index-beneath-row:focus-visible {
-  outline: 1px solid var(--ink-accent-bright);
-  outline-offset: 2px;}
-
-
-.signal-index-beneath-row {
-  display: grid;
-  grid-template-columns: auto 1fr;
-  align-items: baseline;
-  gap: 0.9rem;
-  margin: 0 -0.45rem;
-  padding: 0 0.45rem;
-}
-
-
-.signal-index-beneath-row span {
-  color: var(--ink-accent);
-  font-family: var(--mono);
-  font-size: 0.7rem;
-  letter-spacing: 0.05em;
-  text-transform: lowercase;
-  white-space: nowrap;
-}
-
-
-.signal-index-beneath-row strong {
-  overflow: hidden;
-  color: var(--ink-text);
-  font-size: 1.08rem;
-  font-weight: 600;
-  letter-spacing: -0.01em;
-  text-overflow: ellipsis;
-  white-space: nowrap;
-  transition: color 180ms ease;}
-
-a.signal-index-beneath-row:hover strong,
-a.signal-index-beneath-row:focus-visible strong {
-  color: var(--ink-accent-bright);}
-
-
-.signal-index-beneath-rule {
-  height: 1px;
-  margin-top: 0.2rem;
-  background: linear-gradient(90deg, rgba(238, 234, 224, 0.4), rgba(238, 234, 224, 0.06));
-  filter: url("#signal-index-sea-warp");
-}
-
-
-@media (max-width: 900px) {
-  .signal-index-beneath {
-    justify-self: center;
-  }}
-
-
 @media (max-width: 560px) {
-  .signal-index-hero-atmosphere {
-    /* Hug content on phones: the 100vh floor + centered pack stranded copy
-       and catalogue apart, leaving big symmetric voids on tall screens. Drop
-       the min-height floor and top-align so the hero ends at the catalogue
-       and hands straight into the projects grid. padding-top keeps copy top
-       ≥ 84px, clear of the 64px absolute header. */
+  .signal-index-hero {
+    grid-template-rows: auto auto auto;
     min-height: auto;
-    align-content: start;
-    gap: 1.6rem;
     padding-top: calc(64px + 1.25rem);
     padding-bottom: 2.4rem;
+    gap: 1.5rem;
   }
 
-  .signal-index-hero-atmosphere .signal-index-hero-copy {
+  .signal-index-hero-copy {
+    grid-row: auto;
+    align-self: start;
     padding: 0;
   }
 
-  .signal-index-hero-atmosphere .signal-index-hero-kicker {
-    margin-bottom: 0.6rem;
+  .signal-index-hero-kicker {
+    margin-bottom: 0.7rem;
+    font-size: 0.62rem;
+    letter-spacing: 0.3em;
+  }
+
+  .signal-index-hero-headline {
+    /* Bold, not timid, on a small display: still viewport-scaled, tighter
+       leading, breaks kept as three lines by the markup. The size is fitted
+       to the mobile shell width (100vw - 32px margins, measured "prototypes"
+       ~6.9em in Unbounded 700) so the longest line always fits — 320px too. */
+    font-size: clamp(2.2rem, calc((100vw - 32px) / 7.1), 4.4rem);
+    line-height: 0.92;
+    letter-spacing: -0.025em;
+  }
+
+  .signal-index-hero-note {
+    margin-top: 1rem;
     font-size: 0.64rem;
   }
 
-  .signal-index-hero-atmosphere h1 {
-    max-width: 340px;
-    font-size: clamp(1.26rem, 5.5vw, 1.56rem);
-    line-height: 0.98;
-  }
-
-  .signal-index-hero-atmosphere .signal-index-link {
-    margin-top: 0.9rem;
-    font-size: 0.76rem;
+  .signal-index-hero .signal-index-beneath {
+    grid-row: auto;
+    align-self: start;
+    grid-template-columns: 1fr;
   }}
 
 
-/* Live flow field — the hero backdrop is a curl-noise vector field (curl of a
-   domain-warped fBm scalar potential) drawn as crisp monospace-thin streamline
-   "filings" that realign as the field evolves in time. Fully cleared and
-   redrawn each frame: NO blur, NO ghosting, NO fog. Side masks dissolve the
-   field before the shell edge; opacity-only boot intro (no scale — it smudges). */
-.signal-index-hero-glyphs {
-  position: absolute;
-  inset: 0;
-  z-index: -1;
-  display: block;
-  width: 100%;
-  height: 100%;
-  pointer-events: none;
-  animation: signal-index-glyphs-fade 1.25s ease 0.05s both;
-  -webkit-mask-image: linear-gradient(90deg, transparent 0, #000 120px, #000 calc(100% - 120px), transparent 100%);
-  mask-image: linear-gradient(90deg, transparent 0, #000 120px, #000 calc(100% - 120px), transparent 100%);
-}
-
-/* Boot-up intro: staged opacity tiers read like a display powering on. */
-@keyframes signal-index-glyphs-fade {
-  0% { opacity: 0; }
-  18% { opacity: 0.24; }
-  36% { opacity: 0.16; }
-  58% { opacity: 0.62; }
-  78% { opacity: 0.5; }
-  100% { opacity: 1; }
-}
-
+/* Hero texture layer — sparse breathing dot-field behind the Unbounded type.
+   Self-driven (alive with zero input), pointer warms nearby dots to ochre.
+   Crisp: NO blur, NO fog. Opacity-only intro. Narrower edge mask on phones. */
 @media (max-width: 700px) {
-  .signal-index-hero-glyphs {
-    -webkit-mask-image: linear-gradient(90deg, transparent 0, #000 56px, #000 calc(100% - 56px), transparent 100%);
-    mask-image: linear-gradient(90deg, transparent 0, #000 56px, #000 calc(100% - 56px), transparent 100%);
+  .signal-index-hero-texture {
+    -webkit-mask-image: linear-gradient(90deg, transparent 0, #000 40px, #000 calc(100% - 40px), transparent 100%);
+    mask-image: linear-gradient(90deg, transparent 0, #000 40px, #000 calc(100% - 40px), transparent 100%);
   }
 }
 
 @media (prefers-reduced-motion: reduce) {
-  .signal-index-hero-glyphs {
+  .signal-index-hero-texture,
+  .signal-index-hero-line-in,
+  .signal-index-hero-kicker,
+  .signal-index-hero-note,
+  .signal-index-hero-amp {
     animation: none;
   }
-}
 
-@keyframes signal-index-hero-rise {
-  from {
-    opacity: 0;
-    transform: translateY(30px);
-  }
-  to {
-    opacity: 1;
+  .signal-index-hero-line-in {
     transform: none;
   }
-}
 
-/* H1 leads with a taller lift so the headline is the clear first beat. */
-@keyframes signal-index-hero-rise-h1 {
-  from {
-    opacity: 0;
-    transform: translateY(40px);
-  }
-  to {
+  .signal-index-hero-kicker,
+  .signal-index-hero-note {
     opacity: 1;
-    transform: none;
-  }
-}
-
-.signal-index-hero-atmosphere .signal-index-hero-kicker {
-  animation: signal-index-hero-rise 0.86s cubic-bezier(0.22, 1, 0.36, 1) 0.05s both;
-}
-
-.signal-index-hero-atmosphere h1 {
-  animation: signal-index-hero-rise-h1 0.94s cubic-bezier(0.22, 1, 0.36, 1) 0.12s both;
-}
-
-.signal-index-hero-atmosphere .signal-index-link {
-  animation: signal-index-hero-rise 0.86s cubic-bezier(0.22, 1, 0.36, 1) 0.42s both;
-}
-
-/* Notation caption — joins the hero entrance choreography between H1 and CTA. */
-.signal-index-hero-note {
-  margin: 0.9rem 0 0;
-  font-family: var(--mono);
-  font-size: 0.68rem;
-  letter-spacing: 0.05em;
-  color: var(--ink-muted);
-}
-
-.signal-index-hero-atmosphere .signal-index-hero-note {
-  animation: signal-index-hero-rise 0.86s cubic-bezier(0.22, 1, 0.36, 1) 0.30s both;
-}
-
-a.signal-index-beneath-row {
-  animation: signal-index-hero-rise 0.86s cubic-bezier(0.22, 1, 0.36, 1) both;
-}
-
-/* Tighter 0.06s cascade so the catalogue reads as one choreographed sweep;
-   last row lands ~1.66s in, within the ~1.6s budget. */
-a.signal-index-beneath-row:nth-of-type(1) { animation-delay: 0.50s; }
-a.signal-index-beneath-row:nth-of-type(2) { animation-delay: 0.56s; }
-a.signal-index-beneath-row:nth-of-type(3) { animation-delay: 0.62s; }
-a.signal-index-beneath-row:nth-of-type(4) { animation-delay: 0.68s; }
-a.signal-index-beneath-row:nth-of-type(5) { animation-delay: 0.74s; }
-a.signal-index-beneath-row:nth-of-type(6) { animation-delay: 0.80s; }
-
-@media (max-width: 560px) {
-  .signal-index-beneath {
-    gap: 0.85rem;
-    width: 100%;
-    border: 0;
-    background: none;
-    backdrop-filter: none;
-    -webkit-backdrop-filter: none;
-    padding: 0;
-  }
-
-  .signal-index-beneath-label,
-  .signal-index-beneath-rule {
-    display: none;
-  }
-
-  .signal-index-beneath-row {
-    align-items: center;
-    min-height: 44px;
-  }
-
-  .signal-index-beneath-row span {
-    font-size: 0.62rem;
-  }
-
-  .signal-index-beneath-row strong {
-    font-size: 0.88rem;
-  }
-}
-
-
-@media (prefers-reduced-motion: reduce) {
-  .signal-index-hero-atmosphere .signal-index-hero-kicker,
-  .signal-index-hero-atmosphere h1,
-  .signal-index-hero-atmosphere .signal-index-hero-note,
-  .signal-index-hero-atmosphere .signal-index-link,
-  .signal-index-hero-atmosphere a.signal-index-beneath-row {
-    animation: none;
   }
 }
 
