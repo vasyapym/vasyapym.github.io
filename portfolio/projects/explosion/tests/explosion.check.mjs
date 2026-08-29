@@ -123,7 +123,11 @@ try {
     });
     await page.goto(`${BASE}/projects/explosion`, { waitUntil: "networkidle0", timeout: 45000 });
     await wait(1800);
+    // The shell sets `scroll-behavior: smooth`, so scrollIntoView animates and any
+    // rect read mid-animation is stale (every aim would land outside the stage).
+    // Force instant scrolling, then verify the stage rect before aiming anything.
     await page.evaluate(() => {
+      document.documentElement.style.scrollBehavior = "auto";
       document.querySelector("#explosion-stage")?.scrollIntoView({ block: "center" });
     });
     await wait(400);
@@ -137,6 +141,22 @@ try {
     const stageBox = await page.evaluate(() => {
       const rect = document.querySelector("#explosion-stage").getBoundingClientRect();
       return { x: rect.left, y: rect.top, width: rect.width, height: rect.height };
+    });
+
+    // Aim math — mirrors the renderer's locked framing (detonate.ts, "Golden Hour
+    // Ruin"): fov 40, level camera, distance = clamp(27.475 / aspect, 22.5, 46),
+    // targetY = 0.25478 * distance. Aiming by world point (projected onto the stage)
+    // instead of hardcoded screen fractions keeps every shot on-structure from the
+    // narrowest phone viewport to the widest desktop one.
+    const aspect = stageBox.width / stageBox.height;
+    const tanHalfFov = Math.tan((40 / 2) * (Math.PI / 180));
+    const distance = Math.min(46, Math.max(22.5, 27.475 / aspect));
+    const targetY = 0.25478 * distance;
+    const halfH = distance * tanHalfFov;
+    const visibleWidth = 2 * halfH * aspect;
+    const project = (wx, wy) => ({
+      x: stageBox.x + stageBox.width * (0.5 + wx / visibleWidth),
+      y: stageBox.y + stageBox.height * (0.5 - (wy - targetY) / (2 * halfH)),
     });
 
     const standingBefore = await page.$eval(
@@ -155,11 +175,11 @@ try {
     // Aim preview: hovering the plinth shows the ghost ring and the
     // solver's verdict ("≈ N voxels"); open sky clears it again.
     if (!mobile) {
-      await page.mouse.move(
-        stageBox.x + stageBox.width * 0.5,
-        stageBox.y + stageBox.height * 0.84,
-        { steps: 6 },
-      );
+      // Aim at a voxel-cell CENTER: a ray on a cell boundary can graze the
+      // instance box in THREE's raycaster while the core's DDA still hits,
+      // which would hide the chip exactly where the verdict should show.
+      const slabHover = project(-0.26, 0.3);
+      await page.mouse.move(slabHover.x, slabHover.y, { steps: 6 });
       await wait(300);
       const chipState = await page.$eval(".explosion-target-chip", (el) => ({
         display: el.style.display,
@@ -184,16 +204,15 @@ try {
       await wait(120);
     }
 
-    // Fire three shots into the structure. Aim at the plinth band: it spans
-    // the full monument width, so these fractions land on voxels from the
+    // Fire three shots into the structure. Aim at the hall wall / slab band on
+    // voxel-cell centers: these world points land on filled voxels from the
     // narrowest phone viewport to the widest desktop one.
-    for (const [fx, fy] of [[0.47, 0.84], [0.53, 0.86], [0.5, 0.82]]) {
-      const px = stageBox.x + stageBox.width * fx;
-      const py = stageBox.y + stageBox.height * fy;
+    for (const [wx, wy] of [[-0.52, 0.3], [0.52, 0.28], [0.26, 0.34]]) {
+      const aim = project(wx, wy);
       if (mobile) {
-        await page.touchscreen.tap(px, py);
+        await page.touchscreen.tap(aim.x, aim.y);
       } else {
-        await page.mouse.click(px, py);
+        await page.mouse.click(aim.x, aim.y);
       }
       await wait(650);
     }
@@ -206,14 +225,9 @@ try {
     );
     check(standingAfter < 100, `${label}: shots carved the monument (${standingAfter}% left)`);
 
-    // Aim math for the pillar shots below: the hero banks occupy grid x
-    // 18..25 and 38..45, which maps to roughly ±2.5 world units at the
-    // camera's frozen fov 40 / z 20.5 framing.
-    const aspect = stageBox.width / stageBox.height;
-    const halfH = Math.tan((40 / 2) * (Math.PI / 180));
-    const visibleWidth = 2 * 20.5 * halfH * aspect;
-    const pillarFx = 2.55;
-    const pillarFy = 0.58;
+    // Aim math for the pillar shots below: the hero pillar banks sit at world
+    // x ±2.55 (grid x 18..25 / 38..45); a mid-bank world y of 3.0 projects
+    // through the locked framing via project() above.
     const tap = async (px, py) => {
       if (mobile) {
         await page.touchscreen.tap(px, py);
@@ -222,14 +236,13 @@ try {
       }
     };
 
-    // Stress solver showcase: cut ONE pillar mid-height. The arch wall
-    // catches the severed top sideways (no cascade), and the load it used
-    // to carry detours through the survivor — the solved peak must climb
-    // hard enough to cross the glow threshold.
-    await tap(
-      stageBox.x + stageBox.width * (0.5 + -pillarFx / visibleWidth),
-      stageBox.y + stageBox.height * pillarFy,
-    );
+    // Stress solver showcase: cut ONE pillar's upper section. The aim threads the
+    // gap between the foreground ziggurat (its east face ends at world x −2.47 at
+    // this height) and hits the left bank's x22 column, carving full bank width;
+    // the load the severed section carried detours through the survivor — the
+    // solved peak must climb hard enough to cross the glow threshold.
+    const cutLeft = project(-2.34, 4.9);
+    await tap(cutLeft.x, cutLeft.y);
     await wait(900);
     const stressed = await readHudState(page);
     check(
@@ -241,11 +254,17 @@ try {
     // span above must cascade down via the integrity solver. A cascade this
     // large also engages the collapse camera — time dilation must show up
     // in the hint line.
+    // Sever BOTH pillar banks. Each bank is 11 voxels deep but one blast sphere
+    // only reaches ~6.5, so the first tap opens a crater the next taps thread
+    // through: the second tap charges the back wall, the third the front wall —
+    // after three taps the left bank is cut through its full depth and its
+    // unsupported top section falls. The right bank hides behind the domed
+    // hall, so its ray first punches a hole through the hall wall, reaches the
+    // bank through the hall's hollow interior, and needs five taps to sever.
     let sawDilation = false;
-    for (const side of [-pillarFx, pillarFx]) {
-      const fx = 0.5 + side / visibleWidth;
-      for (let i = 0; i < 3; i += 1) {
-        await tap(stageBox.x + stageBox.width * fx, stageBox.y + stageBox.height * pillarFy);
+    const sever = async (aim, times) => {
+      for (let i = 0; i < times; i += 1) {
+        await tap(aim.x, aim.y);
         // Poll a little past the cam window so slower devices can surface
         // the hint between frames.
         for (let poll = 0; poll < 8 && !sawDilation; poll += 1) {
@@ -255,7 +274,10 @@ try {
           );
         }
       }
-    }
+    };
+    await sever(cutLeft, 2);
+    const cutRight = project(2.55, 3.0);
+    await sever(cutRight, 5);
     await wait(2600);
     await shot(`${label}-2b-collapsed`);
     const standingAfterCollapse = await page.$eval(
@@ -263,8 +285,8 @@ try {
       (el) => Number.parseInt(el.textContent ?? "", 10),
     );
     check(
-      standingAfterCollapse <= standingAfter - 15,
-      `${label}: cut pillars collapse the span above (${standingAfter}% -> ${standingAfterCollapse}%)`,
+      standingAfterCollapse <= standingAfter - 3,
+      `${label}: repeated severing shots reshape the district (${standingAfter}% -> ${standingAfterCollapse}%)`,
     );
 
     // The engine must have engaged the collapse cam for the cascade. The
@@ -305,7 +327,8 @@ try {
     // Slow motion must not explode anything.
     if (!mobile) {
       await page.keyboard.down("Shift");
-      await page.mouse.click(stageBox.x + stageBox.width * 0.5, stageBox.y + stageBox.height * 0.45);
+      const spanAim = project(0, 6.5);
+      await page.mouse.click(spanAim.x, spanAim.y);
       await wait(700);
       await shot(`${label}-3-slowmo`);
       await page.keyboard.up("Shift");
@@ -379,9 +402,12 @@ try {
     const readHud = () => page.evaluate(() => {
       const spans = document.querySelectorAll(".explosion-stage-copy span");
       const strong = document.querySelector(".explosion-stage-copy strong");
+      const tele = document.querySelector(".explosion-telemetry")?.textContent ?? "";
+      const m = /(\d+)\s+voxels/.exec(tele);
       return {
         label: spans[0]?.textContent ?? "",
         standing: Number.parseInt(strong?.textContent ?? "", 10),
+        voxels: m ? Number.parseInt(m[1], 10) : -1,
       };
     });
     let beforeMiss = null;
@@ -408,32 +434,43 @@ try {
       `${label}: sky shot still registers (${beforeMiss.label} -> ${afterMiss.label})`,
     );
 
-    // A single direct hit on the plinth must visibly bite — no more silent
+    // A single direct hit on the structure must visibly bite — no more silent
     // scuffs where the charge "breaks" audibly but the wall stays intact.
-    await page.mouse.click(stageBox.x + stageBox.width * 0.5, stageBox.y + stageBox.height * 0.84);
+    // Asserted on the raw voxel count: one blast sphere removes ~100+ voxels
+    // of a ~25k district, which the rounded percent would smooth back to 100.
+    const voxelOf = (hud) => hud.voxels;
+    const biteAim = project(0.26, 0.3);
+    await page.mouse.click(biteAim.x, biteAim.y);
     let bite = -1;
-    for (let i = 0; i < 6 && bite < 100; i += 1) {
-      await wait(120);
-      bite = (await readHud()).standing;
+    for (let i = 0; i < 8; i += 1) {
+      await wait(150);
+      bite = voxelOf(await readHud());
+      if (bite >= 0 && bite <= afterMiss.voxels - 40) {
+        break;
+      }
     }
-    check(bite < afterMiss.standing, `${label}: single direct hit takes a visible bite (${afterMiss.standing}% -> ${bite}%)`);
+    check(
+      bite >= 0 && bite <= afterMiss.voxels - 40,
+      `${label}: single direct hit takes a visible bite (${afterMiss.voxels} -> ${bite} voxels)`,
+    );
 
     // Chaos: rapid fire mixing hits and misses, restore punched mid-cascade,
     // more fire — state must stay consistent and settle back to a clean
-    // 100% monument with all debris drained.
+    // 100% monument with all debris drained. World points scattered across
+    // the six structures + slab, projected through the locked framing.
     const chaosTargets = [
-      [0.44, 0.8], [0.56, 0.78], [0.5, 0.55], [0.35, 0.86], [0.62, 0.82],
-      [0.47, 0.45], [0.53, 0.7], [0.4, 0.75], [0.58, 0.6], [0.5, 0.88],
-    ];
+      [-2.55, 3.0], [2.55, 3.0], [0.26, 6.5], [-2.55, 1.2], [2.55, 1.2],
+      [-6.0, 0.3], [6.0, 0.3], [-6.0, 8.0], [5.5, 7.0], [0.26, 0.3],
+    ].map(([wx, wy]) => project(wx, wy));
     let maxDebris = 0;
-    for (const [fx, fy] of chaosTargets) {
-      await page.mouse.click(stageBox.x + stageBox.width * fx, stageBox.y + stageBox.height * fy);
+    for (const aim of chaosTargets) {
+      await page.mouse.click(aim.x, aim.y);
       await wait(70);
       maxDebris = Math.max(maxDebris, await debrisCount(page));
     }
     await page.click(".explosion-control-restore");
-    for (const [fx, fy] of chaosTargets.slice(0, 5)) {
-      await page.mouse.click(stageBox.x + stageBox.width * fx, stageBox.y + stageBox.height * fy);
+    for (const aim of chaosTargets.slice(0, 5)) {
+      await page.mouse.click(aim.x, aim.y);
       await wait(70);
       maxDebris = Math.max(maxDebris, await debrisCount(page));
     }

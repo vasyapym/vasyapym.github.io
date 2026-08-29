@@ -10,10 +10,11 @@ import "./explosion-luna.css";
 
 const REDUCED_MOTION_QUERY = "(prefers-reduced-motion: reduce)";
 
+// Locked-spec technique list (§0). Mono, lowercase; rendered as the payload grid.
 const TECHNIQUES = [
   "structural integrity · flood-fill solver",
-  "gpu instancing · two draw calls",
-  "adaptive charge depth · ray-marched",
+  "rust → webassembly core · 120 hz substeps",
+  "three.js instancing · two draw calls",
   "live stress solver · loads reroute on impact",
   "procedural webaudio · zero assets",
 ];
@@ -155,6 +156,7 @@ export default function ExplosionLunaPage() {
     handleRef.current?.setXray(next);
   };
 
+  // Percent standing: 100 on load and after restore (total 0 ⇒ 100), else voxels/total.
   const standing =
     telemetry.total > 0 ? Math.round((telemetry.voxels / telemetry.total) * 100) : 100;
 
@@ -163,13 +165,13 @@ export default function ExplosionLunaPage() {
       <section className="explosion-page" aria-labelledby="explosion-title">
         <header className="explosion-hero">
           <h1 id="explosion-title">
-            One voxel district.
-            <span>Tear it down.</span>
+            Raze the district
+            <span>before the light goes.</span>
           </h1>
           <p className="explosion-lede">
-            Every shot carves the structure away for real &mdash; and anything left
-            without support comes down on its own. Flip the x-ray to watch the
-            load paths decide.
+            Every shot carves real voxels out of the monument; strip a load path and
+            everything above it falls on its own. Flip x-ray to read the stress, hold
+            shift for bullet time.
           </p>
           <a className="explosion-enter" href="#explosion-stage">
             Demolish <span aria-hidden="true">↓</span>
@@ -180,7 +182,7 @@ export default function ExplosionLunaPage() {
           <p className="explosion-room-meta">
             {reducedMotion
               ? "reduced motion · blasts disabled · restore still works"
-              : "live · shift = slow motion · damage persists until restored"}
+              : "live · shift = bullet time · x = stress map · damage persists until restored"}
           </p>
 
           <div
@@ -197,10 +199,10 @@ export default function ExplosionLunaPage() {
             <div className="explosion-stage-copy" aria-hidden="true">
               <span>lx-01 · {impacts.toString().padStart(3, "0")} shots</span>
               <strong>{standing}% standing</strong>
-                <span className="explosion-telemetry">
-                  {telemetry.voxels} voxels · {telemetry.debris} debris · peak{" "}
-                  {Math.round(telemetry.peakStress * 100)}% stress · {Math.round(telemetry.fps)} fps
-                </span>
+              <span className="explosion-telemetry">
+                {telemetry.voxels} voxels · {telemetry.debris} debris · peak{" "}
+                {Math.round(telemetry.peakStress * 100)}% stress · {Math.round(telemetry.fps)} fps
+              </span>
             </div>
             {!hasScene ? (
               <>
@@ -236,13 +238,13 @@ export default function ExplosionLunaPage() {
             </button>
             <span className="explosion-hint" aria-hidden="true">
               {slowMo
-                ? "slow motion engaged"
+                ? "bullet time engaged"
                 : telemetry.slowmo
                   ? "time dilated — collapse cam"
                   : xray
                     ? "stress map · hot = carrying the span"
                     : telemetry.peakStress > 0.72
-                      ? "overloaded columns glowing · press x — stress map"
+                      ? "columns overloaded · press x for stress"
                       : "hold shift — bullet time · press x — stress map"}
             </span>
           </div>

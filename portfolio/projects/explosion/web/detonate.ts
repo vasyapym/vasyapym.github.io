@@ -9,10 +9,20 @@ const COLLAPSE_CAM_DURATION = 2600;
 const BUILD_DURATION = 1.15;
 const XRAY_HOT = new THREE.Color(0xff5a20);
 const XRAY_COOL = new THREE.Color(0x5bb6bd);
-const DOOM_TINT = new THREE.Color(0xff4d1a);
 const EMBER_GLOW = new THREE.Color(0xffa14d);
 const STRESS_GLOW = 0.72;
 const SPARK_COUNT = 80;
+
+// Aspect-aware framing: fit the ~16.6-wide district (+margin = 20) across the stage at
+// any aspect so the phone portrait no longer crops it. Camera is LEVEL (look direction
+// horizontal) which keeps the aim math the browser suite hardcodes clean.
+const FOV = 40;
+const TAN_HALF_FOV = Math.tan((20 * Math.PI) / 180); // 0.36397
+const FIT_WIDTH = 20;
+const FIT_DISTANCE = FIT_WIDTH / (2 * TAN_HALF_FOV); // 27.475
+const MIN_DISTANCE = 22.5; // desktop cap: district ~56% frame width, top ~18% sky-free
+const MAX_DISTANCE = 46; // portrait cap: full width visible without pushing past far plane
+const TARGET_Y_RATIO = 0.25478; // holds the slab band at stage fy ~= 0.85 at every aspect
 
 type Vec3 = readonly [number, number, number];
 export type SpecimenStats = { voxels: number; total: number; debris: number; fps: number; slowmo: boolean; peakStress: number; engagements: number };
@@ -26,7 +36,23 @@ export function hasWebGL(): boolean {
 }
 
 function isReducedMotion(): boolean { return window.matchMedia(REDUCED_MOTION_QUERY).matches; }
-function finiteVector(v: Vec3): boolean { return v.every(Number.isFinite); }
+
+// Opaque golden-hour sky as scene.background — this is the primary brightness fix: the
+// canvas paints its own lit sky instead of showing dark CSS through an alpha buffer.
+function createSkyTexture(): THREE.Texture | null {
+  const canvas = document.createElement("canvas");
+  canvas.width = 4; canvas.height = 256;
+  const ctx = canvas.getContext("2d");
+  if (!ctx) return null;
+  const grad = ctx.createLinearGradient(0, 0, 0, 256);
+  grad.addColorStop(0, "#f0d3a0");
+  grad.addColorStop(1, "#c98f5a");
+  ctx.fillStyle = grad; ctx.fillRect(0, 0, 4, 256);
+  const texture = new THREE.CanvasTexture(canvas);
+  texture.colorSpace = THREE.SRGBColorSpace;
+  texture.needsUpdate = true;
+  return texture;
+}
 
 function createRenderer(target: HTMLElement): THREE.WebGLRenderer | null {
   const canvas = document.createElement("canvas");
@@ -34,11 +60,11 @@ function createRenderer(target: HTMLElement): THREE.WebGLRenderer | null {
   canvas.setAttribute("aria-hidden", "true");
   target.appendChild(canvas);
   try {
-    const renderer = new THREE.WebGLRenderer({ canvas, alpha: true, antialias: true, powerPreference: "high-performance" });
+    const renderer = new THREE.WebGLRenderer({ canvas, alpha: false, antialias: true, powerPreference: "high-performance" });
     renderer.setPixelRatio(Math.min(window.devicePixelRatio || 1, 1.75));
-    renderer.setClearColor(0x000000, 0);
+    renderer.setClearColor(0xe9c896, 1);
     renderer.toneMapping = THREE.ACESFilmicToneMapping;
-    renderer.toneMappingExposure = 1.18;
+    renderer.toneMappingExposure = 1.3;
     renderer.outputColorSpace = THREE.SRGBColorSpace;
     return renderer;
   } catch { canvas.remove(); return null; }
@@ -62,23 +88,41 @@ export function mountSpecimen(element: HTMLElement): SpecimenHandle | null {
   if (!renderer) return null;
   const reduced = isReducedMotion();
   const scene = new THREE.Scene();
-  scene.fog = new THREE.FogExp2(0x182830, 0.014);
-  const camera = new THREE.PerspectiveCamera(40, 1, 0.1, 120);
-  const cameraHome = new THREE.Vector3(0, 4.7, 20.5);
-  const cameraTarget = new THREE.Vector3(0, 3.85, 0);
-  camera.position.copy(cameraHome);
-  camera.lookAt(cameraTarget);
-  scene.add(new THREE.AmbientLight(0xa8a29a, 1.55), new THREE.HemisphereLight(0xc4dbe8, 0x453a2d, 0.85));
-  const key = new THREE.DirectionalLight(0xffd9ae, 3.2); key.position.set(-7, 11, 8); scene.add(key);
-  const rim = new THREE.PointLight(0x4bb3c5, 30, 30, 2); rim.position.set(8, 2.5, -7); scene.add(rim);
+  const skyTexture = createSkyTexture();
+  scene.background = skyTexture ?? new THREE.Color(0xe9c896);
+  scene.fog = new THREE.FogExp2(0xe6c79a, 0.0055);
+  const camera = new THREE.PerspectiveCamera(FOV, 1, 0.1, 120);
+
+  // cameraHome/cameraTarget are derived from the current aspect in applyFraming so the
+  // shake/kick offsets in updateVisuals stay valid whatever the framing resolves to.
+  const cameraHome = new THREE.Vector3();
+  const cameraTarget = new THREE.Vector3();
+  const applyFraming = (aspect: number) => {
+    const distance = THREE.MathUtils.clamp(FIT_DISTANCE / aspect, MIN_DISTANCE, MAX_DISTANCE);
+    const targetY = TARGET_Y_RATIO * distance;
+    cameraHome.set(0, targetY, distance);
+    cameraTarget.set(0, targetY, 0);
+    camera.aspect = aspect;
+    camera.updateProjectionMatrix();
+    camera.position.copy(cameraHome);
+    camera.lookAt(cameraTarget);
+  };
+  applyFraming(1); // seeded; resize() sets the real aspect before the first frame
+
+  scene.add(new THREE.AmbientLight(0xcfc3ad, 2.0), new THREE.HemisphereLight(0xffe4b5, 0x6b5a44, 1.4));
+  const key = new THREE.DirectionalLight(0xffcaa0, 3.4); key.position.set(-9, 7, 9); scene.add(key);
+  const rim = new THREE.PointLight(0x6bc7d0, 25, 30, 2); rim.position.set(9, 3, -8); scene.add(rim);
   const flash = new THREE.PointLight(0xffa14d, 0, 20, 2); scene.add(flash);
-  const ground = new THREE.Mesh(new THREE.CircleGeometry(34, 48), new THREE.MeshStandardMaterial({ color: 0x24313a, roughness: 0.94 }));
+  const ground = new THREE.Mesh(new THREE.CircleGeometry(34, 48), new THREE.MeshStandardMaterial({ color: 0xb8a888, roughness: 0.95 }));
   ground.rotation.x = -Math.PI / 2; scene.add(ground);
   const survey = new THREE.Mesh(new THREE.TorusGeometry(64 * CELL * 0.72, 0.014, 8, 128), new THREE.MeshBasicMaterial({ color: 0xffa14d, transparent: true, opacity: 0.32, depthWrite: false }));
   survey.rotation.x = Math.PI / 2; survey.position.y = 0.02; scene.add(survey);
 
   const box = new THREE.BoxGeometry(CELL * 0.98, CELL * 0.98, CELL * 0.98);
-  const material = new THREE.MeshStandardMaterial({ roughness: 0.55, metalness: 0.18, flatShading: true, vertexColors: true });
+  // NOTE: no `vertexColors` here — the geometry has no `color` attribute, and an
+  // unbound attribute multiplies the per-instance colors down to black. The
+  // InstancedMesh instanceColor buffer drives all tinting on its own.
+  const material = new THREE.MeshStandardMaterial({ roughness: 0.55, metalness: 0.18, flatShading: true });
   const structure = new THREE.InstancedMesh(box, material, 64 * 42 * 26);
   structure.instanceColor = new THREE.InstancedBufferAttribute(new Float32Array(64 * 42 * 26 * 3), 3);
   structure.instanceColor.setUsage(THREE.DynamicDrawUsage);
@@ -117,10 +161,9 @@ export function mountSpecimen(element: HTMLElement): SpecimenHandle | null {
   let buildStarted = 0;
   let shake = 0;
   let flashIntensity = 0;
-  let overloaded: number[] = [];
   const stats: SpecimenStats = { voxels: 0, total: 0, debris: 0, fps: 60, slowmo: false, peakStress: 0, engagements: 0 };
 
-  const setColor = (instance: number, voxel: number, now: number) => {
+  const setColor = (instance: number, voxel: number) => {
     const views = core?.views; if (!views) return;
     const s = views.stressShown[voxel];
     if (views.doomed[voxel]) tmpColor.set(0xff4d1a);
@@ -138,15 +181,15 @@ export function mountSpecimen(element: HTMLElement): SpecimenHandle | null {
       count = Math.max(count, instance + 1);
       const x = voxel % core.width; const z = Math.floor(voxel / core.width) % core.depth; const y = Math.floor(voxel / (core.width * core.depth));
       tmp.set((x - (core.width - 1) * 0.5) * CELL, (y + 0.5) * CELL, (z - (core.depth - 1) * 0.5) * CELL);
-      dummy.position.copy(tmp); dummy.scale.setScalar(animated ? 0.001 : 1); dummy.updateMatrix(); structure.setMatrixAt(instance, dummy.matrix); setColor(instance, voxel, performance.now());
+      dummy.position.copy(tmp); dummy.scale.setScalar(animated ? 0.001 : 1); dummy.updateMatrix(); structure.setMatrixAt(instance, dummy.matrix); setColor(instance, voxel);
     }
     structure.count = count; structure.instanceMatrix.needsUpdate = true; if (structure.instanceColor) structure.instanceColor.needsUpdate = true;
   };
 
-  const repaint = (now: number) => {
+  const repaint = () => {
     if (!core || !structure.instanceColor) return;
     const views = core.views;
-    for (let instance = 0; instance < structure.count; instance += 1) setColor(instance, views.voxelOfInstance[instance], now);
+    for (let instance = 0; instance < structure.count; instance += 1) setColor(instance, views.voxelOfInstance[instance]);
     structure.instanceColor.needsUpdate = true;
   };
 
@@ -168,9 +211,9 @@ export function mountSpecimen(element: HTMLElement): SpecimenHandle | null {
     attr.needsUpdate = true;
   };
 
-  const hidePreview = () => { chip.style.display = "none"; previewRing.visible = false; };
   const previewRing = new THREE.Mesh(new THREE.TorusGeometry(3.4 * CELL * 0.85, 0.018, 8, 48), new THREE.MeshBasicMaterial({ color: 0xffc77b, transparent: true, opacity: 0.45, blending: THREE.AdditiveBlending, depthWrite: false }));
   previewRing.visible = false; scene.add(previewRing);
+  const hidePreview = () => { chip.style.display = "none"; previewRing.visible = false; };
 
   const updatePreview = (clientX: number, clientY: number) => {
     if (!core || reduced || building) return hidePreview();
@@ -187,7 +230,11 @@ export function mountSpecimen(element: HTMLElement): SpecimenHandle | null {
       if (!core || reduced || building) return false;
       sfx.resume(); const rect = element.getBoundingClientRect(); ndc.set((clientX - rect.left) / rect.width * 2 - 1, -((clientY - rect.top) / rect.height * 2 - 1)); raycaster.setFromCamera(ndc, camera);
       const origin: Vec3 = [raycaster.ray.origin.x, raycaster.ray.origin.y, raycaster.ray.origin.z]; const direction: Vec3 = [raycaster.ray.direction.x, raycaster.ray.direction.y, raycaster.ray.direction.z];
-      const hit = core.pick(origin, direction); const victims = core.blast(origin, direction, 0.96); hitPoint.copy(raycaster.ray.origin).addScaledVector(raycaster.ray.direction, 12);
+      const hit = core.pick(origin, direction); const victims = core.blast(origin, direction, 0.96);
+      // Site the blast FX at the district plane (the level camera sits `cameraHome.z`
+      // units from z=0), not at a hardcoded distance — otherwise shockwaves, sparks
+      // and the flash would hang in mid-air in front of the structures.
+      hitPoint.copy(raycaster.ray.origin).addScaledVector(raycaster.ray.direction, cameraHome.z);
       if (hit >= 0) {
         shake = Math.min(1.05, shake + 0.4); flashIntensity = 90; flash.position.copy(hitPoint);
         const kickX = hitPoint.x - cameraHome.x; const kickZ = hitPoint.z - cameraHome.z; const kickLen = Math.hypot(kickX, kickZ) || 1;
@@ -196,12 +243,12 @@ export function mountSpecimen(element: HTMLElement): SpecimenHandle | null {
       } else { fireShockwave(hitPoint, 0.28); sfx.thud(); }
       core.refreshViews(); stats.voxels = core.stats.standing; stats.debris = core.stats.debris; stats.peakStress = core.stats.peakStress; if (victims > 0) rebuild(false); return true;
     },
-    restore: () => { if (!core) return; core.restore(); core.refreshViews(); stats.voxels = core.stats.standing; stats.debris = 0; building = !reduced; buildStarted = performance.now(); rebuild(!reduced); repaint(performance.now()); sfx.resume(); sfx.rebuild(); },
+    restore: () => { if (!core) return; core.restore(); core.refreshViews(); stats.voxels = core.stats.standing; stats.debris = 0; building = !reduced; buildStarted = performance.now(); rebuild(!reduced); repaint(); sfx.resume(); sfx.rebuild(); },
     setMuted: (muted) => sfx.setMuted(muted),
     setSlowMo: (on) => { slowMoHeld = on; },
-    setXray: (on) => { xray = on; repaint(performance.now()); },
+    setXray: (on) => { xray = on; repaint(); },
     stats,
-    dispose: () => { if (disposed) return; disposed = true; cancelAnimationFrame(animation); core?.dispose(); core = null; renderer.dispose(); chip.remove(); previewRing.geometry.dispose(); (previewRing.material as THREE.Material).dispose(); element.querySelector("canvas.explosion-overlay-canvas")?.remove(); },
+    dispose: () => { if (disposed) return; disposed = true; cancelAnimationFrame(animation); window.removeEventListener("resize", onResize); core?.dispose(); core = null; renderer.dispose(); skyTexture?.dispose(); chip.remove(); previewRing.geometry.dispose(); (previewRing.material as THREE.Material).dispose(); element.querySelector("canvas.explosion-overlay-canvas")?.remove(); },
   };
 
   const updateVisuals = (dt: number, now: number) => {
@@ -221,9 +268,22 @@ export function mountSpecimen(element: HTMLElement): SpecimenHandle | null {
     if (core) { const views = core.views; const count = Math.min(core.stats.debris, core.debrisCapacity); for (let i = 0; i < count; i += 1) { const p = i * 3; const q = i * 4; dummy.position.set(views.debrisPos[p], views.debrisPos[p + 1], views.debrisPos[p + 2]); dummy.quaternion.set(views.debrisQuat[q], views.debrisQuat[q + 1], views.debrisQuat[q + 2], views.debrisQuat[q + 3]); dummy.scale.set(views.debrisScale[p] / (CELL * 0.49), views.debrisScale[p + 1] / (CELL * 0.49), views.debrisScale[p + 2] / (CELL * 0.49)); dummy.updateMatrix(); debrisMesh.setMatrixAt(i, dummy.matrix); tmpColor.setHex(views.debrisRgb[i]); debrisMesh.setColorAt(i, tmpColor); } debrisMesh.count = count; debrisMesh.instanceMatrix.needsUpdate = true; if (debrisMesh.instanceColor) debrisMesh.instanceColor.needsUpdate = true; }
   };
 
-  const resize = () => { const rect = element.getBoundingClientRect(); renderer.setSize(Math.max(1, rect.width), Math.max(1, rect.height), false); camera.aspect = rect.width / Math.max(1, rect.height); camera.updateProjectionMatrix(); };
-  const frame = (now: number) => { if (disposed) return; const dt = Math.min(0.1, Math.max(0, (now - last) / 1000)); last = now; if (core) { const dilation = slowMoHeld || now < collapseUntil; core.step(dilation ? dt * (slowMoHeld ? 0.22 : 0.3) : dt, dt); stats.voxels = core.stats.standing; stats.debris = core.stats.debris; stats.peakStress = core.stats.peakStress; if (core.stats.doomed >= COLLAPSE_CAM_THRESHOLD && now >= collapseUntil) { collapseUntil = now + COLLAPSE_CAM_DURATION; stats.slowmo = true; stats.engagements += 1; } else if (now >= collapseUntil) stats.slowmo = false; if (core.stats.worldVersion !== 0 && overloaded.length === 0) overloaded = []; } updateVisuals(dt, now); renderer.render(scene, camera); animation = requestAnimationFrame(frame); };
+  const resize = () => { const rect = element.getBoundingClientRect(); renderer.setSize(Math.max(1, rect.width), Math.max(1, rect.height), false); applyFraming(rect.width / Math.max(1, rect.height)); };
+  const frame = (now: number) => {
+    if (disposed) return;
+    const dt = Math.min(0.1, Math.max(0, (now - last) / 1000)); last = now;
+    if (core) {
+      const dilation = slowMoHeld || now < collapseUntil;
+      core.step(dilation ? dt * (slowMoHeld ? 0.22 : 0.3) : dt, dt);
+      stats.voxels = core.stats.standing; stats.debris = core.stats.debris; stats.peakStress = core.stats.peakStress;
+      if (core.stats.doomed >= COLLAPSE_CAM_THRESHOLD && now >= collapseUntil) { collapseUntil = now + COLLAPSE_CAM_DURATION; stats.slowmo = true; stats.engagements += 1; }
+      else if (now >= collapseUntil) stats.slowmo = false;
+    }
+    updateVisuals(dt, now);
+    renderer.render(scene, camera);
+    animation = requestAnimationFrame(frame);
+  };
   const onResize = () => resize(); window.addEventListener("resize", onResize); resize();
-  loadPhysicsCore(Math.floor(Math.random() * 0xffffffff), debrisCapacity).then((loaded) => { if (disposed) { loaded.dispose(); return; }    core = loaded; stats.total = loaded.total; stats.voxels = loaded.stats.standing; stats.debris = 0; rebuild(false); repaint(performance.now()); animation = requestAnimationFrame(frame); }).catch(() => { if (!disposed) { element.classList.add("is-fallback"); renderer.dispose(); element.querySelector("canvas.explosion-overlay-canvas")?.remove(); } });
+  loadPhysicsCore(Math.floor(Math.random() * 0xffffffff), debrisCapacity).then((loaded) => { if (disposed) { loaded.dispose(); return; } core = loaded; stats.total = loaded.total; stats.voxels = loaded.stats.standing; stats.debris = 0; rebuild(false); repaint(); animation = requestAnimationFrame(frame); }).catch(() => { if (!disposed) { element.classList.add("is-fallback"); renderer.dispose(); element.querySelector("canvas.explosion-overlay-canvas")?.remove(); } });
   return handle;
 }

@@ -4,10 +4,10 @@ const explosionLuna: ProjectModule = {
   id: "explosion",
   title: "Explosion",
   tag: "physics",
-  eyebrow: "Real-time fracture lab",
+  eyebrow: "Real-time demolition lab",
   description:
-    "A long-range structural demolition lab: fracture a whole voxel monument district, watch a live Rust / physics solver reroute loads, and inspect the collapse in x-ray and bullet time.",
-  technologies: ["Three.js", "voxel physics", "stress solver", "WebAudio"],
+    "Shell a whole voxel monument district and watch a Rust → WebAssembly core reroute its load paths in real time — carve the supports away and everything above comes down, in x-ray and bullet time.",
+  technologies: ["Rust → WebAssembly", "three.js instancing", "structural solvers", "WebAudio"],
   status: "available",
   accent: "red",
   presentation: {
@@ -15,9 +15,9 @@ const explosionLuna: ProjectModule = {
     motion: "stack",
     centerLabel: "L / X",
     centerMark: "blast",
-    note: "fracture lab",
+    note: "demolition lab",
     motionLabel: "the monument falls",
-    instruction: "Open the fracture lab and shoot the monument until it falls.",
+    instruction: "Open the demolition lab and shoot the monument until it falls.",
     parts: [
       {
         id: "luna-shell",
