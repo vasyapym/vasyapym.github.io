@@ -55,6 +55,7 @@ Several agents may work in this repo in parallel and share one working tree. Bef
 
 ## Git delivery preferences
 
+- On this machine `/usr/local/bin/git` is broken for network operations (compiled with an empty prefix — no `git-remote-https` helper, `--exec-path` resolves to `//libexec/git-core`). Local commands work; for fetch/push use `/usr/bin/git push origin main` (Apple Git). Do not diagnose this again — it is already known.
 - Run the relevant checks for completed code or documentation changes, but do not stage, commit, push, open a pull request, or merge unless the current user explicitly asks for that delivery step.
 - Keep delivery separate from implementation so a reviewed working tree can be paused, compared, or handed to another agent without changing repository history.
 - Never include `.DS_Store`, unrelated files, or changes made by another agent. Stop and report failures, conflicts, missing authentication, or branch protection instead of forcing a delivery operation.
