@@ -206,13 +206,14 @@ try {
     );
     check(standingAfter < 100, `${label}: shots carved the monument (${standingAfter}% left)`);
 
-    // Aim math for the pillar shots below: camera constants (fov 40,
-    // z 13.6) mirror detonate.ts so the pillars can be aimed from any
-    // aspect ratio.
+    // Aim math for the pillar shots below: the hero banks occupy grid x
+    // 18..25 and 38..45, which maps to roughly ±2.5 world units at the
+    // camera's frozen fov 40 / z 20.5 framing.
     const aspect = stageBox.width / stageBox.height;
     const halfH = Math.tan((40 / 2) * (Math.PI / 180));
-    const visibleWidth = 2 * 13.6 * halfH * aspect;
-    const pillarFy = 0.55;
+    const visibleWidth = 2 * 20.5 * halfH * aspect;
+    const pillarFx = 2.55;
+    const pillarFy = 0.58;
     const tap = async (px, py) => {
       if (mobile) {
         await page.touchscreen.tap(px, py);
@@ -226,7 +227,7 @@ try {
     // to carry detours through the survivor — the solved peak must climb
     // hard enough to cross the glow threshold.
     await tap(
-      stageBox.x + stageBox.width * (0.5 + -1.95 / visibleWidth),
+      stageBox.x + stageBox.width * (0.5 + -pillarFx / visibleWidth),
       stageBox.y + stageBox.height * pillarFy,
     );
     await wait(900);
@@ -241,7 +242,7 @@ try {
     // large also engages the collapse camera — time dilation must show up
     // in the hint line.
     let sawDilation = false;
-    for (const side of [-1.95, 1.95]) {
+    for (const side of [-pillarFx, pillarFx]) {
       const fx = 0.5 + side / visibleWidth;
       for (let i = 0; i < 3; i += 1) {
         await tap(stageBox.x + stageBox.width * fx, stageBox.y + stageBox.height * pillarFy);

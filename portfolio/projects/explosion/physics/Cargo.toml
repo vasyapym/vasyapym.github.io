@@ -1,0 +1,17 @@
+[package]
+name = "explosion_core"
+version = "0.1.0"
+edition = "2021"
+rust-version = "1.97"
+
+# std only, no external crates. Produces a raw cdylib .wasm with #[no_mangle] C exports;
+# no wasm-bindgen. Build: cargo build --release --target wasm32-unknown-unknown
+[lib]
+crate-type = ["cdylib"]
+
+[profile.release]
+opt-level = "s"
+lto = true
+codegen-units = 1
+panic = "abort"
+strip = true

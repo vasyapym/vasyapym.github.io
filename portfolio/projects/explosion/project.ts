@@ -6,7 +6,7 @@ const explosionLuna: ProjectModule = {
   tag: "physics",
   eyebrow: "Real-time fracture lab",
   description:
-    "A long-range structural demolition lab: fracture a whole voxel district, watch a live integrity solver reroute loads, and inspect the collapse in x-ray and bullet time.",
+    "A long-range structural demolition lab: fracture a whole voxel monument district, watch a live Rust / physics solver reroute loads, and inspect the collapse in x-ray and bullet time.",
   technologies: ["Three.js", "voxel physics", "stress solver", "WebAudio"],
   status: "available",
   accent: "red",

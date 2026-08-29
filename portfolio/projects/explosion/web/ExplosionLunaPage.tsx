@@ -163,7 +163,7 @@ export default function ExplosionLunaPage() {
       <section className="explosion-page" aria-labelledby="explosion-title">
         <header className="explosion-hero">
           <h1 id="explosion-title">
-            One monument.
+            One voxel district.
             <span>Tear it down.</span>
           </h1>
           <p className="explosion-lede">
