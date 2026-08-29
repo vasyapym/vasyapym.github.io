@@ -269,13 +269,29 @@
   }
 
   .explosion-stage {
-    min-height: min(560px, 72vh);
+    /* Tall enough for the 58%/78-88% tap bands, never taller than the viewport. */
+    min-height: min(600px, 74vh);
   }
 
   .explosion-stage-copy {
     align-items: flex-start;
     flex-direction: column;
     gap: 0.35rem;
+  }
+
+  /* Telemetry line wraps and shrinks instead of clipping at 390px. */
+  .explosion-stage-copy .explosion-telemetry {
+    font-size: 0.58rem;
+    line-height: 1.55;
+  }
+
+  .explosion-control {
+    min-height: 40px;
+  }
+
+  /* Chip trails the pointer inside the stage; cap it so it can never widen the page. */
+  .explosion-target-chip {
+    max-width: 100%;
   }
 
   .explosion-hint {

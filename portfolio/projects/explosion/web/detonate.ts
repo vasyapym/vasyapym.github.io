@@ -18,8 +18,8 @@ type Vec3 = readonly [number, number, number];
 export type SpecimenStats = { voxels: number; total: number; debris: number; fps: number; slowmo: boolean; peakStress: number; engagements: number };
 export type SpecimenHandle = { detonateAt: (x: number, y: number) => boolean; restore: () => void; setMuted: (muted: boolean) => void; setSlowMo: (on: boolean) => void; setXray: (on: boolean) => void; readonly stats: SpecimenStats; dispose: () => void };
 
-type SparkCloud = { points: THREE.Points; positions: Float32Array; velocities: Float32Array; age: number; active: boolean };
-type Shockwave = { mesh: THREE.Mesh; age: number; active: boolean };
+type SparkCloud = { points: THREE.Points; positions: Float32Array; velocities: Float32Array; buoyancy: Float32Array; strength: number; age: number; active: boolean };
+type Shockwave = { inner: THREE.Mesh; outer: THREE.Mesh; age: number; active: boolean; tiltSeed: number };
 
 export function hasWebGL(): boolean {
   try { const canvas = document.createElement("canvas"); return Boolean(canvas.getContext("webgl2") || canvas.getContext("webgl")); } catch { return false; }
@@ -47,13 +47,14 @@ function createRenderer(target: HTMLElement): THREE.WebGLRenderer | null {
 function createSparkCloud(): SparkCloud {
   const positions = new Float32Array(SPARK_COUNT * 3);
   const velocities = new Float32Array(SPARK_COUNT * 3);
+  const buoyancy = new Float32Array(SPARK_COUNT);
   const geometry = new THREE.BufferGeometry();
   geometry.setAttribute("position", new THREE.BufferAttribute(positions, 3));
   const material = new THREE.PointsMaterial({ color: 0xffc77b, size: 0.075, transparent: true, opacity: 0.95, depthWrite: false, blending: THREE.AdditiveBlending });
   const points = new THREE.Points(geometry, material);
   points.frustumCulled = false;
   points.visible = false;
-  return { points, positions, velocities, age: 0, active: false };
+  return { points, positions, velocities, buoyancy, strength: 1, age: 0, active: false };
 }
 
 export function mountSpecimen(element: HTMLElement): SpecimenHandle | null {
@@ -79,20 +80,28 @@ export function mountSpecimen(element: HTMLElement): SpecimenHandle | null {
   const box = new THREE.BoxGeometry(CELL * 0.98, CELL * 0.98, CELL * 0.98);
   const material = new THREE.MeshStandardMaterial({ roughness: 0.55, metalness: 0.18, flatShading: true, vertexColors: true });
   const structure = new THREE.InstancedMesh(box, material, 64 * 42 * 26);
+  structure.instanceColor = new THREE.InstancedBufferAttribute(new Float32Array(64 * 42 * 26 * 3), 3);
+  structure.instanceColor.setUsage(THREE.DynamicDrawUsage);
   structure.frustumCulled = false; structure.instanceMatrix.setUsage(THREE.DynamicDrawUsage); scene.add(structure);
   const debrisCapacity = element.clientWidth < 720 || window.innerWidth < 720 ? 900 : 1800;
   const debrisMesh = new THREE.InstancedMesh(box, material.clone(), debrisCapacity);
+  debrisMesh.instanceColor = new THREE.InstancedBufferAttribute(new Float32Array(debrisCapacity * 3), 3);
+  debrisMesh.instanceColor.setUsage(THREE.DynamicDrawUsage);
   debrisMesh.frustumCulled = false; debrisMesh.instanceMatrix.setUsage(THREE.DynamicDrawUsage); debrisMesh.count = 0; scene.add(debrisMesh);
   const dummy = new THREE.Object3D();
   const tmp = new THREE.Vector3();
   const tmpColor = new THREE.Color();
   const raycaster = new THREE.Raycaster();
   const ndc = new THREE.Vector2();
+  const shakeDir = new THREE.Vector2();
+  const hitPoint = new THREE.Vector3();
   const sfx = new DetonationSfx();
   const shocks: Shockwave[] = [];
   for (let i = 0; i < 4; i += 1) {
-    const mesh = new THREE.Mesh(new THREE.TorusGeometry(1, 0.03, 8, 64), new THREE.MeshBasicMaterial({ color: 0xffc77b, transparent: true, opacity: 0, blending: THREE.AdditiveBlending, depthWrite: false, side: THREE.DoubleSide }));
-    mesh.visible = false; scene.add(mesh); shocks.push({ mesh, age: 0, active: false });
+    const inner = new THREE.Mesh(new THREE.TorusGeometry(1, 0.03, 8, 64), new THREE.MeshBasicMaterial({ color: 0xffc77b, transparent: true, opacity: 0, blending: THREE.AdditiveBlending, depthWrite: false, side: THREE.DoubleSide }));
+    const outer = new THREE.Mesh(new THREE.TorusGeometry(1, 0.05, 8, 64), new THREE.MeshBasicMaterial({ color: 0xffc77b, transparent: true, opacity: 0, blending: THREE.AdditiveBlending, depthWrite: false, side: THREE.DoubleSide }));
+    inner.visible = false; outer.visible = false; scene.add(inner); scene.add(outer);
+    shocks.push({ inner, outer, age: 0, active: false, tiltSeed: 0 });
   }
   const sparks = Array.from({ length: 5 }, createSparkCloud); sparks.forEach((cloud) => scene.add(cloud.points));
   const chip = document.createElement("span"); chip.className = "explosion-target-chip"; chip.setAttribute("aria-hidden", "true"); chip.style.display = "none"; element.appendChild(chip);
@@ -112,7 +121,7 @@ export function mountSpecimen(element: HTMLElement): SpecimenHandle | null {
   const stats: SpecimenStats = { voxels: 0, total: 0, debris: 0, fps: 60, slowmo: false, peakStress: 0, engagements: 0 };
 
   const setColor = (instance: number, voxel: number, now: number) => {
-    const views = core?.views; if (!views || !structure.instanceColor) return;
+    const views = core?.views; if (!views) return;
     const s = views.stressShown[voxel];
     if (views.doomed[voxel]) tmpColor.set(0xff4d1a);
     else if (xray) tmpColor.copy(XRAY_COOL).lerp(XRAY_HOT, s * s * (3 - 2 * s));
@@ -141,11 +150,21 @@ export function mountSpecimen(element: HTMLElement): SpecimenHandle | null {
     structure.instanceColor.needsUpdate = true;
   };
 
-  const fireShockwave = (point: THREE.Vector3, strength: number) => { const wave = shocks.find((entry) => !entry.active) ?? shocks[0]; wave.active = true; wave.age = 0; wave.mesh.visible = true; wave.mesh.position.copy(point); wave.mesh.scale.setScalar(0.2); wave.mesh.userData.strength = strength; };
+  const fireShockwave = (point: THREE.Vector3, strength: number) => {
+    const wave = shocks.find((entry) => !entry.active) ?? shocks[0];
+    wave.active = true; wave.age = 0; wave.tiltSeed = Math.random();
+    wave.inner.rotation.set(Math.sin(wave.tiltSeed * 91.7) * 0.1, 0, Math.sin(wave.tiltSeed * 47.3) * 0.1);
+    wave.outer.rotation.copy(wave.inner.rotation);
+    wave.inner.visible = true; wave.outer.visible = true;
+    wave.inner.position.copy(point); wave.outer.position.copy(point);
+    wave.inner.scale.setScalar(0.2); wave.outer.scale.setScalar(0.2);
+    wave.inner.userData.strength = strength;
+  };
   const fireSparks = (point: THREE.Vector3, strength: number) => {
-    const cloud = sparks.find((entry) => !entry.active); if (!cloud) return; cloud.active = true; cloud.age = 0; cloud.points.visible = true; cloud.points.position.copy(point);
+    const cloud = sparks.find((entry) => !entry.active); if (!cloud) return; cloud.active = true; cloud.age = 0; cloud.strength = strength; cloud.points.visible = true; cloud.points.position.copy(point);
     const attr = cloud.points.geometry.getAttribute("position") as THREE.BufferAttribute;
-    for (let i = 0; i < SPARK_COUNT; i += 1) { const o = i * 3; const a = Math.random() * Math.PI * 2; const b = Math.random() * 2 - 1; const r = Math.sqrt(1 - b * b); cloud.positions[o] = cloud.positions[o + 1] = cloud.positions[o + 2] = 0; cloud.velocities[o] = Math.cos(a) * r * (2.4 + Math.random() * 5.1) * strength; cloud.velocities[o + 1] = (b * 0.8 + 0.5) * (2.4 + Math.random() * 5.1) * strength; cloud.velocities[o + 2] = Math.sin(a) * r * (2.4 + Math.random() * 5.1) * strength; attr.setXYZ(i, 0, 0, 0); }
+    const spread = strength * (0.8 + 0.4 * strength);
+    for (let i = 0; i < SPARK_COUNT; i += 1) { const o = i * 3; const a = Math.random() * Math.PI * 2; const b = Math.random() * 2 - 1; const r = Math.sqrt(1 - b * b); cloud.buoyancy[i] = Math.random() < 0.2 ? 2.2 : 0; cloud.positions[o] = cloud.positions[o + 1] = cloud.positions[o + 2] = 0; cloud.velocities[o] = Math.cos(a) * r * (2.4 + Math.random() * 5.1) * spread; cloud.velocities[o + 1] = (b * 0.8 + 0.5) * (2.4 + Math.random() * 5.1) * spread; cloud.velocities[o + 2] = Math.sin(a) * r * (2.4 + Math.random() * 5.1) * spread; attr.setXYZ(i, 0, 0, 0); }
     attr.needsUpdate = true;
   };
 
@@ -168,8 +187,13 @@ export function mountSpecimen(element: HTMLElement): SpecimenHandle | null {
       if (!core || reduced || building) return false;
       sfx.resume(); const rect = element.getBoundingClientRect(); ndc.set((clientX - rect.left) / rect.width * 2 - 1, -((clientY - rect.top) / rect.height * 2 - 1)); raycaster.setFromCamera(ndc, camera);
       const origin: Vec3 = [raycaster.ray.origin.x, raycaster.ray.origin.y, raycaster.ray.origin.z]; const direction: Vec3 = [raycaster.ray.direction.x, raycaster.ray.direction.y, raycaster.ray.direction.z];
-      const hit = core.pick(origin, direction); const victims = core.blast(origin, direction, 0.96); const hitPoint = new THREE.Vector3().copy(raycaster.ray.origin).addScaledVector(raycaster.ray.direction, 12);
-      if (hit >= 0) { shake = Math.min(1.05, shake + 0.4); flashIntensity = 70; fireShockwave(hitPoint, 1); fireSparks(hitPoint, 1); sfx.boom(1); } else { fireShockwave(hitPoint, 0.28); sfx.thud(); }
+      const hit = core.pick(origin, direction); const victims = core.blast(origin, direction, 0.96); hitPoint.copy(raycaster.ray.origin).addScaledVector(raycaster.ray.direction, 12);
+      if (hit >= 0) {
+        shake = Math.min(1.05, shake + 0.4); flashIntensity = 90; flash.position.copy(hitPoint);
+        const kickX = hitPoint.x - cameraHome.x; const kickZ = hitPoint.z - cameraHome.z; const kickLen = Math.hypot(kickX, kickZ) || 1;
+        shakeDir.set(kickX / kickLen, kickZ / kickLen);
+        fireShockwave(hitPoint, 1); fireSparks(hitPoint, 1); sfx.boom(1);
+      } else { fireShockwave(hitPoint, 0.28); sfx.thud(); }
       core.refreshViews(); stats.voxels = core.stats.standing; stats.debris = core.stats.debris; stats.peakStress = core.stats.peakStress; if (victims > 0) rebuild(false); return true;
     },
     restore: () => { if (!core) return; core.restore(); core.refreshViews(); stats.voxels = core.stats.standing; stats.debris = 0; building = !reduced; buildStarted = performance.now(); rebuild(!reduced); repaint(performance.now()); sfx.resume(); sfx.rebuild(); },
@@ -181,10 +205,18 @@ export function mountSpecimen(element: HTMLElement): SpecimenHandle | null {
   };
 
   const updateVisuals = (dt: number, now: number) => {
-    for (const wave of shocks) { if (!wave.active) continue; wave.age += dt; const t = wave.age / 0.62; if (t >= 1) { wave.active = false; wave.mesh.visible = false; continue; } wave.mesh.scale.setScalar(0.2 + t * 4.4 * ((wave.mesh.userData.strength as number) || 1)); (wave.mesh.material as THREE.MeshBasicMaterial).opacity = (1 - t) * 0.65; }
-    for (const cloud of sparks) { if (!cloud.active) continue; cloud.age += dt; const t = cloud.age / 0.75; if (t >= 1) { cloud.active = false; cloud.points.visible = false; continue; } const attr = cloud.points.geometry.getAttribute("position") as THREE.BufferAttribute; for (let i = 0; i < SPARK_COUNT; i += 1) { const o = i * 3; cloud.velocities[o] *= Math.exp(-2.6 * dt); cloud.velocities[o + 1] = cloud.velocities[o + 1] * Math.exp(-2.6 * dt) - 4.5 * dt; cloud.velocities[o + 2] *= Math.exp(-2.6 * dt); cloud.positions[o] += cloud.velocities[o] * dt; cloud.positions[o + 1] += cloud.velocities[o + 1] * dt; cloud.positions[o + 2] += cloud.velocities[o + 2] * dt; attr.setXYZ(i, cloud.positions[o], cloud.positions[o + 1], cloud.positions[o + 2]); } attr.needsUpdate = true; (cloud.points.material as THREE.PointsMaterial).opacity = 1 - t; }
-    if (flashIntensity > 0) { flash.intensity = flashIntensity; flashIntensity *= Math.exp(-8 * dt); } else flash.intensity = 0;
-    shake *= Math.exp(-5 * dt); camera.position.copy(cameraHome); camera.position.x += (Math.random() - 0.5) * shake * 0.08; camera.position.y += (Math.random() - 0.5) * shake * 0.08; camera.lookAt(cameraTarget);
+    for (const wave of shocks) {
+      if (!wave.active) continue;
+      wave.age += dt;
+      const strength = (wave.inner.userData.strength as number) || 1;
+      const innerT = wave.age / 0.62; const outerT = wave.age / 0.9;
+      if (innerT >= 1 && outerT >= 1) { wave.active = false; wave.inner.visible = false; wave.outer.visible = false; continue; }
+      if (innerT < 1) { wave.inner.scale.setScalar(0.2 + innerT * 4.4 * strength); (wave.inner.material as THREE.MeshBasicMaterial).opacity = (1 - innerT) * 0.65; } else wave.inner.visible = false;
+      if (outerT < 1) { wave.outer.scale.setScalar(0.2 + outerT * 2.6 * strength); (wave.outer.material as THREE.MeshBasicMaterial).opacity = (1 - outerT) * 0.3; } else wave.outer.visible = false;
+    }
+    for (const cloud of sparks) { if (!cloud.active) continue; cloud.age += dt; const t = cloud.age / (0.75 + 0.2 * cloud.strength); if (t >= 1) { cloud.active = false; cloud.points.visible = false; continue; } const attr = cloud.points.geometry.getAttribute("position") as THREE.BufferAttribute; for (let i = 0; i < SPARK_COUNT; i += 1) { const o = i * 3; cloud.velocities[o] *= Math.exp(-2.6 * dt); cloud.velocities[o + 1] = cloud.velocities[o + 1] * Math.exp(-2.6 * dt) - 4.5 * dt + cloud.buoyancy[i] * dt * 2.0; cloud.velocities[o + 2] *= Math.exp(-2.6 * dt); cloud.positions[o] += cloud.velocities[o] * dt; cloud.positions[o + 1] += cloud.velocities[o + 1] * dt; cloud.positions[o + 2] += cloud.velocities[o + 2] * dt; attr.setXYZ(i, cloud.positions[o], cloud.positions[o + 1], cloud.positions[o + 2]); } attr.needsUpdate = true; (cloud.points.material as THREE.PointsMaterial).opacity = 1 - t; }
+    if (flashIntensity > 0) { flash.intensity = flashIntensity; flashIntensity *= Math.exp(-12 * dt); } else flash.intensity = 0;
+    shake *= Math.exp(-5 * dt); if (shake < 0.01) shakeDir.set(0, 0); camera.position.copy(cameraHome); camera.position.x += (Math.random() - 0.5) * shake * 0.08; camera.position.y += (Math.random() - 0.5) * shake * 0.08; camera.position.x += shakeDir.x * shake * 0.10; camera.position.z += shakeDir.y * shake * 0.10; camera.lookAt(cameraTarget);
     if (building && now - buildStarted >= BUILD_DURATION * 1000) { building = false; rebuild(false); }
     if (core) { const views = core.views; const count = Math.min(core.stats.debris, core.debrisCapacity); for (let i = 0; i < count; i += 1) { const p = i * 3; const q = i * 4; dummy.position.set(views.debrisPos[p], views.debrisPos[p + 1], views.debrisPos[p + 2]); dummy.quaternion.set(views.debrisQuat[q], views.debrisQuat[q + 1], views.debrisQuat[q + 2], views.debrisQuat[q + 3]); dummy.scale.set(views.debrisScale[p] / (CELL * 0.49), views.debrisScale[p + 1] / (CELL * 0.49), views.debrisScale[p + 2] / (CELL * 0.49)); dummy.updateMatrix(); debrisMesh.setMatrixAt(i, dummy.matrix); tmpColor.setHex(views.debrisRgb[i]); debrisMesh.setColorAt(i, tmpColor); } debrisMesh.count = count; debrisMesh.instanceMatrix.needsUpdate = true; if (debrisMesh.instanceColor) debrisMesh.instanceColor.needsUpdate = true; }
   };
