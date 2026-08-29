@@ -106,8 +106,14 @@ fn load_pass(w: &mut World) {
         });
     }
 
-    // Each voxel sends its accumulated load equally to every neighbor exactly
-    // one graph step closer to the ground.
+    // Each voxel routes its ENTIRE accumulated load to the single most-loaded
+    // neighbour exactly one graph step closer to the ground; ties go to the
+    // lowest index (each_neighbor visits in ascending index order, so the
+    // strict comparison keeps the first). Real load paths concentrate into a
+    // few gravity columns instead of diluting evenly over wide cones, which is
+    // what makes a severed bank visibly overload its survivor. The reverse
+    // BFS order guarantees all inflow has already arrived when a voxel sends,
+    // so the pass is a deterministic DAG accumulation over a drainage tree.
     for pos in (0..tail).rev() {
         let i = w.bfs_queue[pos] as usize;
         let d = w.distance[i];
@@ -116,31 +122,23 @@ fn load_pass(w: &mut World) {
             continue;
         }
 
-        let mut lower_count = 0u32;
+        let mut parent = usize::MAX;
+        let mut parent_load = 0.0f32;
 
         each_neighbor(i, |j| {
             if w.filled[j] != 0
                 && w.distance[j] != u16::MAX
                 && w.distance[j] + 1 == d
+                && w.load[j] > parent_load
             {
-                lower_count += 1;
+                parent = j;
+                parent_load = w.load[j];
             }
         });
 
-        if lower_count == 0 {
-            continue;
+        if parent != usize::MAX {
+            w.load[parent] += w.load[i];
         }
-
-        let share = w.load[i] / lower_count as f32;
-
-        each_neighbor(i, |j| {
-            if w.filled[j] != 0
-                && w.distance[j] != u16::MAX
-                && w.distance[j] + 1 == d
-            {
-                w.load[j] += share;
-            }
-        });
     }
 
     for i in 0..N {

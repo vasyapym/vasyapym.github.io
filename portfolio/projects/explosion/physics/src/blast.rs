@@ -61,6 +61,10 @@ fn world_max_z() -> f32 {
     coords::world_z((D - 1) as i32) + CELL * 0.5
 }
 
+// Slab test of the ray segment against the world AABB. Returns the
+// [entry, exit] interval only when the segment truly pierces the box, with
+// the entry clamped to 0 when the origin starts inside; None is a hard miss,
+// so the DDA march never begins outside the grid space.
 fn ray_box(
     ox: f32,
     oy: f32,
@@ -69,7 +73,7 @@ fn ray_box(
     dy: f32,
     dz: f32,
 ) -> Option<(f32, f32)> {
-    let mut lo = 0.0f32;
+    let mut lo = f32::NEG_INFINITY;
     let mut hi = f32::INFINITY;
 
     let slabs = [
@@ -102,10 +106,13 @@ fn ray_box(
         }
     }
 
-    if hi < 0.0 {
+    // The box lies entirely behind the origin, or the slab intervals never
+    // overlap: the segment does not truly intersect the world AABB.
+    if hi < 0.0 || hi < lo {
         return None;
     }
 
+    // Origin inside the box: the march starts at the origin itself.
     Some((lo.max(0.0), hi))
 }
 

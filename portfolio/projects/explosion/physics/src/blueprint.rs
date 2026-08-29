@@ -105,10 +105,10 @@ fn place(
 fn hero_arch(rng: &mut Rng, f: &mut [u8], k: &mut [u8], c: &mut [u32]) {
     for y in 1..=21 {
         for z in 3..=13 {
-            for x in 18..=25 {
+            for x in 19..=24 {
                 place(rng, f, k, c, x, y, z, KIND_OCHRE); // left bank
             }
-            for x in 38..=45 {
+            for x in 39..=44 {
                 place(rng, f, k, c, x, y, z, KIND_OCHRE); // right bank
             }
         }
@@ -123,14 +123,18 @@ fn hero_arch(rng: &mut Rng, f: &mut [u8], k: &mut [u8], c: &mut [u32]) {
 }
 
 // ---- Structure 1: tower — solid, gently tapering bone shell over a basalt core.
+// Widened to a 13x11 footprint (x 1..13; the slab runs from x=1 to carry the
+// west face) and the taper now bites only in x (6 -> 5); z keeps the full
+// 11-deep band, so the donjon reads slab-sided. Teal crown from y=38.
 fn tower(rng: &mut Rng, f: &mut [u8], k: &mut [u8], c: &mut [u32]) {
-    let (cx, cz) = (8, 8);
+    let (cx, cz) = (7, 8);
     for y in 1..=40 {
         let t = y as f32 / 40.0;
-        let h = (5.0 - 1.0 * t).round() as i32; // 5 -> 4
-        for x in (cx - h)..=(cx + h) {
-            for z in (cz - h)..=(cz + h) {
-                let shell = x == cx - h || x == cx + h || z == cz - h || z == cz + h;
+        let hx = (6.0 - t).round() as i32; // 6 -> 5
+        let hz = 5;
+        for x in (cx - hx)..=(cx + hx) {
+            for z in (cz - hz)..=(cz + hz) {
+                let shell = x == cx - hx || x == cx + hx || z == cz - hz || z == cz + hz;
                 let kind = if y >= 38 {
                     KIND_TEAL
                 } else if shell {
@@ -144,34 +148,39 @@ fn tower(rng: &mut Rng, f: &mut [u8], k: &mut [u8], c: &mut [u32]) {
     }
 }
 
-// ---- Structure 2: bridge — three solid pier pairs, a thick deck, pylons + rail.
+// ---- Structure 2: bridge — three solid 3-wide pier blocks, a thick deck,
+// full-width pylons + rail. Deck y15..20 rides the piers, pylons rise off the
+// deck to y=26, railings crown the deck edges. x=48 pier face keeps a 1-cell
+// z-gap to the domed hall (hall walls start at z=14).
 fn bridge(rng: &mut Rng, f: &mut [u8], k: &mut [u8], c: &mut [u32]) {
-    const PIERS: [(i32, i32); 3] = [(49, 50), (55, 56), (61, 62)];
-    for &(a, b) in PIERS.iter() {
+    const PIERS: [(i32, i32, i32); 3] = [(48, 49, 50), (54, 55, 56), (60, 61, 62)];
+    for &(a, b, d) in PIERS.iter() {
         for y in 1..=14 {
             for z in 3..=13 {
                 place(rng, f, k, c, a, y, z, KIND_BASALT);
                 place(rng, f, k, c, b, y, z, KIND_BASALT);
+                place(rng, f, k, c, d, y, z, KIND_BASALT);
             }
         }
     }
-    for y in 15..=18 {
-        for x in 49..=62 {
+    for y in 15..=20 {
+        for x in 48..=62 {
             for z in 3..=13 {
                 place(rng, f, k, c, x, y, z, KIND_LINTEL); // deck (spans between piers)
             }
         }
     }
-    for &(a, b) in PIERS.iter() {
-        for y in 19..=24 {
+    for &(a, b, d) in PIERS.iter() {
+        for y in 21..=26 {
             for z in 3..=13 {
-                place(rng, f, k, c, a, y, z, KIND_BONE); // pylons rise off the piers
+                place(rng, f, k, c, a, y, z, KIND_BONE); // pylons rise off the deck
                 place(rng, f, k, c, b, y, z, KIND_BONE);
+                place(rng, f, k, c, d, y, z, KIND_BONE);
             }
         }
     }
-    for y in 19..=20 {
-        for x in 49..=62 {
+    for y in 21..=22 {
+        for x in 48..=62 {
             place(rng, f, k, c, x, y, 3, KIND_BONE); // railings on the deck edges
             place(rng, f, k, c, x, y, 13, KIND_BONE);
         }
@@ -179,10 +188,13 @@ fn bridge(rng: &mut Rng, f: &mut [u8], k: &mut [u8], c: &mut [u32]) {
 }
 
 // ---- Structure 3: ziggurat — solid stepped mass, each terrace on the one below.
+// Terraces are taller ((y+2)/9 instead of (y-1)/6) so the same 23x11 base
+// carries the mass up to y=40; the bottom terrace keeps its 6 rows so the
+// z=13/14 contact faces with the arch bank and tower stay exactly as shipped.
 fn ziggurat(rng: &mut Rng, f: &mut [u8], k: &mut [u8], c: &mut [u32]) {
     let (cx, cz) = (14, 19);
-    for y in 1..=29 {
-        let step = (y - 1) / 6; // 0..4
+    for y in 1..=40 {
+        let step = ((y + 2) / 9).min(4); // 0..4
         let hx = 11 - 2 * step;
         let hz = 5 - step;
         if hx < 0 || hz < 0 {
@@ -197,15 +209,18 @@ fn ziggurat(rng: &mut Rng, f: &mut [u8], k: &mut [u8], c: &mut [u32]) {
     }
 }
 
-// ---- Structure 4: domed hall — 2-thick hollow walls capped by a solid dome.
+// ---- Structure 4: domed hall — 3-thick hollow walls capped by a solid dome.
 // The dome is filled (not a shell) so every dome cell rests on the disk below and
-// the base disk's rim lands on the walls — nothing in the cap can float.
+// the base disk's rim lands on the walls — nothing in the cap can float. The
+// drum is 3 cells thick and 16 rows tall; the dome runs y17..28 on the same
+// 10x5 half-ellipse profile. x=45 wall face leaves the arch bank a shared
+// z=13/14 face (pre-existing topology, x 39..44 stays bank-only against it).
 fn domed_hall(rng: &mut Rng, f: &mut [u8], k: &mut [u8], c: &mut [u32]) {
     let (x0, x1, z0, z1) = (27, 47, 14, 24);
-    for y in 1..=14 {
+    for y in 1..=16 {
         for x in x0..=x1 {
             for z in z0..=z1 {
-                let wall = x <= x0 + 1 || x >= x1 - 1 || z <= z0 + 1 || z >= z1 - 1;
+                let wall = x <= x0 + 2 || x >= x1 - 2 || z <= z0 + 2 || z >= z1 - 2;
                 if wall {
                     place(rng, f, k, c, x, y, z, KIND_BONE);
                 }
@@ -213,8 +228,8 @@ fn domed_hall(rng: &mut Rng, f: &mut [u8], k: &mut [u8], c: &mut [u32]) {
         }
     }
     let (cx, cz, rx0, rz0) = (37.0f32, 19.0f32, 10.0f32, 5.0f32);
-    for y in 15..=24 {
-        let t = (y - 15) as f32 / 9.0;
+    for y in 17..=28 {
+        let t = (y - 17) as f32 / 11.0;
         let s = (1.0 - t * t).max(0.0).sqrt();
         let (rx, rz) = (rx0 * s, rz0 * s);
         for x in x0..=x1 {
@@ -230,30 +245,38 @@ fn domed_hall(rng: &mut Rng, f: &mut [u8], k: &mut [u8], c: &mut [u32]) {
 }
 
 // ---- Structure 5: obelisk — solid square spire tapering to a teal-tipped point.
+// Gentler taper (0.55 vs 0.85) keeps the shaft near-full width most of the way
+// up; the spire tops out at y=41 with the teal tip from y=38. Footprint envelope
+// (x 49..61, z 15..23) is unchanged — the z=14 gap to the bridge deck survives.
 fn obelisk(rng: &mut Rng, f: &mut [u8], k: &mut [u8], c: &mut [u32]) {
     let (cx, cz) = (55, 19);
-    for y in 1..=39 {
-        let t = y as f32 / 39.0;
-        let hx = (6.0 * (1.0 - 0.85 * t)).round() as i32;
-        let hz = (4.0 * (1.0 - 0.85 * t)).round() as i32;
+    for y in 1..=41 {
+        let t = y as f32 / 41.0;
+        let hx = (6.0 * (1.0 - 0.55 * t)).round() as i32;
+        let hz = (4.0 * (1.0 - 0.55 * t)).round() as i32;
         for x in (cx - hx)..=(cx + hx) {
             for z in (cz - hz)..=(cz + hz) {
-                let kind = if y >= 36 { KIND_TEAL } else { KIND_BONE };
+                let kind = if y >= 38 { KIND_TEAL } else { KIND_BONE };
                 place(rng, f, k, c, x, y, z, kind);
             }
         }
     }
 }
 
-// ---- Shared groundworks: a single continuous basalt plinth on the ground row. ----
-// It spans both depth bands (z 3..24) and every structure's x-extent. Because the
-// support solver seeds from y==0, the whole plinth is inherently anchored, so it
+// ---- Shared groundworks: a single continuous basalt plinth, two rows thick. ----
+// It spans both depth bands (z 3..24) and every structure's x-extent, and runs
+// x 1..62 so the widened tower's west face lands on it. Because the support
+// solver seeds from y==0, the whole plinth is inherently anchored, so it
 // visually ties the district together without creating any cross-structure load
 // dependency: severing plinth cells between two structures cannot condemn either.
+// Structure footprints overwrite their own y=1 cells, so the second row reads as
+// a raised terrace across the open ground only.
 fn ground_slab(rng: &mut Rng, f: &mut [u8], k: &mut [u8], c: &mut [u32]) {
-    for x in 3..=62 {
-        for z in 3..=24 {
-            place(rng, f, k, c, x, 0, z, KIND_BASALT);
+    for y in 0..=1 {
+        for x in 1..=62 {
+            for z in 3..=24 {
+                place(rng, f, k, c, x, y, z, KIND_BASALT);
+            }
         }
     }
 }
@@ -263,11 +286,11 @@ fn ground_slab(rng: &mut Rng, f: &mut [u8], k: &mut [u8], c: &mut [u32]) {
 // table is bit-for-bit the §0 table; generation above stays inside these boxes.
 fn write_bounds(b: &mut [f32]) {
     set_bounds(b, 0, 18, 45, 0, 28, 3, 13); // hero arch
-    set_bounds(b, 1, 3, 13, 0, 40, 3, 13); // tower
-    set_bounds(b, 2, 49, 62, 0, 24, 3, 13); // bridge
-    set_bounds(b, 3, 3, 25, 0, 29, 14, 24); // ziggurat
-    set_bounds(b, 4, 27, 47, 0, 24, 14, 24); // domed hall
-    set_bounds(b, 5, 49, 61, 0, 39, 15, 23); // obelisk
+    set_bounds(b, 1, 1, 13, 0, 40, 3, 13); // tower
+    set_bounds(b, 2, 48, 62, 0, 26, 3, 13); // bridge
+    set_bounds(b, 3, 3, 25, 0, 40, 14, 24); // ziggurat
+    set_bounds(b, 4, 27, 47, 0, 28, 14, 24); // domed hall
+    set_bounds(b, 5, 49, 61, 0, 41, 15, 23); // obelisk
 }
 
 #[inline]

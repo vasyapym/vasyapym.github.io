@@ -136,7 +136,7 @@ impl World {
             stress_capacity: if stress_capacity.is_finite() && stress_capacity > 0.01 {
                 stress_capacity
             } else {
-                280.0
+                390.0
             },
             restitution: 0.36,
             friction: 0.68,
