@@ -111,16 +111,16 @@ try {
   const typography = await page.evaluate(() => {
     const reader = document.querySelector(".practice-reader");
     return {
-      lists: reader.querySelectorAll("ul, ol").length,
-      items: reader.querySelectorAll("li").length,
+      figures: reader.querySelectorAll(".practice-example").length,
+      pre: reader.querySelectorAll("pre").length,
       callouts: reader.querySelectorAll(".practice-callout").length,
       code: reader.querySelectorAll("p > code, li > code, aside code").length,
       bold: reader.querySelectorAll("strong").length,
     };
   });
   check(
-    typography.lists >= 4 && typography.items >= 10,
-    `formatted lists render (lists=${typography.lists}, items=${typography.items})`,
+    typography.figures >= 4 && typography.pre >= 4,
+    `code examples render (figures=${typography.figures}, pre=${typography.pre})`,
   );
   check(typography.callouts >= 2, `callouts render (${typography.callouts})`);
   check(
@@ -161,8 +161,10 @@ try {
 
   // --- desktop: fragment fallback -------------------------------------------
 
+  // card 6 (linux-users-groups) is the first remaining fragment card — cards
+  // 1-5 are deep lessons since the long-form md course landed.
   const cards = await page.$$(".practice-topic-card .practice-lesson-open");
-  await cards[2].click();
+  await cards[5].click();
   check(await appears(".practice-lesson-tabs"), "fragment lesson still uses tabs");
   check((await page.$(".practice-reader")) === null, "fragment lesson renders no reader");
   await page.keyboard.press("Escape");
