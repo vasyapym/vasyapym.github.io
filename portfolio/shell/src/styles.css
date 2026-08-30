@@ -716,42 +716,24 @@ textarea:focus-visible {
 /* Pass 22 tinted ink fields: one identity hue per project over the deep-ink
    value, so the cards read as one dark catalogue family. */
 
+/* ===== Raft Cluster (leader-election redesign) ===== */
 .presentation-raft-cluster {
-  --project-accent: #63c7c3;
-  --project-ink: #0e1a19;
-  --project-surface: rgba(99, 199, 195, 0.08);
+  --project-accent: #46a6ff;
+  --project-ink: #e6f1ff;
+  --project-surface: rgba(70, 166, 255, 0.1);
+  position: relative;
   background:
-    radial-gradient(120% 90% at 50% 34%, #2c4c4d 0%, #1c3536 44%, rgba(18, 38, 39, 0) 100%),
-    linear-gradient(165deg, #21403f 0%, #16302f 60%, #102625 100%);
+    radial-gradient(92% 84% at 44% 32%, #2b3a4d 0%, #1c2836 44%, #101820 100%),
+    linear-gradient(158deg, #23303f 0%, #121a22 70%);
   box-shadow:
-    inset 0 0 0 1px rgba(147, 220, 214, 0.12),
-    inset 0 -40px 60px -30px rgba(0, 0, 0, 0.55);
+    inset 0 0 0 1px rgba(150, 190, 235, 0.16),
+    inset 0 -44px 64px -34px rgba(0, 0, 0, 0.6);
 }
-
-
-.presentation-part-raft-voters {
-  width: 128px;
-  height: 94px;
-  color: var(--project-accent);}
-
-
-.presentation-part-raft-log {
-  width: 156px;
-  height: 42px;
-  border: 1px solid rgba(99, 199, 195, 0.34);
-  color: var(--project-accent);
-  background: var(--project-surface);}
-
-
-.presentation-part-raft-links {
-  width: 170px;
-  height: 46px;
-  color: var(--project-accent);}
 
 
 .project-artwork-center.center-raft {
   width: 150px;
-  height: 120px;
+  height: 128px;
   border: none;
   background: transparent;
   overflow: visible;
@@ -774,13 +756,75 @@ textarea:focus-visible {
 }
 
 
+/* Raft backdrop = system-design layer: quorum stage, replicated-log node grid, term tag */
+.presentation-part-quorum-field {
+  width: 214px;
+  height: 126px;
+  border: 1px solid rgba(180, 214, 250, 0.28);
+  border-radius: 3px;
+  color: var(--project-accent);
+  background: #14212e;
+}
+
+
+.presentation-part-replicated-log {
+  width: 92px;
+  color: var(--project-accent);
+}
+
+
+.presentation-part-current-term {
+  width: 74px;
+  height: 40px;
+  border: 1px solid var(--project-accent);
+  border-radius: 2px;
+  color: var(--project-accent);
+  background: #17293a;
+  font-family: var(--mono);
+  font-size: 11px;
+}
+
+
+/* The generic .project-mark-type glyph is 1.8rem sans; the term tag must be
+   small mono, so beat it explicitly here. */
+.presentation-part-current-term .project-mark-type {
+  font-family: var(--mono);
+  font-size: 11px;
+  font-weight: 500;
+  letter-spacing: 0.05em;
+}
+
+
+.project-artwork:hover .presentation-part-quorum-field,
+.signal-index-card:hover .presentation-part-quorum-field,
+.signal-index-card:focus-visible .presentation-part-quorum-field {
+  transform: translate3d(calc(-50% + var(--anchor-x) - 2px), calc(-50% + var(--anchor-y) - 3px), calc(var(--base-z) + 6px)) rotate(calc(var(--part-rotation) - 1deg));
+}
+
+
 @media (max-width: 700px) {
-  .presentation-part-raft-voters { transform: scale(0.86); }
-  .presentation-part-raft-log { transform: scale(0.86); }
-  .presentation-part-raft-links { transform: scale(0.84); }
   .project-artwork-center.center-raft {
     width: 116px;
-    height: 94px;
+    height: 98px;
+  }
+
+  .presentation-part-quorum-field {
+    width: 172px;
+    height: 104px;
+  }
+
+  .presentation-part-replicated-log {
+    width: 76px;
+  }
+
+  .presentation-part-current-term {
+    width: 62px;
+    height: 34px;
+    font-size: 10px;
+  }
+
+  .presentation-part-current-term .project-mark-type {
+    font-size: 10px;
   }
 }
 
@@ -1650,6 +1694,41 @@ textarea:focus-visible {
   border-radius: 50%;
   content: "";
   transform: scaleY(0.42);
+}
+
+
+/* ===== Explosion backdrop family (added around the untouched moon/shard hero) ===== */
+.presentation-part-blast-field {
+  width: 216px;
+  height: 128px;
+  border: 1px solid rgba(255, 190, 140, 0.16);
+  border-radius: 3px;
+  color: var(--project-accent);
+  background: #1b1013;
+}
+
+
+.presentation-part-shock-ring {
+  width: 66px;
+  height: 66px;
+  border: 1px solid var(--project-accent);
+  border-radius: 50%;
+  color: var(--project-accent);
+  background: var(--project-surface);
+  opacity: 0.7;
+}
+
+
+@media (max-width: 700px) {
+  .presentation-part-blast-field {
+    width: 174px;
+    height: 106px;
+  }
+
+  .presentation-part-shock-ring {
+    width: 54px;
+    height: 54px;
+  }
 }
 
 .presentation-part-luna-shell {

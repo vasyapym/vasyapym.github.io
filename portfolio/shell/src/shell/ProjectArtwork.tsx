@@ -249,35 +249,40 @@ function TrailCenterMark() {
   );
 }
 
-// Raft Cluster: the moment of election — one bright teal leader disc wearing a
-// beacon crown, fed by directed vote wedges from deep-teal follower masses,
-// seated on a chunky replicated-log ribbon (committed cells glowing, tail dark).
+// Raft: a leader-election constellation — one glowing azure leader node holding
+// the current term, broadcasting solid heartbeat/vote beams to two dimmer
+// follower nodes that catch its light. Light hierarchy reads leader vs followers.
 function RaftCenterMark() {
   return (
-    <svg viewBox="0 0 120 96" aria-hidden="true">
-      {/* directed vote wedges from followers to the elected leader */}
-      <polygon points="24,50 33,35 53,31" fill="#4bb5b0" opacity="0.9" />
-      <polygon points="96,50 87,35 67,31" fill="#4bb5b0" opacity="0.9" />
-      {/* spine linking leader to the replicated log */}
-      <rect x="56" y="36" width="8" height="24" rx="3" fill="#39928e" />
-      {/* two follower nodes — solid deep-teal masses */}
-      <circle cx="22" cy="46" r="11" fill="#2f7d79" />
-      <circle cx="98" cy="46" r="11" fill="#2f7d79" />
-      <circle cx="18" cy="42" r="3.4" fill="#7fd6d1" opacity="0.7" />
-      <circle cx="94" cy="42" r="3.4" fill="#7fd6d1" opacity="0.7" />
-      {/* elected leader — bright disc with beacon crown */}
-      <polygon points="52,13 60,1 68,13" fill="#a7ede9" />
-      <circle cx="60" cy="25" r="15" fill="#7ad9d4" />
-      <circle cx="54" cy="19" r="3.6" fill="#d6f6f4" opacity="0.85" />
-      <circle cx="60" cy="25" r="5" fill="#0e1a19" opacity="0.85" />
-      {/* replicated log — solid base plate + committed / tail cells */}
-      <rect x="14" y="60" width="92" height="24" rx="6" fill="#123e3c" />
-      <rect x="18" y="64" width="12" height="16" rx="3" fill="#66d0cb" />
-      <rect x="32" y="64" width="12" height="16" rx="3" fill="#66d0cb" />
-      <rect x="46" y="64" width="12" height="16" rx="3" fill="#66d0cb" />
-      <rect x="60" y="64" width="12" height="16" rx="3" fill="#66d0cb" />
-      <rect x="74" y="64" width="12" height="16" rx="3" fill="#2a6a67" />
-      <rect x="88" y="64" width="12" height="16" rx="3" fill="#2a6a67" />
+    <svg viewBox="0 0 150 128" aria-hidden="true">
+      <defs>
+        <radialGradient id="raftLeaderGlow" cx="42%" cy="38%" r="72%">
+          <stop offset="0%" stopColor="#eaf5ff" />
+          <stop offset="46%" stopColor="#46a6ff" />
+          <stop offset="100%" stopColor="#123049" />
+        </radialGradient>
+        <radialGradient id="raftFollowerGlow" cx="40%" cy="38%" r="74%">
+          <stop offset="0%" stopColor="#cfe6ff" />
+          <stop offset="55%" stopColor="#3d7fb8" />
+          <stop offset="100%" stopColor="#0f2333" />
+        </radialGradient>
+      </defs>
+      {/* heartbeat / vote beams fanning from the leader toward the followers */}
+      <polygon points="78,54 118,34 92,64" fill="#8fcbff" opacity="0.85" />
+      <polygon points="82,70 122,86 90,82" fill="#4a9fe6" opacity="0.8" />
+      <polygon points="72,86 96,110 84,90" fill="#66b3f2" opacity="0.75" />
+      {/* follower nodes catching the leader's light */}
+      <circle cx="118" cy="34" r="14" fill="url(#raftFollowerGlow)" />
+      <circle cx="124" cy="90" r="13" fill="url(#raftFollowerGlow)" />
+      <circle cx="92" cy="112" r="10" fill="url(#raftFollowerGlow)" />
+      {/* the glowing leader node — the elected term holder */}
+      <circle cx="56" cy="70" r="31" fill="url(#raftLeaderGlow)" />
+      {/* a darker folded facet across the leader sphere */}
+      <path d="M 56 40 Q 38 58 43 90 Q 62 84 70 60 Z" fill="#2a5c86" opacity="0.45" />
+      {/* bright limb highlight */}
+      <path d="M 38 54 Q 46 40 62 42" fill="none" stroke="#eaf5ff" strokeWidth="2.4" strokeLinecap="round" opacity="0.8" />
+      {/* bright quorum core where the leader holds authority */}
+      <circle cx="66" cy="58" r="5.5" fill="#dff0ff" />
     </svg>
   );
 }
