@@ -167,26 +167,35 @@ function FoxCenterMark() {
   );
 }
 
-// Explosion: a creased paper-lantern moon splitting along a bright ember seam,
-// two shards drifting free inside one thin shock ring.
+// Explosion: a glowing paper-lantern moon caught tearing open — exposed ember
+// core, a fan of solid cream/ember/rust shards detonating toward the upper right.
 function BlastCenterMark() {
   return (
     <svg viewBox="0 0 110 110" aria-hidden="true">
-      {/* thin shock ring */}
-      <circle cx="55" cy="55" r="46" fill="none" stroke="#ff8a3c" strokeWidth="1" opacity="0.22" />
-      {/* paper-lantern moon body */}
-      <circle cx="55" cy="55" r="30" fill="#171013" stroke="#ffbd6f" strokeWidth="1.4" />
-      {/* folded-paper meridians */}
-      <path d="M 55 25 L 55 85" fill="none" stroke="#ffbd6f" strokeWidth="1" opacity="0.3" />
-      <path d="M 40 28 Q 33 55 40 82" fill="none" stroke="#ffbd6f" strokeWidth="1" opacity="0.25" />
-      <path d="M 70 28 Q 77 55 70 82" fill="none" stroke="#ffbd6f" strokeWidth="1" opacity="0.25" />
-      {/* bright ember seam splitting the lantern */}
-      <path d="M 40 40 L 52 54 L 46 60 L 62 74" fill="none" stroke="#ffd98f" strokeWidth="1.8" />
-      {/* two drifting shards */}
-      <polygon points="80,30 90,36 82,42" fill="#ffbd6f" opacity="0.85" />
-      <polygon points="26,74 34,70 33,80" fill="#ff8a3c" opacity="0.8" />
-      {/* inner ember core hint */}
-      <circle cx="55" cy="55" r="5" fill="#ff8a3c" />
+      <defs>
+        <radialGradient id="lunaGlow" cx="40%" cy="38%" r="70%">
+          <stop offset="0%" stopColor="#ffe8bf" />
+          <stop offset="45%" stopColor="#ff9a48" />
+          <stop offset="100%" stopColor="#7e2f22" />
+        </radialGradient>
+      </defs>
+      {/* intact glowing body of the paper-lantern moon */}
+      <circle cx="46" cy="60" r="30" fill="url(#lunaGlow)" />
+      {/* a darker folded-paper facet across the sphere */}
+      <path d="M 46 30 Q 30 48 34 78 Q 52 74 60 52 Z" fill="#c95a2c" opacity="0.5" />
+      {/* bright limb highlight */}
+      <path d="M 30 44 Q 38 32 52 34" fill="none" stroke="#ffe8bf" strokeWidth="2.4" strokeLinecap="round" opacity="0.8" />
+      {/* ember core exposed where the shell tears open */}
+      <circle cx="60" cy="46" r="6" fill="#ffd27a" />
+      {/* solid shards detonating toward the upper right */}
+      <polygon points="60,40 76,30 70,48" fill="#ffd9a0" />
+      <polygon points="70,26 88,20 80,38" fill="#ff8a3c" />
+      <polygon points="80,40 100,40 86,54" fill="#c65a2a" />
+      <polygon points="66,18 76,7 80,22" fill="#ffcf95" />
+      <polygon points="90,30 106,26 96,44" fill="#ff8a3c" />
+      <polygon points="84,54 102,60 88,66" fill="#d0632c" />
+      <polygon points="98,16 108,14 103,26" fill="#ffd9a0" />
+      <polygon points="56,28 63,17 68,31" fill="#ff8a3c" />
     </svg>
   );
 }
@@ -240,31 +249,35 @@ function TrailCenterMark() {
   );
 }
 
-// Raft Cluster: a replicated log spine (committed cells filled, tail outlined)
-// beneath an elected leader taking votes from two outlined followers.
+// Raft Cluster: the moment of election — one bright teal leader disc wearing a
+// beacon crown, fed by directed vote wedges from deep-teal follower masses,
+// seated on a chunky replicated-log ribbon (committed cells glowing, tail dark).
 function RaftCenterMark() {
   return (
     <svg viewBox="0 0 120 96" aria-hidden="true">
-      {/* request-vote arrows from followers to the leader */}
-      <path d="M 38 27 L 51 21" fill="none" stroke="#63c7c3" strokeWidth="1.2" opacity="0.55" />
-      <path d="M 82 27 L 69 21" fill="none" stroke="#63c7c3" strokeWidth="1.2" opacity="0.55" />
-      <polygon points="51,21 45,22 48,26" fill="#63c7c3" opacity="0.7" />
-      <polygon points="69,21 75,22 72,26" fill="#63c7c3" opacity="0.7" />
-      {/* two outlined followers */}
-      <circle cx="30" cy="28" r="7.5" fill="#101c1c" stroke="#63c7c3" strokeWidth="1.4" />
-      <circle cx="90" cy="28" r="7.5" fill="#101c1c" stroke="#63c7c3" strokeWidth="1.4" />
-      {/* elected leader carries the accent disc */}
-      <circle cx="60" cy="18" r="10" fill="#f0b878" stroke="#ffe3b1" strokeWidth="1.4" />
-      <circle cx="60" cy="18" r="3" fill="#101c1c" opacity="0.75" />
-      {/* thin link from leader down to the log */}
-      <path d="M 60 28 L 60 54" fill="none" stroke="#63c7c3" strokeWidth="1.2" opacity="0.4" />
-      {/* replicated log spine — committed cells filled, uncommitted outlined */}
-      <rect x="18" y="56" width="14" height="16" rx="2" fill="#63c7c3" />
-      <rect x="34" y="56" width="14" height="16" rx="2" fill="#63c7c3" />
-      <rect x="50" y="56" width="14" height="16" rx="2" fill="#63c7c3" />
-      <rect x="66" y="56" width="14" height="16" rx="2" fill="none" stroke="#63c7c3" strokeWidth="1.4" opacity="0.6" />
-      <rect x="82" y="56" width="14" height="16" rx="2" fill="none" stroke="#63c7c3" strokeWidth="1.4" opacity="0.6" />
-      <rect x="98" y="56" width="14" height="16" rx="2" fill="none" stroke="#63c7c3" strokeWidth="1.4" opacity="0.6" />
+      {/* directed vote wedges from followers to the elected leader */}
+      <polygon points="24,50 33,35 53,31" fill="#4bb5b0" opacity="0.9" />
+      <polygon points="96,50 87,35 67,31" fill="#4bb5b0" opacity="0.9" />
+      {/* spine linking leader to the replicated log */}
+      <rect x="56" y="36" width="8" height="24" rx="3" fill="#39928e" />
+      {/* two follower nodes — solid deep-teal masses */}
+      <circle cx="22" cy="46" r="11" fill="#2f7d79" />
+      <circle cx="98" cy="46" r="11" fill="#2f7d79" />
+      <circle cx="18" cy="42" r="3.4" fill="#7fd6d1" opacity="0.7" />
+      <circle cx="94" cy="42" r="3.4" fill="#7fd6d1" opacity="0.7" />
+      {/* elected leader — bright disc with beacon crown */}
+      <polygon points="52,13 60,1 68,13" fill="#a7ede9" />
+      <circle cx="60" cy="25" r="15" fill="#7ad9d4" />
+      <circle cx="54" cy="19" r="3.6" fill="#d6f6f4" opacity="0.85" />
+      <circle cx="60" cy="25" r="5" fill="#0e1a19" opacity="0.85" />
+      {/* replicated log — solid base plate + committed / tail cells */}
+      <rect x="14" y="60" width="92" height="24" rx="6" fill="#123e3c" />
+      <rect x="18" y="64" width="12" height="16" rx="3" fill="#66d0cb" />
+      <rect x="32" y="64" width="12" height="16" rx="3" fill="#66d0cb" />
+      <rect x="46" y="64" width="12" height="16" rx="3" fill="#66d0cb" />
+      <rect x="60" y="64" width="12" height="16" rx="3" fill="#66d0cb" />
+      <rect x="74" y="64" width="12" height="16" rx="3" fill="#2a6a67" />
+      <rect x="88" y="64" width="12" height="16" rx="3" fill="#2a6a67" />
     </svg>
   );
 }

@@ -648,6 +648,17 @@ textarea:focus-visible {
   background: var(--index-ink);}
 
 
+/* Generic figure-ground lift for all artwork panels. The featured
+   Raft/Explosion panels declare their own box-shadow later (same specificity,
+   later rules), so they are unaffected; this only reaches panels that set
+   none of their own. */
+.project-artwork {
+  box-shadow:
+    inset 0 1px 0 rgba(238, 234, 224, 0.05),
+    inset 0 0 34px rgba(238, 234, 224, 0.03),
+    inset 0 -30px 50px -30px rgba(0, 0, 0, 0.5);}
+
+
 .project-artwork-object {
   position: absolute;
   z-index: 1;
@@ -709,7 +720,12 @@ textarea:focus-visible {
   --project-accent: #63c7c3;
   --project-ink: #0e1a19;
   --project-surface: rgba(99, 199, 195, 0.08);
-  background: linear-gradient(165deg, #10201e 0%, #0b1413 70%);
+  background:
+    radial-gradient(120% 90% at 50% 34%, #2c4c4d 0%, #1c3536 44%, rgba(18, 38, 39, 0) 100%),
+    linear-gradient(165deg, #21403f 0%, #16302f 60%, #102625 100%);
+  box-shadow:
+    inset 0 0 0 1px rgba(147, 220, 214, 0.12),
+    inset 0 -40px 60px -30px rgba(0, 0, 0, 0.55);
 }
 
 
@@ -734,8 +750,8 @@ textarea:focus-visible {
 
 
 .project-artwork-center.center-raft {
-  width: 120px;
-  height: 96px;
+  width: 150px;
+  height: 120px;
   border: none;
   background: transparent;
   overflow: visible;
@@ -763,8 +779,8 @@ textarea:focus-visible {
   .presentation-part-raft-log { transform: scale(0.86); }
   .presentation-part-raft-links { transform: scale(0.84); }
   .project-artwork-center.center-raft {
-    width: 94px;
-    height: 76px;
+    width: 116px;
+    height: 94px;
   }
 }
 
@@ -1620,14 +1636,17 @@ textarea:focus-visible {
   --project-surface: #171013;
   position: relative;
   background:
-    radial-gradient(circle at 48% 48%, rgba(255, 128, 65, 0.14), transparent 30%),
-    linear-gradient(135deg, #1a1013, #0b1013 70%);
+    radial-gradient(90% 82% at 44% 46%, #5a2a18 0%, #3a1c12 40%, #241210 100%),
+    linear-gradient(150deg, #301813 0%, #1d0f0d 70%);
+  box-shadow:
+    inset 0 0 0 1px rgba(255, 176, 120, 0.14),
+    inset 0 -44px 64px -34px rgba(0, 0, 0, 0.6);
 }
 
 .presentation-explosion-luna::before {
   position: absolute;
-  inset: 10% 12%;
-  border: 1px solid rgba(242, 233, 218, 0.14);
+  inset: 12% 14%;
+  border: 1px solid rgba(255, 205, 150, 0.18);
   border-radius: 50%;
   content: "";
   transform: scaleY(0.42);
@@ -1742,7 +1761,7 @@ textarea:focus-visible {
 }
 
 .project-artwork-center.center-filetree { width: 116px; height: 96px; }
-.project-artwork-center.center-blast { width: 108px; height: 108px; }
+.project-artwork-center.center-blast { width: 124px; height: 124px; }
 .project-artwork-center.center-spiral { width: 128px; height: 104px; }
 
 .project-artwork-center.center-filetree svg,
@@ -1793,7 +1812,7 @@ textarea:focus-visible {
   }
 
   .project-artwork-center.center-blast {
-    width: 84px;
-    height: 84px;
+    width: 96px;
+    height: 96px;
   }
 }
