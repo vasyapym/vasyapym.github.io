@@ -36,19 +36,9 @@ export default function ExplosionLunaPage() {
   const handleRef = useRef<SpecimenHandle | null>(null);
 
   const [supported] = useState<boolean>(() => hasWebGL());
-  const [reducedMotion, setReducedMotion] = useState<boolean>(false);
   const [stats, setStats] = useState<SpecimenStats>(INITIAL_STATS);
   const [muted, setMuted] = useState<boolean>(false);
   const [slowMo, setSlowMo] = useState<boolean>(false);
-
-  // Mirror prefers-reduced-motion for the room-meta line (the sim gates itself too).
-  useEffect(() => {
-    const mq = window.matchMedia("(prefers-reduced-motion: reduce)");
-    const update = (): void => setReducedMotion(mq.matches);
-    update();
-    mq.addEventListener("change", update);
-    return () => mq.removeEventListener("change", update);
-  }, []);
 
   // Mount the specimen once; poll stats on the 400ms cadence; dispose on cleanup.
   useEffect(() => {
@@ -114,11 +104,6 @@ export default function ExplosionLunaPage() {
         <p className="explosion-lede">
           a paper moon of six hundred shards. one click unmakes it; one click
           restores it.
-        </p>
-        <p className="explosion-room-meta">
-          {reducedMotion
-            ? "reduced-motion active: the lantern rests, the blast is stilled, restore still works."
-            : "reduced-motion honored when set: the lantern rests, the blast is stilled, restore still works."}
         </p>
       </header>
 

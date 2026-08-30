@@ -69,15 +69,6 @@
   color: var(--ink-muted);
 }
 
-.explosion-room-meta {
-  margin: 0;
-  font-family: var(--mono);
-  font-size: 0.78rem;
-  letter-spacing: 0.02em;
-  text-transform: lowercase;
-  color: var(--ink-faint);
-}
-
 /* ---- room + stage ------------------------------------------------------ */
 
 .explosion-room {
