@@ -4,10 +4,10 @@ const explosionLuna: ProjectModule = {
   id: "explosion",
   title: "Explosion",
   tag: "physics",
-  eyebrow: "Real-time demolition lab",
+  eyebrow: "interactive · three.js",
   description:
-    "Shell a whole voxel monument district and watch a Rust → WebAssembly core reroute its load paths in real time — carve the supports away and everything above comes down, in x-ray and bullet time.",
-  technologies: ["Rust → WebAssembly", "three.js instancing", "structural solvers", "WebAudio"],
+    "A glowing paper-lantern moon that detonates into the six hundred shards it is built from. One instanced mesh is simultaneously the intact lantern and its flung debris — shards are re-posed, never created or destroyed — so the rendered view is a pure function of a single state array and can never show a mid-air ghost. Click to blast, watch the auto flashpoint bloom at peak dispersion, one click to reassemble.",
+  technologies: ["React 19", "TypeScript", "three.js", "InstancedMesh", "WebAudio"],
   status: "available",
   accent: "red",
   presentation: {
@@ -15,9 +15,9 @@ const explosionLuna: ProjectModule = {
     motion: "stack",
     centerLabel: "L / X",
     centerMark: "blast",
-    note: "demolition lab",
-    motionLabel: "the monument falls",
-    instruction: "Open the demolition lab and shoot the monument until it falls.",
+    note: "ember lantern",
+    motionLabel: "the lantern breaks",
+    instruction: "Open the ember lantern and click the paper moon.",
     parts: [
       {
         id: "luna-shell",

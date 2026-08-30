@@ -1,263 +1,197 @@
-import {
-  useEffect,
-  useRef,
-  useState,
-  type KeyboardEvent as ReactKeyboardEvent,
-  type PointerEvent,
-} from "react";
-import { hasWebGL, mountSpecimen, type SpecimenHandle } from "./detonate";
+import { useCallback, useEffect, useRef, useState, type KeyboardEvent as ReactKeyboardEvent, type PointerEvent as ReactPointerEvent } from "react";
+import { hasWebGL, mountSpecimen, type SpecimenHandle, type SpecimenStats } from "./detonate";
 import "./explosion-luna.css";
 
-const REDUCED_MOTION_QUERY = "(prefers-reduced-motion: reduce)";
-
-// Locked-spec technique list (§0). Mono, lowercase; rendered as the payload grid.
-const TECHNIQUES = [
-  "structural integrity · flood-fill solver",
-  "rust → webassembly core · 120 hz substeps",
-  "three.js instancing · two draw calls",
-  "live stress solver · loads reroute on impact",
-  "procedural webaudio · zero assets",
-];
-
-type Telemetry = {
-  voxels: number;
-  total: number;
-  debris: number;
-  fps: number;
-  slowmo: boolean;
-  peakStress: number;
-  engagements: number;
+const INITIAL_STATS: SpecimenStats = {
+  fps: 0,
+  engagements: 0,
+  shards: 0,
+  aloft: 0,
+  phase: "pristine",
 };
 
-export default function ExplosionLunaPage() {
-  const stageRef = useRef<HTMLDivElement>(null);
-  const handleRef = useRef<SpecimenHandle | null>(null);
-  const [reducedMotion, setReducedMotion] = useState(() => window.matchMedia(REDUCED_MOTION_QUERY).matches);
-  const [hasScene, setHasScene] = useState(true);
-  const [impacts, setImpacts] = useState(0);
-  const [muted, setMuted] = useState(false);
-  const [slowMo, setSlowMo] = useState(false);
-  const [xray, setXray] = useState(false);
-  const [telemetry, setTelemetry] = useState<Telemetry>({
-    voxels: 0,
-    total: 0,
-    debris: 0,
-    fps: 60,
-    slowmo: false,
-    peakStress: 0,
-    engagements: 0,
-  });
+type Technique = { label: string; detail: string };
 
+const TECHNIQUES: ReadonlyArray<Technique> = [
+  { label: "single mesh", detail: "one instanced mesh is both the lantern and its debris" },
+  { label: "no timers", detail: "destruction is same-frame, never deferred or converted" },
+  { label: "pure draw", detail: "every shard is rewritten from state each frame" },
+  { label: "flashpoint", detail: "an auto shockwave bloom marks peak dispersion" },
+  { label: "soft-gl safe", detail: "additive glow, no post chain, 390px portrait framed" },
+];
+
+function formatHud(stats: SpecimenStats): string {
+  return [
+    `fps ${Math.round(stats.fps)}`,
+    `phase ${stats.phase}`,
+    `aloft ${stats.aloft}/${stats.shards}`,
+    `blooms ${stats.engagements}`,
+  ].join(" · ");
+}
+
+export default function ExplosionLunaPage() {
+  const stageRef = useRef<HTMLDivElement | null>(null);
+  const handleRef = useRef<SpecimenHandle | null>(null);
+
+  const [supported] = useState<boolean>(() => hasWebGL());
+  const [reducedMotion, setReducedMotion] = useState<boolean>(false);
+  const [stats, setStats] = useState<SpecimenStats>(INITIAL_STATS);
+  const [muted, setMuted] = useState<boolean>(false);
+  const [slowMo, setSlowMo] = useState<boolean>(false);
+
+  // Mirror prefers-reduced-motion for the room-meta line (the sim gates itself too).
   useEffect(() => {
-    const query = window.matchMedia(REDUCED_MOTION_QUERY);
-    const handleChange = () => setReducedMotion(query.matches);
-    query.addEventListener("change", handleChange);
-    return () => query.removeEventListener("change", handleChange);
+    const mq = window.matchMedia("(prefers-reduced-motion: reduce)");
+    const update = (): void => setReducedMotion(mq.matches);
+    update();
+    mq.addEventListener("change", update);
+    return () => mq.removeEventListener("change", update);
   }, []);
 
+  // Mount the specimen once; poll stats on the 400ms cadence; dispose on cleanup.
   useEffect(() => {
+    if (!supported) return;
     const stage = stageRef.current;
-    if (!stage || !hasWebGL()) {
-      setHasScene(false);
-      return;
-    }
+    if (!stage) return;
     const handle = mountSpecimen(stage);
+    if (!handle) return;
     handleRef.current = handle;
-    setHasScene(handle !== null);
-    if (!handle) {
-      return;
-    }
     const poll = window.setInterval(() => {
-      setTelemetry({ ...handle.stats });
+      const h = handleRef.current;
+      if (h) setStats({ ...h.stats });
     }, 400);
     return () => {
       window.clearInterval(poll);
       handle.dispose();
       handleRef.current = null;
     };
+  }, [supported]);
+
+  const handlePointerDown = useCallback((event: ReactPointerEvent<HTMLDivElement>): void => {
+    if (event.button !== 0) return;
+    handleRef.current?.detonateAt(event.clientX, event.clientY);
   }, []);
 
-  useEffect(() => {
-    if (!hasScene || reducedMotion) {
-      return;
-    }
-    const applyShift = (event: KeyboardEvent) => {
-      if (event.key !== "Shift") {
-        return;
-      }
-      setSlowMo(event.type === "keydown");
-      handleRef.current?.setSlowMo(event.type === "keydown");
-    };
-    const applyXrayKey = (event: KeyboardEvent) => {
-      if (event.key !== "x" && event.key !== "X") {
-        return;
-      }
-      setXray((current) => {
-        const next = !current;
-        handleRef.current?.setXray(next);
-        return next;
-      });
-    };
-    const onBlur = () => {
-      setSlowMo(false);
-      handleRef.current?.setSlowMo(false);
-    };
-    window.addEventListener("keydown", applyShift);
-    window.addEventListener("keyup", applyShift);
-    window.addEventListener("keydown", applyXrayKey);
-    window.addEventListener("blur", onBlur);
-    return () => {
-      window.removeEventListener("keydown", applyShift);
-      window.removeEventListener("keyup", applyShift);
-      window.removeEventListener("keydown", applyXrayKey);
-      window.removeEventListener("blur", onBlur);
-    };
-  }, [hasScene, reducedMotion]);
-
-  const triggerDetonation = (x: number, y: number) => {
-    if (reducedMotion || !hasScene) {
-      return;
-    }
-    if (handleRef.current?.detonateAt(x, y)) {
-      setImpacts((current) => current + 1);
-    }
-  };
-
-  const handlePointerDown = (event: PointerEvent<HTMLDivElement>) => {
-    if (event.button !== 0) {
-      return;
-    }
-    triggerDetonation(event.clientX, event.clientY);
-  };
-
-  const handleKeyDown = (event: ReactKeyboardEvent<HTMLDivElement>) => {
-    if (event.key !== "Enter" && event.key !== " ") {
-      return;
-    }
+  const handleKeyDown = useCallback((event: ReactKeyboardEvent<HTMLDivElement>): void => {
+    if (event.key !== "Enter" && event.key !== " ") return;
     event.preventDefault();
-    const bounds = event.currentTarget.getBoundingClientRect();
-    triggerDetonation(bounds.left + bounds.width * 0.5, bounds.top + bounds.height * 0.52);
-  };
+    const stage = stageRef.current;
+    const handle = handleRef.current;
+    if (!stage || !handle) return;
+    const rect = stage.getBoundingClientRect();
+    handle.detonateAt(rect.left + rect.width / 2, rect.top + rect.height / 2);
+  }, []);
 
-  const handleRestore = () => {
+  const handleRestore = useCallback((): void => {
     handleRef.current?.restore();
-    setImpacts(0);
-  };
+  }, []);
 
-  const toggleSound = () => {
-    const next = !muted;
-    setMuted(next);
-    handleRef.current?.setMuted(next);
-  };
+  const handleToggleMute = useCallback((): void => {
+    setMuted((prev) => {
+      const next = !prev;
+      handleRef.current?.setMuted(next);
+      return next;
+    });
+  }, []);
 
-  const toggleXray = () => {
-    const next = !xray;
-    setXray(next);
-    handleRef.current?.setXray(next);
-  };
-
-  // Percent standing: 100 on load and after restore (total 0 ⇒ 100), else voxels/total.
-  const standing =
-    telemetry.total > 0 ? Math.round((telemetry.voxels / telemetry.total) * 100) : 100;
+  const handleToggleSlowMo = useCallback((): void => {
+    setSlowMo((prev) => {
+      const next = !prev;
+      handleRef.current?.setSlowMo(next);
+      return next;
+    });
+  }, []);
 
   return (
     <div className="explosion-field">
-      <section className="explosion-page" aria-labelledby="explosion-title">
-        <header className="explosion-hero">
-          <h1 id="explosion-title">
-            Raze the district
-            <span>before the light goes.</span>
-          </h1>
-          <p className="explosion-lede">
-            Every shot carves real voxels out of the monument; strip a load path and
-            everything above it falls on its own. Flip x-ray to read the stress, hold
-            shift for bullet time.
-          </p>
-          <a className="explosion-enter" href="#explosion-stage">
-            Demolish <span aria-hidden="true">↓</span>
-          </a>
-        </header>
+      <header className="explosion-hero">
+        <h1 className="explosion-title" id="explosion-title">
+          explosion
+          <span className="explosion-title-accent">a lantern, unmade</span>
+        </h1>
+        <p className="explosion-lede">
+          a paper moon holds its shape until you touch it. one click and it becomes the
+          six hundred shards it was always made of — no monument, no debris pile, just
+          the same fragments, thrown.
+        </p>
+        <p className="explosion-room-meta">
+          {reducedMotion
+            ? "reduced-motion active: the lantern rests, the blast is stilled, restore still works."
+            : "reduced-motion honored when set: the lantern rests, the blast is stilled, restore still works."}
+        </p>
+      </header>
 
-        <section className="explosion-room" aria-label="Specimen room">
-          <p className="explosion-room-meta">
-            {reducedMotion
-              ? "reduced motion · blasts disabled · restore still works"
-              : "live · shift = bullet time · x = stress map · damage persists until restored"}
-          </p>
-
+      <div className="explosion-room">
+        {supported ? (
           <div
             ref={stageRef}
             id="explosion-stage"
-            className={`explosion-stage${!hasScene ? " is-fallback" : ""}`}
+            className="explosion-stage"
             role="button"
             tabIndex={0}
-            aria-label="Specimen room. Click or press Enter to detonate."
-            data-engagements={telemetry.engagements}
+            aria-label="detonate the paper-lantern moon; press enter or space to blast from center"
+            data-engagements={stats.engagements}
             onPointerDown={handlePointerDown}
             onKeyDown={handleKeyDown}
           >
-            <div className="explosion-stage-copy" aria-hidden="true">
-              <span>lx-01 · {impacts.toString().padStart(3, "0")} shots</span>
-              <strong>{standing}% standing</strong>
-              <span className="explosion-telemetry">
-                {telemetry.voxels} voxels · {telemetry.debris} debris · peak{" "}
-                {Math.round(telemetry.peakStress * 100)}% stress · {Math.round(telemetry.fps)} fps
-              </span>
+            <div className="explosion-hud" aria-hidden="true">
+              <span className="explosion-hud-line">{formatHud(stats)}</span>
             </div>
-            {!hasScene ? (
-              <>
-                <span className="explosion-fallback-mark" aria-hidden="true" />
-                <span className="explosion-stage-fallback">webgl unavailable · specimen sealed</span>
-              </>
-            ) : null}
           </div>
-
-          <div className="explosion-controls">
-            <button
-              type="button"
-              className="explosion-control explosion-control-restore"
-              onClick={handleRestore}
-            >
-              restore monument
-            </button>
-            <button
-              type="button"
-              className="explosion-control explosion-control-xray"
-              onClick={toggleXray}
-              aria-pressed={xray}
-            >
-              x-ray · {xray ? "on" : "off"}
-            </button>
-            <button
-              type="button"
-              className="explosion-control explosion-control-sound"
-              onClick={toggleSound}
-              aria-pressed={!muted}
-            >
-              sound · {muted ? "off" : "on"}
-            </button>
-            <span className="explosion-hint" aria-hidden="true">
-              {slowMo
-                ? "bullet time engaged"
-                : telemetry.slowmo
-                  ? "time dilated — collapse cam"
-                  : xray
-                    ? "stress map · hot = carrying the span"
-                    : telemetry.peakStress > 0.72
-                      ? "columns overloaded · press x for stress"
-                      : "hold shift — bullet time · press x — stress map"}
-            </span>
+        ) : (
+          <div
+            id="explosion-stage"
+            className="explosion-stage explosion-stage--fallback"
+            data-engagements={0}
+          >
+            <div className="explosion-stage-fallback">
+              webgl is unavailable — this piece needs a webgl context to render the lantern.
+            </div>
           </div>
-        </section>
+        )}
 
-        <ul className="explosion-payloads" aria-label="Techniques inside">
-          {TECHNIQUES.map((technique, index) => (
-            <li key={technique}>
-              <span>{String(index + 1).padStart(2, "0")}</span> / {technique}
-            </li>
-          ))}
-        </ul>
-      </section>
+        <div className="explosion-controls">
+          <button
+            type="button"
+            className="explosion-btn explosion-btn-restore"
+            onClick={handleRestore}
+            disabled={!supported}
+          >
+            restore
+          </button>
+          <button
+            type="button"
+            className="explosion-btn explosion-btn-slow"
+            onClick={handleToggleSlowMo}
+            disabled={!supported}
+            aria-pressed={slowMo}
+          >
+            {slowMo ? "slow-mo · on" : "slow-mo"}
+          </button>
+          <button
+            type="button"
+            className="explosion-btn explosion-btn-sound"
+            onClick={handleToggleMute}
+            disabled={!supported}
+            aria-pressed={!muted}
+          >
+            {muted ? "sound · off" : "sound · on"}
+          </button>
+        </div>
+
+        <p className="explosion-hint">
+          click the lantern to detonate · enter/space blasts from center · restore reassembles
+        </p>
+      </div>
+
+      <ul className="explosion-techniques" aria-label="Techniques inside">
+        {TECHNIQUES.map((t) => (
+          <li key={t.label} className="explosion-technique">
+            <span className="explosion-technique-label">{t.label}</span>
+            <span className="explosion-technique-detail">{t.detail}</span>
+          </li>
+        ))}
+      </ul>
     </div>
   );
 }

@@ -1,357 +1,322 @@
-/* "Golden Hour Ruin" — page shell for the Explosion demolition lab.
-   Palette scoped to .explosion-field so the surrounding dark ink chrome is
-   untouched; deliberately far lighter than the previous #0b13-black build to
-   fix the "too dark / unreadable on mobile" verdict (text ≈ 11:1 on --page-bg). */
+/* explosion-luna.css — "Ember Lantern"
+   Scoped entirely under .explosion-field; local custom properties only.
+   Dark ink shell per the owner's locked verdict: black background, gradient
+   stage. Classes match ExplosionLunaPage.tsx 1:1. */
 
 .explosion-field {
-  /* Page palette (local — never leaks to the shell). */
-  --page-bg: #1d2a33;
-  --panel: rgba(244, 239, 228, 0.06);
-  --line: rgba(244, 239, 228, 0.3);
-  --line-soft: rgba(244, 239, 228, 0.14);
-  --text: #f4efe4;
-  --muted: rgba(244, 239, 228, 0.8);
-  --faint: rgba(244, 239, 228, 0.58);
-  --accent: #e0a86a;
-  --accent-bright: #f0c489;
-  --accent-deep: #b97f45;
-  /* HUD ink: dark text for the copy that sits over the bright golden sky. */
-  --hud-ink: rgba(43, 32, 22, 0.92);
-  --hud-ink-soft: rgba(43, 32, 22, 0.72);
-  --focus-ring: var(--accent-bright);
+  /* Local tokens (never leak to the shell). */
+  --ember-hot: #ffd9a0;
+  --ember-warm: #e4a669;
+  --ember-mid: #d39b61;
+  --ember-cool: #8a3a1e;
+  --ash: #2b2622;
+  --field-pad: clamp(16px, 4vw, 40px);
+  --panel-line: var(--ink-line, rgba(238, 234, 224, 0.14));
+  --panel-line-soft: var(--ink-line-soft, rgba(238, 234, 224, 0.08));
 
-  min-height: max(480px, calc(100vh - 61px));
-  color: var(--text);
-  /* Warm radial lift at the top, deep-teal base to sit calmly beside the ink frame. */
-  background:
-    radial-gradient(circle at 50% 0%, rgba(224, 168, 106, 0.16), transparent 55%),
-    var(--page-bg);
-  color-scheme: dark;
-}
-
-.explosion-page {
-  width: min(100% - 72px, 1200px);
+  display: flex;
+  flex-direction: column;
+  gap: clamp(20px, 3vw, 34px);
+  max-width: 960px;
   margin: 0 auto;
-  padding: clamp(3rem, 5vw, 4.5rem) 0 6rem;
+  padding: var(--field-pad);
+  color: var(--ink-text);
+  background: var(--ink-bg);
+  color-scheme: dark;
+  box-sizing: border-box;
 }
 
-/* ── Hero ─────────────────────────────────────────────────────────────── */
+.explosion-field *,
+.explosion-field *::before,
+.explosion-field *::after {
+  box-sizing: border-box;
+}
+
+/* ---- hero ------------------------------------------------------------- */
 
 .explosion-hero {
-  padding-bottom: clamp(2.5rem, 4vw, 3.5rem);
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
 }
 
-.explosion-hero h1 {
-  max-width: 620px;
+.explosion-title {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
   margin: 0;
   font-family: var(--display);
-  font-size: clamp(2rem, 3.3vw, 3rem);
+  font-size: clamp(2.1rem, 6vw, 3.4rem);
   font-weight: 600;
-  letter-spacing: -0.03em;
-  line-height: 0.97;
+  line-height: 1.02;
+  letter-spacing: -0.01em;
+  color: var(--ink-text);
 }
 
-.explosion-hero h1 span {
-  display: block;
-  color: var(--accent);
+.explosion-title-accent {
+  font-size: 0.5em;
+  font-weight: 500;
+  letter-spacing: 0.01em;
+  color: var(--ink-accent, #d39b61);
 }
 
 .explosion-lede {
-  max-width: 540px;
-  margin: 1.1rem 0 0;
-  color: var(--muted);
-  font-size: 0.95rem;
-  line-height: 1.55;
-}
-
-.explosion-enter {
-  display: inline-flex;
-  align-items: center;
-  gap: 0.55rem;
-  margin-top: 1.4rem;
-  color: var(--text);
+  max-width: 62ch;
+  margin: 0;
   font-family: var(--mono);
-  font-size: 0.78rem;
-  font-weight: 500;
-  letter-spacing: 0.05em;
-  text-decoration: none;
-  transition: color 180ms ease, gap 180ms ease;
-}
-
-.explosion-enter:hover {
-  gap: 0.85rem;
-  color: var(--accent-bright);
-}
-
-.explosion-enter:focus-visible {
-  outline: 2px solid var(--focus-ring);
-  outline-offset: 4px;
-}
-
-/* ── Specimen room + stage ────────────────────────────────────────────── */
-
-.explosion-room {
-  border-top: 1px solid var(--line);
-  padding-top: 1.1rem;
+  font-size: 0.92rem;
+  line-height: 1.6;
+  color: var(--ink-muted);
 }
 
 .explosion-room-meta {
-  margin: 0 0 1rem;
-  color: var(--faint);
+  margin: 0;
   font-family: var(--mono);
-  font-size: 0.72rem;
-  letter-spacing: 0.05em;
+  font-size: 0.78rem;
+  letter-spacing: 0.02em;
+  text-transform: lowercase;
+  color: var(--ink-faint);
+}
+
+/* ---- room + stage ------------------------------------------------------ */
+
+.explosion-room {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
 }
 
 .explosion-stage {
   position: relative;
-  /* ≥500px so the fy 0.78–0.92 plinth tap bands always resolve to filled voxels. */
-  min-height: clamp(560px, 62vh, 720px);
+  width: 100%;
+  aspect-ratio: 16 / 11;
+  min-height: 320px;
   overflow: hidden;
-  border: 1px solid var(--line);
-  /* Warm golden-hour fill BEHIND the canvas — matches the renderer's opaque sky
-     (#f0d3a0 → #c98f5a) so there is no dark flash before/while WebGL mounts. */
-  background:
-    radial-gradient(circle at 50% 32%, rgba(240, 211, 160, 0.55), transparent 62%),
-    linear-gradient(180deg, #f0d3a0, #c98f5a);
+  border: 1px solid var(--ink-line);
+  border-radius: 10px;
   cursor: crosshair;
-  isolation: isolate;
   touch-action: manipulation;
+  /* Owner-locked dark gradient backdrop — shows through the alpha canvas. */
+  background:
+    radial-gradient(circle at 50% 45%, rgba(228, 166, 105, 0.24), transparent 34%),
+    linear-gradient(140deg, #1a2830, #131f26 66%, #221a11);
 }
 
-/* The WebGL canvas fills the stage under the HUD overlays. */
-.explosion-stage canvas {
+.explosion-stage::before {
   position: absolute;
   inset: 0;
   z-index: 1;
+  background-image:
+    linear-gradient(rgba(238, 234, 224, 0.075) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(238, 234, 224, 0.075) 1px, transparent 1px);
+  background-size: 40px 40px;
+  content: "";
+  mask-image: linear-gradient(to bottom, transparent, black 24%, black 76%, transparent);
+  pointer-events: none;
+}
+
+/* Canvas is appended by detonate.ts — fills the stage, under the grid + HUD. */
+.explosion-stage canvas {
+  position: absolute;
+  inset: 0;
+  z-index: 0;
   display: block;
-  width: 100%;
-  height: 100%;
+  width: 100% !important;
+  height: 100% !important;
+}
+
+.explosion-stage:focus {
+  outline: none;
 }
 
 .explosion-stage:focus-visible {
-  outline: 2px solid var(--focus-ring);
-  outline-offset: 4px;
+  outline: 2px solid var(--ink-accent-bright, #e4a669);
+  outline-offset: 2px;
 }
 
-/* HUD copy — decorative (aria-hidden), pinned, click-through. Dark ink + a soft
-   light shadow keeps it legible over the bright sky it always sits above. */
-.explosion-stage-copy {
+/* ---- HUD overlay -------------------------------------------------------- */
+
+.explosion-hud {
   position: absolute;
+  top: 10px;
+  left: 12px;
   z-index: 2;
-  top: 1.1rem;
-  right: 1.2rem;
-  left: 1.2rem;
+  max-width: calc(100% - 24px);
+  pointer-events: none;
+}
+
+.explosion-hud-line {
+  display: inline-block;
+  padding: 4px 9px;
+  border: 1px solid var(--panel-line-soft);
+  border-radius: 6px;
+  font-family: var(--mono);
+  font-size: 0.72rem;
+  letter-spacing: 0.03em;
+  line-height: 1.45;
+  color: var(--ink-muted);
+  background: rgba(11, 19, 23, 0.55);
+  backdrop-filter: blur(2px);
+  white-space: normal;
+  overflow-wrap: anywhere;
+}
+
+/* ---- fallback ------------------------------------------------------------ */
+
+.explosion-stage--fallback {
   display: flex;
-  align-items: start;
-  justify-content: space-between;
-  gap: 1rem;
-  color: var(--hud-ink-soft);
-  font-family: var(--mono);
-  font-size: 0.62rem;
-  letter-spacing: 0.04em;
-  text-shadow: 0 1px 2px rgba(247, 239, 224, 0.55);
-  pointer-events: none;
+  align-items: center;
+  justify-content: center;
+  cursor: default;
 }
-
-.explosion-stage-copy span {
-  color: var(--hud-ink);
-}
-
-.explosion-stage-copy strong {
-  color: #8a4f16;
-  font-weight: 600;
-}
-
-.explosion-stage-copy .explosion-telemetry {
-  color: var(--hud-ink-soft);
-  text-align: right;
-}
-
-/* Aim-preview verdict "≈ N voxels" — dark chip trails the crosshair so it reads
-   over sky, structures or debris alike; hidden over open sky by the renderer. */
-.explosion-target-chip {
-  position: absolute;
-  z-index: 3;
-  padding: 0.28rem 0.5rem;
-  background: rgba(29, 42, 51, 0.9);
-  border: 1px solid rgba(240, 196, 137, 0.6);
-  color: var(--accent-bright);
-  font-family: var(--mono);
-  font-size: 0.66rem;
-  letter-spacing: 0.05em;
-  white-space: nowrap;
-  pointer-events: none;
-}
-
-/* ── Fallback (no WebGL) ──────────────────────────────────────────────── */
 
 .explosion-stage-fallback {
-  position: absolute;
+  position: relative;
   z-index: 2;
-  inset: 0;
-  display: grid;
-  place-items: center;
-  padding: 2rem;
-  color: var(--hud-ink);
+  max-width: 40ch;
+  padding: 0 20px;
   font-family: var(--mono);
-  font-size: 0.75rem;
-  letter-spacing: 0.05em;
+  font-size: 0.82rem;
+  line-height: 1.6;
   text-align: center;
+  color: var(--ink-muted);
 }
 
-.explosion-fallback-mark {
-  position: absolute;
-  z-index: 2;
-  top: 50%;
-  left: 50%;
-  width: 110px;
-  height: 110px;
-  border: 1px solid rgba(122, 68, 16, 0.6);
-  border-radius: 50%;
-  opacity: 0.75;
-  transform: translate(-50%, -50%) rotate(45deg);
-}
-
-.explosion-fallback-mark::before,
-.explosion-fallback-mark::after {
-  position: absolute;
-  inset: 18px;
-  border: 1px dashed var(--accent-deep);
-  border-radius: 50%;
-  content: "";
-}
-
-.explosion-fallback-mark::after {
-  inset: 39px;
-  background: var(--accent-deep);
-  border: 0;
-}
-
-/* ── Controls ─────────────────────────────────────────────────────────── */
+/* ---- controls ------------------------------------------------------------ */
 
 .explosion-controls {
   display: flex;
   flex-wrap: wrap;
-  align-items: center;
-  gap: 0.6rem;
-  margin-top: 0.9rem;
+  gap: 10px;
 }
 
-.explosion-control {
-  padding: 0.55rem 0.9rem;
-  background: var(--panel);
-  border: 1px solid var(--line);
-  color: var(--muted);
+.explosion-btn {
+  min-height: 40px;
+  padding: 0 16px;
+  border: 1px solid var(--panel-line);
+  border-radius: 7px;
   font-family: var(--mono);
-  font-size: 0.72rem;
-  letter-spacing: 0.05em;
+  font-size: 0.78rem;
+  letter-spacing: 0.03em;
+  text-transform: lowercase;
+  color: var(--ink-text);
+  background: rgba(238, 234, 224, 0.04);
   cursor: pointer;
-  transition: color 160ms ease, border-color 160ms ease, background 160ms ease;
+  transition: border-color 0.18s ease, background 0.18s ease, color 0.18s ease;
 }
 
-.explosion-control:hover {
-  color: var(--accent-bright);
-  border-color: var(--accent);
+.explosion-btn:hover:not(:disabled) {
+  border-color: var(--ink-accent, #d39b61);
+  color: var(--ink-accent-bright, #e4a669);
+  background: rgba(211, 155, 97, 0.08);
 }
 
-.explosion-control:focus-visible {
-  outline: 2px solid var(--focus-ring);
-  outline-offset: 3px;
+.explosion-btn:focus-visible {
+  outline: 2px solid var(--ink-accent-bright, #e4a669);
+  outline-offset: 2px;
 }
 
-.explosion-control[aria-pressed="true"] {
-  border-color: var(--accent);
-  color: var(--accent-bright);
+.explosion-btn[aria-pressed="true"] {
+  border-color: var(--ink-accent, #d39b61);
+  color: var(--ink-accent-bright, #e4a669);
+  background: rgba(211, 155, 97, 0.12);
+}
+
+.explosion-btn:disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
 }
 
 .explosion-hint {
-  margin-left: auto;
-  color: var(--faint);
+  margin: 0;
   font-family: var(--mono);
-  font-size: 0.68rem;
-  letter-spacing: 0.05em;
+  font-size: 0.74rem;
+  letter-spacing: 0.02em;
+  text-transform: lowercase;
+  color: var(--ink-faint);
 }
 
-/* ── Techniques ───────────────────────────────────────────────────────── */
+/* ---- techniques list ------------------------------------------------------ */
 
-.explosion-payloads {
+.explosion-techniques {
   display: grid;
-  grid-template-columns: repeat(2, minmax(0, 1fr));
-  column-gap: 2.5rem;
-  margin: clamp(2.5rem, 4vw, 3.5rem) 0 0;
-  padding: 0;
+  grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+  gap: 10px 20px;
+  margin: 0;
+  padding: 20px 0 0;
   list-style: none;
-  border-top: 1px solid var(--line);
+  border-top: 1px solid var(--panel-line-soft);
 }
 
-.explosion-payloads li {
-  padding: 0.85rem 0.2rem;
-  border-bottom: 1px solid var(--line-soft);
-  color: var(--faint);
+.explosion-technique {
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
   font-family: var(--mono);
+}
+
+.explosion-technique-label {
   font-size: 0.78rem;
-  letter-spacing: 0.05em;
+  letter-spacing: 0.02em;
+  text-transform: lowercase;
+  color: var(--ink-accent, #d39b61);
 }
 
-.explosion-payloads li span {
-  color: var(--accent);
+.explosion-technique-detail {
+  font-size: 0.75rem;
+  line-height: 1.5;
+  color: var(--ink-muted);
 }
 
-/* ── Mobile ≤640: brighter, taller stage, ≥40px targets, zero overflow ── */
+/* ---- mobile 390×844 portrait: ≥40px controls, wrap, no overflow ----------- */
 
 @media (max-width: 640px) {
-  .explosion-page {
-    width: min(100% - 32px, 1200px);
-    padding-top: 3rem;
-  }
-
-  .explosion-payloads {
-    grid-template-columns: 1fr;
+  .explosion-field {
+    gap: 20px;
   }
 
   .explosion-stage {
-    /* ≥500px keeps the tap bands valid; capped to the viewport to avoid scroll. */
-    min-height: max(500px, min(600px, 74vh));
+    aspect-ratio: 3 / 4;
+    min-height: 0;
   }
 
-  .explosion-stage-copy {
-    align-items: flex-start;
-    flex-direction: column;
-    gap: 0.35rem;
+  .explosion-hud {
+    top: 8px;
+    left: 8px;
+    right: 8px;
+    max-width: none;
   }
 
-  /* Telemetry wraps + shrinks instead of clipping / overflowing at 390px. */
-  .explosion-stage-copy .explosion-telemetry {
-    font-size: 0.58rem;
-    line-height: 1.55;
-    text-align: left;
+  .explosion-hud-line {
+    font-size: 0.68rem;
+    white-space: normal;
+    overflow-wrap: anywhere;
   }
 
-  .explosion-control {
-    min-height: 40px;
+  .explosion-controls {
+    gap: 8px;
   }
 
-  /* Chip can never widen the page. */
-  .explosion-target-chip {
-    max-width: 100%;
+  .explosion-btn {
+    flex: 1 1 auto;
+    min-height: 44px;
+    min-width: 88px;
   }
 
-  /* Hint drops to its own full line under the wrapped controls. */
-  .explosion-hint {
-    flex-basis: 100%;
-    margin-left: 0;
+  .explosion-techniques {
+    grid-template-columns: 1fr;
   }
 }
 
-/* ── Reduced motion: blasts are gated off in TS; kill the crosshair cue. ── */
+/* ---- reduced motion: the sim gates itself; kill CSS motion + crosshair ---- */
 
 @media (prefers-reduced-motion: reduce) {
-  .explosion-stage {
-    cursor: default;
+  .explosion-field * {
+    transition: none !important;
+    animation: none !important;
   }
 
-  .explosion-enter {
-    transition: none;
+  .explosion-stage {
+    cursor: default;
   }
 }
