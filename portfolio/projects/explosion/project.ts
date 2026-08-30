@@ -15,9 +15,9 @@ const explosionLuna: ProjectModule = {
     motion: "stack",
     centerLabel: "L / X",
     centerMark: "blast",
-    note: "ember lantern",
+    note: "paper lantern moon",
     motionLabel: "the lantern breaks",
-    instruction: "Open the ember lantern and click the paper moon.",
+    instruction: "open the ember lantern and click the paper moon to shatter it",
     parts: [
       {
         id: "luna-shell",

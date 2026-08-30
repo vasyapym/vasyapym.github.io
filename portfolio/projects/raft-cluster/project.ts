@@ -7,7 +7,7 @@ const raftCluster: ProjectModule = {
   eyebrow: "live consensus · Rust → WebAssembly",
   description:
     "Live Raft consensus in the browser — crash the leader and watch elections answer.",
-  technologies: ["Rust", "WebAssembly", "TypeScript", "Canvas 2D", "Go"],
+  technologies: ["Rust", "WebAssembly", "TypeScript", "Canvas 2D"],
   status: "available",
   accent: "teal",
   presentation: {
@@ -17,7 +17,7 @@ const raftCluster: ProjectModule = {
     centerMark: "raft",
     note: "live consensus",
     motionLabel: "the cluster elects",
-    instruction: "Open the cluster and perturb it — crash the leader or cut a link.",
+    instruction: "crash the leader or cut a link, watch a new term elect",
     parts: [
       {
         id: "voters",

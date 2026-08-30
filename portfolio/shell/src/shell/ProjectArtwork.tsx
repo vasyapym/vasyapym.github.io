@@ -167,26 +167,26 @@ function FoxCenterMark() {
   );
 }
 
-// Explosion: ember core with two shock rings and three drifting shards —
-// quieter than the old five-shard burst.
+// Explosion: a creased paper-lantern moon splitting along a bright ember seam,
+// two shards drifting free inside one thin shock ring.
 function BlastCenterMark() {
   return (
     <svg viewBox="0 0 110 110" aria-hidden="true">
-      <circle cx="55" cy="55" r="40" fill="none" stroke="#ffbd6f" strokeWidth="1.5" opacity="0.22" />
-      <circle cx="55" cy="55" r="27" fill="none" stroke="#ffd98f" strokeWidth="1.8" opacity="0.42" />
-      {(
-        [
-          [-150, "#ff9d52"],
-          [-35, "#ffd98f"],
-          [100, "#ff9d52"],
-        ] as const
-      ).map(([angle, color], i) => (
-        <g transform={`rotate(${angle} 55 55)`} key={`shard${i}`}>
-          <polygon points="18,51 31,55 18,59" fill={color} />
-        </g>
-      ))}
-      <circle cx="55" cy="55" r="12" fill="#ff8a3c" />
-      <circle cx="55" cy="55" r="6.5" fill="#ffd98f" />
+      {/* thin shock ring */}
+      <circle cx="55" cy="55" r="46" fill="none" stroke="#ff8a3c" strokeWidth="1" opacity="0.22" />
+      {/* paper-lantern moon body */}
+      <circle cx="55" cy="55" r="30" fill="#171013" stroke="#ffbd6f" strokeWidth="1.4" />
+      {/* folded-paper meridians */}
+      <path d="M 55 25 L 55 85" fill="none" stroke="#ffbd6f" strokeWidth="1" opacity="0.3" />
+      <path d="M 40 28 Q 33 55 40 82" fill="none" stroke="#ffbd6f" strokeWidth="1" opacity="0.25" />
+      <path d="M 70 28 Q 77 55 70 82" fill="none" stroke="#ffbd6f" strokeWidth="1" opacity="0.25" />
+      {/* bright ember seam splitting the lantern */}
+      <path d="M 40 40 L 52 54 L 46 60 L 62 74" fill="none" stroke="#ffd98f" strokeWidth="1.8" />
+      {/* two drifting shards */}
+      <polygon points="80,30 90,36 82,42" fill="#ffbd6f" opacity="0.85" />
+      <polygon points="26,74 34,70 33,80" fill="#ff8a3c" opacity="0.8" />
+      {/* inner ember core hint */}
+      <circle cx="55" cy="55" r="5" fill="#ff8a3c" />
     </svg>
   );
 }
@@ -240,25 +240,31 @@ function TrailCenterMark() {
   );
 }
 
-// Raft Cluster: three voting nodes fully meshed — the leader carries the
-// accent disc and a partly-committed log bar, the two followers stay outlined.
+// Raft Cluster: a replicated log spine (committed cells filled, tail outlined)
+// beneath an elected leader taking votes from two outlined followers.
 function RaftCenterMark() {
   return (
     <svg viewBox="0 0 120 96" aria-hidden="true">
-      <path
-        d="M 36 30 L 84 30 L 60 72 Z"
-        fill="none"
-        stroke="#63c7c3"
-        strokeWidth="1.2"
-        opacity="0.5"
-      />
-      <circle cx="84" cy="30" r="9" fill="#101c1c" stroke="#63c7c3" strokeWidth="1.4" />
-      <circle cx="84" cy="30" r="2.4" fill="#63c7c3" opacity="0.8" />
-      <circle cx="60" cy="72" r="9" fill="#101c1c" stroke="#63c7c3" strokeWidth="1.4" />
-      <circle cx="60" cy="72" r="2.4" fill="#63c7c3" opacity="0.8" />
-      <circle cx="36" cy="30" r="11" fill="#f0b878" stroke="#ffe3b1" strokeWidth="1.2" />
-      <rect x="22" y="48" width="28" height="6" rx="2" fill="#f0b878" opacity="0.35" />
-      <rect x="22" y="48" width="18" height="6" rx="2" fill="#ffe3b1" />
+      {/* request-vote arrows from followers to the leader */}
+      <path d="M 38 27 L 51 21" fill="none" stroke="#63c7c3" strokeWidth="1.2" opacity="0.55" />
+      <path d="M 82 27 L 69 21" fill="none" stroke="#63c7c3" strokeWidth="1.2" opacity="0.55" />
+      <polygon points="51,21 45,22 48,26" fill="#63c7c3" opacity="0.7" />
+      <polygon points="69,21 75,22 72,26" fill="#63c7c3" opacity="0.7" />
+      {/* two outlined followers */}
+      <circle cx="30" cy="28" r="7.5" fill="#101c1c" stroke="#63c7c3" strokeWidth="1.4" />
+      <circle cx="90" cy="28" r="7.5" fill="#101c1c" stroke="#63c7c3" strokeWidth="1.4" />
+      {/* elected leader carries the accent disc */}
+      <circle cx="60" cy="18" r="10" fill="#f0b878" stroke="#ffe3b1" strokeWidth="1.4" />
+      <circle cx="60" cy="18" r="3" fill="#101c1c" opacity="0.75" />
+      {/* thin link from leader down to the log */}
+      <path d="M 60 28 L 60 54" fill="none" stroke="#63c7c3" strokeWidth="1.2" opacity="0.4" />
+      {/* replicated log spine — committed cells filled, uncommitted outlined */}
+      <rect x="18" y="56" width="14" height="16" rx="2" fill="#63c7c3" />
+      <rect x="34" y="56" width="14" height="16" rx="2" fill="#63c7c3" />
+      <rect x="50" y="56" width="14" height="16" rx="2" fill="#63c7c3" />
+      <rect x="66" y="56" width="14" height="16" rx="2" fill="none" stroke="#63c7c3" strokeWidth="1.4" opacity="0.6" />
+      <rect x="82" y="56" width="14" height="16" rx="2" fill="none" stroke="#63c7c3" strokeWidth="1.4" opacity="0.6" />
+      <rect x="98" y="56" width="14" height="16" rx="2" fill="none" stroke="#63c7c3" strokeWidth="1.4" opacity="0.6" />
     </svg>
   );
 }

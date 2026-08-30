@@ -160,3 +160,5 @@
 {"type":"edge.added","id":"e78","ts":"2026-08-28T13:50:39.656Z","from":"n72","to":"n73","rel":"continues"}
 {"type":"node.added","id":"n74","ts":"2026-08-30T20:23:59.262Z","kind":"iteration","actor":"user","title":"Replace Code Layout with Raft Cluster: Rust consensus core on WASM, live browser demo","artifacts":[{"kind":"git-commit","ref":"1676f8b"}],"meta":{"source":"auto"}}
 {"type":"edge.added","id":"e79","ts":"2026-08-30T20:23:59.266Z","from":"n73","to":"n74","rel":"continues"}
+{"type":"node.added","id":"n75","ts":"2026-08-30T20:44:16.249Z","kind":"iteration","actor":"user","title":"Pin Raft Cluster first on the landing and trim its card description","artifacts":[{"kind":"git-commit","ref":"5067950"}],"meta":{"source":"auto"}}
+{"type":"edge.added","id":"e80","ts":"2026-08-30T20:44:16.251Z","from":"n74","to":"n75","rel":"continues"}
