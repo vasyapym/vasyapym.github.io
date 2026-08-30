@@ -30,3 +30,7 @@
 {"type":"edge.added","id":"e13","ts":"2026-08-30T11:01:17.946Z","from":"n16","to":"n17","rel":"continues"}
 {"type":"node.added","id":"n18","ts":"2026-08-30T11:10:44.199Z","kind":"iteration","actor":"user","title":"Explosion goes GPGPU: shard physics in fragment shaders, minimal page copy","artifacts":[{"kind":"git-commit","ref":"ece801d"}],"meta":{"source":"auto"}}
 {"type":"edge.added","id":"e14","ts":"2026-08-30T11:10:44.205Z","from":"n17","to":"n18","rel":"continues"}
+{"type":"node.added","id":"n19","ts":"2026-08-30T11:16:01.513Z","kind":"decision","actor":"user","title":"Owner verdict on the GPGPU Ember Lantern: 'i like this'","summary":"First explicit owner approval of the Explosion piece after the GPGPU pass (ece801d). The verdict validates the kept direction: fragment-shader physics on ping-pong float textures with the CPU path as fallback, minimal one-line copy on the landing card and project page. Future passes should evolve this concept, not redesign it; remaining polish (if any) should stay within the locked single-source-of-truth law."}
+{"type":"edge.added","id":"e15","ts":"2026-08-30T11:16:01.537Z","from":"n18","to":"n19","rel":"continues"}
+{"type":"node.added","id":"n20","ts":"2026-08-30T11:24:50.543Z","kind":"iteration","actor":"user","title":"Explosion copy polish: drop meta commentary from the page, list Rust in the card stack","artifacts":[{"kind":"git-commit","ref":"b8ddad6"}],"meta":{"source":"auto"}}
+{"type":"edge.added","id":"e16","ts":"2026-08-30T11:24:50.547Z","from":"n19","to":"n20","rel":"continues"}
