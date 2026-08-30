@@ -14,7 +14,7 @@ const alphabetized = Object.values(entries)
   .sort((left, right) => left.title.localeCompare(right.title));
 
 // Curated display order: pinned projects first, the rest keep alphabetical order.
-const pinnedOrder = ["kitty-run", "evening-forest"];
+const pinnedOrder = ["raft-cluster", "kitty-run", "evening-forest"];
 
 const discoveredProjects = [...alphabetized].sort((left, right) => {
   const leftRank = pinnedOrder.indexOf(left.id);

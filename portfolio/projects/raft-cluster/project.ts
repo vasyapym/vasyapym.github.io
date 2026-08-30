@@ -6,7 +6,7 @@ const raftCluster: ProjectModule = {
   tag: "distributed systems",
   eyebrow: "live consensus · Rust → WebAssembly",
   description:
-    "A Raft cluster running live in the browser — every node is the same Rust consensus core compiled to WebAssembly. Crash the leader, cut the network, and watch elections and log replication answer in real time.",
+    "Live Raft consensus in the browser — crash the leader and watch elections answer.",
   technologies: ["Rust", "WebAssembly", "TypeScript", "Canvas 2D", "Go"],
   status: "available",
   accent: "teal",

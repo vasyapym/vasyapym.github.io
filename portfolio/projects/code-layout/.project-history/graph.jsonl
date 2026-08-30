@@ -1,0 +1,3 @@
+{"type":"node.added","id":"n1","ts":"2026-08-30T20:23:59.274Z","kind":"snapshot","actor":"user","title":"portfolio/projects/code-layout project start"}
+{"type":"node.added","id":"n2","ts":"2026-08-30T20:23:59.274Z","kind":"iteration","actor":"user","title":"Replace Code Layout with Raft Cluster: Rust consensus core on WASM, live browser demo","artifacts":[{"kind":"git-commit","ref":"1676f8b"}],"meta":{"source":"auto"}}
+{"type":"edge.added","id":"e1","ts":"2026-08-30T20:23:59.274Z","from":"n1","to":"n2","rel":"continues"}

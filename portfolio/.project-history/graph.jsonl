@@ -158,3 +158,5 @@
 {"type":"edge.added","id":"e77","ts":"2026-08-28T13:43:10.759Z","from":"n71","to":"n72","rel":"continues"}
 {"type":"node.added","id":"n73","ts":"2026-08-28T13:50:39.654Z","kind":"iteration","actor":"user","title":"feat(shell): shrink hero headline about 20 percent","artifacts":[{"kind":"git-commit","ref":"c911dcd"}],"meta":{"source":"auto"}}
 {"type":"edge.added","id":"e78","ts":"2026-08-28T13:50:39.656Z","from":"n72","to":"n73","rel":"continues"}
+{"type":"node.added","id":"n74","ts":"2026-08-30T20:23:59.262Z","kind":"iteration","actor":"user","title":"Replace Code Layout with Raft Cluster: Rust consensus core on WASM, live browser demo","artifacts":[{"kind":"git-commit","ref":"1676f8b"}],"meta":{"source":"auto"}}
+{"type":"edge.added","id":"e79","ts":"2026-08-30T20:23:59.266Z","from":"n73","to":"n74","rel":"continues"}
