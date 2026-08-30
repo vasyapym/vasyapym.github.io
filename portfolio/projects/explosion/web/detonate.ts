@@ -1,15 +1,23 @@
 // detonate.ts — "Ember Lantern" simulation entry.
-// §2 law: one owned `shards` array is the single source of truth; the draw pass
-// rewrites all 600 instances from it every frame, destruction is same-frame (a
-// shard is re-posed, never created/destroyed/converted), so a mid-air ghost is
+// §2 law: one owned state is the single source of truth; the draw pass rewrites all
+// 600 instances from it every frame, destruction is same-frame (a shard is
+// re-posed, never created/destroyed/converted), so a mid-air ghost is
 // unrepresentable by construction. TypeScript-only — the wasm core is retired.
-// Integration notes vs. the delivered spec: shards are MeshBasicMaterial (the
-// center PointLight cannot light outward-facing faces of a convex shard sphere —
-// a standard material rendered the lantern near-black), a ground disc gives the
-// rest plane a visible surface, DIST_MIN 4.3 keeps the sphere from over-zooming
-// wide desktops, and a "spent" phase separates "all shards at rest" from flight.
+//
+// Two sim backends share this entry and the phase/audio/FX/camera machinery:
+// - GPGPU (ember-gpu.ts, default): shard state lives in ping-pong RGBA32F float
+//   textures; fragment shaders integrate physics; the render vertex shader fetches
+//   state straight from the textures — zero per-frame CPU per-shard work.
+// - CPU fallback (below, when float render targets are unavailable): one owned
+//   `shards` array + InstancedMesh, same law.
+// Integration notes: shards render unlit (MeshBasicMaterial / raw heat color) —
+// the center PointLight cannot light outward-facing faces of a convex shard sphere;
+// a ground disc gives the rest plane a visible surface; DIST_MIN 4.3 keeps the
+// sphere from over-zooming wide desktops; a "spent" phase separates "all shards at
+// rest" from flight.
 import * as THREE from "three";
 import { DetonationSfx } from "./audio";
+import { createEmberGpu, type EmberGpu } from "./ember-gpu";
 
 export type Phase = "pristine" | "detonating" | "spent" | "settling";
 
@@ -18,6 +26,7 @@ export type SpecimenStats = {
   engagements: number; // flashpoint blooms fired
   shards: number; // constant SHARD_COUNT
   aloft: number; // shards currently in motion
+  sim: "gpu" | "cpu"; // which backend drives the shard field
   phase: Phase;
 };
 
@@ -140,6 +149,11 @@ export function mountSpecimen(element: HTMLElement): SpecimenHandle | null {
   point.position.set(0, 0, 0);
   scene.add(ambient, point);
 
+  // GPGPU path: shard state lives in ping-pong float textures (ember-gpu.ts).
+  // Null when float render targets are unavailable — then the CPU path below runs.
+  const gpu: EmberGpu | null = createEmberGpu(renderer, SHARD_COUNT);
+  if (gpu) scene.add(gpu.mesh);
+
   // Ground disc: shards rest at FLOOR, so the rest plane needs a visible surface.
   const discGeo = new THREE.CircleGeometry(6.5, 48);
   const discMat = new THREE.MeshStandardMaterial({ color: 0x1a130d, roughness: 0.95 });
@@ -148,12 +162,13 @@ export function mountSpecimen(element: HTMLElement): SpecimenHandle | null {
   disc.position.y = FLOOR - 0.01;
   scene.add(disc);
 
-  // The single mesh: lantern AND debris, one owned array.
+  // CPU fallback mesh: lantern AND debris from one owned array. Unused (but still
+  // constructed + disposed) when the GPGPU path is active.
   const shardGeo = new THREE.TetrahedronGeometry(0.09, 0);
   const shardMat = new THREE.MeshBasicMaterial(); // heat color IS the light; unlit
   const mesh = new THREE.InstancedMesh(shardGeo, shardMat, SHARD_COUNT);
   mesh.instanceMatrix.setUsage(THREE.DynamicDrawUsage);
-  scene.add(mesh);
+  if (!gpu) scene.add(mesh);
 
   const shards: Shard[] = new Array<Shard>(SHARD_COUNT);
   for (let i = 0; i < SHARD_COUNT; i += 1) {
@@ -232,6 +247,7 @@ export function mountSpecimen(element: HTMLElement): SpecimenHandle | null {
     engagements: 0,
     shards: SHARD_COUNT,
     aloft: 0,
+    sim: gpu ? "gpu" : "cpu",
     phase: "pristine",
   };
 
@@ -241,19 +257,26 @@ export function mountSpecimen(element: HTMLElement): SpecimenHandle | null {
   const _color = new THREE.Color();
 
   function seedShards(strength: number): void {
-    for (let i = 0; i < SHARD_COUNT; i += 1) {
-      const s = shards[i];
-      _axis.copy(s.pos).sub(CENTER);
-      if (_axis.lengthSq() < 1e-6) _axis.copy(s.rest);
-      _axis.normalize();
-      const speed = (2.6 + 2.2 * strength) * (0.85 + rng() * 0.35);
-      s.vel.copy(_axis).multiplyScalar(speed);
-      s.vel.x += (rng() - 0.5) * 1.4;
-      s.vel.y += 0.7 + rng() * 0.6;
-      s.vel.z += (rng() - 0.5) * 1.4;
-      s.spin.set(rng() - 0.5, rng() - 0.5, rng() - 0.5).multiplyScalar(10 + rng() * 8);
-      s.heat = 1.0;
-      s.resting = false;
+    // A re-kick must retire the settle phase on the GPU path (mirrors the CPU
+    // path, where the fresh impulse simply overwrites shard state).
+    gpu?.setSettling(false);
+    if (!gpu) {
+      for (let i = 0; i < SHARD_COUNT; i += 1) {
+        const s = shards[i];
+        _axis.copy(s.pos).sub(CENTER);
+        if (_axis.lengthSq() < 1e-6) _axis.copy(s.rest);
+        _axis.normalize();
+        const speed = (2.6 + 2.2 * strength) * (0.85 + rng() * 0.35);
+        s.vel.copy(_axis).multiplyScalar(speed);
+        s.vel.x += (rng() - 0.5) * 1.4;
+        s.vel.y += 0.7 + rng() * 0.6;
+        s.vel.z += (rng() - 0.5) * 1.4;
+        s.spin.set(rng() - 0.5, rng() - 0.5, rng() - 0.5).multiplyScalar(10 + rng() * 8);
+        s.heat = 1.0;
+        s.resting = false;
+      }
+    } else {
+      gpu.kick(strength);
     }
     for (let i = 0; i < SPARK_COUNT; i += 1) {
       const b = i * 3;
@@ -310,6 +333,26 @@ export function mountSpecimen(element: HTMLElement): SpecimenHandle | null {
   }
 
   function stepShards(dt: number): void {
+    if (gpu) {
+      // GPGPU: textures integrate in shaders; aloft arrives via float readback.
+      // Stepping pauses outside detonating/settling — pristine and spent shards
+      // hold exactly (the CPU path also skips integration there), and the frozen
+      // uNow freezes the pure-function heat at its landing value.
+      if (phase === "detonating" || phase === "settling") {
+        aloftCount = gpu.step(dt);
+        if (phase === "detonating" && !thudded && aloftCount === 0) {
+          thudded = true;
+          audio.thud();
+          phase = "spent";
+        } else if (phase === "settling" && aloftCount === 0) {
+          gpu.setSettling(false);
+          phase = "pristine";
+        }
+      } else {
+        aloftCount = 0;
+      }
+      return;
+    }
     let aloft = 0;
     if (phase === "detonating") {
       for (let i = 0; i < SHARD_COUNT; i += 1) {
@@ -400,6 +443,7 @@ export function mountSpecimen(element: HTMLElement): SpecimenHandle | null {
   }
 
   function writeInstances(): void {
+    if (gpu) return; // GPGPU path: the vertex shader reads the textures directly.
     for (let i = 0; i < SHARD_COUNT; i += 1) {
       const s = shards[i];
       _m.compose(s.pos, s.quat, ONE);
@@ -508,14 +552,18 @@ export function mountSpecimen(element: HTMLElement): SpecimenHandle | null {
     bloomPending = false;
     audio.rebuild();
     if (reduced) {
-      for (let i = 0; i < SHARD_COUNT; i += 1) {
-        const s = shards[i];
-        s.pos.copy(s.rest);
-        s.quat.copy(s.restQuat);
-        s.vel.set(0, 0, 0);
-        s.spin.set(0, 0, 0);
-        s.heat = s.baseHeat;
-        s.resting = true;
+      if (gpu) {
+        gpu.snapToRest();
+      } else {
+        for (let i = 0; i < SHARD_COUNT; i += 1) {
+          const s = shards[i];
+          s.pos.copy(s.rest);
+          s.quat.copy(s.restQuat);
+          s.vel.set(0, 0, 0);
+          s.spin.set(0, 0, 0);
+          s.heat = s.baseHeat;
+          s.resting = true;
+        }
       }
       phase = "pristine";
       lightEnergy = 1.0;
@@ -524,6 +572,7 @@ export function mountSpecimen(element: HTMLElement): SpecimenHandle | null {
       renderOnce();
       return;
     }
+    gpu?.setSettling(true);
     phase = "settling";
   }
 
@@ -538,6 +587,7 @@ export function mountSpecimen(element: HTMLElement): SpecimenHandle | null {
   function dispose(): void {
     if (raf) cancelAnimationFrame(raf);
     ro.disconnect();
+    gpu?.dispose();
     scene.remove(mesh, sparks, ring, disc, ambient, point);
     shardGeo.dispose();
     shardMat.dispose();

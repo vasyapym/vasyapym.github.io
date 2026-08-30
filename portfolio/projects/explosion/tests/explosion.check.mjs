@@ -68,7 +68,7 @@ const check = (ok, label) => {
   }
 };
 
-// "fps 60 · phase detonating · aloft 583/600 · blooms 2" -> structured read.
+// "fps 60 · phase detonating · aloft 583/600 · sim gpu · blooms 2" -> structured read.
 const readHud = (page) =>
   page.evaluate(() => {
     const text = document.querySelector(".explosion-hud-line")?.textContent ?? "";
@@ -83,6 +83,7 @@ const readHud = (page) =>
       phase: (/phase ([a-z]+)/.exec(text) ?? [])[1] ?? "",
       aloft: aloftM ? Number.parseInt(aloftM[1], 10) : -1,
       shards: aloftM ? Number.parseInt(aloftM[2], 10) : -1,
+      sim: (/sim ([a-z]+)/.exec(text) ?? [])[1] ?? "",
       blooms: num(/blooms (\d+)/),
     };
   });
@@ -130,10 +131,13 @@ async function loadViewport(width, height, label, { mobile = false } = {}) {
   const hasCanvas = !!(await page.$("#explosion-stage canvas"));
   check(hasCanvas, `${label}: webgl canvas mounted`);
 
-  // Pristine HUD: 600 shards at rest, zero blooms, animation actually running.
+  // Pristine HUD: 600 shards at rest, zero blooms, animation actually running,
+  // and the GPGPU path engaged (SwiftShader supplies EXT_color_buffer_float).
   const fresh = await readHud(page);
   check(fresh.phase === "pristine", `${label}: starts pristine (${fresh.phase})`);
   check(fresh.shards === 600, `${label}: 600 shards in the HUD (${fresh.shards})`);
+  check(fresh.aloft === 0, `${label}: lantern holds at arrival, nothing aloft (${fresh.aloft})`);
+  check(fresh.sim === "gpu", `${label}: gpgpu backend engaged (${fresh.sim})`);
   check(fresh.blooms === 0, `${label}: no blooms before the first click (${fresh.blooms})`);
   check(fresh.fps >= 5, `${label}: loop is live (fps ${fresh.fps})`);
 
@@ -179,10 +183,12 @@ async function loadViewport(width, height, label, { mobile = false } = {}) {
     );
   }
 
-  // Restore reassembles the lantern.
+  // Restore reassembles the lantern. Budget is generous: under SwiftShader load
+  // the 0.05s sim-dt clamp makes sim time crawl relative to wall time, and the
+  // settle needs ~1.2 sim-s to converge.
   await page.click(".explosion-btn-restore");
   let settled = null;
-  for (let i = 0; i < 20; i += 1) {
+  for (let i = 0; i < 40; i += 1) {
     await wait(450);
     settled = await readHud(page);
     if (settled.phase === "pristine" && settled.aloft === 0) break;
@@ -194,8 +200,14 @@ async function loadViewport(width, height, label, { mobile = false } = {}) {
   );
 
   // Honest miss: a corner click (the ray passes far from the lantern) must
-  // change nothing at all — no bloom, no phase move, no flight.
-  const beforeMiss = await readHud(page);
+  // change nothing at all — no bloom, no phase move, no flight. Runs only once
+  // the piece has settled pristine, so a benign settling->pristine transition
+  // between reads cannot masquerade as an effect.
+  let beforeMiss = await readHud(page);
+  for (let i = 0; i < 20 && beforeMiss.phase !== "pristine"; i += 1) {
+    await wait(450);
+    beforeMiss = await readHud(page);
+  }
   await press(
     page,
     stageBox.x + stageBox.width * 0.02,
@@ -270,6 +282,10 @@ try {
     check(
       landingText.includes("paper-lantern") && landingText.includes("/ physics"),
       "landing card shows the ember-lantern pitch",
+    );
+    check(
+      landingText.includes("fragment shaders"),
+      "landing card names the gpu physics",
     );
     check(
       !landingText.includes("voxel monument") && !landingText.includes("Raze the district"),

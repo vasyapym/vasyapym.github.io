@@ -7,17 +7,18 @@ const INITIAL_STATS: SpecimenStats = {
   engagements: 0,
   shards: 0,
   aloft: 0,
+  sim: "cpu",
   phase: "pristine",
 };
 
 type Technique = { label: string; detail: string };
 
 const TECHNIQUES: ReadonlyArray<Technique> = [
+  { label: "gpgpu", detail: "shard state lives in ping-pong float textures; shaders integrate physics" },
   { label: "single mesh", detail: "one instanced mesh is both the lantern and its debris" },
   { label: "no timers", detail: "destruction is same-frame, never deferred or converted" },
-  { label: "pure draw", detail: "every shard is rewritten from state each frame" },
   { label: "flashpoint", detail: "an auto shockwave bloom marks peak dispersion" },
-  { label: "soft-gl safe", detail: "additive glow, no post chain, 390px portrait framed" },
+  { label: "soft-gl safe", detail: "nearest-filtered state textures, no post chain, cpu fallback" },
 ];
 
 function formatHud(stats: SpecimenStats): string {
@@ -25,6 +26,7 @@ function formatHud(stats: SpecimenStats): string {
     `fps ${Math.round(stats.fps)}`,
     `phase ${stats.phase}`,
     `aloft ${stats.aloft}/${stats.shards}`,
+    `sim ${stats.sim}`,
     `blooms ${stats.engagements}`,
   ].join(" · ");
 }
@@ -110,9 +112,8 @@ export default function ExplosionLunaPage() {
           <span className="explosion-title-accent">a lantern, unmade</span>
         </h1>
         <p className="explosion-lede">
-          a paper moon holds its shape until you touch it. one click and it becomes the
-          six hundred shards it was always made of — no monument, no debris pile, just
-          the same fragments, thrown.
+          a paper moon of six hundred shards. one click unmakes it; one click
+          restores it.
         </p>
         <p className="explosion-room-meta">
           {reducedMotion
@@ -180,7 +181,7 @@ export default function ExplosionLunaPage() {
         </div>
 
         <p className="explosion-hint">
-          click the lantern to detonate · enter/space blasts from center · restore reassembles
+          click to detonate · enter/space from center · restore reassembles
         </p>
       </div>
 

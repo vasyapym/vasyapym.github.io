@@ -6,8 +6,8 @@ const explosionLuna: ProjectModule = {
   tag: "physics",
   eyebrow: "interactive · three.js",
   description:
-    "A glowing paper-lantern moon that detonates into the six hundred shards it is built from. One instanced mesh is simultaneously the intact lantern and its flung debris — shards are re-posed, never created or destroyed — so the rendered view is a pure function of a single state array and can never show a mid-air ghost. Click to blast, watch the auto flashpoint bloom at peak dispersion, one click to reassemble.",
-  technologies: ["React 19", "TypeScript", "three.js", "InstancedMesh", "WebAudio"],
+    "a paper-lantern moon that detonates into the 600 shards it is built from — physics runs in fragment shaders on the gpu, not the cpu. click to blast, click to restore.",
+  technologies: ["React 19", "three.js", "GPGPU", "WebAudio"],
   status: "available",
   accent: "red",
   presentation: {
