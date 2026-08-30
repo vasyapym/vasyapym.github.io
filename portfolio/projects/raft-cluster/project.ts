@@ -1,0 +1,66 @@
+import type { ProjectModule } from "../../contracts/project-module";
+
+const raftCluster: ProjectModule = {
+  id: "raft-cluster",
+  title: "Raft Cluster",
+  tag: "distributed systems",
+  eyebrow: "live consensus · Rust → WebAssembly",
+  description:
+    "A Raft cluster running live in the browser — every node is the same Rust consensus core compiled to WebAssembly. Crash the leader, cut the network, and watch elections and log replication answer in real time.",
+  technologies: ["Rust", "WebAssembly", "TypeScript", "Canvas 2D", "Go"],
+  status: "available",
+  accent: "teal",
+  presentation: {
+    className: "presentation-raft-cluster",
+    motion: "network",
+    centerLabel: "R / C",
+    centerMark: "raft",
+    note: "live consensus",
+    motionLabel: "the cluster elects",
+    instruction: "Open the cluster and perturb it — crash the leader or cut a link.",
+    parts: [
+      {
+        id: "voters",
+        label: "Voting nodes",
+        className: "presentation-part-raft-voters",
+        anchorX: -50,
+        anchorY: -20,
+        mark: "nodes",
+        scatterX: -92,
+        scatterY: -40,
+        scatterZ: 76,
+        baseZ: 16,
+        rotation: -7,
+      },
+      {
+        id: "log",
+        label: "Replicated log",
+        className: "presentation-part-raft-log",
+        anchorX: 20,
+        anchorY: 44,
+        mark: "stack",
+        scatterX: 24,
+        scatterY: 92,
+        scatterZ: 96,
+        baseZ: 38,
+        rotation: -3,
+      },
+      {
+        id: "links",
+        label: "RPC links",
+        className: "presentation-part-raft-links",
+        anchorX: 56,
+        anchorY: -14,
+        mark: "branches",
+        scatterX: 88,
+        scatterY: -34,
+        scatterZ: 58,
+        baseZ: 26,
+        rotation: 5,
+      },
+    ],
+  },
+  loadPage: () => import("./web/RaftPage"),
+};
+
+export default raftCluster;

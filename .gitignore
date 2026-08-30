@@ -1,3 +1,5 @@
 node_modules
 .DS_Store
 /portfolio/projects/planck-to-now/dist/
+/portfolio/projects/explosion/physics/target/
+/portfolio/projects/raft-cluster/core/target/

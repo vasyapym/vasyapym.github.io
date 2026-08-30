@@ -1,0 +1,332 @@
+/* web/raft.css — scoped styles for the live Raft cluster page (revision 1). */
+
+.raft-field {
+  /* Local tokens, each falling back to a shell ink token. The --sans/--mono
+     families are NOT redefined here — the shell's :root already provides them
+     and a self-referential custom property is a guaranteed-invalid cycle. */
+  --raft-bg: var(--ink-bg, #0b1317);
+  --raft-text: var(--ink-text, #eeeae0);
+  --raft-accent: var(--ink-accent, #d39b61);
+  --raft-line: var(--ink-line, rgba(238, 234, 224, 0.14));
+  --raft-node: rgba(238, 234, 224, 0.55);
+  --raft-log: rgba(238, 234, 224, 0.14);
+  --raft-msg-vote: #4bb3a7;
+  --raft-danger: #c85a54;
+
+  --raft-panel-bg: rgba(238, 234, 224, 0.03);
+  --raft-panel-line: var(--raft-line);
+  --raft-muted: rgba(238, 234, 224, 0.55);
+  --raft-radius: 8px;
+  --raft-gap: 16px;
+
+  color: var(--raft-text);
+  background: var(--raft-bg);
+  font-family: var(--sans, "IBM Plex Sans", system-ui, sans-serif);
+  line-height: 1.5;
+  padding: clamp(16px, 3vw, 32px);
+  box-sizing: border-box;
+}
+
+.raft-field *,
+.raft-field *::before,
+.raft-field *::after {
+  box-sizing: border-box;
+}
+
+/* ---- header --------------------------------------------------------------- */
+
+.raft-head {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: flex-end;
+  justify-content: space-between;
+  gap: var(--raft-gap);
+  margin-bottom: var(--raft-gap);
+}
+
+.raft-head-text {
+  min-width: 260px;
+  flex: 1 1 340px;
+}
+
+.raft-head h1 {
+  margin: 0 0 6px;
+  font-size: clamp(1.25rem, 2.4vw, 1.6rem);
+  font-weight: 600;
+  letter-spacing: -0.01em;
+}
+
+.raft-thesis {
+  margin: 0;
+  max-width: 60ch;
+  color: var(--raft-muted);
+  font-size: 0.9rem;
+}
+
+.raft-head-controls {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 10px;
+}
+
+.raft-seed {
+  color: var(--raft-muted);
+  font-size: 0.8rem;
+}
+
+/* ---- main grid ------------------------------------------------------------ */
+
+.raft-grid {
+  display: grid;
+  grid-template-columns: 2fr 1fr;
+  gap: var(--raft-gap);
+  align-items: start;
+}
+
+@media (max-width: 900px) {
+  .raft-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+/* ---- stage / canvas ------------------------------------------------------- */
+
+.raft-stage {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  min-width: 0;
+}
+
+.raft-canvas {
+  display: block;
+  width: 100%;
+  aspect-ratio: 4 / 3;
+  border: 1px solid var(--raft-panel-line);
+  border-radius: var(--raft-radius);
+  background: var(--raft-bg);
+  touch-action: manipulation;
+}
+
+.raft-strip {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px 18px;
+  padding: 8px 12px;
+  border: 1px solid var(--raft-panel-line);
+  border-radius: var(--raft-radius);
+  background: var(--raft-panel-bg);
+  color: var(--raft-muted);
+  font-size: 0.8rem;
+}
+
+/* ---- side panels ---------------------------------------------------------- */
+
+.raft-side {
+  display: flex;
+  flex-direction: column;
+  gap: var(--raft-gap);
+  min-width: 0;
+}
+
+.raft-panel {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+  padding: 14px;
+  border: 1px solid var(--raft-panel-line);
+  border-radius: var(--raft-radius);
+  background: var(--raft-panel-bg);
+}
+
+.raft-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+
+.raft-label {
+  font-size: 0.75rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  color: var(--raft-muted);
+}
+
+.raft-hint {
+  margin: 0;
+  color: var(--raft-muted);
+  font-size: 0.8rem;
+}
+
+.raft-node-ctl {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+/* ---- controls: buttons, selects, inputs ----------------------------------- */
+
+.raft-field button,
+.raft-field select,
+.raft-field input[type="text"] {
+  font: inherit;
+  font-size: 0.85rem;
+  color: var(--raft-text);
+  background: transparent;
+  border: 1px solid var(--raft-panel-line);
+  border-radius: 6px;
+  padding: 6px 10px;
+  cursor: pointer;
+  transition: border-color 0.12s ease, background-color 0.12s ease;
+}
+
+.raft-field input[type="text"] {
+  cursor: text;
+  min-width: 0;
+  flex: 1 1 auto;
+}
+
+.raft-field button:hover:not(:disabled),
+.raft-field select:hover {
+  border-color: var(--raft-accent);
+}
+
+.raft-field button:disabled {
+  opacity: 0.45;
+  cursor: not-allowed;
+}
+
+.raft-field select {
+  appearance: none;
+  padding-right: 10px;
+}
+
+.raft-ctl {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 0.8rem;
+  color: var(--raft-muted);
+}
+
+/* Segmented control (speed / mode). */
+.raft-seg {
+  display: inline-flex;
+  border: 1px solid var(--raft-panel-line);
+  border-radius: 6px;
+  overflow: hidden;
+}
+
+.raft-seg button {
+  border: none;
+  border-radius: 0;
+  border-left: 1px solid var(--raft-panel-line);
+  padding: 5px 9px;
+}
+
+.raft-seg button:first-child {
+  border-left: none;
+}
+
+.raft-seg button.raft-on {
+  background: var(--raft-accent);
+  color: var(--raft-bg);
+  font-weight: 600;
+}
+
+/* Propose block. */
+.raft-propose {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+/* ---- event feed ----------------------------------------------------------- */
+
+.raft-feed h2 {
+  margin: 0;
+}
+
+.raft-feed ul {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  font-size: 0.8rem;
+}
+
+.raft-feed li {
+  color: var(--raft-text);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.raft-feed .raft-t {
+  color: var(--raft-muted);
+  margin-right: 6px;
+}
+
+/* ---- shared utilities ----------------------------------------------------- */
+
+.raft-mono {
+  font-family: var(--mono, ui-monospace, SFMono-Regular, monospace);
+  font-variant-numeric: tabular-nums;
+}
+
+/* ---- error panel ---------------------------------------------------------- */
+
+.raft-error {
+  border-color: var(--raft-danger);
+  max-width: 60ch;
+}
+
+.raft-error h2 {
+  margin: 0 0 8px;
+  color: var(--raft-danger);
+  font-size: 1.1rem;
+}
+
+.raft-error p {
+  margin: 0 0 8px;
+  font-size: 0.9rem;
+}
+
+.raft-error .raft-mono {
+  color: var(--raft-muted);
+  font-size: 0.8rem;
+  word-break: break-word;
+  white-space: pre-wrap;
+}
+
+/* ---- focus visibility ----------------------------------------------------- */
+
+.raft-field button:focus-visible,
+.raft-field select:focus-visible,
+.raft-field input[type="text"]:focus-visible,
+.raft-canvas:focus-visible {
+  outline: 2px solid var(--raft-accent);
+  outline-offset: 2px;
+}
+
+.raft-field :focus:not(:focus-visible) {
+  outline: none;
+}
+
+/* ---- reduced motion ------------------------------------------------------- */
+
+@media (prefers-reduced-motion: reduce) {
+  .raft-field *,
+  .raft-field *::before,
+  .raft-field *::after {
+    transition: none !important;
+    animation: none !important;
+  }
+}

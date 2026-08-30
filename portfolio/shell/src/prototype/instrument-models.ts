@@ -39,62 +39,6 @@ export type InstrumentModel = {
   parts: readonly PartDefinition[];
 };
 
-const CODE_LAYOUT_PARTS: readonly PartDefinition[] = [
-  {
-    id: "nodes",
-    label: "Declaration nodes",
-    className: "artifact-part-code-nodes",
-    anchorX: -72,
-    anchorY: -18,
-    mark: "nodes",
-    scatterX: -116,
-    scatterY: -45,
-    scatterZ: 92,
-    baseZ: 12,
-    rotation: -8,
-  },
-  {
-    id: "rail",
-    label: "Dependency rail",
-    className: "artifact-part-code-rail",
-    anchorX: 74,
-    anchorY: -18,
-    mark: "branches",
-    scatterX: 116,
-    scatterY: -42,
-    scatterZ: 62,
-    baseZ: 30,
-    rotation: 6,
-  },
-  {
-    id: "source",
-    label: "Source block",
-    className: "artifact-part-code-source",
-    anchorX: 24,
-    anchorY: 56,
-    mark: "stack",
-    scatterX: 10,
-    scatterY: 96,
-    scatterZ: 124,
-    baseZ: 44,
-    rotation: -3,
-  },
-  {
-    id: "entry",
-    label: "Entry point",
-    className: "artifact-part-code-entry",
-    anchorX: -84,
-    anchorY: 48,
-    mark: "type",
-    markLabel: "fn()",
-    scatterX: -124,
-    scatterY: 76,
-    scatterZ: 78,
-    baseZ: 38,
-    rotation: 14,
-  },
-];
-
 const PRACTICE_MAP_PARTS: readonly PartDefinition[] = [
   {
     id: "terrain",
@@ -179,16 +123,6 @@ const DEFAULT_INSTRUMENT_MODEL: InstrumentModel = {
 };
 
 const INSTRUMENT_MODELS: Readonly<Record<string, InstrumentModel>> = {
-  "code-layout": {
-    className: "assembly-field-code-layout",
-    motion: "network",
-    centerLabel: "C / L",
-    centerMark: "graph",
-    note: "Code Layout / structure map",
-    motionLabel: "Scroll to connect the structure",
-    instruction: "Drag a node or rail to inspect the structure. Scroll to connect its relationships, or use the arrow keys when a part is focused.",
-    parts: CODE_LAYOUT_PARTS,
-  },
   "practice-map": {
     className: "assembly-field-practice-map",
     motion: "terrain",

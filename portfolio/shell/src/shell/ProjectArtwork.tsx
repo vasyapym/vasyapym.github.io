@@ -67,6 +67,7 @@ const CENTER_MARKS: Partial<Record<ProjectCenter, () => ReactElement>> = {
   blast: BlastCenterMark,
   spiral: SpiralCenterMark,
   trail: TrailCenterMark,
+  raft: RaftCenterMark,
 };
 
 function CenterMark({ mark, label }: { mark: ProjectCenter; label: string }) {
@@ -235,6 +236,29 @@ function TrailCenterMark() {
       />
       <circle cx="90" cy="24" r="7" fill="none" stroke="#cf9d63" strokeWidth="1.7" opacity="0.85" />
       <circle cx="90" cy="24" r="3" fill="none" stroke="#cf9d63" strokeWidth="1.7" />
+    </svg>
+  );
+}
+
+// Raft Cluster: three voting nodes fully meshed — the leader carries the
+// accent disc and a partly-committed log bar, the two followers stay outlined.
+function RaftCenterMark() {
+  return (
+    <svg viewBox="0 0 120 96" aria-hidden="true">
+      <path
+        d="M 36 30 L 84 30 L 60 72 Z"
+        fill="none"
+        stroke="#63c7c3"
+        strokeWidth="1.2"
+        opacity="0.5"
+      />
+      <circle cx="84" cy="30" r="9" fill="#101c1c" stroke="#63c7c3" strokeWidth="1.4" />
+      <circle cx="84" cy="30" r="2.4" fill="#63c7c3" opacity="0.8" />
+      <circle cx="60" cy="72" r="9" fill="#101c1c" stroke="#63c7c3" strokeWidth="1.4" />
+      <circle cx="60" cy="72" r="2.4" fill="#63c7c3" opacity="0.8" />
+      <circle cx="36" cy="30" r="11" fill="#f0b878" stroke="#ffe3b1" strokeWidth="1.2" />
+      <rect x="22" y="48" width="28" height="6" rx="2" fill="#f0b878" opacity="0.35" />
+      <rect x="22" y="48" width="18" height="6" rx="2" fill="#ffe3b1" />
     </svg>
   );
 }

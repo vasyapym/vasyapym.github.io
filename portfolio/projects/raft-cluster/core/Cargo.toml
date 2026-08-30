@@ -1,0 +1,28 @@
+[package]
+name = "raft-core"
+version = "0.1.0"
+edition = "2021"
+rust-version = "1.97"
+description = "Understandable Raft consensus core (leader election + log replication), std-only, zero dependencies."
+license = "MIT OR Apache-2.0"
+publish = false
+
+# Two build targets from one crate:
+#   * wasm32-unknown-unknown `cdylib` with raw C-ABI exports (browser demo).
+#   * darwin/linux `staticlib` wrapped by a Go/cgo TCP RPC daemon (real cluster).
+# `rlib` is kept so the core can also be used directly as a normal Rust dependency
+# (e.g. by integration tests and future host tooling).
+[lib]
+crate-type = ["cdylib", "staticlib", "rlib"]
+
+# Zero dependencies by design: the crate must compile to wasm without pulling in
+# serde/rand/etc. so the browser bundle and toolchain stay minimal.
+[dependencies]
+
+# Tuned for small wasm output, matching the sibling crate's profile.
+[profile.release]
+opt-level = "s"
+lto = true
+codegen-units = 1
+panic = "abort"
+strip = true
