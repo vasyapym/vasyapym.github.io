@@ -161,6 +161,8 @@ export function mountSpecimen(element: HTMLElement): SpecimenHandle | null {
   let buildStarted = 0;
   let shake = 0;
   let flashIntensity = 0;
+  // core removes doomed voxels asynchronously (doom timers) and bumps world_version; the mesh must chase it.
+  let structureVersion = -1;
   const stats: SpecimenStats = { voxels: 0, total: 0, debris: 0, fps: 60, slowmo: false, peakStress: 0, engagements: 0 };
 
   const setColor = (instance: number, voxel: number) => {
@@ -243,7 +245,7 @@ export function mountSpecimen(element: HTMLElement): SpecimenHandle | null {
       } else { fireShockwave(hitPoint, 0.28); sfx.thud(); }
       core.refreshViews(); stats.voxels = core.stats.standing; stats.debris = core.stats.debris; stats.peakStress = core.stats.peakStress; if (victims > 0) rebuild(false); return true;
     },
-    restore: () => { if (!core) return; core.restore(); core.refreshViews(); stats.voxels = core.stats.standing; stats.debris = 0; building = !reduced; buildStarted = performance.now(); rebuild(!reduced); repaint(); sfx.resume(); sfx.rebuild(); },
+    restore: () => { if (!core) return; core.restore(); core.refreshViews(); stats.voxels = core.stats.standing; stats.debris = 0; building = !reduced; buildStarted = performance.now(); rebuild(!reduced); structureVersion = core.stats.worldVersion; repaint(); sfx.resume(); sfx.rebuild(); },
     setMuted: (muted) => sfx.setMuted(muted),
     setSlowMo: (on) => { slowMoHeld = on; },
     setXray: (on) => { xray = on; repaint(); },
@@ -278,6 +280,8 @@ export function mountSpecimen(element: HTMLElement): SpecimenHandle | null {
       stats.voxels = core.stats.standing; stats.debris = core.stats.debris; stats.peakStress = core.stats.peakStress;
       if (core.stats.doomed >= COLLAPSE_CAM_THRESHOLD && now >= collapseUntil) { collapseUntil = now + COLLAPSE_CAM_DURATION; stats.slowmo = true; stats.engagements += 1; }
       else if (now >= collapseUntil) stats.slowmo = false;
+      // mesh must follow world_version or doom-timer breaks leave ghost boxes hovering; building owns the mesh meanwhile.
+      if (!building && core.stats.worldVersion !== structureVersion) { structureVersion = core.stats.worldVersion; rebuild(false); }
     }
     updateVisuals(dt, now);
     renderer.render(scene, camera);

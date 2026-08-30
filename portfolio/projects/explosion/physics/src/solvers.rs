@@ -30,9 +30,19 @@ fn each_neighbor(i: usize, mut f: impl FnMut(usize)) {
 }
 
 pub fn solve(w: &mut World, _allow_breaks: bool) {
-    support_pass(w);
-    load_pass(w);
-    failure_pass(w);
+    // Fixpoint: a condemned member no longer bears load, so re-solving after a
+    // failure_pass can expose fresh unsupported/overloaded voxels (the side
+    // branches that hung off it). Converges because doom is monotone (sticky,
+    // only grows) and loads only drop as doomed voxels leave the network — no
+    // oscillation, no un-condemning. Steady state exits after one confirming
+    // failure_pass returns false; H + 2 is a belt-and-braces upper bound.
+    for _ in 0..(H + 2) {
+        support_pass(w);
+        load_pass(w);
+        if !failure_pass(w) {
+            break;
+        }
+    }
 }
 
 fn support_pass(w: &mut World) {
@@ -41,12 +51,13 @@ fn support_pass(w: &mut World) {
     let mut head = 0usize;
     let mut tail = 0usize;
 
-    // Every filled ground-row voxel is an explicit structural support seed.
+    // Every filled, non-doomed ground-row voxel is an explicit support seed;
+    // a condemned member is leaving and must not anchor anything.
     for z in 0..D {
         for x in 0..W {
             let i = coords::vidx(x, 0, z);
 
-            if w.filled[i] != 0 {
+            if w.filled[i] != 0 && w.doomed[i] == 0 {
                 w.support[i] = 1;
                 w.support_queue[tail] = i as u32;
                 tail += 1;
@@ -59,7 +70,7 @@ fn support_pass(w: &mut World) {
         head += 1;
 
         each_neighbor(i, |j| {
-            if w.filled[j] != 0 && w.support[j] == 0 {
+            if w.filled[j] != 0 && w.doomed[j] == 0 && w.support[j] == 0 {
                 w.support[j] = 1;
                 w.support_queue[tail] = j as u32;
                 tail += 1;
@@ -76,11 +87,13 @@ fn load_pass(w: &mut World) {
     let mut tail = 0usize;
 
     // Distance 0 is the grounded row. Every voxel carries a unit self-load.
+    // Doomed voxels are skipped: their weight is leaving the network, so they
+    // seed no load and route none — keeping distance == u16::MAX, load == 0.0.
     for z in 0..D {
         for x in 0..W {
             let i = coords::vidx(x, 0, z);
 
-            if w.filled[i] != 0 {
+            if w.filled[i] != 0 && w.doomed[i] == 0 {
                 w.distance[i] = 0;
                 w.load[i] = 1.0;
                 w.bfs_queue[tail] = i as u32;
@@ -97,7 +110,7 @@ fn load_pass(w: &mut World) {
         let next_distance = w.distance[i].saturating_add(1);
 
         each_neighbor(i, |j| {
-            if w.filled[j] != 0 && w.distance[j] == u16::MAX {
+            if w.filled[j] != 0 && w.doomed[j] == 0 && w.distance[j] == u16::MAX {
                 w.distance[j] = next_distance;
                 w.load[j] = 1.0;
                 w.bfs_queue[tail] = j as u32;
@@ -150,8 +163,9 @@ fn load_pass(w: &mut World) {
     }
 }
 
-fn failure_pass(w: &mut World) {
+fn failure_pass(w: &mut World) -> bool {
     let h = H as f32;
+    let mut condemned_any = false;
 
     for i in 0..N {
         if w.filled[i] == 0 {
@@ -170,8 +184,12 @@ fn failure_pass(w: &mut World) {
             w.doomed[i] = 1;
             w.doom_timer[i] =
                 w.rng.range(0.04, 0.22) + (y as f32 / h) * 0.18;
+
+            condemned_any = true;
         }
     }
+
+    condemned_any
 }
 
 pub fn break_ready(w: &mut World) -> u32 {
