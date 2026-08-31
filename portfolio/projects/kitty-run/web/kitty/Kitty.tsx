@@ -1,7 +1,7 @@
-// The procedural cat hero: flat vector shapes (THREE.ShapeGeometry)
+// The procedural cat hero "Momo": flat vector shapes (THREE.ShapeGeometry)
 // layered with an inverted-hull style ink outline behind each fill, posed
 // every frame from the pure rig. React renders the parts once; useFrame
-// writes transforms directly.
+// writes transforms directly. No textures, no per-frame allocation.
 
 import { useMemo, useRef } from "react";
 import * as THREE from "three";
@@ -18,23 +18,68 @@ function ellipseShape(rx: number, ry: number): THREE.Shape {
   return shape;
 }
 
+// Tall, upright, pointed ear (vs Hello Kitty's tiny low triangles).
 function earShape(): THREE.Shape {
   const shape = new THREE.Shape();
-  shape.moveTo(-0.28, 0);
-  shape.quadraticCurveTo(-0.36, 0.3, -0.12, 0.47);
-  shape.quadraticCurveTo(0, 0.54, 0.12, 0.47);
-  shape.quadraticCurveTo(0.36, 0.3, 0.28, 0);
+  shape.moveTo(-0.2, 0);
+  shape.quadraticCurveTo(-0.23, 0.3, -0.07, 0.46);
+  shape.quadraticCurveTo(0, 0.52, 0.07, 0.46);
+  shape.quadraticCurveTo(0.23, 0.3, 0.2, 0);
   shape.closePath();
   return shape;
 }
 
-function dressShape(): THREE.Shape {
+// Soft-rose romper.
+function bodyShape(): THREE.Shape {
   const shape = new THREE.Shape();
-  shape.moveTo(-0.5, 1.06);
-  shape.lineTo(0.5, 1.06);
-  shape.quadraticCurveTo(0.68, 0.6, 0.62, 0.2);
-  shape.quadraticCurveTo(0, 0.06, -0.62, 0.2);
-  shape.quadraticCurveTo(-0.68, 0.6, -0.5, 1.06);
+  shape.moveTo(-0.46, 1.02);
+  shape.lineTo(0.46, 1.02);
+  shape.quadraticCurveTo(0.6, 0.55, 0.5, 0.14);
+  shape.quadraticCurveTo(0, 0.02, -0.5, 0.14);
+  shape.quadraticCurveTo(-0.6, 0.55, -0.46, 1.02);
+  shape.closePath();
+  return shape;
+}
+
+// Visible curled cat tail.
+function tailShape(): THREE.Shape {
+  const shape = new THREE.Shape();
+  shape.moveTo(0.02, 0.02);
+  shape.quadraticCurveTo(-0.3, 0.0, -0.46, 0.28);
+  shape.quadraticCurveTo(-0.62, 0.56, -0.4, 0.8);
+  shape.quadraticCurveTo(-0.34, 0.6, -0.36, 0.42);
+  shape.quadraticCurveTo(-0.28, 0.2, -0.02, 0.14);
+  shape.closePath();
+  return shape;
+}
+
+// Small berry-rose triangle nose.
+function noseShape(): THREE.Shape {
+  const shape = new THREE.Shape();
+  shape.moveTo(-0.1, 0.06);
+  shape.quadraticCurveTo(0, 0.09, 0.1, 0.06);
+  shape.lineTo(0, -0.09);
+  shape.closePath();
+  return shape;
+}
+
+// Gentle smile crescent.
+function smileShape(): THREE.Shape {
+  const shape = new THREE.Shape();
+  shape.moveTo(-0.15, 0.02);
+  shape.quadraticCurveTo(0, -0.13, 0.15, 0.02);
+  shape.quadraticCurveTo(0, -0.05, -0.15, 0.02);
+  shape.closePath();
+  return shape;
+}
+
+// One streaming scarf tail (tapering ribbon, hangs from the knot).
+function scarfTailShape(): THREE.Shape {
+  const shape = new THREE.Shape();
+  shape.moveTo(-0.1, 0.04);
+  shape.lineTo(0.1, 0.04);
+  shape.lineTo(0.07, -0.5);
+  shape.quadraticCurveTo(0, -0.6, -0.07, -0.5);
   shape.closePath();
   return shape;
 }
@@ -95,9 +140,13 @@ export function Kitty({ world }: { world: WorldState }) {
   const headRef = useRef<THREE.Group>(null);
   const earLRef = useRef<THREE.Group>(null);
   const earRRef = useRef<THREE.Group>(null);
-  const bowRef = useRef<THREE.Group>(null);
+  const scarfRef = useRef<THREE.Group>(null);
+  const scarfTailLRef = useRef<THREE.Group>(null);
+  const scarfTailRRef = useRef<THREE.Group>(null);
+  const tailRef = useRef<THREE.Group>(null);
   const eyeLRef = useRef<THREE.Mesh>(null);
   const eyeRRef = useRef<THREE.Mesh>(null);
+  const smileRef = useRef<THREE.Mesh>(null);
   const footLRef = useRef<THREE.Group>(null);
   const footRRef = useRef<THREE.Group>(null);
   const armLRef = useRef<THREE.Group>(null);
@@ -106,17 +155,21 @@ export function Kitty({ world }: { world: WorldState }) {
   const geo = useMemo(() => {
     const seg = 20;
     return {
-      head: new THREE.ShapeGeometry(ellipseShape(1.0, 0.84), seg),
+      head: new THREE.ShapeGeometry(ellipseShape(0.92, 0.94), seg),
       ear: new THREE.ShapeGeometry(earShape(), seg),
-      eye: new THREE.ShapeGeometry(ellipseShape(0.085, 0.135), seg),
-      nose: new THREE.ShapeGeometry(ellipseShape(0.13, 0.1), seg),
+      // The rose inner ear: the same ear silhouette, anchored mid-ear.
+      earInner: new THREE.ShapeGeometry(earShape(), seg),
+      eye: new THREE.ShapeGeometry(ellipseShape(0.1, 0.15), seg),
+      nose: new THREE.ShapeGeometry(noseShape(), seg),
+      smile: new THREE.ShapeGeometry(smileShape(), seg),
       cheek: new THREE.ShapeGeometry(ellipseShape(0.14, 0.09), seg),
-      whisker: new THREE.PlaneGeometry(0.36, 0.032),
-      bowLoop: new THREE.ShapeGeometry(ellipseShape(0.34, 0.24), seg),
-      bowKnot: new THREE.ShapeGeometry(ellipseShape(0.16, 0.16), seg),
-      dress: new THREE.ShapeGeometry(dressShape(), seg),
+      body: new THREE.ShapeGeometry(bodyShape(), seg),
       foot: new THREE.ShapeGeometry(ellipseShape(0.11, 0.085), seg),
       arm: new THREE.ShapeGeometry(ellipseShape(0.12, 0.2), seg),
+      tail: new THREE.ShapeGeometry(tailShape(), seg),
+      scarfBand: new THREE.ShapeGeometry(ellipseShape(0.5, 0.15), seg),
+      scarfKnot: new THREE.ShapeGeometry(ellipseShape(0.12, 0.12), seg),
+      scarfTail: new THREE.ShapeGeometry(scarfTailShape(), seg),
     };
   }, []);
 
@@ -143,14 +196,22 @@ export function Kitty({ world }: { world: WorldState }) {
       headRef.current.position.y = 1.5 + pose.headBobY;
       headRef.current.rotation.z = pose.headRot;
     }
-    if (earLRef.current) earLRef.current.rotation.z = -0.35 + pose.earL;
-    if (earRRef.current) earRRef.current.rotation.z = 0.35 + pose.earR;
-    if (bowRef.current) {
-      bowRef.current.rotation.z = pose.bowRot;
-      bowRef.current.scale.setScalar(pose.bowScale);
+    if (earLRef.current) earLRef.current.rotation.z = -0.18 + pose.earL;
+    if (earRRef.current) earRRef.current.rotation.z = 0.18 + pose.earR;
+    if (tailRef.current) tailRef.current.rotation.z = pose.tailSwing;
+    if (scarfRef.current) {
+      scarfRef.current.rotation.z = pose.scarfSway;
+      scarfRef.current.scale.setScalar(pose.scarfFlare);
     }
+    if (scarfTailLRef.current)
+      scarfTailLRef.current.rotation.z =
+        -0.12 - pose.scarfLift * 1.2 + pose.scarfBounce;
+    if (scarfTailRRef.current)
+      scarfTailRRef.current.rotation.z =
+        -0.3 - pose.scarfLift * 1.35 + pose.scarfBounce * 0.8;
     if (eyeLRef.current) eyeLRef.current.scale.y = pose.eyeScaleY;
     if (eyeRRef.current) eyeRRef.current.scale.y = pose.eyeScaleY;
+    if (smileRef.current) smileRef.current.scale.setScalar(pose.smileScale);
     if (footLRef.current && footRRef.current) {
       if (k.grounded) {
         const step = Math.sin(k.runPhase);
@@ -169,96 +230,105 @@ export function Kitty({ world }: { world: WorldState }) {
     <group ref={rootRef} scale={ROOT_SCALE}>
       <group ref={squashRef}>
         <group ref={tiltRef}>
-          {/* feet peek below the dress hem */}
+          {/* cat tail sits behind the body */}
+          <group ref={tailRef} position={[-0.48, 0.42, 0]}>
+            <Part geometry={geo.tail} color={PALETTE.furCream} z={0.02} outline={1.1} />
+          </group>
+
+          {/* feet peek below the hem */}
           <group ref={footLRef} position={[-0.18, 0.1, 0.03]}>
-            <Part geometry={geo.foot} color={PALETTE.kittyWhite} z={0} outline={1.15} />
+            <Part geometry={geo.foot} color={PALETTE.furCream} z={0} outline={1.15} />
           </group>
           <group ref={footRRef} position={[0.18, 0.1, 0.03]}>
-            <Part geometry={geo.foot} color={PALETTE.kittyWhite} z={0} outline={1.15} />
+            <Part geometry={geo.foot} color={PALETTE.furCream} z={0} outline={1.15} />
           </group>
 
-          {/* dress */}
-          <Part geometry={geo.dress} color={PALETTE.suitPink} z={0.12} outline={1.05} />
+          {/* romper */}
+          <Part geometry={geo.body} color={PALETTE.suitRose} z={0.12} outline={1.05} />
 
           {/* arms pivot at the shoulder */}
-          <group ref={armLRef} position={[-0.62, 0.92, 0]}>
-            <Part geometry={geo.arm} color={PALETTE.kittyWhite} z={0.16} outline={1.14} />
+          <group ref={armLRef} position={[-0.58, 0.9, 0]}>
+            <Part geometry={geo.arm} color={PALETTE.furCream} z={0.16} outline={1.14} />
           </group>
-          <group ref={armRRef} position={[0.62, 0.92, 0]}>
-            <Part geometry={geo.arm} color={PALETTE.kittyWhite} z={0.16} outline={1.14} />
+          <group ref={armRRef} position={[0.58, 0.9, 0]}>
+            <Part geometry={geo.arm} color={PALETTE.furCream} z={0.16} outline={1.14} />
+          </group>
+
+          {/* scarf: wrap + knot + two streaming tails. Sits above the body,
+              below the head. The two tails stream to the back-left; scarfLift
+              flattens them behind her during the dash. */}
+          <group ref={scarfRef} position={[0, 1.02, 0.2]}>
+            {/* streaming tails (behind the wrap) */}
+            <group ref={scarfTailLRef} position={[-0.28, -0.02, -0.02]}>
+              <Part geometry={geo.scarfTail} color={PALETTE.scarfCoral} z={0} outline={1.12} />
+            </group>
+            <group ref={scarfTailRRef} position={[-0.22, -0.08, -0.04]}>
+              <Part geometry={geo.scarfTail} color={PALETTE.scarfCoral} z={0} outline={1.12} />
+            </group>
+            {/* wrap band across the neck */}
+            <Part geometry={geo.scarfBand} color={PALETTE.scarfCoral} z={0.03} outline={1.08} />
+            {/* knot */}
+            <Part
+              geometry={geo.scarfKnot}
+              color={PALETTE.scarfDeep}
+              z={0.05}
+              position={[-0.16, 0]}
+              outline={1.16}
+            />
           </group>
 
           {/* head */}
           <group ref={headRef} position={[0, 1.5, 0]}>
-            <group ref={earLRef} position={[-0.58, 0.52, 0.15]}>
-              <Part geometry={geo.ear} color={PALETTE.kittyWhite} z={0} outline={1.12} />
+            {/* tall upright ears (behind the head), each with a rose inner ear */}
+            <group ref={earLRef} position={[-0.42, 0.72, 0.15]}>
+              <Part geometry={geo.ear} color={PALETTE.furCream} z={0} outline={1.12} />
+              <Part
+                geometry={geo.earInner}
+                color={PALETTE.scarfDeep}
+                z={0.012}
+                scale={0.5}
+                position={[0, 0.05]}
+              />
             </group>
-            <group ref={earRRef} position={[0.58, 0.52, 0.15]}>
-              <Part geometry={geo.ear} color={PALETTE.kittyWhite} z={0} outline={1.12} />
+            <group ref={earRRef} position={[0.42, 0.72, 0.15]}>
+              <Part geometry={geo.ear} color={PALETTE.furCream} z={0} outline={1.12} />
+              <Part
+                geometry={geo.earInner}
+                color={PALETTE.scarfDeep}
+                z={0.012}
+                scale={0.5}
+                position={[0, 0.05]}
+              />
             </group>
-            <Part geometry={geo.head} color={PALETTE.kittyWhite} z={0.22} outline={1.045} />
 
-            <mesh
-              ref={eyeLRef}
-              geometry={geo.eye}
-              position={[-0.4, 0.06, 0.27]}
-            >
+            {/* near-round head */}
+            <Part geometry={geo.head} color={PALETTE.furCream} z={0.22} outline={1.045} />
+
+            {/* eyes (blink via scale.y) */}
+            <mesh ref={eyeLRef} geometry={geo.eye} position={[-0.38, 0.08, 0.27]}>
               <meshBasicMaterial color={PALETTE.eyeInk} />
             </mesh>
-            <mesh
-              ref={eyeRRef}
-              geometry={geo.eye}
-              position={[0.4, 0.06, 0.27]}
-            >
+            <mesh ref={eyeRRef} geometry={geo.eye} position={[0.38, 0.08, 0.27]}>
               <meshBasicMaterial color={PALETTE.eyeInk} />
             </mesh>
-            <mesh geometry={geo.nose} position={[0, -0.16, 0.27]}>
-              <meshBasicMaterial color={PALETTE.noseYellow} />
-            </mesh>
-            <mesh geometry={geo.cheek} position={[-0.68, -0.22, 0.26]}>
-              <meshBasicMaterial color={PALETTE.cheek} />
-            </mesh>
-            <mesh geometry={geo.cheek} position={[0.68, -0.22, 0.26]}>
-              <meshBasicMaterial color={PALETTE.cheek} />
-            </mesh>
-            {[-1, 1].map((side) =>
-              [0.18, 0.02, -0.14].map((y, i) => (
-                <mesh
-                  key={`${side}:${i}`}
-                  geometry={geo.whisker}
-                  position={[side * 0.88, y, 0.27]}
-                  rotation={[0, 0, side * (0.08 - i * 0.08)]}
-                >
-                  <meshBasicMaterial color={PALETTE.outlineInk} />
-                </mesh>
-              )),
-            )}
 
-            {/* bow */}
-            <group ref={bowRef} position={[0.52, 0.66, 0.32]}>
-              <Part
-                geometry={geo.bowLoop}
-                color={PALETTE.bowRed}
-                z={0.004}
-                position={[-0.3, 0]}
-                rotation={0.45}
-                outline={1.12}
-              />
-              <Part
-                geometry={geo.bowLoop}
-                color={PALETTE.bowRed}
-                z={0.004}
-                position={[0.3, 0]}
-                rotation={-0.45}
-                outline={1.12}
-              />
-              <Part
-                geometry={geo.bowKnot}
-                color={PALETTE.bowDeep}
-                z={0.016}
-                outline={1.18}
-              />
-            </group>
+            {/* berry-rose triangle nose */}
+            <mesh geometry={geo.nose} position={[0, -0.12, 0.27]}>
+              <meshBasicMaterial color={PALETTE.noseBerry} />
+            </mesh>
+
+            {/* gentle smile (widens on happyT) */}
+            <mesh ref={smileRef} geometry={geo.smile} position={[0, -0.32, 0.28]}>
+              <meshBasicMaterial color={PALETTE.outlineInk} />
+            </mesh>
+
+            {/* cheeks */}
+            <mesh geometry={geo.cheek} position={[-0.6, -0.24, 0.26]}>
+              <meshBasicMaterial color={PALETTE.cheek} />
+            </mesh>
+            <mesh geometry={geo.cheek} position={[0.6, -0.24, 0.26]}>
+              <meshBasicMaterial color={PALETTE.cheek} />
+            </mesh>
           </group>
         </group>
       </group>

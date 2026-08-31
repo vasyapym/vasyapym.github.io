@@ -2,16 +2,17 @@
 // pure modules stay free of three.js. The scene wraps these in THREE.Color.
 
 export const PALETTE = {
-  kittyWhite: "#ffffff",
-  outlineInk: "#3a3142",
-  bowRed: "#e94f64",
-  bowDeep: "#d13a50",
-  suitPink: "#f6a9c0",
-  suitDeep: "#e88bab",
-  noseYellow: "#ffd44d",
-  cheek: "#ffc9d8",
-  eyeInk: "#3a3142",
+  // --- character (Momo): one warm coral/rose/berry accent family ---
+  furCream: "#fdf7f2",
+  outlineInk: "#3a2f3a",
+  eyeInk: "#3a2f3a", // same ink as outline: not split
+  scarfCoral: "#ff8fa3",
+  scarfDeep: "#ef6d86",
+  suitRose: "#f4a7bd",
+  noseBerry: "#e56a86",
+  cheek: "#ffc4d3",
 
+  // --- scene keys: frozen, byte-identical ---
   skyTop: "#9fd9f6",
   skyBottom: "#ffeff5",
   cloud: "#ffffff",

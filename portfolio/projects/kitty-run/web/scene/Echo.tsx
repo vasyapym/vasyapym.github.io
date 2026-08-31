@@ -23,14 +23,14 @@ const ECHO_OPACITY = 0.66;
 
 // The restyle: every rig colour maps into one dusty-rose family pulled
 // toward the scene's own pinks, so the copy reads as a faded print of
-// Kitty rather than a second one — and never as the icy specter the old
+// Momo rather than a second one — and never as the icy specter the old
 // blue-white tint made of her.
 const FADED: Record<string, string> = {
-  [PALETTE.kittyWhite]: "#f9f2f6",
-  [PALETTE.suitPink]: "#f0d3e0",
-  [PALETTE.bowRed]: "#e3b3c7",
-  [PALETTE.bowDeep]: "#dca6bd",
-  [PALETTE.noseYellow]: "#f1e4d4",
+  [PALETTE.furCream]: "#f9f2f6",
+  [PALETTE.suitRose]: "#f0d3e0",
+  [PALETTE.scarfCoral]: "#e8b8c9",
+  [PALETTE.scarfDeep]: "#dca6bd",
+  [PALETTE.noseBerry]: "#dba7bc",
   [PALETTE.cheek]: "#eed3de",
   // outlineInk and eyeInk share one ink hex; both map here together.
   [PALETTE.outlineInk]: "#c49cb2",

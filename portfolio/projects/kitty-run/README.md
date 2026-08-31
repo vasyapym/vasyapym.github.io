@@ -1,10 +1,19 @@
 # Cat Runner
 
-A pastel endless runner for the portfolio shell. The cat runs on her own; you
-jump (twice for a double), dash through danger, and keep a three-heart meter
-alive. Hearts and big cross-hearts mend her; crates break her. Chain pickups
-into a combo multiplier for score — every hazard in the run can be cleared
-with a well-timed jump.
+A pastel endless runner for the portfolio shell. **Momo**, the dawn-delivery
+cat, runs on her own; you jump (twice for a double), dash through danger, and
+keep a three-heart meter alive. Hearts and big cross-hearts mend her; crates
+break her. Chain pickups into a combo multiplier for score — every hazard in
+the run can be cleared with a well-timed jump.
+
+Momo is an original character — a tiny courier cat who races the sunrise
+across pastel rooftops, dropping still-warm parcels on every doorstep before
+the town stirs. Her too-long knitted scarf trails behind her like a little
+comet. She is a deliberate homage to the minimalist kawaii-feline archetype:
+flat vector shapes, one crisp ink outline, a pastel accent family — with a
+fully distinct silhouette (tall upright ears, a visible smile, a curled tail
+and a streaming scarf instead of an ear bow) and an original name, so the
+inspiration reads while the trade dress stays someone else's.
 
 Three features carry the engineering story:
 
@@ -13,14 +22,18 @@ Three features carry the engineering story:
   sim, the echo sim, particles and the camera all scale from one delta,
   so the ghost race stays in exact lockstep through every slow-motion
   stretch. The lens breathes with the dip (FOV punch), a rose vignette
-  blooms from the clock depth, and speed lines tear past while the world
-  crawls.
+  blooms from the clock depth, speed lines tear past while the world
+  crawls — and the soundtrack dives with it.
 - **Adaptive soundtrack** — no audio files. A Web Audio lookahead
-  scheduler sequences a C–Am–F–G chiptune bed whose tempo follows the
-  run speed (96→132 bpm); arp, hats and kick gate in as speed and combo
-  build, a combo ≥ 8 adds a sparkle line, hits duck the bed, and
-  pause/mute fade it to silence. It shares one AudioContext and master
-  bus with the sound effects.
+  scheduler sequences an 8-bar A/B arrangement over a C–Am–F–G bed
+  (sparse verse, full-band chorus) whose tempo follows the run speed
+  (96→132 bpm). The bullet-time dash closes a low-pass filter over the
+  music and stretches the groove — the world audibly slows, then
+  resurfaces. At one heart the mix darkens (arp drops an octave, hats
+  mute, a low drone enters); a kick sidechain-pumps the bed; a combo ≥ 8
+  adds a sparkle line; hits duck the music; game-over resolves onto a
+  soft major tail. It shares one AudioContext and master bus with the
+  sound effects.
 - **Race your best-run echo** — a finished run is stored as seed plus
   timed inputs; a faded afterimage replays it on the very same track and
   gives chase once you open a lead. Same seed, same physics, same
@@ -30,10 +43,9 @@ Three features carry the engineering story:
 
 Standard `projects/*/project.ts` contract (`ProjectModule` descriptor +
 lazily loaded React page), so the landing page discovers it automatically;
-the route is `/projects/kitty-run`. Shell-side additions: the
-`.presentation-kitty-run` landing-card block and the `kitty` center mark
-(inline SVG of Kitty in `shell/src/shell/ProjectArtwork.tsx`) in
-`shell/src/styles.css`.
+the route is `/projects/kitty-run`. Shell-side addition: the
+`drawKitty` pastel-circuit canvas engine (dash trail + best-run ghost on an
+ellipse track) in `shell/src/shell/ProjectArtwork.tsx`.
 
 ## Controls
 
@@ -81,13 +93,17 @@ the route is `/projects/kitty-run`. Shell-side additions: the
   pin the dip depth (steerable, never a pause) and the recovery (wells
   back up well inside the dash cooldown).
 - **Adaptive soundtrack** — the music engine is a plain class driven from
-  the game loop: one `update(world, muted)` per frame eases the bed gain
-  and schedules any notes inside a 140 ms lookahead window. Tempo, layer
-  gates and the sparkle line are pure functions of live world state, so
-  the score follows the run rather than a timeline.
+  the game loop: one `update(world, muted)` per frame eases the bed gain,
+  sweeps the bullet-time filter and schedules any notes inside a 140 ms
+  lookahead window. Tempo, section rotation, the danger mix and the
+  sparkle line are pure functions of live world state, so the score
+  follows the run rather than a timeline. SFX ride the same context
+  through a DynamicsCompressorNode, with reusable noise buffers (no
+  per-call allocation) and rotating deterministic variations so repeated
+  sounds never machine-gun.
 - **Race your best-run echo** — a finished run is stored as its seed plus
   the timed input list; the next runs reuse that seed, so a soft, faded
-  afterimage of Kitty replays your finest hour on the very same track.
+  afterimage of Momo replays your finest hour on the very same track.
   The handicap is a distance, not a delay: she waits until you open a
   four-and-a-half-metre lead, then gives chase, and because both
   simulations run at the same speed the gap holds steady from launch to
@@ -121,17 +137,19 @@ the route is `/projects/kitty-run`. Shell-side additions: the
 ## Implementation notes
 
 - **Zero image assets** — the sky, clouds, hills, crate dots and the
-  particle sprite are canvas-generated textures; Kitty herself is
-  procedural vector art: `THREE.ShapeGeometry` parts (head, ears, bow,
-  dress, whiskers) with an ink copy grown behind each fill as an outline.
+  particle sprite are canvas-generated textures; Momo herself is
+  procedural vector art: `THREE.ShapeGeometry` parts (head, tall ears,
+  romper, tail, streaming scarf, smile) with an ink copy grown behind
+  each fill as an outline. She is drawn in code exactly so the homage
+  stays hand-made and the silhouette is ours.
 - **Responsive framing** — `web/lib/framing.ts` derives camera distance,
   field of view and the look target from the viewport aspect, guaranteeing
-  eleven world units of run-ahead on portrait phones (Kitty reads as a
+  eleven world units of run-ahead on portrait phones (Momo reads as a
   figure in the landscape, not a close-up); the DOM floaters project with
   the same function, so pop-ups track pickups on any screen, and the
   best-run echo clamps into the same span, so she is never drawn off
   stage.
-- **Depth discipline** — the camera near plane sits at 2 and the Kitty's
+- **Depth discipline** — the camera near plane sits at 2 and Momo's
   part layers are separated generously, because thin z offsets z-fight on
   16-bit mobile depth buffers and read as a see-through character. The
   best-run echo renders translucent with depth writes on, so its draw
@@ -143,11 +161,11 @@ the route is `/projects/kitty-run`. Shell-side additions: the
   for its fairness sweep while the browser autopilot runs the same module
   live. The demo cannot drift from the verification: they are one file.
 - **Contact shadow** — a soft canvas-texture ellipse rides `groundY()`
-  under the Kitty, tightening and fading as she climbs, so she lands *on*
+  under Momo, tightening and fading as she climbs, so she lands *on*
   the rolling ground at the pulled-back framing instead of floating over
   it.
 - **First impression** — the ready overlay is a light pastel wash, and its
-  paper card parks in the run-ahead space, so visitors see Kitty idling in
+  paper card parks in the run-ahead space, so visitors see Momo idling in
   her world the moment the page loads; pause and game-over keep the dark,
   focus-pulling treatment.
 - **Pure simulation** — `web/scene/step.ts` advances the whole run and only

@@ -1,6 +1,6 @@
-// Pure pose math for the procedural Kitty. Consumes the flat motion fields
-// from the world and produces every transform the visual component applies.
-// No three.js, no React — the node checks could pin this if needed.
+// Pure pose math for the procedural cat hero (Momo). Consumes the flat motion
+// fields from the world and produces every transform the visual component
+// applies. No three.js, no React — the node checks could pin this if needed.
 
 export type KittyMotionInput = {
   runPhase: number;
@@ -23,8 +23,12 @@ export type KittyPose = {
   headBobY: number;
   earL: number;
   earR: number;
-  bowRot: number;
-  bowScale: number;
+  tailSwing: number;
+  scarfSway: number;
+  scarfFlare: number;
+  scarfLift: number;
+  scarfBounce: number;
+  smileScale: number;
   eyeScaleY: number;
   armSwing: number;
   visible: boolean;
@@ -49,24 +53,42 @@ export function computePose(m: KittyMotionInput): KittyPose {
   const headRot = Math.sin(m.runPhase * 2) * 0.026 + tilt * 0.45;
   const headBobY = m.grounded ? Math.sin(m.runPhase * 2) * 0.018 : 0;
 
-  const earBase = m.dashT > 0 ? -0.34 : clamp(-m.vy * 0.018, -0.26, 0.3);
+  // Tall upright ears: pin back on the dash streak, perk up while rising
+  // (reads as an "ears up!" on the double jump).
+  const earBase = m.dashT > 0 ? -0.28 : clamp(-m.vy * 0.018, -0.24, 0.32);
   const earFlap = m.grounded
     ? Math.sin(m.runPhase - 0.8) * 0.085
     : Math.sin(m.now * 9) * 0.05;
 
-  const bowRot =
-    -headRot * 1.5 +
+  // Cat tail: strides with the run, lifts back on the dash, leans with tilt.
+  const tailSwing =
     (m.grounded
-      ? Math.sin(m.runPhase * 2 + 0.6) * 0.07
-      : clamp(-m.vy * 0.02, -0.24, 0.24));
-  const bowScale = 1 + m.happyT * 0.5 + Math.max(0, m.squash) * 0.18;
+      ? Math.sin(m.runPhase + 0.3) * 0.22
+      : Math.sin(m.now * 6) * 0.12) +
+    (m.dashT > 0 ? -0.45 : 0) +
+    tilt * 0.3;
 
+  // Signature scarf. sway = counter-rotate the wrap (as the old bow did);
+  // lift = how flat the tails stream during the dash; bounce = per-stride
+  // wiggle; flare = puff on heal flourish and landing squash.
+  const scarfSway =
+    -headRot * 1.2 +
+    (m.grounded
+      ? Math.sin(m.runPhase * 2 + 0.6) * 0.08
+      : clamp(-m.vy * 0.02, -0.22, 0.22));
+  const scarfFlare = 1 + m.happyT * 0.4 + Math.max(0, m.squash) * 0.15;
+  const scarfLift = clamp(m.dashT * 1.3, 0, 1);
+  const scarfBounce = m.grounded
+    ? Math.sin(m.runPhase * 2 - 0.4) * 0.12
+    : Math.sin(m.now * 7) * 0.08;
+
+  const smileScale = 1 + m.happyT * 0.6;
   const eyeScaleY = m.blinkShut > 0 ? 0.08 : 1 + m.happyT * 0.3;
 
   const armSwing = m.grounded ? -run * 0.5 : -0.55;
 
   // Invulnerability reads as a gentle blink, not a strobe: mostly on, with
-  // short dips. A fast full-invisible flicker made Kitty look like a ghost.
+  // short dips. A fast full-invisible flicker made her look like a ghost.
   const visible = m.invulnT <= 0 || Math.sin(m.now * 11) > -0.6;
 
   return {
@@ -78,8 +100,12 @@ export function computePose(m: KittyMotionInput): KittyPose {
     headBobY,
     earL: earBase + earFlap,
     earR: earBase + earFlap * 0.8,
-    bowRot,
-    bowScale,
+    tailSwing,
+    scarfSway,
+    scarfFlare,
+    scarfLift,
+    scarfBounce,
+    smileScale,
     eyeScaleY,
     armSwing,
     visible,
