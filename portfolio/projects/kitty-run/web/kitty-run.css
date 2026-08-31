@@ -60,7 +60,7 @@
   overflow: hidden;
   border: 1px solid var(--ink-line);
   border-radius: 0;
-  background: #ffeff5;
+  background: #1e1330;
   /* Touch hardening: swipes drive the game, never scroll/zoom the page,
      no text selection mid-dash, no tap flash on mobile browsers. */
   touch-action: none;
@@ -87,7 +87,7 @@
 
 .kitty-run-fallback-title {
   margin: 0;
-  color: rgba(74, 59, 82, 0.78);
+  color: #a7c7bd;
   font-family: var(--mono);
   font-size: 13px;
   letter-spacing: 0.05em;
@@ -122,8 +122,8 @@
   width: 34px;
   height: 34px;
   border-radius: 999px;
-  border: 1px solid rgba(74, 59, 82, 0.22);
-  background: rgba(255, 248, 251, 0.82);
+  border: 1px solid #3a2b54;
+  background: rgba(36, 26, 46, 0.82);
   cursor: pointer;
   pointer-events: auto;
   transition: transform 0.14s ease, background 0.14s ease;
@@ -137,7 +137,7 @@
   width: 4px;
   height: 15px;
   border-radius: 2px;
-  background: #4a3b52;
+  background: #eafff5;
 }
 
 .kitty-run-pause::before {
@@ -149,14 +149,14 @@
 }
 
 .kitty-run-pause:hover {
-  background: #fff8fb;
+  background: #2e2140;
   transform: scale(1.06);
 }
 
 .kitty-run-heart {
   width: 26px;
   height: 24px;
-  background: #ff5f7e;
+  background: #ff5f8f;
   clip-path: path(
     "M13 23 C13 23 1 15.5 1 8.5 C1 4 4.5 1 8 1 C10.5 1 12.3 2.4 13 4 C13.7 2.4 15.5 1 18 1 C21.5 1 25 4 25 8.5 C25 15.5 13 23 13 23 Z"
   );
@@ -187,14 +187,14 @@
   flex-direction: column;
   align-items: flex-end;
   gap: 2px;
-  color: #4a3b52;
+  color: #eafff5;
 }
 
 .kitty-run-score {
   font-size: 28px;
   font-weight: 700;
   letter-spacing: 0.02em;
-  text-shadow: 0 1px 0 rgba(255, 255, 255, 0.8);
+  text-shadow: 0 1px 3px rgba(0, 0, 0, 0.45);
   font-variant-numeric: tabular-nums;
 }
 
@@ -216,7 +216,7 @@
 .kitty-run-combo span {
   font-size: 20px;
   font-weight: 800;
-  color: #e94f64;
+  color: #5fe6c0;
   opacity: 0;
   transition: opacity 0.15s ease, transform 0.15s ease;
   transform: translateY(4px);
@@ -231,14 +231,14 @@
   width: 92px;
   height: 5px;
   border-radius: 3px;
-  background: rgba(74, 59, 82, 0.14);
+  background: rgba(58, 43, 84, 0.4);
   overflow: hidden;
 }
 
 .kitty-run-combo-bar {
   height: 100%;
   border-radius: 3px;
-  background: #e94f64;
+  background: #5fe6c0;
   transform-origin: left center;
   transform: scaleX(0);
 }
@@ -255,10 +255,10 @@
   font-size: clamp(30px, 4.4vw, 46px);
   font-weight: 700;
   letter-spacing: -0.01em;
-  color: #e94f64;
+  color: #ff5f8f;
   text-shadow:
-    0 1px 0 rgba(255, 255, 255, 0.85),
-    0 6px 18px rgba(233, 79, 100, 0.35);
+    0 0 18px rgba(255, 179, 208, 0.45),
+    0 6px 22px rgba(255, 95, 143, 0.4);
   opacity: 0;
   pointer-events: none;
 }
@@ -275,14 +275,14 @@
   height: 66px;
   border-radius: 999px;
   border: none;
-  background: rgba(255, 248, 251, 0.9);
-  color: #d13a50;
+  background: rgba(36, 26, 46, 0.9);
+  color: #5fe6c0;
   font-family: var(--mono);
   font-size: 13px;
   font-weight: 700;
   letter-spacing: 0.09em;
   text-transform: uppercase;
-  box-shadow: 0 4px 14px rgba(138, 60, 84, 0.25);
+  box-shadow: 0 4px 14px rgba(11, 7, 20, 0.5);
   pointer-events: auto;
   cursor: pointer;
   touch-action: manipulation;
@@ -295,15 +295,15 @@
   inset: -6px;
   border-radius: 50%;
   background: conic-gradient(
-    #e94f64 calc((1 - var(--cd, 0)) * 360deg),
-    rgba(74, 59, 82, 0.16) 0
+    #5fe6c0 calc((1 - var(--cd, 0)) * 360deg),
+    rgba(58, 43, 84, 0.5) 0
   );
   -webkit-mask: radial-gradient(farthest-side, transparent calc(100% - 5px), #000 calc(100% - 4px));
   mask: radial-gradient(farthest-side, transparent calc(100% - 5px), #000 calc(100% - 4px));
 }
 
 .kitty-run-dash:hover {
-  background: #fff8fb;
+  background: #2e2140;
   transform: scale(1.05);
 }
 
@@ -312,22 +312,22 @@
 }
 
 .kitty-run-dash.is-cooling {
-  color: rgba(209, 58, 80, 0.45);
-  background: rgba(255, 248, 251, 0.62);
+  color: rgba(95, 230, 192, 0.4);
+  background: rgba(36, 26, 46, 0.62);
 }
 
 /* Autopilot chip: mirrors the dash pad on the bottom edge while the bot
-   drives; tapping it hands control back to the visitor mid-run. Bow-red,
-   so every tappable control shares one accent family. */
+   drives; tapping it hands control back to the visitor mid-run. Mint —
+   Vesper's wisp — so every tappable "go" control shares one accent family. */
 .kitty-run-pilotchip {
   position: absolute;
   right: 24px;
   bottom: 20px;
   padding: 8px 14px;
   border-radius: 999px;
-  border: 1px solid rgba(255, 255, 255, 0.28);
-  background: rgba(209, 58, 80, 0.92);
-  color: #fff6f0;
+  border: 1px solid rgba(95, 230, 192, 0.5);
+  background: rgba(95, 230, 192, 0.92);
+  color: #1e1330;
   font-family: var(--mono);
   font-size: 11.5px;
   font-weight: 500;
@@ -339,22 +339,23 @@
 }
 
 .kitty-run-pilotchip:hover {
-  background: rgba(209, 58, 80, 1);
+  background: rgba(95, 230, 192, 1);
   transform: scale(1.04);
 }
 
-/* Bullet-time vignette: a rose wash that blooms from the edges while the
-   dash holds the clock down. Opacity is written every frame by the game
-   loop from world.timeScale, so it blooms and recedes with the dip. */
+/* Bullet-time vignette: a rose glow with a hint of grape that blooms from
+   the edges while the dash holds the clock down. Screen-blend so it reads
+   as light bloom over the dark world. Opacity is written every frame by the
+   game loop from world.timeScale, so it blooms and recedes with the dip. */
 .kitty-run-bullet {
   position: absolute;
   inset: 0;
   pointer-events: none;
   opacity: 0;
   background:
-    radial-gradient(ellipse at 50% 55%, transparent 46%, rgba(233, 79, 100, 0.32) 100%),
-    radial-gradient(ellipse at 50% 55%, transparent 72%, rgba(209, 58, 80, 0.2) 100%);
-  mix-blend-mode: multiply;
+    radial-gradient(ellipse at 50% 55%, transparent 46%, rgba(255, 95, 143, 0.34) 100%),
+    radial-gradient(ellipse at 50% 55%, transparent 72%, rgba(198, 163, 238, 0.22) 100%);
+  mix-blend-mode: screen;
 }
 
 /* --- floaters ------------------------------------------------------------ */
@@ -371,26 +372,26 @@
   font-size: 17px;
   font-weight: 800;
   opacity: 0;
-  color: #e94f64;
-  text-shadow: 0 1px 0 rgba(255, 255, 255, 0.85);
+  color: #ff5f8f;
+  text-shadow: 0 1px 3px rgba(0, 0, 0, 0.45);
   will-change: left, top, opacity, transform;
 }
 
 .kitty-run-floater-star {
-  color: #d9a400;
+  color: #ffd84d;
 }
 
 .kitty-run-floater-heal {
-  color: #e8455f;
+  color: #ff6a9c;
   font-size: 21px;
 }
 
 .kitty-run-floater-bonus {
-  color: #d9a400;
+  color: #ffd84d;
 }
 
 .kitty-run-floater-hurt {
-  color: #63507f;
+  color: #c6a3ee;
   font-size: 20px;
 }
 
@@ -402,7 +403,7 @@
   display: grid;
   place-items: center;
   padding: 16px;
-  background: rgba(11, 19, 23, 0.55);
+  background: rgba(15, 9, 24, 0.55);
   backdrop-filter: blur(3px);
 }
 
@@ -414,7 +415,7 @@
   padding: 30px 42px;
   border: 1px solid var(--ink-line);
   border-radius: 0;
-  background: rgba(11, 19, 23, 0.85);
+  background: rgba(30, 19, 48, 0.85);
   cursor: pointer;
   font-family: inherit;
   color: var(--ink-text);
@@ -425,26 +426,29 @@
   border-color: var(--ink-accent);
 }
 
-/* The ready state is the shop window: a light pastel wash instead of the
-   dark scrim, so visitors see Kitty idling in her world behind the card.
-   The card parks in the run-ahead space (right third), leaving Kitty —
+/* The ready state is the shop window: a low plum wash instead of the full
+   dark scrim, so visitors see Vesper idling in her moonlit world behind the
+   card. The card parks in the run-ahead space (right third), leaving Vesper —
    who idles at her lead position on the left — fully in view. */
 .kitty-run-overlay--ready {
   place-items: center end;
   padding-right: 11%;
-  background: rgba(255, 243, 248, 0.34);
+  background: rgba(15, 9, 24, 0.3);
   backdrop-filter: blur(2px);
 }
 
+/* The wish-card: a bottled-wish label — plum surface a touch lighter than
+   the scrim, plum hairline, plum glow shadow. Enough lift to not read as a
+   hole punched in the world. */
 .kitty-run-card--ready {
-  border: 1px solid #f2cfdd;
-  background: rgba(255, 248, 251, 0.94);
-  color: #4a3b52;
-  box-shadow: 0 18px 44px rgba(138, 111, 168, 0.28);
+  border: 1px solid #3a2b54;
+  background: rgba(36, 26, 46, 0.92);
+  color: #eafff5;
+  box-shadow: 0 18px 44px rgba(11, 7, 20, 0.55);
 }
 
 .kitty-run-card--ready:hover {
-  border-color: #e88bab;
+  border-color: #5fe6c0;
 }
 
 @media (prefers-reduced-motion: no-preference) {
@@ -467,7 +471,7 @@
   gap: 12px;
 }
 
-/* Autopilot invitation: a quieter paper pill under the start card. It
+/* Autopilot invitation: a quieter plum pill under the wish-card. It
    sells the engineering story in one line — the same lookahead bot that
    verifies every generated track plays the live game on request. */
 .kitty-run-watch {
@@ -477,10 +481,10 @@
   gap: 3px;
   max-width: min(430px, 100%);
   padding: 10px 22px;
-  border: 1px solid #f2cfdd;
+  border: 1px solid #3a2b54;
   border-radius: 999px;
-  background: rgba(255, 248, 251, 0.85);
-  color: #4a3b52;
+  background: rgba(36, 26, 46, 0.85);
+  color: #eafff5;
   cursor: pointer;
   font-family: var(--mono);
   text-align: center;
@@ -488,8 +492,8 @@
 }
 
 .kitty-run-watch:hover {
-  border-color: #e88bab;
-  background: #fff8fb;
+  border-color: #5fe6c0;
+  background: #2e2140;
 }
 
 .kitty-run-watch-title {
@@ -497,13 +501,13 @@
   font-weight: 700;
   letter-spacing: 0.07em;
   text-transform: uppercase;
-  color: #d13a50;
+  color: #5fe6c0;
 }
 
 .kitty-run-watch-hint {
   font-size: 11px;
   letter-spacing: 0.04em;
-  color: #8a6f7e;
+  color: #a7c7bd;
 }
 
 .kitty-run-card-kicker {
@@ -517,8 +521,8 @@
 .kitty-run-card-badge {
   padding: 5px 14px;
   border-radius: 999px;
-  background: var(--ink-accent-bright, #e94f64);
-  color: #fff8fb;
+  background: var(--ink-accent-bright, #ff5f8f);
+  color: #1e1330;
   font-family: var(--mono);
   font-size: 12px;
   font-weight: 700;
@@ -532,25 +536,25 @@
   to { transform: scale(1); opacity: 1; }
 }
 
-/* Echo line on the ready/over cards: the same bow-red accent family as
+/* Echo line on the ready/over cards: the same rose-heart accent family as
    the in-run HUD, so race notes read as part of the game, not a widget. */
 .kitty-run-card-echo {
   padding: 5px 14px;
   border-radius: 999px;
-  border: 1px solid rgba(233, 79, 100, 0.4);
-  background: rgba(233, 79, 100, 0.16);
-  color: #ffc9d6;
+  border: 1px solid rgba(255, 95, 143, 0.4);
+  background: rgba(255, 95, 143, 0.16);
+  color: #ffb3d0;
   font-family: var(--mono);
   font-size: 11.5px;
   letter-spacing: 0.05em;
   font-variant-numeric: tabular-nums;
 }
 
-/* On the paper ready card the pill flips to rose-on-light. */
+/* On the plum wish-card the pill keeps rose-on-dark, just a hair softer. */
 .kitty-run-card--ready .kitty-run-card-echo {
-  border-color: rgba(209, 58, 80, 0.26);
-  background: rgba(233, 79, 100, 0.08);
-  color: #b23248;
+  border-color: rgba(255, 95, 143, 0.4);
+  background: rgba(255, 95, 143, 0.14);
+  color: #ffb3d0;
 }
 
 .kitty-run-card-title {
@@ -594,22 +598,22 @@
   background: var(--ink-accent-bright);
 }
 
-/* Ready card children: ink on paper, bow-red action. */
+/* Wish-card children: mint-white on plum, mint kicker, rose action. */
 .kitty-run-card--ready .kitty-run-card-kicker {
-  color: #e8455f;
+  color: #5fe6c0;
 }
 
 .kitty-run-card--ready .kitty-run-card-hint {
-  color: #8a6f7e;
+  color: #a7c7bd;
 }
 
 .kitty-run-card--ready .kitty-run-card-action {
-  background: #e94f64;
-  color: #fff8fb;
+  background: #ff5f8f;
+  color: #1e1330;
 }
 
 .kitty-run-card--ready:hover .kitty-run-card-action {
-  background: #d13a50;
+  background: #ffb3d0;
 }
 
 .kitty-run-debug {
@@ -617,7 +621,7 @@
   left: 24px;
   bottom: 18px;
   font-size: 12px;
-  color: #4a3b52;
+  color: #a7c7bd;
   opacity: 0;
   pointer-events: none;
   font-variant-numeric: tabular-nums;
@@ -688,8 +692,8 @@
     padding: 16px;
   }
 
-  /* Small screens centre the ready card again: there is no room to park
-     it beside Kitty without pushing it off stage. */
+  /* Small screens centre the wish-card again: there is no room to park
+     it beside Vesper without pushing it off stage. */
   .kitty-run-overlay--ready {
     place-items: center;
     padding-right: 16px;

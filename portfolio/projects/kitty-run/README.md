@@ -1,19 +1,21 @@
 # Cat Runner
 
-A pastel endless runner for the portfolio shell. **Momo**, the dawn-delivery
-cat, runs on her own; you jump (twice for a double), dash through danger, and
-keep a three-heart meter alive. Hearts and big cross-hearts mend her; crates
-break her. Chain pickups into a combo multiplier for score — every hazard in
-the run can be cleared with a well-timed jump.
+A candy-goth endless runner for the portfolio shell. **Vesper**, the
+wish-thief, runs on her own; you jump (twice for a double), dash through
+danger, and keep a three-heart meter alive. Hearts and big cross-hearts mend
+her; crates break her. Chain pickups into a combo multiplier for score —
+every hazard in the run can be cleared with a well-timed jump.
 
-Momo is an original character — a tiny courier cat who races the sunrise
-across pastel rooftops, dropping still-warm parcels on every doorstep before
-the town stirs. Her too-long knitted scarf trails behind her like a little
-comet. She is a deliberate homage to the minimalist kawaii-feline archetype:
-flat vector shapes, one crisp ink outline, a pastel accent family — with a
-fully distinct silhouette (tall upright ears, a visible smile, a curled tail
-and a streaming scarf instead of an ear bow) and an original name, so the
-inspiration reads while the trade dress stays someone else's.
+Vesper is an original character — a tiny dusk-cat who prowls a moonlit plum
+night, gathering the little wishes people mutter and forget and corking them
+into glowing mint wisps. She grins (two tiny fangs) because she is never
+giving them back — but she will keep them safe forever, which is the kindest
+theft there is. She is a deliberate homage to the gothic-cute archetype: flat
+vector shapes, one crisp ink outline, a single spectral-mint accent — with a
+fully distinct silhouette (a chipped ear, a cheshire grin with fangs, sly
+half-lidded eyes, a tattered bat-capelet and a wisp-light tail) and an
+original name, so the archetype reads while every existing mascot's trade
+dress stays someone else's.
 
 Three features carry the engineering story:
 
@@ -102,8 +104,8 @@ ellipse track) in `shell/src/shell/ProjectArtwork.tsx`.
   per-call allocation) and rotating deterministic variations so repeated
   sounds never machine-gun.
 - **Race your best-run echo** — a finished run is stored as its seed plus
-  the timed input list; the next runs reuse that seed, so a soft, faded
-  afterimage of Momo replays your finest hour on the very same track.
+  the timed input list; the next runs reuse that seed, so a faded spectral
+  afterimage of Vesper replays your finest hour on the very same track.
   The handicap is a distance, not a delay: she waits until you open a
   four-and-a-half-metre lead, then gives chase, and because both
   simulations run at the same speed the gap holds steady from launch to
@@ -111,8 +113,8 @@ ellipse track) in `shell/src/shell/ProjectArtwork.tsx`.
   even a big late-run lead never pushes her off a phone screen — and when
   that clamp seats her next to the player she eases back only to half
   strength, so the race stays readable everywhere. The restyle maps her
-  into one dusty-rose family with no aura and no pulse: a watercolour
-  memory of a run, not a haunting. Beat her score and
+  into one pale spectral-mint family with no aura and no pulse: a ghostly
+  wisp-memory of a run. Beat her score and
   she is replaced. The sanitizer rejects corrupt or stale storage entries.
 - **Autopilot: watch it play itself** — the ready card offers a second
   button that hands the run to the lookahead pilot from `web/lib/pilot.ts`
@@ -136,15 +138,15 @@ ellipse track) in `shell/src/shell/ProjectArtwork.tsx`.
 
 ## Implementation notes
 
-- **Zero image assets** — the sky, clouds, hills, crate dots and the
-  particle sprite are canvas-generated textures; Momo herself is
-  procedural vector art: `THREE.ShapeGeometry` parts (head, tall ears,
-  romper, tail, streaming scarf, smile) with an ink copy grown behind
-  each fill as an outline. She is drawn in code exactly so the homage
-  stays hand-made and the silhouette is ours.
+- **Zero image assets** — the sky, moon, clouds, hills, crate dots and the
+  particle sprite are canvas-generated textures; Vesper herself is
+  procedural vector art: `THREE.ShapeGeometry` parts (head, tall ears — one
+  chipped, tattered romper, capelet tails, wisp tail, grin with fangs) with
+  an ink copy grown behind each fill as an outline. She is drawn in code
+  exactly so the character stays hand-made and the silhouette is ours.
 - **Responsive framing** — `web/lib/framing.ts` derives camera distance,
   field of view and the look target from the viewport aspect, guaranteeing
-  eleven world units of run-ahead on portrait phones (Momo reads as a
+  eleven world units of run-ahead on portrait phones (Vesper reads as a
   figure in the landscape, not a close-up); the DOM floaters project with
   the same function, so pop-ups track pickups on any screen, and the
   best-run echo clamps into the same span, so she is never drawn off
@@ -161,13 +163,13 @@ ellipse track) in `shell/src/shell/ProjectArtwork.tsx`.
   for its fairness sweep while the browser autopilot runs the same module
   live. The demo cannot drift from the verification: they are one file.
 - **Contact shadow** — a soft canvas-texture ellipse rides `groundY()`
-  under Momo, tightening and fading as she climbs, so she lands *on*
+  under Vesper, tightening and fading as she climbs, so she lands *on*
   the rolling ground at the pulled-back framing instead of floating over
   it.
-- **First impression** — the ready overlay is a light pastel wash, and its
-  paper card parks in the run-ahead space, so visitors see Momo idling in
-  her world the moment the page loads; pause and game-over keep the dark,
-  focus-pulling treatment.
+- **First impression** — the ready overlay is a low plum wash, and its
+   wish-card parks in the run-ahead space, so visitors see Vesper idling in
+   her moonlit world the moment the page loads; pause and game-over keep the
+   darker, focus-pulling treatment.
 - **Pure simulation** — `web/scene/step.ts` advances the whole run and only
   touches plain data from `web/scene/world.ts`; rendering components read
   the world in their own `useFrame`. React never re-renders for gameplay;

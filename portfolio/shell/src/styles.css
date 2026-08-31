@@ -434,13 +434,15 @@ textarea:focus-visible {
 }
 
 
-/* Per-card identity hues (one hue per project — §3). CSS-only, no TSX. */
-#project-raft-cluster.signal-index-card { --card-accent: #4ea3ff;}
-#project-kitty-run.signal-index-card { --card-accent: #e08aa0;}
-#project-evening-forest.signal-index-card { --card-accent: #ffb45e;}
-#project-explosion.signal-index-card { --card-accent: #ff8a3c;}
-#project-planck-to-now.signal-index-card { --card-accent: #ffd39a;}
-#project-practice-map.signal-index-card { --card-accent: #cf9d63;}
+/* Per-card identity hues (one hue per project — §3). CSS-only, no TSX.
+   Card-art retune (parallel session): muted hues, except kitty-run which
+   carries the candy-goth pivot's spectral mint. */
+#project-raft-cluster.signal-index-card { --card-accent: #6f93ad;}
+#project-kitty-run.signal-index-card { --card-accent: #5fe6c0;}
+#project-evening-forest.signal-index-card { --card-accent: #d99e63;}
+#project-explosion.signal-index-card { --card-accent: #d18a54;}
+#project-planck-to-now.signal-index-card { --card-accent: #d8b98e;}
+#project-practice-map.signal-index-card { --card-accent: #b58e63;}
 
 
 .signal-index-card {

@@ -2,9 +2,12 @@ import { useEffect, useRef } from "react";
 import type { ProjectModule } from "../../../contracts/project-module";
 
 /* ------------------------------------------------------------------ *
- * Shared render language: sparse, opaque, discrete marks on a deep-ink
- * field. One identity hue per card. Hand-rolled Canvas2D, no WebGL,
- * no blur. Each card runs its own cheap, self-driven system.
+ * Shared render language — "one subject on warm air". Each card obeys
+ * six laws: a single focal mass at (0.52,0.44); ≤3 alpha tiers; one
+ * slow continuous motion + ≤1 periodic event; a LOCAL Bayer-4×4 dither
+ * halo tied to the subject (the hero's ordered-dither signature, never
+ * full-bleed); a caption-safe bottom-left zone. Muted per-card accents
+ * derived toward the hero ramp; discrete Canvas2D marks, no blur.
  * ------------------------------------------------------------------ */
 
 const INK_RGB = "238, 234, 224";
@@ -47,87 +50,127 @@ const hexToRgb = (hex: string): string => {
   return `${r}, ${g}, ${b}`;
 };
 
+/* ---- shared focal shading: local ordered (Bayer 4x4) dither halo ---- */
+
+const BAYER4 = [
+  0, 8, 2, 10, 12, 4, 14, 6, 3, 11, 1, 9, 15, 7, 13, 5,
+];
+
+const ditherHalo = (
+  ctx: CanvasRenderingContext2D,
+  cx: number,
+  cy: number,
+  radius: number,
+  strength: number,
+  color: (a: number) => string,
+  cell = 2.8,
+): void => {
+  if (radius <= 0 || strength <= 0) return;
+  const r2 = radius * radius;
+  const gx0 = Math.floor((cx - radius) / cell);
+  const gx1 = Math.ceil((cx + radius) / cell);
+  const gy0 = Math.floor((cy - radius) / cell);
+  const gy1 = Math.ceil((cy + radius) / cell);
+  const sq = cell * 0.72;
+  for (let gy = gy0; gy <= gy1; gy++) {
+    for (let gx = gx0; gx <= gx1; gx++) {
+      const px = gx * cell + cell * 0.5;
+      const py = gy * cell + cell * 0.5;
+      const dx = px - cx;
+      const dy = (py - cy) / 0.82;
+      const dd = dx * dx + dy * dy;
+      if (dd > r2) continue;
+      const intensity = (1 - Math.sqrt(dd) / radius) * strength;
+      const bi = (((gy % 4) + 4) % 4) * 4 + (((gx % 4) + 4) % 4);
+      const th = (BAYER4[bi] + 0.5) / 16;
+      if (intensity <= th) continue;
+      const a = 0.08 + 0.3 * (intensity - th);
+      ctx.fillStyle = color(a);
+      ctx.fillRect(px - sq / 2, py - sq / 2, sq, sq);
+    }
+  }
+};
+
 /* ------------------------------- 01 raft-cluster ------------------- */
 
-const RAFT_NODES: ReadonlyArray<readonly [number, number]> = [
-  [0.2, 0.32],
-  [0.5, 0.2],
-  [0.8, 0.33],
-  [0.68, 0.75],
-  [0.3, 0.74],
+const RAFT_FOLLOWERS: ReadonlyArray<readonly [number, number]> = [
+  [-0.95, -0.5],
+  [0.9, -0.62],
+  [1.0, 0.48],
+  [-0.7, 0.66],
 ];
 
 const drawRaft: DrawFn = (ctx, w, h, t, p) => {
-  const n = RAFT_NODES.length;
-  const pts = RAFT_NODES.map(([nx, ny]) => [nx * w, ny * h] as const);
-  const term = 6.4;
-  const leader = (Math.floor(t / term) % n + n) % n;
+  const ax = w * 0.52;
+  const ay = h * 0.44;
+  const r = Math.min(w, h) * 0.34;
+  const term = 6.5;
   const tp = (t % term) / term;
-  const electing = tp < 0.14;
-  const settle = electing ? tp / 0.14 : 1;
+  const electing = tp < 0.18;
+  const beat = electing ? Math.sin((tp / 0.18) * Math.PI) : 0;
+
+  ditherHalo(ctx, ax, ay, r * 0.8, 0.55 + 0.3 * beat, p.acc, 3);
 
   ctx.lineWidth = 1;
-  ctx.strokeStyle = p.ink(0.12);
-  for (let i = 0; i < n; i++) {
-    if (i === leader) continue;
+  for (let i = 0; i < RAFT_FOLLOWERS.length; i++) {
+    const fx = ax + RAFT_FOLLOWERS[i][0] * r;
+    const fy = ay + RAFT_FOLLOWERS[i][1] * r * 0.8;
+    ctx.strokeStyle = p.ink(0.1 + 0.1 * beat);
     ctx.beginPath();
-    ctx.moveTo(pts[leader][0], pts[leader][1]);
-    ctx.lineTo(pts[i][0], pts[i][1]);
+    ctx.moveTo(ax, ay);
+    ctx.lineTo(fx, fy);
     ctx.stroke();
   }
 
-  if (!electing) {
-    for (let i = 0; i < n; i++) {
-      if (i === leader) continue;
-      const f = (t / 1.5 + frand(i + 1)) % 1;
-      const x = pts[leader][0] + (pts[i][0] - pts[leader][0]) * f;
-      const y = pts[leader][1] + (pts[i][1] - pts[leader][1]) * f;
-      ctx.fillStyle = p.acc(0.85 * (1 - f) + 0.15);
+  if (electing) {
+    const f = ease(tp / 0.18);
+    for (let i = 0; i < RAFT_FOLLOWERS.length; i++) {
+      const fx = ax + RAFT_FOLLOWERS[i][0] * r;
+      const fy = ay + RAFT_FOLLOWERS[i][1] * r * 0.8;
+      const px = ax + (fx - ax) * f;
+      const py = ay + (fy - ay) * f;
+      ctx.fillStyle = p.acc(0.5 * (1 - f) + 0.2);
       ctx.beginPath();
-      ctx.arc(x, y, 2, 0, Math.PI * 2);
+      ctx.arc(px, py, 1.8, 0, Math.PI * 2);
       ctx.fill();
     }
   }
 
-  for (let i = 0; i < n; i++) {
-    if (i === leader) continue;
-    const [x, y] = pts[i];
-    const blink = electing
-      ? 0.4 + 0.4 * (Math.sin(t * 22 + i) * 0.5 + 0.5)
-      : 0.55;
-    ctx.strokeStyle = p.ink(0.35);
+  for (let i = 0; i < RAFT_FOLLOWERS.length; i++) {
+    const fx = ax + RAFT_FOLLOWERS[i][0] * r;
+    const fy = ay + RAFT_FOLLOWERS[i][1] * r * 0.8;
+    ctx.strokeStyle = p.ink(0.34);
     ctx.lineWidth = 1;
     ctx.beginPath();
-    ctx.arc(x, y, 6, 0, Math.PI * 2);
+    ctx.arc(fx, fy, 5, 0, Math.PI * 2);
     ctx.stroke();
-    ctx.fillStyle = p.ink(blink);
+    ctx.fillStyle = p.ink(0.42 + 0.22 * beat);
     ctx.beginPath();
-    ctx.arc(x, y, 2, 0, Math.PI * 2);
+    ctx.arc(fx, fy, 1.8, 0, Math.PI * 2);
     ctx.fill();
   }
 
-  const [lx, ly] = pts[leader];
-  const crown = 6;
-  ctx.fillStyle = p.acc(0.5 * settle);
+  const crown = 7;
+  ctx.fillStyle = p.acc(0.4 + 0.3 * beat);
   for (let k = 0; k < crown; k++) {
-    const a = (k / crown) * Math.PI * 2 + t * 0.3;
+    const a = (k / crown) * Math.PI * 2 + t * 0.5;
     ctx.beginPath();
-    ctx.arc(lx + Math.cos(a) * 11, ly + Math.sin(a) * 11, 1.4, 0, Math.PI * 2);
+    ctx.arc(ax + Math.cos(a) * 12, ay + Math.sin(a) * 12 * 0.85, 1.3, 0, Math.PI * 2);
     ctx.fill();
   }
-  ctx.fillStyle = p.acc(0.9);
+  ctx.fillStyle = p.acc(0.92);
   ctx.beginPath();
-  ctx.arc(lx, ly, 4.5 * (0.7 + 0.3 * settle), 0, Math.PI * 2);
+  ctx.arc(ax, ay, 5 + 1.6 * beat, 0, Math.PI * 2);
   ctx.fill();
 };
 
 /* ------------------------------- 02 kitty-run --------------------- */
 
 const drawKitty: DrawFn = (ctx, w, h, t, p) => {
-  const cx = w * 0.5;
-  const cy = h * 0.5;
-  const rx = Math.min(w * 0.3, 140);
-  const ry = Math.min(h * 0.28, 60);
+  const cx = w * 0.52;
+  const cy = h * 0.44;
+  const rx = Math.min(w * 0.3, 150);
+  const ry = Math.min(h * 0.26, 42);
   const path = (s: number) =>
     [
       cx + Math.cos(s * Math.PI * 2) * rx,
@@ -135,7 +178,7 @@ const drawKitty: DrawFn = (ctx, w, h, t, p) => {
     ] as const;
 
   ctx.fillStyle = p.ink(0.12);
-  const track = 60;
+  const track = 54;
   for (let k = 0; k < track; k++) {
     const [x, y] = path(k / track);
     ctx.beginPath();
@@ -143,39 +186,43 @@ const drawKitty: DrawFn = (ctx, w, h, t, p) => {
     ctx.fill();
   }
 
-  const bt = Math.max(0, Math.sin(t * 0.55) - 0.6) / 0.4;
-  const sRun = (t * 0.16) % 1;
+  const dp = (t % 7) / 7;
+  const dash = dp < 0.14 ? Math.sin((dp / 0.14) * Math.PI) : 0;
+  const sRun = (t * 0.15) % 1;
 
-  const sGhost = (t * 0.16 + 0.5) % 1;
-  const gTrail = 10;
-  for (let k = 0; k < gTrail; k++) {
+  const sGhost = (t * 0.15 + 0.5) % 1;
+  for (let k = 0; k < 9; k++) {
     const [x, y] = path(sGhost - k * 0.012);
-    ctx.fillStyle = p.ink(0.22 * (1 - k / gTrail));
+    ctx.fillStyle = p.ink(0.3 * (1 - k / 9));
     ctx.beginPath();
-    ctx.arc(x, y, Math.max(0.5, 2 - k * 0.12), 0, Math.PI * 2);
+    ctx.arc(x, y, Math.max(0.5, 1.8 - k * 0.14), 0, Math.PI * 2);
     ctx.fill();
   }
 
-  const trail = 16 + Math.round(bt * 10);
+  const trail = 12 + Math.round(dash * 12);
   for (let k = trail - 1; k >= 0; k--) {
     const [x, y] = path(sRun - k * 0.01);
     const a = 1 - k / trail;
-    ctx.fillStyle = p.acc(a * 0.9);
+    ctx.fillStyle = p.acc(a * 0.85);
     ctx.beginPath();
-    ctx.arc(x, y, 2.4 * a + 0.6, 0, Math.PI * 2);
+    ctx.arc(x, y, 2.2 * a + 0.5, 0, Math.PI * 2);
     ctx.fill();
   }
+
   const [hx, hy] = path(sRun);
+  if (dash > 0.05) {
+    ditherHalo(ctx, hx, hy, 12 + 8 * dash, 0.5 * dash, p.acc);
+  }
   ctx.fillStyle = p.acc(1);
   ctx.beginPath();
   ctx.arc(hx, hy, 3.2, 0, Math.PI * 2);
   ctx.fill();
 
-  if (bt > 0.15) {
-    ctx.strokeStyle = p.acc(0.4 * bt);
+  if (dash > 0.1) {
+    ctx.strokeStyle = p.acc(0.45 * dash);
     ctx.lineWidth = 1;
-    for (let k = 0; k < 3; k++) {
-      const [x, y] = path(sRun + 0.03 + k * 0.02);
+    for (let k = 1; k <= 3; k++) {
+      const [x, y] = path(sRun + 0.02 + k * 0.018);
       ctx.beginPath();
       ctx.moveTo(x, y - 4);
       ctx.lineTo(x, y + 4);
@@ -186,138 +233,171 @@ const drawKitty: DrawFn = (ctx, w, h, t, p) => {
 
 /* ------------------------------- 03 evening-forest ---------------- */
 
-const FOREST_BANDS = [
-  { y: 0.36, amp: 5, freq: 0.9, sp: 0.25, dusk: true },
-  { y: 0.5, amp: 4, freq: 1.2, sp: -0.18, dusk: false },
-  { y: 0.63, amp: 3.4, freq: 1.6, sp: 0.15, dusk: false },
-  { y: 0.76, amp: 2.6, freq: 2.0, sp: -0.12, dusk: false },
+const FOREST_BANDS: ReadonlyArray<
+  readonly [number, number, number, number, number]
+> = [
+  // y, amp, freq, speed, alpha
+  [0.22, 3.2, 1.4, 0.13, 0.1],
+  [0.32, 2.8, 1.1, -0.1, 0.13],
+  [0.62, 2.6, 1.6, 0.12, 0.2],
+  [0.72, 2.2, 2.0, -0.09, 0.14],
 ] as const;
 
 const drawForest: DrawFn = (ctx, w, h, t, p) => {
-  const step = 13;
+  const sunX = w * 0.52;
+  const sunY = h * 0.48;
+
+  ditherHalo(ctx, sunX, sunY, Math.min(w, h) * 0.28, 0.6, p.acc, 3);
+
+  const step = 12;
   for (let bi = 0; bi < FOREST_BANDS.length; bi++) {
-    const b = FOREST_BANDS[bi];
-    const baseY = b.y * h;
+    const [by, amp, freq, sp, alpha] = FOREST_BANDS[bi];
+    const baseY = by * h;
     for (let x = step * 0.5; x < w; x += step) {
-      const k = (x / w) * Math.PI * 2 * b.freq;
-      const yy =
-        baseY +
-        Math.sin(k + t * b.sp) * b.amp * (0.7 + 0.3 * Math.sin(t * 0.4 + bi));
-      if (b.dusk) {
-        ctx.fillStyle = p.acc(0.7);
-        ctx.beginPath();
-        ctx.arc(x, yy, 1.5, 0, Math.PI * 2);
-        ctx.fill();
-      } else {
-        ctx.fillStyle = p.ink(0.32 - bi * 0.05);
-        ctx.beginPath();
-        ctx.arc(x, yy, 1.3, 0, Math.PI * 2);
-        ctx.fill();
-      }
+      const yy = baseY + Math.sin((x / w) * Math.PI * 2 * freq + t * sp) * amp;
+      ctx.fillStyle = p.ink(alpha);
+      ctx.beginPath();
+      ctx.arc(x, yy, 1.1, 0, Math.PI * 2);
+      ctx.fill();
     }
   }
-  const bb = FOREST_BANDS[FOREST_BANDS.length - 1];
-  const wx = ((t * 0.045) % 1) * w;
-  const wy =
-    bb.y * h + Math.sin((wx / w) * Math.PI * 2 * bb.freq + t * bb.sp) * bb.amp - 5;
-  ctx.fillStyle = p.acc(0.95);
+
+  const wp = (t / 8) % 1;
+  const gb = FOREST_BANDS[2];
+  const wx = wp * w;
+  const near = Math.max(0, 1 - Math.abs(wx - sunX) / (w * 0.12));
+
+  ctx.fillStyle = p.acc(0.9);
   ctx.beginPath();
-  ctx.arc(wx, wy, 2.6, 0, Math.PI * 2);
+  ctx.arc(sunX, sunY, 4.2 + 1.4 * near, 0, Math.PI * 2);
   ctx.fill();
+
+  for (let k = 4; k >= 0; k--) {
+    const px = (wp - k * 0.01) * w;
+    const py = gb[0] * h + Math.sin((px / w) * Math.PI * 2 * gb[2] + t * gb[3]) * gb[1];
+    ctx.fillStyle = p.ink(0.5 * (1 - k / 5) + 0.12);
+    ctx.beginPath();
+    ctx.arc(px, py, 1.8 - k * 0.25, 0, Math.PI * 2);
+    ctx.fill();
+  }
 };
 
 /* ------------------------------- 04 explosion --------------------- */
 
-const SHARDS = 80;
+const SHARDS = 40;
 
 const drawExplosion: DrawFn = (ctx, w, h, t, p) => {
-  const cx = w * 0.5;
-  const cy = h * 0.46;
-  const R = Math.min(w, h) * 0.26;
+  const cx = w * 0.52;
+  const cy = h * 0.44;
+  const R = Math.min(w, h) * 0.32;
   const T = 7.5;
   const tp = (t % T) / T;
 
+  let charge: number;
   let e: number;
-  if (tp < 0.3) e = 0;
-  else if (tp < 0.62) e = ease((tp - 0.3) / 0.32);
-  else if (tp < 0.8) e = 1;
-  else e = 1 - ease((tp - 0.8) / 0.2);
-
-  if (e < 0.5) {
-    ctx.strokeStyle = p.ink(0.16 * (1 - e * 2));
-    ctx.lineWidth = 1;
-    ctx.beginPath();
-    ctx.arc(cx, cy, R * 1.04, 0, Math.PI * 2);
-    ctx.stroke();
+  let fade: number;
+  if (tp < 0.4) {
+    charge = ease(tp / 0.4);
+    e = 0;
+    fade = 0;
+  } else if (tp < 0.62) {
+    charge = 1 - (tp - 0.4) / 0.22;
+    e = ease((tp - 0.4) / 0.22);
+    fade = 0;
+  } else {
+    charge = 0;
+    e = 1;
+    fade = ease((tp - 0.62) / 0.38);
   }
+
+  ctx.fillStyle = p.ink(0.1);
+  const ring = 24;
+  for (let k = 0; k < ring; k++) {
+    const a = (k / ring) * Math.PI * 2 + t * 0.12;
+    const rxp = cx + Math.cos(a) * R * 1.15;
+    const ryp = cy + Math.sin(a) * R * 1.15 * 0.85;
+    ctx.beginPath();
+    ctx.arc(rxp, ryp, 0.8, 0, Math.PI * 2);
+    ctx.fill();
+  }
+
+  ditherHalo(ctx, cx, cy, R * (0.35 + 0.45 * charge + 0.25 * e), 0.5 + 0.35 * charge, p.acc, 3);
 
   for (let i = 0; i < SHARDS; i++) {
     const a = frand(i) * Math.PI * 2;
-    const rr = Math.sqrt(frand(i + 100)) * R;
+    const rr = Math.sqrt(frand(i + 100)) * R * 0.5;
     const bx = cx + Math.cos(a) * rr;
-    const by = cy + Math.sin(a) * rr * 0.92;
-    const va = a + (frand(i + 7) - 0.5) * 0.6;
-    const spd = (0.6 + frand(i + 30) * 1.4) * R;
-    const gx = bx + Math.cos(va) * spd * e;
-    const gy = by + Math.sin(va) * spd * e + 46 * e * e;
-    const sz = (1.6 + frand(i + 50) * 2.2) * (1 - 0.25 * e);
-    const accent = frand(i + 12) > 0.72;
-    const alpha = accent ? 0.9 : 0.4 + frand(i + 5) * 0.2;
-    ctx.fillStyle = accent ? p.acc(alpha) : p.ink(alpha * (1 - 0.35 * e));
+    const by = cy + Math.sin(a) * rr * 0.9;
+    const spd = (0.4 + frand(i + 30) * 0.7) * R;
+    const gx = bx + Math.cos(a) * spd * e;
+    const gy = by + Math.sin(a) * spd * e * 0.7 + 16 * e * e;
+    const sz = (1.4 + frand(i + 50) * 1.8) * (1 - 0.2 * e);
+    const isAcc = frand(i + 12) > 0.78;
+    const base = isAcc ? 0.5 : 0.32 + frand(i + 5) * 0.18;
+    const al = base * (1 - fade);
+    ctx.fillStyle = isAcc ? p.acc(al) : p.ink(al);
     ctx.save();
     ctx.translate(gx, gy);
-    ctx.rotate(a + t * 0.2 + e * 3);
+    ctx.rotate(a + t * 0.15 + e * 2.5);
     ctx.fillRect(-sz / 2, -sz / 2, sz, sz);
     ctx.restore();
   }
+
+  const flash = e * (1 - e) * 4;
+  const coreR = (4 + 3 * charge + 4 * flash) * (1 - 0.4 * fade);
+  ctx.fillStyle = p.acc(0.92);
+  ctx.beginPath();
+  ctx.arc(cx, cy, Math.max(2, coreR), 0, Math.PI * 2);
+  ctx.fill();
 };
 
 /* ------------------------------- 05 planck-to-now ----------------- */
 
 const drawPlanck: DrawFn = (ctx, w, h, t, p) => {
-  const mx = 22;
-  const baseY = h * 0.6;
+  const mx = 24;
+  const baseY = h * 0.5;
   const x0 = mx;
   const x1 = w - mx;
   const span = Math.max(1, x1 - x0);
-  const N = 44;
+  const N = 40;
 
-  ctx.strokeStyle = p.ink(0.16);
+  ctx.strokeStyle = p.ink(0.14);
   ctx.lineWidth = 1;
   ctx.beginPath();
   ctx.moveTo(x0, baseY);
   ctx.lineTo(x1, baseY);
   ctx.stroke();
 
-  const scrub = (t * 0.08) % 1;
+  const scrub = (t * 0.125) % 1;
   const sx = x0 + scrub * span;
 
   for (let i = 0; i <= N; i++) {
     const f = i / N;
     const x = x0 + f * span;
     const major = i % 5 === 0;
-    const grow = 0.35 + 0.65 * f;
     const behind = scrub - f;
-    const lit = behind >= 0 && behind < 0.16 ? 1 - behind / 0.16 : 0;
-    const ht = (major ? 16 : 8) * grow * (1 + 0.25 * lit);
-    ctx.strokeStyle = lit > 0 ? p.acc(0.4 + 0.5 * lit) : p.ink(major ? 0.42 : 0.24);
-    ctx.lineWidth = major ? 1.2 : 1;
+    const lit = behind >= 0 && behind < 0.12 ? 1 - behind / 0.12 : 0;
+    const ht = (major ? 12 : 5) * (1 + 0.4 * lit);
+    if (major) {
+      ctx.strokeStyle = lit > 0 ? p.acc(0.4 + 0.4 * lit) : p.ink(0.42);
+      ctx.lineWidth = 1.2;
+    } else {
+      ctx.strokeStyle = p.ink(0.14);
+      ctx.lineWidth = 1;
+    }
     ctx.beginPath();
     ctx.moveTo(x, baseY);
     ctx.lineTo(x, baseY - ht);
     ctx.stroke();
   }
 
-  ctx.fillStyle = p.ink(0.5);
-  ctx.beginPath();
-  ctx.arc(x0, baseY, 1.2, 0, Math.PI * 2);
-  ctx.fill();
+  ditherHalo(ctx, sx - 8, baseY - 6, 16, 0.5, p.acc);
 
-  ctx.strokeStyle = p.acc(0.85);
-  ctx.lineWidth = 1;
+  ctx.strokeStyle = p.acc(0.9);
+  ctx.lineWidth = 1.2;
   ctx.beginPath();
-  ctx.moveTo(sx, baseY - 26);
-  ctx.lineTo(sx, baseY + 8);
+  ctx.moveTo(sx, baseY - 22);
+  ctx.lineTo(sx, baseY + 7);
   ctx.stroke();
   ctx.fillStyle = p.acc(1);
   ctx.beginPath();
@@ -328,24 +408,25 @@ const drawPlanck: DrawFn = (ctx, w, h, t, p) => {
 /* ------------------------------- 06 practice-map ------------------ */
 
 const WAY: ReadonlyArray<readonly [number, number]> = [
-  [0.12, 0.7],
-  [0.28, 0.44],
-  [0.44, 0.58],
-  [0.58, 0.3],
-  [0.74, 0.5],
-  [0.88, 0.32],
+  [0.16, 0.66],
+  [0.3, 0.5],
+  [0.42, 0.6],
+  [0.52, 0.44],
+  [0.64, 0.52],
+  [0.76, 0.4],
 ];
 
 const drawMap: DrawFn = (ctx, w, h, t, p) => {
   const pts = WAY.map(([x, y]) => [x * w, y * h] as const);
 
+  // T3: two faint contour lines
   ctx.strokeStyle = p.ink(0.1);
   ctx.lineWidth = 1;
   for (let c = 0; c < 2; c++) {
-    const yy = h * (0.4 + c * 0.26);
+    const yy = h * (0.34 + c * 0.34);
     ctx.beginPath();
     for (let x = 0; x <= w; x += 8) {
-      const y = yy + Math.sin(x * 0.02 + c * 1.7 + t * 0.05) * 6;
+      const y = yy + Math.sin(x * 0.02 + c * 1.7 + t * 0.05) * (5 + c);
       if (x === 0) ctx.moveTo(x, y);
       else ctx.lineTo(x, y);
     }
@@ -362,10 +443,36 @@ const drawMap: DrawFn = (ctx, w, h, t, p) => {
 
   const T = 9;
   const tp = (t % T) / T;
-  const prog = ease(Math.min(1, tp / 0.7));
+  // draw (0..0.7) -> settle pulse (0.7..0.85) -> hold/reset (0.85..1)
+  const drawing = Math.min(1, tp / 0.7);
+  const prog = ease(drawing);
+  const settle =
+    tp >= 0.7 && tp < 0.85 ? Math.sin(((tp - 0.7) / 0.15) * Math.PI) : 0;
   const target = prog * total;
 
-  ctx.strokeStyle = p.acc(0.85);
+  const dest = pts[pts.length - 1];
+
+  // T2: waypoints (faint until reached)
+  let dcum = 0;
+  for (let i = 0; i < pts.length - 1; i++) {
+    if (i > 0) dcum += segLen[i - 1];
+    const [x, y] = pts[i];
+    const reached = dcum <= target + 0.5;
+    ctx.strokeStyle = p.ink(reached ? 0.4 : 0.24);
+    ctx.lineWidth = 1;
+    ctx.beginPath();
+    ctx.arc(x, y, 2.4, 0, Math.PI * 2);
+    ctx.stroke();
+    if (reached) {
+      ctx.fillStyle = p.ink(0.42);
+      ctx.beginPath();
+      ctx.arc(x, y, 1.2, 0, Math.PI * 2);
+      ctx.fill();
+    }
+  }
+
+  // route polyline
+  ctx.strokeStyle = p.acc(0.55);
   ctx.lineWidth = 1.4;
   ctx.beginPath();
   ctx.moveTo(pts[0][0], pts[0][1]);
@@ -389,28 +496,25 @@ const drawMap: DrawFn = (ctx, w, h, t, p) => {
   }
   ctx.stroke();
 
-  let dcum = 0;
-  for (let i = 0; i < pts.length; i++) {
-    if (i > 0) dcum += segLen[i - 1];
-    const [x, y] = pts[i];
-    if (dcum <= target + 0.5) {
-      ctx.fillStyle = p.acc(0.9);
-      ctx.beginPath();
-      ctx.arc(x, y, 2.6, 0, Math.PI * 2);
-      ctx.fill();
-    } else {
-      ctx.strokeStyle = p.ink(0.34);
-      ctx.lineWidth = 1;
-      ctx.beginPath();
-      ctx.arc(x, y, 2.4, 0, Math.PI * 2);
-      ctx.stroke();
-    }
-  }
-
-  ctx.fillStyle = p.acc(1);
+  // focal: destination node (settles when reached) + route head
+  const arrived = target >= total - 0.5;
+  ditherHalo(ctx, dest[0], dest[1], 12 + 6 * settle, 0.4 + 0.4 * settle, p.acc);
+  ctx.strokeStyle = p.acc(0.7);
+  ctx.lineWidth = 1.2;
   ctx.beginPath();
-  ctx.arc(headX, headY, 3, 0, Math.PI * 2);
+  ctx.arc(dest[0], dest[1], 5 + 2 * settle, 0, Math.PI * 2);
+  ctx.stroke();
+  ctx.fillStyle = p.acc(arrived ? 1 : 0.85);
+  ctx.beginPath();
+  ctx.arc(dest[0], dest[1], 2.8, 0, Math.PI * 2);
   ctx.fill();
+
+  if (!arrived) {
+    ctx.fillStyle = p.acc(1);
+    ctx.beginPath();
+    ctx.arc(headX, headY, 3, 0, Math.PI * 2);
+    ctx.fill();
+  }
 };
 
 /* ------------------------------- config --------------------------- */
@@ -424,39 +528,39 @@ interface CardArt {
 
 const CARD_ART: Readonly<Record<string, CardArt>> = {
   "raft-cluster": {
-    accent: "#4ea3ff",
-    caption: "leader-election · halftone · canvas2d",
-    staticT: 2.0,
+    accent: "#6f93ad",
+    caption: "leader-election · dither-halo · canvas2d",
+    staticT: 0.6,
     draw: drawRaft,
   },
   "kitty-run": {
-    accent: "#e08aa0",
-    caption: "ghost-run · halftone-trail · canvas2d",
-    staticT: 3.0,
+    accent: "#5fe6c0",
+    caption: "wisp-run · moonlit-trail · canvas2d",
+    staticT: 0.5,
     draw: drawKitty,
   },
   "evening-forest": {
-    accent: "#ffb45e",
-    caption: "dusk-canopy · contour-drift · canvas2d",
-    staticT: 1.0,
+    accent: "#d99e63",
+    caption: "dusk-sun · canopy-drift · canvas2d",
+    staticT: 4.1,
     draw: drawForest,
   },
   explosion: {
-    accent: "#ff8a3c",
-    caption: "detonation-seam · shards · canvas2d",
-    staticT: 3.45,
+    accent: "#d18a54",
+    caption: "core-detonation · shard-burst · canvas2d",
+    staticT: 2.4,
     draw: drawExplosion,
   },
   "planck-to-now": {
-    accent: "#ffd39a",
-    caption: "log-time · quantized-ticks · canvas2d",
-    staticT: 6.0,
+    accent: "#d8b98e",
+    caption: "log-time · scrub-wake · canvas2d",
+    staticT: 4.0,
     draw: drawPlanck,
   },
   "practice-map": {
-    accent: "#cf9d63",
-    caption: "route · hairline-terrain · canvas2d",
-    staticT: 3.8,
+    accent: "#b58e63",
+    caption: "route · settle-pulse · canvas2d",
+    staticT: 3.7,
     draw: drawMap,
   },
 };

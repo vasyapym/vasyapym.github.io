@@ -377,19 +377,19 @@ export default function KittyRunPage() {
               className="kitty-run-card kitty-run-card--ready"
               onClick={handleStart}
             >
-              <span className="kitty-run-card-kicker">ready</span>
+              <span className="kitty-run-card-kicker">wander</span>
               {replay && (
-                <span className="kitty-run-card-echo">your best run will chase you</span>
+                <span className="kitty-run-card-echo">your best run haunts your heels</span>
               )}
               <span className="kitty-run-card-hint">
                 {coarse
                   ? "tap to jump · dash pad blasts through"
                   : "space — jump · shift — dash · p — pause"}
               </span>
-              <span className="kitty-run-card-action">start</span>
+              <span className="kitty-run-card-action">prowl</span>
             </button>
             <button type="button" className="kitty-run-watch" onClick={handleWatch}>
-              <span className="kitty-run-watch-title">or watch it play itself</span>
+              <span className="kitty-run-watch-title">or watch it haunt itself</span>
               <span className="kitty-run-watch-hint">
                 autopilot · the lookahead bot that verifies every track
               </span>
@@ -401,9 +401,9 @@ export default function KittyRunPage() {
       {status === "paused" && (
         <div className="kitty-run-overlay">
           <button type="button" className="kitty-run-card" onClick={() => togglePause(world)}>
-            <span className="kitty-run-card-kicker">paused</span>
-            <span className="kitty-run-card-hint">p or esc resumes · r restarts</span>
-            <span className="kitty-run-card-action">resume</span>
+            <span className="kitty-run-card-kicker">stilled</span>
+            <span className="kitty-run-card-hint">p or esc wakes her · r restarts</span>
+            <span className="kitty-run-card-action">wake up</span>
           </button>
         </div>
       )}
@@ -411,9 +411,9 @@ export default function KittyRunPage() {
       {status === "over" && (
         <div className="kitty-run-overlay">
           <button type="button" className="kitty-run-card" onClick={handleRestart}>
-            <span className="kitty-run-card-kicker">run over</span>
+            <span className="kitty-run-card-kicker">wish spent</span>
             {world.newBest && world.score > 0 && (
-              <span className="kitty-run-card-badge">new best!</span>
+              <span className="kitty-run-card-badge">best wish!</span>
             )}
             <span className="kitty-run-card-title">
               {world.score.toLocaleString()} points
@@ -436,7 +436,7 @@ export default function KittyRunPage() {
             <span className="kitty-run-card-hint">
               best {best} · {coarse ? "tap to run again" : "space or r runs again"}
             </span>
-            <span className="kitty-run-card-action">again</span>
+            <span className="kitty-run-card-action">anew</span>
           </button>
         </div>
       )}

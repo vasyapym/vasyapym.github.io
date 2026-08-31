@@ -4,9 +4,9 @@ const kittyRun: ProjectModule = {
   id: "kitty-run",
   title: "Cat Runner",
   tag: "game",
-  eyebrow: "A pastel endless runner",
+  eyebrow: "A candy-goth endless runner",
   description:
-    "A pastel endless runner with a bullet-time dash, a ghost of your best run, and a soundtrack that plays along.",
+    "A candy-goth endless runner with a bullet-time dash, a ghostly wisp of your best run racing beside you, and a moonlit plum world where every wish glows. Run with vesper — the sweetest little thief in the dark.",
   technologies: [
     "React Three Fiber",
     "Three.js",
@@ -22,9 +22,9 @@ const kittyRun: ProjectModule = {
     motion: "terrain",
     centerLabel: "",
     centerMark: "kitty",
-    note: "Pastel circuit",
-    motionLabel: "the hills roll by",
-    instruction: "Jump with Space, dash with Shift; Esc rests you back here.",
+    note: "Moonlit circuit",
+    motionLabel: "the night rolls by",
+    instruction: "Jump with Space, dash with Shift; Esc slips you back here.",
     parts: [
       {
         id: "hills",
