@@ -318,7 +318,7 @@
 
 /* Autopilot chip: mirrors the dash pad on the bottom edge while the bot
    drives; tapping it hands control back to the visitor mid-run. Mint —
-   Vesper's wisp — so every tappable "go" control shares one accent family. */
+   Nix's wisp — so every tappable "go" control shares one accent family. */
 .kitty-run-pilotchip {
   position: absolute;
   right: 24px;
@@ -427,8 +427,8 @@
 }
 
 /* The ready state is the shop window: a low plum wash instead of the full
-   dark scrim, so visitors see Vesper idling in her moonlit world behind the
-   card. The card parks in the run-ahead space (right third), leaving Vesper —
+   dark scrim, so visitors see Nix idling in her moonlit world behind the
+   card. The card parks in the run-ahead space (right third), leaving Nix —
    who idles at her lead position on the left — fully in view. */
 .kitty-run-overlay--ready {
   place-items: center end;
@@ -693,7 +693,7 @@
   }
 
   /* Small screens centre the wish-card again: there is no room to park
-     it beside Vesper without pushing it off stage. */
+     it beside Nix without pushing it off stage. */
   .kitty-run-overlay--ready {
     place-items: center;
     padding-right: 16px;
@@ -734,5 +734,41 @@
 
   .kitty-run-debug {
     display: none;
+  }
+
+  .kitty-run-district {
+    top: 12px;
+    font-size: 10px;
+  }
+}
+
+/* District chip: names the current Night District, top-centre in the HUD.
+   The loop writes it only at district seams (guarded by a dataset index);
+   :not(:empty) keeps it hidden on the ready screen before the first write.
+   Lowercase to match the game's mono-kicker voice. */
+.kitty-run-district {
+  position: absolute;
+  top: 22px;
+  left: 50%;
+  transform: translateX(-50%);
+  padding: 3px 12px;
+  font-size: 11px;
+  letter-spacing: 0.14em;
+  text-transform: lowercase;
+  color: #eafff5;
+  background: rgba(30, 19, 48, 0.55);
+  border: 1px solid rgba(95, 255, 207, 0.35);
+  pointer-events: none;
+  opacity: 0;
+  transition: opacity 400ms ease;
+}
+
+.kitty-run-district:not(:empty) {
+  opacity: 1;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .kitty-run-district {
+    transition: none;
   }
 }

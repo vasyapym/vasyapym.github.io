@@ -3,6 +3,7 @@
 // and sound only read what this leaves behind.
 
 import { groundY } from "../lib/ground.ts";
+import { biomeAt, directorDifficulty } from "../lib/director.ts";
 import {
   BOX_HALF,
   HOVER_RADIUS,
@@ -21,9 +22,42 @@ export { startRun, restartRun, togglePause } from "./actions.ts";
 
 const SPAWN_AHEAD = 46;
 const DESPAWN_BEHIND = 18;
-// Metres until the pattern mix reaches its hardest weights. Short enough
-// that a decent run meets real resistance inside its first minute.
-const DIFFICULTY_SPAN = 650;
+
+// Near-miss reaction margin: an armed hazard that slips past within this
+// clearance (world units) with no hit fires one cosmetic nearMiss event.
+// Purely visual — it never touches spawn, physics, hearts or score, so the
+// echo (which runs the same detection and drains its own events) stays
+// honest and the track cannot diverge.
+const NEAR_MISS_MARGIN = 0.35;
+
+// Signed clearance between a circle and an axis-aligned square centred on
+// (bx, by) with half-extent `half` (>0 = gap, 0 = touching, <0 = overlap).
+// The mirror of circleHitsBox: same geometry, distance instead of a boolean.
+function rectGap(
+  cx: number,
+  cy: number,
+  r: number,
+  bx: number,
+  by: number,
+  half: number,
+): number {
+  const dx = Math.max(Math.abs(cx - bx) - half, 0);
+  const dy = Math.max(Math.abs(cy - by) - half, 0);
+  return Math.hypot(dx, dy) - r;
+}
+
+// Signed clearance between two circles (>0 = gap). The mirror of
+// circleHitsCircle, for the hover gate.
+function circleGap(
+  ax: number,
+  ay: number,
+  ar: number,
+  bx: number,
+  by: number,
+  br: number,
+): number {
+  return Math.hypot(ax - bx, ay - by) - (ar + br);
+}
 
 // Attract mode: while the start screen is up the world drifts forward so
 // the scene is already alive before the first click.
@@ -103,7 +137,9 @@ function fireDash(world: WorldState): void {
 }
 
 function spawnChunk(world: WorldState): void {
-  const difficulty = Math.min(1, world.distance / DIFFICULTY_SPAN);
+  // The director owns the mix pointer: the run-start skill snapshot decides
+  // how quickly the pattern weights reach their hardest (see director.ts).
+  const difficulty = directorDifficulty(world.directorSkill, world.distance);
   const chunk = buildChunk(
     chunkSeed(world.runSeed, world.chunkIndex),
     world.spawnOrigin,
@@ -117,6 +153,10 @@ function spawnChunk(world: WorldState): void {
       slot.data.kind = item.kind as Obstacle["kind"];
       slot.data.x = item.x;
       slot.data.y = item.y;
+      // Pool factories run once, so every acquire must (re)arm the
+      // near-miss flag — a recycled slot keeps whatever the last hazard
+      // left behind.
+      slot.data.nearMissArmed = true;
     } else {
       const slot = world.pickups.acquire();
       if (!slot) continue;
@@ -235,6 +275,7 @@ export function stepWorld(world: WorldState, rawDt: number): void {
   k.dashBufferT = Math.max(0, k.dashBufferT - dt);
   k.invulnT = Math.max(0, k.invulnT - dt);
   k.happyT = Math.max(0, k.happyT - dt);
+  k.nearMissT = Math.max(0, k.nearMissT - dt);
   k.jumpAgeT = Math.min(10, k.jumpAgeT + dt);
   k.blinkNext -= dt;
   if (k.blinkNext <= 0) {
@@ -305,6 +346,42 @@ export function stepWorld(world: WorldState, rawDt: number): void {
     }
   }
 
+  // --- near-miss reaction (cosmetic only) --------------------------------------
+
+  // On the first frame an armed hazard crosses the cat's plane (vx <= 0),
+  // measure the geometric clearance between the cat circle and the hazard
+  // using exactly the hit geometry above (same centre terms, same half
+  // extents). If nothing hit it this run and the gap is a sliver, fire ONE
+  // cosmetic nearMiss and start the rig's startle pop. Disarm on the
+  // crossing regardless, so it fires at most once. A dash pass-through or
+  // active invulnerability nullifies the "near" read: she sailed through
+  // untouchable, so it is not a skin-of-the-teeth moment.
+  for (const slot of world.obstacles.slots) {
+    if (!slot.active) continue;
+    const o = slot.data;
+    if (!o.nearMissArmed) continue;
+
+    const vx = o.x - world.distance;
+    if (vx > 0) continue; // has not reached the cat's plane yet
+
+    o.nearMissArmed = false; // crossing consumed — fire at most once
+
+    if (k.invulnT > 0 || k.dashT > 0) continue;
+
+    const gap =
+      o.kind === "hover"
+        ? circleGap(kx, ky, kr, vx, o.y, HOVER_RADIUS)
+        : rectGap(kx, ky, kr, vx, o.y, obstacleHalf(o.kind));
+
+    // gap <= 0 would mean an actual overlap — the collision block above
+    // already handled (or dash/invuln excused) that; only a genuine sliver
+    // counts as a near-miss.
+    if (gap > 0 && gap <= NEAR_MISS_MARGIN) {
+      k.nearMissT = 0.4;
+      world.events.push({ type: "nearMiss" });
+    }
+  }
+
   for (const slot of world.pickups.slots) {
     if (!slot.active) continue;
     const p = slot.data;
@@ -343,6 +420,12 @@ export function stepWorld(world: WorldState, rawDt: number): void {
   }
 
   // --- decay ----------------------------------------------------------------------
+
+  // Cosmetic district pointer: pure fn of distance, so the HUD chip and every
+  // biome tint stay in lockstep with the echo (which sees the same distance).
+  const biome = biomeAt(world.distance);
+  world.biomeIndex = biome.index;
+  world.biomeMix = biome.mix;
 
   // Bullet-time recovery: exponential ease back to full speed in sim
   // time, so the slow-mo tail stretches in real time exactly as much as

@@ -23,30 +23,46 @@ function toTexture(canvas: HTMLCanvasElement): THREE.CanvasTexture {
   return texture;
 }
 
-// Vertical dusk-to-night gradient with a low cool moon baked into the top
-// right — a mint lantern in the plum.
-export function skyTexture(): THREE.CanvasTexture {
+// Vertical dusk-to-night gradient. The moon is NO LONGER baked here — it
+// rides its own aspect-correct plane (moonTexture) so it stays round on
+// portrait. Colours are parameters so Parallax can bake one variant per
+// district; the defaults reproduce district I's sky byte-identically (the
+// palette plus the #2a1746 mid-stop).
+export function skyTexture(
+  top: string = PALETTE.skyTop,
+  mid: string = "#2a1746",
+  bottom: string = PALETTE.skyBottom,
+): THREE.CanvasTexture {
   const { canvas, ctx } = makeCanvas(512, 512);
   const gradient = ctx.createLinearGradient(0, 0, 0, 512);
-  gradient.addColorStop(0, PALETTE.skyTop);
-  gradient.addColorStop(0.62, "#2a1746");
-  gradient.addColorStop(1, PALETTE.skyBottom);
+  gradient.addColorStop(0, top);
+  gradient.addColorStop(0.62, mid);
+  gradient.addColorStop(1, bottom);
   ctx.fillStyle = gradient;
   ctx.fillRect(0, 0, 512, 512);
 
-  const moonX = 396;
-  const moonY = 172;
-  const glow = ctx.createRadialGradient(moonX, moonY, 8, moonX, moonY, 150);
+  return toTexture(canvas);
+}
+
+// The moon, on its own small square canvas so its plane can be aspect-correct
+// (a round disc at any viewport). Authored near-white with a mint glow; the
+// per-district tint is a MULTIPLY on the plane's material.color (district I =
+// #ffffff identity), so this texture never regenerates per frame.
+export function moonTexture(): THREE.CanvasTexture {
+  const size = 128;
+  const { canvas, ctx } = makeCanvas(size, size);
+  const cx = size / 2;
+  const cy = size / 2;
+  const glow = ctx.createRadialGradient(cx, cy, 4, cx, cy, 60);
   glow.addColorStop(0, "rgba(214, 255, 240, 0.95)");
   glow.addColorStop(0.25, "rgba(95, 230, 192, 0.28)");
   glow.addColorStop(1, "rgba(95, 230, 192, 0)");
   ctx.fillStyle = glow;
-  ctx.fillRect(0, 0, 512, 512);
+  ctx.fillRect(0, 0, size, size);
   ctx.fillStyle = "rgba(214, 255, 240, 0.95)";
   ctx.beginPath();
-  ctx.arc(moonX, moonY, 34, 0, Math.PI * 2);
+  ctx.arc(cx, cy, 20, 0, Math.PI * 2);
   ctx.fill();
-
   return toTexture(canvas);
 }
 

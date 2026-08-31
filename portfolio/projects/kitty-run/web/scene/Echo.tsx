@@ -22,18 +22,21 @@ import type { WorldState } from "./world.ts";
 const ECHO_OPACITY = 0.66;
 
 // The restyle: every rig colour maps into one pale spectral-mint family — a
-// ghostly, cool tint of Vesper's accent hue — so the copy reads as a faded
+// ghostly, cool tint of Nix's accent hue — so the copy reads as a faded
 // wisp-memory of her against the dark plum world, never a second solid cat
 // and never the old dusty rose.
 const FADED: Record<string, string> = {
   [PALETTE.furCream]: "#dfeeea",   // fur → pale minted white
   [PALETTE.suitRose]: "#a9c4c4",   // romper → dim spectral teal-grey
-  [PALETTE.scarfCoral]: "#8fb0b2", // capelet main → muted mint-slate
+  [PALETTE.scarfCoral]: "#8fb0b2", // wisp-hood main → muted mint-slate
   [PALETTE.scarfDeep]: "#bfeee0",  // mint accent → ghost-mint glow
-  [PALETTE.noseBerry]: "#9db6b6",  // nose → dim mint-grey
-  [PALETTE.cheek]: "#cfe9e2",      // cheek glow → pale mint
+  [PALETTE.noseBerry]: "#a9bcb8",  // warm berry nose → dim mint-grey
+  [PALETTE.cheek]: "#cfe9e2",      // pink blush → pale mint
   // outlineInk and eyeInk share one ink hex; both map here together.
   [PALETTE.outlineInk]: "#7fa0a0", // ink → soft spectral-grey outline
+  // Catchlights (PALETTE.ink) are painted on the rig — keep them a soft
+  // ghost-mint sparkle rather than a hard white on the echo.
+  [PALETTE.ink]: "#eafff5",
 };
 
 // When the stage clamp pins the echo next to the player (narrow phones),

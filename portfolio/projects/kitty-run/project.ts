@@ -6,7 +6,7 @@ const kittyRun: ProjectModule = {
   tag: "game",
   eyebrow: "A candy-goth endless runner",
   description:
-    "A candy-goth endless runner with a bullet-time dash, a ghostly wisp of your best run racing beside you, and a moonlit plum world where every wish glows. Run with vesper — the sweetest little thief in the dark.",
+    "Descend four moonlit districts with Nix, the wish-thief kitten — a bullet-time dash, a self-tuning difficulty director, and the ghost of your best run haunting your heels. Every district is generated from the run itself: same seed, same skill, same night city.",
   technologies: [
     "React Three Fiber",
     "Three.js",

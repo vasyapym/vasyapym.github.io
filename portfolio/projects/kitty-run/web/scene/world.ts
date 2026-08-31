@@ -3,6 +3,7 @@
 // gameplay. Pools keep the whole run allocation-free.
 
 import { createPool, type Pool } from "../lib/pools.ts";
+import { DEFAULT_SKILL } from "../lib/director.ts";
 import type { RunInput } from "../lib/replay.ts";
 import { TUNING } from "../lib/tuning.ts";
 
@@ -13,6 +14,9 @@ export type Obstacle = {
   kind: ObstacleKind;
   x: number;
   y: number;
+  // Near-miss arming: true on spawn; consumed once the hazard crosses the
+  // cat's plane, so the cosmetic reaction fires at most once per hazard.
+  nearMissArmed: boolean;
 };
 
 export type PickupKind = "heart" | "star" | "heal";
@@ -55,6 +59,9 @@ export type GameEvent =
   | { type: "dash" }
   | { type: "hit" }
   | { type: "gameover" }
+  // A hazard slipped past within a hair and nothing hit — a purely cosmetic
+  // beat for the rig (the GameLoop adds sparkle/SFX around it).
+  | { type: "nearMiss" }
   // The run crossed a milestone distance — celebrate it.
   | { type: "milestone"; meters: number }
   | {
@@ -76,6 +83,9 @@ export type KittyMotion = {
   dashT: number;
   happyT: number;
   invulnT: number;
+  // Seconds left on the near-miss startle pop: set to 0.4 when a hazard
+  // slips past within NEAR_MISS_MARGIN, decayed to 0 by the step.
+  nearMissT: number;
 };
 
 export type WorldState = {
@@ -111,6 +121,14 @@ export type WorldState = {
   // True when the run that just ended beat the stored best — the game-over
   // card wears a little badge.
   newBest: boolean;
+
+  // Director state. directorSkill is the run-start skill snapshot the whole
+  // track is a pure function of (seed + skill + distance); biomeIndex/
+  // biomeMix are the cosmetic district pointer, recomputed each step from
+  // distance so echo + player agree.
+  directorSkill: number;
+  biomeIndex: number;
+  biomeMix: number;
 
   spawnOrigin: number;
   chunkIndex: number;
@@ -180,6 +198,10 @@ export function createWorld(best = 0, runSeed = freshSeed()): WorldState {
 
     newBest: false,
 
+    directorSkill: DEFAULT_SKILL,
+    biomeIndex: 0,
+    biomeMix: 0,
+
     spawnOrigin: 14,
     chunkIndex: 0,
 
@@ -205,12 +227,14 @@ export function createWorld(best = 0, runSeed = freshSeed()): WorldState {
       blinkNext: 2.5,
       happyT: 0,
       jumpAgeT: 0,
+      nearMissT: 0,
     },
 
     obstacles: createPool<Obstacle>(24, () => ({
       kind: "box" as ObstacleKind,
       x: 0,
       y: 0,
+      nearMissArmed: false,
     })),
     pickups: createPool(48, () => ({
       kind: "heart" as PickupKind,

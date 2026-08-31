@@ -4,15 +4,15 @@
 // are repurposed in-place — no renames — so Echo's hex map is a value swap.)
 
 export const PALETTE = {
-  // --- character (Vesper): pale lavender + ONE spectral-mint accent + ink ---
+  // --- character (Nix): pale lavender + ONE spectral-mint accent + ink ---
   furCream: "#ece6f7",   // pale-lavender fur
-  outlineInk: "#241a2e", // deep-plum ink outline (+ grin cavity)
+  outlineInk: "#241a2e", // deep-plum ink outline (+ mouth cavity)
   eyeInk: "#241a2e",     // same ink as outline: not split
-  scarfCoral: "#3a2b54", // bat-capelet main (collar + forked tails)
-  scarfDeep: "#5fe6c0",  // MINT accent: gem clasp, inner ears, wisp tail
+  scarfCoral: "#3a2b54", // wisp-hood main (hood + forked tails)
+  scarfDeep: "#5fe6c0",  // MINT accent: inner ears, chest-star clasp, wisp tail
   suitRose: "#6e4f95",   // grape romper
-  noseBerry: "#4a3560",  // dark-plum nose
-  cheek: "#bdeeda",      // faint mint cheek glow
+  noseBerry: "#d98cae",  // warm berry-pink heart-nose  (was #4a3560)
+  cheek: "#f2b8d0",      // soft pink blush              (was #bdeeda)
 
   // --- sky: dusk aubergine warming to a plum horizon glow ---
   skyTop: "#160e2b",

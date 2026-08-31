@@ -8,6 +8,7 @@
 import { requestDash, requestJump, startRun } from "../web/scene/actions.ts";
 import { createWorld, type WorldState } from "../web/scene/world.ts";
 import { stepWorld } from "../web/scene/step.ts";
+import { directorDifficulty } from "../web/lib/director.ts";
 import { groundY } from "../web/lib/ground.ts";
 import { TUNING } from "../web/lib/tuning.ts";
 import { pilotSteer, resetPilot } from "../web/lib/pilot.ts";
@@ -21,6 +22,9 @@ type SimResult = {
   gameOver: boolean;
   milestoneMeters: number[];
   kindsSeen: Set<string>;
+  hitAndNearMissSameFrame: boolean;
+  nearMissCostAHeart: boolean;
+  sawBiome2: boolean;
 };
 
 function simulate(runSeed: string): SimResult {
@@ -32,25 +36,51 @@ function simulate(runSeed: string): SimResult {
   const kindsSeen = new Set<string>();
   const milestoneMeters: number[] = [];
   let gameOver = false;
+  let hitAndNearMissSameFrame = false;
+  let nearMissCostAHeart = false;
+  let sawBiome2 = false;
 
   while (time < MAX_SIM_SECONDS && world.status !== "over") {
     // The shared steering policy — identical code to the browser demo.
     pilotSteer(world);
 
+    // Snapshot the meters the near-miss pass must never touch (hearts only
+    // move on a hit, so a near-miss frame without a hit frame must not lose
+    // one; score ticks from distance every frame and is not attributable).
+    const heartsBefore = world.hearts;
+
     stepWorld(world, DT);
     time += DT;
 
+    let frameHit = false;
+    let frameNear = false;
     for (const slot of world.obstacles.slots) {
       if (slot.active) kindsSeen.add(slot.data.kind);
     }
     for (const event of world.events) {
       if (event.type === "milestone") milestoneMeters.push(event.meters);
       if (event.type === "gameover") gameOver = true;
+      if (event.type === "hit") frameHit = true;
+      if (event.type === "nearMiss") frameNear = true;
     }
+    if (frameHit && frameNear) hitAndNearMissSameFrame = true;
+    if (frameNear && !frameHit && world.hearts < heartsBefore) {
+      nearMissCostAHeart = true;
+    }
+    if (world.biomeIndex >= 2) sawBiome2 = true;
     world.events.length = 0;
   }
 
-  return { world, seconds: time, gameOver, milestoneMeters, kindsSeen };
+  return {
+    world,
+    seconds: time,
+    gameOver,
+    milestoneMeters,
+    kindsSeen,
+    hitAndNearMissSameFrame,
+    nearMissCostAHeart,
+    sawBiome2,
+  };
 }
 
 let failures = 0;
@@ -97,6 +127,24 @@ const replay = simulate("kitty-run/sim/v1");
 check(
   "the whole run replays identically from its seed",
   replay.world.distance === w.distance && replay.world.score === w.score,
+);
+
+// --- director + near-miss invariants ------------------------------------------
+//
+// The near-miss pass is cosmetic by contract: it must never share a frame
+// with a hit (the collision block's break + invuln guard make that
+// structurally impossible) and must never cost a heart. The district
+// pointer must reach the third district inside a long run, and the
+// difficulty ramp keeps its bounds.
+
+check("no nearMiss on a frame that also hit", !run.hitAndNearMissSameFrame);
+check("nearMiss never costs a heart", !run.nearMissCostAHeart);
+check("150s run crosses into Frostglass Gardens (biomeIndex >= 2)", run.sawBiome2);
+check(
+  "difficulty stays bounded and monotone",
+  directorDifficulty(0.5, 100) <= directorDifficulty(0.5, 500) &&
+    directorDifficulty(1, 5000) <= 1 &&
+    directorDifficulty(0, 0) >= 0,
 );
 
 // --- fresh-jump dash-cancel (touch ducking) -----------------------------------

@@ -179,6 +179,14 @@ export class Sfx {
     this.burst({ filter: "lowpass", freq: 900, duration: 0.05, volume: 0.03, source: "dust" });
   }
 
+  // The near-miss "tick" — a soft, quick mint chime. Quiet and short so the
+  // sparse near-miss stream never machine-guns; matches the house tone()
+  // style (see land()). No new state, no new nodes.
+  nearMiss(): void {
+    this.tone({ type: "sine", from: 1760, to: 2340, duration: 0.09, volume: 0.035 });
+    this.tone({ type: "triangle", from: 2640, at: 0.008, duration: 0.06, volume: 0.02 });
+  }
+
   pickup(combo: number): void {
     const step =
       PENTATONIC[combo % PENTATONIC.length] +

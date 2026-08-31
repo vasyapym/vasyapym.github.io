@@ -1,12 +1,16 @@
-// The rolling ground: a white frosting edge and a pink band that both
-// follow groundY(), over a flat body plane. The ribbons rewrite their
-// vertex heights each frame from the one ground function, so the mesh the
-// player sees is exactly the ground the physics samples.
+// The rolling ground: a frosting band and a luminous edge that both follow
+// groundY(), over a flat body plane. The ribbons rewrite their vertex heights
+// each frame from the one ground function, so the mesh the player sees is
+// exactly the ground the physics samples. The three materials are
+// biome-tinted in the same pass: precomputed per-district colours lerped by
+// world.biomeIndex/biomeMix (identity at district I), zero per-frame
+// allocation.
 
 import { useMemo, useRef } from "react";
 import * as THREE from "three";
 import { useFrame } from "@react-three/fiber";
 import { groundY } from "../lib/ground.ts";
+import { BIOME_PALETTES } from "../lib/director.ts";
 import { PALETTE } from "../lib/palette.ts";
 import type { WorldState } from "./world.ts";
 
@@ -16,6 +20,16 @@ const COLUMNS = 160;
 const BAND_THICKNESS = 0.55;
 const EDGE_THICKNESS = 0.13;
 const BODY_FLOOR = -7;
+
+// Precomputed per-district ground colours + module-level scratch (the lerp
+// target is reused every frame — nothing allocates in the hot path).
+const LAST_G = BIOME_PALETTES.length - 1;
+const groundBodyCols = BIOME_PALETTES.map((p) => new THREE.Color(p.groundBody));
+const groundTopCols = BIOME_PALETTES.map((p) => new THREE.Color(p.groundTop));
+const groundDotCols = BIOME_PALETTES.map((p) => new THREE.Color(p.groundDot));
+const scratchGBody = new THREE.Color();
+const scratchGTop = new THREE.Color();
+const scratchGDot = new THREE.Color();
 
 function ribbonGeometry(): THREE.BufferGeometry {
   const geometry = new THREE.BufferGeometry();
@@ -79,6 +93,24 @@ export function Ground({ world }: { world: WorldState }) {
     if (bandRef.current) updateRibbon(bandGeometry, world.distance, BAND_THICKNESS);
     if (edgeRef.current) updateRibbon(edgeGeometry, world.distance, EDGE_THICKNESS);
     if (bodyRef.current) updateBody(bodyGeometry, world.distance);
+
+    // Biome tint: the ribbons' authored colours are district I's, so this
+    // lerp is identity until the first seam. Materials are unique per mesh
+    // (declared inline), so casting them out is safe.
+    const gi = world.biomeIndex;
+    const gm = world.biomeMix;
+    scratchGBody.lerpColors(groundBodyCols[gi], groundBodyCols[Math.min(gi + 1, LAST_G)], gm);
+    scratchGTop.lerpColors(groundTopCols[gi], groundTopCols[Math.min(gi + 1, LAST_G)], gm);
+    scratchGDot.lerpColors(groundDotCols[gi], groundDotCols[Math.min(gi + 1, LAST_G)], gm);
+    if (bodyRef.current) {
+      (bodyRef.current.material as THREE.MeshBasicMaterial).color.copy(scratchGBody);
+    }
+    if (bandRef.current) {
+      (bandRef.current.material as THREE.MeshBasicMaterial).color.copy(scratchGTop);
+    }
+    if (edgeRef.current) {
+      (edgeRef.current.material as THREE.MeshBasicMaterial).color.copy(scratchGDot);
+    }
   });
 
   return (

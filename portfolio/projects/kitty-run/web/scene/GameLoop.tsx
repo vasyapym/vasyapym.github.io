@@ -6,8 +6,10 @@ import { useEffect, useRef } from "react";
 import { useFrame } from "@react-three/fiber";
 import { COMBO_WINDOW, writeBestScore } from "../lib/score.ts";
 import { saveReplayIfBest, type RunInput } from "../lib/replay.ts";
+import { nextSkill, DISTRICT_LABELS } from "../lib/director.ts";
 import { TUNING } from "../lib/tuning.ts";
 import { buzz } from "../lib/haptics.ts";
+import { PALETTE } from "../lib/palette.ts";
 import type { Sfx } from "../lib/audio.ts";
 import type { Soundtrack } from "../lib/music.ts";
 import { clampInto, stageSpan } from "../lib/framing.ts";
@@ -28,6 +30,9 @@ export type HudRefs = {
   // Bullet-time vignette: opacity follows the clock's dip.
   bullet?: React.RefObject<HTMLDivElement | null>;
   debug?: React.RefObject<HTMLSpanElement | null>;
+  // District chip: the loop writes the current district name into it. Optional
+  // so headless/echo paths that pass no chip stay valid.
+  district?: React.RefObject<HTMLDivElement | null>;
 };
 
 const DASH_TAIL_TIME = 0.12;
@@ -36,6 +41,9 @@ const HEART_RGB = hexRgb("#ff5f8f");
 const STAR_RGB = hexRgb("#ffd84d");
 const HEAL_RGB = hexRgb("#ff8fb8");
 const HIT_RGB = hexRgb("#c6a3ee");
+// Near-miss sparkle colour: the mint scarf accent, so the pop reads as "Nix
+// just grazed it" without competing with pickup or hit colours.
+const MINT_RGB = hexRgb(PALETTE.scarfDeep);
 
 function emitFloater(
   world: WorldState,
@@ -78,6 +86,12 @@ function handleEvents(
         break;
       case "dash":
         sfx?.dash();
+        break;
+      case "nearMiss":
+        sfx?.nearMiss();
+        // One quiet mint sparkle at Nix's shoulder. Cosmetic only — the sim
+        // already set nearMissT for the rig; we just decorate the frame.
+        sparkBurst(world, 0, k.y + 0.9, reducedMotion ? 3 : 7, MINT_RGB, 2.6);
         break;
       case "milestone": {
         sfx?.milestone();
@@ -142,12 +156,20 @@ function handleEvents(
         // otherwise chase every human run forever.
         if (!world.autopilot) {
           writeBestScore(window.localStorage, world.best);
-          // The finished run becomes (or fails to become) the echo future
-          // runs will chase — seed plus timed inputs is the whole recipe.
+          // The ratchet: the stored skill governs the NEXT runs' track, and the
+          // echo replays this run's inputs on that (possibly retuned) track — so
+          // the ghost's outcome may drift slightly from the run it recorded.
+          // Player + echo still share one seed+skill per run, so they never
+          // diverge WITHIN a race; only across the ratchet step.
           saveReplayIfBest(window.localStorage, {
             seed: world.runSeed,
             score: world.score,
             distance: world.distance,
+            skill: nextSkill(world.directorSkill, {
+              distance: world.distance,
+              score: world.score,
+              hearts: world.hearts,
+            }),
             inputs: world.inputLog,
           });
         }
@@ -195,6 +217,18 @@ function writeHud(world: WorldState, hud: HudRefs): void {
   }
   if (hud.debug?.current) {
     hud.debug.current.textContent = `${world.status} · ${world.distance.toFixed(0)}m · obs ${world.obstacles.slots.filter((s) => s.active).length}`;
+  }
+  // District chip. The label is constant within a district, so we only touch
+  // the DOM at a seam — one write per district crossing, not one per frame.
+  // The last-written index is stashed on the element's own dataset so
+  // writeHud stays a plain stateless function.
+  if (hud.district?.current) {
+    const el = hud.district.current;
+    const idx = String(world.biomeIndex);
+    if (el.dataset.index !== idx) {
+      el.dataset.index = idx;
+      el.textContent = DISTRICT_LABELS[world.biomeIndex] ?? "";
+    }
   }
 }
 
