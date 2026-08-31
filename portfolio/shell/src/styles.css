@@ -406,15 +406,16 @@ textarea:focus-visible {
   position: relative;
   display: grid;
   grid-template-columns: minmax(0, 1fr);
-  gap: 0;
+  gap: clamp(1.5rem, 3vw, 2.25rem);
   margin-top: 0;}
 
 
-/* Projects grid top hairline — draws in once when the section reveals. */
+/* Projects grid top hairline — draws in once when the section reveals. Kept:
+   now reads as the catalogue's top rule above the panel stack. */
 .signal-index-grid::before {
   content: "";
   position: absolute;
-  top: 0;
+  top: -0.75rem;
   right: 0;
   left: 0;
   height: 1px;
@@ -427,16 +428,9 @@ textarea:focus-visible {
   transform: scaleX(0);}
 
 
-@property --card-wash {
-  syntax: "<number>";
-  inherits: false;
-  initial-value: 0;
-}
-
-
-/* Per-card identity hues (one hue per project — §3). CSS-only, no TSX.
+/* Per-card identity hues (one hue per project). CSS-only, no TSX.
    Card-art retune (parallel session): muted hues, except kitty-run which
-   carries the candy-goth pivot's spectral mint. */
+   carries the candy-goth pivot's spectral mint. Synced with ProjectArtwork. */
 #project-raft-cluster.signal-index-card { --card-accent: #6f93ad;}
 #project-kitty-run.signal-index-card { --card-accent: #5fe6c0;}
 #project-evening-forest.signal-index-card { --card-accent: #d99e63;}
@@ -445,71 +439,47 @@ textarea:focus-visible {
 #project-practice-map.signal-index-card { --card-accent: #b58e63;}
 
 
+/* Card = a discrete rounded panel in the hero's language:
+   flat --ink-panel scrim, 1px hairline, 2px per-card accent left border. */
 .signal-index-card {
   --reveal-delay: 0ms;
-  --card-wash: 0;
   --card-accent: var(--ink-accent);
   position: relative;
   display: flex;
   min-width: 0;
   flex-direction: column;
   scroll-margin-top: 1.5rem;
-  padding-left: clamp(1.1rem, 2vw, 1.75rem);
-  border-bottom: 1px solid var(--ink-line-soft);
-  border-left: 3px solid color-mix(in srgb, var(--card-accent) 45%, transparent);
+  padding: clamp(1.1rem, 2vw, 1.6rem) clamp(1.1rem, 2vw, 1.6rem) clamp(1.05rem, 2vw, 1.4rem);
+  border: 1px solid var(--ink-line-soft);
+  border-left: 2px solid color-mix(in srgb, var(--card-accent) 42%, transparent);
+  border-radius: 12px;
+  background-color: var(--ink-panel);
   color: var(--ink-text);
   text-decoration: none;
   opacity: 1;
-  /* translateY(0) is load-bearing: it establishes the stacking context the
-     ::after bloom (z-index:-1) depends on. Do NOT remove it. */
-  transform: translateY(0);
-  background: linear-gradient(
-    90deg,
-    transparent 0%,
-    color-mix(in srgb, var(--card-accent) calc(var(--card-wash) * 8%), transparent) 15%,
-    color-mix(in srgb, var(--card-accent) calc(var(--card-wash) * 8%), transparent) 85%,
-    transparent 100%);
   transition:
     clip-path 720ms cubic-bezier(0.22, 1, 0.36, 1) var(--reveal-delay),
     opacity 520ms ease var(--reveal-delay),
-    --card-wash 200ms ease 0ms,
-    border-color 200ms ease 0ms;}
-
-
-/* Top accent hairline sweeps in when a card gains attention. */
-.signal-index-card::before {
-  content: "";
-  position: absolute;
-  z-index: 1;
-  top: -1px;
-  right: 0;
-  left: 0;
-  height: 1px;
-  background: linear-gradient(90deg, var(--card-accent), color-mix(in srgb, var(--card-accent) 4%, transparent));
-  pointer-events: none;
-  opacity: 0;
-  transform: scaleX(0);
-  transform-origin: left center;
-  transition: opacity 240ms ease, transform 340ms cubic-bezier(0.22, 1, 0.36, 1);}
+    background-color 220ms ease,
+    border-color 220ms ease;}
 
 
 /* ===== Scroll reveal — "plotter draw-in" ============================
-   Cards assemble only when scrolled into view. Row is wiped left->right with
-   clip-path; the revealed end-state insets the top by -4px so the ::before
-   accent hairline (top:-1px) is never clipped and the ::after bloom stays
-   inside the clip box. Inner topline->copy->artwork stagger layers on top.
-   ALL hidden states live inside prefers-reduced-motion:no-preference, so
-   reduced motion never hides content and no-JS never hides. */
+   Cards assemble only when scrolled into view. The panel is wiped
+   left->right with clip-path (rounded to match the 12px radius); inner
+   topline->artwork->copy stagger layers on top. ALL hidden states live
+   inside prefers-reduced-motion:no-preference, so reduced motion never
+   hides content and no-JS never hides. */
 @media (prefers-reduced-motion: no-preference) {
   .signal-index-reveal-ready .signal-index-card:not(.is-revealed) {
     opacity: 0;
     visibility: hidden;
-    clip-path: inset(0 100% 0 0);}
+    clip-path: inset(0 100% 0 0 round 12px);}
 
   .signal-index-reveal-ready .signal-index-card.is-revealed {
     opacity: 1;
     visibility: visible;
-    clip-path: inset(-4px 0 0 0);}
+    clip-path: inset(0 round 12px);}
 
   .signal-index-reveal-ready .signal-index-card .signal-index-card-topline,
   .signal-index-reveal-ready .signal-index-card .signal-index-card-copy,
@@ -522,73 +492,37 @@ textarea:focus-visible {
   .signal-index-reveal-ready .signal-index-card .signal-index-card-topline {
     transform: translateX(-18px);}
 
-  .signal-index-reveal-ready .signal-index-card .signal-index-card-copy {
-    transform: translateY(16px);}
-
   .signal-index-reveal-ready .signal-index-card .project-artwork {
     transform: translateY(22px);}
+
+  .signal-index-reveal-ready .signal-index-card .signal-index-card-copy {
+    transform: translateY(16px);}
 
   .signal-index-reveal-ready .signal-index-card.is-revealed .signal-index-card-topline {
     opacity: 1;
     transform: none;
     transition-delay: calc(var(--reveal-delay) + 40ms);}
 
-  .signal-index-reveal-ready .signal-index-card.is-revealed .signal-index-card-copy {
+  .signal-index-reveal-ready .signal-index-card.is-revealed .project-artwork {
     opacity: 1;
     transform: none;
     transition-delay: calc(var(--reveal-delay) + 140ms);}
 
-  .signal-index-reveal-ready .signal-index-card.is-revealed .project-artwork {
+  .signal-index-reveal-ready .signal-index-card.is-revealed .signal-index-card-copy {
     opacity: 1;
     transform: none;
     transition-delay: calc(var(--reveal-delay) + 240ms);}
 }
 
 
-/* Hover = focus parity: spine ignites, wash + bottom hairline engage. */
+/* Hover = focus parity: quiet ink response — surface lift + hairline
+   brighten (ink, not hue) + one restrained spine accent gesture. No wash,
+   no bloom, no colored glow. */
 .signal-index-card:hover,
 .signal-index-card:focus-visible {
-  --card-wash: 1;
-  border-bottom-color: var(--ink-line);
-  border-left-color: var(--card-accent);}
-
-
-/* Cursor-tracked card bloom, recolored to the card hue. --mx/--my are written
-   by the delegated pointermove listener on .signal-index-grid (fine pointer +
-   no-reduced-motion only; falls back to 50%/50%). */
-.signal-index-card::after {
-  content: "";
-  position: absolute;
-  inset: 0;
-  z-index: -1;
-  pointer-events: none;
-  opacity: 0;
-  background: radial-gradient(320px circle at var(--mx, 50%) var(--my, 50%), color-mix(in srgb, var(--card-accent) 12%, transparent), transparent 70%);
-  transition: opacity 240ms ease;}
-
-.signal-index-card:hover::after,
-.signal-index-card:focus-visible::after {
-  opacity: 1;}
-
-.signal-index-card:hover::before,
-.signal-index-card:focus-visible::before {
-  opacity: 1;
-  transform: scaleX(1);}
-
-
-.signal-index-card-copy h3 {
-  margin: 0;
-  color: var(--ink-text);
-  font-family: var(--display);
-  font-size: clamp(1.9rem, 2.6vw, 2.5rem);
-  font-weight: 600;
-  letter-spacing: -0.015em;
-  line-height: 1.02;
-  transition: color 180ms ease;}
-
-.signal-index-card:hover h3,
-.signal-index-card:focus-visible h3 {
-  color: var(--card-accent);}
+  background-color: rgba(238, 234, 224, 0.075);
+  border-color: var(--ink-line);
+  border-left-color: color-mix(in srgb, var(--card-accent) 58%, transparent);}
 
 
 .signal-index-card-topline {
@@ -596,7 +530,7 @@ textarea:focus-visible {
   align-items: baseline;
   justify-content: space-between;
   gap: 1rem;
-  padding: 0.7rem 0 0.55rem;
+  padding: 0 0 0.85rem;
   color: var(--ink-faint);
   font-family: var(--sans);
   font-size: 0.76rem;
@@ -604,7 +538,7 @@ textarea:focus-visible {
 
 
 .signal-index-card-tag {
-  color: var(--card-accent);
+  color: var(--ink-faint);
   font-family: var(--mono);
   font-size: 0.66rem;
   letter-spacing: 0.06em;
@@ -612,26 +546,25 @@ textarea:focus-visible {
 
 
 .signal-index-card-body {
-  display: grid;
-  grid-template-columns: minmax(0, 0.95fr) minmax(320px, 0.85fr);
-  align-items: stretch;
-  gap: clamp(2rem, 5vw, 6rem);
-  padding-bottom: 1.15rem;}
+  display: flex;
+  flex-direction: column;
+  gap: clamp(1.25rem, 2.5vw, 1.75rem);
+  padding-bottom: 0.15rem;}
 
 
 /* ================================================================= *
- * Card illustrations — one canvas per card on a deep-ink field,
- * hairline frame, one identity hue, lowercase mono caption. Frame
- * carries a faint hue tint at rest and ignites (border + tight dark
- * ambient shadow, no glow) on hover. Drawing code is untouched.
+ * Card illustrations — art-first, full-width, the visual subject of
+ * each panel. Deep-ink field, hairline frame, faint identity-hue inner
+ * frame at rest; on hover the frame brightens in INK (not hue) with a
+ * tight dark ambient lift shadow (no glow). Drawing code is untouched.
  * ================================================================= */
 
 .project-artwork {
   position: relative;
   display: block;
-  min-height: 205px;
+  min-height: clamp(260px, 26vw, 360px);
   border: 1px solid var(--ink-line-soft);
-  border-radius: 2px;
+  border-radius: 6px;
   background: var(--ink-bg);
   background-image: linear-gradient(
     180deg,
@@ -640,17 +573,17 @@ textarea:focus-visible {
   );
   overflow: hidden;
   isolation: isolate;
-  transition: border-color 220ms ease, box-shadow 260ms ease;}
+  transition: border-color 260ms ease, box-shadow 260ms ease;}
 
 .project-artwork::before {
   content: "";
   position: absolute;
   inset: 9px;
-  border: 1px solid color-mix(in srgb, var(--card-accent) 14%, var(--ink-line-soft));
-  border-radius: 1px;
+  border: 1px solid color-mix(in srgb, var(--card-accent) 12%, var(--ink-line-soft));
+  border-radius: 3px;
   pointer-events: none;
   z-index: 1;
-  transition: border-color 220ms ease;}
+  transition: border-color 260ms ease;}
 
 .project-artwork canvas {
   position: absolute;
@@ -662,12 +595,12 @@ textarea:focus-visible {
 
 .signal-index-card:hover .project-artwork,
 .signal-index-card:focus-visible .project-artwork {
-  border-color: color-mix(in srgb, var(--card-accent) 60%, var(--ink-line));
+  border-color: var(--ink-line);
   box-shadow: 0 10px 26px -14px rgba(0, 0, 0, 0.6);}
 
 .signal-index-card:hover .project-artwork::before,
 .signal-index-card:focus-visible .project-artwork::before {
-  border-color: color-mix(in srgb, var(--card-accent) 42%, transparent);}
+  border-color: var(--ink-line);}
 
 .art-caption {
   position: absolute;
@@ -692,13 +625,20 @@ textarea:focus-visible {
 .signal-index-card-copy {
   display: flex;
   min-width: 0;
-  flex: 1;
-  flex-direction: column;
-  padding: 0.45rem 0 0;}
+  flex-direction: column;}
+
+.signal-index-card-copy h3 {
+  margin: 0;
+  color: var(--ink-text);
+  font-family: var(--display);
+  font-size: clamp(1.9rem, 2.6vw, 2.5rem);
+  font-weight: 600;
+  letter-spacing: -0.015em;
+  line-height: 1.02;}
 
 
 .signal-index-card-description {
-  max-width: 460px;
+  max-width: 560px;
   margin: 0.7rem 0 0;
   color: var(--ink-muted);
   font-size: 0.86rem;
@@ -739,24 +679,14 @@ textarea:focus-visible {
 .signal-index-card:hover .signal-index-card-link,
 .signal-index-card:focus-visible .signal-index-card-link {
   gap: 0.85rem;
-  color: var(--card-accent);}
+  color: var(--ink-accent-bright);}
 
 .signal-index-card:hover .signal-index-card-link [aria-hidden],
 .signal-index-card:focus-visible .signal-index-card-link [aria-hidden] {
   transform: translate(2px, -2px);}
 
 
-/* Artwork min-height on the smallest widths (was inside old §5.1). */
-@media (max-width: 560px) {
-  .project-artwork {
-    min-height: 190px;}
-  .art-caption {
-    font-size: 0.58rem;}
-  .signal-index-card {
-    padding-left: clamp(0.9rem, 4vw, 1.25rem);}}
-
-
-/* Shared project frame */
+/* [keep] Shared project frame */
 .project-frame {
   min-height: 100vh;
   color: var(--ink-text);
@@ -764,12 +694,10 @@ textarea:focus-visible {
   --focus-ring: var(--ink-accent-bright);
   font-family: var(--sans);}
 
-
 .project-frame-topbar {
   background: var(--ink-bg);
   border-bottom: 1px solid var(--ink-line-soft);
   --focus-ring: var(--ink-accent-bright);}
-
 
 .project-frame-nav {
   display: flex;
@@ -778,7 +706,6 @@ textarea:focus-visible {
   width: min(100% - 72px, 1200px);
   min-height: 60px;
   gap: 2rem;}
-
 
 .back-link {
   display: inline-flex;
@@ -795,11 +722,9 @@ textarea:focus-visible {
   text-transform: none;
   transition: color 180ms ease, gap 180ms ease;}
 
-
 .back-link:hover {
   gap: 0.8rem;
   color: var(--ink-accent-bright);}
-
 
 .project-frame-label {
   max-width: 52%;
@@ -813,13 +738,11 @@ textarea:focus-visible {
   text-transform: lowercase;
   white-space: nowrap;}
 
-
 .project-loading {
   padding-top: 5rem;
   color: var(--ink-muted);
   font-family: var(--sans);
   font-size: 0.78rem;}
-
 
 .project-crash {
   padding-top: 5rem;
@@ -851,32 +774,38 @@ textarea:focus-visible {
   word-break: break-word;}
 
 
+/* Quiet index */
+.signal-index-header {
+  min-height: 64px;}
 
 
+/* Responsive — the body is now a single flex column at every width, so no
+   grid-template / order rules are needed; only the artwork floor changes. */
 @media (max-width: 700px) {
-  .signal-index-grid { grid-template-columns: 1fr; }
-
-  .signal-index-card-body { grid-template-columns: 1fr; gap: 1.25rem; }
-  .project-artwork { order: 2; }}
+  .signal-index-card-body {
+    gap: 1.25rem;}
+  .project-artwork {
+    min-height: 220px;}}
 
 
 @media (max-width: 560px) {
-  .section-shell,
-  .signal-index-shell,
-  .project-frame-nav { width: min(100% - 32px, 1280px); }
+  .section-shell,                              /* [keep] */
+  .signal-index-shell,                         /* [keep] */
+  .project-frame-nav { width: min(100% - 32px, 1280px); }  /* [keep] */
 
-  .signal-index-header,
+  .signal-index-header,                        /* [keep] */
   .signal-index-card-footer {
     align-items: flex-start;
     flex-direction: column;
   }
 
-  .signal-index-header { gap: 0.65rem; }
-  .signal-index-card-body { gap: 1rem; }
+  .signal-index-header { gap: 0.65rem; }       /* [keep] */
+  .signal-index-card { padding: clamp(0.9rem, 4vw, 1.25rem); }
   .signal-index-card-copy h3 { font-size: 1.75rem; }
-  .project-artwork { min-height: 190px; }
+  .project-artwork { min-height: clamp(200px, 56vw, 220px); }
+  .art-caption { font-size: 0.58rem; }
 
-  .project-frame-nav {
+  .project-frame-nav {                         /* [keep] */
     align-items: flex-start;
     flex-direction: column;
     justify-content: center;
@@ -885,37 +814,13 @@ textarea:focus-visible {
     padding-bottom: 1rem;
   }
 
-  .project-frame-label { max-width: 100%; }}
+  .project-frame-label { max-width: 100%; }}   /* [keep] */
 
 
 @media (prefers-reduced-motion: reduce) {
   html { scroll-behavior: auto; }
   *, *::before, *::after { animation-duration: 0.01ms !important; animation-iteration-count: 1 !important; transition-duration: 0.01ms !important; }
   .project-artwork-object, .signal-index-card { transform: none !important; }}
-
-
-/* Quiet index */
-.signal-index-header {
-  min-height: 64px;}
-
-
-
-
-@media (max-width: 900px) {
-  .signal-index-card-body {
-    grid-template-columns: minmax(0, 0.9fr) minmax(280px, 1fr);
-  }}
-
-
-@media (max-width: 700px) {
-  .signal-index-card-body {
-    grid-template-columns: 1fr;
-    gap: 1.1rem;
-  }
-
-  .project-artwork {
-    min-height: 195px;
-  }}
 
 
 @media (max-width: 560px) {

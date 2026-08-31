@@ -270,48 +270,6 @@ export default function LandingPage({ projects, onOpenProject }: LandingPageProp
   }, []);
 
   useEffect(() => {
-    const finePointer = window.matchMedia("(pointer: fine)");
-    const reduceMotion = window.matchMedia("(prefers-reduced-motion: reduce)");
-    if (!finePointer.matches || reduceMotion.matches) {
-      return undefined;
-    }
-    const grid = pageRef.current?.querySelector<HTMLElement>(".signal-index-grid");
-    if (!grid) {
-      return undefined;
-    }
-    let raf = 0;
-    let pending: { card: HTMLElement; x: number; y: number } | null = null;
-    const flush = () => {
-      raf = 0;
-      if (!pending) {
-        return;
-      }
-      pending.card.style.setProperty("--mx", `${pending.x}px`);
-      pending.card.style.setProperty("--my", `${pending.y}px`);
-      pending = null;
-    };
-    const onMove = (event: PointerEvent) => {
-      const target = event.target as HTMLElement | null;
-      const card = target?.closest<HTMLElement>(".signal-index-card") ?? null;
-      if (!card) {
-        return;
-      }
-      const rect = card.getBoundingClientRect();
-      pending = { card, x: event.clientX - rect.left, y: event.clientY - rect.top };
-      if (raf === 0) {
-        raf = requestAnimationFrame(flush);
-      }
-    };
-    grid.addEventListener("pointermove", onMove, { passive: true });
-    return () => {
-      grid.removeEventListener("pointermove", onMove);
-      if (raf !== 0) {
-        cancelAnimationFrame(raf);
-      }
-    };
-  }, []);
-
-  useEffect(() => {
     scheduleIdleWarm(() => {
       for (const project of projects) {
         warmProjectPage(project);
@@ -420,6 +378,7 @@ export default function LandingPage({ projects, onOpenProject }: LandingPageProp
                   <span>{project.technologies.join(" · ")}</span>
                 </div>
                 <div className="signal-index-card-body">
+                  <ProjectArtwork project={project} />
                   <div className="signal-index-card-copy">
                     <h3>{project.title}</h3>
                     <p className="signal-index-card-description">{project.description}</p>
@@ -427,7 +386,6 @@ export default function LandingPage({ projects, onOpenProject }: LandingPageProp
                       <span className="signal-index-card-link">open <span aria-hidden="true">↗</span></span>
                     </div>
                   </div>
-                  <ProjectArtwork project={project} />
                 </div>
               </a>
             ))}
