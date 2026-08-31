@@ -15,3 +15,5 @@
 {"type":"edge.added","id":"e7","ts":"2026-08-27T09:56:37.774Z","from":"n7","to":"n8","rel":"continues"}
 {"type":"node.added","id":"n9","ts":"2026-08-29T16:01:08.652Z","kind":"iteration","actor":"user","title":"feat(practice-map): replace first five Linux lessons with long-form md course","artifacts":[{"kind":"git-commit","ref":"2d76af2"}],"meta":{"source":"auto"}}
 {"type":"edge.added","id":"e8","ts":"2026-08-29T16:01:08.655Z","from":"n8","to":"n9","rel":"continues"}
+{"type":"node.added","id":"n10","ts":"2026-08-31T19:43:09.014Z","kind":"iteration","actor":"user","title":"Redesign project cards as Gemstones: two-up grid, six glossy SVG gems, breathe + halo pulse","artifacts":[{"kind":"git-commit","ref":"188d5ba"}],"meta":{"source":"auto"}}
+{"type":"edge.added","id":"e9","ts":"2026-08-31T19:43:09.014Z","from":"n9","to":"n10","rel":"continues"}

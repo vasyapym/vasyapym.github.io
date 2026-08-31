@@ -34,3 +34,11 @@
 {"type":"edge.added","id":"e15","ts":"2026-08-30T11:16:01.537Z","from":"n18","to":"n19","rel":"continues"}
 {"type":"node.added","id":"n20","ts":"2026-08-30T11:24:50.543Z","kind":"iteration","actor":"user","title":"Explosion copy polish: drop meta commentary from the page, list Rust in the card stack","artifacts":[{"kind":"git-commit","ref":"b8ddad6"}],"meta":{"source":"auto"}}
 {"type":"edge.added","id":"e16","ts":"2026-08-30T11:24:50.547Z","from":"n19","to":"n20","rel":"continues"}
+{"type":"node.added","id":"n21","ts":"2026-08-30T21:14:02.162Z","kind":"iteration","actor":"user","title":"Redraw Raft Cluster and Explosion card marks: log-spine election, paper-lantern seam","artifacts":[{"kind":"git-commit","ref":"6450685"}],"meta":{"source":"auto"}}
+{"type":"edge.added","id":"e17","ts":"2026-08-30T21:14:02.183Z","from":"n20","to":"n21","rel":"continues"}
+{"type":"node.added","id":"n22","ts":"2026-08-30T21:40:36.967Z","kind":"iteration","actor":"user","title":"Rework Raft Cluster and Explosion card art: beacon election, mid-blast moon; lift panel grounds","artifacts":[{"kind":"git-commit","ref":"d5fd807"}],"meta":{"source":"auto"}}
+{"type":"edge.added","id":"e18","ts":"2026-08-30T21:40:36.969Z","from":"n21","to":"n22","rel":"continues"}
+{"type":"node.added","id":"n23","ts":"2026-08-30T22:15:34.599Z","kind":"iteration","actor":"user","title":"Recolor Raft card as azure leader-election constellation with quorum backdrop; stage Explosion backdrop family","artifacts":[{"kind":"git-commit","ref":"76459f3"}],"meta":{"source":"auto"}}
+{"type":"edge.added","id":"e19","ts":"2026-08-30T22:15:34.615Z","from":"n22","to":"n23","rel":"continues"}
+{"type":"node.added","id":"n24","ts":"2026-08-31T19:43:08.883Z","kind":"iteration","actor":"user","title":"Redesign project cards as Gemstones: two-up grid, six glossy SVG gems, breathe + halo pulse","artifacts":[{"kind":"git-commit","ref":"188d5ba"}],"meta":{"source":"auto"}}
+{"type":"edge.added","id":"e20","ts":"2026-08-31T19:43:08.986Z","from":"n23","to":"n24","rel":"continues"}

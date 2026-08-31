@@ -3,3 +3,11 @@
 {"type":"edge.added","id":"e1","ts":"2026-08-30T20:23:59.276Z","from":"n1","to":"n2","rel":"continues"}
 {"type":"node.added","id":"n3","ts":"2026-08-30T20:44:16.227Z","kind":"iteration","actor":"user","title":"Pin Raft Cluster first on the landing and trim its card description","artifacts":[{"kind":"git-commit","ref":"5067950"}],"meta":{"source":"auto"}}
 {"type":"edge.added","id":"e2","ts":"2026-08-30T20:44:16.231Z","from":"n2","to":"n3","rel":"continues"}
+{"type":"node.added","id":"n4","ts":"2026-08-30T21:14:02.200Z","kind":"iteration","actor":"user","title":"Redraw Raft Cluster and Explosion card marks: log-spine election, paper-lantern seam","artifacts":[{"kind":"git-commit","ref":"6450685"}],"meta":{"source":"auto"}}
+{"type":"edge.added","id":"e3","ts":"2026-08-30T21:14:02.201Z","from":"n3","to":"n4","rel":"continues"}
+{"type":"node.added","id":"n5","ts":"2026-08-30T21:40:36.972Z","kind":"iteration","actor":"user","title":"Rework Raft Cluster and Explosion card art: beacon election, mid-blast moon; lift panel grounds","artifacts":[{"kind":"git-commit","ref":"d5fd807"}],"meta":{"source":"auto"}}
+{"type":"edge.added","id":"e4","ts":"2026-08-30T21:40:36.977Z","from":"n4","to":"n5","rel":"continues"}
+{"type":"node.added","id":"n6","ts":"2026-08-30T22:15:34.632Z","kind":"iteration","actor":"user","title":"Recolor Raft card as azure leader-election constellation with quorum backdrop; stage Explosion backdrop family","artifacts":[{"kind":"git-commit","ref":"76459f3"}],"meta":{"source":"auto"}}
+{"type":"edge.added","id":"e5","ts":"2026-08-30T22:15:34.633Z","from":"n5","to":"n6","rel":"continues"}
+{"type":"node.added","id":"n7","ts":"2026-08-31T19:43:09.015Z","kind":"iteration","actor":"user","title":"Redesign project cards as Gemstones: two-up grid, six glossy SVG gems, breathe + halo pulse","artifacts":[{"kind":"git-commit","ref":"188d5ba"}],"meta":{"source":"auto"}}
+{"type":"edge.added","id":"e6","ts":"2026-08-31T19:43:09.015Z","from":"n6","to":"n7","rel":"continues"}

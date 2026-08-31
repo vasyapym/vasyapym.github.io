@@ -9,3 +9,5 @@
 {"type":"edge.added","id":"e4","ts":"2026-08-25T10:53:47.072Z","from":"n4","to":"n5","rel":"continues"}
 {"type":"node.added","id":"n6","ts":"2026-08-27T09:56:37.772Z","kind":"iteration","actor":"user","title":"feat(portfolio): hero at native density on all platforms, unbounded light fade, card hover polish, five custom artworks","artifacts":[{"kind":"git-commit","ref":"a3e6607"}],"meta":{"source":"auto"}}
 {"type":"edge.added","id":"e5","ts":"2026-08-27T09:56:37.773Z","from":"n5","to":"n6","rel":"continues"}
+{"type":"node.added","id":"n7","ts":"2026-08-31T19:43:09.013Z","kind":"iteration","actor":"user","title":"Redesign project cards as Gemstones: two-up grid, six glossy SVG gems, breathe + halo pulse","artifacts":[{"kind":"git-commit","ref":"188d5ba"}],"meta":{"source":"auto"}}
+{"type":"edge.added","id":"e6","ts":"2026-08-31T19:43:09.013Z","from":"n6","to":"n7","rel":"continues"}
