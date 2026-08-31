@@ -399,14 +399,15 @@ textarea:focus-visible {
 
 
 .signal-index-projects {
-  padding: 1rem 0 clamp(4.5rem, 8vw, 6.5rem);}
+  padding: 0.5rem 0 clamp(4.5rem, 8vw, 6.5rem);}
 
 
 .signal-index-grid {
+  position: relative;
   display: grid;
   grid-template-columns: minmax(0, 1fr);
   gap: 0;
-  margin-top: 1.5rem;}
+  margin-top: 0;}
 
 
 /* Projects grid top hairline — draws in once when the section reveals. */
@@ -422,11 +423,6 @@ textarea:focus-visible {
   transform: scaleX(1);
   transition: transform 760ms cubic-bezier(0.22, 1, 0.36, 1);}
 
-
-.signal-index-grid {
-  position: relative;}
-
-
 .signal-index-reveal-ready .signal-index-projects:not(.is-revealed) .signal-index-grid::before {
   transform: scaleX(0);}
 
@@ -437,33 +433,40 @@ textarea:focus-visible {
   initial-value: 0;
 }
 
+
+/* Per-card identity hues (one hue per project — §3). CSS-only, no TSX. */
+#project-raft-cluster.signal-index-card { --card-accent: #4ea3ff;}
+#project-kitty-run.signal-index-card { --card-accent: #e08aa0;}
+#project-evening-forest.signal-index-card { --card-accent: #ffb45e;}
+#project-explosion.signal-index-card { --card-accent: #ff8a3c;}
+#project-planck-to-now.signal-index-card { --card-accent: #ffd39a;}
+#project-practice-map.signal-index-card { --card-accent: #cf9d63;}
+
+
 .signal-index-card {
   --reveal-delay: 0ms;
   --card-wash: 0;
+  --card-accent: var(--ink-accent);
   position: relative;
   display: flex;
   min-width: 0;
   flex-direction: column;
   scroll-margin-top: 1.5rem;
+  padding-left: clamp(1.1rem, 2vw, 1.75rem);
   border-bottom: 1px solid var(--ink-line-soft);
+  border-left: 3px solid color-mix(in srgb, var(--card-accent) 45%, transparent);
   color: var(--ink-text);
   text-decoration: none;
   opacity: 1;
   /* translateY(0) is load-bearing: it establishes the stacking context the
-     ::after bloom (z-index:-1) depends on. Do NOT remove it. Card-level motion
-     is handled by clip-path (below) so this stays static. */
+     ::after bloom (z-index:-1) depends on. Do NOT remove it. */
   transform: translateY(0);
-  /* Hover highlight = edge-fading horizontal gradient, not a flat full-width
-     wash — no hard left/right rectangle. --card-wash drives its alpha so it
-     still fades in over 200ms. */
   background: linear-gradient(
     90deg,
     transparent 0%,
-    rgba(238, 234, 224, calc(var(--card-wash) * 0.055)) 20%,
-    rgba(238, 234, 224, calc(var(--card-wash) * 0.055)) 80%,
+    color-mix(in srgb, var(--card-accent) calc(var(--card-wash) * 8%), transparent) 15%,
+    color-mix(in srgb, var(--card-accent) calc(var(--card-wash) * 8%), transparent) 85%,
     transparent 100%);
-  /* Reveal (clip-path wipe + opacity, delayed per --reveal-delay) coexists
-     with hover (--card-wash + border-color, always 0ms). */
   transition:
     clip-path 720ms cubic-bezier(0.22, 1, 0.36, 1) var(--reveal-delay),
     opacity 520ms ease var(--reveal-delay),
@@ -480,7 +483,7 @@ textarea:focus-visible {
   right: 0;
   left: 0;
   height: 1px;
-  background: linear-gradient(90deg, var(--ink-accent), rgba(211, 155, 97, 0.04));
+  background: linear-gradient(90deg, var(--card-accent), color-mix(in srgb, var(--card-accent) 4%, transparent));
   pointer-events: none;
   opacity: 0;
   transform: scaleX(0);
@@ -489,16 +492,12 @@ textarea:focus-visible {
 
 
 /* ===== Scroll reveal — "plotter draw-in" ============================
-   Cards assemble only when scrolled into view. The row is wiped in left->right
-   with clip-path; the revealed end-state insets the top by -4px so the ::before
-   accent hairline (top:-1px) is never clipped and the ::after bloom (inset:0)
-   stays inside the clip box. Inner topline->copy->artwork stagger layers on top.
-
+   Cards assemble only when scrolled into view. Row is wiped left->right with
+   clip-path; the revealed end-state insets the top by -4px so the ::before
+   accent hairline (top:-1px) is never clipped and the ::after bloom stays
+   inside the clip box. Inner topline->copy->artwork stagger layers on top.
    ALL hidden states live inside prefers-reduced-motion:no-preference, so
-   (a) reduced-motion never hides content and (b) without JS (no
-   .signal-index-reveal-ready) nothing hides. Hidden cards use visibility:hidden
-   => out of the tab order until revealed, while keeping their layout box so
-   animateScrollToCard offsets stay correct. */
+   reduced motion never hides content and no-JS never hides. */
 @media (prefers-reduced-motion: no-preference) {
   .signal-index-reveal-ready .signal-index-card:not(.is-revealed) {
     opacity: 0;
@@ -510,8 +509,6 @@ textarea:focus-visible {
     visibility: visible;
     clip-path: inset(-4px 0 0 0);}
 
-  /* Inner stagger: topline slides from the left (reinforcing the L->R wipe),
-     copy rises, artwork rises last. Gated so nothing hides without JS/reduce. */
   .signal-index-reveal-ready .signal-index-card .signal-index-card-topline,
   .signal-index-reveal-ready .signal-index-card .signal-index-card-copy,
   .signal-index-reveal-ready .signal-index-card .project-artwork {
@@ -546,15 +543,17 @@ textarea:focus-visible {
 }
 
 
+/* Hover = focus parity: spine ignites, wash + bottom hairline engage. */
 .signal-index-card:hover,
 .signal-index-card:focus-visible {
   --card-wash: 1;
-  border-bottom-color: var(--ink-line);}
+  border-bottom-color: var(--ink-line);
+  border-left-color: var(--card-accent);}
 
 
-/* Cursor-tracked card bloom. The card establishes a stacking context (its
-   base transform), so z-index:-1 paints above the panel background and
-   below content; the ::before hairline (z-index:1) is untouched. */
+/* Cursor-tracked card bloom, recolored to the card hue. --mx/--my are written
+   by the delegated pointermove listener on .signal-index-grid (fine pointer +
+   no-reduced-motion only; falls back to 50%/50%). */
 .signal-index-card::after {
   content: "";
   position: absolute;
@@ -562,14 +561,12 @@ textarea:focus-visible {
   z-index: -1;
   pointer-events: none;
   opacity: 0;
-  background: radial-gradient(300px circle at var(--mx, 50%) var(--my, 50%), rgba(232, 181, 124, 0.08), transparent 70%);
+  background: radial-gradient(320px circle at var(--mx, 50%) var(--my, 50%), color-mix(in srgb, var(--card-accent) 12%, transparent), transparent 70%);
   transition: opacity 240ms ease;}
-
 
 .signal-index-card:hover::after,
 .signal-index-card:focus-visible::after {
   opacity: 1;}
-
 
 .signal-index-card:hover::before,
 .signal-index-card:focus-visible::before {
@@ -578,32 +575,18 @@ textarea:focus-visible {
 
 
 .signal-index-card-copy h3 {
+  margin: 0;
+  color: var(--ink-text);
+  font-family: var(--display);
+  font-size: clamp(1.9rem, 2.6vw, 2.5rem);
+  font-weight: 600;
+  letter-spacing: -0.015em;
+  line-height: 1.02;
   transition: color 180ms ease;}
-
 
 .signal-index-card:hover h3,
 .signal-index-card:focus-visible h3 {
-  color: var(--ink-accent-bright);}
-
-
-.signal-index-card-link {
-  display: inline-flex;
-  align-items: center;
-  gap: 0.55rem;
-  transition: gap 180ms ease, color 180ms ease;}
-
-.signal-index-card-link [aria-hidden] {
-  transition: transform 180ms cubic-bezier(0.22, 1, 0.36, 1);}
-
-
-.signal-index-card:hover .signal-index-card-link,
-.signal-index-card:focus-visible .signal-index-card-link {
-  gap: 0.85rem;
-  color: var(--ink-accent-bright);}
-
-.signal-index-card:hover .signal-index-card-link [aria-hidden],
-.signal-index-card:focus-visible .signal-index-card-link [aria-hidden] {
-  transform: translate(2px, -2px);}
+  color: var(--card-accent);}
 
 
 .signal-index-card-topline {
@@ -611,7 +594,7 @@ textarea:focus-visible {
   align-items: baseline;
   justify-content: space-between;
   gap: 1rem;
-  padding: 0.8rem 0 0.65rem;
+  padding: 0.7rem 0 0.55rem;
   color: var(--ink-faint);
   font-family: var(--sans);
   font-size: 0.76rem;
@@ -619,7 +602,7 @@ textarea:focus-visible {
 
 
 .signal-index-card-tag {
-  color: var(--ink-accent);
+  color: var(--card-accent);
   font-family: var(--mono);
   font-size: 0.66rem;
   letter-spacing: 0.06em;
@@ -628,16 +611,17 @@ textarea:focus-visible {
 
 .signal-index-card-body {
   display: grid;
-  grid-template-columns: minmax(0, 0.85fr) minmax(280px, 1fr);
+  grid-template-columns: minmax(0, 0.95fr) minmax(320px, 0.85fr);
   align-items: stretch;
-  gap: clamp(1.5rem, 4vw, 4rem);
-  padding-bottom: 1.5rem;}
+  gap: clamp(2rem, 5vw, 6rem);
+  padding-bottom: 1.15rem;}
 
 
 /* ================================================================= *
- * Pass 23 — clean/airy card illustrations. One canvas per card on a
- * deep-ink field, hairline frame, one identity hue accent, lowercase
- * mono caption. Composed marks + air; no page ornament, no glow.
+ * Card illustrations — one canvas per card on a deep-ink field,
+ * hairline frame, one identity hue, lowercase mono caption. Frame
+ * carries a faint hue tint at rest and ignites (border + tight dark
+ * ambient shadow, no glow) on hover. Drawing code is untouched.
  * ================================================================= */
 
 .project-artwork {
@@ -653,16 +637,18 @@ textarea:focus-visible {
     rgba(238, 234, 224, 0) 42%
   );
   overflow: hidden;
-  isolation: isolate;}
+  isolation: isolate;
+  transition: border-color 220ms ease, box-shadow 260ms ease;}
 
 .project-artwork::before {
   content: "";
   position: absolute;
   inset: 9px;
-  border: 1px solid var(--ink-line-soft);
+  border: 1px solid color-mix(in srgb, var(--card-accent) 14%, var(--ink-line-soft));
   border-radius: 1px;
   pointer-events: none;
-  z-index: 1;}
+  z-index: 1;
+  transition: border-color 220ms ease;}
 
 .project-artwork canvas {
   position: absolute;
@@ -671,6 +657,15 @@ textarea:focus-visible {
   height: 100%;
   display: block;
   z-index: 0;}
+
+.signal-index-card:hover .project-artwork,
+.signal-index-card:focus-visible .project-artwork {
+  border-color: color-mix(in srgb, var(--card-accent) 60%, var(--ink-line));
+  box-shadow: 0 10px 26px -14px rgba(0, 0, 0, 0.6);}
+
+.signal-index-card:hover .project-artwork::before,
+.signal-index-card:focus-visible .project-artwork::before {
+  border-color: color-mix(in srgb, var(--card-accent) 42%, transparent);}
 
 .art-caption {
   position: absolute;
@@ -691,39 +686,22 @@ textarea:focus-visible {
   overflow: hidden;
   text-overflow: ellipsis;}
 
-@media (max-width: 560px) {
-  .project-artwork {
-    min-height: 190px;}
-  .art-caption {
-    font-size: 0.58rem;}}
-
 
 .signal-index-card-copy {
   display: flex;
   min-width: 0;
   flex: 1;
   flex-direction: column;
-  padding: 0.55rem 0 0;}
-
-
-.signal-index-card-copy h3 {
-  margin: 0;
-  color: var(--ink-text);
-  font-family: var(--display);
-  font-size: clamp(1.7rem, 2.2vw, 2.15rem);
-  font-weight: 600;
-  letter-spacing: -0.01em;
-  line-height: 1.05;}
+  padding: 0.45rem 0 0;}
 
 
 .signal-index-card-description {
-  max-width: 500px;
-  margin: 0.65rem 0 0;
+  max-width: 460px;
+  margin: 0.7rem 0 0;
   color: var(--ink-muted);
-  font-size: 0.88rem;
-  line-height: 1.55;
+  font-size: 0.86rem;
+  line-height: 1.5;
   transition: color 180ms ease;}
-
 
 .signal-index-card:hover .signal-index-card-description,
 .signal-index-card:focus-visible .signal-index-card-description {
@@ -736,18 +714,44 @@ textarea:focus-visible {
   justify-content: space-between;
   gap: 1rem;
   margin-top: auto;
-  padding-top: 1.25rem;
+  padding-top: 1rem;
   color: var(--ink-faint);}
 
 
 .signal-index-card-link {
   flex: 0 0 auto;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.55rem;
   color: var(--ink-text);
   font-family: var(--mono);
   font-size: 0.74rem;
   font-weight: 500;
   letter-spacing: 0.05em;
-  text-transform: lowercase;}
+  text-transform: lowercase;
+  transition: gap 180ms ease, color 180ms ease;}
+
+.signal-index-card-link [aria-hidden] {
+  transition: transform 180ms cubic-bezier(0.22, 1, 0.36, 1);}
+
+.signal-index-card:hover .signal-index-card-link,
+.signal-index-card:focus-visible .signal-index-card-link {
+  gap: 0.85rem;
+  color: var(--card-accent);}
+
+.signal-index-card:hover .signal-index-card-link [aria-hidden],
+.signal-index-card:focus-visible .signal-index-card-link [aria-hidden] {
+  transform: translate(2px, -2px);}
+
+
+/* Artwork min-height on the smallest widths (was inside old §5.1). */
+@media (max-width: 560px) {
+  .project-artwork {
+    min-height: 190px;}
+  .art-caption {
+    font-size: 0.58rem;}
+  .signal-index-card {
+    padding-left: clamp(0.9rem, 4vw, 1.25rem);}}
 
 
 /* Shared project frame */
@@ -893,46 +897,6 @@ textarea:focus-visible {
   min-height: 64px;}
 
 
-.signal-index-projects {
-  padding-top: 0.5rem;}
-
-
-.signal-index-grid {
-  margin-top: 0;}
-
-
-.signal-index-card-topline {
-  padding-top: 0.7rem;
-  padding-bottom: 0.55rem;}
-
-
-.signal-index-card-body {
-  grid-template-columns: minmax(0, 0.95fr) minmax(320px, 0.85fr);
-  gap: clamp(2rem, 5vw, 6rem);
-  padding-bottom: 1.15rem;}
-
-
-
-
-.signal-index-card-copy {
-  padding-top: 0.45rem;}
-
-
-.signal-index-card-copy h3 {
-  font-size: clamp(1.55rem, 2vw, 1.95rem);
-  letter-spacing: -0.015em;
-  line-height: 1.02;}
-
-
-.signal-index-card-description {
-  max-width: 460px;
-  margin-top: 0.7rem;
-  font-size: 0.86rem;
-  line-height: 1.5;}
-
-
-.signal-index-card-footer {
-  padding-top: 1rem;}
 
 
 @media (max-width: 900px) {
