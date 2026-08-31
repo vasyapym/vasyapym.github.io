@@ -32,10 +32,10 @@ export type HudRefs = {
 
 const DASH_TAIL_TIME = 0.12;
 
-const HEART_RGB = hexRgb("#ff5f7e");
-const STAR_RGB = hexRgb("#ffd44d");
-const HEAL_RGB = hexRgb("#ff8fb3");
-const HIT_RGB = hexRgb("#ffd44d");
+const HEART_RGB = hexRgb("#ff5f8f");
+const STAR_RGB = hexRgb("#ffd84d");
+const HEAL_RGB = hexRgb("#ff8fb8");
+const HIT_RGB = hexRgb("#c6a3ee");
 
 function emitFloater(
   world: WorldState,

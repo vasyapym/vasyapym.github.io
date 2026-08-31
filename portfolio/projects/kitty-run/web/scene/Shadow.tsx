@@ -41,7 +41,7 @@ export function Shadow({ world }: { world: WorldState }) {
       <planeGeometry />
       <meshBasicMaterial
         map={texture}
-        color="#b96a8a"
+        color="#120a20"
         transparent
         opacity={GROUND_OPACITY}
         depthWrite={false}

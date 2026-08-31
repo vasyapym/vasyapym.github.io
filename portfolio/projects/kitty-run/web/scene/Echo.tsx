@@ -21,19 +21,19 @@ import type { WorldState } from "./world.ts";
 
 const ECHO_OPACITY = 0.66;
 
-// The restyle: every rig colour maps into one dusty-rose family pulled
-// toward the scene's own pinks, so the copy reads as a faded print of
-// Momo rather than a second one — and never as the icy specter the old
-// blue-white tint made of her.
+// The restyle: every rig colour maps into one pale spectral-mint family — a
+// ghostly, cool tint of Vesper's accent hue — so the copy reads as a faded
+// wisp-memory of her against the dark plum world, never a second solid cat
+// and never the old dusty rose.
 const FADED: Record<string, string> = {
-  [PALETTE.furCream]: "#f9f2f6",
-  [PALETTE.suitRose]: "#f0d3e0",
-  [PALETTE.scarfCoral]: "#e8b8c9",
-  [PALETTE.scarfDeep]: "#dca6bd",
-  [PALETTE.noseBerry]: "#dba7bc",
-  [PALETTE.cheek]: "#eed3de",
+  [PALETTE.furCream]: "#dfeeea",   // fur → pale minted white
+  [PALETTE.suitRose]: "#a9c4c4",   // romper → dim spectral teal-grey
+  [PALETTE.scarfCoral]: "#8fb0b2", // capelet main → muted mint-slate
+  [PALETTE.scarfDeep]: "#bfeee0",  // mint accent → ghost-mint glow
+  [PALETTE.noseBerry]: "#9db6b6",  // nose → dim mint-grey
+  [PALETTE.cheek]: "#cfe9e2",      // cheek glow → pale mint
   // outlineInk and eyeInk share one ink hex; both map here together.
-  [PALETTE.outlineInk]: "#c49cb2",
+  [PALETTE.outlineInk]: "#7fa0a0", // ink → soft spectral-grey outline
 };
 
 // When the stage clamp pins the echo next to the player (narrow phones),

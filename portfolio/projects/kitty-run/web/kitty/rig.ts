@@ -1,4 +1,4 @@
-// Pure pose math for the procedural cat hero (Momo). Consumes the flat motion
+// Pure pose math for the procedural cat hero "Vesper". Consumes the flat motion
 // fields from the world and produces every transform the visual component
 // applies. No three.js, no React — the node checks could pin this if needed.
 
@@ -24,11 +24,11 @@ export type KittyPose = {
   earL: number;
   earR: number;
   tailSwing: number;
-  scarfSway: number;
-  scarfFlare: number;
-  scarfLift: number;
-  scarfBounce: number;
-  smileScale: number;
+  capeSway: number;
+  capeFlare: number;
+  capeLift: number;
+  capeBounce: number;
+  grinScale: number;
   eyeScaleY: number;
   armSwing: number;
   visible: boolean;
@@ -60,7 +60,8 @@ export function computePose(m: KittyMotionInput): KittyPose {
     ? Math.sin(m.runPhase - 0.8) * 0.085
     : Math.sin(m.now * 9) * 0.05;
 
-  // Cat tail: strides with the run, lifts back on the dash, leans with tilt.
+  // Mint wisp tail: strides with the run, lifts back on the dash, leans with
+  // tilt.
   const tailSwing =
     (m.grounded
       ? Math.sin(m.runPhase + 0.3) * 0.22
@@ -68,21 +69,21 @@ export function computePose(m: KittyMotionInput): KittyPose {
     (m.dashT > 0 ? -0.45 : 0) +
     tilt * 0.3;
 
-  // Signature scarf. sway = counter-rotate the wrap (as the old bow did);
-  // lift = how flat the tails stream during the dash; bounce = per-stride
-  // wiggle; flare = puff on heal flourish and landing squash.
-  const scarfSway =
+  // Signature bat-capelet. sway = counter-rotate the collar (as the old scarf
+  // did); lift = how flat the forked tails stream during the dash; bounce =
+  // per-stride flutter; flare = puff on heal flourish and landing squash.
+  const capeSway =
     -headRot * 1.2 +
     (m.grounded
       ? Math.sin(m.runPhase * 2 + 0.6) * 0.08
       : clamp(-m.vy * 0.02, -0.22, 0.22));
-  const scarfFlare = 1 + m.happyT * 0.4 + Math.max(0, m.squash) * 0.15;
-  const scarfLift = clamp(m.dashT * 1.3, 0, 1);
-  const scarfBounce = m.grounded
+  const capeFlare = 1 + m.happyT * 0.4 + Math.max(0, m.squash) * 0.15;
+  const capeLift = clamp(m.dashT * 1.3, 0, 1);
+  const capeBounce = m.grounded
     ? Math.sin(m.runPhase * 2 - 0.4) * 0.12
     : Math.sin(m.now * 7) * 0.08;
 
-  const smileScale = 1 + m.happyT * 0.6;
+  const grinScale = 1 + m.happyT * 0.6;
   const eyeScaleY = m.blinkShut > 0 ? 0.08 : 1 + m.happyT * 0.3;
 
   const armSwing = m.grounded ? -run * 0.5 : -0.55;
@@ -101,11 +102,11 @@ export function computePose(m: KittyMotionInput): KittyPose {
     earL: earBase + earFlap,
     earR: earBase + earFlap * 0.8,
     tailSwing,
-    scarfSway,
-    scarfFlare,
-    scarfLift,
-    scarfBounce,
-    smileScale,
+    capeSway,
+    capeFlare,
+    capeLift,
+    capeBounce,
+    grinScale,
     eyeScaleY,
     armSwing,
     visible,

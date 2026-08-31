@@ -23,39 +23,41 @@ function toTexture(canvas: HTMLCanvasElement): THREE.CanvasTexture {
   return texture;
 }
 
-// Vertical pastel gradient with a soft sun baked into the top right.
+// Vertical dusk-to-night gradient with a low cool moon baked into the top
+// right — a mint lantern in the plum.
 export function skyTexture(): THREE.CanvasTexture {
   const { canvas, ctx } = makeCanvas(512, 512);
   const gradient = ctx.createLinearGradient(0, 0, 0, 512);
   gradient.addColorStop(0, PALETTE.skyTop);
-  gradient.addColorStop(0.62, "#d8ecf8");
+  gradient.addColorStop(0.62, "#2a1746");
   gradient.addColorStop(1, PALETTE.skyBottom);
   ctx.fillStyle = gradient;
   ctx.fillRect(0, 0, 512, 512);
 
-  const sunX = 396;
-  const sunY = 172;
-  const glow = ctx.createRadialGradient(sunX, sunY, 8, sunX, sunY, 150);
-  glow.addColorStop(0, "rgba(255, 252, 240, 0.95)");
-  glow.addColorStop(0.25, "rgba(255, 244, 224, 0.5)");
-  glow.addColorStop(1, "rgba(255, 244, 224, 0)");
+  const moonX = 396;
+  const moonY = 172;
+  const glow = ctx.createRadialGradient(moonX, moonY, 8, moonX, moonY, 150);
+  glow.addColorStop(0, "rgba(214, 255, 240, 0.95)");
+  glow.addColorStop(0.25, "rgba(95, 230, 192, 0.28)");
+  glow.addColorStop(1, "rgba(95, 230, 192, 0)");
   ctx.fillStyle = glow;
   ctx.fillRect(0, 0, 512, 512);
-  ctx.fillStyle = "rgba(255, 253, 246, 0.98)";
+  ctx.fillStyle = "rgba(214, 255, 240, 0.95)";
   ctx.beginPath();
-  ctx.arc(sunX, sunY, 34, 0, Math.PI * 2);
+  ctx.arc(moonX, moonY, 34, 0, Math.PI * 2);
   ctx.fill();
 
   return toTexture(canvas);
 }
 
-// A puffy cloud: a handful of overlapping circles with a soft edge.
+// A puffy night cloud: a handful of overlapping circles with a soft edge,
+// tinted into the dusk violet so it never reads as a white glow.
 export function cloudTexture(seed: string): THREE.CanvasTexture {
   const rng = createRng(seed);
   const { canvas, ctx } = makeCanvas(512, 256);
   const puffs = 5 + Math.floor(rng() * 3);
-  ctx.fillStyle = "rgba(255, 255, 255, 0.96)";
-  ctx.shadowColor = "rgba(255, 255, 255, 0.9)";
+  ctx.fillStyle = PALETTE.cloud;
+  ctx.shadowColor = PALETTE.cloud;
   ctx.shadowBlur = 26;
   for (let i = 0; i < puffs; i += 1) {
     const t = puffs === 1 ? 0.5 : i / (puffs - 1);

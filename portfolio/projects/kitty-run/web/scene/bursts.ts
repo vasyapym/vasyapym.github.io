@@ -38,7 +38,7 @@ function randomDir(speed: number): [number, number] {
 }
 
 export function dustPuff(world: WorldState, x: number, y: number, count: number): void {
-  const cream = hexRgb("#fff3f8");
+  const cream = hexRgb("#dfeeea");
   for (let i = 0; i < count; i += 1) {
     emit(world, {
       x: x + (Math.random() - 0.5) * 0.5,
@@ -83,7 +83,7 @@ export function sparkBurst(
 }
 
 export function dashTrail(world: WorldState, x: number, y: number): void {
-  const pink = hexRgb("#ffb3c4");
+  const pink = hexRgb("#5fffcf");
   emit(world, {
     x: x + 0.3 + Math.random() * 0.4,
     y: y + (Math.random() - 0.5) * 0.7,
@@ -103,7 +103,7 @@ export function dashTrail(world: WorldState, x: number, y: number): void {
 // while the world crawls. Low drag and high velocity make the round
 // particles read as motion lines at 60 fps.
 export function speedLine(world: WorldState, y: number): void {
-  const pale = hexRgb("#ffe9f0");
+  const pale = hexRgb("#eafff5");
   emit(world, {
     x: 1.5 + Math.random() * 7,
     y,
