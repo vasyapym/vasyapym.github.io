@@ -1,426 +1,603 @@
-import { useRef, type CSSProperties, type PointerEvent, type ReactElement } from "react";
+import { useEffect, useRef } from "react";
 import type { ProjectModule } from "../../../contracts/project-module";
-import type { ProjectCenter, ProjectPresentationPart } from "../../../contracts/project-presentation";
 
-type ProjectArtworkProps = {
-  project: ProjectModule;
+/* ------------------------------------------------------------------ *
+ * Shared render language: sparse, opaque, discrete marks on a deep-ink
+ * field. One identity hue per card. Hand-rolled Canvas2D, no WebGL,
+ * no blur. Each card runs its own cheap, self-driven system.
+ * ------------------------------------------------------------------ */
+
+const INK_RGB = "238, 234, 224";
+
+type Paint = {
+  ink: (a: number) => string;
+  acc: (a: number) => string;
 };
 
-export default function ProjectArtwork({ project }: ProjectArtworkProps) {
-  const objectRef = useRef<HTMLDivElement>(null);
-  const presentation = project.presentation;
+type DrawFn = (
+  ctx: CanvasRenderingContext2D,
+  w: number,
+  h: number,
+  t: number,
+  p: Paint,
+) => void;
 
-  const handlePointerMove = (event: PointerEvent<HTMLDivElement>) => {
-    if (event.pointerType === "touch" || !objectRef.current) {
-      return;
+const ease = (x: number): number => {
+  const c = x < 0 ? 0 : x > 1 ? 1 : x;
+  return c * c * (3 - 2 * c);
+};
+
+const frand = (i: number): number => {
+  const s = Math.sin(i * 127.1 + 311.7) * 43758.5453;
+  return s - Math.floor(s);
+};
+
+const hexToRgb = (hex: string): string => {
+  const raw = hex.replace("#", "");
+  const n =
+    raw.length === 3
+      ? raw
+          .split("")
+          .map((c) => c + c)
+          .join("")
+      : raw;
+  const r = parseInt(n.slice(0, 2), 16);
+  const g = parseInt(n.slice(2, 4), 16);
+  const b = parseInt(n.slice(4, 6), 16);
+  return `${r}, ${g}, ${b}`;
+};
+
+/* ------------------------------- 01 raft-cluster ------------------- */
+
+const RAFT_NODES: ReadonlyArray<readonly [number, number]> = [
+  [0.2, 0.32],
+  [0.5, 0.2],
+  [0.8, 0.33],
+  [0.68, 0.75],
+  [0.3, 0.74],
+];
+
+const drawRaft: DrawFn = (ctx, w, h, t, p) => {
+  const n = RAFT_NODES.length;
+  const pts = RAFT_NODES.map(([nx, ny]) => [nx * w, ny * h] as const);
+  const term = 6.4;
+  const leader = (Math.floor(t / term) % n + n) % n;
+  const tp = (t % term) / term;
+  const electing = tp < 0.14;
+  const settle = electing ? tp / 0.14 : 1;
+
+  ctx.lineWidth = 1;
+  ctx.strokeStyle = p.ink(0.12);
+  for (let i = 0; i < n; i++) {
+    if (i === leader) continue;
+    ctx.beginPath();
+    ctx.moveTo(pts[leader][0], pts[leader][1]);
+    ctx.lineTo(pts[i][0], pts[i][1]);
+    ctx.stroke();
+  }
+
+  if (!electing) {
+    for (let i = 0; i < n; i++) {
+      if (i === leader) continue;
+      const f = (t / 1.5 + frand(i + 1)) % 1;
+      const x = pts[leader][0] + (pts[i][0] - pts[leader][0]) * f;
+      const y = pts[leader][1] + (pts[i][1] - pts[leader][1]) * f;
+      ctx.fillStyle = p.acc(0.85 * (1 - f) + 0.15);
+      ctx.beginPath();
+      ctx.arc(x, y, 2, 0, Math.PI * 2);
+      ctx.fill();
     }
+  }
 
-    const bounds = event.currentTarget.getBoundingClientRect();
-    const x = (event.clientX - bounds.left) / bounds.width - 0.5;
-    const y = (event.clientY - bounds.top) / bounds.height - 0.5;
-    const objectStyle = objectRef.current.style;
+  for (let i = 0; i < n; i++) {
+    if (i === leader) continue;
+    const [x, y] = pts[i];
+    const blink = electing
+      ? 0.4 + 0.4 * (Math.sin(t * 22 + i) * 0.5 + 0.5)
+      : 0.55;
+    ctx.strokeStyle = p.ink(0.35);
+    ctx.lineWidth = 1;
+    ctx.beginPath();
+    ctx.arc(x, y, 6, 0, Math.PI * 2);
+    ctx.stroke();
+    ctx.fillStyle = p.ink(blink);
+    ctx.beginPath();
+    ctx.arc(x, y, 2, 0, Math.PI * 2);
+    ctx.fill();
+  }
 
-    objectStyle.setProperty("--art-rotate-x", `${y * -5}deg`);
-    objectStyle.setProperty("--art-rotate-y", `${x * 7}deg`);
-    objectStyle.setProperty("--art-shift-x", `${x * 8}px`);
-    objectStyle.setProperty("--art-shift-y", `${y * 6}px`);
-  };
+  const [lx, ly] = pts[leader];
+  const crown = 6;
+  ctx.fillStyle = p.acc(0.5 * settle);
+  for (let k = 0; k < crown; k++) {
+    const a = (k / crown) * Math.PI * 2 + t * 0.3;
+    ctx.beginPath();
+    ctx.arc(lx + Math.cos(a) * 11, ly + Math.sin(a) * 11, 1.4, 0, Math.PI * 2);
+    ctx.fill();
+  }
+  ctx.fillStyle = p.acc(0.9);
+  ctx.beginPath();
+  ctx.arc(lx, ly, 4.5 * (0.7 + 0.3 * settle), 0, Math.PI * 2);
+  ctx.fill();
+};
 
-  const resetPointer = () => {
-    const objectStyle = objectRef.current?.style;
-    objectStyle?.setProperty("--art-rotate-x", "0deg");
-    objectStyle?.setProperty("--art-rotate-y", "0deg");
-    objectStyle?.setProperty("--art-shift-x", "0px");
-    objectStyle?.setProperty("--art-shift-y", "0px");
-  };
+/* ------------------------------- 02 kitty-run --------------------- */
 
+const drawKitty: DrawFn = (ctx, w, h, t, p) => {
+  const cx = w * 0.5;
+  const cy = h * 0.5;
+  const rx = Math.min(w * 0.3, 140);
+  const ry = Math.min(h * 0.28, 60);
+  const path = (s: number) =>
+    [
+      cx + Math.cos(s * Math.PI * 2) * rx,
+      cy + Math.sin(s * Math.PI * 2) * ry,
+    ] as const;
+
+  ctx.fillStyle = p.ink(0.12);
+  const track = 60;
+  for (let k = 0; k < track; k++) {
+    const [x, y] = path(k / track);
+    ctx.beginPath();
+    ctx.arc(x, y, 0.9, 0, Math.PI * 2);
+    ctx.fill();
+  }
+
+  const bt = Math.max(0, Math.sin(t * 0.55) - 0.6) / 0.4;
+  const sRun = (t * 0.16) % 1;
+
+  const sGhost = (t * 0.16 + 0.5) % 1;
+  const gTrail = 10;
+  for (let k = 0; k < gTrail; k++) {
+    const [x, y] = path(sGhost - k * 0.012);
+    ctx.fillStyle = p.ink(0.22 * (1 - k / gTrail));
+    ctx.beginPath();
+    ctx.arc(x, y, Math.max(0.5, 2 - k * 0.12), 0, Math.PI * 2);
+    ctx.fill();
+  }
+
+  const trail = 16 + Math.round(bt * 10);
+  for (let k = trail - 1; k >= 0; k--) {
+    const [x, y] = path(sRun - k * 0.01);
+    const a = 1 - k / trail;
+    ctx.fillStyle = p.acc(a * 0.9);
+    ctx.beginPath();
+    ctx.arc(x, y, 2.4 * a + 0.6, 0, Math.PI * 2);
+    ctx.fill();
+  }
+  const [hx, hy] = path(sRun);
+  ctx.fillStyle = p.acc(1);
+  ctx.beginPath();
+  ctx.arc(hx, hy, 3.2, 0, Math.PI * 2);
+  ctx.fill();
+
+  if (bt > 0.15) {
+    ctx.strokeStyle = p.acc(0.4 * bt);
+    ctx.lineWidth = 1;
+    for (let k = 0; k < 3; k++) {
+      const [x, y] = path(sRun + 0.03 + k * 0.02);
+      ctx.beginPath();
+      ctx.moveTo(x, y - 4);
+      ctx.lineTo(x, y + 4);
+      ctx.stroke();
+    }
+  }
+};
+
+/* ------------------------------- 03 evening-forest ---------------- */
+
+const FOREST_BANDS = [
+  { y: 0.36, amp: 5, freq: 0.9, sp: 0.25, dusk: true },
+  { y: 0.5, amp: 4, freq: 1.2, sp: -0.18, dusk: false },
+  { y: 0.63, amp: 3.4, freq: 1.6, sp: 0.15, dusk: false },
+  { y: 0.76, amp: 2.6, freq: 2.0, sp: -0.12, dusk: false },
+] as const;
+
+const drawForest: DrawFn = (ctx, w, h, t, p) => {
+  const step = 13;
+  for (let bi = 0; bi < FOREST_BANDS.length; bi++) {
+    const b = FOREST_BANDS[bi];
+    const baseY = b.y * h;
+    for (let x = step * 0.5; x < w; x += step) {
+      const k = (x / w) * Math.PI * 2 * b.freq;
+      const yy =
+        baseY +
+        Math.sin(k + t * b.sp) * b.amp * (0.7 + 0.3 * Math.sin(t * 0.4 + bi));
+      if (b.dusk) {
+        ctx.fillStyle = p.acc(0.7);
+        ctx.beginPath();
+        ctx.arc(x, yy, 1.5, 0, Math.PI * 2);
+        ctx.fill();
+      } else {
+        ctx.fillStyle = p.ink(0.32 - bi * 0.05);
+        ctx.beginPath();
+        ctx.arc(x, yy, 1.3, 0, Math.PI * 2);
+        ctx.fill();
+      }
+    }
+  }
+  const bb = FOREST_BANDS[FOREST_BANDS.length - 1];
+  const wx = ((t * 0.045) % 1) * w;
+  const wy =
+    bb.y * h + Math.sin((wx / w) * Math.PI * 2 * bb.freq + t * bb.sp) * bb.amp - 5;
+  ctx.fillStyle = p.acc(0.95);
+  ctx.beginPath();
+  ctx.arc(wx, wy, 2.6, 0, Math.PI * 2);
+  ctx.fill();
+};
+
+/* ------------------------------- 04 explosion --------------------- */
+
+const SHARDS = 80;
+
+const drawExplosion: DrawFn = (ctx, w, h, t, p) => {
+  const cx = w * 0.5;
+  const cy = h * 0.46;
+  const R = Math.min(w, h) * 0.26;
+  const T = 7.5;
+  const tp = (t % T) / T;
+
+  let e: number;
+  if (tp < 0.3) e = 0;
+  else if (tp < 0.62) e = ease((tp - 0.3) / 0.32);
+  else if (tp < 0.8) e = 1;
+  else e = 1 - ease((tp - 0.8) / 0.2);
+
+  if (e < 0.5) {
+    ctx.strokeStyle = p.ink(0.16 * (1 - e * 2));
+    ctx.lineWidth = 1;
+    ctx.beginPath();
+    ctx.arc(cx, cy, R * 1.04, 0, Math.PI * 2);
+    ctx.stroke();
+  }
+
+  for (let i = 0; i < SHARDS; i++) {
+    const a = frand(i) * Math.PI * 2;
+    const rr = Math.sqrt(frand(i + 100)) * R;
+    const bx = cx + Math.cos(a) * rr;
+    const by = cy + Math.sin(a) * rr * 0.92;
+    const va = a + (frand(i + 7) - 0.5) * 0.6;
+    const spd = (0.6 + frand(i + 30) * 1.4) * R;
+    const gx = bx + Math.cos(va) * spd * e;
+    const gy = by + Math.sin(va) * spd * e + 46 * e * e;
+    const sz = (1.6 + frand(i + 50) * 2.2) * (1 - 0.25 * e);
+    const accent = frand(i + 12) > 0.72;
+    const alpha = accent ? 0.9 : 0.4 + frand(i + 5) * 0.2;
+    ctx.fillStyle = accent ? p.acc(alpha) : p.ink(alpha * (1 - 0.35 * e));
+    ctx.save();
+    ctx.translate(gx, gy);
+    ctx.rotate(a + t * 0.2 + e * 3);
+    ctx.fillRect(-sz / 2, -sz / 2, sz, sz);
+    ctx.restore();
+  }
+};
+
+/* ------------------------------- 05 planck-to-now ----------------- */
+
+const drawPlanck: DrawFn = (ctx, w, h, t, p) => {
+  const mx = 22;
+  const baseY = h * 0.6;
+  const x0 = mx;
+  const x1 = w - mx;
+  const span = Math.max(1, x1 - x0);
+  const N = 44;
+
+  ctx.strokeStyle = p.ink(0.16);
+  ctx.lineWidth = 1;
+  ctx.beginPath();
+  ctx.moveTo(x0, baseY);
+  ctx.lineTo(x1, baseY);
+  ctx.stroke();
+
+  const scrub = (t * 0.08) % 1;
+  const sx = x0 + scrub * span;
+
+  for (let i = 0; i <= N; i++) {
+    const f = i / N;
+    const x = x0 + f * span;
+    const major = i % 5 === 0;
+    const grow = 0.35 + 0.65 * f;
+    const behind = scrub - f;
+    const lit = behind >= 0 && behind < 0.16 ? 1 - behind / 0.16 : 0;
+    const ht = (major ? 16 : 8) * grow * (1 + 0.25 * lit);
+    ctx.strokeStyle = lit > 0 ? p.acc(0.4 + 0.5 * lit) : p.ink(major ? 0.42 : 0.24);
+    ctx.lineWidth = major ? 1.2 : 1;
+    ctx.beginPath();
+    ctx.moveTo(x, baseY);
+    ctx.lineTo(x, baseY - ht);
+    ctx.stroke();
+  }
+
+  ctx.fillStyle = p.ink(0.5);
+  ctx.beginPath();
+  ctx.arc(x0, baseY, 1.2, 0, Math.PI * 2);
+  ctx.fill();
+
+  ctx.strokeStyle = p.acc(0.85);
+  ctx.lineWidth = 1;
+  ctx.beginPath();
+  ctx.moveTo(sx, baseY - 26);
+  ctx.lineTo(sx, baseY + 8);
+  ctx.stroke();
+  ctx.fillStyle = p.acc(1);
+  ctx.beginPath();
+  ctx.arc(sx, baseY, 3, 0, Math.PI * 2);
+  ctx.fill();
+};
+
+/* ------------------------------- 06 practice-map ------------------ */
+
+const WAY: ReadonlyArray<readonly [number, number]> = [
+  [0.12, 0.7],
+  [0.28, 0.44],
+  [0.44, 0.58],
+  [0.58, 0.3],
+  [0.74, 0.5],
+  [0.88, 0.32],
+];
+
+const drawMap: DrawFn = (ctx, w, h, t, p) => {
+  const pts = WAY.map(([x, y]) => [x * w, y * h] as const);
+
+  ctx.strokeStyle = p.ink(0.1);
+  ctx.lineWidth = 1;
+  for (let c = 0; c < 2; c++) {
+    const yy = h * (0.4 + c * 0.26);
+    ctx.beginPath();
+    for (let x = 0; x <= w; x += 8) {
+      const y = yy + Math.sin(x * 0.02 + c * 1.7 + t * 0.05) * 6;
+      if (x === 0) ctx.moveTo(x, y);
+      else ctx.lineTo(x, y);
+    }
+    ctx.stroke();
+  }
+
+  const segLen: number[] = [];
+  let total = 0;
+  for (let i = 1; i < pts.length; i++) {
+    const d = Math.hypot(pts[i][0] - pts[i - 1][0], pts[i][1] - pts[i - 1][1]);
+    segLen.push(d);
+    total += d;
+  }
+
+  const T = 9;
+  const tp = (t % T) / T;
+  const prog = ease(Math.min(1, tp / 0.7));
+  const target = prog * total;
+
+  ctx.strokeStyle = p.acc(0.85);
+  ctx.lineWidth = 1.4;
+  ctx.beginPath();
+  ctx.moveTo(pts[0][0], pts[0][1]);
+  let acc = 0;
+  let headX = pts[0][0];
+  let headY = pts[0][1];
+  for (let i = 1; i < pts.length; i++) {
+    const seg = segLen[i - 1];
+    if (acc + seg <= target) {
+      ctx.lineTo(pts[i][0], pts[i][1]);
+      acc += seg;
+      headX = pts[i][0];
+      headY = pts[i][1];
+    } else {
+      const f = seg > 0 ? (target - acc) / seg : 0;
+      headX = pts[i - 1][0] + (pts[i][0] - pts[i - 1][0]) * f;
+      headY = pts[i - 1][1] + (pts[i][1] - pts[i - 1][1]) * f;
+      ctx.lineTo(headX, headY);
+      break;
+    }
+  }
+  ctx.stroke();
+
+  let dcum = 0;
+  for (let i = 0; i < pts.length; i++) {
+    if (i > 0) dcum += segLen[i - 1];
+    const [x, y] = pts[i];
+    if (dcum <= target + 0.5) {
+      ctx.fillStyle = p.acc(0.9);
+      ctx.beginPath();
+      ctx.arc(x, y, 2.6, 0, Math.PI * 2);
+      ctx.fill();
+    } else {
+      ctx.strokeStyle = p.ink(0.34);
+      ctx.lineWidth = 1;
+      ctx.beginPath();
+      ctx.arc(x, y, 2.4, 0, Math.PI * 2);
+      ctx.stroke();
+    }
+  }
+
+  ctx.fillStyle = p.acc(1);
+  ctx.beginPath();
+  ctx.arc(headX, headY, 3, 0, Math.PI * 2);
+  ctx.fill();
+};
+
+/* ------------------------------- config --------------------------- */
+
+interface CardArt {
+  accent: string;
+  caption: string;
+  staticT: number;
+  draw: DrawFn;
+}
+
+const CARD_ART: Readonly<Record<string, CardArt>> = {
+  "raft-cluster": {
+    accent: "#4ea3ff",
+    caption: "leader-election · halftone · canvas2d",
+    staticT: 2.0,
+    draw: drawRaft,
+  },
+  "kitty-run": {
+    accent: "#e08aa0",
+    caption: "ghost-run · halftone-trail · canvas2d",
+    staticT: 3.0,
+    draw: drawKitty,
+  },
+  "evening-forest": {
+    accent: "#ffb45e",
+    caption: "dusk-canopy · contour-drift · canvas2d",
+    staticT: 1.0,
+    draw: drawForest,
+  },
+  explosion: {
+    accent: "#ff8a3c",
+    caption: "detonation-seam · shards · canvas2d",
+    staticT: 3.45,
+    draw: drawExplosion,
+  },
+  "planck-to-now": {
+    accent: "#ffd39a",
+    caption: "log-time · quantized-ticks · canvas2d",
+    staticT: 6.0,
+    draw: drawPlanck,
+  },
+  "practice-map": {
+    accent: "#cf9d63",
+    caption: "route · hairline-terrain · canvas2d",
+    staticT: 3.8,
+    draw: drawMap,
+  },
+};
+
+const FALLBACK: CardArt = CARD_ART["practice-map"];
+
+/* ------------------------------- canvas engine -------------------- */
+
+interface ArtCanvasProps {
+  cardId: string;
+  accent: string;
+  draw: DrawFn;
+  staticT: number;
+}
+
+function ArtCanvas({ cardId, accent, draw, staticT }: ArtCanvasProps) {
+  const ref = useRef<HTMLCanvasElement>(null);
+
+  useEffect(() => {
+    const canvas = ref.current;
+    if (!canvas) return;
+    const ctx = canvas.getContext("2d");
+    if (!ctx) return;
+
+    const accRgb = hexToRgb(accent);
+    const paint: Paint = {
+      ink: (a) => `rgba(${INK_RGB}, ${a})`,
+      acc: (a) => `rgba(${accRgb}, ${a})`,
+    };
+
+    let cssW = 1;
+    let cssH = 1;
+    let dpr = 1;
+
+    const measure = () => {
+      const rect = canvas.getBoundingClientRect();
+      cssW = Math.max(1, Math.round(rect.width));
+      cssH = Math.max(1, Math.round(rect.height));
+      dpr = Math.min(2, Math.max(1, window.devicePixelRatio || 1));
+      canvas.width = Math.round(cssW * dpr);
+      canvas.height = Math.round(cssH * dpr);
+    };
+
+    const paintFrame = (t: number) => {
+      ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+      ctx.clearRect(0, 0, cssW, cssH);
+      draw(ctx, cssW, cssH, t, paint);
+    };
+
+    const media = window.matchMedia("(prefers-reduced-motion: reduce)");
+    let reduced = media.matches;
+    let visible = false;
+    let running = false;
+    let rafId = 0;
+    let start = 0;
+    let last = 0;
+    const frameInterval = 1000 / 26;
+
+    const frame = (now: number) => {
+      if (!running) return;
+      if (start === 0) start = now;
+      rafId = requestAnimationFrame(frame);
+      if (now - last < frameInterval) return;
+      last = now;
+      paintFrame((now - start) / 1000);
+    };
+
+    const sync = () => {
+      const run = visible && !document.hidden && !reduced;
+      if (run && !running) {
+        running = true;
+        last = 0;
+        rafId = requestAnimationFrame(frame);
+      } else if (!run && running) {
+        running = false;
+        cancelAnimationFrame(rafId);
+      }
+      if (!run && reduced) paintFrame(staticT);
+    };
+
+    const io = new IntersectionObserver(
+      (entries) => {
+        visible = entries[0]?.isIntersecting ?? false;
+        sync();
+      },
+      { threshold: 0.01 },
+    );
+    io.observe(canvas);
+
+    const onVis = () => sync();
+    document.addEventListener("visibilitychange", onVis);
+
+    const onReduce = () => {
+      reduced = media.matches;
+      sync();
+    };
+    media.addEventListener("change", onReduce);
+
+    let resizeTimer = 0;
+    const ro = new ResizeObserver(() => {
+      window.clearTimeout(resizeTimer);
+      resizeTimer = window.setTimeout(() => {
+        measure();
+        if (!running && reduced) paintFrame(staticT);
+      }, 120);
+    });
+    ro.observe(canvas);
+
+    measure();
+    sync();
+
+    return () => {
+      running = false;
+      cancelAnimationFrame(rafId);
+      io.disconnect();
+      ro.disconnect();
+      document.removeEventListener("visibilitychange", onVis);
+      media.removeEventListener("change", onReduce);
+      window.clearTimeout(resizeTimer);
+    };
+  }, [accent, draw, staticT]);
+
+  return <canvas ref={ref} className={`art-${cardId}-canvas`} aria-hidden="true" />;
+}
+
+/* ------------------------------- component ------------------------ */
+
+export default function ProjectArtwork({ project }: { project: ProjectModule }) {
+  const art = CARD_ART[project.id] ?? FALLBACK;
   return (
     <div
-      className={`project-artwork ${presentation.className} artwork-motion-${presentation.motion}`}
-      onPointerLeave={resetPointer}
-      onPointerMove={handlePointerMove}
+      className={`project-artwork ${project.presentation.className}`}
       aria-hidden="true"
     >
-      <div ref={objectRef} className="project-artwork-object">
-        {presentation.parts.map((part) => (
-          <span
-            className={`project-artwork-part ${part.className}`}
-            key={part.id}
-            style={partStyle(part)}
-          >
-            <PartMark part={part} />
-          </span>
-        ))}
-        <span className={`project-artwork-center center-${presentation.centerMark}`}>
-          <CenterMark mark={presentation.centerMark} label={presentation.centerLabel} />
-        </span>
-      </div>
-      <span className="project-artwork-note">{presentation.note}</span>
+      <ArtCanvas
+        cardId={project.id}
+        accent={art.accent}
+        draw={art.draw}
+        staticT={art.staticT}
+      />
+      <span className="art-caption">{art.caption}</span>
     </div>
   );
-}
-
-const CENTER_MARKS: Partial<Record<ProjectCenter, () => ReactElement>> = {
-  kitty: KittyCenterMark,
-  filetree: FiletreeCenterMark,
-  fox: FoxCenterMark,
-  blast: BlastCenterMark,
-  spiral: SpiralCenterMark,
-  trail: TrailCenterMark,
-  raft: RaftCenterMark,
-};
-
-function CenterMark({ mark, label }: { mark: ProjectCenter; label: string }) {
-  const Component = CENTER_MARKS[mark];
-  if (!Component) {
-    return <>{label}</>;
-  }
-  return <Component />;
-}
-
-// Code Layout: one translucent drafting sheet with a column of code bars
-// and two linked graph nodes off the margin — structure before decoration.
-function FiletreeCenterMark() {
-  return (
-    <svg viewBox="0 0 120 96" aria-hidden="true">
-      <rect x="22" y="8" width="58" height="74" rx="4" fill="#141f29" stroke="#86aed4" strokeWidth="1.2" />
-      {[0, 1, 2].map((row) => (
-        <circle key={`ln${row}`} cx="30" cy={22 + row * 11} r="1.4" fill="#4c6a83" />
-      ))}
-      <rect x="38" y="19" width="30" height="5" rx="2.5" fill="#86aed4" opacity="0.9" />
-      <rect x="38" y="30" width="20" height="5" rx="2.5" fill="#6f93b5" opacity="0.55" />
-      <rect x="44" y="41" width="26" height="5" rx="2.5" fill="#86aed4" opacity="0.75" />
-      <rect x="38" y="52" width="14" height="5" rx="2.5" fill="#6f93b5" opacity="0.45" />
-      <rect x="38" y="63" width="34" height="5" rx="2.5" fill="#86aed4" opacity="0.95" />
-      <path d="M 80 22 H 92 V 30" stroke="#4c6a83" strokeWidth="1.3" fill="none" />
-      <path d="M 80 43 H 96 V 62" stroke="#4c6a83" strokeWidth="1.3" fill="none" />
-      <circle cx="92" cy="30" r="4.4" fill="#141f29" stroke="#86aed4" strokeWidth="1.3" />
-      <circle cx="92" cy="30" r="1.5" fill="#86aed4" />
-      <circle cx="96" cy="66" r="4.4" fill="#141f29" stroke="#6f93b5" strokeWidth="1.3" />
-      <circle cx="96" cy="66" r="1.5" fill="#6f93b5" />
-    </svg>
-  );
-}
-
-// Evening Forest: an 8-bit fox — chunky crisp cells echoing the project's
-// own Bayer-dithered 8-bit render — seated between two dusk pines, with a
-// white-tipped tail, on the violet→amber wash.
-function FoxCenterMark() {
-  return (
-    <svg viewBox="0 0 120 96" shapeRendering="crispEdges" aria-hidden="true">
-      {/* dusk ground line */}
-      <rect x="8" y="80" width="104" height="8" fill="#3a2740" />
-      {/* pines */}
-      <g fill="#2e2140">
-        <rect x="8" y="16" width="8" height="8" />
-        <rect x="0" y="24" width="16" height="8" />
-        <rect x="0" y="32" width="16" height="8" />
-        <rect x="8" y="40" width="8" height="40" />
-        <rect x="104" y="16" width="8" height="8" />
-        <rect x="104" y="24" width="16" height="8" />
-        <rect x="104" y="32" width="16" height="8" />
-        <rect x="104" y="40" width="8" height="40" />
-      </g>
-      {/* fox — amber body/head/ears/tail */}
-      <g fill="#e29b62">
-        <rect x="40" y="8" width="16" height="8" />
-        <rect x="64" y="8" width="16" height="8" />
-        <rect x="40" y="16" width="40" height="8" />
-        <rect x="40" y="24" width="8" height="8" />
-        <rect x="56" y="24" width="8" height="8" />
-        <rect x="72" y="24" width="8" height="8" />
-        <rect x="40" y="32" width="8" height="8" />
-        <rect x="72" y="32" width="8" height="8" />
-        <rect x="48" y="40" width="8" height="8" />
-        <rect x="64" y="40" width="8" height="8" />
-        <rect x="40" y="48" width="16" height="8" />
-        <rect x="64" y="48" width="32" height="8" />
-        <rect x="40" y="56" width="8" height="8" />
-        <rect x="72" y="56" width="24" height="8" />
-        <rect x="40" y="64" width="48" height="8" />
-        <rect x="56" y="72" width="8" height="8" />
-      </g>
-      {/* fox — cream muzzle, chest, tail tip */}
-      <g fill="#f2e4d4">
-        <rect x="48" y="32" width="24" height="8" />
-        <rect x="56" y="48" width="8" height="8" />
-        <rect x="48" y="56" width="24" height="8" />
-        <rect x="88" y="64" width="16" height="8" />
-        <rect x="88" y="72" width="16" height="8" />
-      </g>
-      {/* fox — ink ear tips, eyes, nose, paws */}
-      <g fill="#241420">
-        <rect x="40" y="0" width="8" height="8" />
-        <rect x="72" y="0" width="8" height="8" />
-        <rect x="48" y="24" width="8" height="8" />
-        <rect x="64" y="24" width="8" height="8" />
-        <rect x="56" y="40" width="8" height="8" />
-        <rect x="48" y="72" width="8" height="8" />
-        <rect x="64" y="72" width="8" height="8" />
-      </g>
-      {/* firefly accents */}
-      <g fill="#ffb45e">
-        <rect x="24" y="40" width="8" height="8" />
-        <rect x="88" y="16" width="8" height="8" />
-      </g>
-    </svg>
-  );
-}
-
-// Explosion: a glowing paper-lantern moon caught tearing open — exposed ember
-// core, a fan of solid cream/ember/rust shards detonating toward the upper right.
-function BlastCenterMark() {
-  return (
-    <svg viewBox="0 0 110 110" aria-hidden="true">
-      <defs>
-        <radialGradient id="lunaGlow" cx="40%" cy="38%" r="70%">
-          <stop offset="0%" stopColor="#ffe8bf" />
-          <stop offset="45%" stopColor="#ff9a48" />
-          <stop offset="100%" stopColor="#7e2f22" />
-        </radialGradient>
-      </defs>
-      {/* intact glowing body of the paper-lantern moon */}
-      <circle cx="46" cy="60" r="30" fill="url(#lunaGlow)" />
-      {/* a darker folded-paper facet across the sphere */}
-      <path d="M 46 30 Q 30 48 34 78 Q 52 74 60 52 Z" fill="#c95a2c" opacity="0.5" />
-      {/* bright limb highlight */}
-      <path d="M 30 44 Q 38 32 52 34" fill="none" stroke="#ffe8bf" strokeWidth="2.4" strokeLinecap="round" opacity="0.8" />
-      {/* ember core exposed where the shell tears open */}
-      <circle cx="60" cy="46" r="6" fill="#ffd27a" />
-      {/* solid shards detonating toward the upper right */}
-      <polygon points="60,40 76,30 70,48" fill="#ffd9a0" />
-      <polygon points="70,26 88,20 80,38" fill="#ff8a3c" />
-      <polygon points="80,40 100,40 86,54" fill="#c65a2a" />
-      <polygon points="66,18 76,7 80,22" fill="#ffcf95" />
-      <polygon points="90,30 106,26 96,44" fill="#ff8a3c" />
-      <polygon points="84,54 102,60 88,66" fill="#d0632c" />
-      <polygon points="98,16 108,14 103,26" fill="#ffd9a0" />
-      <polygon points="56,28 63,17 68,31" fill="#ff8a3c" />
-    </svg>
-  );
-}
-
-// Planck to Now: a galaxy spiral whose dots grow from quantum speck to now.
-function SpiralCenterMark() {
-  return (
-    <svg viewBox="0 0 120 96" aria-hidden="true">
-      <polyline
-        points="65.0,50.0 65.8,51.9 65.4,54.1 63.7,56.3 60.6,58.0 56.7,58.5 52.3,57.7 48.4,55.3 45.7,51.6 44.8,46.9 46.3,42.0 50.2,37.6 56.2,34.6 63.6,33.5 71.3,34.9 78.2,38.8 83.1,44.8 85.0,52.2 83.3,60.1 77.9,67.1 69.4,72.2 58.7,74.5 47.4,73.3 37.0,68.5 29.2,60.7 25.4,50.7 26.4,39.9 32.4,29.8 42.8,22.1 56.4,17.9 71.4,18.1 85.6,23.0 96.9,32.1 103.5,44.3 104.2,58.0"
-        fill="none"
-        stroke="#9fc2ef"
-        strokeWidth="1.8"
-        strokeLinecap="round"
-        opacity="0.7"
-      />
-      <circle cx="65" cy="50" r="1.7" fill="#ffffff" />
-      <circle cx="44.8" cy="46.9" r="5" fill="#ffcf6e" />
-      <circle cx="78.2" cy="38.8" r="5.8" fill="#ffd98f" />
-      <circle cx="32.4" cy="29.8" r="6.6" fill="#ffcf6e" />
-      <circle cx="103.5" cy="44.3" r="9" fill="#ffcf6e" />
-      <circle cx="103.5" cy="44.3" r="13" fill="none" stroke="#ffcf6e" strokeWidth="1.6" opacity="0.32" />
-    </svg>
-  );
-}
-
-// Practice Map: one contour hint and a dashed trail ending in an ochre
-// waypoint ring — the scattered card parts supply the pin and compass rose.
-function TrailCenterMark() {
-  return (
-    <svg viewBox="0 0 120 96" aria-hidden="true">
-      <path
-        d="M 2 76 Q 34 56 62 72 T 118 68"
-        fill="none"
-        stroke="#f2ebde"
-        strokeWidth="1.3"
-        opacity="0.16"
-      />
-      <path
-        d="M 12 88 C 30 84 38 64 56 58 C 70 53 76 40 86 28"
-        fill="none"
-        stroke="#f2ebde"
-        strokeWidth="2"
-        strokeDasharray="5 5"
-        strokeLinecap="round"
-        opacity="0.55"
-      />
-      <circle cx="90" cy="24" r="7" fill="none" stroke="#cf9d63" strokeWidth="1.7" opacity="0.85" />
-      <circle cx="90" cy="24" r="3" fill="none" stroke="#cf9d63" strokeWidth="1.7" />
-    </svg>
-  );
-}
-
-// Raft: a leader-election constellation — one glowing azure leader node holding
-// the current term, broadcasting solid heartbeat/vote beams to two dimmer
-// follower nodes that catch its light. Light hierarchy reads leader vs followers.
-function RaftCenterMark() {
-  return (
-    <svg viewBox="0 0 150 128" aria-hidden="true">
-      <defs>
-        <radialGradient id="raftLeaderGlow" cx="42%" cy="38%" r="72%">
-          <stop offset="0%" stopColor="#eaf5ff" />
-          <stop offset="46%" stopColor="#46a6ff" />
-          <stop offset="100%" stopColor="#123049" />
-        </radialGradient>
-        <radialGradient id="raftFollowerGlow" cx="40%" cy="38%" r="74%">
-          <stop offset="0%" stopColor="#cfe6ff" />
-          <stop offset="55%" stopColor="#3d7fb8" />
-          <stop offset="100%" stopColor="#0f2333" />
-        </radialGradient>
-      </defs>
-      {/* heartbeat / vote beams fanning from the leader toward the followers */}
-      <polygon points="78,54 118,34 92,64" fill="#8fcbff" opacity="0.85" />
-      <polygon points="82,70 122,86 90,82" fill="#4a9fe6" opacity="0.8" />
-      <polygon points="72,86 96,110 84,90" fill="#66b3f2" opacity="0.75" />
-      {/* follower nodes catching the leader's light */}
-      <circle cx="118" cy="34" r="14" fill="url(#raftFollowerGlow)" />
-      <circle cx="124" cy="90" r="13" fill="url(#raftFollowerGlow)" />
-      <circle cx="92" cy="112" r="10" fill="url(#raftFollowerGlow)" />
-      {/* the glowing leader node — the elected term holder */}
-      <circle cx="56" cy="70" r="31" fill="url(#raftLeaderGlow)" />
-      {/* a darker folded facet across the leader sphere */}
-      <path d="M 56 40 Q 38 58 43 90 Q 62 84 70 60 Z" fill="#2a5c86" opacity="0.45" />
-      {/* bright limb highlight */}
-      <path d="M 38 54 Q 46 40 62 42" fill="none" stroke="#eaf5ff" strokeWidth="2.4" strokeLinecap="round" opacity="0.8" />
-      {/* bright quorum core where the leader holds authority */}
-      <circle cx="66" cy="58" r="5.5" fill="#dff0ff" />
-    </svg>
-  );
-}
-
-function partStyle(part: ProjectPresentationPart) {
-  return {
-    "--anchor-x": `${part.anchorX}px`,
-    "--anchor-y": `${part.anchorY}px`,
-    "--scatter-x": `${part.scatterX}px`,
-    "--scatter-y": `${part.scatterY}px`,
-    "--scatter-z": `${part.scatterZ}px`,
-    "--base-z": `${part.baseZ}px`,
-    "--part-rotation": `${part.rotation}deg`,
-  } as CSSProperties;
-}
-
-// The runner herself, redrawn flat and quiet: three values — cream fur,
-// ink features, one rose bow — so she reads inside the ink card the way she
-// does in-game.
-function KittyCenterMark() {
-  return (
-    <svg viewBox="-1.35 -1.2 2.7 2.2" aria-hidden="true">
-      {/* ears */}
-      {[-1, 1].map((side) => (
-        <path
-          key={`ear${side}`}
-          d="M -0.28 0 Q -0.36 -0.3 -0.12 -0.47 Q 0 -0.54 0.12 -0.47 Q 0.36 -0.3 0.28 0 Z"
-          fill="#f2ede4"
-          stroke="#3a3142"
-          strokeWidth="0.03"
-          transform={`translate(${side * 0.58} -0.52)`}
-        />
-      ))}
-      {/* head */}
-      <ellipse rx="1" ry="0.84" fill="#f2ede4" stroke="#3a3142" strokeWidth="0.03" />
-      {/* face */}
-      <ellipse cx="-0.4" cy="-0.06" rx="0.085" ry="0.135" fill="#3a3142" />
-      <ellipse cx="0.4" cy="-0.06" rx="0.085" ry="0.135" fill="#3a3142" />
-      <ellipse cx="0" cy="0.16" rx="0.13" ry="0.1" fill="#ffd44d" />
-      {/* whiskers: three per side, fanned */}
-      {[-1, 1].map((side) =>
-        [0.18, 0.02, -0.14].map((y, i) => (
-          <rect
-            key={`w${side}${i}`}
-            x={side === -1 ? -1.06 : 0.7}
-            y={-y - 0.016}
-            width="0.36"
-            height="0.032"
-            fill="#3a3142"
-            transform={`rotate(${side * (0.08 - i * 0.08) * -57.3} ${side * 0.88} ${-y})`}
-          />
-        )),
-      )}
-      {/* bow: single rose pair, no underlay shadows */}
-      <g transform="translate(0.52 -0.66)">
-        <ellipse
-          cx="-0.3"
-          cy="0"
-          rx="0.34"
-          ry="0.24"
-          fill="#e94f64"
-          transform="rotate(-25.8 -0.3 0)"
-        />
-        <ellipse
-          cx="0.3"
-          cy="0"
-          rx="0.34"
-          ry="0.24"
-          fill="#e94f64"
-          transform="rotate(25.8 0.3 0)"
-        />
-        <circle r="0.16" fill="#d13a50" />
-      </g>
-    </svg>
-  );
-}
-
-function PartMark({ part }: { part: ProjectPresentationPart }) {
-  if (part.mark === "nodes") {
-    return (
-      <span className="project-mark project-mark-nodes">
-        <i />
-        <i />
-        <i />
-        <i />
-        <i />
-      </span>
-    );
-  }
-
-  if (part.mark === "branches") {
-    return (
-      <span className="project-mark project-mark-branches">
-        <i />
-        <i />
-        <i />
-      </span>
-    );
-  }
-
-  if (part.mark === "stack") {
-    return (
-      <span className="project-mark project-mark-stack">
-        <i />
-        <i />
-        <i />
-        <i />
-      </span>
-    );
-  }
-
-  if (part.mark === "route") {
-    return (
-      <span className="project-mark project-mark-route">
-        <i />
-        <i />
-        <i />
-      </span>
-    );
-  }
-
-  if (part.mark === "pin") {
-    return <span className="project-mark project-mark-pin" />;
-  }
-
-  if (part.mark === "contours") {
-    return (
-      <span className="project-mark project-mark-contours">
-        <i />
-        <i />
-        <i />
-      </span>
-    );
-  }
-
-  if (part.mark === "compass") {
-    return <span className="project-mark project-mark-compass" />;
-  }
-
-  return <span className="project-mark project-mark-type">{part.markLabel ?? "P / I"}</span>;
 }
