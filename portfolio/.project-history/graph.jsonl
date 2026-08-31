@@ -178,3 +178,5 @@
 {"type":"edge.added","id":"e87","ts":"2026-08-31T12:24:59.664Z","from":"n81","to":"n82","rel":"continues"}
 {"type":"node.added","id":"n83","ts":"2026-08-31T12:27:15.333Z","kind":"iteration","actor":"user","title":"Redesign project cards as rounded flat-scrim panels: art-first full-width plates, quiet ink hover","artifacts":[{"kind":"git-commit","ref":"335bb9a"}],"meta":{"source":"auto"}}
 {"type":"edge.added","id":"e88","ts":"2026-08-31T12:27:15.334Z","from":"n82","to":"n83","rel":"continues"}
+{"type":"node.added","id":"n84","ts":"2026-08-31T14:08:49.091Z","kind":"iteration","actor":"user","title":"Make project cards pointer-reactive: per-plate interaction bus, six stirrable canvas micro-systems, EMA quality ladder","artifacts":[{"kind":"git-commit","ref":"5837c06"}],"meta":{"source":"auto"}}
+{"type":"edge.added","id":"e89","ts":"2026-08-31T14:08:49.094Z","from":"n83","to":"n84","rel":"continues"}
