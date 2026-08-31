@@ -368,28 +368,6 @@ textarea:focus-visible {
   }}
 
 
-.signal-index-link,
-.signal-index-card-link {
-  display: inline-flex;
-  align-items: center;
-  gap: 0.55rem;
-  color: var(--ink-text);
-  text-decoration: none;
-  transition: color 180ms ease, gap 180ms ease;}
-
-
-.signal-index-link {
-  margin-top: 1.4rem;
-  font-family: var(--mono);
-  font-size: 0.78rem;
-  font-weight: 500;
-  letter-spacing: 0.05em;}
-
-
-.signal-index-link:hover,
-.signal-index-card-link:hover {
-  gap: 0.85rem;
-  color: var(--ink-accent-bright);}
 
 
 .signal-index-graphic {
@@ -398,292 +376,6 @@ textarea:focus-visible {
   overflow: hidden;}
 
 
-.signal-index-projects {
-  padding: 0.5rem 0 clamp(4.5rem, 8vw, 6.5rem);}
-
-
-.signal-index-grid {
-  position: relative;
-  display: grid;
-  grid-template-columns: minmax(0, 1fr);
-  gap: clamp(1.5rem, 3vw, 2.25rem);
-  margin-top: 0;}
-
-
-/* Projects grid top hairline — draws in once when the section reveals. Kept:
-   now reads as the catalogue's top rule above the panel stack. */
-.signal-index-grid::before {
-  content: "";
-  position: absolute;
-  top: -0.75rem;
-  right: 0;
-  left: 0;
-  height: 1px;
-  background: var(--ink-line);
-  transform-origin: left center;
-  transform: scaleX(1);
-  transition: transform 760ms cubic-bezier(0.22, 1, 0.36, 1);}
-
-.signal-index-reveal-ready .signal-index-projects:not(.is-revealed) .signal-index-grid::before {
-  transform: scaleX(0);}
-
-
-/* Per-card identity hues (one hue per project). CSS-only, no TSX.
-   Card-art retune (parallel session): muted hues, except kitty-run which
-   carries the candy-goth pivot's spectral mint. Synced with ProjectArtwork. */
-#project-raft-cluster.signal-index-card { --card-accent: #6f93ad;}
-#project-kitty-run.signal-index-card { --card-accent: #5fe6c0;}
-#project-evening-forest.signal-index-card { --card-accent: #d99e63;}
-#project-explosion.signal-index-card { --card-accent: #d18a54;}
-#project-planck-to-now.signal-index-card { --card-accent: #d8b98e;}
-#project-practice-map.signal-index-card { --card-accent: #b58e63;}
-
-
-/* Card = a discrete rounded panel in the hero's language:
-   flat --ink-panel scrim, 1px hairline, 2px per-card accent left border. */
-.signal-index-card {
-  --reveal-delay: 0ms;
-  --card-accent: var(--ink-accent);
-  position: relative;
-  display: flex;
-  min-width: 0;
-  flex-direction: column;
-  scroll-margin-top: 1.5rem;
-  padding: clamp(1.1rem, 2vw, 1.6rem) clamp(1.1rem, 2vw, 1.6rem) clamp(1.05rem, 2vw, 1.4rem);
-  border: 1px solid var(--ink-line-soft);
-  border-left: 2px solid color-mix(in srgb, var(--card-accent) 42%, transparent);
-  border-radius: 12px;
-  background-color: var(--ink-panel);
-  color: var(--ink-text);
-  text-decoration: none;
-  opacity: 1;
-  transition:
-    clip-path 720ms cubic-bezier(0.22, 1, 0.36, 1) var(--reveal-delay),
-    opacity 520ms ease var(--reveal-delay),
-    background-color 220ms ease,
-    border-color 220ms ease;}
-
-
-/* ===== Scroll reveal — "plotter draw-in" ============================
-   Cards assemble only when scrolled into view. The panel is wiped
-   left->right with clip-path (rounded to match the 12px radius); inner
-   topline->artwork->copy stagger layers on top. ALL hidden states live
-   inside prefers-reduced-motion:no-preference, so reduced motion never
-   hides content and no-JS never hides. */
-@media (prefers-reduced-motion: no-preference) {
-  .signal-index-reveal-ready .signal-index-card:not(.is-revealed) {
-    opacity: 0;
-    visibility: hidden;
-    clip-path: inset(0 100% 0 0 round 12px);}
-
-  .signal-index-reveal-ready .signal-index-card.is-revealed {
-    opacity: 1;
-    visibility: visible;
-    clip-path: inset(0 round 12px);}
-
-  .signal-index-reveal-ready .signal-index-card .signal-index-card-topline,
-  .signal-index-reveal-ready .signal-index-card .signal-index-card-copy,
-  .signal-index-reveal-ready .signal-index-card .project-artwork {
-    opacity: 0;
-    transition:
-      opacity 640ms ease,
-      transform 640ms cubic-bezier(0.22, 1, 0.36, 1);}
-
-  .signal-index-reveal-ready .signal-index-card .signal-index-card-topline {
-    transform: translateX(-18px);}
-
-  .signal-index-reveal-ready .signal-index-card .project-artwork {
-    transform: translateY(22px);}
-
-  .signal-index-reveal-ready .signal-index-card .signal-index-card-copy {
-    transform: translateY(16px);}
-
-  .signal-index-reveal-ready .signal-index-card.is-revealed .signal-index-card-topline {
-    opacity: 1;
-    transform: none;
-    transition-delay: calc(var(--reveal-delay) + 40ms);}
-
-  .signal-index-reveal-ready .signal-index-card.is-revealed .project-artwork {
-    opacity: 1;
-    transform: none;
-    transition-delay: calc(var(--reveal-delay) + 140ms);}
-
-  .signal-index-reveal-ready .signal-index-card.is-revealed .signal-index-card-copy {
-    opacity: 1;
-    transform: none;
-    transition-delay: calc(var(--reveal-delay) + 240ms);}
-}
-
-
-/* Hover = focus parity: quiet ink response — surface lift + hairline
-   brighten (ink, not hue) + one restrained spine accent gesture. No wash,
-   no bloom, no colored glow. */
-.signal-index-card:hover,
-.signal-index-card:focus-visible {
-  background-color: rgba(238, 234, 224, 0.075);
-  border-color: var(--ink-line);
-  border-left-color: color-mix(in srgb, var(--card-accent) 58%, transparent);}
-
-
-.signal-index-card-topline {
-  display: flex;
-  align-items: baseline;
-  justify-content: space-between;
-  gap: 1rem;
-  padding: 0 0 0.85rem;
-  color: var(--ink-faint);
-  font-family: var(--sans);
-  font-size: 0.76rem;
-  font-weight: 500;}
-
-
-.signal-index-card-tag {
-  color: var(--ink-faint);
-  font-family: var(--mono);
-  font-size: 0.66rem;
-  letter-spacing: 0.06em;
-  text-transform: lowercase;}
-
-
-.signal-index-card-body {
-  display: flex;
-  flex-direction: column;
-  gap: clamp(1.25rem, 2.5vw, 1.75rem);
-  padding-bottom: 0.15rem;}
-
-
-/* ================================================================= *
- * Card illustrations — art-first, full-width, the visual subject of
- * each panel. Deep-ink field, hairline frame, faint identity-hue inner
- * frame at rest; on hover the frame brightens in INK (not hue) with a
- * tight dark ambient lift shadow (no glow). Drawing code is untouched.
- * ================================================================= */
-
-.project-artwork {
-  position: relative;
-  display: block;
-  min-height: clamp(260px, 26vw, 360px);
-  border: 1px solid var(--ink-line-soft);
-  border-radius: 6px;
-  background: var(--ink-bg);
-  background-image: linear-gradient(
-    180deg,
-    rgba(238, 234, 224, 0.02),
-    rgba(238, 234, 224, 0) 42%
-  );
-  overflow: hidden;
-  isolation: isolate;
-  transition: border-color 260ms ease, box-shadow 260ms ease;}
-
-.project-artwork::before {
-  content: "";
-  position: absolute;
-  inset: 9px;
-  border: 1px solid color-mix(in srgb, var(--card-accent) 12%, var(--ink-line-soft));
-  border-radius: 3px;
-  pointer-events: none;
-  z-index: 1;
-  transition: border-color 260ms ease;}
-
-.project-artwork canvas {
-  position: absolute;
-  inset: 0;
-  width: 100%;
-  height: 100%;
-  display: block;
-  z-index: 0;}
-
-.signal-index-card:hover .project-artwork,
-.signal-index-card:focus-visible .project-artwork {
-  border-color: var(--ink-line);
-  box-shadow: 0 10px 26px -14px rgba(0, 0, 0, 0.6);}
-
-.signal-index-card:hover .project-artwork::before,
-.signal-index-card:focus-visible .project-artwork::before {
-  border-color: var(--ink-line);}
-
-.art-caption {
-  position: absolute;
-  left: 14px;
-  bottom: 11px;
-  z-index: 2;
-  margin: 0;
-  font-family: var(--mono);
-  font-size: 0.62rem;
-  font-weight: 400;
-  letter-spacing: 0.04em;
-  line-height: 1;
-  text-transform: lowercase;
-  color: var(--ink-faint);
-  pointer-events: none;
-  white-space: nowrap;
-  max-width: calc(100% - 24px);
-  overflow: hidden;
-  text-overflow: ellipsis;}
-
-
-.signal-index-card-copy {
-  display: flex;
-  min-width: 0;
-  flex-direction: column;}
-
-.signal-index-card-copy h3 {
-  margin: 0;
-  color: var(--ink-text);
-  font-family: var(--display);
-  font-size: clamp(1.9rem, 2.6vw, 2.5rem);
-  font-weight: 600;
-  letter-spacing: -0.015em;
-  line-height: 1.02;}
-
-
-.signal-index-card-description {
-  max-width: 560px;
-  margin: 0.7rem 0 0;
-  color: var(--ink-muted);
-  font-size: 0.86rem;
-  line-height: 1.5;
-  transition: color 180ms ease;}
-
-.signal-index-card:hover .signal-index-card-description,
-.signal-index-card:focus-visible .signal-index-card-description {
-  color: rgba(238, 234, 224, 0.86);}
-
-
-.signal-index-card-footer {
-  display: flex;
-  align-items: end;
-  justify-content: space-between;
-  gap: 1rem;
-  margin-top: auto;
-  padding-top: 1rem;
-  color: var(--ink-faint);}
-
-
-.signal-index-card-link {
-  flex: 0 0 auto;
-  display: inline-flex;
-  align-items: center;
-  gap: 0.55rem;
-  color: var(--ink-text);
-  font-family: var(--mono);
-  font-size: 0.74rem;
-  font-weight: 500;
-  letter-spacing: 0.05em;
-  text-transform: lowercase;
-  transition: gap 180ms ease, color 180ms ease;}
-
-.signal-index-card-link [aria-hidden] {
-  transition: transform 180ms cubic-bezier(0.22, 1, 0.36, 1);}
-
-.signal-index-card:hover .signal-index-card-link,
-.signal-index-card:focus-visible .signal-index-card-link {
-  gap: 0.85rem;
-  color: var(--ink-accent-bright);}
-
-.signal-index-card:hover .signal-index-card-link [aria-hidden],
-.signal-index-card:focus-visible .signal-index-card-link [aria-hidden] {
-  transform: translate(2px, -2px);}
 
 
 /* [keep] Shared project frame */
@@ -781,11 +473,6 @@ textarea:focus-visible {
 
 /* Responsive — the body is now a single flex column at every width, so no
    grid-template / order rules are needed; only the artwork floor changes. */
-@media (max-width: 700px) {
-  .signal-index-card-body {
-    gap: 1.25rem;}
-  .project-artwork {
-    min-height: 220px;}}
 
 
 @media (max-width: 560px) {
@@ -793,17 +480,12 @@ textarea:focus-visible {
   .signal-index-shell,                         /* [keep] */
   .project-frame-nav { width: min(100% - 32px, 1280px); }  /* [keep] */
 
-  .signal-index-header,                        /* [keep] */
-  .signal-index-card-footer {
+  .signal-index-header {                       /* [keep] */
     align-items: flex-start;
     flex-direction: column;
   }
 
   .signal-index-header { gap: 0.65rem; }       /* [keep] */
-  .signal-index-card { padding: clamp(0.9rem, 4vw, 1.25rem); }
-  .signal-index-card-copy h3 { font-size: 1.75rem; }
-  .project-artwork { min-height: clamp(200px, 56vw, 220px); }
-  .art-caption { font-size: 0.58rem; }
 
   .project-frame-nav {                         /* [keep] */
     align-items: flex-start;
@@ -1091,4 +773,256 @@ textarea:focus-visible {
   display: block;
   width: 100%;
   height: 100%;
+}
+
+
+/* ===== Gemstones cards ===== */
+
+/* -- section + grid -- */
+.signal-index-projects {
+  padding: 32px 0 clamp(4.5rem, 8vw, 6.5rem);}
+
+.signal-index-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 24px;}
+
+
+/* -- card panel -- */
+.signal-index-card {
+  display: flex;
+  flex-direction: column;
+  position: relative;
+  min-width: 0;
+  overflow: hidden;
+  border-radius: 20px;
+  background: #0f1b20;
+  color: var(--ink-text);
+  text-decoration: none;
+  scroll-margin-top: 1.5rem;
+  box-shadow: 0 1px 0 var(--ink-line-soft) inset;
+  transition:
+    transform 180ms ease-out,
+    box-shadow 180ms ease-out;}
+
+.signal-index-card:focus {
+  outline: none;}
+
+
+/* -- art stage -- */
+.project-artwork {
+  position: relative;
+  width: 100%;
+  height: 200px;
+  overflow: hidden;
+  background:
+    radial-gradient(120% 90% at 50% 32%, rgba(238, 234, 224, 0.05), transparent 62%),
+    #0f1b20;
+  transition: background-color 180ms ease-out;}
+
+.project-artwork-object {
+  position: absolute;
+  inset: 0;
+  display: grid;
+  place-items: center;
+  transform-style: preserve-3d;
+  transform:
+    perspective(600px)
+    rotateX(var(--art-rotate-x, 0deg))
+    rotateY(var(--art-rotate-y, 0deg))
+    translate3d(var(--art-shift-x, 0px), var(--art-shift-y, 0px), 0);
+  transition: transform 420ms cubic-bezier(0.2, 0.8, 0.2, 1);}
+
+.project-artwork-center {
+  display: block;
+  width: 82%;
+  max-width: 260px;
+  aspect-ratio: 260 / 160;}
+
+.project-artwork-center svg {
+  display: block;
+  width: 100%;
+  height: 100%;}
+
+.gem-halo {
+  transition: opacity 180ms ease-out;}
+
+
+/* -- copy block -- */
+.gem-card-copy {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  min-height: 160px;
+  padding: 24px;}
+
+.gem-card-topline {
+  margin: 0;
+  font-family: var(--mono);
+  font-size: 12px;
+  font-weight: 500;
+  letter-spacing: 0.02em;
+  color: var(--ink-accent);}
+
+.gem-card-title {
+  margin: 0;
+  font-family: var(--sans);
+  font-weight: 700;
+  font-size: clamp(20px, 1.6vw, 24px);
+  line-height: 1.2;
+  color: var(--ink-text);}
+
+.gem-card-desc {
+  margin: 0;
+  font-family: var(--sans);
+  font-weight: 400;
+  font-size: 14px;
+  line-height: 1.5;
+  color: #c9c5bb;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;}
+
+.gem-card-footer {
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-between;
+  gap: 16px;
+  margin-top: auto;
+  padding-top: 12px;}
+
+.gem-card-tech {
+  font-family: var(--mono);
+  font-size: 11px;
+  line-height: 1.4;
+  color: #8c928e;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;}
+
+.gem-card-open {
+  flex: none;
+  font-family: var(--mono);
+  font-size: 12px;
+  color: var(--ink-accent);
+  white-space: nowrap;}
+
+.gem-card-open span {
+  display: inline-block;
+  transition: transform 180ms ease-out;}
+
+
+/* -- hover / focus (colour + lift; svg never transformed) -- */
+.signal-index-card:hover,
+.signal-index-card:focus-visible {
+  transform: translateY(-6px);
+  box-shadow: 0 18px 40px rgba(0, 0, 0, 0.32);}
+
+.signal-index-card:hover .project-artwork,
+.signal-index-card:focus-visible .project-artwork {
+  background-color: #142027;}
+
+.signal-index-card:hover .gem-halo,
+.signal-index-card:focus-visible .gem-halo {
+  opacity: calc(var(--halo-opacity, 0.2) + 0.1);}
+
+.signal-index-card:hover .gem-card-open span,
+.signal-index-card:focus-visible .gem-card-open span {
+  transform: translateX(3px);}
+
+.signal-index-card:focus-visible {
+  outline: 2px solid var(--ink-accent-bright);
+  outline-offset: 3px;}
+
+
+/* -- motion, reveal, idle: gated to opted-in motion + mounted JS -- */
+@media (prefers-reduced-motion: no-preference) {
+  /* scroll reveal — hidden only when JS is mounted. Entrance is a keyframe
+     animation (not a transition) so the per-card --reveal-delay stagger never
+     lags the hover lift: transitions read the destination state's timing,
+     which would keep delaying transform after reveal. */
+  .signal-index-reveal-ready .signal-index-card:not(.is-revealed) {
+    opacity: 0;
+    visibility: hidden;
+    transform: translateY(24px);}
+
+  .signal-index-reveal-ready .signal-index-card.is-revealed {
+    opacity: 1;
+    visibility: visible;
+    animation: gem-reveal 620ms cubic-bezier(0.2, 0.8, 0.2, 1) backwards;
+    animation-delay: var(--reveal-delay, 0ms);}
+
+  /* idle breathe — animates the svg itself */
+  .project-artwork-center svg {
+    animation: gem-breathe 4s ease-in-out infinite;}
+
+  .signal-index-card:nth-child(1) .project-artwork-center svg { animation-delay: 0s; }
+  .signal-index-card:nth-child(2) .project-artwork-center svg { animation-delay: 0.4s; }
+  .signal-index-card:nth-child(3) .project-artwork-center svg { animation-delay: 0.8s; }
+  .signal-index-card:nth-child(4) .project-artwork-center svg { animation-delay: 1.2s; }
+  .signal-index-card:nth-child(5) .project-artwork-center svg { animation-delay: 1.6s; }
+  .signal-index-card:nth-child(6) .project-artwork-center svg { animation-delay: 2s; }
+
+  /* halo pulse — Raft + Planck only, same 4s clock */
+  .presentation-raft-cluster .gem-halo,
+  .presentation-planck-to-now .gem-halo {
+    animation: gem-halo-pulse 4s ease-in-out infinite;}
+}
+
+
+@keyframes gem-reveal {
+  from { opacity: 0; transform: translateY(24px); }
+  to   { opacity: 1; transform: translateY(0); }}
+
+
+@keyframes gem-breathe {
+  0%, 100% { transform: translateY(3px); }
+  50%      { transform: translateY(-3px); }}
+
+
+@keyframes gem-halo-pulse {
+  0%, 100% { opacity: 0.12; }
+  50%      { opacity: 0.25; }}
+
+
+/* -- reduced motion: no transform motion, colour-only hover, full content -- */
+@media (prefers-reduced-motion: reduce) {
+  .signal-index-card,
+  .signal-index-card.is-revealed {
+    opacity: 1;
+    visibility: visible;
+    transform: none;}
+
+  .project-artwork-object,
+  .project-artwork-center svg,
+  .gem-halo {
+    animation: none;
+    transition: none;}
+
+  .signal-index-card:hover,
+  .signal-index-card:focus-visible {
+    transform: none;}
+
+  .signal-index-card:hover .gem-card-open span,
+  .signal-index-card:focus-visible .gem-card-open span {
+    transform: none;}
+}
+
+
+/* -- mobile: single column, 150px stage, no 320w overflow -- */
+@media (max-width: 899px) {
+  .signal-index-grid {
+    grid-template-columns: 1fr;
+    gap: 16px;}
+
+  .project-artwork {
+    height: 150px;}
+
+  .gem-card-copy {
+    padding: 20px;
+    min-height: 0;}
 }

@@ -370,21 +370,21 @@ export default function LandingPage({ projects, onOpenProject }: LandingPageProp
                   }
                 }}
               >
-                <div className="signal-index-card-topline">
-                  <span className="signal-index-card-tag">
-                    {String(index + 1).padStart(2, "0")}
-                    {project.tag ? ` / ${project.tag}` : ""}
-                  </span>
-                  <span>{project.technologies.join(" · ")}</span>
-                </div>
-                <div className="signal-index-card-body">
+                <div className="gem-card-stage">
                   <ProjectArtwork project={project} />
-                  <div className="signal-index-card-copy">
-                    <h3>{project.title}</h3>
-                    <p className="signal-index-card-description">{project.description}</p>
-                    <div className="signal-index-card-footer">
-                      <span className="signal-index-card-link">open <span aria-hidden="true">↗</span></span>
-                    </div>
+                </div>
+                <div className="gem-card-copy">
+                  <p className="gem-card-topline">
+                    {String(index + 1).padStart(2, "0")}
+                    {project.tag ? ` · ${project.tag}` : ""}
+                  </p>
+                  <h3 className="gem-card-title">{project.title}</h3>
+                  <p className="gem-card-desc">{project.description}</p>
+                  <div className="gem-card-footer">
+                    <span className="gem-card-tech">{project.technologies.join(" · ")}</span>
+                    <span className="gem-card-open">
+                      open <span aria-hidden="true">↗</span>
+                    </span>
                   </div>
                 </div>
               </a>
