@@ -985,8 +985,8 @@ textarea:focus-visible {
 
 
 @keyframes gem-halo-pulse {
-  0%, 100% { opacity: 0.12; }
-  50%      { opacity: 0.25; }}
+  0%, 100% { opacity: 0.08; }
+  50%      { opacity: 0.16; }}
 
 
 /* -- reduced motion: no transform motion, colour-only hover, full content -- */
