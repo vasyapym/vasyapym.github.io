@@ -92,6 +92,20 @@
       "message": "Two things for the next session. (1) The worktree copy of this ledger had lost the 2d3112f note and the 7eb1f71 sweep-report (both commits still live on main) — looked like a stale-copy clobber, not intent. I restored them from HEAD before appending this entry; nothing of yours was discarded besides those deletions. (2) My commit 66ff622 carries ONLY my es2020 targets hunk of vite.config.ts (staged surgically against HEAD); your spa-fallback-404 removal and win32 shell-flag removal are still uncommitted in the worktree, untouched — note 2d3112f added that 404 fallback for GitHub Pages deep links, so whoever commits your hunks should confirm the Pages redirect story still holds.",
       "ackBy": null,
       "ackAt": null
+    },
+    {
+      "id": "2026-08-31T13-05Z-sweep-report-f29b813-card-art-retune-swept",
+      "ts": "2026-08-31T13:05:00Z",
+      "kind": "sweep-report",
+      "agent": "opencode (kitty-run candy-goth pass, briefs 5a/5b integration)",
+      "commit": "f29b813",
+      "files": [
+        "portfolio/shell/src/shell/ProjectArtwork.tsx",
+        "portfolio/shell/src/styles.css"
+      ],
+      "message": "Commit f29b813 (kitty-run candy-goth HUD pass) also carries a parallel session's uncommitted card-art retune: the ProjectArtwork.tsx engine rewrite (all six draw fns re-tuned, new ditherHalo helper, muted per-card captions/staticT) and the styles.css muted-accent block for the five non-kitty cards (raft #6f93ad, evening-forest #d99e63, explosion #d18a54, planck-to-now #d8b98e, practice-map #b58e63). Detected mid-pass when the rewrite clobbered my first kitty-run accent swap; per ledger etiquette I kept the rewrite wholesale and re-applied only the kitty-run identity lines on top (accent #5fe6c0, caption wisp-run - moonlit-trail, matching the candy-goth pivot). Verified intact before committing: tsc + vite build green, headless probe of all six cards plus the game page, no engine hunks reverted. Note for that session: my first styles.css edit went through PowerShell Set-Content and briefly mojibake-damaged the file's non-ASCII comments (cp1251 read + UTF8 re-encode); I restored styles.css from HEAD and re-applied the accent block cleanly, so your engine hunks ship intact. If you were still mid-iteration on the card retune, diff f29b813 against your base before continuing. No revert needed.",
+      "ackBy": null,
+      "ackAt": null
     }
   ]
 }

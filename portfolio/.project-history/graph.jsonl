@@ -170,3 +170,5 @@
 {"type":"edge.added","id":"e83","ts":"2026-08-31T10:18:26.201Z","from":"n77","to":"n78","rel":"continues"}
 {"type":"node.added","id":"n79","ts":"2026-08-31T10:25:31.387Z","kind":"iteration","actor":"user","title":"Redesign project cards as tiger-bright Ember Spine: per-card hue spine, hue hover choreography, larger headings","artifacts":[{"kind":"git-commit","ref":"752b282"}],"meta":{"source":"auto"}}
 {"type":"edge.added","id":"e84","ts":"2026-08-31T10:25:31.388Z","from":"n78","to":"n79","rel":"continues"}
+{"type":"node.added","id":"n80","ts":"2026-08-31T11:33:56.009Z","kind":"iteration","actor":"user","title":"feat(kitty-run): candy-goth HUD + copy pass; landing card inked mint","artifacts":[{"kind":"git-commit","ref":"f29b813"}],"meta":{"source":"auto"}}
+{"type":"edge.added","id":"e85","ts":"2026-08-31T11:33:56.009Z","from":"n79","to":"n80","rel":"continues"}
