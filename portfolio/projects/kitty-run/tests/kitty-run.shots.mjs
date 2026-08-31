@@ -87,12 +87,11 @@ try {
   const seedEcho = async (page) => {
     await page.evaluate(() => {
       localStorage.setItem(
-        "kitty-run.replay.v3",
+        "kitty-run.replay.v2",
         JSON.stringify({
           seed: "kitty-run/run/probe/1",
           score: 900,
           distance: 1200,
-          skill: 0.5,
           inputs: [
             { t: 0.8, kind: "jump" },
             { t: 1.1, kind: "release" },

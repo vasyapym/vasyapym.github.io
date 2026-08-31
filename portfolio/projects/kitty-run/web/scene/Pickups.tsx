@@ -168,7 +168,7 @@ export function Pickups({ world }: { world: WorldState }) {
         frustumCulled={false}
       >
         <planeGeometry args={[0.66, 0.19]} />
-        <meshBasicMaterial color="#eafff5" side={THREE.DoubleSide} />
+        <meshBasicMaterial color="#ffffff" side={THREE.DoubleSide} />
       </instancedMesh>
       <instancedMesh
         ref={glowRef}

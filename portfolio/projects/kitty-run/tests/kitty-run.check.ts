@@ -34,18 +34,9 @@ import {
 } from "../web/lib/framing.ts";
 import {
   loadReplay,
-  REPLAY_KEY,
   sanitizeReplay,
   saveReplayIfBest,
 } from "../web/lib/replay.ts";
-import {
-  BIOME_PALETTES,
-  DEFAULT_SKILL,
-  biomeAt,
-  biomePalette,
-  directorDifficulty,
-  nextSkill,
-} from "../web/lib/director.ts";
 
 let failures = 0;
 
@@ -331,7 +322,6 @@ const goodReplay = {
   seed: "kitty-run/run/test/1",
   score: 123,
   distance: 456,
-  skill: 0.5,
   inputs: [
     { t: 0.5, kind: "jump" },
     { t: 0.9, kind: "release" },
@@ -349,19 +339,6 @@ check(
     sanitizeReplay({ ...goodReplay, seed: "" }) === null &&
     sanitizeReplay({ ...goodReplay, score: -1 }) === null &&
     sanitizeReplay({ ...goodReplay, inputs: [] }) === null,
-);
-check(
-  "replay sanitizer rejects out-of-range or missing skill",
-  sanitizeReplay({ ...goodReplay, skill: 1.4 }) === null &&
-    sanitizeReplay({ ...goodReplay, skill: -0.1 }) === null &&
-    sanitizeReplay({ ...goodReplay, skill: Number.NaN }) === null &&
-    sanitizeReplay({ ...goodReplay, skill: "hi" }) === null &&
-    sanitizeReplay({
-      seed: goodReplay.seed,
-      score: goodReplay.score,
-      distance: goodReplay.distance,
-      inputs: goodReplay.inputs,
-    }) === null,
 );
 check(
   "replay sanitizer rejects out-of-order or unknown inputs",
@@ -394,8 +371,6 @@ check(
   JSON.stringify(loadReplay(replayStore)) ===
     JSON.stringify(sanitizeReplay(goodReplay)),
 );
-check("the replay key is the v3 director record", REPLAY_KEY === "kitty-run.replay.v3");
-check("skill round-trips exactly", loadReplay(replayStore)?.skill === 0.5);
 check(
   "a weaker run does not replace the echo",
   !saveReplayIfBest(replayStore, { ...goodReplay, score: 5 }),
@@ -404,94 +379,6 @@ check(
   "a stronger run replaces the echo",
   saveReplayIfBest(replayStore, { ...goodReplay, score: 999 }) &&
     loadReplay(replayStore)?.score === 999,
-);
-
-// --- director ------------------------------------------------------------------
-
-// directorDifficulty: bounded [0,1] and monotone non-decreasing in distance
-// for any fixed skill.
-{
-  let prev = -1;
-  let inRange = true;
-  let monotone = true;
-  for (let d = 0; d <= 2000; d += 25) {
-    const v = directorDifficulty(0.5, d);
-    if (v < 0 || v > 1) inRange = false;
-    if (v < prev - 1e-9) monotone = false;
-    prev = v;
-  }
-  check("difficulty stays inside [0, 1]", inRange);
-  check("difficulty is monotone in distance", monotone);
-}
-check(
-  "skill 0 ramps gentler than skill 1 at the same distance",
-  directorDifficulty(0, 600) < directorDifficulty(1, 600),
-);
-
-// biomeAt: index non-decreasing, mix in [0,1], and each seam starts a fresh
-// district at mix 0.
-{
-  let prevIndex = -1;
-  let mixOk = true;
-  let indexOk = true;
-  for (let d = 0; d <= 2200; d += 10) {
-    const b = biomeAt(d);
-    if (b.index < prevIndex) indexOk = false;
-    if (b.mix < 0 || b.mix > 1) mixOk = false;
-    prevIndex = b.index;
-  }
-  check("district index never decreases", indexOk);
-  check("district mix stays inside [0, 1]", mixOk);
-}
-check(
-  "district seams open at mix zero",
-  biomeAt(420).mix === 0 &&
-    biomeAt(900).mix === 0 &&
-    biomeAt(1450).mix === 0 &&
-    biomeAt(0).index === 0 &&
-    biomeAt(1500).index === 3,
-);
-
-// District I is the authored world, byte-identical at distance 0.
-{
-  const p = biomePalette(0);
-  check(
-    "district I palette is byte-identical to the anchors",
-    p.skyMid === "#2a1746" &&
-      p.moon === "#ffffff" &&
-      p.groundBody === BIOME_PALETTES[0].groundBody &&
-      p.pathEdge === BIOME_PALETTES[0].pathEdge &&
-      p.skyTop === BIOME_PALETTES[0].skyTop,
-  );
-}
-
-// nextSkill: clamped [0,1], never jumps more than 0.1, drifts up on deep
-// healthy runs and grants relief after weak ones.
-{
-  const cases = [
-    { distance: 0, score: 0, hearts: 0 },
-    { distance: 1800, score: 5000, hearts: 3 },
-    { distance: 600, score: 900, hearts: 1 },
-  ];
-  let clamped = true;
-  let gentle = true;
-  for (const s of [0, DEFAULT_SKILL, 0.9, 1]) {
-    for (const st of cases) {
-      const n = nextSkill(s, st);
-      if (n < 0 || n > 1) clamped = false;
-      if (Math.abs(n - s) > 0.1 + 1e-9) gentle = false;
-    }
-  }
-  check("nextSkill stays clamped to [0, 1]", clamped);
-  check("nextSkill never jumps more than 0.1", gentle);
-}
-check(
-  "deep healthy runs raise the skill",
-  nextSkill(0.3, { distance: 1800, score: 5000, hearts: 3 }) > 0.3,
-);
-check(
-  "weak runs grant gentle relief",
-  nextSkill(0.8, { distance: 0, score: 0, hearts: 0 }) < 0.8,
 );
 
 // --- pools -------------------------------------------------------------------

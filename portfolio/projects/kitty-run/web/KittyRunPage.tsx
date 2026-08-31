@@ -1,7 +1,6 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { Sfx } from "./lib/audio.ts";
 import { readBestScore } from "./lib/score.ts";
-import { DEFAULT_SKILL } from "./lib/director.ts";
 import { loadReplay, type StoredReplay } from "./lib/replay.ts";
 import { createWorld, type GameStatus, type WorldState } from "./scene/world.ts";
 import {
@@ -52,8 +51,6 @@ export default function KittyRunPage() {
     const sim = createWorld(0, replay.seed);
     // The echo never sees a menu; it exists only to run.
     sim.status = "running";
-    // Same (seed, skill) the player run uses → identical track.
-    sim.directorSkill = replay.skill;
     return sim;
   }, [replay, runNonce]);
 
@@ -70,7 +67,6 @@ export default function KittyRunPage() {
   const dashRef = useRef<HTMLButtonElement | null>(null);
   const bulletRef = useRef<HTMLDivElement | null>(null);
   const debugRef = useRef<HTMLSpanElement | null>(null);
-  const districtRef = useRef<HTMLDivElement | null>(null);
 
   const hud: HudRefs = useMemo(
     () => ({
@@ -82,7 +78,6 @@ export default function KittyRunPage() {
       dash: dashRef,
       bullet: bulletRef,
       debug: debugRef,
-      district: districtRef,
     }),
     [],
   );
@@ -99,7 +94,6 @@ export default function KittyRunPage() {
     autostarted.current = true;
     const bot = params.has("autopilot");
     if (replay) world.runSeed = replay.seed;
-    world.directorSkill = replay?.skill ?? DEFAULT_SKILL;
     setRaceTarget(replay);
     world.autopilot = bot;
     setAutoPilot(bot);
@@ -141,7 +135,6 @@ export default function KittyRunPage() {
       setAutoRan(bot);
       if (bot) resetPilot(world);
       if (replay) world.runSeed = replay.seed;
-      world.directorSkill = replay?.skill ?? DEFAULT_SKILL;
       setRaceTarget(replay);
       startRun(world);
       setRunNonce((n) => n + 1);
@@ -167,7 +160,6 @@ export default function KittyRunPage() {
     setAutoRan(false);
     restartRun(world);
     if (replay) world.runSeed = replay.seed;
-    world.directorSkill = replay?.skill ?? DEFAULT_SKILL;
     setRaceTarget(replay);
     setRunNonce((n) => n + 1);
   }, [ensureSfx, world, replay]);
@@ -322,11 +314,6 @@ export default function KittyRunPage() {
           <span className="kitty-run-heart" />
           <span className="kitty-run-heart" />
         </div>
-        <div
-          ref={districtRef}
-          className="kitty-run-district"
-          aria-live="polite"
-        />
         <div className="kitty-run-right">
           <div className="kitty-run-score-box">
             <span className="kitty-run-score" ref={scoreRef}>
@@ -390,19 +377,19 @@ export default function KittyRunPage() {
               className="kitty-run-card kitty-run-card--ready"
               onClick={handleStart}
             >
-              <span className="kitty-run-card-kicker">wander</span>
+              <span className="kitty-run-card-kicker">ready</span>
               {replay && (
-                <span className="kitty-run-card-echo">your best run haunts your heels</span>
+                <span className="kitty-run-card-echo">your best run will chase you</span>
               )}
               <span className="kitty-run-card-hint">
                 {coarse
                   ? "tap to jump · dash pad blasts through"
                   : "space — jump · shift — dash · p — pause"}
               </span>
-              <span className="kitty-run-card-action">prowl</span>
+              <span className="kitty-run-card-action">start</span>
             </button>
             <button type="button" className="kitty-run-watch" onClick={handleWatch}>
-              <span className="kitty-run-watch-title">or watch it haunt itself</span>
+              <span className="kitty-run-watch-title">or watch it play itself</span>
               <span className="kitty-run-watch-hint">
                 autopilot · the lookahead bot that verifies every track
               </span>
@@ -414,9 +401,9 @@ export default function KittyRunPage() {
       {status === "paused" && (
         <div className="kitty-run-overlay">
           <button type="button" className="kitty-run-card" onClick={() => togglePause(world)}>
-            <span className="kitty-run-card-kicker">stilled</span>
-            <span className="kitty-run-card-hint">p or esc wakes her · r restarts</span>
-            <span className="kitty-run-card-action">wake up</span>
+            <span className="kitty-run-card-kicker">paused</span>
+            <span className="kitty-run-card-hint">p or esc resumes · r restarts</span>
+            <span className="kitty-run-card-action">resume</span>
           </button>
         </div>
       )}
@@ -424,9 +411,9 @@ export default function KittyRunPage() {
       {status === "over" && (
         <div className="kitty-run-overlay">
           <button type="button" className="kitty-run-card" onClick={handleRestart}>
-            <span className="kitty-run-card-kicker">wish spent</span>
+            <span className="kitty-run-card-kicker">run over</span>
             {world.newBest && world.score > 0 && (
-              <span className="kitty-run-card-badge">best wish!</span>
+              <span className="kitty-run-card-badge">new best!</span>
             )}
             <span className="kitty-run-card-title">
               {world.score.toLocaleString()} points
@@ -449,7 +436,7 @@ export default function KittyRunPage() {
             <span className="kitty-run-card-hint">
               best {best} · {coarse ? "tap to run again" : "space or r runs again"}
             </span>
-            <span className="kitty-run-card-action">anew</span>
+            <span className="kitty-run-card-action">again</span>
           </button>
         </div>
       )}
