@@ -73,7 +73,7 @@ export const INCUMBENT_MARKS: Partial<Record<ProjectCenter, () => ReactElement>>
   trail: TrailCenterMark,
 };
 
-/* ── 1 · Raft Cluster — coral spot ink on neutral topology ── */
+/* ── 1 · Raft Cluster — coral spot ink, machined consensus topology ── */
 function RaftCenterMark() {
   return (
     <svg viewBox="0 0 260 160" aria-hidden="true">
@@ -90,39 +90,44 @@ function RaftCenterMark() {
         <clipPath id="gem-raft-n3"><circle cx="150" cy="120" r="13" /></clipPath>
         <clipPath id="gem-raft-n4"><circle cx="66" cy="108" r="12" /></clipPath>
       </defs>
-      {/* wide sparse neutral backdrop */}
       <ellipse cx="130" cy="80" rx="104" ry="66" fill="url(#gem-raft-sparse)" opacity="0.09" />
-      {/* halo — coral dots at low opacity, CSS hover hook */}
       <ellipse className="gem-halo" style={haloVar(0.12)} cx="128" cy="82" rx="64" ry="42" fill="url(#gem-raft-dense)" opacity="0.12" />
-      {/* neutral interconnects */}
-      <g stroke="#465059" strokeWidth="5" strokeLinecap="round" fill="none" opacity="0.6">
+      {/* quorum boundary */}
+      <ellipse cx="133" cy="84" rx="96" ry="58" fill="none" stroke="#465059" strokeWidth="1" strokeDasharray="1 7" opacity="0.3" />
+      {/* machined channels */}
+      <g stroke="#465059" strokeWidth="3" strokeLinecap="round" fill="none" opacity="0.85">
         <line x1="104" y1="58" x2="176" y2="48" />
         <line x1="104" y1="58" x2="200" y2="92" />
         <line x1="104" y1="58" x2="150" y2="120" />
         <line x1="104" y1="58" x2="66" y2="108" />
       </g>
-      <g stroke="#7d7669" strokeWidth="4" strokeLinecap="round" fill="none" opacity="0.45">
+      <g stroke="#465059" strokeWidth="2" strokeLinecap="round" fill="none" opacity="0.4">
         <line x1="176" y1="48" x2="200" y2="92" />
         <line x1="200" y1="92" x2="150" y2="120" />
         <line x1="150" y1="120" x2="66" y2="108" />
       </g>
-      {/* SPOT group 1 — coral log-entry squares riding the links */}
+      {/* log squares axis-aligned on link midpoints */}
       <g fill="#ff6a5f">
-        <rect x="138" y="50" width="4.5" height="4.5" rx="1" transform="rotate(-8 140 52)" />
-        <rect x="150" y="73" width="4.5" height="4.5" rx="1" transform="rotate(20 152 75)" />
-        <rect x="126" y="87" width="4.5" height="4.5" rx="1" transform="rotate(40 128 89)" />
-        <rect x="83" y="81" width="4.5" height="4.5" rx="1" transform="rotate(28 85 83)" />
+        <rect x="137.75" y="50.75" width="4.5" height="4.5" rx="1" />
+        <rect x="149.75" y="72.75" width="4.5" height="4.5" rx="1" />
+        <rect x="124.75" y="86.75" width="4.5" height="4.5" rx="1" />
+        <rect x="82.75" y="80.75" width="4.5" height="4.5" rx="1" />
       </g>
-      {/* neutral stepped follower discs */}
+      {/* followers with hairline bezels */}
       <circle cx="176" cy="48" r="12" fill="#26333b" />
       <g clipPath="url(#gem-raft-n1)"><circle cx="172" cy="44" r="9.5" fill="#465059" /><circle cx="170" cy="42" r="5" fill="#7d7669" /></g>
+      <circle cx="176" cy="48" r="13.5" fill="none" stroke="#465059" strokeWidth="1" opacity="0.5" />
       <circle cx="200" cy="92" r="12" fill="#26333b" />
       <g clipPath="url(#gem-raft-n2)"><circle cx="196" cy="88" r="9.5" fill="#465059" /><circle cx="194" cy="86" r="5" fill="#7d7669" /></g>
+      <circle cx="200" cy="92" r="13.5" fill="none" stroke="#465059" strokeWidth="1" opacity="0.5" />
       <circle cx="150" cy="120" r="13" fill="#26333b" />
       <g clipPath="url(#gem-raft-n3)"><circle cx="146" cy="116" r="10" fill="#465059" /><circle cx="144" cy="114" r="5" fill="#7d7669" /></g>
+      <circle cx="150" cy="120" r="14.5" fill="none" stroke="#465059" strokeWidth="1" opacity="0.5" />
       <circle cx="66" cy="108" r="12" fill="#26333b" />
       <g clipPath="url(#gem-raft-n4)"><circle cx="62" cy="104" r="9.5" fill="#465059" /><circle cx="60" cy="102" r="5" fill="#7d7669" /></g>
-      {/* leader: SPOT group 2 deep-coral ring + neutral stepped disc + SPOT group 3 coral halftone screen */}
+      <circle cx="66" cy="108" r="13.5" fill="none" stroke="#465059" strokeWidth="1" opacity="0.5" />
+      {/* leader: broadcast orbit + deep ring + stepped disc + coral halftone */}
+      <circle cx="104" cy="58" r="30" fill="none" stroke="#ff6a5f" strokeWidth="1" strokeDasharray="2 5" opacity="0.45" />
       <circle cx="104" cy="58" r="23" fill="none" stroke="#7d2723" strokeWidth="4" opacity="0.9" />
       <circle cx="104" cy="58" r="17" fill="#26333b" />
       <g clipPath="url(#gem-raft-lead)">
@@ -130,20 +135,20 @@ function RaftCenterMark() {
         <circle cx="97" cy="50" r="7" fill="#b6ac95" />
         <rect x="87" y="41" width="34" height="34" fill="url(#gem-raft-dense)" opacity="0.5" />
       </g>
-      {/* neutral antenna ticks */}
+      {/* antenna ticks */}
       <g fill="#b6ac95">
         <rect x="97" y="32" width="3.5" height="7" rx="1.5" />
         <rect x="104" y="32" width="3.5" height="7" rx="1.5" />
         <rect x="111" y="32" width="3.5" height="7" rx="1.5" />
       </g>
-      {/* white square glints */}
+      {/* glints */}
       <rect x="95" y="48" width="3.6" height="3.6" fill="#ffffff" opacity="0.65" />
       <rect x="169" y="43" width="3" height="3" fill="#ffffff" opacity="0.45" />
     </svg>
   );
 }
 
-/* ── 2 · Cat Runner — pink spot ink on neutral cream runner ── */
+/* ── 2 · Cat Runner — pink spot ink, Hello-Kitty head mark in motion ── */
 function KittyCenterMark() {
   return (
     <svg viewBox="0 0 260 160" aria-hidden="true">
@@ -157,70 +162,52 @@ function KittyCenterMark() {
         <pattern id="gem-cat-halo" patternUnits="userSpaceOnUse" width="7" height="7">
           <circle cx="3.5" cy="3.5" r="1.9" fill="#7d7669" />
         </pattern>
-        <clipPath id="gem-cat-head"><ellipse cx="150" cy="70" rx="34" ry="28" /></clipPath>
-        <clipPath id="gem-cat-body"><ellipse cx="150" cy="112" rx="22" ry="15" /></clipPath>
-        <clipPath id="gem-cat-earL"><polygon points="130,49 122,26 142,45" /></clipPath>
-        <clipPath id="gem-cat-earR"><polygon points="160,48 178,26 176,54" /></clipPath>
+        <clipPath id="gem-cat-head-clip">
+          <ellipse cx="136" cy="76" rx="40" ry="30" />
+        </clipPath>
       </defs>
-      {/* sparse neutral backdrop + neutral halo */}
-      <ellipse cx="140" cy="80" rx="104" ry="62" fill="url(#gem-cat-sparse)" opacity="0.09" />
-      <ellipse className="gem-halo" style={haloVar(0.12)} cx="150" cy="80" rx="62" ry="40" fill="url(#gem-cat-halo)" opacity="0.12" />
-      {/* pink halftone ghost/dust */}
-      <g opacity="0.16" transform="translate(-70 -20) scale(0.82)">
-        <ellipse cx="150" cy="70" rx="34" ry="28" fill="url(#gem-cat-dense)" />
-        <polygon points="130,49 122,26 142,45" fill="url(#gem-cat-dense)" />
-        <polygon points="160,48 178,26 176,54" fill="url(#gem-cat-dense)" />
-        <ellipse cx="150" cy="112" rx="22" ry="15" fill="url(#gem-cat-dense)" />
+      {/* wide sparse neutral backdrop field */}
+      <ellipse cx="136" cy="78" rx="104" ry="62" fill="url(#gem-cat-sparse)" opacity="0.09" />
+      {/* single neutral halo */}
+      <ellipse className="gem-halo" style={haloVar(0.12)} cx="136" cy="78" rx="62" ry="40" fill="url(#gem-cat-halo)" opacity="0.12" />
+      {/* ordered horizontal speed dashes */}
+      <rect x="26" y="72" width="40" height="6" rx="3" fill="#7d7669" opacity="0.4" />
+      <rect x="26" y="84" width="30" height="6" rx="3" fill="#7d7669" opacity="0.4" />
+      <rect x="26" y="96" width="20" height="6" rx="3" fill="#7d7669" opacity="0.4" />
+      {/* one clean ground curve */}
+      <path d="M 46 120 Q 140 112 236 118" stroke="#465059" strokeWidth="5" strokeLinecap="round" fill="none" opacity="0.5" />
+      {/* bullet-time dash trail on the ground */}
+      <rect x="100" y="114" width="60" height="5" rx="2.5" fill="url(#gem-cat-dense)" opacity="0.45" />
+      {/* pink halftone ghost echo — head-only, close behind-left */}
+      <g transform="translate(-40 4) scale(0.94)" opacity="0.14">
+        <ellipse cx="136" cy="76" rx="40" ry="30" fill="url(#gem-cat-dense)" />
+        <polygon points="106,62 94,38 122,54" fill="url(#gem-cat-dense)" />
+        <polygon points="166,62 178,38 150,54" fill="url(#gem-cat-dense)" />
       </g>
-      {/* motion speed lines */}
-      <g opacity="0.45">
-        <rect x="86" y="104" width="28" height="7" rx="3.5" fill="url(#gem-cat-dense)" />
-        <rect x="76" y="114" width="34" height="7" rx="3.5" fill="url(#gem-cat-dense)" />
-        <rect x="90" y="124" width="22" height="7" rx="3.5" fill="url(#gem-cat-dense)" />
+      {/* ears (bases buried, painted before head) */}
+      <polygon points="106,62 94,38 122,54" fill="#f4efe4" />
+      <polygon points="166,62 178,38 150,54" fill="#f4efe4" />
+      {/* head dominates — the whole mark */}
+      <ellipse cx="136" cy="76" rx="40" ry="30" fill="#eeeae0" />
+      <g clipPath="url(#gem-cat-head-clip)">
+        <ellipse cx="136" cy="90" rx="40" ry="30" fill="#b6ac95" />
       </g>
-      {/* ground curve (neutral) + pink halftone trail patch the runner lights up */}
-      <path d="M 60 138 Q 150 128 240 136" stroke="#465059" strokeWidth="6" strokeLinecap="round" fill="none" opacity="0.4" />
-      <ellipse cx="150" cy="134" rx="44" ry="6" fill="url(#gem-cat-dense)" opacity="0.4" />
-      {/* body — neutral cream/paper */}
-      <ellipse cx="150" cy="112" rx="22" ry="15" fill="#b6ac95" />
-      <g clipPath="url(#gem-cat-body)">
-        <ellipse cx="148" cy="110" rx="19" ry="12" fill="#f4efe4" />
-        <ellipse cx="144" cy="107" rx="9" ry="6" fill="#eeeae0" />
-      </g>
-      {/* ears — cream */}
-      <polygon points="130,49 122,26 142,45" fill="#f4efe4" />
-      <polygon points="160,48 178,26 176,54" fill="#f4efe4" />
-      {/* head */}
-      <ellipse cx="150" cy="70" rx="34" ry="28" fill="#b6ac95" />
-      <g clipPath="url(#gem-cat-head)">
-        <ellipse cx="148" cy="68" rx="31" ry="25" fill="#f4efe4" />
-        <ellipse cx="142" cy="62" rx="16" ry="12" fill="#eeeae0" />
-      </g>
-      {/* inner ear ink */}
-      <polygon points="131,46 126,33 138,44" fill="#26333b" opacity="0.85" />
-      <polygon points="163,47 173,34 171,50" fill="#26333b" opacity="0.85" />
-      {/* pink halftone overprint caps inside the ears */}
-      <g clipPath="url(#gem-cat-earL)"><rect x="118" y="24" width="28" height="17" fill="url(#gem-cat-dense)" opacity="0.6" /></g>
-      <g clipPath="url(#gem-cat-earR)"><rect x="156" y="24" width="26" height="18" fill="url(#gem-cat-dense)" opacity="0.6" /></g>
-      {/* eyes — ink */}
-      <ellipse cx="143" cy="124" rx="4" ry="2.4" fill="#26333b" />
-      <ellipse cx="157" cy="124" rx="4" ry="2.4" fill="#26333b" />
-      <ellipse cx="138" cy="72" rx="3.4" ry="5" fill="#26333b" />
-      <ellipse cx="162" cy="72" rx="3.4" ry="5" fill="#26333b" />
-      {/* nose — pink focal */}
-      <ellipse cx="150" cy="82" rx="4" ry="3" fill="#ff8fbf" />
-      {/* whiskers */}
-      <g stroke="#26333b" strokeWidth="1.8" strokeLinecap="round" opacity="0.75">
-        <line x1="124" y1="74" x2="104" y2="70" />
-        <line x1="124" y1="79" x2="102" y2="80" />
-        <line x1="124" y1="84" x2="106" y2="90" />
-        <line x1="176" y1="74" x2="196" y2="70" />
-        <line x1="176" y1="79" x2="198" y2="80" />
-        <line x1="176" y1="84" x2="194" y2="90" />
-      </g>
-      {/* glints */}
-      <rect x="140" y="60" width="3.4" height="3.4" fill="#ffffff" opacity="0.6" />
-      <rect x="140" y="104" width="2.8" height="2.8" fill="#ffffff" opacity="0.45" />
+      {/* whisker spikes — paper, punching past the head edge */}
+      <path d="M 100 68 L 78 64" stroke="#eeeae0" strokeWidth="2.2" strokeLinecap="round" />
+      <path d="M 100 76 L 76 76" stroke="#eeeae0" strokeWidth="2.2" strokeLinecap="round" />
+      <path d="M 100 84 L 78 88" stroke="#eeeae0" strokeWidth="2.2" strokeLinecap="round" />
+      <path d="M 172 68 L 194 64" stroke="#eeeae0" strokeWidth="2.2" strokeLinecap="round" />
+      <path d="M 172 76 L 196 76" stroke="#eeeae0" strokeWidth="2.2" strokeLinecap="round" />
+      <path d="M 172 84 L 194 88" stroke="#eeeae0" strokeWidth="2.2" strokeLinecap="round" />
+      {/* negative-space eyes, wide-set on one line */}
+      <ellipse cx="118" cy="78" rx="2.8" ry="4.2" fill="#0b1317" />
+      <ellipse cx="154" cy="78" rx="2.8" ry="4.2" fill="#0b1317" />
+      {/* bow — the single pink signifier, overlapping right ear base */}
+      <ellipse cx="164" cy="54" rx="6" ry="5" fill="#ff8fbf" />
+      <ellipse cx="176" cy="54" rx="6" ry="5" fill="#ff8fbf" />
+      <circle cx="170" cy="55" r="3.2" fill="#a33a72" />
+      {/* single tiny glint */}
+      <rect x="122" y="58" width="2.6" height="2.6" fill="#ffffff" opacity="0.55" />
     </svg>
   );
 }
@@ -279,7 +266,7 @@ function FoxCenterMark() {
   );
 }
 
-/* ── 4 · Explosion — amber spot ink on neutral blast ── */
+/* ── 4 · Explosion — amber spot ink, ordered radial shatter ── */
 function BlastCenterMark() {
   return (
     <svg viewBox="0 0 260 160" aria-hidden="true">
@@ -293,52 +280,53 @@ function BlastCenterMark() {
         <pattern id="gem-blast-halo" patternUnits="userSpaceOnUse" width="7" height="7">
           <circle cx="3.5" cy="3.5" r="1.9" fill="#ffb347" />
         </pattern>
-        <clipPath id="gem-blast-core"><circle cx="128" cy="80" r="30" /></clipPath>
-        <clipPath id="gem-blast-cap"><path d="M 100 72 A 30 30 0 0 1 156 72 Z" /></clipPath>
+        <clipPath id="gem-blast-disc-clip">
+          <circle cx="130" cy="80" r="26" />
+        </clipPath>
+        <clipPath id="gem-blast-shard45-clip">
+          <polygon points="154,104 164,120 170,114" />
+        </clipPath>
+        <clipPath id="gem-blast-shard225-clip">
+          <polygon points="106,56 96,40 90,46" />
+        </clipPath>
       </defs>
-      {/* sparse neutral backdrop + amber halo */}
-      <ellipse cx="128" cy="80" rx="104" ry="64" fill="url(#gem-blast-sparse)" opacity="0.09" />
-      <ellipse className="gem-halo" style={haloVar(0.12)} cx="128" cy="80" rx="60" ry="42" fill="url(#gem-blast-halo)" opacity="0.12" />
-      {/* debris polygons — neutral steps */}
-      <g strokeLinejoin="round">
-        <polygon points="120,44 130,28 140,46 128,50" fill="#eeeae0" />
-        <polygon points="164,50 184,40 180,58 166,60" fill="#b6ac95" />
-        <polygon points="172,74 198,72 192,88 174,86" fill="#7d7669" />
-        <polygon points="160,106 182,116 166,124 154,112" fill="#7d7669" />
-        <polygon points="96,106 82,120 100,124 108,110" fill="#465059" />
-        <polygon points="84,74 58,70 64,86 88,84" fill="#b6ac95" />
-        <polygon points="96,50 78,40 82,58 102,60" fill="#7d7669" />
-      </g>
-      {/* core — deep neutral mass */}
-      <circle cx="128" cy="80" r="30" fill="#26333b" />
-      <g clipPath="url(#gem-blast-core)"><circle cx="122" cy="86" r="24" fill="#465059" /></g>
-      {/* SPOT: amber halftone core cap overprinting the neutral core + focal hot-spot */}
-      <g clipPath="url(#gem-blast-cap)">
-        <rect x="98" y="42" width="60" height="40" fill="url(#gem-blast-dense)" opacity="0.8" />
-      </g>
-      <circle cx="126" cy="72" r="8" fill="#ffcf87" />
-      <circle cx="124" cy="70" r="3.4" fill="#fff0cf" />
-      {/* rib seams — neutral, with amber seam lines */}
-      <g stroke="#7d7669" strokeWidth="2.4" fill="none" opacity="0.6" strokeLinecap="round">
-        <path d="M 128 50 Q 110 80 128 110" />
-        <path d="M 128 50 Q 146 80 128 110" />
-      </g>
-      <g stroke="#ffb347" strokeWidth="2.4" fill="none" opacity="0.85" strokeLinecap="round">
-        <path d="M 128 50 Q 122 80 128 110" />
-        <path d="M 128 50 Q 134 80 128 110" />
-      </g>
-      {/* ember dots — neutral */}
-      <circle cx="150" cy="40" r="2.6" fill="#b6ac95" />
-      <circle cx="182" cy="98" r="2.4" fill="#7d7669" />
-      <circle cx="84" cy="98" r="2.4" fill="#b6ac95" />
-      {/* glints */}
-      <rect x="118" y="64" width="3.4" height="3.4" fill="#ffffff" opacity="0.65" />
-      <rect x="140" y="92" width="3" height="3" fill="#ffffff" opacity="0.45" />
+      {/* wide sparse backdrop */}
+      <ellipse cx="130" cy="80" rx="104" ry="64" fill="url(#gem-blast-sparse)" opacity="0.09" />
+      {/* amber halo */}
+      <ellipse className="gem-halo" style={haloVar(0.12)} cx="130" cy="80" rx="60" ry="42" fill="url(#gem-blast-halo)" opacity="0.12" />
+      {/* eight radial seam lines (the cracks) */}
+      <path d="M160,80 L170,80 M151,101 L158,108 M130,110 L130,120 M109,101 L102,108 M100,80 L90,80 M109,59 L102,52 M130,50 L130,40 M151,59 L158,52" stroke="#7d7669" strokeWidth="1.5" opacity="0.45" fill="none" />
+      {/* eight shards on exact radial angles */}
+      <polygon points="164,80 190,85 190,75" fill="#b6ac95" />
+      <polygon points="154,104 164,120 170,114" fill="#7d7669" />
+      <polygon points="130,114 135,140 125,140" fill="#465059" />
+      <polygon points="106,104 90,114 96,120" fill="#b6ac95" />
+      <polygon points="96,80 70,75 70,85" fill="#7d7669" />
+      <polygon points="106,56 96,40 90,46" fill="#465059" />
+      <polygon points="130,46 135,20 125,20" fill="#b6ac95" />
+      <polygon points="154,56 170,46 164,40" fill="#eeeae0" />
+      {/* amber halftone overprint caps on the two opposite shards */}
+      <rect x="150" y="100" width="26" height="26" fill="url(#gem-blast-dense)" opacity="0.7" clipPath="url(#gem-blast-shard45-clip)" />
+      <rect x="86" y="36" width="26" height="26" fill="url(#gem-blast-dense)" opacity="0.7" clipPath="url(#gem-blast-shard225-clip)" />
+      {/* central lantern disc + stepped inner cap + hairline rim */}
+      <circle cx="130" cy="80" r="26" fill="#26333b" />
+      <circle cx="127" cy="77" r="20" fill="#465059" clipPath="url(#gem-blast-disc-clip)" />
+      <circle cx="130" cy="80" r="26" fill="none" stroke="#465059" strokeWidth="1" opacity="0.6" />
+      {/* amber ignition core (three stacked fills) */}
+      <circle cx="127" cy="77" r="9" fill="#ffb347" />
+      <circle cx="125.5" cy="75.5" r="4" fill="#ffcf87" />
+      <circle cx="124" cy="74" r="1.8" fill="#fff0cf" />
+      {/* three embers on radial lines */}
+      <circle cx="194" cy="103" r="2.2" fill="#b6ac95" />
+      <circle cx="66" cy="57" r="2.2" fill="#b6ac95" />
+      <circle cx="194" cy="57" r="2.2" fill="#b6ac95" />
+      {/* white glint */}
+      <rect x="123.3" y="73.3" width="1.4" height="1.4" fill="#ffffff" />
     </svg>
   );
 }
 
-/* ── 5 · Planck to Now — violet spot ink on neutral cosmos ── */
+/* ── 5 · Planck to Now — violet spot ink, Big Bang epoch ripples ── */
 function SpiralCenterMark() {
   return (
     <svg viewBox="0 0 260 160" aria-hidden="true">
@@ -352,44 +340,35 @@ function SpiralCenterMark() {
         <pattern id="gem-spiral-halo" patternUnits="userSpaceOnUse" width="7" height="7">
           <circle cx="3.5" cy="3.5" r="1.9" fill="#a98cff" />
         </pattern>
-        <clipPath id="gem-spiral-core"><circle cx="108" cy="82" r="24" /></clipPath>
       </defs>
-      {/* sparse neutral backdrop + violet halo */}
-      <ellipse cx="118" cy="82" rx="104" ry="62" fill="url(#gem-spiral-sparse)" opacity="0.09" />
-      <ellipse className="gem-halo" style={haloVar(0.12)} cx="108" cy="82" rx="58" ry="40" fill="url(#gem-spiral-halo)" opacity="0.12" />
-      {/* epoch arc — neutral dashed */}
-      <path d="M 30 120 Q 130 30 236 74" stroke="#7d7669" strokeWidth="2" strokeLinecap="round" strokeDasharray="3 6" fill="none" opacity="0.5" />
-      {/* SPOT: violet "now" sub-segment at the recent end of the arc (seated on the arc) */}
-      <path d="M 212 66 Q 224 70 236 74" stroke="#a98cff" strokeWidth="2.6" strokeLinecap="round" strokeDasharray="3 6" fill="none" opacity="0.9" />
-      <circle cx="236" cy="74" r="2.4" fill="#a98cff" />
-      {/* epoch marker — neutral */}
-      <circle cx="207" cy="66" r="4.5" fill="#b6ac95" />
-      <circle cx="205" cy="64" r="2" fill="#eeeae0" />
-      {/* spiral arms — neutral */}
-      <g transform="rotate(-18 108 82)" fill="none" strokeLinecap="round">
-        <path d="M 108 82 Q 158 66 182 88" stroke="#7d7669" strokeWidth="8" opacity="0.8" />
-        <path d="M 108 82 Q 58 98 36 76" stroke="#7d7669" strokeWidth="8" opacity="0.65" />
-        <path d="M 108 82 Q 138 116 168 116" stroke="#465059" strokeWidth="6" opacity="0.55" />
-      </g>
-      {/* SPOT: stepped violet galactic core */}
-      <circle cx="108" cy="82" r="24" fill="#4b3a8c" />
-      <g clipPath="url(#gem-spiral-core)">
-        <circle cx="102" cy="76" r="18" fill="#a98cff" />
-        <circle cx="98" cy="72" r="9" fill="#efe7ff" />
-      </g>
-      {/* star field — neutral */}
-      <polygon points="196,42 200,52 210,54 200,56 196,66 192,56 182,54 192,52" fill="#b6ac95" opacity="0.9" />
-      <polygon points="150,112 152,118 158,120 152,122 150,128 148,122 142,120 148,118" fill="#7d7669" opacity="0.8" />
-      <circle cx="214" cy="98" r="2.6" fill="#b6ac95" />
-      <circle cx="222" cy="60" r="2" fill="#eeeae0" />
-      <circle cx="60" cy="40" r="2.4" fill="#b6ac95" />
-      <circle cx="42" cy="118" r="1.8" fill="#7d7669" />
-      <circle cx="188" cy="120" r="2.2" fill="#eeeae0" />
-      <circle cx="212" cy="118" r="6" fill="#465059" />
-      <ellipse cx="212" cy="118" rx="11" ry="4" fill="none" stroke="#7d7669" strokeWidth="2" opacity="0.8" />
-      {/* glints */}
-      <rect x="97" y="71" width="3.6" height="3.6" fill="#ffffff" opacity="0.65" />
-      <rect x="118" y="88" width="2.8" height="2.8" fill="#ffffff" opacity="0.4" />
+      {/* wide sparse backdrop */}
+      <ellipse cx="130" cy="84" rx="104" ry="64" fill="url(#gem-spiral-sparse)" opacity="0.09" />
+      {/* violet halo (CSS pulse hooks here) */}
+      <ellipse className="gem-halo" style={haloVar(0.12)} cx="52" cy="84" rx="60" ry="42" fill="url(#gem-spiral-halo)" opacity="0.12" />
+      {/* four nested right-opening epoch ripple bands (outer → inner) */}
+      <path d="M 52 10 A 165 74 0 0 1 52 158" fill="none" stroke="#b6ac95" strokeWidth="9" strokeLinecap="round" opacity="0.5" />
+      <path d="M 52 26 A 130 58 0 0 1 52 142" fill="none" stroke="#7d7669" strokeWidth="9" strokeLinecap="round" opacity="0.6" />
+      <path d="M 52 42 A 95 42 0 0 1 52 126" fill="none" stroke="#465059" strokeWidth="9" strokeLinecap="round" opacity="0.75" />
+      <path d="M 52 58 A 60 26 0 0 1 52 110" fill="none" stroke="#26333b" strokeWidth="9" strokeLinecap="round" opacity="0.9" />
+      {/* singularity (stacked fills + deep containment ring) */}
+      <circle cx="52" cy="84" r="11" fill="none" stroke="#4b3a8c" strokeWidth="1.5" opacity="0.8" />
+      <circle cx="52" cy="84" r="7" fill="#a98cff" />
+      <circle cx="52" cy="84" r="3" fill="#efe7ff" />
+      {/* violet "now" frontier: rightmost segment of band 4 overdrawn */}
+      <path d="M 210 62 A 165 74 0 0 1 210 106" fill="none" stroke="#a98cff" strokeWidth="10" strokeLinecap="round" opacity="0.9" />
+      <circle cx="217" cy="84" r="3" fill="#a98cff" />
+      <circle cx="217" cy="84" r="1.4" fill="#efe7ff" />
+      {/* star field between bands (increasing outward) */}
+      <circle cx="100" cy="84" r="1.6" fill="#b6ac95" />
+      <circle cx="124" cy="62" r="1.8" fill="#7d7669" />
+      <circle cx="150" cy="102" r="2.0" fill="#b6ac95" />
+      <circle cx="176" cy="48" r="2.2" fill="#7d7669" />
+      <circle cx="192" cy="110" r="2.4" fill="#b6ac95" />
+      <circle cx="206" cy="66" r="2.6" fill="#7d7669" />
+      {/* hero four-point star */}
+      <polygon points="168,79 169.6,82.4 173,84 169.6,85.6 168,89 166.4,85.6 163,84 166.4,82.4" fill="#eeeae0" opacity="0.9" />
+      {/* white glint */}
+      <rect x="215.4" y="82.4" width="1.3" height="1.3" fill="#ffffff" />
     </svg>
   );
 }
