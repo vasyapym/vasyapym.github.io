@@ -796,11 +796,11 @@ textarea:focus-visible {
   min-width: 0;
   overflow: hidden;
   border-radius: 20px;
-  background: #0b1317;
+  background: #0f1b20;
   color: var(--ink-text);
   text-decoration: none;
   scroll-margin-top: 1.5rem;
-  border: 1px solid var(--ink-line-soft);
+  box-shadow: 0 1px 0 var(--ink-line-soft) inset;
   transition:
     transform 180ms ease-out,
     box-shadow 180ms ease-out;}
@@ -815,7 +815,9 @@ textarea:focus-visible {
   width: 100%;
   height: 200px;
   overflow: hidden;
-  background: #0b1317;
+  background:
+    radial-gradient(120% 90% at 50% 32%, rgba(238, 234, 224, 0.05), transparent 62%),
+    #0f1b20;
   transition: background-color 180ms ease-out;}
 
 .project-artwork-object {
@@ -922,7 +924,7 @@ textarea:focus-visible {
 
 .signal-index-card:hover .project-artwork,
 .signal-index-card:focus-visible .project-artwork {
-  background-color: #0f171c;}
+  background-color: #142027;}
 
 .signal-index-card:hover .gem-halo,
 .signal-index-card:focus-visible .gem-halo {
