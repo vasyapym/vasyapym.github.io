@@ -96,7 +96,6 @@ textarea:focus-visible {
   overflow: hidden;
   color: var(--ink-text);
   background: var(--ink-bg);
-  --panel-radius: 20px;
   --focus-ring: var(--ink-accent-bright);}
 
 
@@ -237,8 +236,7 @@ textarea:focus-visible {
      type clears 4.5:1 even over the brightest ochre curls. */
   background: rgba(9, 15, 18, 0.62);
   border: 1px solid var(--ink-line-soft);
-  border-left: 2px solid var(--ink-accent-deep);
-  border-radius: var(--panel-radius);}
+  border-left: 2px solid var(--ink-accent-deep);}
 
 
 .signal-index-hero-kicker {
@@ -317,8 +315,7 @@ textarea:focus-visible {
      heavier flat scrim keeps --ink-muted text above 4.5:1 (pass-22 precedent
      of darkening a panel to compensate a removed effect). */
   background: rgba(9, 15, 18, 0.78);
-  border: 1px solid var(--ink-line-soft);
-  border-radius: var(--panel-radius);}
+  border-top: 1px solid var(--ink-line-soft);}
 
 
 .signal-index-beneath-label {
@@ -798,7 +795,7 @@ textarea:focus-visible {
   position: relative;
   min-width: 0;
   overflow: hidden;
-  border-radius: var(--panel-radius);
+  border-radius: 20px;
   background: #0b1317;
   color: var(--ink-text);
   text-decoration: none;
