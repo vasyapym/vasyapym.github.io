@@ -5,6 +5,8 @@ import { INCUMBENT_MARKS } from "../../shell/ProjectArtwork";
 import { FoxMark as FoxA, KittyMark as KittyA, RaftMark as RaftA } from "./variantA";
 import { FoxMark as FoxB, KittyMark as KittyB, RaftMark as RaftB } from "./variantB";
 import { FoxMark as FoxC, KittyMark as KittyC, RaftMark as RaftC } from "./variantC";
+import { RaftCandidateA, RaftCandidateB } from "./raftCybernetic";
+import { TrailCandidateA, TrailCandidateB } from "./practiceMapRethink";
 import "./art-directions.css";
 
 type ArtDirectionsProps = {
@@ -55,6 +57,94 @@ const VARIANT_MARK_IDS: Record<string, "raft" | "kitty" | "fox"> = {
   "evening-forest": "fox",
 };
 
+// Raft cybernetic reconcept round: incumbent vs two candidates from the
+// delegated brief (BRIEF-card-art-raft-cybernetic.md). Owner picks A or B;
+// cards render left to right with their name as the topline.
+const RAFT_ROUND: readonly {
+  id: string;
+  topline: string;
+  Mark?: () => ReactElement;
+}[] = [
+  {
+    id: "current",
+    topline: "current · control loop (candidate b, adopted)",
+    Mark: INCUMBENT_MARKS.raft,
+  },
+  {
+    id: "a",
+    topline: "candidate a · broadcast mesh",
+    Mark: RaftCandidateA,
+  },
+  {
+    id: "b",
+    topline: "candidate b · control loop",
+    Mark: RaftCandidateB,
+  },
+];
+
+// Practice Map rethink round: incumbent vs two candidates from the delegated
+// brief (BRIEF-card-art-practicemap-rethink.md). Owner picks A or B.
+const TRAIL_ROUND: readonly {
+  id: string;
+  topline: string;
+  Mark?: () => ReactElement;
+}[] = [
+  {
+    id: "current",
+    topline: "current · terraced climb (candidate a, adopted)",
+    Mark: INCUMBENT_MARKS.trail,
+  },
+  {
+    id: "a",
+    topline: "candidate a · terraced climb",
+    Mark: TrailCandidateA,
+  },
+  {
+    id: "b",
+    topline: "candidate b · constellation index",
+    Mark: TrailCandidateB,
+  },
+];
+
+type RoundEntry = { id: string; topline: string; Mark?: () => ReactElement };
+
+// One comparison round: shared head + the project's card rendered per entry.
+function RoundSection({
+  label,
+  name,
+  projectId,
+  thesis,
+  round,
+  projects,
+}: {
+  label: string;
+  name: string;
+  projectId: string;
+  thesis: string;
+  round: readonly RoundEntry[];
+  projects: readonly ProjectModule[];
+}) {
+  return (
+    <section className="art-variant-section" aria-label={label}>
+      <div className="art-variant-head">
+        <p className="art-variant-label">{label}</p>
+        <h2 className="art-variant-name">{name}</h2>
+        <p className="art-variant-thesis">{thesis}</p>
+      </div>
+      <div className="signal-index-grid">
+        {(() => {
+          const project = projects.find((entry) => entry.id === projectId);
+          if (!project) return null;
+          return round.map(({ id, topline, Mark }) => {
+            if (!Mark) return null;
+            return <DraftCard key={id} project={project} index={0} Mark={Mark} topline={topline} />;
+          });
+        })()}
+      </div>
+    </section>
+  );
+}
+
 // Mirror of ProjectArtwork's pointer tilt so draft cards behave like landing cards.
 function useTilt() {
   const objectRef = useRef<HTMLDivElement>(null);
@@ -87,10 +177,12 @@ function DraftCard({
   project,
   index,
   Mark,
+  topline,
 }: {
   project: ProjectModule;
   index: number;
   Mark: () => ReactElement;
+  topline?: string;
 }) {
   const { objectRef, handlePointerMove, resetPointer } = useTilt();
 
@@ -111,8 +203,7 @@ function DraftCard({
       </div>
       <div className="gem-card-copy">
         <p className="gem-card-topline">
-          {String(index + 1).padStart(2, "0")}
-          {project.tag ? ` · ${project.tag}` : ""}
+          {topline ?? `${String(index + 1).padStart(2, "0")}${project.tag ? ` · ${project.tag}` : ""}`}
         </p>
         <h3 className="gem-card-title">{project.title}</h3>
         <p className="gem-card-desc">{project.description}</p>
@@ -168,6 +259,24 @@ export default function ArtDirections({ projects }: ArtDirectionsProps) {
             </div>
           </section>
         ))}
+
+        <RoundSection
+          label="raft reconcept"
+          name="cybernetic round"
+          projectId="raft-cluster"
+          thesis="The columns mark reads as a clay model — both candidates redraw Raft as a networked, self-regulating system: nodes, message flow, a visible feedback loop. Hover a card for the lift, tilt and halo response."
+          round={RAFT_ROUND}
+          projects={projects}
+        />
+
+        <RoundSection
+          label="practice map rethink"
+          name="a map that feels alive"
+          projectId="practice-map"
+          thesis="The survey grid + pins read as boring — both candidates keep the purpose (territory, here, next) but add a focal drama: a lit summit being climbed, or one blazing star in a personal constellation."
+          round={TRAIL_ROUND}
+          projects={projects}
+        />
       </div>
     </main>
   );

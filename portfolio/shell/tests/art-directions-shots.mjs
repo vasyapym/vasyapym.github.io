@@ -87,10 +87,10 @@ try {
   if (head) await head.screenshot({ path: join(outDir, "header.png") });
 
   const sections = await desktop.$$(".art-variant-section");
-  check("three variant sections render", sections.length === 3, `found ${sections.length}`);
+  check("five sections render (3 variants + raft + trail rounds)", sections.length === 5, `found ${sections.length}`);
 
-  const names = ["variant-a", "variant-b", "variant-c"];
-  for (let i = 0; i < sections.length && i < 3; i += 1) {
+  const names = ["variant-a", "variant-b", "variant-c", "raft-round", "trail-round"];
+  for (let i = 0; i < sections.length && i < 5; i += 1) {
     await sections[i].screenshot({ path: join(outDir, `${names[i]}.png`) });
   }
 

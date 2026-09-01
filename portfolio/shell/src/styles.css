@@ -1023,6 +1023,11 @@ textarea:focus-visible {
   .project-artwork {
     height: 150px;}
 
+  /* Cap the mark's width so the 260/160 svg fits the 150px stage with its
+     breathe ±3px intact — marks must stay inside the card at every width. */
+  .project-artwork-center {
+    max-width: 240px;}
+
   .gem-card-copy {
     padding: 20px;
     min-height: 0;}
