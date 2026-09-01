@@ -1,0 +1,92 @@
+/* /art-directions — comparison page for the card-artwork consistency round.
+   Reuses the landing's card/artwork/gem-copy classes wholesale; this file only
+   adds the page chrome (header, ramp strip, variant section headers). */
+
+.art-directions-head {
+  padding-top: clamp(2.5rem, 5vw, 4rem);}
+
+.art-directions-kicker {
+  margin: 0 0 0.7rem;
+  font-family: var(--mono);
+  font-size: 0.7rem;
+  font-weight: 500;
+  letter-spacing: 0.34em;
+  text-transform: lowercase;
+  color: var(--ink-accent-bright);}
+
+.art-directions-title {
+  margin: 0;
+  font-family: var(--display);
+  font-weight: 600;
+  font-size: clamp(1.6rem, 3vw, 2.4rem);
+  letter-spacing: -0.02em;
+  line-height: 1.05;
+  color: var(--ink-text);}
+
+.art-directions-note {
+  margin: 0.9rem 0 0;
+  max-width: 44rem;
+  font-family: var(--sans);
+  font-size: 0.85rem;
+  line-height: 1.55;
+  color: var(--ink-muted);}
+
+.art-directions-ramp {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  margin-top: 1.4rem;
+  padding: 0.7rem 0.9rem;
+  width: fit-content;
+  border: 1px solid var(--ink-line-soft);
+  border-radius: 12px;}
+
+.art-directions-swatch {
+  width: 22px;
+  height: 22px;
+  border-radius: 6px;
+  border: 1px solid rgba(238, 234, 224, 0.12);}
+
+.art-directions-ramp-label {
+  margin-left: 0.5rem;
+  font-family: var(--mono);
+  font-size: 0.64rem;
+  letter-spacing: 0.22em;
+  text-transform: lowercase;
+  color: var(--ink-faint);}
+
+.art-variant-section {
+  margin-top: clamp(3rem, 6vw, 4.5rem);
+  padding-top: clamp(1.5rem, 3vw, 2rem);
+  border-top: 1px solid var(--ink-line-soft);}
+
+.art-variant-head {
+  margin-bottom: 1.4rem;}
+
+.art-variant-label {
+  margin: 0 0 0.35rem;
+  font-family: var(--mono);
+  font-size: 0.64rem;
+  font-weight: 500;
+  letter-spacing: 0.3em;
+  text-transform: lowercase;
+  color: var(--ink-accent);}
+
+.art-variant-name {
+  margin: 0;
+  font-family: var(--display);
+  font-weight: 600;
+  font-size: clamp(1.2rem, 2vw, 1.5rem);
+  letter-spacing: -0.01em;
+  color: var(--ink-text);}
+
+.art-variant-thesis {
+  margin: 0.45rem 0 0;
+  max-width: 52rem;
+  font-family: var(--sans);
+  font-size: 0.82rem;
+  line-height: 1.5;
+  color: var(--ink-muted);}
+
+.signal-index-grid {
+  margin-top: 1.5rem;}

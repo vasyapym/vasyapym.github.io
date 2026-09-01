@@ -7,6 +7,7 @@ import type { PrototypeVariant } from "./prototype/PortfolioPrototype";
 const DesignDirections = lazy(() => import("./design-directions/DesignDirections"));
 const HeroMotionDrafts = lazy(() => import("./design-directions/HeroMotionDrafts"));
 const MobileHeroDrafts = lazy(() => import("./design-directions/MobileHeroDrafts"));
+const ArtDirections = lazy(() => import("./design-directions/art-directions/ArtDirections"));
 const PortfolioPrototype = lazy(() => import("./prototype/PortfolioPrototype"));
 
 function projectIdFromPath(pathname: string): string | undefined {
@@ -66,6 +67,14 @@ export default function App() {
     return (
       <Suspense fallback={<div className="project-loading section-shell">Loading directions…</div>}>
         <MobileHeroDrafts projects={projectModules} />
+      </Suspense>
+    );
+  }
+
+  if (pathname === "/art-directions") {
+    return (
+      <Suspense fallback={<div className="project-loading section-shell">Loading directions…</div>}>
+        <ArtDirections projects={projectModules} />
       </Suspense>
     );
   }
