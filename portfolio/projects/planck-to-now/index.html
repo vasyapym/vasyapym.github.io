@@ -23,7 +23,7 @@
   body { font-family: "IBM Plex Mono", ui-monospace, "SF Mono", Menlo, Consolas, monospace; color: var(--ink); }
 
   #app { position: fixed; inset: 0; z-index: 0; }
-  #app canvas { display: block; width: 100%; height: 100%; }
+  #app canvas { display: block; width: 100%; height: 100%; touch-action: none; }
 
   #vignette { position: fixed; inset: 0; z-index: 2; pointer-events: none;
     background: radial-gradient(ellipse at center, transparent 52%, rgba(0,0,0,.62) 100%); }
@@ -33,7 +33,8 @@
 
   #panel { top: 26px; left: 30px; max-width: 400px; padding: 14px 16px;
     border: 1px solid rgba(238, 234, 224, 0.2); background: rgba(11, 19, 23, 0.42);
-    backdrop-filter: blur(2px); -webkit-backdrop-filter: blur(2px); }
+    backdrop-filter: blur(2px); -webkit-backdrop-filter: blur(2px);
+    pointer-events: auto; cursor: pointer; }
   #epoch { font-size: 15px; font-weight: 500; letter-spacing: .05em; text-transform: lowercase; color: var(--accent);
     margin: 0 0 6px 0; }
   #epochdesc { font-size: 11.5px; line-height: 1.5; color: var(--dim); margin: 0 0 14px 0; }
@@ -57,7 +58,23 @@
 
   #tech { bottom: 20px; left: 24px; font-size: 11px; color: var(--faint); letter-spacing: .04em; }
 
-  @media (max-width: 700px) { #tech { display: none; } }
+  /* the hint div is rendered (empty) from load and shown by setting its text:
+     text changes repaint reliably, whereas elements that enter the tree late
+     can stall out of the compositor under continuous WebGL load */
+  #touchhint { bottom: 104px; left: 50%; transform: translateX(-50%); white-space: nowrap;
+    font-size: 11px; letter-spacing: .05em; color: var(--dim); }
+
+  @media (max-width: 700px) {
+    #tech { display: none; }
+    #title { display: none; }
+    #hints { display: none; }
+    #stats { display: none; }
+    /* the epoch text floats free of its box: same words, far less visual weight */
+    #panel { top: 14px; left: 14px; max-width: 320px; padding: 0;
+      border: none; background: transparent; backdrop-filter: none; -webkit-backdrop-filter: none; }
+    #epoch { font-size: 13px; margin: 0 0 4px 0; }
+    #epochdesc { font-size: 10.5px; line-height: 1.45; margin: 0; }
+  }
 
   #title { top: 26px; right: 30px; font-size: 11px; letter-spacing: .05em; color: var(--faint); }
 
@@ -114,6 +131,7 @@
   </div>
   <div class="hud" id="tech"><span id="techline">gpgpu</span> · <span id="fps">—</span> fps</div>
   <div class="hud" id="title">planck-to-now</div>
+  <div class="hud" id="touchhint"></div>
 
   <div id="err"><div>webgl unavailable · simulation sealed</div></div>
 

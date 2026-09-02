@@ -638,7 +638,10 @@ textarea:focus-visible {
   width: 100%;
   height: 680px;
   border: 1px solid var(--ink-line);
-  background: #000;}
+  background: #000;
+  /* the sim owns every gesture that starts on it; the page scrolls from
+     everywhere else — without this, phones pan the parent instead of orbiting */
+  touch-action: none;}
 
 
 .planck-facts {

@@ -169,11 +169,26 @@ renderer.domElement.addEventListener("pointerdown", (e) => {
   downT = performance.now();
 });
 
+// A deliberate finger tap is slower and driftier than a mouse click, so the
+// tap window widens on coarse pointers.
+const TAP_MS = isCoarse ? 650 : 400;
+const TAP_PX = isCoarse ? 14 : 8;
+
 renderer.domElement.addEventListener("pointerup", (e) => {
   if (!gpgpuSys || e.button > 0) return;
-  if (performance.now() - downT > 350) return;
-  if (Math.hypot(e.clientX - downX, e.clientY - downY) > 8) return;
-  poke = screenToWorld(e.clientX, e.clientY);
+  if (performance.now() - downT > TAP_MS) return;
+  if (Math.hypot(e.clientX - downX, e.clientY - downY) > TAP_PX) return;
+  const hit = screenToWorld(e.clientX, e.clientY);
+  if (hit) {
+    poke = hit;
+    const hint = document.getElementById("touchhint");
+    if (hint) hint.textContent = "";
+  }
+});
+
+// The epoch panel doubles as the touch-friendly pause/resume control.
+document.getElementById("panel")?.addEventListener("click", () => {
+  playing = !playing;
 });
 
 function syncBufferHeight(): void {
@@ -263,6 +278,17 @@ function frame(): void {
   if (!booted) {
     booted = true;
     document.documentElement.classList.add("p2n-live");
+    if (isCoarse) {
+      const hint = document.getElementById("touchhint");
+      if (hint) {
+        window.setTimeout(() => {
+          hint.textContent = "drag orbits · pinch zooms · tap stirs";
+        }, 600);
+        window.setTimeout(() => {
+          hint.textContent = "";
+        }, 7500);
+      }
+    }
   }
 }
 frame();
