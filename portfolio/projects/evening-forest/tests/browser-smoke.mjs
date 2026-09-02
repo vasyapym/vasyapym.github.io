@@ -191,7 +191,7 @@ try {
   await wait(600);
   await shot("4-looked");
 
-  const rest = await page.$(".ef-touch-buttons button:last-child");
+  const rest = await page.$(".ef-touch-rest");
   if (!rest) {
     problems.push("assert: Rest button exists");
     console.log("FAIL Rest button exists");
@@ -209,6 +209,31 @@ try {
   await wait(700);
   await page.touchscreen.touchEnd();
   check(true, "re-enter and walk again (state reset)");
+
+  // The fox-mind readout must hold the top-left corner without colliding
+  // with the Fox-mind toggle (top-right) on a phone-width viewport.
+  await page.tap(".ef-touch-buttons button");
+  await wait(500);
+  const hudOverlap = await page.evaluate(() => {
+    const rect = (sel) =>
+      document.querySelector(sel)?.getBoundingClientRect() ?? null;
+    const panel = rect(".ef-fox-mind");
+    const bar = rect(".ef-touch-buttons");
+    if (!panel || !bar) return "missing";
+    return !(
+      panel.right <= bar.left ||
+      bar.right <= panel.left ||
+      panel.bottom <= bar.top ||
+      bar.bottom <= panel.top
+    );
+  });
+  check(
+    hudOverlap === false,
+    "fox-mind panel clears the Fox-mind toggle in the corner row",
+  );
+  await shot("7-fox-mind");
+  await page.tap(".ef-touch-buttons button");
+  await wait(300);
 
   // The walk must have changed at least one pixel of the render.
   const before = readFileSync(join(SHOTS, "2-playing.png"));

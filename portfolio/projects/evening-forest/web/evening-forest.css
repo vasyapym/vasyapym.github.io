@@ -3,25 +3,42 @@
 .evening-forest-page {
   display: flex;
   flex-direction: column;
+  /* Fallback for mobile WebKit builds without dynamic-viewport units —
+     the dvh line replaces it wherever dvh parses. */
+  height: calc(100vh - 61px);
   height: calc(100dvh - 61px);
   min-height: 480px;
+  /* Same dusk-dark as the stage: any viewport shortfall on mobile shows
+     forest, never the shell's light body. */
+  background: #140b20;
   color: var(--index-ink);
 }
 
 /* When the shell supports :has, fill the space under the nav exactly —
    the nav is taller when its links wrap on small screens, so a hardcoded
-   offset always drifts a few pixels out. */
+   offset always drifts a few pixels out. Also: the frame and the body go
+   forest-dark while this page is mounted. Mobile WebKit (Safari, and every
+   iOS browser — Yandex included — via WKWebView) can leave the frame a
+   toolbar-height short of the visible viewport when the dynamic viewport
+   shifts, exposing the shell's near-white body below the canvas. Painting
+   the whole chain dusk-dark turns that possible gap into fog. */
 @supports selector(:has(*)) {
   .project-frame:has(.evening-forest-page) {
     display: flex;
     flex-direction: column;
+    min-height: 100vh;
     min-height: 100dvh;
+    background: #140b20;
   }
 
   .project-frame:has(.evening-forest-page) > .evening-forest-page {
     flex: 1;
     height: auto;
     min-height: 0;
+  }
+
+  body:has(.evening-forest-page) {
+    background: #140b20;
   }
 }
 
@@ -459,8 +476,11 @@ button.evening-forest-enter:focus-visible {
   left: 1.4rem;
 }
 
+/* The look hint shares its corner with the Sound/Rest cluster, so it floats
+   just above the row until the first drag dismisses it. */
 .ef-touch-hint-look {
   right: 1.4rem;
+  bottom: max(3.9rem, calc(env(safe-area-inset-bottom) + 3.6rem));
 }
 
 @keyframes ef-touch-hint-in {
@@ -511,6 +531,19 @@ button.evening-forest-enter:focus-visible {
   pointer-events: auto;
 }
 
+/* System controls (Sound, Rest) live in the bottom-right corner: they don't
+   share a row with the fox-mind readout, and Rest sits under the resting
+   thumb. On notched phones the safe-area inset lifts them off the home
+   indicator. */
+.ef-touch-actions {
+  position: absolute;
+  right: calc(env(safe-area-inset-right) + 0.8rem);
+  bottom: calc(env(safe-area-inset-bottom) + 0.9rem);
+  display: flex;
+  gap: 0.5rem;
+  pointer-events: auto;
+}
+
 .ef-touch-button {
   padding: 0.42rem 0.85rem;
   color: rgba(255, 236, 214, 0.8);
@@ -539,6 +572,7 @@ button.evening-forest-enter:focus-visible {
 @media (max-width: 720px) {
   .evening-forest-page {
     height: auto;
+    min-height: calc(100vh - 61px);
     min-height: calc(100dvh - 61px);
   }
 
@@ -546,11 +580,12 @@ button.evening-forest-enter:focus-visible {
     min-height: 68vh;
   }
 
-  /* The fox-mind readout can't sit beside the touch button bar below
-     ~460px (their combined width overflows), so it drops to its own row
-     beneath the bar — the buttons end ≈2.55rem from the top. */
+  /* The readout stays pinned to the top-left corner at every width — the
+     Sound/Rest cluster moved to the bottom-right, so the corner row only
+     shares space with the single Fox-mind toggle (~9rem). On very narrow
+     phones the panel narrows instead of moving; the flavor line wraps. */
   .ef-fox-mind {
-    top: calc(env(safe-area-inset-top) + 3.8rem);
+    max-width: calc(100vw - 9.5rem);
   }
 }
 

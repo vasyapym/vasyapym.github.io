@@ -27,6 +27,9 @@ export type TouchControlsProps = {
 // rest is drag-to-look. Zones track one pointer each, so walking and
 // looking work simultaneously. All numbers go through lib/touch-input and
 // land in the shared state the walking rig drains every frame.
+// The top corners belong to the fox: its mind readout sits top-left, the
+// toggle top-right. Sound and Rest live in a bottom-right cluster — out of
+// the readout's row and under the resting thumb.
 export function TouchControls({
   inputRef,
   onPause,
@@ -208,6 +211,8 @@ export function TouchControls({
         >
           Fox mind
         </button>
+      </div>
+      <div className="ef-touch-actions">
         <button
           type="button"
           className="ef-touch-button"
@@ -216,7 +221,11 @@ export function TouchControls({
         >
           {muted ? "Sound off" : "Sound on"}
         </button>
-        <button type="button" className="ef-touch-button" onClick={onPause}>
+        <button
+          type="button"
+          className="ef-touch-button ef-touch-rest"
+          onClick={onPause}
+        >
           Rest
         </button>
       </div>

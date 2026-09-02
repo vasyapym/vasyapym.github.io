@@ -147,12 +147,18 @@ const GEO = () => {
     const r = el.getBoundingClientRect();
     return { top: +r.top.toFixed(1), bottom: +r.bottom.toFixed(1), left: +r.left.toFixed(1), right: +r.right.toFixed(1) };
   };
+  const stage = document.querySelector(".evening-forest-stage");
   return {
     innerW: window.innerWidth,
     innerH: window.innerHeight,
     dvh: window.visualViewport ? +window.visualViewport.height.toFixed(1) : null,
     scrollH: document.documentElement.scrollHeight,
     bodyBg: getComputedStyle(document.body).backgroundColor,
+    // A positive value means the viewport shows anything below the stage —
+    // on the phone that region must be forest-dark, never the light body.
+    gapBelowStage: stage
+      ? +(window.innerHeight - stage.getBoundingClientRect().bottom).toFixed(1)
+      : null,
     frame: q(".project-frame"),
     topbar: q(".project-frame-topbar"),
     page: q(".evening-forest-page"),
@@ -193,8 +199,9 @@ for (const vp of VIEWPORTS) {
   const playGeo = await page.evaluate(GEO);
   await page.screenshot({ path: `${OUT}/${vp.label}-play.png` });
 
-  // Back to rest via the Rest button, in case the playing rest overlay differs.
-  const restBtn = await page.$(".ef-touch-button:last-child");
+  // Back to rest via the Rest button (bottom-right cluster), in case the
+  // playing rest overlay differs.
+  const restBtn = await page.$(".ef-touch-rest");
   if (restBtn) {
     await restBtn.tap();
     await wait(900);
