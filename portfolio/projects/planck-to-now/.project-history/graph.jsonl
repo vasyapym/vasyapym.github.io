@@ -11,3 +11,5 @@
 {"type":"edge.added","id":"e5","ts":"2026-08-27T09:56:37.773Z","from":"n5","to":"n6","rel":"continues"}
 {"type":"node.added","id":"n7","ts":"2026-08-31T19:43:09.013Z","kind":"iteration","actor":"user","title":"Redesign project cards as Gemstones: two-up grid, six glossy SVG gems, breathe + halo pulse","artifacts":[{"kind":"git-commit","ref":"188d5ba"}],"meta":{"source":"auto"}}
 {"type":"edge.added","id":"e6","ts":"2026-08-31T19:43:09.013Z","from":"n6","to":"n7","rel":"continues"}
+{"type":"node.added","id":"n8","ts":"2026-09-02T17:17:13.557Z","kind":"iteration","actor":"user","title":"Fix Planck to Now plasma-era washout and add an ignition boot state","artifacts":[{"kind":"git-commit","ref":"9614f3b"}],"meta":{"source":"auto"}}
+{"type":"edge.added","id":"e7","ts":"2026-09-02T17:17:13.575Z","from":"n7","to":"n8","rel":"continues"}
