@@ -28,6 +28,7 @@ const plasmaDamping = reduceMotion ? 0.12 : 1;
 const sparkDamping = reduceMotion ? 0.3 : 1;
 
 function showError(msg: string): void {
+  document.getElementById("boot")?.remove();
   const el = document.getElementById("err");
   if (el) {
     el.style.display = "grid";
@@ -53,6 +54,11 @@ const renderer: THREE.WebGLRenderer = createRenderer();
 renderer.domElement.addEventListener("webglcontextlost", (event) => {
   event.preventDefault();
   showError("webgl context lost — reload to restart.");
+});
+
+renderer.domElement.addEventListener("webglcontextrestored", () => {
+  const el = document.getElementById("err");
+  if (el) el.style.display = "none";
 });
 
 renderer.setPixelRatio(Math.min(window.devicePixelRatio, isCoarse ? 1.5 : 2));
@@ -100,9 +106,9 @@ const composer = new EffectComposer(renderer);
 composer.addPass(new RenderPass(scene, camera));
 const bloom = new UnrealBloomPass(
   new THREE.Vector2(window.innerWidth, window.innerHeight),
-  0.9,
-  0.85,
-  0.12,
+  0.55,
+  0.55,
+  0.4,
 );
 composer.addPass(bloom);
 composer.addPass(new OutputPass());
@@ -118,6 +124,7 @@ let playing = true;
 let dps = BASE_DPS;
 let flash = 0;
 let animTime = 0;
+let booted = false;
 
 const tParam = new URLSearchParams(window.location.search).get("t");
 if (tParam !== null) {
@@ -223,7 +230,7 @@ function frame(): void {
     if (logt < RECOMBINATION && next >= RECOMBINATION) flash = 1;
     logt = next;
   }
-  flash *= Math.exp(-2.6 * dt);
+  flash *= Math.exp(-5.5 * dt);
   if (flash < 0.004) flash = 0;
 
   const st = evaluateState(logt);
@@ -238,20 +245,24 @@ function frame(): void {
   u.uSpark.value = (playing ? st.spark : st.spark * 0.25) * sparkDamping;
   u.uStar.value = st.star;
   const [r, g, b] = kelvinToRGB(st.tempK);
-  u.uHot.value.setRGB(r, g, b).multiplyScalar(0.9 + 0.9 * st.earlyBoost);
+  u.uHot.value.setRGB(r, g, b).multiplyScalar(0.72 + 0.38 * st.earlyBoost);
 
   cmb.uniforms.uTime.value = animTime;
   cmb.uniforms.uOpacity.value = st.cmbOpacity;
   cmb.uniforms.uCool.value = st.cmbCool;
 
-  const glowScale = 2 + 55 * st.vscale * st.earlyBoost + 26 * flash;
+  const glowScale = 4 + 30 * st.vscale * (0.35 + 0.65 * st.earlyBoost) + 18 * flash;
   glow.sprite.scale.setScalar(glowScale);
-  glow.material.opacity = Math.min(1, 0.85 * st.earlyBoost + 0.7 * flash);
+  glow.material.opacity = Math.min(1, Math.min(0.5, 0.5 * st.earlyBoost) + 0.7 * flash);
 
-  bloom.strength = 0.85 + 0.45 * st.earlyBoost + 2.4 * flash;
+  bloom.strength = 0.5 + 0.3 * st.earlyBoost + 1.4 * flash;
 
   controls.update();
   composer.render();
   updateUi(ui, st, { playing, dps, flash });
+  if (!booted) {
+    booted = true;
+    document.documentElement.classList.add("p2n-live");
+  }
 }
 frame();

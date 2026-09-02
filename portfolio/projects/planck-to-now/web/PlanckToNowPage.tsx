@@ -1,3 +1,5 @@
+import { useState } from "react";
+
 const GITHUB_URL = "https://github.com/vasyapym/vasyapym.github.io/tree/main/portfolio/projects/planck-to-now";
 
 const FACTS = [
@@ -7,6 +9,8 @@ const FACTS = [
 ];
 
 export default function PlanckToNowPage() {
+  const [loaded, setLoaded] = useState(false);
+
   return (
     <div className="planck-field">
       <section className="planck-page" aria-labelledby="planck-to-now-title">
@@ -32,12 +36,19 @@ export default function PlanckToNowPage() {
               open standalone <span aria-hidden="true">↗</span>
             </a>
           </p>
-          <iframe
-            className="planck-frame"
-            src="/planck-to-now/"
-            title="Interactive Planck to Now cosmology simulation"
-            allow="fullscreen"
-          />
+          <div className="planck-frame-stage">
+            <div className={`planck-frame-wait${loaded ? " is-done" : ""}`} aria-hidden="true">
+              <span className="planck-frame-ember" />
+              <p className="planck-frame-note">igniting the simulation</p>
+            </div>
+            <iframe
+              className="planck-frame"
+              src="/planck-to-now/"
+              title="Interactive Planck to Now cosmology simulation"
+              allow="fullscreen"
+              onLoad={() => setLoaded(true)}
+            />
+          </div>
         </section>
 
         <ul className="planck-facts" aria-label="Simulation facts">

@@ -87,11 +87,18 @@ export function createCoreGlow(): { sprite: THREE.Sprite; material: THREE.Sprite
   canvas.height = size;
   const ctx = canvas.getContext("2d");
   if (ctx) {
-    const grad = ctx.createRadialGradient(size / 2, size / 2, 0, size / 2, size / 2, size / 2);
-    grad.addColorStop(0, "rgba(255,250,240,1)");
-    grad.addColorStop(0.25, "rgba(255,225,180,0.65)");
-    grad.addColorStop(0.55, "rgba(255,170,90,0.22)");
-    grad.addColorStop(1, "rgba(255,120,40,0)");
+    // Exponential-ish falloff reaching zero by ~0.78 of the half-size, so the
+    // sprite quad has no bright edge for bloom to smear into a square.
+    const c = size / 2;
+    const grad = ctx.createRadialGradient(c, c, 0, c, c, c);
+    grad.addColorStop(0.00, "rgba(255, 250, 242, 1.00)");
+    grad.addColorStop(0.10, "rgba(255, 240, 214, 0.72)");
+    grad.addColorStop(0.22, "rgba(255, 214, 158, 0.45)");
+    grad.addColorStop(0.36, "rgba(255, 180, 110, 0.26)");
+    grad.addColorStop(0.50, "rgba(255, 150, 78, 0.14)");
+    grad.addColorStop(0.64, "rgba(240, 120, 52, 0.06)");
+    grad.addColorStop(0.78, "rgba(220, 100, 40, 0.00)");
+    grad.addColorStop(1.00, "rgba(220, 100, 40, 0.00)");
     ctx.fillStyle = grad;
     ctx.fillRect(0, 0, size, size);
   }

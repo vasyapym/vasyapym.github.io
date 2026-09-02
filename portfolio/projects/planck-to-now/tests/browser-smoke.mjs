@@ -102,7 +102,7 @@ try {
   // --- gpgpu path -----------------------------------------------------------
 
   await page.goto(`${BASE}/planck-to-now/?t=17`, {
-    waitUntil: "networkidle0",
+    waitUntil: "domcontentloaded",
     timeout: 45000,
   });
   await wait(2500);
@@ -177,7 +177,7 @@ try {
   // --- static fallback ------------------------------------------------------
 
   await page.goto(`${BASE}/planck-to-now/?static=1&t=6`, {
-    waitUntil: "networkidle0",
+    waitUntil: "domcontentloaded",
     timeout: 45000,
   });
   await wait(1500);
@@ -191,6 +191,10 @@ try {
   check(staticTech.includes("static"), "techline names the static buffers");
 
   // --- mobile viewport ------------------------------------------------------
+
+  // Release the desktop page's WebGL context first: headless SwiftShader
+  // struggles to host two live contexts in one browser.
+  await page.close();
 
   const mobile = await browser.newPage();
   await mobile.setViewport({
@@ -206,7 +210,7 @@ try {
   });
 
   await mobile.goto(`${BASE}/planck-to-now/`, {
-    waitUntil: "networkidle0",
+    waitUntil: "domcontentloaded",
     timeout: 45000,
   });
   await wait(2500);

@@ -118,5 +118,5 @@ export function updateUi(ui: UiRefs, st: SimState, x: UiExtras): void {
     lastSpeedText = speedText;
     ui.speedlabel.textContent = speedText;
   }
-  ui.flash.style.opacity = String(Math.min(0.92, x.flash));
+  ui.flash.style.opacity = String(Math.min(0.55, x.flash));
 }

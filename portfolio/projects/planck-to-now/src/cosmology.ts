@@ -80,9 +80,13 @@ export function physicalScaleFactor(logt: number): number {
   return 1;
 }
 
+// Visual-scale keyframes. MUST be non-decreasing in logt and MUST end at exactly 1.0
+// (node test asserts both). Planck orb starts large (~0.22 → ~9 world units), an
+// inflation surge lands ~0.34 by logt -32, then gentle growth to 0.6 at recombination.
+// Everything at and after RECOMBINATION is identical to the pre-2026-09 curve.
 const VS_KEYS: Array<[number, number]> = [
-  [-43, 0.0008], [-36, 0.0016], [-32, 0.02], [-24, 0.032], [-12, 0.05],
-  [0, 0.1], [6, 0.18], [10, 0.3], [RECOMBINATION, 0.6], [14.6, 0.72],
+  [-43, 0.22], [-36, 0.24], [-32, 0.34], [-24, 0.36], [-12, 0.40],
+  [0, 0.45], [6, 0.50], [10, 0.55], [RECOMBINATION, 0.6], [14.6, 0.72],
   [16.1, 0.85], [LOG_END, 1.0],
 ];
 
@@ -140,7 +144,7 @@ export function evaluateState(logt: number): SimState {
     aPhys,
     tempK,
     vscale,
-    earlyBoost: Math.pow(smoothstep(0.55, 0.06, vscale), 1.3),
+    earlyBoost: Math.pow(smoothstep(0.5, 0.24, vscale), 1.3),
     plasma: 1 - smoothstep(12.3, RECOMBINATION, logt),
     web: smoothstep(14.3, 16.5, logt),
     star: smoothstep(16.0, 16.9, logt),

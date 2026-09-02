@@ -197,6 +197,7 @@ uniform sampler2D uTargetTex;
 uniform float uA;
 uniform float uTime;
 uniform float uWeb;
+uniform float uPlasma;
 uniform float uSpark;
 uniform float uStar;
 uniform float uH;
@@ -212,7 +213,8 @@ float hash(float n) {
 void main() {
   vec4 pos4 = texture2D(uPosTex, aRef);
   vec4 tgt4 = texture2D(uTargetTex, aRef);
-  vec3 p = pos4.xyz * uA;
+  vec3 rawPos = pos4.xyz;
+  vec3 p = rawPos * uA;
 
   vec4 mv = modelViewMatrix * vec4(p, 1.0);
   gl_Position = projectionMatrix * mv;
@@ -230,13 +232,27 @@ void main() {
   float twinkle = 0.75 + 0.45 * sin(uTime * (6.0 + 8.0 * h3) + h4 * 40.0);
   float sp = uSpark * step(0.994, hash(floor(uTime * 13.0) + h1 * 91.7 + h2 * 57.1));
 
-  float b = mix(0.55, 1.0, h4);
+  // plasma radius grading: white-hot core -> amber body -> deep-ember fringe,
+  // mottled by per-particle jitter, relaxing to the uHot look as uPlasma decays.
+  float rn = clamp(length(rawPos) / 40.0, 0.0, 1.0);
+  float rr = clamp(rn + (h3 - 0.5) * 0.18, 0.0, 1.0);
+  vec3 core = mix(vec3(1.0, 0.96, 0.92), uHot, 0.35);
+  vec3 body = vec3(1.0, 0.55, 0.22);
+  vec3 fringe = vec3(0.45, 0.12, 0.03);
+  vec3 plasmaCol = mix(core, body, smoothstep(0.10, 0.55, rr));
+  plasmaCol = mix(plasmaCol, fringe, smoothstep(0.55, 0.90, rr));
+
+  // base brightness blends back to the legacy curve as uWeb rises so the
+  // web era renders exactly as before the plasma redesign.
+  float b = mix(mix(0.30, 0.72, h4), mix(0.55, 1.0, h4), uWeb);
+  b *= mix(0.62, 1.0, uWeb);
   b *= mix(1.0, 0.42, uWeb);
-  b *= 1.0 + 1.4 * early;
+  b *= 1.0 + 0.45 * early;
   b *= 1.0 + 3.5 * sp;
   b *= 1.0 + 2.2 * starOn * twinkle;
 
   vec3 col = mix(uHot, vec3(0.62, 0.37, 0.24), uWeb * 0.9);
+  col = mix(plasmaCol, col, clamp(1.0 - uPlasma, 0.0, 1.0));
   col = mix(col, vec3(0.74, 0.83, 1.05), starOn);
   col *= 0.85 + 0.3 * h3;
 
@@ -244,7 +260,7 @@ void main() {
   vA = clamp(b, 0.0, 1.0);
 
   float sz = mix(1.0, 2.3, h3);
-  sz *= 1.0 + 2.4 * starOn + 1.6 * early;
+  sz *= 1.0 + 2.4 * starOn + 0.5 * early;
   gl_PointSize = sz * uH * 0.0018 * (46.0 / max(1.0, -mv.z));
 }
 `;

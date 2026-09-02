@@ -63,9 +63,34 @@
 
   #err { position: fixed; inset: 0; z-index: 50; display: none; place-items: center; background: #000;
     color: var(--dim); font-size: 13px; letter-spacing: .05em; padding: 40px; text-align: center; }
+
+  #boot { position: fixed; inset: 0; z-index: 40; pointer-events: none; background: #000;
+    display: flex; flex-direction: column; align-items: center; justify-content: center;
+    transition: opacity .6s ease .15s, visibility 0s linear .8s; }
+  html.p2n-live #boot { opacity: 0; visibility: hidden; }
+  .boot-ember { width: 22px; height: 22px; border-radius: 50%;
+    background: radial-gradient(circle, #fff6e8 0%, #ffd9a0 38%, rgba(232,181,124,.55) 62%, rgba(232,181,124,0) 76%);
+    box-shadow: 0 0 26px 6px rgba(232,181,124,.3);
+    animation: boot-pulse 1.6s ease-in-out infinite; }
+  .boot-word { margin-top: 18px; font-size: 13px; letter-spacing: .08em; color: var(--ink); }
+  .boot-rule { position: relative; margin-top: 14px; width: 140px; height: 1px; background: var(--line); overflow: hidden; }
+  .boot-rule::after { content: ""; position: absolute; top: 0; left: 0; width: 44px; height: 1px;
+    background: linear-gradient(90deg, transparent, rgba(232,181,124,.85), transparent);
+    animation: boot-sweep 2.2s linear infinite; }
+  .boot-note { margin-top: 10px; font-size: 11px; color: var(--faint); }
+  @keyframes boot-pulse { 0%, 100% { transform: scale(1); opacity: .78; } 50% { transform: scale(1.16); opacity: 1; } }
+  @keyframes boot-sweep { from { transform: translateX(-48px); } to { transform: translateX(148px); } }
+  @media (prefers-reduced-motion: reduce) { .boot-ember, .boot-rule::after { animation: none; } }
 </style>
 </head>
 <body>
+  <div id="boot" aria-hidden="true">
+    <span class="boot-ember"></span>
+    <span class="boot-word">planck to now</span>
+    <span class="boot-rule"></span>
+    <span class="boot-note">warming the vacuum</span>
+  </div>
+
   <div id="app"></div>
   <div id="vignette"></div>
   <div id="flash"></div>
