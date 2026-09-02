@@ -17,3 +17,5 @@
 {"type":"edge.added","id":"e8","ts":"2026-08-29T16:01:08.655Z","from":"n8","to":"n9","rel":"continues"}
 {"type":"node.added","id":"n10","ts":"2026-08-31T19:43:09.014Z","kind":"iteration","actor":"user","title":"Redesign project cards as Gemstones: two-up grid, six glossy SVG gems, breathe + halo pulse","artifacts":[{"kind":"git-commit","ref":"188d5ba"}],"meta":{"source":"auto"}}
 {"type":"edge.added","id":"e9","ts":"2026-08-31T19:43:09.014Z","from":"n9","to":"n10","rel":"continues"}
+{"type":"node.added","id":"n11","ts":"2026-09-02T18:19:22.051Z","kind":"iteration","actor":"user","title":"feat(practice-map): rounded-panel re-skin, draggable concept graph, full-height mobile map","artifacts":[{"kind":"git-commit","ref":"ebab009"}],"meta":{"source":"auto"}}
+{"type":"edge.added","id":"e10","ts":"2026-09-02T18:19:22.054Z","from":"n10","to":"n11","rel":"continues"}
