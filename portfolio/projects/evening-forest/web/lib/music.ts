@@ -1,17 +1,19 @@
 // Evening Forest — procedural ambient score.
 // A lonely, wistful dusk-shrine piece in D aeolian with dorian colour:
-// a breathing low drone, slow open-fifth pad swells, and a sparse
-// bell-like melody, all bathed in a runtime-built convolution reverb.
-// One seamless, deterministic 8-bar cycle repeated forever.
+// a breathing low drone, twin open-fifth pad swells, a sparse bell-like
+// melody with soft neighbour-note echoes, and a filtered night-air bed,
+// all bathed in a runtime-built convolution reverb and glued by a bus
+// compressor. One seamless, deterministic 8-bar cycle repeated forever.
 
 import { createRng } from "./rng";
 
 export type EveningMusicVoice = { stop: () => void };
 
-// Final bus level into `out`. Sits well below the master's clip point even
-// at the worst-case all-layers-coinciding peak (~0.5 into out), so the
-// footstep synth and the master mute/dim ramps keep headroom.
-const MUSIC_LEVEL = 0.42;
+// Level into the bus compressor. The compressor + makeup after this bus
+// bound the worst-case all-layers peak into `out` (~0.3 after the 0.8
+// master), so the footstep synth and the master mute/dim ramps keep
+// headroom even with the score pushed loud enough for a phone speaker.
+const MUSIC_LEVEL = 0.5;
 
 // ~50 bpm, 4/4, 8 bars. Long enough that the loop point is never obvious;
 // note tails and pad releases deliberately ring across the boundary.
@@ -24,12 +26,16 @@ const SCHEDULE_AHEAD = 3.0;
 // are divided by the partial count so summed oscillators stay near these.
 const DRONE_LEVEL = 0.2;
 const DRONE_LFO_DEPTH = 0.05; // slow "breathing" of the floor
-// The D2/A2 fundamentals vanish on phone speakers; a quiet D3 partial
-// carries the drone into registers small drivers can actually reproduce.
-const DRONE_OCTAVE_LEVEL = 0.3;
+// The D2/A2 fundamentals vanish on phone speakers; quiet D3 and D4
+// partials carry the drone into registers small drivers can reproduce.
+const DRONE_OCTAVE_LEVEL = 0.32;
+const DRONE_UPPER_LEVEL = 0.12;
 const PAD_LEVEL = 0.16;
-const NOTE_LEVEL = 0.22;
-const CHIME_LEVEL = 0.06;
+const NOTE_LEVEL = 0.26;
+const CHIME_LEVEL = 0.08;
+// Filtered-noise night-air bed — the one sustained midrange element, quiet
+// enough to sit under everything and fill the gaps between notes.
+const AIR_LEVEL = 0.045;
 
 // Reverb send / return. Wet sits well below dry so it reads as a room,
 // not an effect.
@@ -69,7 +75,22 @@ export function createEveningMusic(
   // --- Fixed signal graph -------------------------------------------------
   const musicBus = ctx.createGain();
   musicBus.gain.value = MUSIC_LEVEL;
-  musicBus.connect(out);
+
+  // Glue compressor + makeup so the score reads loud enough on a phone
+  // speaker while the peaks stay bounded before hitting the master.
+  const compressor = ctx.createDynamicsCompressor();
+  compressor.threshold.value = -18;
+  compressor.knee.value = 20;
+  compressor.ratio.value = 2;
+  compressor.attack.value = 0.01;
+  compressor.release.value = 0.3;
+
+  const makeupGain = ctx.createGain();
+  makeupGain.gain.value = 1.5;
+
+  musicBus.connect(compressor);
+  compressor.connect(makeupGain);
+  makeupGain.connect(out);
 
   const dryGain = ctx.createGain();
   dryGain.gain.value = DRY_LEVEL;
@@ -114,6 +135,13 @@ export function createEveningMusic(
   const droneOctaveGain = ctx.createGain();
   droneOctaveGain.gain.value = DRONE_OCTAVE_LEVEL;
 
+  const droneUpper = ctx.createOscillator();
+  droneUpper.type = "sine";
+  droneUpper.frequency.value = 293.66; // D4 — small-speaker lifeline
+
+  const droneUpperGain = ctx.createGain();
+  droneUpperGain.gain.value = DRONE_UPPER_LEVEL;
+
   const droneGain = ctx.createGain();
   droneGain.gain.value = DRONE_LEVEL;
 
@@ -129,6 +157,7 @@ export function createEveningMusic(
   droneRoot.connect(droneGain);
   droneFifth.connect(droneGain);
   droneOctave.connect(droneOctaveGain).connect(droneGain);
+  droneUpper.connect(droneUpperGain).connect(droneGain);
   droneGain.connect(dryGain);
   droneGain.connect(reverbSend);
 
@@ -136,6 +165,7 @@ export function createEveningMusic(
   droneRoot.start(droneStart);
   droneFifth.start(droneStart);
   droneOctave.start(droneStart);
+  droneUpper.start(droneStart);
   droneLfo.start(droneStart);
 
   const disposeDrone = (): void => {
@@ -155,6 +185,11 @@ export function createEveningMusic(
       /* already stopped */
     }
     try {
+      droneUpper.stop();
+    } catch {
+      /* already stopped */
+    }
+    try {
       droneLfo.stop();
     } catch {
       /* already stopped */
@@ -163,14 +198,99 @@ export function createEveningMusic(
     droneFifth.disconnect();
     droneOctave.disconnect();
     droneOctaveGain.disconnect();
+    droneUpper.disconnect();
+    droneUpperGain.disconnect();
     droneLfo.disconnect();
     droneLfoDepth.disconnect();
     droneGain.disconnect();
   };
   active.add(disposeDrone);
 
+  // --- Night-air bed: a soft filtered-noise wash beneath everything -------
+  // Sustains the midrange through the long silences between notes so the
+  // piece never reads as empty on a phone. Noise + LFO shapes are fully
+  // deterministic (seeded rng, no Math.random). No oscillator ender fires
+  // for the looping source, so its disposer is registered directly.
+  const airLength = Math.floor(ctx.sampleRate * 2);
+  const airBuffer = ctx.createBuffer(2, airLength, ctx.sampleRate);
+  for (let ch = 0; ch < 2; ch += 1) {
+    const data = airBuffer.getChannelData(ch);
+    for (let i = 0; i < airLength; i += 1) {
+      data[i] = rng() * 2 - 1;
+    }
+  }
+
+  const airSource = ctx.createBufferSource();
+  airSource.buffer = airBuffer;
+  airSource.loop = true;
+
+  const airFilter = ctx.createBiquadFilter();
+  airFilter.type = "bandpass";
+  airFilter.frequency.value = 420;
+  airFilter.Q.value = 0.6;
+
+  const airGain = ctx.createGain();
+  airGain.gain.value = AIR_LEVEL;
+
+  // Slow sweep of the band so the wash never sits still.
+  const airFilterLfo = ctx.createOscillator();
+  airFilterLfo.type = "sine";
+  airFilterLfo.frequency.value = 0.03;
+  const airFilterLfoDepth = ctx.createGain();
+  airFilterLfoDepth.gain.value = 120; // ±120 Hz around 420 Hz
+  airFilterLfo.connect(airFilterLfoDepth);
+  airFilterLfoDepth.connect(airFilter.frequency);
+
+  // Gentle level drift around the base AIR_LEVEL.
+  const airGainLfo = ctx.createOscillator();
+  airGainLfo.type = "sine";
+  airGainLfo.frequency.value = 0.017;
+  const airGainLfoDepth = ctx.createGain();
+  airGainLfoDepth.gain.value = AIR_LEVEL * 0.35;
+  airGainLfo.connect(airGainLfoDepth);
+  airGainLfoDepth.connect(airGain.gain);
+
+  airSource.connect(airFilter);
+  airFilter.connect(airGain);
+  airGain.connect(dryGain);
+  airGain.connect(reverbSend);
+
+  airSource.start(droneStart);
+  airFilterLfo.start(droneStart);
+  airGainLfo.start(droneStart);
+
+  const disposeAir = (): void => {
+    try {
+      airSource.stop();
+    } catch {
+      /* already stopped */
+    }
+    try {
+      airFilterLfo.stop();
+    } catch {
+      /* already stopped */
+    }
+    try {
+      airGainLfo.stop();
+    } catch {
+      /* already stopped */
+    }
+    airSource.disconnect();
+    airFilter.disconnect();
+    airGain.disconnect();
+    airFilterLfo.disconnect();
+    airFilterLfoDepth.disconnect();
+    airGainLfo.disconnect();
+    airGainLfoDepth.disconnect();
+  };
+  active.add(disposeAir);
+
   // --- The signature melody: fast attack, long exponential ring ----------
-  function playNote(freq: number, time: number): void {
+  function playNote(
+    freq: number,
+    time: number,
+    level: number = NOTE_LEVEL,
+  ): void {
     const sine = ctx.createOscillator();
     sine.type = "sine";
     const tri = ctx.createOscillator();
@@ -187,7 +307,7 @@ export function createEveningMusic(
     lp.frequency.value = 1800;
 
     const g = ctx.createGain();
-    const target = NOTE_LEVEL / 2;
+    const target = level / 2;
     const decay = 2.5 + rng() * 1.5;
     g.gain.setValueAtTime(0.0001, time);
     g.gain.linearRampToValueAtTime(target, time + 0.015);
@@ -330,20 +450,34 @@ export function createEveningMusic(
 
   // --- One cycle of events; silence between notes is intentional ----------
   function scheduleCycle(start: number): void {
-    // Melody: irregular 2–6 s spacing with occasional true rests.
+    // Melody: irregular ~1.6–4.6 s spacing with occasional true rests; each
+    // note may spawn a quiet neighbour echo so lines feel less isolated.
     let t = 0.5 + rng() * 1.5;
     while (t < CYCLE) {
       if (rng() > 0.15) {
-        const freq = MELODY[Math.floor(rng() * MELODY.length)];
-        playNote(freq, start + t);
+        const idx = Math.floor(rng() * MELODY.length);
+        playNote(MELODY[idx], start + t);
+        if (rng() > 0.45) {
+          // 55% chance: a single scale-step neighbour, clamped to the set.
+          const dir = rng() < 0.5 ? -1 : 1;
+          const neighbor = Math.max(0, Math.min(MELODY.length - 1, idx + dir));
+          playNote(
+            MELODY[neighbor],
+            start + t + 0.35 + rng() * 0.35,
+            NOTE_LEVEL * 0.4,
+          );
+        }
       }
-      t += 2 + rng() * 4;
+      t += 1.6 + rng() * 3;
     }
 
-    // Pad: usually one slow bloom per cycle, placed loosely.
-    if (rng() > 0.2) {
-      const chord = PAD_CHORDS[Math.floor(rng() * PAD_CHORDS.length)];
-      playPad(chord, start + rng() * 6);
+    // Pad: two blooms per cycle so the midrange is rarely empty. The first
+    // always fires early; the second usually fills the back half.
+    const chordA = PAD_CHORDS[Math.floor(rng() * PAD_CHORDS.length)];
+    playPad(chordA, start + 1 + rng() * CYCLE * 0.35);
+    if (rng() > 0.25) {
+      const chordB = PAD_CHORDS[Math.floor(rng() * PAD_CHORDS.length)];
+      playPad(chordB, start + CYCLE * 0.5 + rng() * CYCLE * 0.4);
     }
 
     // Chime: roughly every other cycle, anywhere within it.
@@ -386,6 +520,8 @@ export function createEveningMusic(
     wetGain.disconnect();
     dryGain.disconnect();
     musicBus.disconnect();
+    compressor.disconnect();
+    makeupGain.disconnect();
   }
 
   return { stop };

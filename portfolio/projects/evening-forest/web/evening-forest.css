@@ -528,6 +528,12 @@ button.evening-forest-enter:focus-visible {
   background: rgba(255, 180, 94, 0.18);
 }
 
+.ef-touch-button[aria-pressed="true"] {
+  color: #ffd696;
+  border-color: rgba(255, 180, 94, 0.85);
+  background: rgba(255, 180, 94, 0.14);
+}
+
 /* --- end touch controls -------------------------------------------------- */
 
 @media (max-width: 720px) {
@@ -538,6 +544,13 @@ button.evening-forest-enter:focus-visible {
 
   .evening-forest-stage {
     min-height: 68vh;
+  }
+
+  /* The fox-mind readout can't sit beside the touch button bar below
+     ~460px (their combined width overflows), so it drops to its own row
+     beneath the bar — the buttons end ≈2.55rem from the top. */
+  .ef-fox-mind {
+    top: calc(env(safe-area-inset-top) + 3.8rem);
   }
 }
 

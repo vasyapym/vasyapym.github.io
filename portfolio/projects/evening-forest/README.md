@@ -73,10 +73,13 @@ Everything lives inside this directory; no shell routing changes.
   itself in whole-tile steps around the walker, so the ground is grassy
   everywhere without thousands of extra instances.
 - **Score** — the background music is a procedural, Dark Souls-flavoured
-  tranquil ambient loop (`web/lib/music.ts`): a breathing D-aeolian drone,
-  slow open-fifth pad swells, a sparse bell-like melody and a rare distant
-  chime through a runtime-built convolution reverb, scheduled on a seamless
-  38.4 s cycle with a single lookahead timer. No audio files. The shared
+  tranquil ambient loop (`web/lib/music.ts`): a breathing D-aeolian drone
+  (with D3/D4 partials so phone speakers hear it), slow open-fifth pad
+  swells (two blooms per cycle), a sparse bell-like melody with soft
+  neighbour-note echoes, a rare distant chime, and a quiet filtered
+  night-air noise bed, all glued by a bus compressor and bathed in a
+  runtime-built convolution reverb, scheduled on a seamless 38.4 s cycle
+  with a single lookahead timer. No audio files. The shared
   AudioContext, master mute/dim ramps and the footstep synth (a lowpass
   thump plus bandpassed leaf crunch fired by each head-bob cycle) live in
   `web/lib/ambience.ts`. The context starts inside the click/tap gesture
