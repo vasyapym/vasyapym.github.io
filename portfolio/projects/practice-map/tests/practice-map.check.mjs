@@ -170,6 +170,57 @@ try {
   await page.keyboard.press("Escape");
   await wait(300);
 
+  // --- desktop: concept graph ------------------------------------------------
+
+  await page.click(".practice-graph-open");
+  check(await appears(".practice-graph-overlay"), "concept graph opens");
+
+  const nodeCount = await page.$$eval(".practice-graph-node", (n) => n.length);
+  check(nodeCount === 28, `graph renders 28 nodes (${nodeCount})`);
+
+  const nodesInside = await page.evaluate(() => {
+    const canvas = document.querySelector(".practice-graph-canvas").getBoundingClientRect();
+    return Array.from(document.querySelectorAll(".practice-graph-node")).every((n) => {
+      const r = n.getBoundingClientRect();
+      const cx = r.left + r.width / 2;
+      const cy = r.top + r.height / 2;
+      return cx >= canvas.left - 2 && cx <= canvas.right + 2 && cy >= canvas.top - 2 && cy <= canvas.bottom + 2;
+    });
+  });
+  check(nodesInside, "all node centers sit inside the canvas");
+
+  const emptyReadout = await page.$eval(".practice-graph-readout", (el) => el.textContent);
+  check(emptyReadout.includes("drag a node"), "readout shows the empty hint first");
+
+  // Hover node 0: connections light up.
+  const pipeBox = await page.$eval(".practice-graph-node", (n) => {
+    const r = n.getBoundingClientRect();
+    return { x: r.left + r.width / 2, y: r.top + r.height / 2, nodeX: getComputedStyle(n).getPropertyValue("--node-x") };
+  });
+  await page.mouse.move(pipeBox.x, pipeBox.y);
+  await wait(400);
+  const edgeCount = await page.$$eval(".practice-graph-edges line", (l) => l.length);
+  check(edgeCount >= 1, `hovering a node draws its edges (${edgeCount})`);
+  const edgeStroke = await page.$eval(".practice-graph-edges line", (l) => getComputedStyle(l).stroke);
+  check(edgeStroke !== "none" && edgeStroke !== "", `edge stroke resolves (${edgeStroke})`);
+  const activeReadout = await page.$eval(".practice-graph-readout", (el) => el.textContent);
+  check(activeReadout.includes("topics"), `readout inspects the active concept (${activeReadout.slice(0, 60)})`);
+
+  // Drag the node: it moves, edges follow, readout stays.
+  await page.mouse.down();
+  await page.mouse.move(pipeBox.x + 160, pipeBox.y + 90, { steps: 8 });
+  await page.mouse.up();
+  await wait(300);
+  const pipeAfter = await page.$eval(".practice-graph-node", (n) => getComputedStyle(n).getPropertyValue("--node-x"));
+  check(pipeAfter !== pipeBox.nodeX, `dragging moves the node (${pipeBox.nodeX} -> ${pipeAfter})`);
+  const edgesAfterDrag = await page.$$eval(".practice-graph-edges line", (l) => l.length);
+  check(edgesAfterDrag >= 1, "edges follow the dragged node");
+  check(await appears(".practice-graph-node.is-dimmed"), "unrelated nodes dim while a node is active");
+
+  await page.keyboard.press("Escape");
+  await wait(400);
+  check((await page.$(".practice-graph-overlay")) === null, "Escape closes the graph");
+
   await page.close();
 
   // --- mobile: fit, reachability, touch affordances -------------------------
@@ -268,6 +319,66 @@ try {
   await wait(400);
   check((await page.$(".practice-lesson-overlay")) === null, "Escape closes on mobile too");
 
+  // --- mobile: the map is a full-height sheet with a usable canvas ----------
+
+  await page.tap(".practice-graph-open");
+  check(await appears(".practice-graph-overlay"), "concept graph opens on mobile");
+
+  const sheetFit = await page.evaluate(() => {
+    const panel = document.querySelector(".practice-graph-panel").getBoundingClientRect();
+    const canvas = document.querySelector(".practice-graph-canvas").getBoundingClientRect();
+    return {
+      panelFits: panel.top >= -1 && panel.bottom <= window.innerHeight + 1 && panel.left >= -1 && panel.right <= window.innerWidth + 1,
+      panelTall: panel.height >= window.innerHeight * 0.8,
+      canvasBig: canvas.height >= window.innerHeight * 0.55,
+    };
+  });
+  check(sheetFit.panelFits, "graph sheet fits the viewport at 390px");
+  check(sheetFit.panelTall, `graph sheet is near full height (${Math.round(sheetFit.panelTall)})`);
+  check(sheetFit.canvasBig, `graph canvas fills ≥55vh on mobile (${Math.round(sheetFit.canvasBig)})`);
+
+  const noOverflowGraph = await page.evaluate(
+    () => document.querySelector(".practice-graph-overlay").scrollWidth <= window.innerWidth,
+  );
+  check(noOverflowGraph, "no horizontal overflow inside the graph sheet");
+
+  // Tap a node: it activates and the readout inspects it.
+  await page.tap(".practice-graph-node");
+  await wait(400);
+  const mobileReadout = await page.$eval(".practice-graph-readout", (el) => el.textContent);
+  check(mobileReadout.includes("topics") || mobileReadout.includes("topic"), `tap inspects a concept (${mobileReadout.slice(0, 50)})`);
+
+  const canvasStable = await page.$eval(
+    ".practice-graph-canvas",
+    (el) => el.getBoundingClientRect().height,
+  );
+
+  // Touch-drag: the node moves with the finger. The box is read AFTER the
+  // tap — measuring earlier races the sheet's layout settle.
+  const nodeBox = await page.$eval(".practice-graph-node", (n) => {
+    const r = n.getBoundingClientRect();
+    return { x: r.left + r.width / 2, y: r.top + r.height / 2, nodeX: getComputedStyle(n).getPropertyValue("--node-x") };
+  });
+
+  // Touch-drag: the node moves with the finger.
+  await page.touchscreen.touchStart(nodeBox.x, nodeBox.y);
+  await page.touchscreen.touchMove(nodeBox.x - 60, nodeBox.y - 80);
+  await page.touchscreen.touchMove(nodeBox.x - 120, nodeBox.y - 140);
+  await page.touchscreen.touchEnd();
+  await wait(300);
+  const nodeAfterDrag = await page.$eval(".practice-graph-node", (n) => getComputedStyle(n).getPropertyValue("--node-x"));
+  check(nodeAfterDrag !== nodeBox.nodeX, `touch-drag moves the node (${nodeBox.nodeX} -> ${nodeAfterDrag})`);
+
+  const canvasAfterDrag = await page.$eval(
+    ".practice-graph-canvas",
+    (el) => el.getBoundingClientRect().height,
+  );
+  check(Math.abs(canvasAfterDrag - canvasStable) < 2, "inspecting a node never resizes the canvas");
+
+  await page.keyboard.press("Escape");
+  await wait(400);
+  check((await page.$(".practice-graph-overlay")) === null, "Escape closes the graph on mobile");
+
   // --- narrow phone (iPhone SE class): the real-device regression ------------
 
   await page.setViewport({
@@ -310,6 +421,28 @@ try {
   const escapesNarrowBottom = await walkHorizontalEscape();
   check(escapesNarrowBottom.length === 0, "no descendant escapes the panel at 320px after full scroll");
   await shot("narrow-deep-bottom");
+
+  // --- narrow phone: graph sheet stays usable -------------------------------
+
+  await page.keyboard.press("Escape");
+  await wait(300);
+  await page.tap(".practice-graph-open");
+  check(await appears(".practice-graph-overlay"), "graph opens at 320px");
+  const narrowGraph = await page.evaluate(() => ({
+    noOverflow: document.querySelector(".practice-graph-overlay").scrollWidth <= window.innerWidth,
+    fits: (() => {
+      const r = document.querySelector(".practice-graph-panel").getBoundingClientRect();
+      return r.top >= -1 && r.bottom <= window.innerHeight + 1 && r.left >= -1 && r.right <= window.innerWidth + 1;
+    })(),
+    canvasBig: document.querySelector(".practice-graph-canvas").getBoundingClientRect().height >= window.innerHeight * 0.5,
+  }));
+  check(narrowGraph.noOverflow, "no horizontal overflow in the graph at 320px");
+  check(narrowGraph.fits, "graph sheet fits the viewport at 320px");
+  check(narrowGraph.canvasBig, "graph canvas still fills the sheet at 320px");
+  await shot("narrow-graph");
+  await page.keyboard.press("Escape");
+  await wait(300);
+  check((await page.$(".practice-graph-overlay")) === null, "Escape closes the graph at 320px");
 
   await page.close();
   await browser.close();

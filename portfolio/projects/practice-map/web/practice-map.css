@@ -4,6 +4,22 @@
   background: var(--ink-bg);
   color-scheme: dark;
   --focus-ring: var(--ink-accent-bright);
+  --panel-radius: 20px;
+}
+
+/* Film grain — static, copied from the landing (Reference 2). position:fixed
+   covers the viewport on soft-light; z-index 4 keeps it above page content but
+   below the graph/lesson overlays (z-index 70/60), which stay clear. */
+.practice-map-field::after {
+  content: "";
+  position: fixed;
+  inset: 0;
+  z-index: 4;
+  pointer-events: none;
+  opacity: 0.06;
+  mix-blend-mode: soft-light;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='180' height='180'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='2' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+  background-size: 180px 180px;
 }
 
 /* Safari (real devices, not the emulator) auto-inflates text in wide
@@ -39,33 +55,59 @@
 .practice-map-hero {
   display: grid;
   grid-template-columns: minmax(0, 1.1fr) minmax(230px, 0.45fr);
-  align-items: end;
+  /* stretch, not end: the two panels must share one height — a taller rail
+     with a shorter copy panel reads as misaligned, whatever the bottom line
+     is doing. */
+  align-items: stretch;
   gap: clamp(2rem, 6vw, 5rem);
-  border-bottom: 1px solid var(--ink-line);
-  padding-bottom: clamp(2.5rem, 5vw, 4.5rem);
 }
 
+/* Copy panel — the .signal-index-hero-copy language (Reference 3): flat scrim,
+   soft hairline, ochre-deep left rule, rounded to the shared panel radius. */
 .practice-map-hero h1 {
+  display: flex;
+  flex-direction: column;
+  /* Bottom-anchor the headline so its last line sits on exactly the same
+     line as the rail's explore chip (both panels share the bottom padding). */
+  justify-content: flex-end;
   max-width: 760px;
   margin: 0;
+  padding: clamp(1.25rem, 2.4vw, 1.9rem) clamp(1.25rem, 2.4vw, 1.9rem)
+    clamp(1.4rem, 2.6vw, 2rem);
+  background: rgba(9, 15, 18, 0.62);
+  border: 1px solid var(--ink-line-soft);
+  border-left: 2px solid var(--ink-accent-deep);
+  border-radius: var(--panel-radius);
   font-family: var(--display);
-  font-size: clamp(2rem, 3.3vw, 3rem);
+  font-size: clamp(1.76rem, calc((100vw - 72px) / 19.4), 3.68rem);
   font-weight: 600;
-  letter-spacing: -0.03em;
-  line-height: 0.97;
+  letter-spacing: -0.02em;
+  line-height: 0.98;
+  text-transform: lowercase;
   color: var(--ink-text);
 }
 
 .practice-map-hero h1 span {
   display: block;
-  color: var(--ink-accent);
+  color: var(--ink-accent-bright);
 }
 
+/* Rail panel — the .signal-index-beneath language (Reference 5): heavier 0.78
+   scrim so the mono chrome inside clears 4.5:1 over the grain-lit ink. */
 .practice-map-hero-note {
   display: grid;
   justify-items: start;
   gap: 1.2rem;
-  padding-bottom: 0.25rem;
+  /* Top padding mirrors the copy panel's so both panels' first content sits
+     at the same distance from their shared top edge; space-between pins the
+     explore chip to the bottom line when the stretched copy panel adds
+     height; bottom padding mirrors the copy panel's so the chip's bottom
+     edge sits on the same line as the headline's last line. */
+  align-content: space-between;
+  padding: clamp(1.25rem, 2.4vw, 1.9rem) 1.25rem clamp(1.4rem, 2.6vw, 2rem);
+  background: rgba(9, 15, 18, 0.78);
+  border: 1px solid var(--ink-line-soft);
+  border-radius: var(--panel-radius);
 }
 
 .practice-map-export {
@@ -112,13 +154,22 @@
   place-items: center;
   padding: 1rem;
   background: rgba(4, 8, 10, 0.78);
+  /* Portaled to <body>, so the field's tokens/scopes don't reach it. */
+  --panel-radius: 20px;
+  -webkit-text-size-adjust: 100%;
+  text-size-adjust: 100%;
 }
 
 .practice-graph-panel {
+  display: flex;
+  flex-direction: column;
   width: min(900px, 100%);
-  max-height: min(760px, 100%);
+  /* Fixed height (not max): the canvas flexes, so the readout and footer are
+     always fully visible instead of falling below the panel's scroll fold. */
+  height: min(780px, 100%);
   overflow: auto;
   border: 1px solid var(--ink-line);
+  border-radius: var(--panel-radius);
   padding: clamp(1.1rem, 3vw, 2rem);
   background: #0e161b;
   box-shadow: 0 24px 80px rgba(0, 0, 0, 0.55);
@@ -149,11 +200,25 @@
 
 .practice-graph-canvas {
   position: relative;
-  min-height: min(58vw, 500px);
+  flex: 1 1 auto;
+  min-height: 320px;
   margin-top: 1.5rem;
   overflow: hidden;
   border: 1px solid var(--ink-line-soft);
   background: radial-gradient(circle at center, rgba(211, 155, 97, 0.12), transparent 38%), #0b1317;
+}
+
+.practice-graph-edges {
+  position: absolute;
+  inset: 0;
+  /* Above the core medallion (z-index 1): a lit connection between nodes on
+     opposite sides of the center must stay visible as it crosses it. Chips
+     (z-index 2, later in DOM) still paint over their own endpoints. */
+  z-index: 2;
+  width: 100%;
+  height: 100%;
+  overflow: visible;
+  pointer-events: none;
 }
 
 .practice-graph-orbit {
@@ -163,6 +228,7 @@
   border: 1px solid rgba(211, 155, 97, 0.2);
   border-radius: 50%;
   transform: translate(-50%, -50%);
+  pointer-events: none;
 }
 
 .orbit-one { width: 48%; height: 48%; }
@@ -172,6 +238,7 @@
   position: absolute;
   top: 50%;
   left: 50%;
+  z-index: 1;
   display: grid;
   width: 92px;
   height: 92px;
@@ -186,21 +253,29 @@
   text-align: center;
   text-transform: lowercase;
   transform: translate(-50%, -50%);
+  pointer-events: none;
 }
 
 .practice-graph-node {
   position: absolute;
   top: var(--node-y);
   left: var(--node-x);
+  z-index: 2;
   max-width: 130px;
   border: 1px solid var(--ink-line-soft);
   padding: 0.35rem 0.5rem;
   color: var(--ink-muted);
-  background: rgba(14, 22, 27, 0.9);
-  cursor: pointer;
+  /* Opaque: center-to-center edge lines must never ghost through a label. */
+  background: #0e161b;
+  cursor: grab;
   font-family: var(--mono);
   font-size: 0.62rem;
   transform: translate(-50%, -50%);
+  transition: border-color 160ms ease, color 160ms ease, background 160ms ease,
+    opacity 160ms ease;
+  touch-action: none;
+  user-select: none;
+  -webkit-user-select: none;
   animation: practice-node-in 500ms ease var(--node-delay) both;
 }
 
@@ -208,12 +283,66 @@
 .practice-graph-node:focus-visible {
   border-color: var(--ink-accent);
   color: var(--ink-accent-bright);
-  background: var(--ink-panel);
+  background: #17242b;
+}
+
+.practice-graph-node.is-neighbor {
+  border-color: var(--ink-accent);
+  color: var(--ink-accent-bright);
+}
+
+.practice-graph-node.is-active {
+  z-index: 5;
+  border-color: var(--ink-accent-bright);
+  color: var(--ink-accent-bright);
+  background: #17242b;
+}
+
+.practice-graph-node.is-dimmed {
+  opacity: 0.4;
+}
+
+.practice-graph-node.is-dragging {
+  z-index: 6;
+  cursor: grabbing;
+  transition: none;
 }
 
 @keyframes practice-node-in {
   from { opacity: 0; transform: translate(-50%, -50%) scale(0.6); }
   to { opacity: 1; transform: translate(-50%, -50%) scale(1); }
+}
+
+.practice-graph-readout {
+  margin-top: 0.9rem;
+  min-height: 4.6rem;
+  border-top: 1px solid var(--ink-line-soft);
+  padding-top: 0.7rem;
+  font-family: var(--mono);
+  font-size: 0.7rem;
+  line-height: 1.5;
+}
+
+.practice-graph-readout p { margin: 0; }
+
+.practice-graph-readout-head {
+  color: var(--ink-accent-bright);
+}
+
+.practice-graph-readout-links {
+  margin-top: 0.2rem;
+  color: var(--ink-text);
+  word-break: break-word;
+}
+
+.practice-graph-readout-topics {
+  margin-top: 0.2rem;
+  color: var(--ink-muted);
+}
+
+.practice-graph-readout-empty {
+  color: var(--ink-faint);
+  text-transform: lowercase;
 }
 
 .practice-graph-footer {
@@ -223,6 +352,139 @@
   font-size: 0.68rem;
   letter-spacing: 0.04em;
   text-transform: lowercase;
+}
+
+@media (max-width: 700px) {
+  .practice-graph-overlay {
+    padding: max(0.6rem, env(safe-area-inset-top))
+      max(0.6rem, env(safe-area-inset-right))
+      max(0.6rem, env(safe-area-inset-bottom))
+      max(0.6rem, env(safe-area-inset-left));
+  }
+
+  .practice-graph-panel {
+    width: 100%;
+    height: 100vh;
+    height: calc(100vh - 1.2rem);
+    max-height: none;
+    overflow: hidden;
+    padding: 0.85rem 0.9rem;
+  }
+
+  /* Tight sheet budget: every fixed block is trimmed so the canvas keeps
+     ≥50vh even at 320×568. */
+  .practice-graph-header {
+    padding-bottom: 0.6rem;
+  }
+
+  .practice-graph-header h2 {
+    margin-top: 0.3rem;
+    font-size: 1.35rem;
+  }
+
+  .practice-graph-intro {
+    display: -webkit-box;
+    /* 3 lines: the sheet's only explanatory text must not truncate
+       mid-sentence on narrow phones. */
+    -webkit-line-clamp: 3;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+    margin-top: 0.5rem;
+    font-size: 0.82rem;
+    line-height: 1.5;
+  }
+
+  .practice-graph-canvas {
+    flex: 1;
+    min-height: 0;
+    margin-top: 0.7rem;
+  }
+
+  .practice-graph-node {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    max-width: 96px;
+    min-height: 2rem;
+    text-align: center;
+    font-size: 0.68rem;
+  }
+
+  /* Fixed height + internal scroll: inspecting a node never resizes the
+     canvas, so the map never jumps under the finger. The link list clamps
+     cleanly (ellipsis) instead of folding mid-glyph; topics and the side
+     list are desktop-only — a partially sliced line reads as broken, not
+     scrollable. */
+  .practice-graph-readout {
+    flex: 0 0 auto;
+    height: 4.5rem;
+    min-height: 0;
+    overflow-y: auto;
+    margin-top: 0.6rem;
+  }
+
+  .practice-graph-readout-links {
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+  }
+
+  .practice-graph-readout-side {
+    display: none;
+  }
+
+  .practice-graph-readout-topics {
+    display: none;
+  }
+
+  /* The footer hint duplicates the readout's empty hint; on the sheet the
+     canvas gets its space. */
+  .practice-graph-footer {
+    display: none;
+  }
+}
+
+/* Narrow-phone refinement: the sheet budget is tightest at 320×568 — keep the
+   header on one line and the shell thin so the canvas holds ≥50vh, and cap
+   chip width so a centered chip always clears the layout's 44px edge margin. */
+@media (max-width: 400px) {
+  .practice-graph-panel {
+    padding: 0.7rem 0.75rem;
+  }
+
+  .practice-graph-header {
+    padding-bottom: 0.4rem;
+  }
+
+  .practice-graph-header h2 {
+    font-size: 1.15rem;
+  }
+
+  .practice-graph-node {
+    max-width: 88px;
+    min-height: 1.8rem;
+    padding: 0.25rem 0.35rem;
+    font-size: 0.6rem;
+  }
+}
+
+@supports (height: 100dvh) {
+  @media (max-width: 700px) {
+    .practice-graph-panel {
+      height: calc(100dvh - 1.2rem);
+    }
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .practice-graph-overlay,
+  .practice-graph-overlay * {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
 }
 
 .practice-route {
@@ -289,14 +551,13 @@
   text-transform: lowercase;
 }
 
+/* Summary strip — rounded tiles in the card language: no hairline-gap grid,
+   each metric is its own bordered panel. */
 .practice-summary {
   display: grid;
   grid-template-columns: repeat(4, minmax(0, 1fr));
-  gap: 1px;
+  gap: 24px;
   margin-top: clamp(1.5rem, 3vw, 2.25rem);
-  border-top: 1px solid var(--ink-line-soft);
-  border-left: 1px solid var(--ink-line-soft);
-  background: var(--ink-line-soft);
 }
 
 .practice-summary-metric {
@@ -304,10 +565,10 @@
   min-height: 84px;
   align-content: space-between;
   gap: 1rem;
-  border-right: 1px solid var(--ink-line-soft);
-  border-bottom: 1px solid var(--ink-line-soft);
+  border: 1px solid var(--ink-line-soft);
+  border-radius: var(--panel-radius);
   padding: 0.9rem;
-  background: var(--ink-bg);
+  background: #0b1317;
 }
 
 .practice-summary-metric > span {
@@ -361,18 +622,22 @@
   width: 100%;
   border: 1px solid transparent;
   border-bottom-color: var(--ink-line-soft);
-  padding: 0.8rem 0;
+  border-radius: var(--panel-radius);
+  /* Inline padding keeps the title and the count clear of the rounded
+     corner arcs (0 would push the first glyphs through them). */
+  padding: 0.8rem 0.9rem;
   color: var(--ink-muted);
   text-align: left;
   background: transparent;
   cursor: pointer;
-  transition: border-color 180ms ease, color 180ms ease, padding 180ms ease, background 180ms ease;
+  transition: border-color 180ms ease, color 180ms ease, background 180ms ease;
 }
 
+/* Quiet rows — colour + flat wash on hover/active, geometry stays put (no
+   padding-inline shift). */
 .practice-area-list button:hover,
 .practice-area-list button.is-active {
   border-color: var(--ink-line);
-  padding-inline: 0.7rem;
   color: var(--ink-text);
   background: rgba(211, 155, 97, 0.09);
 }
@@ -571,14 +836,13 @@
   background: var(--ink-panel);
 }
 
+/* Topic grid & cards — the Gemstones card language (Reference 6): rounded
+   panels on a plain gap grid, hover lift + shadow + faint background warm. */
 .practice-topic-grid {
   display: grid;
   grid-template-columns: repeat(2, minmax(0, 1fr));
-  gap: 1px;
+  gap: 24px;
   margin-top: 1.5rem;
-  border-top: 1px solid var(--ink-line-soft);
-  border-left: 1px solid var(--ink-line-soft);
-  background: var(--ink-line-soft);
 }
 
 .practice-topic-card {
@@ -586,15 +850,20 @@
   min-width: 0;
   flex-direction: column;
   gap: 0.9rem;
-  border-right: 1px solid var(--ink-line-soft);
-  border-bottom: 1px solid var(--ink-line-soft);
-  padding: 0.95rem;
-  background: var(--ink-bg);
-  transition: background 180ms ease;
+  border: 1px solid var(--ink-line-soft);
+  border-radius: var(--panel-radius);
+  padding: 24px;
+  background: #0b1317;
+  transition:
+    transform 180ms ease-out,
+    box-shadow 180ms ease-out,
+    background 180ms ease-out;
 }
 
 .practice-topic-card:hover {
-  background: rgba(238, 234, 224, 0.03);
+  transform: translateY(-6px);
+  box-shadow: 0 18px 40px rgba(0, 0, 0, 0.32);
+  background: #0f171c;
 }
 
 .practice-topic-topline {
@@ -602,10 +871,11 @@
   align-items: center;
   justify-content: space-between;
   gap: 1rem;
-  color: var(--ink-faint);
+  color: var(--ink-accent);
   font-family: var(--mono);
-  font-size: 0.72rem;
-  letter-spacing: 0.05em;
+  font-size: 12px;
+  font-weight: 500;
+  letter-spacing: 0.02em;
 }
 
 .practice-topic-status {
@@ -627,18 +897,18 @@
 .practice-topic-card h3 {
   margin: 0;
   color: var(--ink-text);
-  font-family: var(--display);
-  font-size: 1.2rem;
-  font-weight: 600;
+  font-family: var(--sans);
+  font-size: clamp(20px, 1.6vw, 24px);
+  font-weight: 700;
   letter-spacing: 0;
-  line-height: 1.15;
+  line-height: 1.2;
 }
 
 .practice-topic-summary {
   min-height: 3.4em;
   margin: 0;
   color: var(--ink-muted);
-  font-size: 0.82rem;
+  font-size: 14px;
   line-height: 1.5;
 }
 
@@ -874,6 +1144,10 @@
   height: 100vh;
   height: 100dvh;
   background: rgba(4, 8, 10, 0.62);
+  /* Portaled to <body>, so the field's tokens/scopes don't reach it. */
+  --panel-radius: 20px;
+  -webkit-text-size-adjust: 100%;
+  text-size-adjust: 100%;
 }
 
 @keyframes practice-lesson-in {
@@ -894,6 +1168,7 @@
   overflow-y: auto;
   overscroll-behavior: contain;
   border: 1px solid var(--ink-line);
+  border-radius: var(--panel-radius);
   padding: clamp(1.25rem, 3vw, 2.25rem);
   background: #0e161b;
   box-shadow: 0 24px 80px rgba(0, 0, 0, 0.55);
@@ -1398,12 +1673,13 @@
     gap: 2.5rem;
   }
 
-  .practice-map-hero-note {
-    padding-bottom: 0;
-  }
-
   .practice-topic-grid {
     grid-template-columns: 1fr;
+    gap: 16px;
+  }
+
+  .practice-topic-card {
+    padding: 20px;
   }
 }
 
@@ -1417,6 +1693,7 @@
 
   .practice-summary {
     grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 16px;
   }
 
   .practice-summary-metric {
@@ -1442,6 +1719,13 @@
   .practice-map-field *,
   .practice-map-field *::before,
   .practice-map-field *::after {
+    animation-duration: 0.01ms !important;
+    transition-duration: 0.01ms !important;
+  }
+
+  /* The lesson overlay is portaled to <body> and escapes the field scope. */
+  .practice-lesson-overlay,
+  .practice-lesson-overlay * {
     animation-duration: 0.01ms !important;
     transition-duration: 0.01ms !important;
   }
