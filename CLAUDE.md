@@ -55,6 +55,7 @@ Several agents may work in this repo in parallel and share one working tree. Bef
 
 ## Git delivery preferences
 
+- Sync with GitHub at the start and finish of every session. Before reading or editing anything, `git pull --ff-only origin main` — the working tree must match `origin/main`; a stale tree wastes entire rounds (one full card-artwork pass was built 18 commits behind and had to be discarded). When a task ends with accepted changes, commit and push its paths in the same session — this closing commit+push is pre-approved by this rule and needs no separate ask; mid-task or speculative commits still wait for an explicit request.
 - On this machine `/usr/local/bin/git` is broken for network operations (compiled with an empty prefix — no `git-remote-https` helper, `--exec-path` resolves to `//libexec/git-core`). Local commands work; for fetch/push use `/usr/bin/git push origin main` (Apple Git). Do not diagnose this again — it is already known.
 - Run the relevant checks for completed code or documentation changes, but do not stage, commit, push, open a pull request, or merge unless the current user explicitly asks for that delivery step.
 - Keep delivery separate from implementation so a reviewed working tree can be paused, compared, or handed to another agent without changing repository history.
