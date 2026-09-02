@@ -14,7 +14,7 @@ export const PALETTE = {
 
   skyTop: "#9fd9f6",
   skyBottom: "#ffeff5",
-  cloud: "#ffffff",
+  cloud: "#c4d9eb",
   hillFar: "#c9e6f5",
   hillNear: "#a8d8ef",
   groundTop: "#ffd9e6",
@@ -29,7 +29,7 @@ export const PALETTE = {
   heart: "#ff5f7e",
   heartGlow: "#ffb3c4",
   star: "#ffd44d",
-  starGlow: "#fff3b0",
+  starGlow: "#f0b429",
   heal: "#e8455f",
 
   ink: "#4a3b52",

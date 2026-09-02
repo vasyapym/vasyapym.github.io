@@ -114,7 +114,7 @@ export function Pickups({ world }: { world: WorldState }) {
       if (glowMesh) {
         dummy.position.set(vx, p.y + bob, -0.15);
         dummy.rotation.set(0, 0, 0);
-        dummy.scale.setScalar(scale * (isHeal ? 4.4 : 3.6));
+        dummy.scale.setScalar(scale * (isHeal ? 4.4 : p.kind === "star" ? 2.2 : 3.6));
         dummy.updateMatrix();
         glowMesh.setMatrixAt(glowCount, dummy.matrix);
         glowMesh.setColorAt(

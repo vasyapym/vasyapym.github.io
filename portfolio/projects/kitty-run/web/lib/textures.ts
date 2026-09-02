@@ -50,20 +50,28 @@ export function skyTexture(): THREE.CanvasTexture {
 }
 
 // A puffy cloud: a handful of overlapping circles with a soft edge.
+// Fill AND soft edge are driven by PALETTE.cloud (a cool blue-white kept
+// under the bloom threshold) so clouds stay lit and pleasant without ever
+// blooming or reading as the sun. Byte values are parsed straight from the
+// hex — we want the sRGB canvas value, not a colour-managed conversion.
 export function cloudTexture(seed: string): THREE.CanvasTexture {
   const rng = createRng(seed);
   const { canvas, ctx } = makeCanvas(512, 256);
   const puffs = 5 + Math.floor(rng() * 3);
-  ctx.fillStyle = "rgba(255, 255, 255, 0.96)";
-  ctx.shadowColor = "rgba(255, 255, 255, 0.9)";
-  ctx.shadowBlur = 26;
+  const hex = PALETTE.cloud.replace("#", "");
+  const r = parseInt(hex.slice(0, 2), 16);
+  const g = parseInt(hex.slice(2, 4), 16);
+  const b = parseInt(hex.slice(4, 6), 16);
+  ctx.fillStyle = `rgba(${r}, ${g}, ${b}, 0.93)`;
+  ctx.shadowColor = `rgba(${r}, ${g}, ${b}, 0.9)`;
+  ctx.shadowBlur = 14;
   for (let i = 0; i < puffs; i += 1) {
     const t = puffs === 1 ? 0.5 : i / (puffs - 1);
     const x = 120 + t * 270 + (rng() - 0.5) * 40;
     const y = 150 - Math.sin(t * Math.PI) * 52 - rng() * 18;
-    const r = 34 + Math.sin(t * Math.PI) * 40 + rng() * 12;
+    const r2 = 34 + Math.sin(t * Math.PI) * 40 + rng() * 12;
     ctx.beginPath();
-    ctx.arc(x, y, r, 0, Math.PI * 2);
+    ctx.arc(x, y, r2, 0, Math.PI * 2);
     ctx.fill();
   }
   return toTexture(canvas);

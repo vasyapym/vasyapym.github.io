@@ -134,10 +134,12 @@ the route is `/projects/kitty-run`. Shell-side additions: the
 - **Depth discipline** — the camera near plane sits at 2 and the Kitty's
   part layers are separated generously, because thin z offsets z-fight on
   16-bit mobile depth buffers and read as a see-through character. The
-  best-run echo renders translucent with depth writes on, so its draw
-  order is pinned explicitly (meshes sorted far-to-near once at mount) —
-  otherwise the sort could seat the dress behind the head fill and let
-  the torso shine through.
+  best-run echo never alpha-blends part over part at all: her rig stays
+  opaque on its own render layer (invisible to the main camera), is
+  captured each frame into an offscreen target and blitted as a single
+  faded quad — per-part translucency would stack and let the torso shine
+  through her head no matter the draw order. Clouds are tinted just under
+  the bloom threshold, so only the sun ever glows in the sky.
 - **One bot, two stages** — `web/lib/pilot.ts` is pure TypeScript with no
   three.js or React imports, so `tests/kitty-run.sim.ts` drives it headless
   for its fairness sweep while the browser autopilot runs the same module
