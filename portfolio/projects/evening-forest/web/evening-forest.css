@@ -139,11 +139,63 @@
   color: #ffb45e;
 }
 
+/* The range input is themed by hand: the native widget paints a white
+   background box and a pale track that read as a stray light line across
+   the dark dial, especially on mobile. The filled fraction of the track
+   comes from --ef-dial-fill (0%..100%), set by DuskDial. */
 .evening-forest-dial input[type="range"] {
+  appearance: none;
+  -webkit-appearance: none;
   width: 100%;
+  height: 18px;
   margin: 0;
-  accent-color: #ffb45e;
+  background: transparent;
   cursor: ew-resize;
+}
+
+.evening-forest-dial input[type="range"]::-webkit-slider-runnable-track {
+  height: 4px;
+  border-radius: 2px;
+  background: linear-gradient(
+    to right,
+    #ffb45e var(--ef-dial-fill, 0%),
+    rgba(255, 180, 94, 0.18) var(--ef-dial-fill, 0%)
+  );
+}
+
+.evening-forest-dial input[type="range"]::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  appearance: none;
+  width: 16px;
+  height: 16px;
+  /* Centers the 16px thumb on the 4px track. */
+  margin-top: -6px;
+  border-radius: 50%;
+  background: #ffd696;
+  border: 1px solid rgba(255, 180, 94, 0.9);
+  box-shadow: 0 0 8px rgba(255, 180, 94, 0.35);
+}
+
+.evening-forest-dial input[type="range"]::-moz-range-track {
+  height: 4px;
+  border-radius: 2px;
+  background: rgba(255, 180, 94, 0.18);
+}
+
+/* Firefox paints the fill up to the thumb natively, no custom property. */
+.evening-forest-dial input[type="range"]::-moz-range-progress {
+  height: 4px;
+  border-radius: 2px;
+  background: #ffb45e;
+}
+
+.evening-forest-dial input[type="range"]::-moz-range-thumb {
+  width: 14px;
+  height: 14px;
+  border-radius: 50%;
+  background: #ffd696;
+  border: 1px solid rgba(255, 180, 94, 0.9);
+  box-shadow: 0 0 8px rgba(255, 180, 94, 0.35);
 }
 
 .evening-forest-dial-ends {

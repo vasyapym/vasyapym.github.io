@@ -141,8 +141,11 @@ try {
     return (await page.$(selector)) === null;
   };
 
+  // domcontentloaded + the appears() polls below: Vite's HMR socket keeps
+  // networkidle0 from ever settling on some dev setups, and the polls were
+  // built for exactly the late-mount case.
   await page.goto(`${BASE}/projects/evening-forest`, {
-    waitUntil: "networkidle0",
+    waitUntil: "domcontentloaded",
     timeout: 45000,
   });
 

@@ -4,6 +4,12 @@ import { phaseName } from "../lib/daylight";
 
 const SYNC_MS = 250;
 
+// The themed track paints its amber fill from --ef-dial-fill; keep it glued
+// to the value everywhere the value moves.
+function applyFill(input: HTMLInputElement, value: number): void {
+  input.style.setProperty("--ef-dial-fill", `${(value * 100).toFixed(1)}%`);
+}
+
 // The dusk dial: an uncontrolled range input wired straight into the shared
 // timeOfDay value. A slow poll keeps the knob and caption honest even when
 // the value moves from outside (the [ / ] keys while playing) — four cheap
@@ -13,6 +19,7 @@ export function DuskDial() {
   const [label, setLabel] = useState(() => phaseName(timeOfDay.value));
 
   useEffect(() => {
+    if (inputRef.current) applyFill(inputRef.current, timeOfDay.value);
     const id = window.setInterval(() => {
       setLabel(phaseName(timeOfDay.value));
       const el = inputRef.current;
@@ -20,6 +27,7 @@ export function DuskDial() {
       if (el && document.activeElement !== el) {
         el.value = String(timeOfDay.value);
       }
+      if (el) applyFill(el, timeOfDay.value);
     }, SYNC_MS);
     return () => window.clearInterval(id);
   }, []);
@@ -39,6 +47,7 @@ export function DuskDial() {
         defaultValue={timeOfDay.value}
         onChange={(event) => {
           timeOfDay.value = Number(event.target.value);
+          applyFill(event.target, timeOfDay.value);
           setLabel(phaseName(timeOfDay.value));
         }}
       />

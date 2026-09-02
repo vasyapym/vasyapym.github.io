@@ -72,12 +72,17 @@ Everything lives inside this directory; no shell routing changes.
   hills the fog eats. Grass is a single instanced meadow that re-plants
   itself in whole-tile steps around the walker, so the ground is grassy
   everywhere without thousands of extra instances.
-- **Ambience** — wind, crickets and an owl are synthesised with WebAudio
-  (`web/lib/ambience.ts`); no audio files. Footsteps are cut from the same
-  synth — a lowpass thump plus bandpassed leaf crunch fired by each head-bob
-  cycle. The context starts inside the click/tap gesture that enters the
-  forest; a Sound button on touch pauses it all, and leaving the project
-  closes the context outright (asserted by the smoke test).
+- **Score** — the background music is a procedural, Dark Souls-flavoured
+  tranquil ambient loop (`web/lib/music.ts`): a breathing D-aeolian drone,
+  slow open-fifth pad swells, a sparse bell-like melody and a rare distant
+  chime through a runtime-built convolution reverb, scheduled on a seamless
+  38.4 s cycle with a single lookahead timer. No audio files. The shared
+  AudioContext, master mute/dim ramps and the footstep synth (a lowpass
+  thump plus bandpassed leaf crunch fired by each head-bob cycle) live in
+  `web/lib/ambience.ts`. The context starts inside the click/tap gesture
+  that enters the forest; a Sound button on touch pauses it all, and
+  leaving the project closes the context outright (asserted by the smoke
+  test).
 - **Determinism** — all placement uses seeded PRNGs from `web/lib/rng.ts`.
 
 ## Verify
@@ -92,7 +97,12 @@ npm --prefix portfolio run test:smoke
 `tests/visual-probe.mjs` (`npm --prefix portfolio run test:probe`) is a
 screenshot harness: it boots the dev server, enters the forest, drags the
 camera down to the ground and sweeps time to night and sunrise, saving
-frames to `/tmp/ef-probe` for eyeballing light changes.
+frames to `/tmp/ef-probe` for eyeballing light changes. Two more one-off
+harnesses live beside it: `tests/mobile-line-probe.mjs` (iPhone-class
+Chrome at 360/390/414 px, screenshots plus a DOM sweep for stray light
+elements — the "unwanted white line" check) and `tests/music-probe.mjs`
+(enters the forest and asserts the procedural score builds its graph and
+schedules without errors).
 
 The browser smoke boots the dev server on a scratch port, drives the page in
 a headless iPhone-class Chrome (tap to enter, joystick walk, drag look,
