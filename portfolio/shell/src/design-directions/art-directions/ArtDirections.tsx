@@ -7,6 +7,34 @@ import { FoxMark as FoxB, KittyMark as KittyB, RaftMark as RaftB } from "./varia
 import { FoxMark as FoxC, KittyMark as KittyC, RaftMark as RaftC } from "./variantC";
 import { RaftCandidateA, RaftCandidateB } from "./raftCybernetic";
 import { TrailCandidateA, TrailCandidateB } from "./practiceMapRethink";
+import { RaftCandidateA as RaftRethinkA, RaftCandidateB as RaftRethinkB } from "./raftRethink";
+import { RaftCandidateA as RaftRethink2A, RaftCandidateB as RaftRethink2B } from "./raftRethink2";
+import { RaftCandidateA as RaftRethink3A, RaftCandidateB as RaftRethink3B } from "./raftRethink3";
+import { RaftCandidateA as RaftRethink4A, RaftCandidateB as RaftRethink4B } from "./raftRethink4";
+import {
+  RaftCandidateA as RaftTenA,
+  RaftCandidateB as RaftTenB,
+  RaftCandidateC as RaftTenC,
+  RaftCandidateD as RaftTenD,
+  RaftCandidateE as RaftTenE,
+  RaftCandidateF as RaftTenF,
+  RaftCandidateG as RaftTenG,
+  RaftCandidateH as RaftTenH,
+  RaftCandidateI as RaftTenI,
+  RaftCandidateJ as RaftTenJ,
+} from "./raftRethink5";
+import {
+  RaftVaultA,
+  RaftVaultB,
+  RaftVaultC,
+  RaftVaultD,
+  RaftVaultE,
+  RaftVaultF,
+  RaftVaultG,
+  RaftVaultH,
+  RaftVaultI,
+  RaftVaultJ,
+} from "./raftRethink6";
 import "./art-directions.css";
 
 type ArtDirectionsProps = {
@@ -67,8 +95,8 @@ const RAFT_ROUND: readonly {
 }[] = [
   {
     id: "current",
-    topline: "current · control loop (candidate b, adopted)",
-    Mark: INCUMBENT_MARKS.raft,
+    topline: "then-current · control loop (candidate b, adopted)",
+    Mark: RaftCandidateB,
   },
   {
     id: "a",
@@ -104,6 +132,159 @@ const TRAIL_ROUND: readonly {
     topline: "candidate b · constellation index",
     Mark: TrailCandidateB,
   },
+];
+
+// Raft visual-interest rethink round: incumbent vs two candidates from the
+// delegated brief (BRIEF-card-art-raft-rethink.md). Owner picks A or B.
+const RAFT_RETHINK_ROUND: readonly {
+  id: string;
+  topline: string;
+  Mark?: () => ReactElement;
+}[] = [
+  {
+    id: "current",
+    topline: "then-current · control loop (adopted, reads boring)",
+    Mark: RaftCandidateB,
+  },
+  {
+    id: "a",
+    topline: "candidate a · succession",
+    Mark: RaftRethinkA,
+  },
+  {
+    id: "b",
+    topline: "candidate b · the log raft",
+    Mark: RaftRethinkB,
+  },
+];
+
+// Raft visual-interest rethink, round 2: both round-1 scene candidates were
+// rejected ("these are not it") — these two keep the architecture-diagram
+// vocabulary and get interest from composition only. Owner picks A or B.
+const RAFT_RETHINK2_ROUND: readonly {
+  id: string;
+  topline: string;
+  Mark?: () => ReactElement;
+}[] = [
+  {
+    id: "current",
+    topline: "then-current · control loop (adopted, reads boring)",
+    Mark: RaftCandidateB,
+  },
+  {
+    id: "a",
+    topline: "candidate a · replication stream",
+    Mark: RaftRethink2A,
+  },
+  {
+    id: "b",
+    topline: "candidate b · write frontier",
+    Mark: RaftRethink2B,
+  },
+];
+
+// Raft visual-interest rethink, round 3: round 2's write frontier had the
+// right idea but played it safe ("conservative/safe") — these two fill the
+// plate at Practice-Map boldness while keeping the diagram vocabulary.
+// Owner picks A or B.
+const RAFT_RETHINK3_ROUND: readonly {
+  id: string;
+  topline: string;
+  Mark?: () => ReactElement;
+}[] = [
+  {
+    id: "current",
+    topline: "then-current · control loop (adopted, reads boring)",
+    Mark: RaftCandidateB,
+  },
+  {
+    id: "a",
+    topline: "candidate a · ledger span",
+    Mark: RaftRethink3A,
+  },
+  {
+    id: "b",
+    topline: "candidate b · two-tier consensus",
+    Mark: RaftRethink3B,
+  },
+];
+
+// Raft visual-interest rethink, round 4: the grammar break. Rounds 1–3 all
+// reused one micro-grammar (stepped-cap discs, hairline links, tick rows) —
+// these two abandon it entirely while keeping the family technique. Owner
+// picks A or B.
+const RAFT_RETHINK4_ROUND: readonly {
+  id: string;
+  topline: string;
+  Mark?: () => ReactElement;
+}[] = [
+  {
+    id: "current",
+    topline: "then-current · control loop (adopted, reads boring)",
+    Mark: RaftCandidateB,
+  },
+  {
+    id: "a",
+    topline: "candidate a · quorum overprint",
+    Mark: RaftRethink4A,
+  },
+  {
+    id: "b",
+    topline: "candidate b · copper trace",
+    Mark: RaftRethink4B,
+  },
+];
+
+// Raft visual-interest rethink, round 5: the owner calls the incumbent
+// "good but boring" and asked for a fresh concept — ten candidates from the
+// delegated brief (BRIEF-card-art-raft-rethink-5.md), each a different
+// graphic language inside the family print technique. Owner picks one.
+const RAFT_TEN_ROUND: readonly {
+  id: string;
+  topline: string;
+  Mark?: () => ReactElement;
+}[] = [
+  {
+    id: "current",
+    topline: "then-current · control loop (good, boring)",
+    Mark: RaftCandidateB,
+  },
+  { id: "a", topline: "candidate a · metro line", Mark: RaftTenA },
+  { id: "b", topline: "candidate b · gear train", Mark: RaftTenB },
+  { id: "c", topline: "candidate c · punched tape", Mark: RaftTenC },
+  { id: "d", topline: "candidate d · orrery", Mark: RaftTenD },
+  { id: "e", topline: "candidate e · printing press", Mark: RaftTenE },
+  { id: "f", topline: "candidate f · dish array", Mark: RaftTenF },
+  { id: "g", topline: "candidate g · honeycomb", Mark: RaftTenG },
+  { id: "h", topline: "candidate h · suspension bridge", Mark: RaftTenH },
+  { id: "i", topline: "candidate i · vault quorum", Mark: RaftTenI },
+  { id: "j", topline: "candidate j · beacon chain", Mark: RaftTenJ },
+];
+
+// Raft vault round: the owner picked candidate I "vault quorum" from round 5
+// and asked for more nodes — ten evolutions of the locked vault identity
+// (BRIEF-card-art-raft-rethink-6.md), 5-7 keyholes each with a legible turned
+// majority, one added mechanism per variant. Owner picks one.
+const RAFT_VAULT_ROUND: readonly {
+  id: string;
+  topline: string;
+  Mark?: () => ReactElement;
+}[] = [
+  {
+    id: "base",
+    topline: "base · vault quorum (round-5 pick)",
+    Mark: RaftTenI,
+  },
+  { id: "a", topline: "candidate a · seven-key majority", Mark: RaftVaultA },
+  { id: "b", topline: "candidate b · combination dial", Mark: RaftVaultB },
+  { id: "c", topline: "candidate c · time-lock sweep", Mark: RaftVaultC },
+  { id: "d", topline: "candidate d · door ajar", Mark: RaftVaultD },
+  { id: "e", topline: "candidate e · safe-deposit wall", Mark: RaftVaultE },
+  { id: "f", topline: "candidate f · turning wave", Mark: RaftVaultF },
+  { id: "g", topline: "candidate g · bolt-work ring", Mark: RaftVaultG },
+  { id: "h", topline: "candidate h · tumbler stack", Mark: RaftVaultH },
+  { id: "i", topline: "candidate i · deposit slot", Mark: RaftVaultI },
+  { id: "j", topline: "candidate j · quorum bell", Mark: RaftVaultJ },
 ];
 
 type RoundEntry = { id: string; topline: string; Mark?: () => ReactElement };
@@ -275,6 +456,60 @@ export default function ArtDirections({ projects }: ArtDirectionsProps) {
           projectId="practice-map"
           thesis="The survey grid + pins read as boring — both candidates keep the purpose (territory, here, next) but add a focal drama: a lit summit being climbed, or one blazing star in a personal constellation."
           round={TRAIL_ROUND}
+          projects={projects}
+        />
+
+        <RoundSection
+          label="raft visual-interest rethink"
+          name="a scene, not a schematic"
+          projectId="raft-cluster"
+          thesis="The control loop is correct but static — both candidates stage a moment instead: the election the tagline describes (a crashed leader, a crowned successor, a vote in flight), or the metaphor made literal (the replicated log as a lashed raft carrying the cluster). Hover a card for the lift, tilt and halo response."
+          round={RAFT_RETHINK_ROUND}
+          projects={projects}
+        />
+
+        <RoundSection
+          label="raft rethink · round 2"
+          name="system design, instantly"
+          projectId="raft-cluster"
+          thesis="Both scene candidates were rejected — the mark must read as system design in under a second. These two keep the architecture-diagram vocabulary (nodes, rails, signals, logs) and take their interest from composition: a dominant leader fanning live traffic, or a shared log bus with a bright write frontier. Hover a card for the lift, tilt and halo response."
+          round={RAFT_RETHINK2_ROUND}
+          projects={projects}
+        />
+
+        <RoundSection
+          label="raft rethink · round 3"
+          name="bold: fill the plate"
+          projectId="raft-cluster"
+          thesis="Round 2's write frontier had the right idea but played it safe — these two keep the concept and fill the plate like the Practice Map climb: a monumental log structure edge to edge, a coral halftone committed band, a beacon frontier, and fuller instrumentation. Hover a card for the lift, tilt and halo response."
+          round={RAFT_RETHINK3_ROUND}
+          projects={projects}
+        />
+
+        <RoundSection
+          label="raft rethink · round 4"
+          name="the grammar break"
+          projectId="raft-cluster"
+          thesis="Rounds 1–3 all drew the same language — small discs, hairline links, tick rows. These two abandon it entirely: consensus as three giant halftone discs whose coral triple-overlap IS the quorum, or the log as a heavy copper trace with vias and a crowned write-head pad. Hover a card for the lift, tilt and halo response."
+          round={RAFT_RETHINK4_ROUND}
+          projects={projects}
+        />
+
+        <RoundSection
+          label="raft rethink · round 5"
+          name="ten concepts"
+          projectId="raft-cluster"
+          thesis="The control loop is good but boring — ten fresh concepts, ten different graphic languages inside the family print technique: metro line, gear train, punched tape, orrery, printing press, dish array, honeycomb, suspension bridge, vault quorum, beacon chain. Every mark keeps the system-design read: three nodes, crowned leader, committed vs future, one coral protagonist, a laggard's deficiency. Hover a card for the lift, tilt and halo response."
+          round={RAFT_TEN_ROUND}
+          projects={projects}
+        />
+
+        <RoundSection
+          label="raft vault round"
+          name="evolving the vault quorum"
+          projectId="raft-cluster"
+          thesis="The vault quorum won round 5 — the owner asked for more nodes. Ten evolutions of the locked vault identity, 5-7 keyholes each with a legible turned majority, each adding one mechanism: quorum span, combination dial, time-lock sweep, open leaf, door wall, turn-wave, bolt-work ring, tumbler stack, deposit slot, alarm bell. Hover a card for the lift, tilt and halo response."
+          round={RAFT_VAULT_ROUND}
           projects={projects}
         />
       </div>

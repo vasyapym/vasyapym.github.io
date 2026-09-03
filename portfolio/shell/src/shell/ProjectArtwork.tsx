@@ -74,88 +74,73 @@ export const INCUMBENT_MARKS: Partial<Record<ProjectCenter, () => ReactElement>>
   trail: TrailCenterMark,
 };
 
-/* ── 1 · Raft Cluster — coral spot ink, the cluster as one cybernetic feedback ring ── */
+/* ── 1 · Raft Cluster — coral spot ink, the cluster as a vault quorum:
+   seven keyholes, four keys turned (majority), the crowned leader key
+   mid-turn with a motion arc, three dashed empty keyholes as the laggards,
+   and the coral span linking the engaged quorum. Adopted from the round-6
+   vault board (candidate A "seven-key majority"); ids keep the family
+   prefix gem-raft-*. ── */
 function RaftCenterMark() {
+  const Turned = ({ x, y }: { x: number; y: number }) => (
+    <g transform={`translate(${x} ${y})`}>
+      <circle r={5} fill="#0b1317" stroke="#7d7669" strokeWidth={2} />
+      <path d="M -2 4 L 2 4 L 3 10 L -3 10 Z" fill="#7d7669" />
+      <rect x={-1.5} y={10} width={3} height={12} fill="#7d7669" />
+      <circle cy={24} r={4} fill="#7d7669" />
+    </g>
+  );
+  const Empty = ({ x, y }: { x: number; y: number }) => (
+    <g transform={`translate(${x} ${y})`}>
+      <circle r={5} fill="#0b1317" stroke="#7d7669" strokeWidth={1.5} strokeDasharray="3 3" />
+      <path d="M -2 4 L 2 4 L 3 10 L -3 10 Z" fill="none" stroke="#7d7669" strokeWidth={1.5} strokeDasharray="3 3" />
+    </g>
+  );
   return (
     <svg viewBox="0 0 260 160" aria-hidden="true">
       <defs>
-        <pattern id="gem-raft-dense" width="7" height="7" patternUnits="userSpaceOnUse">
-          <circle cx="3.5" cy="3.5" r="1.9" fill="#ff6a5f" />
+        <pattern id="gem-raft-dense" patternUnits="userSpaceOnUse" width={7} height={7}>
+          <circle cx={3.5} cy={3.5} r={1.9} fill="#ff6a5f" />
         </pattern>
-        <pattern id="gem-raft-sparse" width="11" height="11" patternUnits="userSpaceOnUse">
-          <circle cx="5.5" cy="5.5" r="1.6" fill="#7d7669" />
+        <pattern id="gem-raft-sparse" patternUnits="userSpaceOnUse" width={11} height={11}>
+          <circle cx={5.5} cy={5.5} r={1.6} fill="#7d7669" />
         </pattern>
-        <pattern id="gem-raft-halo" width="7" height="7" patternUnits="userSpaceOnUse">
-          <circle cx="3.5" cy="3.5" r="1.9" fill="#ff6a5f" />
+        <pattern id="gem-raft-halo" patternUnits="userSpaceOnUse" width={7} height={7}>
+          <circle cx={3.5} cy={3.5} r={1.9} fill="#ff6a5f" />
         </pattern>
-        <clipPath id="gem-raft-leader"><circle cx="130" cy="38" r="12" /></clipPath>
-        <clipPath id="gem-raft-fdr"><circle cx="174" cy="106" r="10.5" /></clipPath>
-        <clipPath id="gem-raft-fll"><circle cx="86" cy="106" r="10.5" /></clipPath>
       </defs>
-
-      {/* backdrop + halo (only elements allowed past safe area) */}
-      <ellipse cx="130" cy="84" rx="104" ry="64" fill="url(#gem-raft-sparse)" opacity="0.09" />
-      <ellipse className="gem-halo" style={haloVar(0.12)} cx="130" cy="82" rx="60" ry="42" fill="url(#gem-raft-halo)" opacity="0.12" />
-
-      {/* the feedback loop */}
-      <circle cx="130" cy="82" r="50" fill="none" stroke="#465059" strokeWidth="1.5" strokeLinecap="round" strokeDasharray="3 6" opacity="0.65" />
-
-      {/* feedback accent (election answer travelling back, ~10 o'clock) */}
-      <path d="M83 64.9 A50 50 0 0 1 91.7 49.85" fill="none" stroke="#b6ac95" strokeWidth="2" strokeLinecap="round" opacity="0.8" />
-      <path d="M-3 -3 L0 0 L-3 3" fill="none" stroke="#b6ac95" strokeWidth="1.2" strokeLinecap="round" strokeLinejoin="round" transform="translate(86 55) rotate(-100)" />
-
-      {/* lagging node's missed-signal gap just before lower-left node */}
-      <path d="M92.85 115.45 A50 50 0 0 1 86.7 107" fill="none" stroke="#7d7669" strokeWidth="1.2" strokeLinecap="round" strokeDasharray="2 3" opacity="0.6" />
-
-      {/* clockwise direction chevrons at 11, 5, 7 o'clock */}
-      <g fill="none" stroke="#7d7669" strokeWidth="1.2" strokeLinecap="round" strokeLinejoin="round" opacity="0.7">
-        <path d="M-3 -3 L0 0 L-3 3" transform="translate(105 38.7) rotate(330)" />
-        <path d="M-3 -3 L0 0 L-3 3" transform="translate(155 125.3) rotate(150)" />
-        <path d="M-3 -3 L0 0 L-3 3" transform="translate(105 125.3) rotate(210)" />
+      <ellipse cx={130} cy={84} rx={104} ry={64} fill="url(#gem-raft-sparse)" opacity={0.09} />
+      <circle cx={130} cy={84} r={54} fill="none" stroke="#465059" strokeWidth={5} />
+      <circle cx={130} cy={84} r={45} fill="none" stroke="#26333b" strokeWidth={2.5} />
+      {[0, 60, 120, 180, 240, 300].map((a) => {
+        const r = (a * Math.PI) / 180, s = Math.sin(r), c = Math.cos(r);
+        return <line key={a} x1={130 + 49 * s} y1={84 - 49 * c} x2={130 + 54 * s} y2={84 - 54 * c} stroke="#465059" strokeWidth={3} />;
+      })}
+      <rect x={108} y={81} width={44} height={6} rx={3} fill="#0b1317" stroke="#465059" strokeWidth={2.5} />
+      <circle cx={130} cy={84} r={5.5} fill="#0b1317" stroke="#b6ac95" strokeWidth={2} />
+      <rect x={128} y={82} width={2} height={2} fill="#b6ac95" />
+      <ellipse className="gem-halo" style={haloVar(0.12)} opacity={0.12} cx={140} cy={90} rx={38} ry={30} fill="url(#gem-raft-halo)" />
+      {/* quorum span, threaded through the three seated keys */}
+      <path d="M 155 64 Q 165 90 142 108" fill="none" stroke="#ff6a5f" strokeWidth={3} opacity={0.85} />
+      <line x1={155} y1={64} x2={158} y2={61} stroke="#ff6a5f" strokeWidth={2.5} />
+      <line x1={142} y1={108} x2={144} y2={112} stroke="#ff6a5f" strokeWidth={2.5} />
+      <Turned x={155} y={64} />
+      <Turned x={161} y={91} />
+      <Turned x={142} y={108} />
+      <Empty x={118} y={108} />
+      <Empty x={99} y={91} />
+      <Empty x={105} y={64} />
+      {/* crowned leader key mid-turn */}
+      <g transform="translate(130 52)">
+        <circle r={9.5} fill="none" stroke="#7d2723" strokeWidth={3} />
+        <circle r={5} fill="#0b1317" stroke="#ff6a5f" strokeWidth={2} />
+        <g transform="rotate(32)">
+          <path d="M -2 4 L 2 4 L 3 10 L -3 10 Z" fill="#ff6a5f" />
+          <rect x={-1.5} y={10} width={3} height={12} fill="#ff6a5f" />
+          <circle cy={24} r={4} fill="#ff6a5f" />
+        </g>
+        <path d="M -14 0 A 14 14 0 0 1 0 -14" fill="none" stroke="#ff6a5f" strokeWidth={2} strokeDasharray="3 3" />
+        <path d="M -3 -12 L 1 -15 L 1 -9 Z" fill="#ff6a5f" />
       </g>
-
-      {/* lower-right follower */}
-      <g clipPath="url(#gem-raft-fdr)">
-        <circle cx="174" cy="106" r="10.5" fill="#26333b" />
-        <circle cx="174" cy="104" r="7.5" fill="#465059" />
-        <circle cx="174" cy="102" r="4.5" fill="#7d7669" />
-      </g>
-      <circle cx="174" cy="106" r="12" fill="none" stroke="#465059" strokeWidth="1" opacity="0.5" />
-
-      {/* lower-left follower (laggard, de-saturated) */}
-      <g clipPath="url(#gem-raft-fll)">
-        <circle cx="86" cy="106" r="10.5" fill="#26333b" />
-        <circle cx="86" cy="104" r="7.5" fill="#465059" />
-      </g>
-      <circle cx="86" cy="106" r="12" fill="none" stroke="#465059" strokeWidth="1" opacity="0.5" />
-
-      {/* leader (top) */}
-      <g clipPath="url(#gem-raft-leader)">
-        <circle cx="130" cy="38" r="12" fill="#26333b" />
-        <circle cx="130" cy="36" r="9" fill="#465059" />
-        <circle cx="130" cy="34" r="5.5" fill="#7d7669" />
-        <circle cx="130" cy="34" r="8" fill="url(#gem-raft-dense)" opacity="0.75" />
-      </g>
-      <circle cx="130" cy="38" r="16.5" fill="none" stroke="#7d2723" strokeWidth="3.5" opacity="0.9" />
-      <g stroke="#ff6a5f" strokeWidth="1.5" strokeLinecap="round">
-        <line x1="134.3" y1="22.06" x2="135.57" y2="17.23" />
-        <line x1="125.73" y1="22.06" x2="124.43" y2="17.23" />
-      </g>
-
-      {/* committed shared state at loop centre (settled memory) */}
-      <circle cx="130" cy="82" r="13" fill="none" stroke="#465059" strokeWidth="1" opacity="0.5" />
-      <rect x="122" y="74.5" width="16" height="3.5" fill="#465059" />
-      <rect x="122" y="80.5" width="16" height="3.5" fill="#7d7669" />
-      <rect x="122" y="86.5" width="16" height="3.5" fill="#b6ac95" />
-
-      {/* signals in flight */}
-      <circle cx="92" cy="108" r="6" fill="url(#gem-raft-dense)" opacity="0.8" />
-      <rect x="156.5" y="47.5" width="13" height="7" rx="3.5" fill="#ff6a5f" transform="rotate(55 163 51)" />
-
-      {/* white glints (3 max) */}
-      <circle cx="126" cy="34" r="1.5" fill="#f4efe4" />
-      <rect x="123" y="75" width="1.5" height="1.5" fill="#f4efe4" />
-      <rect x="161.5" y="49" width="1.5" height="1.5" fill="#f4efe4" transform="rotate(55 163 51)" />
     </svg>
   );
 }
