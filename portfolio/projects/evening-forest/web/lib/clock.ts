@@ -22,6 +22,4 @@ export const daylightGains = {
   star: { value: 0.05 },
   firefly: { value: 0.35 },
   shaft: { value: 1 },
-  // Post-pass shadow lift, written by DaylightDriver from the nightLift keyframe.
-  night: { value: 0 },
 };

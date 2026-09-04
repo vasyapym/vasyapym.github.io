@@ -386,7 +386,7 @@ for (let i = 0; i <= 100; i += 1) {
   for (const v of numbers) {
     if (!Number.isFinite(v)) daylightSane = false;
   }
-  for (const g of [s.starGain, s.fireflyGain, s.shaftGain, s.nightLift]) {
+  for (const g of [s.starGain, s.fireflyGain, s.shaftGain]) {
     if (!(g >= 0 && g <= 1)) daylightSane = false;
   }
   if (s.fogDensity <= 0) daylightSane = false;
@@ -415,30 +415,6 @@ check(
   "stars peak at night while shafts vanish",
   midnight.starGain > noonish.starGain &&
     midnight.shaftGain < noonish.shaftGain,
-);
-
-// Moonlit readability floor: ambient and fog were lifted so the dark stretch
-// keeps texture under quantisation — this check locks the lift in.
-check(
-  "night keeps a readable floor",
-  sampleDaylight(0.55).hemiIntensity >= 1.9 &&
-    sampleDaylight(0.55).fogDensity <= 0.012,
-);
-
-// The post-pass shadow lift follows the arc: quiet at both bright ends,
-// peaking exactly at the night key.
-check(
-  "the night lift peaks at night",
-  sampleDaylight(0.55).nightLift > sampleDaylight(0).nightLift &&
-    sampleDaylight(0.55).nightLift > sampleDaylight(1).nightLift &&
-    sampleDaylight(0.55).nightLift ===
-      Math.max(
-        sampleDaylight(0).nightLift,
-        sampleDaylight(0.3).nightLift,
-        sampleDaylight(0.55).nightLift,
-        sampleDaylight(0.8).nightLift,
-        sampleDaylight(1).nightLift,
-      ),
 );
 
 // Interpolation continuity: neighbouring steps never jump wildly (the

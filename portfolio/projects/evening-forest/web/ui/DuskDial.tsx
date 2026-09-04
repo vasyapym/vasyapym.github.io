@@ -13,43 +13,23 @@ function applyFill(input: HTMLInputElement, value: number): void {
 // The dusk dial: an uncontrolled range input wired straight into the shared
 // timeOfDay value. A slow poll keeps the knob and caption honest even when
 // the value moves from outside (the [ / ] keys while playing) — four cheap
-// reads a second instead of threading callbacks through the scene tree. While
-// a finger/pointer is dragging the slider, a draggingRef gate suppresses the
-// poll's value/fill writes so programmatic mid-gesture writes can't stall the
-// native iOS/WebKit drag; onChange keeps fill and label live in the meantime.
+// reads a second instead of threading callbacks through the scene tree.
 export function DuskDial() {
   const inputRef = useRef<HTMLInputElement>(null);
-  const draggingRef = useRef(false);
   const [label, setLabel] = useState(() => phaseName(timeOfDay.value));
 
   useEffect(() => {
     if (inputRef.current) applyFill(inputRef.current, timeOfDay.value);
     const id = window.setInterval(() => {
-      // The label is safe to refresh every tick — it never touches the input.
       setLabel(phaseName(timeOfDay.value));
       const el = inputRef.current;
-      // Don't write into the input mid-drag: a programmatic value/fill write
-      // during a native gesture stalls the iOS/WebKit thumb.
-      if (el && !draggingRef.current) {
+      // Don't fight the thumb/finger mid-drag.
+      if (el && document.activeElement !== el) {
         el.value = String(timeOfDay.value);
-        applyFill(el, timeOfDay.value);
       }
+      if (el) applyFill(el, timeOfDay.value);
     }, SYNC_MS);
     return () => window.clearInterval(id);
-  }, []);
-
-  useEffect(() => {
-    // Pointer capture means the release may not fire on the input itself, so
-    // listen at the window for both a clean release and a cancelled gesture.
-    const endDrag = () => {
-      draggingRef.current = false;
-    };
-    window.addEventListener("pointerup", endDrag);
-    window.addEventListener("pointercancel", endDrag);
-    return () => {
-      window.removeEventListener("pointerup", endDrag);
-      window.removeEventListener("pointercancel", endDrag);
-    };
   }, []);
 
   return (
@@ -65,9 +45,6 @@ export function DuskDial() {
         max={1}
         step={0.001}
         defaultValue={timeOfDay.value}
-        onPointerDown={() => {
-          draggingRef.current = true;
-        }}
         onChange={(event) => {
           timeOfDay.value = Number(event.target.value);
           applyFill(event.target, timeOfDay.value);
