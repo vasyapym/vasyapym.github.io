@@ -25,7 +25,8 @@ Everything lives inside this directory; no shell routing changes.
   through night to sunrise, smoothly interpolated. The pure module is
   tick-asserted headlessly; `web/scene/DaylightDriver.tsx` samples it once
   per frame and drives the sky uniforms, both lights, fog, clear colour and
-  shared effect gains (stars, fireflies, shafts). Light intensities live in
+  shared effect gains (stars, fireflies, shafts, plus a `nightLift` that
+  feeds the post pass a blue-weighted moonlit shadow lift). Light intensities live in
   classic units in the keyframes and are multiplied by π exactly once, in
   the driver — three r155+ physical light units otherwise render the whole
   forest ~3× darker than authored. Visitors drag the dusk dial in the rest
@@ -46,7 +47,10 @@ Everything lives inside this directory; no shell routing changes.
   feature; the dither hides the difference.
 - **Foliage** — trees and grass are `InstancedMesh` draws (a handful of draw
   calls total); wind sway is injected into the vertex shader via
-  `onBeforeCompile` and driven by one shared clock uniform.
+  `onBeforeCompile` and driven by one shared clock uniform. Trunks are solid:
+  the walking rig collides against the same seeded scatter via
+  `web/lib/tree-field.ts` (pure, headless-asserted) — circle pushout with
+  slide, looked up through a spatial hash.
 - **Fireflies** — GPU-only drift in a points shader seeded deterministically.
   Inside ~12 m they lean toward the walker via a shared player-position
   uniform, so strolling through the hollow stirs sparks around you; stray

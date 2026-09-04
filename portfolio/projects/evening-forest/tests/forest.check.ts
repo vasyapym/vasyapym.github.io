@@ -23,6 +23,12 @@ import {
   phaseName,
   sampleDaylight,
 } from "../web/lib/daylight.ts";
+import {
+  CELL_SIZE,
+  HALF_EXTENT,
+  collectTreeColliders,
+  createTreeField,
+} from "../web/lib/tree-field.ts";
 
 let failures = 0;
 
@@ -380,7 +386,7 @@ for (let i = 0; i <= 100; i += 1) {
   for (const v of numbers) {
     if (!Number.isFinite(v)) daylightSane = false;
   }
-  for (const g of [s.starGain, s.fireflyGain, s.shaftGain]) {
+  for (const g of [s.starGain, s.fireflyGain, s.shaftGain, s.nightLift]) {
     if (!(g >= 0 && g <= 1)) daylightSane = false;
   }
   if (s.fogDensity <= 0) daylightSane = false;
@@ -411,6 +417,30 @@ check(
     midnight.shaftGain < noonish.shaftGain,
 );
 
+// Moonlit readability floor: ambient and fog were lifted so the dark stretch
+// keeps texture under quantisation — this check locks the lift in.
+check(
+  "night keeps a readable floor",
+  sampleDaylight(0.55).hemiIntensity >= 1.9 &&
+    sampleDaylight(0.55).fogDensity <= 0.012,
+);
+
+// The post-pass shadow lift follows the arc: quiet at both bright ends,
+// peaking exactly at the night key.
+check(
+  "the night lift peaks at night",
+  sampleDaylight(0.55).nightLift > sampleDaylight(0).nightLift &&
+    sampleDaylight(0.55).nightLift > sampleDaylight(1).nightLift &&
+    sampleDaylight(0.55).nightLift ===
+      Math.max(
+        sampleDaylight(0).nightLift,
+        sampleDaylight(0.3).nightLift,
+        sampleDaylight(0.55).nightLift,
+        sampleDaylight(0.8).nightLift,
+        sampleDaylight(1).nightLift,
+      ),
+);
+
 // Interpolation continuity: neighbouring steps never jump wildly (the
 // smoothstep between keys keeps relighting cinematic rather than snappy).
 let continuousLight = true;
@@ -429,6 +459,74 @@ check(
     phaseName(0.55) === "Night" &&
     phaseName(0.8) === "Pre-dawn" &&
     phaseName(1) === "Sunrise",
+);
+
+// --- tree field ---------------------------------------------------------------
+
+const collidersA = collectTreeColliders();
+const collidersB = collectTreeColliders();
+
+// Same seed -> identical layout, and a meaningfully populated forest.
+check(
+  "tree-field: deterministic collider count (> 500)",
+  collidersA.length > 500 && collidersA.length === collidersB.length,
+);
+
+check(
+  "tree-field: deterministic collider values (element-wise x/z/r)",
+  collidersA.every((c, i) => {
+    const o = collidersB[i];
+    return o !== undefined && c.x === o.x && c.z === o.z && c.r === o.r;
+  }),
+);
+
+// Colliders stay inside the walkable disc (jitter of 2.7 may nudge a cell just
+// past the grid edge, hence the small tolerance) and radii stay in range.
+const EDGE_TOLERANCE = 3;
+check(
+  "tree-field: colliders within HALF_EXTENT and radii in [0.3, 0.65]",
+  collidersA.every(
+    (c) =>
+      Math.hypot(c.x, c.z) <= HALF_EXTENT + EDGE_TOLERANCE &&
+      c.r >= 0.3 &&
+      c.r <= 0.65,
+  ),
+);
+
+// Spatial query vs brute force: the 3×3 cell block MUST contain every collider
+// within one cell (<= CELL_SIZE) of the sample — the completeness the pushout
+// relies on — and MUST NOT return anything beyond the block's per-axis reach
+// (< 2 * CELL_SIZE), which also exercises negative cell keys.
+const field = createTreeField();
+const gridRng = createRng("tree-grid/check");
+let spatialOk = true;
+for (let i = 0; i < 200 && spatialOk; i++) {
+  const px = (gridRng() * 2 - 1) * HALF_EXTENT;
+  const pz = (gridRng() * 2 - 1) * HALF_EXTENT;
+  const nearSet = new Set(field.near(px, pz));
+  for (const c of field.colliders) {
+    const inside = nearSet.has(c);
+    const dist = Math.hypot(px - c.x, pz - c.z);
+    if (dist <= CELL_SIZE && !inside) {
+      spatialOk = false; // missed a collider it was required to return
+      break;
+    }
+    if (
+      inside &&
+      (Math.abs(px - c.x) > 2 * CELL_SIZE || Math.abs(pz - c.z) > 2 * CELL_SIZE)
+    ) {
+      spatialOk = false; // returned something outside the 3×3 block
+      break;
+    }
+  }
+}
+check("tree-field: near() matches brute force over 200 samples", spatialOk);
+
+// The fixed spawn at (0, 10) must be clear of every trunk (radius-11 exclusion
+// guarantees at least ~1m of clearance vs the largest r + PLAYER_RADIUS).
+check(
+  "tree-field: walker start (0, 10) is outside every collider",
+  field.colliders.every((c) => Math.hypot(0 - c.x, 10 - c.z) > c.r + 0.3),
 );
 
 if (failures > 0) {

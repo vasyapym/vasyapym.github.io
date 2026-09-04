@@ -28,6 +28,8 @@ export type DaylightSample = {
   starGain: number;
   fireflyGain: number;
   shaftGain: number;
+  // 0 at the bright ends, 1 at deep night — drives the post pass's shadow lift.
+  nightLift: number;
 };
 
 function hex(value: string): Rgb {
@@ -54,6 +56,7 @@ const GOLDEN_HOUR: DaylightKey = {
   starGain: 0.05,
   fireflyGain: 0.35,
   shaftGain: 1,
+  nightLift: 0,
 };
 
 const LATE_DUSK: DaylightKey = {
@@ -73,25 +76,30 @@ const LATE_DUSK: DaylightKey = {
   starGain: 0.45,
   fireflyGain: 0.85,
   shaftGain: 0.55,
+  nightLift: 0.35,
 };
 
 const NIGHT: DaylightKey = {
   t: 0.55,
-  horizon: hex("#54486a"),
-  band: hex("#3a3560"),
-  upper: hex("#232a54"),
-  zenith: hex("#10142c"),
-  fog: hex("#3c3a56"),
-  fogDensity: 0.014,
-  hemiSky: hex("#6a72a8"),
-  hemiGround: hex("#171420"),
-  hemiIntensity: 1.4,
-  sunColor: hex("#bcd2ff"),
-  sunIntensity: 1.1,
+  // Moonlit readability: ambient up ~half a stop, fog thinned so the treeline
+  // keeps depth, sky/fog lifted just enough to escape the quantisation mud
+  // while staying clearly darker than both bright ends.
+  horizon: hex("#5f5478"),
+  band: hex("#454070"),
+  upper: hex("#2b3562"),
+  zenith: hex("#161b38"),
+  fog: hex("#474566"),
+  fogDensity: 0.011,
+  hemiSky: hex("#7d85bc"),
+  hemiGround: hex("#232030"),
+  hemiIntensity: 2.0,
+  sunColor: hex("#c6d9ff"),
+  sunIntensity: 1.6,
   sunDir: [-0.25, 0.62, -0.45],
   starGain: 1,
   fireflyGain: 1,
   shaftGain: 0,
+  nightLift: 1,
 };
 
 const PRE_DAWN: DaylightKey = {
@@ -111,6 +119,7 @@ const PRE_DAWN: DaylightKey = {
   starGain: 0.5,
   fireflyGain: 0.7,
   shaftGain: 0.25,
+  nightLift: 0.4,
 };
 
 const SUNRISE: DaylightKey = {
@@ -130,6 +139,7 @@ const SUNRISE: DaylightKey = {
   starGain: 0,
   fireflyGain: 0.15,
   shaftGain: 0.9,
+  nightLift: 0,
 };
 
 // Ordered by t; the sampler walks this table.
@@ -159,6 +169,7 @@ const NUMBER_KEYS = [
   "starGain",
   "fireflyGain",
   "shaftGain",
+  "nightLift",
 ] as const;
 
 function smooth(t: number): number {

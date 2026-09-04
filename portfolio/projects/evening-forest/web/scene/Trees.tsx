@@ -2,63 +2,9 @@ import { useEffect, useLayoutEffect, useMemo, useRef } from "react";
 import * as THREE from "three";
 import { mergeGeometries } from "three/examples/jsm/utils/BufferGeometryUtils.js";
 import { COLORS } from "../lib/palette";
-import { scatterCells } from "../lib/rng";
-import { smoothstep, terrainHeight } from "../lib/heightfield";
+import { terrainHeight } from "../lib/heightfield";
 import { applyWind } from "./wind";
-
-// Covers the full walkable circle (radius 230) plus margin, so the treeline
-// never ends inside the fog.
-const HALF_EXTENT = 235;
-const MIN_RADIUS = 11;
-
-function mix(a: number, b: number, t: number): number {
-  return a + (b - a) * t;
-}
-
-type TreeSpot = {
-  x: number;
-  z: number;
-  rotationY: number;
-  scale: number;
-  amber: boolean;
-};
-
-function collectSpots(): { pines: TreeSpot[]; broadleaf: TreeSpot[] } {
-  const pines: TreeSpot[] = [];
-  const broadleaf: TreeSpot[] = [];
-  const cells = scatterCells({
-    seed: "evening-forest/trees/v1",
-    halfExtent: HALF_EXTENT,
-    minRadius: MIN_RADIUS,
-    step: 6.4,
-    jitter: 2.7,
-  });
-  for (const cell of cells) {
-    const roll = cell.rand();
-    // Open spawn clearing, dense woodland belt, then thinning toward the
-    // foggy rim so the far edge dissolves instead of stopping.
-    const density =
-      cell.r < 20
-        ? 0.45
-        : cell.r < 120
-          ? 0.62
-          : mix(0.62, 0.22, smoothstep(120, HALF_EXTENT, cell.r));
-    if (roll > density) continue;
-    const spot: TreeSpot = {
-      x: cell.x,
-      z: cell.z,
-      rotationY: cell.rand() * Math.PI * 2,
-      scale: 0.8 + cell.rand() * 0.55,
-      amber: cell.rand() < 0.18,
-    };
-    if (roll < density * 0.58) {
-      pines.push(spot);
-    } else {
-      broadleaf.push(spot);
-    }
-  }
-  return { pines, broadleaf };
-}
+import { collectSpots } from "../lib/tree-field";
 
 function trunkGeometry(height: number, topRadius: number, bottomRadius: number) {
   const g = new THREE.CylinderGeometry(topRadius, bottomRadius, height, 6);

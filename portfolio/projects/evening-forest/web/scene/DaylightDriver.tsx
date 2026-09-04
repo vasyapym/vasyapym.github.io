@@ -60,6 +60,7 @@ export function DaylightDriver() {
     daylightGains.star.value = s.starGain;
     daylightGains.firefly.value = s.fireflyGain;
     daylightGains.shaft.value = s.shaftGain;
+    daylightGains.night.value = s.nightLift;
 
     // Fog and clear colour share the sampled haze; FogExp2 was attached by
     // ForestCanvas's JSX.

@@ -1,4 +1,4 @@
-import { useEffect, useRef } from "react";
+import { useEffect, useMemo, useRef } from "react";
 import * as THREE from "three";
 import { useFrame, useThree } from "@react-three/fiber";
 import {
@@ -8,8 +8,11 @@ import {
 } from "../lib/heightfield";
 import { playerPositionUniform } from "../lib/clock";
 import { clampPitch, type TouchInputState } from "../lib/touch-input";
+import { createTreeField } from "../lib/tree-field";
 
 const WALK_SPEED = 3.4;
+// Horizontal capsule radius used for trunk collision, in metres.
+const PLAYER_RADIUS = 0.3;
 const IDLE_DRIFT = 0.022; // rad/s slow pan while the pause overlay is up
 
 const FORWARD = new THREE.Vector3();
@@ -46,6 +49,8 @@ export function FirstPersonRig({
   const baseY = useRef<number | null>(null);
   const bobPhase = useRef(0);
   const lastStep = useRef(0);
+  // Trunk colliders + spatial hash, built once. Same layout source as Trees.
+  const treeField = useMemo(() => createTreeField(), []);
 
   useEffect(() => {
     const down = (event: KeyboardEvent) => {
@@ -112,6 +117,28 @@ export function FirstPersonRig({
 
     velocity.current.lerp(WISH, 1 - Math.exp(-dt * 9));
     camera.position.addScaledVector(velocity.current, dt);
+
+    // Solid trunks: push the walker out of any overlapping trunk circle and
+    // cancel only the inward velocity component, so motion slides smoothly
+    // along the trunk instead of stopping dead or bouncing.
+    for (const c of treeField.near(camera.position.x, camera.position.z)) {
+      const dx = camera.position.x - c.x;
+      const dz = camera.position.z - c.z;
+      const minDist = c.r + PLAYER_RADIUS;
+      const d2 = dx * dx + dz * dz;
+      if (d2 < minDist * minDist && d2 > 1e-8) {
+        const d = Math.sqrt(d2);
+        const nx = dx / d;
+        const nz = dz / d;
+        camera.position.x = c.x + nx * minDist;
+        camera.position.z = c.z + nz * minDist;
+        const into = velocity.current.x * nx + velocity.current.z * nz;
+        if (into < 0) {
+          velocity.current.x -= into * nx;
+          velocity.current.z -= into * nz;
+        }
+      }
+    }
 
     // Soft boundary: ease back inside the meadow instead of hard-clipping.
     const radius = Math.hypot(camera.position.x, camera.position.z);

@@ -8,6 +8,7 @@ import {
   wrapEffect,
 } from "@react-three/postprocessing";
 import { BlendFunction, Effect } from "postprocessing";
+import { daylightGains } from "../lib/clock";
 
 // The 8-bit pass: a gentle dusk grade, ordered dithering (4x4 Bayer matrix)
 // and palette quantisation in one fragment shader. Pixelation itself is
@@ -17,6 +18,7 @@ const FRAGMENT_SHADER = /* glsl */ `
   uniform vec2 uResolution;
   uniform float uLevels;
   uniform float uStrength;
+  uniform float uNightLift;
 
   // Compact recursive Bayer: bayer2 tiled at half frequency builds bayer4.
   float bayer2(vec2 a) {
@@ -29,8 +31,11 @@ const FRAGMENT_SHADER = /* glsl */ `
 
     // Dusk readability: warm the mids, lift the toe just enough that the
     // shadow side of the meadow keeps texture after 6-level quantisation.
-    c = pow(c, vec3(0.88, 0.94, 0.86));
-    c += vec3(0.015, 0.008, 0.03);
+    // As uNightLift rises toward deep night the gamma pull deepens and the
+    // toe lift grows with a blue-weighted push, so moonlit shadows stay
+    // textured instead of crushing into the quantisation mud.
+    c = pow(c, vec3(0.88, 0.94, 0.86) - uNightLift * vec3(0.05, 0.03, 0.08));
+    c += vec3(0.015, 0.008, 0.03) + uNightLift * vec3(0.010, 0.012, 0.028);
 
     vec2 pixel = floor(uv * uResolution);
     float bayer = bayer2(pixel * 0.5) * 0.25 + bayer2(pixel);
@@ -49,6 +54,7 @@ class PosterizeDitherEffect extends Effect {
         ["uResolution", new THREE.Uniform(new THREE.Vector2(512, 288))],
         ["uLevels", new THREE.Uniform(6)],
         ["uStrength", new THREE.Uniform(1)],
+        ["uNightLift", new THREE.Uniform(0)],
       ]),
     });
   }
@@ -87,6 +93,8 @@ function ResolutionSync({
   useFrame(({ gl }) => {
     gl.getDrawingBufferSize(size);
     handle.current?.uniforms.get("uResolution")?.value.copy(size);
+    const nightUniform = handle.current?.uniforms.get("uNightLift");
+    if (nightUniform) nightUniform.value = daylightGains.night.value;
   });
   return null;
 }

@@ -168,6 +168,10 @@
   margin: 0;
   background: transparent;
   cursor: ew-resize;
+  /* Hand native slider gestures back to the browser: the stage sets
+     touch-action: none for game look-drag, but that must not leak into this
+     menu slider or iOS/WebKit refuses to drag the thumb. */
+  touch-action: auto;
 }
 
 .evening-forest-dial input[type="range"]::-webkit-slider-runnable-track {

@@ -133,6 +133,19 @@
       "message": "Commit 188d5ba (Gemstones card integration) also carries the parallel session's merge-conflict resolution of portfolio/.project-history/graph.jsonl: legacy card-churn nodes renumbered to n85-n89 and both histories stitched; my session's nodes landed as n90/n91 with this pass as n92. The staged resolution was verified intact before staging; no other agent's source files were included.",
       "ackBy": null,
       "ackAt": null
+    },
+    {
+      "id": "2026-09-04T08-05Z-sweep-report-evening-forest-graph-renumber-carried",
+      "ts": "2026-09-04T08:05:00Z",
+      "kind": "sweep-report",
+      "agent": "opencode (code-iteration evening-forest collision/dial/night session)",
+      "commit": null,
+      "files": [
+        "portfolio/.project-history/graph.jsonl"
+      ],
+      "message": "The evening-forest three-task closing commit carries the parallel design-iteration session's unpushed staged graph records: its local n126/e121 (auto-record of commit 3743143 'Fix CI...') collided with ids origin/main had already assigned to different records (n126 = raft round-7 decision). To complete the mandated git pull --ff-only I preserved the content verbatim but renumbered the pair to n130/e125 (past origin's n129 head) and re-staged it. No other agent's files touched; CLAUDE.md left unstaged. Action for owner: none — the record is intact under a new id.",
+      "ackBy": null,
+      "ackAt": null
     }
   ]
 }
