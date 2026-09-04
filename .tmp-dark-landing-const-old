@@ -1,2 +1,0 @@
-  const [revealedProjects, setRevealedProjects] = useState<Set<string>>(() => new Set());
-  const [revealReady, setRevealReady] = useState(false);
