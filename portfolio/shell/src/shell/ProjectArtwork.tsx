@@ -74,73 +74,57 @@ export const INCUMBENT_MARKS: Partial<Record<ProjectCenter, () => ReactElement>>
   trail: TrailCenterMark,
 };
 
-/* ── 1 · Raft Cluster — coral spot ink, the cluster as a vault quorum:
-   seven keyholes, four keys turned (majority), the crowned leader key
-   mid-turn with a motion arc, three dashed empty keyholes as the laggards,
-   and the coral span linking the engaged quorum. Adopted from the round-6
-   vault board (candidate A "seven-key majority"); ids keep the family
-   prefix gem-raft-*. ── */
+/* ── 1 · Raft Cluster — coral spot ink, the cluster as a shift-register
+   ripple: the crowned leader flop (top-left) shifts the bit down a diagonal
+   cascade of stages — two stages hold it (stage 3 overprinted coral), the
+   next stage sits dashed and empty ahead of the frontier, the laggard stage
+   stalls off the cascade with an X across it, and the coral bit is mid-hop
+   into the frontier. Adopted from the round-7 cybernetic board (candidate
+   H "shift-register ripple"); ids keep the family prefix gem-raft-*. ── */
 function RaftCenterMark() {
-  const Turned = ({ x, y }: { x: number; y: number }) => (
-    <g transform={`translate(${x} ${y})`}>
-      <circle r={5} fill="#0b1317" stroke="#7d7669" strokeWidth={2} />
-      <path d="M -2 4 L 2 4 L 3 10 L -3 10 Z" fill="#7d7669" />
-      <rect x={-1.5} y={10} width={3} height={12} fill="#7d7669" />
-      <circle cy={24} r={4} fill="#7d7669" />
-    </g>
-  );
-  const Empty = ({ x, y }: { x: number; y: number }) => (
-    <g transform={`translate(${x} ${y})`}>
-      <circle r={5} fill="#0b1317" stroke="#7d7669" strokeWidth={1.5} strokeDasharray="3 3" />
-      <path d="M -2 4 L 2 4 L 3 10 L -3 10 Z" fill="none" stroke="#7d7669" strokeWidth={1.5} strokeDasharray="3 3" />
-    </g>
-  );
   return (
     <svg viewBox="0 0 260 160" aria-hidden="true">
       <defs>
-        <pattern id="gem-raft-dense" patternUnits="userSpaceOnUse" width={7} height={7}>
-          <circle cx={3.5} cy={3.5} r={1.9} fill="#ff6a5f" />
-        </pattern>
-        <pattern id="gem-raft-sparse" patternUnits="userSpaceOnUse" width={11} height={11}>
-          <circle cx={5.5} cy={5.5} r={1.6} fill="#7d7669" />
-        </pattern>
-        <pattern id="gem-raft-halo" patternUnits="userSpaceOnUse" width={7} height={7}>
-          <circle cx={3.5} cy={3.5} r={1.9} fill="#ff6a5f" />
-        </pattern>
+        <pattern id="gem-raft-dense" patternUnits="userSpaceOnUse" width="7" height="7"><circle cx="3.5" cy="3.5" r="1.9" fill="#ff6a5f" /></pattern>
+        <pattern id="gem-raft-sparse" patternUnits="userSpaceOnUse" width="11" height="11"><circle cx="5.5" cy="5.5" r="1.6" fill="#7d7669" /></pattern>
+        <pattern id="gem-raft-halo" patternUnits="userSpaceOnUse" width="7" height="7"><circle cx="3.5" cy="3.5" r="1.9" fill="#ff6a5f" /></pattern>
       </defs>
-      <ellipse cx={130} cy={84} rx={104} ry={64} fill="url(#gem-raft-sparse)" opacity={0.09} />
-      <circle cx={130} cy={84} r={54} fill="none" stroke="#465059" strokeWidth={5} />
-      <circle cx={130} cy={84} r={45} fill="none" stroke="#26333b" strokeWidth={2.5} />
-      {[0, 60, 120, 180, 240, 300].map((a) => {
-        const r = (a * Math.PI) / 180, s = Math.sin(r), c = Math.cos(r);
-        return <line key={a} x1={130 + 49 * s} y1={84 - 49 * c} x2={130 + 54 * s} y2={84 - 54 * c} stroke="#465059" strokeWidth={3} />;
-      })}
-      <rect x={108} y={81} width={44} height={6} rx={3} fill="#0b1317" stroke="#465059" strokeWidth={2.5} />
-      <circle cx={130} cy={84} r={5.5} fill="#0b1317" stroke="#b6ac95" strokeWidth={2} />
-      <rect x={128} y={82} width={2} height={2} fill="#b6ac95" />
-      <ellipse className="gem-halo" style={haloVar(0.12)} opacity={0.12} cx={140} cy={90} rx={38} ry={30} fill="url(#gem-raft-halo)" />
-      {/* quorum span, threaded through the three seated keys */}
-      <path d="M 155 64 Q 165 90 142 108" fill="none" stroke="#ff6a5f" strokeWidth={3} opacity={0.85} />
-      <line x1={155} y1={64} x2={158} y2={61} stroke="#ff6a5f" strokeWidth={2.5} />
-      <line x1={142} y1={108} x2={144} y2={112} stroke="#ff6a5f" strokeWidth={2.5} />
-      <Turned x={155} y={64} />
-      <Turned x={161} y={91} />
-      <Turned x={142} y={108} />
-      <Empty x={118} y={108} />
-      <Empty x={99} y={91} />
-      <Empty x={105} y={64} />
-      {/* crowned leader key mid-turn */}
-      <g transform="translate(130 52)">
-        <circle r={9.5} fill="none" stroke="#7d2723" strokeWidth={3} />
-        <circle r={5} fill="#0b1317" stroke="#ff6a5f" strokeWidth={2} />
-        <g transform="rotate(32)">
-          <path d="M -2 4 L 2 4 L 3 10 L -3 10 Z" fill="#ff6a5f" />
-          <rect x={-1.5} y={10} width={3} height={12} fill="#ff6a5f" />
-          <circle cy={24} r={4} fill="#ff6a5f" />
-        </g>
-        <path d="M -14 0 A 14 14 0 0 1 0 -14" fill="none" stroke="#ff6a5f" strokeWidth={2} strokeDasharray="3 3" />
-        <path d="M -3 -12 L 1 -15 L 1 -9 Z" fill="#ff6a5f" />
-      </g>
+
+      <ellipse cx="130" cy="84" rx="104" ry="64" fill="url(#gem-raft-sparse)" opacity="0.09" />
+      <ellipse className="gem-halo" cx="128" cy="84" rx="54" ry="40" fill="url(#gem-raft-halo)" style={haloVar(0.12)} opacity={0.12} />
+
+      {/* leader input flop — top-left (24x20 so the r20 crown clears) */}
+      <rect x="33" y="42" width="24" height="20" fill="#26333b" stroke="#b6ac95" strokeWidth="2.5" />
+      <line x1="33" y1="56" x2="39" y2="62" stroke="#7d7669" strokeWidth="2" />
+      <circle cx="45" cy="52" r="20" fill="none" stroke="#ff6a5f" strokeWidth="3.5" />
+      <circle cx="45" cy="52" r="6" fill="#ff6a5f" />
+
+      {/* stage 2 (shifted, committed) */}
+      <polyline points="57,58 74,58 74,66 84,66" fill="none" stroke="#465059" strokeWidth="3.5" />
+      <rect x="84" y="56" width="30" height="24" fill="#465059" stroke="#b6ac95" strokeWidth="2.5" />
+      <line x1="84" y1="76" x2="88" y2="80" stroke="#7d7669" strokeWidth="2" />
+
+      {/* stage 3 (shifted, committed) */}
+      <polyline points="114,72 128,72 128,80 138,80" fill="none" stroke="#465059" strokeWidth="3.5" />
+      <rect x="138" y="70" width="30" height="24" fill="url(#gem-raft-dense)" stroke="#7d2723" strokeWidth="2.5" />
+
+      {/* stage 4 (empty, not yet shifted) — dashed */}
+      <polyline points="168,86 182,86 182,94 192,94" fill="none" stroke="#465059" strokeWidth="3.5" />
+      <rect x="192" y="84" width="30" height="24" fill="none" stroke="#7d7669" strokeWidth="1.5" strokeDasharray="4 4" />
+
+      {/* laggard stage 5 — stalled clock, broken dashed dead-end */}
+      <polyline points="150,94 150,116 176,116" fill="none" stroke="#7d7669" strokeWidth="1.5" strokeDasharray="4 4" />
+      <rect x="176" y="116" width="30" height="20" fill="none" stroke="#7d7669" strokeWidth="1.5" strokeDasharray="4 4" />
+      <polyline points="184,120 198,132" fill="none" stroke="#7d7669" strokeWidth="1.5" strokeDasharray="3 3" />
+      <polyline points="198,120 184,132" fill="none" stroke="#7d7669" strokeWidth="1.5" strokeDasharray="3 3" />
+
+      {/* clock-tick log straddling the committed stage edges */}
+      <line x1="99" y1="76" x2="99" y2="84" stroke="#7d7669" strokeWidth="2.5" />
+      <line x1="153" y1="92" x2="153" y2="100" stroke="#7d7669" strokeWidth="2.5" />
+
+      {/* coral protagonist — bit rippling between stage 3 and stage 4 */}
+      <rect x="170" y="82" width="14" height="9" rx="2" fill="#ff6a5f" />
+      <polyline points="185,90 190,94 185,98" fill="none" stroke="#7d2723" strokeWidth="3" />
     </svg>
   );
 }

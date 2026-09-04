@@ -310,7 +310,7 @@ const RAFT_CYBER_ROUND: readonly {
 }[] = [
   {
     id: "base",
-    topline: "base · vault seven-key majority (incumbent)",
+    topline: "base · vault seven-key majority (round-6 pick, then-incumbent)",
     Mark: RaftVaultA,
   },
   { id: "a", topline: "candidate a · ganglion", Mark: RaftCyberA },
@@ -320,7 +320,7 @@ const RAFT_CYBER_ROUND: readonly {
   { id: "e", topline: "candidate e · clock tree", Mark: RaftCyberE },
   { id: "f", topline: "candidate f · token ring", Mark: RaftCyberF },
   { id: "g", topline: "candidate g · sensor bus", Mark: RaftCyberG },
-  { id: "h", topline: "candidate h · shift-register ripple", Mark: RaftCyberH },
+  { id: "h", topline: "candidate h · shift-register ripple (adopted)", Mark: RaftCyberH },
   { id: "i", topline: "candidate i · transceiver broadcast", Mark: RaftCyberI },
 ];
 
