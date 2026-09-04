@@ -88,8 +88,8 @@ try {
 
   const sections = await desktop.$$(".art-variant-section");
   check(
-    "eleven sections render (3 variants + raft cybernetic + trail + raft rethink 1-3 + grammar-break + ten-concepts + vault rounds)",
-    sections.length === 11,
+    "twelve sections render (3 variants + raft cybernetic + trail + raft rethink 1-3 + grammar-break + ten-concepts + vault + cyber rounds)",
+    sections.length === 12,
     `found ${sections.length}`,
   );
 
@@ -105,6 +105,7 @@ try {
     "raft-rethink4-round",
     "raft-rethink5-round",
     "raft-vault-round",
+    "raft-cyber-round",
   ];
   for (let i = 0; i < sections.length && i < names.length; i += 1) {
     await sections[i].screenshot({ path: join(outDir, `${names[i]}.png`) });

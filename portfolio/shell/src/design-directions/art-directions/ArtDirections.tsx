@@ -35,6 +35,17 @@ import {
   RaftVaultI,
   RaftVaultJ,
 } from "./raftRethink6";
+import {
+  RaftCyberA,
+  RaftCyberB,
+  RaftCyberC,
+  RaftCyberD,
+  RaftCyberE,
+  RaftCyberF,
+  RaftCyberG,
+  RaftCyberH,
+  RaftCyberI,
+} from "./raftRethink7";
 import "./art-directions.css";
 
 type ArtDirectionsProps = {
@@ -287,6 +298,32 @@ const RAFT_VAULT_ROUND: readonly {
   { id: "j", topline: "candidate j · quorum bell", Mark: RaftVaultJ },
 ];
 
+// Raft cybernetic round: the adopted vault reads as good but boring and the
+// owner pointed at a circuit-organism reference (reference-images/
+// cybernetics.jpg) — ten cybernetic variants brainstormed by the chat model
+// (BRIEF-card-art-raft-rethink-7.md). The model timed out after candidate I,
+// so the round ships nine candidates A-I. Owner picks one.
+const RAFT_CYBER_ROUND: readonly {
+  id: string;
+  topline: string;
+  Mark?: () => ReactElement;
+}[] = [
+  {
+    id: "base",
+    topline: "base · vault seven-key majority (incumbent)",
+    Mark: RaftVaultA,
+  },
+  { id: "a", topline: "candidate a · ganglion", Mark: RaftCyberA },
+  { id: "b", topline: "candidate b · bus arbiter", Mark: RaftCyberB },
+  { id: "c", topline: "candidate c · write frontier column", Mark: RaftCyberC },
+  { id: "d", topline: "candidate d · repeater chain", Mark: RaftCyberD },
+  { id: "e", topline: "candidate e · clock tree", Mark: RaftCyberE },
+  { id: "f", topline: "candidate f · token ring", Mark: RaftCyberF },
+  { id: "g", topline: "candidate g · sensor bus", Mark: RaftCyberG },
+  { id: "h", topline: "candidate h · shift-register ripple", Mark: RaftCyberH },
+  { id: "i", topline: "candidate i · transceiver broadcast", Mark: RaftCyberI },
+];
+
 type RoundEntry = { id: string; topline: string; Mark?: () => ReactElement };
 
 // One comparison round: shared head + the project's card rendered per entry.
@@ -510,6 +547,15 @@ export default function ArtDirections({ projects }: ArtDirectionsProps) {
           projectId="raft-cluster"
           thesis="The vault quorum won round 5 — the owner asked for more nodes. Ten evolutions of the locked vault identity, 5-7 keyholes each with a legible turned majority, each adding one mechanism: quorum span, combination dial, time-lock sweep, open leaf, door wall, turn-wave, bolt-work ring, tumbler stack, deposit slot, alarm bell. Hover a card for the lift, tilt and halo response."
           round={RAFT_VAULT_ROUND}
+          projects={projects}
+        />
+
+        <RoundSection
+          label="raft rethink · round 7"
+          name="cybernetic directions"
+          projectId="raft-cluster"
+          thesis="The adopted vault is good but boring — the owner pointed at a circuit-organism reference and asked for the cybernetic theme translated into the card grammar. Nine concepts brainstormed by the chat model: processor soma with dendrites, bus arbiter, write-frontier column, repeater chain, clock tree, token ring, sensor bus into a controller, shift-register ripple, transceiver broadcast. Every mark keeps the system-design read: crowned leader, committed vs future, one coral protagonist, a laggard's deficiency. Hover a card for the lift, tilt and halo response."
+          round={RAFT_CYBER_ROUND}
           projects={projects}
         />
       </div>
