@@ -266,61 +266,56 @@ export class Sfx {
 
   // --- Voices ---------------------------------------------------------------
 
-  // Springy hop: square body + a bright tick transient + a faintly detuned
-  // twin for warmth.
+  // Soft airy hop — a gentle "hup": springy blip + breath of noise + a tiny
+  // push-off. No square wave; Celeste's jump is a breath, not a bleep.
   jump(): void {
     this.tone({
-      type: "square",
-      from: 300,
-      to: 620,
-      duration: 0.12,
-      volume: 0.1,
-      attack: 0.004,
-      detune: 8,
+      type: "triangle",
+      from: 260,
+      to: 520,
+      duration: 0.11,
+      volume: 0.12,
+      attack: 0.003,
     });
-    this.tone({ type: "sine", from: 1400, duration: 0.03, volume: 0.04 });
+    this.noiseBurst({ duration: 0.09, volume: 0.06, filterType: "highpass", from: 2200, to: 1200 });
+    this.tone({ type: "sine", from: 170, duration: 0.035, volume: 0.05 });
   }
 
-  // Second jump sits higher; same tick so it reads as a sibling of jump().
+  // Second wind — the same recipe a register up, with a little rising
+  // shimmer so it reads as a variation of the jump, not a new sound.
   doubleJump(): void {
     this.tone({
-      type: "square",
-      from: 420,
-      to: 820,
+      type: "triangle",
+      from: 330,
+      to: 660,
       duration: 0.12,
-      volume: 0.09,
+      volume: 0.13,
       attack: 0.003,
     });
-    this.tone({
-      type: "square",
-      from: 620,
-      to: 980,
-      at: 0.05,
-      duration: 0.1,
-      volume: 0.07,
-      attack: 0.003,
-    });
-    this.tone({ type: "sine", from: 1400, at: 0.05, duration: 0.03, volume: 0.04 });
+    this.noiseBurst({ duration: 0.1, volume: 0.07, filterType: "highpass", from: 3200, to: 1600 });
+    this.tone({ type: "sine", from: 660, to: 990, at: 0.03, duration: 0.07, volume: 0.04 });
+    this.tone({ type: "sine", from: 200, duration: 0.03, volume: 0.05 });
   }
 
   // Whoosh: a bandpass sweep that drifts left, a bright highpass sizzle on
   // top, and a low triangle underlay for body.
   dash(): void {
     this.noiseBurst({
-      duration: 0.24,
-      volume: 0.15,
+      duration: 0.3,
+      volume: 0.24,
       filterType: "bandpass",
       from: 2400,
       to: 700,
       q: 1.2,
       pan: -0.2,
     });
-    this.noiseBurst({ duration: 0.08, volume: 0.04, filterType: "highpass", from: 5000 });
-    this.tone({ type: "triangle", from: 220, to: 140, duration: 0.18, volume: 0.03 });
+    this.noiseBurst({ duration: 0.1, volume: 0.06, filterType: "highpass", from: 5000 });
+    this.tone({ type: "triangle", from: 220, to: 140, duration: 0.2, volume: 0.05 });
   }
 
   // Landing weight scales with fall speed (impact 0..1): higher, longer and
-  // louder at full falls; barely there on soft touchdowns.
+  // louder at full falls; barely there on soft touchdowns. A sub-octave
+  // thump sells the weight on hard landings.
   land(impact: number): void {
     const i = Math.min(1, Math.max(0, impact));
     this.tone({
@@ -328,11 +323,19 @@ export class Sfx {
       from: 150 + 60 * i,
       to: 85,
       duration: 0.06 + 0.05 * i,
-      volume: 0.05 + 0.06 * i,
+      volume: 0.08 + 0.09 * i,
+    });
+    this.tone({
+      type: "sine",
+      from: 90,
+      to: 45,
+      at: 0.01,
+      duration: 0.09 + 0.04 * i,
+      volume: 0.04 + 0.07 * i,
     });
     this.noiseBurst({
       duration: 0.05,
-      volume: 0.03 + 0.04 * i,
+      volume: 0.05 + 0.05 * i,
       filterType: "lowpass",
       from: 500,
     });
@@ -345,9 +348,9 @@ export class Sfx {
       PENTATONIC[combo % PENTATONIC.length] +
       Math.floor(combo / PENTATONIC.length) * 12;
     const hz = PICKUP_BASE_HZ * Math.pow(2, Math.min(24, step) / 12);
-    this.tone({ type: "sine", from: hz, duration: 0.16, volume: 0.11 });
-    this.tone({ type: "sine", from: hz * 1.5, at: 0.04, duration: 0.14, volume: 0.06 });
-    this.tone({ type: "sine", from: hz * 2, duration: 0.09, volume: 0.035 });
+    this.tone({ type: "sine", from: hz, duration: 0.16, volume: 0.16 });
+    this.tone({ type: "sine", from: hz * 1.5, at: 0.04, duration: 0.14, volume: 0.09 });
+    this.tone({ type: "sine", from: hz * 2, duration: 0.09, volume: 0.06 });
   }
 
   // Rising, hopeful pair of triangle sweeps.
@@ -357,7 +360,7 @@ export class Sfx {
       from: 392,
       to: 523,
       duration: 0.18,
-      volume: 0.1,
+      volume: 0.14,
       attack: 0.004,
     });
     this.tone({
@@ -366,7 +369,7 @@ export class Sfx {
       to: 659,
       at: 0.09,
       duration: 0.2,
-      volume: 0.1,
+      volume: 0.14,
       attack: 0.004,
     });
   }
@@ -380,7 +383,7 @@ export class Sfx {
         from: hz,
         at: i * 0.07,
         duration: 0.16,
-        volume: 0.1,
+        volume: 0.14,
       });
     });
     this.tone({
@@ -388,19 +391,26 @@ export class Sfx {
       from: 1047 * 2,
       at: notes.length * 0.07,
       duration: 0.12,
-      volume: 0.04,
+      volume: 0.07,
     });
   }
 
-  // Getting hurt: punchy, not harsh — a dull lowpass thud, a pitched-down
+  // Getting hurt: punchy, not harsh — a swept lowpass thud, a pitched-down
   // triangle body, and a tiny square transient for the "smack".
   hit(): void {
-    this.noiseBurst({ duration: 0.12, volume: 0.2, filterType: "lowpass", from: 500 });
-    this.tone({ type: "triangle", from: 200, to: 55, duration: 0.26, volume: 0.15 });
-    this.tone({ type: "square", from: 90, duration: 0.05, volume: 0.08 });
+    this.noiseBurst({
+      duration: 0.14,
+      volume: 0.28,
+      filterType: "lowpass",
+      from: 700,
+      to: 250,
+    });
+    this.tone({ type: "triangle", from: 200, to: 55, duration: 0.28, volume: 0.22 });
+    this.tone({ type: "square", from: 90, duration: 0.05, volume: 0.12 });
   }
 
-  // Descending minor-ish sigh, then a soft low tone to resolve the moment.
+  // Descending minor-ish sigh over a soft noise wash, then a low tone to
+  // resolve the moment.
   gameover(): void {
     const notes = [523, 392, 311, 233];
     notes.forEach((hz, i) => {
@@ -409,45 +419,54 @@ export class Sfx {
         from: hz,
         duration: 0.3,
         at: i * 0.17,
-        volume: 0.1,
+        volume: 0.13,
       });
+    });
+    this.noiseBurst({
+      duration: 0.6,
+      volume: 0.05,
+      filterType: "lowpass",
+      from: 400,
+      to: 120,
+      at: 3 * 0.17,
     });
     this.tone({
       type: "sine",
       from: 130,
       at: notes.length * 0.17,
       duration: 0.5,
-      volume: 0.06,
+      volume: 0.1,
     });
   }
 
   // Cheerful "go!" at the start of a run: two rising triangles capped with a
   // high sine sparkle.
   runStart(): void {
-    this.tone({ type: "triangle", from: 523, to: 659, duration: 0.09, volume: 0.08 });
-    this.tone({ type: "triangle", from: 784, at: 0.08, duration: 0.12, volume: 0.08 });
-    this.tone({ type: "sine", from: 1568, at: 0.16, duration: 0.1, volume: 0.03 });
+    this.tone({ type: "triangle", from: 523, to: 659, duration: 0.09, volume: 0.12 });
+    this.tone({ type: "triangle", from: 784, at: 0.08, duration: 0.12, volume: 0.12 });
+    this.tone({ type: "sine", from: 1568, at: 0.16, duration: 0.1, volume: 0.05 });
   }
 
   // UI: a soft, downward square blip for clicks.
   uiClick(): void {
-    this.tone({ type: "square", from: 620, to: 440, duration: 0.045, volume: 0.045 });
+    this.tone({ type: "square", from: 620, to: 440, duration: 0.045, volume: 0.07 });
   }
 
   // UI: a barely-there sine tick for hover.
   uiHover(): void {
-    this.tone({ type: "sine", from: 950, duration: 0.03, volume: 0.018 });
+    this.tone({ type: "sine", from: 950, duration: 0.03, volume: 0.028 });
   }
 
-  // Footstep tap. Very subtle; brighter and louder with speed, alternating
-  // stereo so a run reads as left/right paws, with a touch of pitch variance.
+  // Footstep tap. Subtle by design (it plays constantly); brighter and
+  // louder with speed, alternating stereo so a run reads as left/right
+  // paws, with a touch of pitch variance.
   trot(speedNorm: number): void {
     const s = Math.min(1, Math.max(0, speedNorm));
     this.trotLeft = !this.trotLeft;
     const variance = 1 + (Math.random() * 0.12 - 0.06);
     this.noiseBurst({
       duration: 0.045,
-      volume: 0.022 + 0.02 * s,
+      volume: 0.03 + 0.025 * s,
       filterType: "lowpass",
       from: (900 + 600 * s) * variance,
       pan: this.trotLeft ? -0.35 : 0.35,

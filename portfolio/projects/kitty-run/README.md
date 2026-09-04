@@ -15,14 +15,16 @@ Three features carry the engineering story:
   stretch. The lens breathes with the dip (FOV punch), a rose vignette
   blooms from the clock depth, and speed lines tear past while the world
   crawls.
-- **Adaptive soundtrack** — no audio files. A Web Audio lookahead
-  scheduler sequences a C–Am–F–G chiptune bed whose tempo follows the
-  run speed (96→132 bpm); kick, arp, hats and a recurring kitty motif
-  crossfade in as speed and combo build (no hard gates — layers bloom in
-  over about a second), a combo ≥ 8 adds a ping-ponging sparkle line,
-  hits and milestones duck the bed, and pause/mute fade it to silence.
-  The mix fans through three buses — master / SFX / music — each with its
-  own persisted slider next to the mute button.
+- **Adaptive soundtrack** — no audio files, Celeste-flavoured. A Web Audio
+  lookahead scheduler sequences a Cmaj7–Am7–Fmaj7–G7 loop whose tempo
+  follows the run speed (96→132 bpm): warm saw pads, melodic sine+triangle
+  bass, plucky arp, hats and a soft snare crossfade in as speed and combo
+  build; the recurring kitty motif floats in a tempo-locked dotted-eighth
+  delay and a procedural reverb; the kick breathes the whole mix through a
+  sidechain pump; a combo ≥ 8 adds a ping-ponging sparkle line; hits and
+  milestones duck the bed; pause/mute fade it to silence. The mix fans
+  through three buses — master / SFX / music — each with its own persisted
+  slider next to the mute button.
 - **Race your best-run echo** — a finished run is stored as seed plus
   timed inputs; a faded afterimage replays it on the very same track and
   gives chase once you open a lead. Same seed, same physics, same
@@ -85,9 +87,9 @@ the route is `/projects/kitty-run`. Shell-side additions: the
 - **Adaptive soundtrack** — the music engine is a plain class driven from
   the game loop: one `update(world, muted)` per frame eases the bed gain
   and the smoothed layer levels, and schedules any notes inside a 140 ms
-  lookahead window. Tempo, layer crossfades, the motif gate and the
-  sparkle line are pure functions of live world state, so the score
-  follows the run rather than a timeline.
+  lookahead window. Tempo, layer crossfades, the motif gate, the dotted-
+  eighth delay time and the sidechain pump are pure functions of live
+  world state, so the score follows the run rather than a timeline.
 - **Race your best-run echo** — a finished run is stored as its seed plus
   the timed input list; the next runs reuse that seed, so a soft, faded
   afterimage of Kitty replays your finest hour on the very same track.
