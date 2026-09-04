@@ -19,3 +19,5 @@
 {"type":"edge.added","id":"e9","ts":"2026-09-04T21:40:26.105Z","from":"n9","to":"n10","rel":"continues"}
 {"type":"node.added","id":"n11","ts":"2026-09-04T21:55:21.866Z","kind":"iteration","actor":"user","title":"fix(planck-to-now): mobile HUD clears the shader-drawn frame","artifacts":[{"kind":"git-commit","ref":"6c48d72"}],"meta":{"source":"auto"}}
 {"type":"edge.added","id":"e10","ts":"2026-09-04T21:55:21.871Z","from":"n10","to":"n11","rel":"continues"}
+{"type":"node.added","id":"n12","ts":"2026-09-04T22:15:25.264Z","kind":"iteration","actor":"user","title":"feat(planck-to-now): uHot-driven plasma palette + seed-varied star colors","artifacts":[{"kind":"git-commit","ref":"731455b"}],"meta":{"source":"auto"}}
+{"type":"edge.added","id":"e11","ts":"2026-09-04T22:15:25.268Z","from":"n11","to":"n12","rel":"continues"}

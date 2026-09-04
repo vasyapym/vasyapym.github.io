@@ -4,6 +4,7 @@ export interface CmbUniforms {
   uTime: THREE.IUniform<number>;
   uOpacity: THREE.IUniform<number>;
   uCool: THREE.IUniform<number>;
+  uHot: THREE.IUniform<THREE.Color>;
 }
 
 const VERT = /* glsl */ `
@@ -14,10 +15,13 @@ void main() {
 }
 `;
 
+// Sky tinted by the blackbody temperature (uHot); the anisotropy mottle
+// drifts while the universe is hot and freezes as it cools (uCool -> 1).
 const FRAG = /* glsl */ `
 uniform float uTime;
 uniform float uOpacity;
 uniform float uCool;
+uniform vec3 uHot;
 varying vec3 vDir;
 
 float hash(vec3 p) {
@@ -50,11 +54,11 @@ float fbm(vec3 p) {
 }
 
 void main() {
-  float n = fbm(vDir * 3.4 + vec3(uTime * 0.006));
+  float n = fbm(vDir * 3.4 + vec3(uTime * 0.006 * (1.0 - 0.92 * uCool)));
   n = n * n * 1.35;
-  vec3 warm = vec3(1.0, 0.52, 0.16);
+  vec3 hot = mix(vec3(1.0), uHot, 0.35);
   vec3 cold = vec3(0.14, 0.028, 0.011);
-  vec3 col = mix(warm, cold, uCool);
+  vec3 col = mix(hot, cold, uCool);
   float bright = 0.55 * (0.35 + 0.65 * n);
   gl_FragColor = vec4(col * bright * uOpacity, uOpacity * 0.85);
 }
@@ -65,6 +69,7 @@ export function createCmbShell(): { mesh: THREE.Mesh; uniforms: CmbUniforms } {
     uTime: { value: 0 },
     uOpacity: { value: 0 },
     uCool: { value: 0 },
+    uHot: { value: new THREE.Color(1, 1, 1) },
   };
   const material = new THREE.ShaderMaterial({
     vertexShader: VERT,
@@ -89,16 +94,17 @@ export function createCoreGlow(): { sprite: THREE.Sprite; material: THREE.Sprite
   if (ctx) {
     // Exponential-ish falloff reaching zero by ~0.78 of the half-size, so the
     // sprite quad has no bright edge for bloom to smear into a square.
+    // Neutral white ramp; tinted at runtime via material.color (driven by the orchestrator).
     const c = size / 2;
     const grad = ctx.createRadialGradient(c, c, 0, c, c, c);
-    grad.addColorStop(0.00, "rgba(255, 250, 242, 1.00)");
-    grad.addColorStop(0.10, "rgba(255, 240, 214, 0.72)");
-    grad.addColorStop(0.22, "rgba(255, 214, 158, 0.45)");
-    grad.addColorStop(0.36, "rgba(255, 180, 110, 0.26)");
-    grad.addColorStop(0.50, "rgba(255, 150, 78, 0.14)");
-    grad.addColorStop(0.64, "rgba(240, 120, 52, 0.06)");
-    grad.addColorStop(0.78, "rgba(220, 100, 40, 0.00)");
-    grad.addColorStop(1.00, "rgba(220, 100, 40, 0.00)");
+    grad.addColorStop(0.00, "rgba(255, 255, 255, 1.00)");
+    grad.addColorStop(0.10, "rgba(255, 255, 255, 0.72)");
+    grad.addColorStop(0.22, "rgba(255, 255, 255, 0.45)");
+    grad.addColorStop(0.36, "rgba(255, 255, 255, 0.26)");
+    grad.addColorStop(0.50, "rgba(255, 255, 255, 0.14)");
+    grad.addColorStop(0.64, "rgba(255, 255, 255, 0.06)");
+    grad.addColorStop(0.78, "rgba(255, 255, 255, 0.00)");
+    grad.addColorStop(1.00, "rgba(255, 255, 255, 0.00)");
     ctx.fillStyle = grad;
     ctx.fillRect(0, 0, size, size);
   }
