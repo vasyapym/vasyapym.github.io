@@ -85,6 +85,9 @@ const readHud = (page) =>
       shards: aloftM ? Number.parseInt(aloftM[2], 10) : -1,
       sim: (/sim ([a-z]+)/.exec(text) ?? [])[1] ?? "",
       blooms: num(/blooms (\d+)/),
+      splats: num(/splats (\d+)/),
+      blasts: num(/blasts (\d+)/),
+      grid: num(/grid (\d+)/),
     };
   });
 
@@ -116,7 +119,20 @@ async function loadViewport(width, height, label, { mobile = false } = {}) {
     if (msg.type() === "error") errors.push(`console.error: ${msg.text()}`);
   });
   await page.goto(`${BASE}/projects/explosion`, { waitUntil: "networkidle0", timeout: 45000 });
+  // Fresh-profile semantics: earlier viewports leak localStorage into this one,
+  // so clear it and reload before the first-visit assertions.
+  await page.evaluate(() => { try { window.localStorage.clear(); } catch {} });
+  await page.goto(`${BASE}/projects/explosion`, { waitUntil: "networkidle0", timeout: 45000 });
   await wait(1500);
+
+  // First visit: the mode selector, not a canvas. Two cards, then enter lantern.
+  const cards = await page.$$(".explosion-mode-card");
+  check(cards.length === 2, `${label}: first visit shows two mode cards (${cards.length})`);
+  const noCanvasYet = !(await page.$("#explosion-stage canvas"));
+  check(noCanvasYet, `${label}: no stage canvas while the selector is up`);
+  await page.click('.explosion-mode-card[data-mode-id="lantern"]');
+  await wait(900);
+
   // The shell sets scroll-behavior: smooth — force instant scrolling so stage
   // rect reads are never stale.
   await page.evaluate(() => {
@@ -234,6 +250,78 @@ async function loadViewport(width, height, label, { mobile = false } = {}) {
   const soundAfter = await page.$eval(".explosion-btn-sound", (el) => el.getAttribute("aria-pressed"));
   check(soundBefore !== soundAfter, `${label}: sound toggle flips (${soundBefore} -> ${soundAfter})`);
   await page.click(".explosion-btn-sound");
+
+  // ---- second mode: runtime switch to the ink shockwave, no reload -----------
+  await page.evaluate(() => { window.__explosionProbe = "keep-me"; });
+  await page.click(".explosion-btn-mode");
+  await wait(400);
+  const selectorBack = await page.$('.explosion-mode-card[data-mode-id="ink"]');
+  check(!!selectorBack, `${label}: switch-mode returns to the selector`);
+  await page.click('.explosion-mode-card[data-mode-id="ink"]');
+  const stageBox2 = await page.evaluate(() => {
+    const rect = document.querySelector("#explosion-stage").getBoundingClientRect();
+    return { x: rect.left, y: rect.top, width: rect.width, height: rect.height };
+  });
+  // The auto-detonation fires ~0.9s after mount (wall-clock countdown).
+  let inkHud = null;
+  for (let i = 0; i < 12; i += 1) {
+    await wait(500);
+    inkHud = await readHud(page);
+    if (inkHud.blasts >= 1) break;
+  }
+  check(inkHud?.blasts >= 1, `${label}: ink auto-detonation fires (${inkHud?.blasts})`);
+  check(inkHud?.grid >= 64, `${label}: ink sim grid reported (${inkHud?.grid})`);
+  check(inkHud?.fps >= 5, `${label}: ink loop is live (fps ${inkHud?.fps})`);
+  const inkField = await page.$eval(".explosion-field", (el) => el.getAttribute("data-mode"));
+  check(inkField === "ink", `${label}: data-mode flips to ink (${inkField})`);
+  const probe = await page.evaluate(() => window.__explosionProbe);
+  check(probe === "keep-me", `${label}: mode switch kept the page alive (probe ${String(probe)})`);
+
+  // The pointer stirs (desktop only): sweep the stage, splats must grow.
+  if (!mobile) {
+    const splatsBefore = inkHud.splats;
+    await page.mouse.move(stageBox2.x + stageBox2.width * 0.3, stageBox2.y + stageBox2.height * 0.5);
+    for (let i = 1; i <= 6; i += 1) {
+      await page.mouse.move(stageBox2.x + stageBox2.width * (0.3 + 0.08 * i), stageBox2.y + stageBox2.height * 0.5, { steps: 4 });
+    }
+    await wait(700);
+    const splatsAfter = (await readHud(page)).splats;
+    check(splatsAfter > splatsBefore, `${label}: pointer stirs the ink (${splatsBefore} -> ${splatsAfter} splats)`);
+  }
+
+  // A click detonates: blasts increments again.
+  const blastsBefore = (await readHud(page)).blasts;
+  await press(
+    page,
+    stageBox2.x + stageBox2.width / 2,
+    stageBox2.y + stageBox2.height / 2,
+  );
+  let blastsAfter = blastsBefore;
+  for (let i = 0; i < 8 && blastsAfter === blastsBefore; i += 1) {
+    await wait(320);
+    blastsAfter = (await readHud(page)).blasts;
+  }
+  check(blastsAfter > blastsBefore, `${label}: ink click detonates (${blastsBefore} -> ${blastsAfter})`);
+  await shot(`${label}-4-ink`);
+
+  // localStorage remembers ink across a reload; the intro refires on the new mount.
+  await page.reload({ waitUntil: "networkidle0" });
+  let restoredBlasts = -1;
+  for (let i = 0; i < 12; i += 1) {
+    await wait(500);
+    restoredBlasts = (await readHud(page)).blasts;
+    if (restoredBlasts >= 1) break;
+  }
+  const restoredMode = await page.$eval(".explosion-field", (el) => el.getAttribute("data-mode"));
+  const restoredAloft = (await readHud(page)).aloft;
+  check(restoredMode === "ink" && restoredAloft === -1 && restoredBlasts >= 1,
+    `${label}: ink remembered across reload (${restoredMode}, aloft ${restoredAloft}, blasts ${restoredBlasts})`);
+
+  // ?mode= deep link overrides the remembered mode.
+  await page.goto(`${BASE}/projects/explosion?mode=lantern`, { waitUntil: "networkidle0" });
+  await wait(1500);
+  const deepMode = await page.$eval(".explosion-field", (el) => el.getAttribute("data-mode"));
+  check(deepMode === "lantern", `${label}: ?mode=lantern deep link wins (${deepMode})`);
 
   // Horizontal overflow guard.
   const overflow = await page.evaluate(

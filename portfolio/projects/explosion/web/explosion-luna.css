@@ -259,6 +259,67 @@
   color: var(--ink-muted);
 }
 
+/* ---- mode selector (first visit + "switch mode") -------------------------- */
+
+.explosion-modes {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 14px;
+}
+
+.explosion-mode-card {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 8px;
+  min-height: 40px;
+  padding: 20px 18px;
+  border: 1px solid var(--panel-line);
+  border-radius: 10px;
+  font-family: var(--mono);
+  text-align: left;
+  color: var(--ink-text);
+  background: rgba(238, 234, 224, 0.03);
+  cursor: pointer;
+  transition: border-color 0.18s ease, background 0.18s ease, color 0.18s ease;
+}
+
+.explosion-mode-card:hover {
+  border-color: var(--ink-accent, #d39b61);
+  background: rgba(211, 155, 97, 0.07);
+}
+
+.explosion-mode-card:focus-visible {
+  outline: 2px solid var(--ink-accent-bright, #e4a669);
+  outline-offset: 2px;
+}
+
+.explosion-mode-icon {
+  color: var(--ink-faint, rgba(238, 234, 224, 0.5));
+  transition: color 0.18s ease, transform 0.18s ease;
+}
+
+.explosion-mode-card:hover .explosion-mode-icon {
+  color: var(--ink-accent-bright, #e4a669);
+  transform: scale(1.06);
+}
+
+.explosion-mode-name {
+  font-size: 0.95rem;
+  letter-spacing: 0.02em;
+  text-transform: lowercase;
+}
+
+.explosion-mode-card:hover .explosion-mode-name {
+  color: var(--ink-accent-bright, #e4a669);
+}
+
+.explosion-mode-tagline {
+  font-size: 0.74rem;
+  line-height: 1.5;
+  color: var(--ink-muted);
+}
+
 /* ---- mobile 390×844 portrait: ≥40px controls, wrap, no overflow ----------- */
 
 @media (max-width: 640px) {
@@ -292,6 +353,14 @@
     flex: 1 1 auto;
     min-height: 44px;
     min-width: 88px;
+  }
+
+  .explosion-modes {
+    grid-template-columns: 1fr;
+  }
+
+  .explosion-mode-card {
+    padding: 16px 14px;
   }
 
   .explosion-techniques {

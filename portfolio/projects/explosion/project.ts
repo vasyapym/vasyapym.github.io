@@ -6,8 +6,8 @@ const explosionLuna: ProjectModule = {
   tag: "physics",
   eyebrow: "interactive · three.js",
   description:
-    "a paper-lantern moon that detonates into the 600 shards it is built from — physics runs in fragment shaders on the gpu, not the cpu. click to blast, click to restore.",
-  technologies: ["React 19", "three.js", "GPGPU", "Rust", "WebAudio"],
+    "two experiments in one dark room: a paper-lantern moon that detonates into the 600 shards it is built from — physics runs in fragment shaders on the gpu — and a pool of living ink you shock into vortices with a navier–stokes solver. click to blast; click to restore.",
+  technologies: ["React 19", "three.js", "GPGPU", "Navier–Stokes", "Rust", "WebAudio"],
   status: "available",
   accent: "red",
   presentation: {
@@ -17,7 +17,7 @@ const explosionLuna: ProjectModule = {
     centerMark: "blast",
     note: "paper moon, mid-blast",
     motionLabel: "the lantern breaks",
-    instruction: "open the ember lantern and click the paper moon to shatter it",
+    instruction: "open a mode — the ember lantern or the ink pool — and detonate it",
     parts: [],
   },
   loadPage: () => import("./web/ExplosionLunaPage"),
