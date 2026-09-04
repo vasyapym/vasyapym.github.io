@@ -216,7 +216,9 @@ export function stepWorld(world: WorldState, rawDt: number): void {
   if (k.y <= gy) {
     if (!k.grounded) {
       k.squash = Math.min(0.6, k.squash + 0.34 + clamp(-k.vy * 0.012, 0, 0.2));
-      world.events.push({ type: "land" });
+      // Normalised fall speed at touchdown: a full jump fall reads as 1.
+      const impact = Math.min(1, Math.max(0, -k.vy / TUNING.jumpV));
+      world.events.push({ type: "land", impact });
     }
     k.y = gy;
     k.vy = 0;

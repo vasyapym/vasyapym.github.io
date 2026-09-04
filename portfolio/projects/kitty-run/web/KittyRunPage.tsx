@@ -21,6 +21,35 @@ import { buzz } from "./lib/haptics.ts";
 import { Soundtrack } from "./lib/music.ts";
 import "./kitty-run.css";
 
+// The three loudness sliders (master / SFX / music), persisted so a visit
+// keeps its mix. Defaults mirror the Sfx engine's own bus levels, so the
+// first apply is a no-op and the sound never jumps.
+type AudioLevels = { master: number; sfx: number; music: number };
+
+const AUDIO_KEY = "kitty-run/audio/v1";
+
+const DEFAULT_LEVELS: AudioLevels = { master: 0.42, sfx: 0.9, music: 0.85 };
+
+function loadAudioLevels(): AudioLevels {
+  try {
+    const raw = window.localStorage.getItem(AUDIO_KEY);
+    if (!raw) return { ...DEFAULT_LEVELS };
+    const parsed = JSON.parse(raw) as Partial<AudioLevels>;
+    const clamp = (v: unknown, fallback: number) =>
+      typeof v === "number" && Number.isFinite(v)
+        ? Math.min(1, Math.max(0, v))
+        : fallback;
+    return {
+      master: clamp(parsed.master, DEFAULT_LEVELS.master),
+      sfx: clamp(parsed.sfx, DEFAULT_LEVELS.sfx),
+      music: clamp(parsed.music, DEFAULT_LEVELS.music),
+    };
+  } catch {
+    // Corrupt entry or unavailable storage: the defaults still play.
+    return { ...DEFAULT_LEVELS };
+  }
+}
+
 export default function KittyRunPage() {
   const world = useMemo(() => createWorld(readBestScore(window.localStorage)), []);
   const reducedMotion = useReducedMotion();
@@ -28,6 +57,9 @@ export default function KittyRunPage() {
   const [status, setStatus] = useState<GameStatus>(world.status);
   const [best, setBest] = useState(world.best);
   const [muted, setMuted] = useState(false);
+  // Audio mixer state: the three sliders plus whether the popover is open.
+  const [audio, setAudio] = useState<AudioLevels>(loadAudioLevels);
+  const [mixOpen, setMixOpen] = useState(false);
   // The stored best run: seed plus inputs. When present, new runs reuse
   // its seed so the echo races you over the very track it ran.
   const [replay, setReplay] = useState<StoredReplay | null>(() =>
@@ -108,10 +140,46 @@ export default function KittyRunPage() {
     if (!sfxRef.current) sfxRef.current = new Sfx();
     const sfx = sfxRef.current;
     sfx.start();
-    if (!trackRef.current && sfx.context && sfx.output) {
-      trackRef.current = new Soundtrack(sfx.context, sfx.output);
+    // The sliders own the mix: re-apply the persisted levels on every wake
+    // so a freshly-built graph comes up at the visitor's settings, and a
+    // resumed context re-learns them after a background suspension.
+    sfx.setMaster(audio.master);
+    sfx.setSfx(audio.sfx);
+    sfx.setMusic(audio.music);
+    if (!trackRef.current && sfx.context && sfx.musicOutput) {
+      trackRef.current = new Soundtrack(sfx.context, sfx.musicOutput);
     }
     return sfx;
+  }, [muted, audio]);
+
+  // Slider drag: clamp, persist, and glide the live bus (a no-op before the
+  // first gesture — the stored value is applied when the graph is built).
+  const changeAudio = useCallback((key: keyof AudioLevels, value: number) => {
+    const v = Math.min(1, Math.max(0, value));
+    setAudio((prev) => {
+      const next = { ...prev, [key]: v };
+      try {
+        window.localStorage.setItem(AUDIO_KEY, JSON.stringify(next));
+      } catch {
+        // Private mode or full storage: the sliders still work this visit.
+      }
+      return next;
+    });
+    const sfx = sfxRef.current;
+    if (sfx) {
+      if (key === "master") sfx.setMaster(v);
+      else if (key === "sfx") sfx.setSfx(v);
+      else sfx.setMusic(v);
+    }
+  }, []);
+
+  // UI sounds stay polite: silent while muted, cheap no-ops before the
+  // first gesture builds the context.
+  const uiClick = useCallback(() => {
+    if (!muted) sfxRef.current?.uiClick();
+  }, [muted]);
+  const uiHover = useCallback(() => {
+    if (!muted) sfxRef.current?.uiHover();
   }, [muted]);
 
   const handleStatus = useCallback(
@@ -130,6 +198,7 @@ export default function KittyRunPage() {
   const beginRun = useCallback(
     (bot: boolean) => {
       ensureSfx();
+      uiClick();
       world.autopilot = bot;
       setAutoPilot(bot);
       setAutoRan(bot);
@@ -137,9 +206,11 @@ export default function KittyRunPage() {
       if (replay) world.runSeed = replay.seed;
       setRaceTarget(replay);
       startRun(world);
+      // A small "go" flourish under the very first steps of the run.
+      if (!muted) sfxRef.current?.runStart();
       setRunNonce((n) => n + 1);
     },
-    [ensureSfx, world, replay],
+    [ensureSfx, uiClick, world, replay, muted],
   );
 
   const handleStart = useCallback(() => beginRun(false), [beginRun]);
@@ -153,16 +224,18 @@ export default function KittyRunPage() {
 
   const handleRestart = useCallback(() => {
     ensureSfx();
+    uiClick();
     // Another run hands control back to the visitor — the bot only drives
     // when explicitly invited.
     world.autopilot = false;
     setAutoPilot(false);
     setAutoRan(false);
     restartRun(world);
+    if (!muted) sfxRef.current?.runStart();
     if (replay) world.runSeed = replay.seed;
     setRaceTarget(replay);
     setRunNonce((n) => n + 1);
-  }, [ensureSfx, world, replay]);
+  }, [ensureSfx, uiClick, world, replay, muted]);
 
   // --- keyboard ---------------------------------------------------------------
 
@@ -327,7 +400,11 @@ export default function KittyRunPage() {
               className="kitty-run-pause"
               aria-label="Pause the run"
               onPointerDown={(event) => event.stopPropagation()}
-              onClick={() => togglePause(world)}
+              onMouseEnter={uiHover}
+              onClick={() => {
+                uiClick();
+                togglePause(world);
+              }}
             />
           )}
         </div>
@@ -375,6 +452,7 @@ export default function KittyRunPage() {
             <button
               type="button"
               className="kitty-run-card kitty-run-card--ready"
+              onMouseEnter={uiHover}
               onClick={handleStart}
             >
               <span className="kitty-run-card-kicker">ready</span>
@@ -388,7 +466,12 @@ export default function KittyRunPage() {
               </span>
               <span className="kitty-run-card-action">start</span>
             </button>
-            <button type="button" className="kitty-run-watch" onClick={handleWatch}>
+            <button
+              type="button"
+              className="kitty-run-watch"
+              onMouseEnter={uiHover}
+              onClick={handleWatch}
+            >
               <span className="kitty-run-watch-title">or watch it play itself</span>
               <span className="kitty-run-watch-hint">
                 autopilot · the lookahead bot that verifies every track
@@ -400,7 +483,15 @@ export default function KittyRunPage() {
 
       {status === "paused" && (
         <div className="kitty-run-overlay">
-          <button type="button" className="kitty-run-card" onClick={() => togglePause(world)}>
+          <button
+            type="button"
+            className="kitty-run-card"
+            onMouseEnter={uiHover}
+            onClick={() => {
+              uiClick();
+              togglePause(world);
+            }}
+          >
             <span className="kitty-run-card-kicker">paused</span>
             <span className="kitty-run-card-hint">p or esc resumes · r restarts</span>
             <span className="kitty-run-card-action">resume</span>
@@ -410,7 +501,12 @@ export default function KittyRunPage() {
 
       {status === "over" && (
         <div className="kitty-run-overlay">
-          <button type="button" className="kitty-run-card" onClick={handleRestart}>
+          <button
+            type="button"
+            className="kitty-run-card"
+            onMouseEnter={uiHover}
+            onClick={handleRestart}
+          >
             <span className="kitty-run-card-kicker">run over</span>
             {world.newBest && world.score > 0 && (
               <span className="kitty-run-card-badge">new best!</span>
@@ -452,17 +548,57 @@ export default function KittyRunPage() {
       <article className="kitty-run-page">
         <header className="kitty-run-intro section-shell">
           <h1 className="kitty-run-title">Cat Runner</h1>
-          <button
-            type="button"
-            className="kitty-run-mute"
-            onClick={() => {
-              const next = !muted;
-              setMuted(next);
-              if (!next) ensureSfx();
-            }}
-          >
-            {muted ? "sound off" : "sound on"}
-          </button>
+          <div className="kitty-run-audio">
+            <button
+              type="button"
+              className="kitty-run-mute"
+              onMouseEnter={uiHover}
+              onClick={() => {
+                const next = !muted;
+                // Confirm with a blip on the way out (while audio still
+                // lives) or on the way back in (after the context wakes).
+                if (next) uiClick();
+                setMuted(next);
+                if (!next) {
+                  ensureSfx();
+                  uiClick();
+                }
+              }}
+            >
+              {muted ? "sound off" : "sound on"}
+            </button>
+            <button
+              type="button"
+              className="kitty-run-mix"
+              aria-expanded={mixOpen}
+              aria-label="Audio mixer: master, effects and music sliders"
+              onMouseEnter={uiHover}
+              onClick={() => {
+                uiClick();
+                setMixOpen((open) => !open);
+              }}
+            >
+              mix
+            </button>
+            {mixOpen && (
+              <div className="kitty-run-mixpanel">
+                {(["master", "sfx", "music"] as const).map((key) => (
+                  <label key={key} className="kitty-run-mixrow">
+                    <span>{key}</span>
+                    <input
+                      type="range"
+                      min={0}
+                      max={100}
+                      value={Math.round(audio[key] * 100)}
+                      onChange={(event) =>
+                        changeAudio(key, Number(event.target.value) / 100)
+                      }
+                    />
+                  </label>
+                ))}
+              </div>
+            )}
+          </div>
         </header>
         <section
           className="kitty-run-stage"

@@ -51,7 +51,9 @@ export type Floater = {
 export type GameEvent =
   | { type: "jump" }
   | { type: "doubleJump" }
-  | { type: "land" }
+  // Landing carries the fall speed as impact 0..1 (0 soft touch, 1 full
+  // jump fall) so the landing sound can carry the landing's weight.
+  | { type: "land"; impact: number }
   | { type: "dash" }
   | { type: "hit" }
   | { type: "gameover" }

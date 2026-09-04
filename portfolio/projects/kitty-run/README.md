@@ -17,10 +17,12 @@ Three features carry the engineering story:
   crawls.
 - **Adaptive soundtrack** — no audio files. A Web Audio lookahead
   scheduler sequences a C–Am–F–G chiptune bed whose tempo follows the
-  run speed (96→132 bpm); arp, hats and kick gate in as speed and combo
-  build, a combo ≥ 8 adds a sparkle line, hits duck the bed, and
-  pause/mute fade it to silence. It shares one AudioContext and master
-  bus with the sound effects.
+  run speed (96→132 bpm); kick, arp, hats and a recurring kitty motif
+  crossfade in as speed and combo build (no hard gates — layers bloom in
+  over about a second), a combo ≥ 8 adds a ping-ponging sparkle line,
+  hits and milestones duck the bed, and pause/mute fade it to silence.
+  The mix fans through three buses — master / SFX / music — each with its
+  own persisted slider next to the mute button.
 - **Race your best-run echo** — a finished run is stored as seed plus
   timed inputs; a faded afterimage replays it on the very same track and
   gives chase once you open a lead. Same seed, same physics, same
@@ -82,9 +84,10 @@ the route is `/projects/kitty-run`. Shell-side additions: the
   back up well inside the dash cooldown).
 - **Adaptive soundtrack** — the music engine is a plain class driven from
   the game loop: one `update(world, muted)` per frame eases the bed gain
-  and schedules any notes inside a 140 ms lookahead window. Tempo, layer
-  gates and the sparkle line are pure functions of live world state, so
-  the score follows the run rather than a timeline.
+  and the smoothed layer levels, and schedules any notes inside a 140 ms
+  lookahead window. Tempo, layer crossfades, the motif gate and the
+  sparkle line are pure functions of live world state, so the score
+  follows the run rather than a timeline.
 - **Race your best-run echo** — a finished run is stored as its seed plus
   the timed input list; the next runs reuse that seed, so a soft, faded
   afterimage of Kitty replays your finest hour on the very same track.
@@ -170,7 +173,10 @@ the route is `/projects/kitty-run`. Shell-side additions: the
   placement all sample the same `groundY(x)` from `web/lib/ground.ts`.
 - **Feel** — squash-and-stretch springs, coyote time, variable jump height,
   hit-stop, trauma-based screen shake, dash FOV kick, bullet-time dilation,
-  combo-pitched pickup chimes and an adaptive procedural soundtrack (all
+  combo-pitched pickup chimes, weight-aware landing thumps (fall speed
+  sets the impact), alternating-paw footstep taps that quicken with speed,
+  a run-start flourish, UI click/hover blips, and an adaptive procedural
+  soundtrack with a recurring motif and a subtle stereo field (all
   WebAudio synthesis, no audio files). `prefers-reduced-motion` disables
   shake, hit-stop, most particles and the bullet-time lens/vignette (the
   slow-mo itself stays — it is gameplay information).

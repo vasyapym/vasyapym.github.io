@@ -73,7 +73,7 @@ function handleEvents(
         sparkBurst(world, 0, k.y + 0.4, reducedMotion ? 4 : 8, HEART_RGB, 2.2);
         break;
       case "land":
-        sfx?.land();
+        sfx?.land(event.impact);
         dustPuff(world, 0, k.y, reducedMotion ? 2 : 5);
         break;
       case "dash":
@@ -81,6 +81,9 @@ function handleEvents(
         break;
       case "milestone": {
         sfx?.milestone();
+        // A celebration deserves a cleared stage: the bed ducks while the
+        // fanfare rings, exactly as it flinches on a hit.
+        track?.duck();
         if (!reducedMotion) buzz([14, 42, 14]);
         sparkBurst(world, 0, k.y + 1.3, reducedMotion ? 6 : 16, HEART_RGB, 4);
         sparkBurst(world, 0, k.y + 1.1, reducedMotion ? 4 : 10, STAR_RGB, 2.8);
@@ -226,6 +229,7 @@ export function GameLoop({
 }) {
   const prevStatus = useRef<GameStatus>(world.status);
   const dustTimer = useRef(0);
+  const trotTimer = useRef(0);
   const feedCursor = useRef(0);
   const prevEchoStatus = useRef<GameStatus>("running");
   // The launch gate: the echo stays in the wings until the player opens
@@ -326,6 +330,18 @@ export function GameLoop({
     ) {
       dustTimer.current = 0.14;
       dustPuff(world, 0, world.kitty.y, 1);
+    }
+
+    // Footstep taps ride their own cadence (audio is not reduced away with
+    // the motion), quickening with speed, alternating stereo paws.
+    trotTimer.current -= sdt;
+    if (world.status === "running" && world.kitty.grounded && trotTimer.current <= 0) {
+      const speedNorm = Math.min(
+        1,
+        Math.max(0, (world.speed - TUNING.speedStart) / (TUNING.speedMax - TUNING.speedStart)),
+      );
+      trotTimer.current = 0.15 - 0.06 * speedNorm;
+      if (!muted) sfxRef.current?.trot(speedNorm);
     }
 
     handleEvents(world, muted ? null : sfxRef.current, muted ? null : trackRef?.current ?? null, reducedMotion, hud);
