@@ -129,6 +129,13 @@ export function ForestCanvas({
               ref={controlsRef}
               onLock={onLock}
               onUnlock={onUnlock}
+              /* Click-to-lock must NOT sit on `document`: it would turn any
+                 click in the rest menu — the dusk dial included — into an
+                 instant pointer-lock and launch the forest before the visitor
+                 chose to enter. Scope it to the canvas host, which the menu
+                 overlay covers, so the enter button stays the only way in
+                 (the same explicit confirm touch devices already have). */
+              selector=".evening-forest-canvas-host"
             />
           )}
           <RetroEffects bloomIntensity={quality.bloom} />
