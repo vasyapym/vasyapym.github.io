@@ -17,3 +17,5 @@
 {"type":"edge.added","id":"e8","ts":"2026-09-02T18:09:20.586Z","from":"n8","to":"n9","rel":"continues"}
 {"type":"node.added","id":"n10","ts":"2026-09-04T21:40:26.103Z","kind":"iteration","actor":"user","title":"feat(planck-to-now): LCDM physics upgrade + diegetic frame-break grade pass","artifacts":[{"kind":"git-commit","ref":"873b898"}],"meta":{"source":"auto"}}
 {"type":"edge.added","id":"e9","ts":"2026-09-04T21:40:26.105Z","from":"n9","to":"n10","rel":"continues"}
+{"type":"node.added","id":"n11","ts":"2026-09-04T21:55:21.866Z","kind":"iteration","actor":"user","title":"fix(planck-to-now): mobile HUD clears the shader-drawn frame","artifacts":[{"kind":"git-commit","ref":"6c48d72"}],"meta":{"source":"auto"}}
+{"type":"edge.added","id":"e10","ts":"2026-09-04T21:55:21.871Z","from":"n10","to":"n11","rel":"continues"}
