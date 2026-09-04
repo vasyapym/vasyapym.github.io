@@ -162,6 +162,20 @@
       "message": "The tonal-audio closing commit carries the code-iteration audio session's (n30) uncommitted audio-story files: web/lib/audio-env.ts (the bridge, required import of both new modules), web/lib/ambience.ts (mounts createNatureBed beside the score) and web/scene/FirstPersonRig.tsx (per-frame audioEnv writer) — all needed for the pushed tree to build and for the rewrite to be live, and all verified by this session's gates (tsc, vite build, forest.check, music-probe 29 oscs/running/no errors). It also carries the shared evening-forest .project-history/graph.jsonl appends (n30-n33: the two prior pass records, the owner's Proteus pivot decision, and this session's integration node n33). NOT carried: the visual pass's files (Trees/ForestCanvas/DaylightDriver/clock/daylight/ForestProps), forest.check.ts and README.md (both mixed with visual-pass changes whose daylight.ts dependencies would be absent from the pushed tree — forest.check at HEAD stays intact and green), the untracked BRIEF files, and planck-to-now's staged graph change left staged. Action for owner: none.",
       "ackBy": null,
       "ackAt": null
+    },
+    {
+      "id": "sweep-report-fb6f415-graph-jsonl-carry",
+      "ts": "2026-09-04T22:32:51Z",
+      "kind": "sweep-report",
+      "agent": "opencode (opencode, planck-to-now backdrop uHot pass)",
+      "commit": "fb6f415",
+      "files": [
+        "portfolio/projects/evening-forest/.project-history/graph.jsonl",
+        "portfolio/projects/planck-to-now/.project-history/graph.jsonl"
+      ],
+      "message": "Backdrop pass staged only src/backdrop.ts by name, but the project-graph auto-record hook had pre-staged graph.jsonl appends from the previous commits (c0c9154 evening-forest auto-node, 731455b planck-to-now auto-node), which shipped with fb6f415 as designed (one-commit lag). Only hook-generated history lines carried; no work files from other agents. Action for owner: none.",
+      "ackBy": null,
+      "ackAt": null
     }
   ]
 }

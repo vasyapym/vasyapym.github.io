@@ -21,3 +21,5 @@
 {"type":"edge.added","id":"e10","ts":"2026-09-04T21:55:21.871Z","from":"n10","to":"n11","rel":"continues"}
 {"type":"node.added","id":"n12","ts":"2026-09-04T22:15:25.264Z","kind":"iteration","actor":"user","title":"feat(planck-to-now): uHot-driven plasma palette + seed-varied star colors","artifacts":[{"kind":"git-commit","ref":"731455b"}],"meta":{"source":"auto"}}
 {"type":"edge.added","id":"e11","ts":"2026-09-04T22:15:25.268Z","from":"n11","to":"n12","rel":"continues"}
+{"type":"node.added","id":"n13","ts":"2026-09-04T22:32:23.553Z","kind":"iteration","actor":"user","title":"feat(planck-to-now): blackbody-tinted CMB sky + neutral white core-glow sprite","artifacts":[{"kind":"git-commit","ref":"fb6f415"}],"meta":{"source":"auto"}}
+{"type":"edge.added","id":"e12","ts":"2026-09-04T22:32:23.556Z","from":"n12","to":"n13","rel":"continues"}
