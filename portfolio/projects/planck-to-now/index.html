@@ -69,11 +69,15 @@
     #title { display: none; }
     #hints { display: none; }
     #stats { display: none; }
-    /* the epoch text floats free of its box: same words, far less visual weight */
-    #panel { top: 14px; left: 14px; max-width: 320px; padding: 0;
+    /* the epoch text floats free of its box: same words, far less visual weight.
+       30px insets clear the shader-drawn frame (14px line) with breathing room. */
+    #panel { top: 30px; left: 30px; max-width: calc(100vw - 60px); padding: 0;
       border: none; background: transparent; backdrop-filter: none; -webkit-backdrop-filter: none; }
     #epoch { font-size: 13px; margin: 0 0 4px 0; }
     #epochdesc { font-size: 10.5px; line-height: 1.45; margin: 0; }
+    /* centered at top it collides with the epoch text — drop it to a toast
+       slot above the touch hint (timeline 64px, touchhint 104px) instead */
+    #paused { top: auto; bottom: 140px; }
   }
 
   #title { top: 26px; right: 30px; font-size: 11px; letter-spacing: .05em; color: var(--faint); }
