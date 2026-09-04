@@ -4,6 +4,8 @@ import { EffectComposer } from "three/examples/jsm/postprocessing/EffectComposer
 import { RenderPass } from "three/examples/jsm/postprocessing/RenderPass.js";
 import { UnrealBloomPass } from "three/examples/jsm/postprocessing/UnrealBloomPass.js";
 import { OutputPass } from "three/examples/jsm/postprocessing/OutputPass.js";
+import { createGradePass } from "./grade";
+import type { GradeUniforms } from "./grade";
 
 import {
   LOG_END,
@@ -39,6 +41,16 @@ function showError(msg: string): void {
 function fail(msg: string): never {
   showError(msg);
   throw new Error(msg);
+}
+
+function sstep(e0: number, e1: number, x: number): number {
+  const t = Math.min(1, Math.max(0, (x - e0) / (e1 - e0)));
+  return t * t * (3 - 2 * t);
+}
+
+function gaussBump(x: number, center: number, width: number): number {
+  const d = (x - center) / width;
+  return Math.exp(-0.5 * d * d);
 }
 
 function createRenderer(): THREE.WebGLRenderer {
@@ -91,6 +103,8 @@ const sys: ParticleSystem | GpgpuParticles = gpgpuSys ?? createParticles(PARTICL
 const mode: string = gpgpuSys ? "gpgpu" : "static";
 const renderCount = gpgpuSys ? gpgpuSys.particleCount : PARTICLES;
 (window as unknown as { __p2n_mode?: string }).__p2n_mode = mode;
+(window as unknown as { __p2n_break?: () => number }).__p2n_break = () =>
+  sstep(RECOMBINATION, RECOMBINATION + 0.5, logt);
 
 scene.add(sys.points);
 
@@ -112,6 +126,9 @@ const bloom = new UnrealBloomPass(
 );
 composer.addPass(bloom);
 composer.addPass(new OutputPass());
+const grade = createGradePass();
+composer.addPass(grade.pass);
+grade.uniforms.uRes.value.set(window.innerWidth, window.innerHeight);
 
 const ui: UiRefs = grabUi();
 buildTicks(ui);
@@ -123,6 +140,7 @@ let logt = LOG_START;
 let playing = true;
 let dps = BASE_DPS;
 let flash = 0;
+let breakPulse = 0;
 let animTime = 0;
 let booted = false;
 
@@ -200,6 +218,7 @@ function onResize(): void {
   camera.updateProjectionMatrix();
   renderer.setSize(window.innerWidth, window.innerHeight);
   composer.setSize(window.innerWidth, window.innerHeight);
+  grade.uniforms.uRes.value.set(window.innerWidth, window.innerHeight);
   syncBufferHeight();
 }
 window.addEventListener("resize", onResize);
@@ -242,13 +261,29 @@ function frame(): void {
 
   if (playing && logt < LOG_END) {
     const next = Math.min(LOG_END, logt + dps * dt);
-    if (logt < RECOMBINATION && next >= RECOMBINATION) flash = 1;
+    if (logt < RECOMBINATION && next >= RECOMBINATION) { flash = 1; breakPulse = 1; }
+    if (next >= LOG_END && logt < LOG_END) breakPulse = 1;
     logt = next;
   }
   flash *= Math.exp(-5.5 * dt);
   if (flash < 0.004) flash = 0;
+  breakPulse *= Math.exp(-2.2 * dt);
+  if (breakPulse < 0.004) breakPulse = 0;
 
   const st = evaluateState(logt);
+
+  const brokenBase = sstep(RECOMBINATION, RECOMBINATION + 0.5, logt);
+  const strain = gaussBump(logt, -34, 1.1);
+  const gu: GradeUniforms = grade.uniforms;
+  gu.uTime.value = animTime;
+  gu.uFrame.value = Math.min(1, animTime / 1.2);
+  // reduced-motion keeps the scrub-consistent frame states but kills the
+  // live animation drives (jitter + burst push)
+  const motionScale = reduceMotion ? 0 : 1;
+  gu.uStrain.value = strain * motionScale;
+  gu.uBreak.value = brokenBase;
+  gu.uPulse.value = breakPulse * motionScale;
+  gu.uHeat.value = st.earlyBoost;
 
   gpgpuSys?.step(dt, st, animTime, poke);
 
