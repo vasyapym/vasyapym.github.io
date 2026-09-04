@@ -146,6 +146,22 @@
       "message": "The evening-forest three-task closing commit carries the parallel design-iteration session's unpushed staged graph records: its local n126/e121 (auto-record of commit 3743143 'Fix CI...') collided with ids origin/main had already assigned to different records (n126 = raft round-7 decision). To complete the mandated git pull --ff-only I preserved the content verbatim but renumbered the pair to n130/e125 (past origin's n129 head) and re-staged it. No other agent's files touched; CLAUDE.md left unstaged. Action for owner: none — the record is intact under a new id.",
       "ackBy": null,
       "ackAt": null
+    },
+    {
+      "id": "2026-09-05T00-00Z-sweep-report-evening-forest-tonal-audio-carries-n30-audio-wiring-and-graph",
+      "ts": "2026-09-05T00:00:00Z",
+      "kind": "sweep-report",
+      "agent": "opencode (tonal audio rewrite session: BRIEF-evening-forest-score-rewrite + BRIEF-evening-forest-nature-tonal integration)",
+      "commit": null,
+      "files": [
+        "portfolio/projects/evening-forest/.project-history/graph.jsonl",
+        "portfolio/projects/evening-forest/web/lib/audio-env.ts",
+        "portfolio/projects/evening-forest/web/lib/ambience.ts",
+        "portfolio/projects/evening-forest/web/scene/FirstPersonRig.tsx"
+      ],
+      "message": "The tonal-audio closing commit carries the code-iteration audio session's (n30) uncommitted audio-story files: web/lib/audio-env.ts (the bridge, required import of both new modules), web/lib/ambience.ts (mounts createNatureBed beside the score) and web/scene/FirstPersonRig.tsx (per-frame audioEnv writer) — all needed for the pushed tree to build and for the rewrite to be live, and all verified by this session's gates (tsc, vite build, forest.check, music-probe 29 oscs/running/no errors). It also carries the shared evening-forest .project-history/graph.jsonl appends (n30-n33: the two prior pass records, the owner's Proteus pivot decision, and this session's integration node n33). NOT carried: the visual pass's files (Trees/ForestCanvas/DaylightDriver/clock/daylight/ForestProps), forest.check.ts and README.md (both mixed with visual-pass changes whose daylight.ts dependencies would be absent from the pushed tree — forest.check at HEAD stays intact and green), the untracked BRIEF files, and planck-to-now's staged graph change left staged. Action for owner: none.",
+      "ackBy": null,
+      "ackAt": null
     }
   ]
 }

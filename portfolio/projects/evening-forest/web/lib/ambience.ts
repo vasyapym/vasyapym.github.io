@@ -1,11 +1,14 @@
-// Procedural dusk audio. The background score (a tranquil Dark Souls-
-// flavoured ambient loop) lives in lib/music.ts and is built from the same
-// philosophy as everything here: synthesised with WebAudio, no audio files.
-// Footsteps are cut from a short noise buffer — a lowpass thump plus a
-// bandpassed leaf crunch fired by each head-bob cycle. The AudioContext is
-// created inside the user gesture that enters the forest (autoplay policy).
+// Procedural dusk audio. The background score (a Proteus-style tonal
+// loop) lives in lib/music.ts and the all-tonal environment bed around it
+// (crickets, birds, an owl, a breeze beat, a fox dyad) in lib/nature.ts —
+// both built from the same philosophy as everything here: synthesised
+// with WebAudio, no audio files, no noise loops. Footsteps are cut from a
+// short noise buffer — a lowpass thump plus a bandpassed leaf crunch
+// fired by each head-bob cycle. The AudioContext is created inside the
+// user gesture that enters the forest (autoplay policy).
 
 import { createEveningMusic } from "./music";
+import { createNatureBed } from "./nature";
 
 const MASTER_LEVEL = 0.8;
 const DIMMED_LEVEL = 0.22;
@@ -47,6 +50,7 @@ export class EveningAmbience {
     this.master = master;
 
     this.voices.push(createEveningMusic(ctx, master));
+    this.voices.push(createNatureBed(ctx, master));
     this.applyLevel();
   }
 

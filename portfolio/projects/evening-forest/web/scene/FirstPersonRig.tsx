@@ -6,9 +6,11 @@ import {
   PLAY_RADIUS,
   terrainHeight,
 } from "../lib/heightfield";
-import { playerPositionUniform } from "../lib/clock";
+import { playerPositionUniform, timeOfDay } from "../lib/clock";
+import { audioEnv } from "../lib/audio-env";
 import { clampPitch, type TouchInputState } from "../lib/touch-input";
 import { createTreeField } from "../lib/tree-field";
+import { foxStore } from "./fox/store";
 
 const WALK_SPEED = 3.4;
 // Horizontal capsule radius used for trunk collision, in metres.
@@ -164,6 +166,15 @@ export function FirstPersonRig({
 
     // Publish the eye position for player-aware effects (firefly pull).
     playerPositionUniform.value.copy(camera.position);
+
+    // Publish the audio environment: time of day, pace and the fox's story
+    // state feed the adaptive score and the nature bed. One writer, once
+    // per frame, like every other shared uniform.
+    audioEnv.timeOfDay = timeOfDay.value;
+    audioEnv.moveSpeed = speed;
+    const fox = foxStore.snapshot;
+    audioEnv.foxDist = fox ? fox.dist : null;
+    audioEnv.foxState = fox ? fox.state : null;
 
     // A footfall lands every half cycle of the bob while actually moving.
     if (onFootstep && speed > 0.6) {
