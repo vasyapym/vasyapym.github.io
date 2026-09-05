@@ -78,3 +78,5 @@
 {"type":"edge.added","id":"e37","ts":"2026-09-05T09:44:05.993Z","from":"n40","to":"n41","rel":"continues"}
 {"type":"node.added","id":"n42","ts":"2026-09-05T09:48:22.922Z","kind":"iteration","actor":"user","title":"fix(kitty-run): kitty bust balance — head recentered, smaller torso and hands","artifacts":[{"kind":"git-commit","ref":"4d9d88b"}],"meta":{"source":"auto"}}
 {"type":"edge.added","id":"e38","ts":"2026-09-05T09:48:22.931Z","from":"n41","to":"n42","rel":"continues"}
+{"type":"node.added","id":"n43","ts":"2026-09-05T09:53:17.102Z","kind":"iteration","actor":"user","title":"fix(kitty-run): true hello-kitty proportions — dominating head, low wide-set face, tiny body sliver","artifacts":[{"kind":"git-commit","ref":"8a275f5"}],"meta":{"source":"auto"}}
+{"type":"edge.added","id":"e39","ts":"2026-09-05T09:53:17.105Z","from":"n42","to":"n43","rel":"continues"}
