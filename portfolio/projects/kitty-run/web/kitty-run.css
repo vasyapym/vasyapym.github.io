@@ -1157,11 +1157,35 @@
   border-color: rgba(232, 134, 60, 0.75);
 }
 
+/* Liturgical type: the ritual prompts (rise / rest) sit in calm serif,
+   widely tracked, bone on iron; the one ember accent is the thin rule
+   beneath. Both the words and the rule fade in slowly. */
 .kitty-run-page--souls .kitty-run-card-kicker,
 .kitty-run-page--souls .kitty-run-card--ready .kitty-run-card-kicker {
-  color: #e8863c;
-  letter-spacing: 0.18em;
+  font-family: Georgia, "Times New Roman", serif;
+  font-size: 12px;
+  font-weight: 400;
+  letter-spacing: 0.3em;
   text-transform: uppercase;
+  color: #e6dfd1;
+  text-shadow: 0 1px 0 rgba(21, 17, 14, 0.9);
+  animation: kitty-souls-ritual 1.6s ease-out both;
+}
+
+.kitty-run-page--souls .kitty-run-card-kicker::after {
+  content: "";
+  display: block;
+  width: 3.5em;
+  height: 2px;
+  margin: 8px auto 0;
+  background: #e8863c;
+  animation: kitty-souls-ritual 1.6s ease-out both;
+  animation-delay: 0.25s;
+}
+
+@keyframes kitty-souls-ritual {
+  from { opacity: 0; }
+  to   { opacity: 1; }
 }
 
 /* ----------------------------------------------------------- YOU DIED */
@@ -1170,7 +1194,7 @@
   font-size: clamp(44px, 8vw, 56px);
   font-weight: 400;
   line-height: 1.05;
-  letter-spacing: 0.24em;
+  letter-spacing: 0.3em;
   text-transform: uppercase;
   color: #cc372c;
   text-shadow:
@@ -1184,7 +1208,7 @@
 /* the one new keyframe: a slow exhale, not a flash */
 @keyframes kitty-souls-died {
   from { opacity: 0; letter-spacing: 0.1em; }
-  to   { opacity: 1; letter-spacing: 0.24em; }
+  to   { opacity: 1; letter-spacing: 0.3em; }
 }
 
 @media (prefers-reduced-motion: reduce) {
@@ -1224,11 +1248,19 @@
   color: #9aa3ae;
 }
 
+/* The call to act (begin / go on / rekindle): same liturgical voice on the
+   ember iron, fading in a beat after its kicker. */
 .kitty-run-page--souls .kitty-run-card-action,
 .kitty-run-page--souls .kitty-run-card--ready .kitty-run-card-action {
+  font-family: Georgia, "Times New Roman", serif;
+  font-weight: 400;
+  letter-spacing: 0.25em;
+  text-transform: uppercase;
   background: #e8863c;
   color: #15110e;
   box-shadow: 0 4px 14px rgba(21, 17, 14, 0.5);
+  animation: kitty-souls-ritual 1.6s ease-out both;
+  animation-delay: 0.3s;
 }
 
 .kitty-run-page--souls .kitty-run-card-action:hover,
@@ -1341,4 +1373,15 @@
 
 .kitty-run-page--souls .kitty-run-card--ready:hover .kitty-run-card-action {
   background: #b85f22;
+}
+
+/* Reduced motion must come last (equal specificity, source order): the
+   ritual prompts simply appear, no slow fade. */
+@media (prefers-reduced-motion: reduce) {
+  .kitty-run-page--souls .kitty-run-card-kicker,
+  .kitty-run-page--souls .kitty-run-card-kicker::after,
+  .kitty-run-page--souls .kitty-run-card-action,
+  .kitty-run-page--souls .kitty-run-card--ready .kitty-run-card-action {
+    animation: none;
+  }
 }
