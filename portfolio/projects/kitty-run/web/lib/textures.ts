@@ -157,8 +157,13 @@ export function softDotTexture(): THREE.CanvasTexture {
 }
 
 // Polka-dot face for crates and balloons — hazards read as candy (or, in
-// the dark theme, as iron), not as debris.
-export function crateTexture(p: ThemePalette): THREE.CanvasTexture {
+// the dark theme, as iron), not as debris. `opts.lid` (when present) bakes a
+// warm translucent band across the top of the face, as if the low sun is
+// catching the lid edge — living light on a dead object.
+export function crateTexture(
+  p: ThemePalette,
+  opts?: { lid?: string },
+): THREE.CanvasTexture {
   const rng = createRng("kitty-run/crate/v1");
   const { canvas, ctx } = makeCanvas(256, 256);
   ctx.fillStyle = p.obstaclePlum;
@@ -175,6 +180,19 @@ export function crateTexture(p: ThemePalette): THREE.CanvasTexture {
       ctx.arc(x, y, 9 + rng() * 3, 0, Math.PI * 2);
       ctx.fill();
     }
+  }
+  // Lid light. Painted last so it warms the dots too; horizontally clipped to
+  // the interior (the 18px border runs 0..18, so the face starts at 18) and
+  // faded out by ~26% of the canvas height. Consumes no rng.
+  if (opts?.lid) {
+    const faceLeft = 18;
+    const faceWidth = 238 - faceLeft;
+    const fadeEnd = Math.round(256 * 0.26);
+    const grad = ctx.createLinearGradient(0, faceLeft, 0, fadeEnd);
+    grad.addColorStop(0, rgba(opts.lid, 0.32));
+    grad.addColorStop(1, rgba(opts.lid, 0));
+    ctx.fillStyle = grad;
+    ctx.fillRect(faceLeft, faceLeft, faceWidth, fadeEnd - faceLeft);
   }
   return toTexture(canvas);
 }
@@ -276,11 +294,17 @@ type CastleWindow = { x: number; y: number; w: number; h: number; arched: boolea
 // Tileable gothic skyline. `density` (0 airy … 1 packed) sets how much the
 // buildings overlap; `baseline` is the fraction of the canvas that stays
 // solid at the bottom. All rng is consumed before drawing so the three
-// wrap copies are identical.
+// wrap copies are identical. `rim` (when present) bakes a hard-edged warm
+// sliver on every sun-facing edge (right ~3px, top ~2px); it consumes no rng.
 export function castleTexture(
   color: string,
   seed: string,
-  opts: { windows?: string; density?: number; baseline?: number } = {},
+  opts: {
+    windows?: string;
+    density?: number;
+    baseline?: number;
+    rim?: string;
+  } = {},
 ): THREE.CanvasTexture {
   const rng = createRng(seed);
   const width = 1024;
@@ -362,40 +386,63 @@ export function castleTexture(
     }
   }
 
-  const needle = (nx: number, ny: number, w: number, h: number) => {
-    ctx.beginPath();
-    ctx.moveTo(nx, ny);
-    ctx.quadraticCurveTo(nx + w * 0.12, ny - h * 0.45, nx + w / 2, ny - h);
-    ctx.quadraticCurveTo(nx + w * 0.88, ny - h * 0.45, nx + w, ny);
-    ctx.closePath();
-    ctx.fill();
+  // Shape primitives now take an explicit context so the rim layer can reuse
+  // the exact same geometry on a second canvas without touching rng.
+  const needle = (
+    c: CanvasRenderingContext2D,
+    nx: number,
+    ny: number,
+    w: number,
+    h: number,
+  ) => {
+    c.beginPath();
+    c.moveTo(nx, ny);
+    c.quadraticCurveTo(nx + w * 0.12, ny - h * 0.45, nx + w / 2, ny - h);
+    c.quadraticCurveTo(nx + w * 0.88, ny - h * 0.45, nx + w, ny);
+    c.closePath();
+    c.fill();
   };
-  const cone = (cx: number, cy: number, w: number, h: number) => {
-    ctx.beginPath();
-    ctx.moveTo(cx, cy);
-    ctx.lineTo(cx + w / 2, cy - h);
-    ctx.lineTo(cx + w, cy);
-    ctx.closePath();
-    ctx.fill();
+  const cone = (
+    c: CanvasRenderingContext2D,
+    cx: number,
+    cy: number,
+    w: number,
+    h: number,
+  ) => {
+    c.beginPath();
+    c.moveTo(cx, cy);
+    c.lineTo(cx + w / 2, cy - h);
+    c.lineTo(cx + w, cy);
+    c.closePath();
+    c.fill();
   };
-  const merlons = (mx: number, top: number, w: number) => {
+  const merlons = (
+    c: CanvasRenderingContext2D,
+    mx: number,
+    top: number,
+    w: number,
+  ) => {
     const m = Math.max(3, Math.floor(w / 7));
     for (let px = mx; px <= mx + w - m; px += m * 2) {
-      ctx.fillRect(px, top - m, m, m + 1);
+      c.fillRect(px, top - m, m, m + 1);
     }
   };
 
   // Pass 1: solid ground mass and arcades (arch openings are cut with
   // destination-out, so they must land before any spire can overlap them).
-  const drawBase = (offset: number) => {
-    ctx.fillStyle = color;
-    ctx.fillRect(offset, baseline, width, height - baseline);
+  const drawBase = (
+    c: CanvasRenderingContext2D,
+    offset: number,
+    fill: string,
+  ) => {
+    c.fillStyle = fill;
+    c.fillRect(offset, baseline, width, height - baseline);
     for (const s of shapes) {
       if (s.kind !== "arcade") continue;
       const x0 = s.x + offset;
-      ctx.fillRect(x0, s.top, s.w, baseline - s.top + 1);
-      merlons(x0, s.top, s.w);
-      ctx.globalCompositeOperation = "destination-out";
+      c.fillRect(x0, s.top, s.w, baseline - s.top + 1);
+      merlons(c, x0, s.top, s.w);
+      c.globalCompositeOperation = "destination-out";
       const pitch = s.w / s.arches;
       const aw = pitch * 0.6;
       const yb = baseline - 4;
@@ -403,70 +450,74 @@ export function castleTexture(
       const ys = yb - (yb - yt) * 0.45;
       for (let i = 0; i < s.arches; i += 1) {
         const ax = x0 + pitch * i + (pitch - aw) / 2;
-        ctx.beginPath();
-        ctx.moveTo(ax, yb);
-        ctx.lineTo(ax, ys);
-        ctx.quadraticCurveTo(ax + aw * 0.1, yt, ax + aw / 2, yt);
-        ctx.quadraticCurveTo(ax + aw * 0.9, yt, ax + aw, ys);
-        ctx.lineTo(ax + aw, yb);
-        ctx.closePath();
-        ctx.fill();
+        c.beginPath();
+        c.moveTo(ax, yb);
+        c.lineTo(ax, ys);
+        c.quadraticCurveTo(ax + aw * 0.1, yt, ax + aw / 2, yt);
+        c.quadraticCurveTo(ax + aw * 0.9, yt, ax + aw, ys);
+        c.lineTo(ax + aw, yb);
+        c.closePath();
+        c.fill();
       }
-      ctx.globalCompositeOperation = "source-over";
+      c.globalCompositeOperation = "source-over";
     }
   };
 
   // Pass 2: the skyline proper.
-  const drawShapes = (offset: number) => {
-    ctx.fillStyle = color;
+  const drawShapes = (
+    c: CanvasRenderingContext2D,
+    offset: number,
+    fill: string,
+  ) => {
+    c.fillStyle = fill;
     for (const s of shapes) {
       switch (s.kind) {
         case "spire": {
           const x0 = s.x + offset;
-          ctx.fillRect(x0, s.top, s.w, baseline - s.top + 1);
-          needle(x0, s.top, s.w, s.needle);
-          cone(x0 - 1.5, s.top, 3, 6);
-          cone(x0 + s.w - 1.5, s.top, 3, 6);
+          c.fillRect(x0, s.top, s.w, baseline - s.top + 1);
+          needle(c, x0, s.top, s.w, s.needle);
+          cone(c, x0 - 1.5, s.top, 3, 6);
+          cone(c, x0 + s.w - 1.5, s.top, 3, 6);
           break;
         }
         case "tower": {
           const x0 = s.x + offset;
-          ctx.fillRect(x0, s.top, s.w, baseline - s.top + 1);
-          merlons(x0, s.top, s.w);
-          if (s.cap > 0) cone(x0 - 1, s.top, s.w + 2, s.cap);
+          c.fillRect(x0, s.top, s.w, baseline - s.top + 1);
+          merlons(c, x0, s.top, s.w);
+          if (s.cap > 0) cone(c, x0 - 1, s.top, s.w + 2, s.cap);
           break;
         }
         case "cathedral": {
           const x0 = s.x + offset;
           const bodyH = baseline - s.top;
           const ridgeY = s.top - s.w * 0.3;
-          ctx.fillRect(x0, s.top, s.w, bodyH + 1);
-          cone(x0, s.top, s.w, s.w * 0.3);
-          ctx.fillRect(x0 + s.w / 2 - 3, ridgeY + 2, 6, 8);
-          needle(x0 + s.w / 2 - 3, ridgeY + 2, 6, s.needle);
+          c.fillRect(x0, s.top, s.w, bodyH + 1);
+          cone(c, x0, s.top, s.w, s.w * 0.3);
+          c.fillRect(x0 + s.w / 2 - 3, ridgeY + 2, 6, 8);
+          needle(c, x0 + s.w / 2 - 3, ridgeY + 2, 6, s.needle);
           const tw = s.w * 0.18;
           for (const tx of [x0, x0 + s.w - tw]) {
-            ctx.fillRect(tx, s.towerTop, tw, baseline - s.towerTop + 1);
-            merlons(tx, s.towerTop, tw);
-            needle(tx + tw * 0.2, s.towerTop, tw * 0.6, tw * 1.6);
+            c.fillRect(tx, s.towerTop, tw, baseline - s.towerTop + 1);
+            merlons(c, tx, s.towerTop, tw);
+            needle(c, tx + tw * 0.2, s.towerTop, tw * 0.6, tw * 1.6);
           }
           for (let i = 0; i < 2; i += 1) {
             const sign = i === 0 ? -1 : 1;
             const bx = i === 0 ? x0 : x0 + s.w;
-            ctx.beginPath();
-            ctx.moveTo(bx + sign * s.w * 0.12, baseline + 1);
-            ctx.lineTo(bx, baseline - bodyH * 0.55);
-            ctx.lineTo(bx, baseline + 1);
-            ctx.closePath();
-            ctx.fill();
+            c.beginPath();
+            c.moveTo(bx + sign * s.w * 0.12, baseline + 1);
+            c.lineTo(bx, baseline - bodyH * 0.55);
+            c.lineTo(bx, baseline + 1);
+            c.closePath();
+            c.fill();
           }
           break;
         }
         case "houses": {
           for (const r of s.ridges) {
             const rx = r.x + offset;
-            ctx.fillRect(rx, r.top, r.w, baseline - r.top + 1);
-            cone(rx - 1, r.top, r.w + 2, r.w * 0.45);
+            c.fillRect(rx, r.top, r.w, baseline - r.top + 1);
+            cone(c, rx - 1, r.top, r.w + 2, r.w * 0.45);
           }
           break;
         }
@@ -476,32 +527,61 @@ export function castleTexture(
     }
   };
 
-  const drawWindows = (offset: number, win: string) => {
-    ctx.fillStyle = win;
-    ctx.shadowColor = win;
-    ctx.shadowBlur = 4;
+  const drawWindows = (
+    c: CanvasRenderingContext2D,
+    offset: number,
+    win: string,
+  ) => {
+    c.fillStyle = win;
+    c.shadowColor = win;
+    c.shadowBlur = 4;
     for (const w of windows) {
       const wx = w.x + offset;
       if (w.arched) {
-        ctx.beginPath();
-        ctx.moveTo(wx, w.y + w.h);
-        ctx.lineTo(wx, w.y + 1);
-        ctx.lineTo(wx + w.w / 2, w.y - 1);
-        ctx.lineTo(wx + w.w, w.y + 1);
-        ctx.lineTo(wx + w.w, w.y + w.h);
-        ctx.closePath();
-        ctx.fill();
+        c.beginPath();
+        c.moveTo(wx, w.y + w.h);
+        c.lineTo(wx, w.y + 1);
+        c.lineTo(wx + w.w / 2, w.y - 1);
+        c.lineTo(wx + w.w, w.y + 1);
+        c.lineTo(wx + w.w, w.y + w.h);
+        c.closePath();
+        c.fill();
       } else {
-        ctx.fillRect(wx, w.y, w.w, w.h);
+        c.fillRect(wx, w.y, w.w, w.h);
       }
     }
-    ctx.shadowBlur = 0;
+    c.shadowBlur = 0;
   };
 
-  for (const offset of [0, -width, width]) drawBase(offset);
-  for (const offset of [0, -width, width]) drawShapes(offset);
+  // Skyline in the base colour — identical to the historical output.
+  for (const offset of [0, -width, width]) drawBase(ctx, offset, color);
+  for (const offset of [0, -width, width]) drawShapes(ctx, offset, color);
+
+  // Rim pass (opt-in). Build the whole silhouette again in the warm key on a
+  // scratch canvas, then carve its own interior away by stamping itself back
+  // shifted (-3, +2): the shift-left leaves the right 3px, the shift-down
+  // leaves the top 2px — a crisp warm sliver, no shadowBlur. We then stamp the
+  // slivers onto the skyline with source-atop, so they can only land on opaque
+  // masonry; arch cutouts and open sky are never coloured. INTEGRATOR: the
+  // stamp runs at 0.7 alpha — full-strength peach reads as a sticker edge,
+  // 0.7 settles the sliver into the stone. No rng is touched.
+  if (opts.rim) {
+    const rim = makeCanvas(width, height);
+    for (const offset of [0, -width, width]) drawBase(rim.ctx, offset, opts.rim);
+    for (const offset of [0, -width, width]) drawShapes(rim.ctx, offset, opts.rim);
+    rim.ctx.globalCompositeOperation = "destination-out";
+    rim.ctx.drawImage(rim.canvas, -3, 2);
+    rim.ctx.globalCompositeOperation = "source-over";
+    ctx.globalAlpha = 0.7;
+    ctx.globalCompositeOperation = "source-atop";
+    ctx.drawImage(rim.canvas, 0, 0);
+    ctx.globalAlpha = 1;
+    ctx.globalCompositeOperation = "source-over";
+  }
+
+  // Windows last, so their ember glow stays on top of everything.
   if (opts.windows) {
-    for (const offset of [0, -width, width]) drawWindows(offset, opts.windows);
+    for (const offset of [0, -width, width]) drawWindows(ctx, offset, opts.windows);
   }
 
   const texture = toTexture(canvas);
@@ -563,10 +643,13 @@ export const BACKDROPS: Record<CharacterId, BackdropSpec> = {
     layers: [
       {
         // Plane spans y −1.5…10.5; spire tops land around y 9–10.
+        // Sun rims on the far and mid silhouettes only; the near layer stays
+        // matte so its ember windows keep the spotlight.
         build: (p) =>
           castleTexture(p.castleFar, "kitty-run/castle/far", {
             density: 0.95,
             baseline: 0.22,
+            rim: p.cloudLit,
           }),
         z: -11,
         y: 4.5,
@@ -580,6 +663,7 @@ export const BACKDROPS: Record<CharacterId, BackdropSpec> = {
           castleTexture(p.castleMid, "kitty-run/castle/mid", {
             density: 0.7,
             baseline: 0.28,
+            rim: p.cloudLit,
           }),
         z: -9,
         y: 2.5,

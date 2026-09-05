@@ -11,10 +11,18 @@ import {
   TALL_HALF,
 } from "../lib/spawn.ts";
 import { crateTexture } from "../lib/textures.ts";
-import { paletteFor, type CharacterId } from "../lib/theme.ts";
+import { THEMES, paletteFor, type CharacterId } from "../lib/theme.ts";
 import type { WorldState } from "./world.ts";
 
 const MAX_PER_KIND = 24;
+
+// Warm lid light for the iron crates — souls only; the pastel crates keep
+// their clean candy face. Per-theme record, same pattern as the pickup
+// colours, so the scene never branches on theme.
+const CRATE_LID: Record<CharacterId, string | null> = {
+  kitty: null,
+  souls: THEMES.souls.palette.cloudLit,
+};
 
 export function Obstacles({
   world,
@@ -26,7 +34,13 @@ export function Obstacles({
   const boxRef = useRef<THREE.InstancedMesh>(null);
   const tallRef = useRef<THREE.InstancedMesh>(null);
   const hoverRef = useRef<THREE.InstancedMesh>(null);
-  const crateMap = useMemo(() => crateTexture(paletteFor(character)), [character]);
+  const crateMap = useMemo(
+    () =>
+      crateTexture(paletteFor(character), {
+        lid: CRATE_LID[character] ?? undefined,
+      }),
+    [character],
+  );
   const dummy = useMemo(() => new THREE.Object3D(), []);
 
   useFrame(() => {

@@ -63,6 +63,9 @@ const FADED: Record<CharacterId, Record<string, string>> = {
     [SOULS_P.noseYellow]: "#d6a57c",
     [SOULS_P.cheek]: "#c0a999",
     [SOULS_P.outlineInk]: "#4a423c",
+    // The sun-rim plates join the ash-memory family; unmapped, the fringe
+    // would glow full-strength on the faded ghost.
+    [SOULS_P.cloudLit]: "#c9a284",
   },
 };
 

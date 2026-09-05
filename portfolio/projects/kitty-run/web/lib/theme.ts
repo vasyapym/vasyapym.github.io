@@ -102,7 +102,9 @@ const SOULS_PALETTE: ThemePalette = {
 
   groundTop: "#67645f",
   groundBody: "#3a3835",
-  groundDot: "#d98a4e",
+  // The lit edge: stone catching the low sun — warm mineral, not a glowing
+  // ember line running the whole screen width.
+  groundDot: "#7a6a5d",
   pathEdge: "#4c4844",
 
   obstaclePlum: "#3a302c",

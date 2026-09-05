@@ -266,6 +266,9 @@ export function Kitty({
       // souls kit
       helmDome: new THREE.ShapeGeometry(helmDomeShape(), seg),
       helmDomeInk: new THREE.ShapeGeometry(helmDomeShape(0.035), seg),
+      // Rim plate: the dome contour padded past the ink, for the sun-side
+      // back-plate fringe (see the souls head block).
+      helmDomeRim: new THREE.ShapeGeometry(helmDomeShape(0.05), seg),
       helmCrest: new THREE.ShapeGeometry(helmCrestShape(), seg),
       visorPlate: new THREE.ShapeGeometry(roundedRectShape(1.5, 0.46, 0.18), seg),
       visorPlateInk: new THREE.ShapeGeometry(roundedRectShape(1.56, 0.52, 0.21), seg),
@@ -451,6 +454,20 @@ export function Kitty({
             </group>
           )}
 
+          {/* souls: sun rim, right contour. A flat cloudLit back-plate one
+              gap behind the whole rig: the body masks it everywhere except
+              where a right-facing edge lets a thin fringe poke past the ink.
+              Tunic plate at z -0.15 (cape back ink -0.11, gap 0.04) reads on
+              the belly/hem below the arm; the mid-flank band hides behind the
+              frozen arm and pauldron on purpose — those ARE the lit contour
+              there. Reuses the dress geometry; the x offset does all the
+              work, the frozen tunic edge is never reshaped. */}
+          {isSouls && (
+            <mesh geometry={geo.dress} position={[0.08, 0, -0.15]}>
+              <meshBasicMaterial color={palette.cloudLit} />
+            </mesh>
+          )}
+
           {/* dress (the rust tunic in souls mode — same shape) */}
           <Part
             geometry={geo.dress}
@@ -606,6 +623,17 @@ export function Kitty({
                 </mesh>
                 <mesh geometry={geo.ember} position={[0.34, 0.06, 0.34]}>
                   <meshBasicMaterial color={palette.noseYellow} />
+                </mesh>
+                {/* Sun rim for the helm: the padded dome contour shifted
+                    toward the sun, behind every head layer. z 0.08 keeps a
+                    0.04 gap under the ear inks (0.12) — 0.15 would be
+                    coplanar with the ear fills and z-fight the visible tips
+                    on 16-bit mobile depth — and behind the head ink (0.19),
+                    so only the right/upper-right curve peeks past the dome's
+                    own ink. Lives in the head group, so it tracks bob and
+                    rotation. */}
+                <mesh geometry={geo.helmDomeRim} position={[0.07, 0.66, 0.08]}>
+                  <meshBasicMaterial color={palette.cloudLit} />
                 </mesh>
                 <Part
                   geometry={geo.helmDome}
