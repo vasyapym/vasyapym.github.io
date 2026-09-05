@@ -89,6 +89,11 @@ export function Parallax({
         : [],
     [cloudStyle, palette],
   );
+  const haze = backdrop.haze ?? [];
+  const hazeMaps = useMemo(
+    () => haze.map((band) => band.build(palette)),
+    [haze, palette],
+  );
 
   // Cloud positions share one seed across themes so a switch keeps the sky.
   const clouds = useMemo<CloudSpec[]>(() => {
@@ -153,6 +158,21 @@ export function Parallax({
           opacity={layer.opacity}
           distance={world.distance}
         />
+      ))}
+
+      {/* Atmosphere between the city layers: same render order as the
+          silhouettes, so the transparent pass paints far → near by z and
+          each bank lands exactly between its two layers. */}
+      {haze.map((band, i) => (
+        <mesh key={`haze-${i}`} position={[0, band.y, band.z]} renderOrder={-5}>
+          <planeGeometry args={[SPAN, band.height]} />
+          <meshBasicMaterial
+            map={hazeMaps[i]}
+            transparent
+            opacity={band.opacity}
+            depthWrite={false}
+          />
+        </mesh>
       ))}
     </>
   );

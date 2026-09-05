@@ -70,6 +70,9 @@ const KITTY_TEXT: ThemeText = {
 // mist (≈ 0.28 → 0.14 → 0.04), a dark stone ground, and a bone knight as
 // the brightest solid thing on screen. Only sunCore and heart cross the
 // bloom line; windowEmber rides the knee on purpose (smoldering windows).
+// The depth ladder spreads the city apart in value — bone-mist far (≈ 0.68),
+// slate mid (≈ 0.41), deep near (≈ 0.19) — so the mass recedes instead of
+// stacking three similar greys.
 const SOULS_PALETTE: ThemePalette = {
   kittyWhite: "#e8e1d2",
   outlineInk: "#17130f",
@@ -91,9 +94,9 @@ const SOULS_PALETTE: ThemePalette = {
   cloudLit: "#e8a878",
   hillFar: "#6f7c8d",
   hillNear: "#4d586a",
-  castleFar: "#8a929f",
+  castleFar: "#a7aeb8",
   castleMid: "#5d6a7c",
-  castleNear: "#323b49",
+  castleNear: "#2a3140",
   windowEmber: "#ffe09a",
   ash: "#c9c1b6",
 

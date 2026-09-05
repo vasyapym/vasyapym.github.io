@@ -237,6 +237,25 @@ export function duskCloudTexture(seed: string, p: ThemePalette): THREE.CanvasTex
   return toTexture(canvas);
 }
 
+// A bank of cool valley mist: one horizontally uniform band whose density
+// rises to a peak low in the frame and fades to nothing at both edges, so
+// it can sit between two city layers without ever showing a hard line.
+// Peak is the fraction from the top where the mist is thickest.
+export function hazeTexture(colour: string, peak: number): THREE.CanvasTexture {
+  const { canvas, ctx } = makeCanvas(512, 256);
+  const c = hexRgb(colour);
+  const p = Math.min(0.95, Math.max(0.05, peak));
+  const at = (a: number) => `rgba(${c.r}, ${c.g}, ${c.b}, ${a})`;
+  const gradient = ctx.createLinearGradient(0, 0, 0, 256);
+  gradient.addColorStop(0, at(0));
+  gradient.addColorStop(p * 0.55, at(0.5));
+  gradient.addColorStop(p, at(1));
+  gradient.addColorStop(1, at(0));
+  ctx.fillStyle = gradient;
+  ctx.fillRect(0, 0, 512, 256);
+  return toTexture(canvas);
+}
+
 type CastleRidge = { x: number; w: number; top: number };
 type CastleShape =
   | { kind: "spire"; x: number; w: number; top: number; needle: number }
@@ -498,8 +517,19 @@ export type BackdropLayer = {
   speed: number;
   opacity?: number;
 };
+// A static veil of atmosphere between two layers. Horizontally uniform, so
+// it never scrolls and never shows a seam; z sorts it into the layer stack
+// (transparent pass paints back to front within one render order).
+export type BackdropHaze = {
+  build: (p: ThemePalette) => THREE.CanvasTexture;
+  z: number;
+  y: number;
+  height: number;
+  opacity: number;
+};
 export type BackdropSpec = {
   layers: BackdropLayer[];
+  haze?: BackdropHaze[];
   cloud: {
     build: (seed: string, p: ThemePalette) => THREE.CanvasTexture;
     scale: number;
@@ -568,6 +598,25 @@ export const BACKDROPS: Record<CharacterId, BackdropSpec> = {
         y: 1.5,
         height: 7,
         speed: 0.42,
+      },
+    ],
+    haze: [
+      {
+        // Sinks the far city's base into mist (far z -11, mid z -9): densest
+        // at the mass line ~y 0, thinning upward across the spire zone.
+        build: (p) => hazeTexture(p.skyMid, 0.62),
+        z: -10,
+        y: 0.6,
+        height: 5,
+        opacity: 0.42,
+      },
+      {
+        // Second bank the near towers rise out of (mid z -9, near z -7).
+        build: (p) => hazeTexture(p.skyMid, 0.68),
+        z: -8,
+        y: 0.9,
+        height: 4.4,
+        opacity: 0.36,
       },
     ],
     cloud: { build: duskCloudTexture, scale: 1.5, opacity: 0.9 },
