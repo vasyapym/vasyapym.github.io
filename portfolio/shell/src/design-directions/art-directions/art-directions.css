@@ -90,3 +90,107 @@
 
 .signal-index-grid {
   margin-top: 1.5rem;}
+
+/* -- ashen mode round: 16:9 game stills + structured direction copy -- */
+.ashen-grid {
+  margin-top: 1.5rem;
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 24px;}
+
+.ashen-card {
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+  overflow: hidden;
+  border-radius: var(--panel-radius);
+  background: #0b1317;
+  border: 1px solid var(--ink-line-soft);
+  transition: transform 180ms ease-out, box-shadow 180ms ease-out;}
+
+.ashen-card:hover {
+  transform: translateY(-6px);
+  box-shadow: 0 18px 40px rgba(0, 0, 0, 0.32);}
+
+.ashen-stage {
+  width: 100%;
+  aspect-ratio: 16 / 9;
+  overflow: hidden;}
+
+.ashen-stage svg {
+  display: block;
+  width: 100%;
+  height: 100%;}
+
+.ashen-copy {
+  display: flex;
+  flex-direction: column;
+  gap: 9px;
+  padding: 20px 22px 22px;}
+
+.ashen-topline {
+  margin: 0;
+  font-family: var(--mono);
+  font-size: 11px;
+  letter-spacing: 0.24em;
+  text-transform: lowercase;
+  color: var(--ink-accent);}
+
+.ashen-name {
+  margin: 0;
+  font-family: var(--display);
+  font-weight: 600;
+  font-size: 20px;
+  letter-spacing: -0.01em;
+  color: var(--ink-text);}
+
+.ashen-block {
+  margin: 0;
+  font-family: var(--sans);
+  font-size: 13px;
+  line-height: 1.55;
+  color: #c9c5bb;}
+
+.ashen-field {
+  display: block;
+  margin-bottom: 2px;
+  font-family: var(--mono);
+  font-size: 9.5px;
+  letter-spacing: 0.28em;
+  text-transform: lowercase;
+  color: #8c928e;}
+
+.ashen-swatches {
+  display: flex;
+  gap: 6px;
+  margin-top: auto;
+  padding-top: 12px;}
+
+.ashen-swatch {
+  width: 26px;
+  height: 18px;
+  border-radius: 5px;
+  border: 1px solid rgba(238, 234, 224, 0.14);}
+
+@media (max-width: 760px) {
+  .ashen-grid {
+    grid-template-columns: 1fr;}
+}
+
+/* -- cat portrait round: light stage + the two real render sizes -- */
+.portrait-round-stage {
+  display: flex;
+  align-items: flex-end;
+  justify-content: center;
+  gap: 28px;
+  padding: 26px 22px 22px;
+  background: #fff8fb;
+  border-bottom: 1px solid var(--ink-line-soft);}
+
+.portrait-round-box {
+  display: block;}
+
+.portrait-round-box svg {
+  display: block;
+  width: 100%;
+  height: 100%;}

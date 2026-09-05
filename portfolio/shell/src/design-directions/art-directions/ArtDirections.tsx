@@ -47,6 +47,8 @@ import {
   RaftCyberI,
 } from "./raftRethink7";
 import "./art-directions.css";
+import { AshenDirectionsSection } from "./ashenDirections";
+import { KittyPortraitRoundSection } from "./kittyPortraitRound";
 
 type ArtDirectionsProps = {
   projects: readonly ProjectModule[];
@@ -455,6 +457,10 @@ export default function ArtDirections({ projects }: ArtDirectionsProps) {
             <span className="art-directions-ramp-label">hero dither ramp · the two inks</span>
           </div>
         </header>
+
+        <AshenDirectionsSection />
+
+        <KittyPortraitRoundSection />
 
         {DRAFTS.map((draft) => (
           <section

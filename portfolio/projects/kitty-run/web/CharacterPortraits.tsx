@@ -18,39 +18,47 @@ export function KittyPortrait() {
       strokeLinejoin="round"
       strokeLinecap="round"
     >
-      {/* ears (drawn first so the head covers their base) */}
-      <polygon points="20,30 26,6 42,22" fill="#ffffff" />
-      <polygon points="72,30 66,6 50,22" fill="#ffffff" />
-      <polygon points="25,26 28,13 38,22" fill="#f6a9c0" stroke="none" />
-      <polygon points="67,26 64,13 54,22" fill="#f6a9c0" stroke="none" />
+      {/* stubby upper arms, cropped by the frame like the knight's pauldrons */}
+      <ellipse cx="24" cy="84" rx="7" ry="12" fill="#ffffff" transform="rotate(-10 24 84)" />
+      <ellipse cx="76" cy="84" rx="7" ry="12" fill="#ffffff" transform="rotate(10 76 84)" />
 
-      {/* head */}
-      <circle cx="46" cy="44" r="30" fill="#ffffff" />
+      {/* red jumper shoulders: rounded trapezoid running past the frame bottom */}
+      <path
+        d="M 27 100 C 27 82 33 70 42 67 L 58 67 C 67 70 73 82 73 100 Z"
+        fill="#e94f64"
+      />
+      <rect x="44" y="76" width="12" height="9" rx="2" fill="#d13a50" stroke="none" />
 
-      {/* blush */}
-      <circle cx="28" cy="53" r="3.5" fill="#f6a9c0" stroke="none" />
-      <circle cx="64" cy="53" r="3.5" fill="#f6a9c0" stroke="none" />
+      {/* head + ears as one continuous silhouette (wide oval, center 50,40 rx 32 ry 27) */}
+      <path
+        d="M 22.5 26.5 C 19 13 24 6.5 29.5 6.5 C 36 6.5 41.5 10 44.5 13.4 A 32 27 0 0 1 55.5 13.4 C 58.5 10 64 6.5 70.5 6.5 C 76 6.5 81 13 77.5 26.5 A 32 27 0 1 1 22.5 26.5 Z"
+        fill="#ffffff"
+      />
 
-      {/* eyes */}
-      <ellipse cx="35" cy="42" rx="4.5" ry="6" fill="#3a3142" stroke="none" />
-      <ellipse cx="57" cy="42" rx="4.5" ry="6" fill="#3a3142" stroke="none" />
-      <circle cx="36.5" cy="39.5" r="1.5" fill="#ffffff" stroke="none" />
-      <circle cx="58.5" cy="39.5" r="1.5" fill="#ffffff" stroke="none" />
+      {/* pink inner-ear caps */}
+      <path d="M 27 20 C 26 13 28 10 30.5 9.5 C 33.5 10.5 35.5 13 38 16.5 Z" fill="#f6a9c0" stroke="none" />
+      <path d="M 73 20 C 74 13 72 10 69.5 9.5 C 66.5 10.5 64.5 13 62 16.5 Z" fill="#f6a9c0" stroke="none" />
 
-      {/* nose + mouth */}
-      <polygon points="46,52 42.5,48.5 49.5,48.5" fill="#f6a9c0" stroke="none" />
-      <path d="M42 56 Q46 59.5 50 56" strokeWidth={2} />
+      {/* single flat shadow, strictly inside the head */}
+      <ellipse cx="50" cy="63" rx="11.5" ry="2.5" fill="#ece4ee" stroke="none" />
 
-      {/* whiskers */}
-      <line x1="14" y1="46" x2="27" y2="48" strokeWidth={2} />
-      <line x1="14" y1="55" x2="27" y2="53" strokeWidth={2} />
-      <line x1="78" y1="46" x2="65" y2="48" strokeWidth={2} />
-      <line x1="78" y1="55" x2="65" y2="53" strokeWidth={2} />
+      {/* the bow: upper-left, at ear level, straddling the head edge */}
+      <path d="M 24.5 22.5 C 20.5 16.5 14.5 17.5 15.5 22.5 C 16.5 27.5 21.5 27.5 24.5 22.5 Z" fill="#e94f64" />
+      <path d="M 24.5 22.5 C 28.5 16.5 34.5 17.5 33.5 22.5 C 32.5 27.5 27.5 27.5 24.5 22.5 Z" fill="#e94f64" />
+      <circle cx="24.5" cy="22.5" r="2.8" fill="#d13a50" />
 
-      {/* signature red bow, sitting low-right against the head */}
-      <polygon points="78,74 61,64 60,84" fill="#e94f64" />
-      <polygon points="78,74 95,66 95,84" fill="#e94f64" />
-      <circle cx="78" cy="74" r="4.5" fill="#e94f64" />
+      {/* face: two button eyes, yellow nose, NO mouth */}
+      <ellipse cx="40" cy="38" rx="2.8" ry="3.8" fill={OUTLINE_PASTEL} stroke="none" />
+      <ellipse cx="60" cy="38" rx="2.8" ry="3.8" fill={OUTLINE_PASTEL} stroke="none" />
+      <ellipse cx="50" cy="44" rx="3.5" ry="2.5" fill="#ffd44d" strokeWidth={2} />
+
+      {/* whiskers: three per side, crossing the head outline */}
+      <path d="M 16 37 L 30 40" strokeWidth={2} />
+      <path d="M 16 44 L 30 44" strokeWidth={2} />
+      <path d="M 16 51 L 30 48" strokeWidth={2} />
+      <path d="M 84 37 L 70 40" strokeWidth={2} />
+      <path d="M 84 44 L 70 44" strokeWidth={2} />
+      <path d="M 84 51 L 70 48" strokeWidth={2} />
     </svg>
   );
 }

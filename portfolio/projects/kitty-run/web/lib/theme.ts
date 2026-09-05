@@ -44,7 +44,7 @@ export type Theme = {
 };
 
 const KITTY_TEXT: ThemeText = {
-  name: "kitty",
+  name: "cat",
   blurb: "the pastel runner",
   best: "best",
   readyKicker: "ready",
