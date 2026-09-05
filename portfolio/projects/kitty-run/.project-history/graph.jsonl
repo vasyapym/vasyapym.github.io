@@ -80,3 +80,5 @@
 {"type":"edge.added","id":"e38","ts":"2026-09-05T09:48:22.931Z","from":"n41","to":"n42","rel":"continues"}
 {"type":"node.added","id":"n43","ts":"2026-09-05T09:53:17.102Z","kind":"iteration","actor":"user","title":"fix(kitty-run): true hello-kitty proportions — dominating head, low wide-set face, tiny body sliver","artifacts":[{"kind":"git-commit","ref":"8a275f5"}],"meta":{"source":"auto"}}
 {"type":"edge.added","id":"e39","ts":"2026-09-05T09:53:17.105Z","from":"n42","to":"n43","rel":"continues"}
+{"type":"node.added","id":"n44","ts":"2026-09-05T10:03:31.089Z","kind":"iteration","actor":"user","title":"fix(kitty-run): kitty head reads gigantic — revert to balanced bust, match official HK art proportions (1.48:1 flat-wide head, right-ear bow, low wide-set face)","artifacts":[{"kind":"git-commit","ref":"7e9d362"}],"meta":{"source":"auto"}}
+{"type":"edge.added","id":"e40","ts":"2026-09-05T10:03:31.096Z","from":"n43","to":"n44","rel":"continues"}
