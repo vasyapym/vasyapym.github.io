@@ -1,7 +1,7 @@
 // Canvas, camera and scene assembly. The camera rig jiggles with the
 // world's shake trauma; everything else reads the world in its own frame.
 
-import { useEffect, useRef, useState } from "react";
+import { memo, useEffect, useRef, useState } from "react";
 import * as THREE from "three";
 import { Canvas, useFrame, useThree } from "@react-three/fiber";
 import { BASE_CAM_Z, BASE_FOV, frameFor } from "../lib/framing.ts";
@@ -23,6 +23,35 @@ import { Kitty } from "../kitty/Kitty";
 import type { RunInput } from "../lib/replay.ts";
 
 const CAMERA_BASE = new THREE.Vector3(0, 3.2, BASE_CAM_Z);
+
+// Static renderer configuration, hoisted to module scope on purpose. R3F
+// re-applies `gl`/`dpr`/`camera` whenever their identity changes, and JSX
+// object literals are new objects on every parent render — every header
+// state change (mute, mix, hover) would re-touch the renderer. In WebKit
+// that re-apply visibly disturbs the drawing buffer for a frame: the
+// distance-driven world reads as if it jumped. Stable identities, stable
+// renderer.
+const GL_CONFIG = {
+  antialias: true,
+  stencil: false,
+  powerPreference: "high-performance" as const,
+  // ?preserve keeps the drawing buffer readable after presents, so a
+  // probe can diff the rendered frame per rAF from inside the page.
+  // Off by default; a dev handle, not part of the shipped look.
+  preserveDrawingBuffer:
+    typeof window !== "undefined" &&
+    new URLSearchParams(window.location.search).has("preserve"),
+};
+const DPR: [number, number] = [1, 2];
+const CAMERA_SPEC = {
+  fov: BASE_FOV,
+  near: 2,
+  far: 90,
+  position: [0, 3.2, BASE_CAM_Z],
+} as const;
+function onCreated({ camera }: { camera: THREE.Camera }): void {
+  camera.lookAt(2.4, 2.6, 0);
+}
 
 // The canvas clear colour follows the theme's sky bottom, so nothing pastel
 // peeks in at the viewport edges in the dark theme.
@@ -70,14 +99,19 @@ function CameraRig({ world, reducedMotion }: { world: WorldState; reducedMotion:
   return null;
 }
 
-export function RunCanvas({
+// Memoised on purpose: every prop here is a stable ref/object except the
+// character. Page state (mute, mix popover, status transitions) re-renders
+// the header and overlays but must never re-render the WebGL subtree — in
+// WebKit each such re-render disturbed the drawing buffer for one frame
+// and the distance-driven world read as if it had jumped.
+export const RunCanvas = memo(function RunCanvas({
   world,
   echo,
   echoInputs,
   reducedMotion,
   sfxRef,
   trackRef,
-  muted,
+  mutedRef,
   hud,
   character,
   onStatus,
@@ -91,7 +125,8 @@ export function RunCanvas({
   reducedMotion: boolean;
   sfxRef: React.RefObject<Sfx | null>;
   trackRef?: React.RefObject<Soundtrack | null>;
-  muted: boolean;
+  // Live mute flag, read frame-by-frame (see the memo note above).
+  mutedRef: { current: boolean };
   hud: HudRefs;
   // The selected character: presentation only. The simulation never sees
   // it — every themed component re-renders on a switch, which can only
@@ -102,20 +137,14 @@ export function RunCanvas({
   return (
     <Canvas
       flat
-      dpr={[1, 2]}
-      gl={{
-        antialias: true,
-        stencil: false,
-        powerPreference: "high-performance",
-      }}
+      dpr={DPR}
+      gl={GL_CONFIG}
       // near 2: the scene lives at z <= 0.2 and the camera at z >= 16, so
       // a generous near plane keeps depth precision tight — on 16-bit mobile
       // depth buffers the Kitty's paper-thin layers otherwise z-fight and
       // read as transparent.
-      camera={{ fov: BASE_FOV, near: 2, far: 90, position: [0, 3.2, BASE_CAM_Z] }}
-      onCreated={({ camera }) => {
-        camera.lookAt(2.4, 2.6, 0);
-      }}
+      camera={CAMERA_SPEC}
+      onCreated={onCreated}
     >
       <ClearColor color={paletteFor(character).skyBottom} />
       <CameraRig world={world} reducedMotion={reducedMotion} />
@@ -142,7 +171,7 @@ export function RunCanvas({
         echoInputs={echoInputs}
         sfxRef={sfxRef}
         trackRef={trackRef}
-        muted={muted}
+        mutedRef={mutedRef}
         hud={hud}
         reducedMotion={reducedMotion}
         character={character}
@@ -150,7 +179,7 @@ export function RunCanvas({
       />
     </Canvas>
   );
-}
+});
 
 export function useReducedMotion(): boolean {
   const [reduced, setReduced] = useState(

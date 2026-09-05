@@ -77,6 +77,13 @@ export default function KittyRunPage() {
   const [status, setStatus] = useState<GameStatus>(world.status);
   const [best, setBest] = useState(world.best);
   const [muted, setMuted] = useState(false);
+  // GameLoop reads the ref frame-by-frame instead of receiving the state as
+  // a prop: the canvas subtree is memoised on stable props, so a mute flip
+  // (and every other header interaction) never re-renders the WebGL tree —
+  // WebKit answers those re-renders with a one-frame disturbance of the
+  // drawing buffer, which reads as the background jumping. Same pattern as
+  // characterRef below.
+  const mutedRef = useRef(false);
   // Audio mixer state: the three sliders plus whether the popover is open.
   const [audio, setAudio] = useState<AudioLevels>(loadAudioLevels);
   const [mixOpen, setMixOpen] = useState(false);
@@ -156,7 +163,7 @@ export default function KittyRunPage() {
   }, [world, replay]);
 
   const ensureSfx = useCallback((): Sfx | null => {
-    if (muted) return null;
+    if (mutedRef.current) return null;
     if (!sfxRef.current) sfxRef.current = new Sfx();
     const sfx = sfxRef.current;
     sfx.start();
@@ -175,7 +182,7 @@ export default function KittyRunPage() {
     // pastel set. Pure table swap on the Sfx instance.
     sfx.setMode(character);
     return sfx;
-  }, [muted, audio, character]);
+  }, [audio, character]);
 
   // The score and the SFX register follow the character: a swap re-voices
   // harmony, tempo band and pad tone at the next bar; the sequencer itself
@@ -209,11 +216,11 @@ export default function KittyRunPage() {
   // UI sounds stay polite: silent while muted, cheap no-ops before the
   // first gesture builds the context.
   const uiClick = useCallback(() => {
-    if (!muted) sfxRef.current?.uiClick();
-  }, [muted]);
+    if (!mutedRef.current) sfxRef.current?.uiClick();
+  }, []);
   const uiHover = useCallback(() => {
-    if (!muted) sfxRef.current?.uiHover();
-  }, [muted]);
+    if (!mutedRef.current) sfxRef.current?.uiHover();
+  }, []);
 
   const handleStatus = useCallback(
     (next: GameStatus) => {
@@ -240,10 +247,10 @@ export default function KittyRunPage() {
       setRaceTarget(replay);
       startRun(world);
       // A small "go" flourish under the very first steps of the run.
-      if (!muted) sfxRef.current?.runStart();
+      if (!mutedRef.current) sfxRef.current?.runStart();
       setRunNonce((n) => n + 1);
     },
-    [ensureSfx, uiClick, world, replay, muted],
+    [ensureSfx, uiClick, world, replay],
   );
 
   const handleStart = useCallback(() => beginRun(false), [beginRun]);
@@ -281,11 +288,11 @@ export default function KittyRunPage() {
     setAutoPilot(false);
     setAutoRan(false);
     restartRun(world);
-    if (!muted) sfxRef.current?.runStart();
+    if (!mutedRef.current) sfxRef.current?.runStart();
     if (replay) world.runSeed = replay.seed;
     setRaceTarget(replay);
     setRunNonce((n) => n + 1);
-  }, [ensureSfx, uiClick, world, replay, muted]);
+  }, [ensureSfx, uiClick, world, replay]);
 
   // --- keyboard ---------------------------------------------------------------
 
@@ -293,14 +300,14 @@ export default function KittyRunPage() {
     const onHide = () => {
       if (document.hidden) {
         if (world.status === "running") togglePause(world);
-      } else if (!muted) {
+      } else if (!mutedRef.current) {
         // iOS suspends audio contexts in the background; nudge it alive.
         sfxRef.current?.start();
       }
     };
     document.addEventListener("visibilitychange", onHide);
     return () => document.removeEventListener("visibilitychange", onHide);
-  }, [world, muted]);
+  }, [world]);
 
   useEffect(() => {
     const onKeyDown = (event: KeyboardEvent) => {
@@ -441,7 +448,7 @@ export default function KittyRunPage() {
         reducedMotion={reducedMotion}
         sfxRef={sfxRef}
         trackRef={trackRef}
-        muted={muted}
+        mutedRef={mutedRef}
         hud={hud}
         character={character}
         onStatus={handleStatus}
@@ -663,6 +670,7 @@ export default function KittyRunPage() {
                 const next = !muted;
                 // Confirm with a blip on the way out (while audio still
                 // lives) or on the way back in (after the context wakes).
+                mutedRef.current = next;
                 if (next) uiClick();
                 setMuted(next);
                 if (!next) {

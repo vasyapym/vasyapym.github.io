@@ -239,7 +239,7 @@ export function GameLoop({
   echoInputs,
   sfxRef,
   trackRef,
-  muted,
+  mutedRef,
   hud,
   reducedMotion,
   character,
@@ -255,7 +255,9 @@ export function GameLoop({
   // The adaptive soundtrack, when its AudioContext exists (first gesture
   // onward). The loop conducts it once per frame.
   trackRef?: React.RefObject<Soundtrack | null>;
-  muted: boolean;
+  // Live mute flag via ref: the value is read frame-by-frame, so flipping
+  // it never re-renders the canvas subtree.
+  mutedRef: { current: boolean };
   hud: HudRefs;
   reducedMotion: boolean;
   character: CharacterId;
@@ -293,7 +295,13 @@ export function GameLoop({
     // One clock for the whole frame: the sim's own timeScale (dipped by
     // a dash, eased back in step.ts) scales every delta below — player,
     // echo, particles, dust. The world breathes in slow motion together.
-    const sdt = Math.min(delta * world.timeScale, 0.05);
+    // The step ceiling is ~1.5 normal frames: a hitched frame (WebKit
+    // hitches ~100-150ms on header clicks — re-render + audio scheduling)
+    // used to spend the whole 0.05s ceiling at once, and the distance-
+    // driven world visibly lurched for one frame. At 0.025 a stall reads
+    // as a held breath, not a jerk; sustained stalls slow-mo the sim,
+    // which beats teleporting the skyline.
+    const sdt = Math.min(delta * world.timeScale, 0.025);
 
     stepWorld(world, sdt);
 
@@ -375,20 +383,20 @@ export function GameLoop({
         Math.max(0, (world.speed - TUNING.speedStart) / (TUNING.speedMax - TUNING.speedStart)),
       );
       trotTimer.current = 0.15 - 0.06 * speedNorm;
-      if (!muted) sfxRef.current?.trot(speedNorm);
+      if (!mutedRef.current) sfxRef.current?.trot(speedNorm);
     }
 
     handleEvents(
       world,
-      muted ? null : sfxRef.current,
-      muted ? null : trackRef?.current ?? null,
+      mutedRef.current ? null : sfxRef.current,
+      mutedRef.current ? null : trackRef?.current ?? null,
       reducedMotion,
       hud,
       BURST_RGB[character],
     );
     // The soundtrack conducts itself from the live world every frame —
     // tempo from speed, layers from intensity, silence from state.
-    trackRef?.current?.update(world, muted);
+    trackRef?.current?.update(world, mutedRef.current);
     writeHud(world, hud);
 
     if (prevStatus.current !== world.status) {
