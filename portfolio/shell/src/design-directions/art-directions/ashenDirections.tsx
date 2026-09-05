@@ -771,7 +771,7 @@ export const ASHEN_VARIANTS: readonly AshenVariant[] = [
   },
   {
     id: "bloom",
-    label: "candidate 3 · chosen",
+    label: "candidate 3 · survey pick (superseded)",
     name: "Verdigris Bloom",
     mood:
       "Bright overgrown noon: pale cyan-to-cream sky, white clouds, mossy ruins with verdigris copper roofs, pink and yellow blossoms, petals drifting. Hopeful, warm, spring after ruin.",
@@ -905,7 +905,9 @@ export function AshenDirectionsSection() {
           candidates each push a different visual and mechanical direction while keeping the menu
           layout, the souls pickup economy and the star pickups. Every still shares one layer
           grammar (sky, city, ground, knight, pickups, atmosphere) so the cards read side by side.
-          The owner picked <strong>candidate 3, Verdigris Bloom</strong> — the character stays the
+          The owner picked <strong>candidate 3, Verdigris Bloom</strong> in the survey, but the
+          final decision was to <strong>retain Ashen Dusk (the incumbent)</strong> and refine it —
+          the candidates remain as a record of explored directions. The character stays the
           bone-cat knight in every variant (themes re-skin the world, never the character).
         </p>
       </div>
