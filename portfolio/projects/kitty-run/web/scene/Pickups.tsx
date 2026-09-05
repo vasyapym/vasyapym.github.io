@@ -5,8 +5,8 @@
 import { useMemo, useRef } from "react";
 import * as THREE from "three";
 import { useFrame } from "@react-three/fiber";
-import { PALETTE } from "../lib/palette.ts";
 import { softDotTexture } from "../lib/textures.ts";
+import { THEMES, type CharacterId } from "../lib/theme.ts";
 import type { WorldState } from "./world.ts";
 
 const MAX_PICKUPS = 48;
@@ -37,13 +37,40 @@ function starShape(): THREE.Shape {
   return s;
 }
 
-const HEART_COLOR = new THREE.Color(PALETTE.heart);
-const HEAL_COLOR = new THREE.Color(PALETTE.heal);
-const STAR_COLOR = new THREE.Color(PALETTE.star);
-const HEART_GLOW = new THREE.Color(PALETTE.heartGlow);
-const STAR_GLOW = new THREE.Color(PALETTE.starGlow);
+// One colour set per theme, built once at module scope so the useFrame
+// body stays allocation-free — a character switch just picks a different
+// prebuilt record.
+type PickupColors = {
+  heart: THREE.Color;
+  heal: THREE.Color;
+  star: THREE.Color;
+  heartGlow: THREE.Color;
+  starGlow: THREE.Color;
+};
 
-export function Pickups({ world }: { world: WorldState }) {
+function pickupColors(character: CharacterId): PickupColors {
+  const p = THEMES[character].palette;
+  return {
+    heart: new THREE.Color(p.heart),
+    heal: new THREE.Color(p.heal),
+    star: new THREE.Color(p.star),
+    heartGlow: new THREE.Color(p.heartGlow),
+    starGlow: new THREE.Color(p.starGlow),
+  };
+}
+
+const PICKUP_COLORS: Record<CharacterId, PickupColors> = {
+  kitty: pickupColors("kitty"),
+  souls: pickupColors("souls"),
+};
+
+export function Pickups({
+  world,
+  character,
+}: {
+  world: WorldState;
+  character: CharacterId;
+}) {
   const heartRef = useRef<THREE.InstancedMesh>(null);
   const starRef = useRef<THREE.InstancedMesh>(null);
   const crossRef = useRef<THREE.InstancedMesh>(null);
@@ -52,6 +79,7 @@ export function Pickups({ world }: { world: WorldState }) {
   const heartGeo = useMemo(() => new THREE.ShapeGeometry(heartShape(), 14), []);
   const starGeo = useMemo(() => new THREE.ShapeGeometry(starShape(), 8), []);
   const dummy = useMemo(() => new THREE.Object3D(), []);
+  const colors = PICKUP_COLORS[character];
 
   useFrame(() => {
     let heartCount = 0;
@@ -88,7 +116,7 @@ export function Pickups({ world }: { world: WorldState }) {
         heartMesh?.setMatrixAt(heartCount, dummy.matrix);
         heartMesh?.setColorAt(
           heartCount,
-          isHeal ? HEAL_COLOR : HEART_COLOR,
+          isHeal ? colors.heal : colors.heart,
         );
         heartCount += 1;
 
@@ -107,7 +135,7 @@ export function Pickups({ world }: { world: WorldState }) {
         }
       } else {
         starMesh?.setMatrixAt(starCount, dummy.matrix);
-        starMesh?.setColorAt(starCount, STAR_COLOR);
+        starMesh?.setColorAt(starCount, colors.star);
         starCount += 1;
       }
 
@@ -119,7 +147,7 @@ export function Pickups({ world }: { world: WorldState }) {
         glowMesh.setMatrixAt(glowCount, dummy.matrix);
         glowMesh.setColorAt(
           glowCount,
-          p.kind === "star" ? STAR_GLOW : HEART_GLOW,
+          p.kind === "star" ? colors.starGlow : colors.heartGlow,
         );
         glowCount += 1;
       }

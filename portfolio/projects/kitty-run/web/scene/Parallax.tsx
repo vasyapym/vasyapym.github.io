@@ -6,7 +6,7 @@ import { useMemo, useRef } from "react";
 import * as THREE from "three";
 import { useFrame } from "@react-three/fiber";
 import { createRng } from "../lib/rng.ts";
-import { PALETTE } from "../lib/palette.ts";
+import { paletteFor, type CharacterId } from "../lib/theme.ts";
 import { cloudTexture, hillTexture, skyTexture } from "../lib/textures.ts";
 import type { WorldState } from "./world.ts";
 
@@ -63,19 +63,28 @@ function ScrollingPlane(props: {
   );
 }
 
-export function Parallax({ world }: { world: WorldState }) {
-  const skyMap = useMemo(() => skyTexture(), []);
+export function Parallax({
+  world,
+  character,
+}: {
+  world: WorldState;
+  character: CharacterId;
+}) {
+  // The theme is read as a prop, so a character switch rebuilds exactly
+  // these textures (same seeds — same shapes, new colours).
+  const palette = paletteFor(character);
+  const skyMap = useMemo(() => skyTexture(palette), [palette]);
   const cloudMaps = useMemo(
-    () => [0, 1, 2].map((i) => cloudTexture(`kitty-run/cloud/${i}`)),
-    [],
+    () => [0, 1, 2].map((i) => cloudTexture(`kitty-run/cloud/${i}`, palette)),
+    [palette],
   );
   const farMap = useMemo(
-    () => hillTexture(PALETTE.hillFar, 5, "kitty-run/hills/far"),
-    [],
+    () => hillTexture(palette.hillFar, 5, "kitty-run/hills/far"),
+    [palette],
   );
   const nearMap = useMemo(
-    () => hillTexture(PALETTE.hillNear, 4, "kitty-run/hills/near"),
-    [],
+    () => hillTexture(palette.hillNear, 4, "kitty-run/hills/near"),
+    [palette],
   );
 
   const clouds = useMemo<CloudSpec[]>(() => {

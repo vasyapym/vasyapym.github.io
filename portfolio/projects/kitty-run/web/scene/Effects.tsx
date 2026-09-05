@@ -11,14 +11,24 @@ import {
   Vignette,
 } from "@react-three/postprocessing";
 import type { ChromaticAberrationEffect } from "postprocessing";
+import type { CharacterId } from "../lib/theme.ts";
 import type { WorldState } from "./world.ts";
+
+// The dark theme leans on a deeper vignette; the pastel original stays as
+// it shipped.
+const VIGNETTE_DARKNESS: Record<CharacterId, number> = {
+  kitty: 0.26,
+  souls: 0.26,
+};
 
 export function Effects({
   world,
   reducedMotion,
+  character,
 }: {
   world: WorldState;
   reducedMotion: boolean;
+  character: CharacterId;
 }) {
   const caRef = useRef<ChromaticAberrationEffect>(null);
 
@@ -50,7 +60,7 @@ export function Effects({
         mipmapBlur
       />
       <ChromaticAberration ref={caRef} offset={[0, 0]} />
-      <Vignette darkness={0.26} offset={0.3} />
+      <Vignette darkness={VIGNETTE_DARKNESS[character]} offset={0.3} />
     </EffectComposer>
   );
 }

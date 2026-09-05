@@ -11,9 +11,17 @@ import { buzz } from "../lib/haptics.ts";
 import type { Sfx } from "../lib/audio.ts";
 import type { Soundtrack } from "../lib/music.ts";
 import { clampInto, stageSpan } from "../lib/framing.ts";
-import { hexRgb, dashTrail, dustPuff, sparkBurst, speedLine, type Rgb } from "./bursts.ts";
+import {
+  hexRgb,
+  dashTrail,
+  dustPuff,
+  sparkBurst,
+  speedLine,
+  type Rgb,
+} from "./bursts.ts";
 import { releaseJump, requestDash, requestJump } from "./actions.ts";
 import { pilotSteer } from "../lib/pilot.ts";
+import { THEMES, type CharacterId } from "../lib/theme.ts";
 import { stepWorld } from "./step.ts";
 import type { GameStatus, WorldState } from "./world.ts";
 
@@ -32,10 +40,29 @@ export type HudRefs = {
 
 const DASH_TAIL_TIME = 0.12;
 
-const HEART_RGB = hexRgb("#ff5f7e");
-const STAR_RGB = hexRgb("#ffd44d");
-const HEAL_RGB = hexRgb("#ff8fb3");
-const HIT_RGB = hexRgb("#ffd44d");
+// One particle-burst colour set per theme, built once at module scope from
+// the theme palettes — a character switch just picks a different record.
+type BurstColors = {
+  heart: Rgb;
+  star: Rgb;
+  heal: Rgb;
+  hit: Rgb;
+};
+
+function burstColors(character: CharacterId): BurstColors {
+  const p = THEMES[character].palette;
+  return {
+    heart: hexRgb(p.heart),
+    star: hexRgb(p.star),
+    heal: hexRgb(p.healBurst),
+    hit: hexRgb(p.star),
+  };
+}
+
+const BURST_RGB: Record<CharacterId, BurstColors> = {
+  kitty: burstColors("kitty"),
+  souls: burstColors("souls"),
+};
 
 function emitFloater(
   world: WorldState,
@@ -60,6 +87,7 @@ function handleEvents(
   track: Soundtrack | null,
   reducedMotion: boolean,
   hud: HudRefs,
+  colors: BurstColors,
 ): void {
   for (const event of world.events) {
     const k = world.kitty;
@@ -70,7 +98,7 @@ function handleEvents(
         break;
       case "doubleJump":
         sfx?.doubleJump();
-        sparkBurst(world, 0, k.y + 0.4, reducedMotion ? 4 : 8, HEART_RGB, 2.2);
+        sparkBurst(world, 0, k.y + 0.4, reducedMotion ? 4 : 8, colors.heart, 2.2);
         break;
       case "land":
         sfx?.land(event.impact);
@@ -85,8 +113,8 @@ function handleEvents(
         // fanfare rings, exactly as it flinches on a hit.
         track?.duck();
         if (!reducedMotion) buzz([14, 42, 14]);
-        sparkBurst(world, 0, k.y + 1.3, reducedMotion ? 6 : 16, HEART_RGB, 4);
-        sparkBurst(world, 0, k.y + 1.1, reducedMotion ? 4 : 10, STAR_RGB, 2.8);
+        sparkBurst(world, 0, k.y + 1.3, reducedMotion ? 6 : 16, colors.heart, 4);
+        sparkBurst(world, 0, k.y + 1.1, reducedMotion ? 4 : 10, colors.star, 2.8);
         if (hud.milestone.current) {
           const node = hud.milestone.current;
           node.textContent = `${event.meters} m!`;
@@ -116,12 +144,16 @@ function handleEvents(
         sfx?.hit();
         track?.duck();
         if (!reducedMotion) buzz(70);
-        sparkBurst(world, 0, k.y + 0.8, reducedMotion ? 6 : 14, HIT_RGB, 4.2);
+        sparkBurst(world, 0, k.y + 0.8, reducedMotion ? 6 : 14, colors.hit, 4.2);
         emitFloater(world, 0, k.y + 0.8, "hurt", 1);
         break;
       case "pickup": {
         const color: Rgb =
-          event.pickup === "star" ? STAR_RGB : event.pickup === "heal" ? HEAL_RGB : HEART_RGB;
+          event.pickup === "star"
+            ? colors.star
+            : event.pickup === "heal"
+              ? colors.heal
+              : colors.heart;
         sfx?.pickup(event.combo);
         if (event.healed) {
           sfx?.heal();
@@ -210,6 +242,7 @@ export function GameLoop({
   muted,
   hud,
   reducedMotion,
+  character,
   onStatus,
 }: {
   world: WorldState;
@@ -225,6 +258,7 @@ export function GameLoop({
   muted: boolean;
   hud: HudRefs;
   reducedMotion: boolean;
+  character: CharacterId;
   onStatus: (status: GameStatus) => void;
 }) {
   const prevStatus = useRef<GameStatus>(world.status);
@@ -344,7 +378,14 @@ export function GameLoop({
       if (!muted) sfxRef.current?.trot(speedNorm);
     }
 
-    handleEvents(world, muted ? null : sfxRef.current, muted ? null : trackRef?.current ?? null, reducedMotion, hud);
+    handleEvents(
+      world,
+      muted ? null : sfxRef.current,
+      muted ? null : trackRef?.current ?? null,
+      reducedMotion,
+      hud,
+      BURST_RGB[character],
+    );
     // The soundtrack conducts itself from the live world every frame —
     // tempo from speed, layers from intensity, silence from state.
     trackRef?.current?.update(world, muted);

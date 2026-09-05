@@ -3,7 +3,16 @@
 
 import * as THREE from "three";
 import { createRng } from "../lib/rng.ts";
-import { PALETTE } from "../lib/palette.ts";
+import type { ThemePalette } from "../lib/theme.ts";
+
+function hexRgb(hex: string): { r: number; g: number; b: number } {
+  const h = hex.replace("#", "");
+  return {
+    r: parseInt(h.slice(0, 2), 16),
+    g: parseInt(h.slice(2, 4), 16),
+    b: parseInt(h.slice(4, 6), 16),
+  };
+}
 
 function makeCanvas(width: number, height: number): {
   canvas: HTMLCanvasElement;
@@ -23,25 +32,29 @@ function toTexture(canvas: HTMLCanvasElement): THREE.CanvasTexture {
   return texture;
 }
 
-// Vertical pastel gradient with a soft sun baked into the top right.
-export function skyTexture(): THREE.CanvasTexture {
+// Vertical gradient with a soft sun (or moon) baked into the top right,
+// voiced by whichever theme's palette is passed in.
+export function skyTexture(p: ThemePalette): THREE.CanvasTexture {
   const { canvas, ctx } = makeCanvas(512, 512);
   const gradient = ctx.createLinearGradient(0, 0, 0, 512);
-  gradient.addColorStop(0, PALETTE.skyTop);
-  gradient.addColorStop(0.62, "#d8ecf8");
-  gradient.addColorStop(1, PALETTE.skyBottom);
+  gradient.addColorStop(0, p.skyTop);
+  gradient.addColorStop(0.62, p.skyMid);
+  gradient.addColorStop(1, p.skyBottom);
   ctx.fillStyle = gradient;
   ctx.fillRect(0, 0, 512, 512);
 
   const sunX = 396;
   const sunY = 172;
+  const halo = hexRgb(p.sunHalo);
+  const haloSoft = hexRgb(p.sunHaloSoft);
+  const core = hexRgb(p.sunCore);
   const glow = ctx.createRadialGradient(sunX, sunY, 8, sunX, sunY, 150);
-  glow.addColorStop(0, "rgba(255, 252, 240, 0.95)");
-  glow.addColorStop(0.25, "rgba(255, 244, 224, 0.5)");
-  glow.addColorStop(1, "rgba(255, 244, 224, 0)");
+  glow.addColorStop(0, `rgba(${halo.r}, ${halo.g}, ${halo.b}, 0.95)`);
+  glow.addColorStop(0.25, `rgba(${haloSoft.r}, ${haloSoft.g}, ${haloSoft.b}, 0.5)`);
+  glow.addColorStop(1, `rgba(${haloSoft.r}, ${haloSoft.g}, ${haloSoft.b}, 0)`);
   ctx.fillStyle = glow;
   ctx.fillRect(0, 0, 512, 512);
-  ctx.fillStyle = "rgba(255, 253, 246, 0.98)";
+  ctx.fillStyle = `rgba(${core.r}, ${core.g}, ${core.b}, 0.98)`;
   ctx.beginPath();
   ctx.arc(sunX, sunY, 34, 0, Math.PI * 2);
   ctx.fill();
@@ -50,15 +63,15 @@ export function skyTexture(): THREE.CanvasTexture {
 }
 
 // A puffy cloud: a handful of overlapping circles with a soft edge.
-// Fill AND soft edge are driven by PALETTE.cloud (a cool blue-white kept
+// Fill AND soft edge are driven by the theme's cloud colour (a tone kept
 // under the bloom threshold) so clouds stay lit and pleasant without ever
 // blooming or reading as the sun. Byte values are parsed straight from the
 // hex — we want the sRGB canvas value, not a colour-managed conversion.
-export function cloudTexture(seed: string): THREE.CanvasTexture {
+export function cloudTexture(seed: string, p: ThemePalette): THREE.CanvasTexture {
   const rng = createRng(seed);
   const { canvas, ctx } = makeCanvas(512, 256);
   const puffs = 5 + Math.floor(rng() * 3);
-  const hex = PALETTE.cloud.replace("#", "");
+  const hex = p.cloud.replace("#", "");
   const r = parseInt(hex.slice(0, 2), 16);
   const g = parseInt(hex.slice(2, 4), 16);
   const b = parseInt(hex.slice(4, 6), 16);
@@ -143,21 +156,21 @@ export function softDotTexture(): THREE.CanvasTexture {
   return toTexture(canvas);
 }
 
-// Plum polka-dot face for crates and balloons — hazards read as candy, not
-// as debris.
-export function crateTexture(): THREE.CanvasTexture {
+// Polka-dot face for crates and balloons — hazards read as candy (or, in
+// the dark theme, as iron), not as debris.
+export function crateTexture(p: ThemePalette): THREE.CanvasTexture {
   const rng = createRng("kitty-run/crate/v1");
   const { canvas, ctx } = makeCanvas(256, 256);
-  ctx.fillStyle = PALETTE.obstaclePlum;
+  ctx.fillStyle = p.obstaclePlum;
   ctx.fillRect(0, 0, 256, 256);
-  ctx.strokeStyle = PALETTE.obstacleDeep;
+  ctx.strokeStyle = p.obstacleDeep;
   ctx.lineWidth = 18;
   ctx.strokeRect(9, 9, 238, 238);
   for (let row = 0; row < 4; row += 1) {
     for (let col = 0; col < 4; col += 1) {
       const x = 44 + col * 56 + (row % 2 === 0 ? 0 : 28);
       const y = 44 + row * 56;
-      ctx.fillStyle = PALETTE.obstacleDot;
+      ctx.fillStyle = p.obstacleDot;
       ctx.beginPath();
       ctx.arc(x, y, 9 + rng() * 3, 0, Math.PI * 2);
       ctx.fill();

@@ -7,7 +7,7 @@ import { useMemo, useRef } from "react";
 import * as THREE from "three";
 import { useFrame } from "@react-three/fiber";
 import { groundY } from "../lib/ground.ts";
-import { PALETTE } from "../lib/palette.ts";
+import { paletteFor, type CharacterId } from "../lib/theme.ts";
 import type { WorldState } from "./world.ts";
 
 const X_LEFT = -16;
@@ -66,7 +66,14 @@ function updateRibbonSpan(
   geometry.computeBoundingSphere();
 }
 
-export function Ground({ world }: { world: WorldState }) {
+export function Ground({
+  world,
+  character,
+}: {
+  world: WorldState;
+  character: CharacterId;
+}) {
+  const palette = paletteFor(character);
   const bandRef = useRef<THREE.Mesh>(null);
   const edgeRef = useRef<THREE.Mesh>(null);
   const bodyRef = useRef<THREE.Mesh>(null);
@@ -84,13 +91,13 @@ export function Ground({ world }: { world: WorldState }) {
   return (
     <group>
       <mesh ref={bodyRef} geometry={bodyGeometry} position={[0, 0, -0.05]}>
-        <meshBasicMaterial color={PALETTE.groundBody} />
+        <meshBasicMaterial color={palette.groundBody} />
       </mesh>
       <mesh ref={bandRef} geometry={bandGeometry}>
-        <meshBasicMaterial color={PALETTE.groundTop} />
+        <meshBasicMaterial color={palette.groundTop} />
       </mesh>
       <mesh ref={edgeRef} geometry={edgeGeometry} position={[0, 0, 0.01]}>
-        <meshBasicMaterial color={PALETTE.groundDot} />
+        <meshBasicMaterial color={palette.groundDot} />
       </mesh>
     </group>
   );

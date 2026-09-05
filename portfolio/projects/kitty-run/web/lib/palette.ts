@@ -13,7 +13,11 @@ export const PALETTE = {
   eyeInk: "#3a3142",
 
   skyTop: "#9fd9f6",
+  skyMid: "#d8ecf8",
   skyBottom: "#ffeff5",
+  sunCore: "#fffdf6",
+  sunHalo: "#fffcf0",
+  sunHaloSoft: "#fff4e0",
   cloud: "#c4d9eb",
   hillFar: "#c9e6f5",
   hillNear: "#a8d8ef",
@@ -31,6 +35,7 @@ export const PALETTE = {
   star: "#ffd44d",
   starGlow: "#f0b429",
   heal: "#e8455f",
+  healBurst: "#ff8fb3",
 
   ink: "#4a3b52",
   paper: "#fff8fb",

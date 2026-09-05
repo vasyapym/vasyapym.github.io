@@ -41,6 +41,44 @@ const MOTIF: { step: number; freq: number }[] = [
   { step: 40, freq: 261.63 }, // C5
 ];
 
+// The souls variant: the Andalusian lament (i7 – ♭VII(sus2) – ♭VI(add9) – v7)
+// over the same engine — a descending breath that resolves Em7 → Am7 by
+// fifth. Slower ceiling, darker pad, a b6→5 sigh motif that never "arrives".
+const SOULS_CHORDS: { root: number; tones: number[]; pad: number[] }[] = [
+  { root: 110.0, tones: [220.0, 261.63, 329.63, 440.0], pad: [220.0, 261.63, 329.63, 392.0] }, // Am7   (i7)
+  { root: 98.0, tones: [220.0, 293.66, 392.0, 440.0], pad: [196.0, 220.0, 293.66, 392.0] }, // Gsus2 (♭VII, no third)
+  { root: 87.31, tones: [220.0, 261.63, 349.23, 392.0], pad: [174.61, 220.0, 261.63, 392.0] }, // Fadd9 (♭VI, no 7th)
+  { root: 82.41, tones: [246.94, 293.66, 329.63, 392.0], pad: [164.81, 196.0, 246.94, 293.66] }, // Em7   (v7)
+];
+
+const SOULS_MOTIF: { step: number; freq: number }[] = [
+  { step: 16, freq: 440.0 }, // A5 — 9th over G, floating
+  { step: 20, freq: 329.63 }, // E5 — falls a fourth, the sigh
+  { step: 24, freq: 349.23 }, // F5 — the ♭6 leans in
+  { step: 28, freq: 329.63 }, // E5 — and settles back
+  { step: 32, freq: 293.66 }, // D5 — 6th over F
+  { step: 36, freq: 261.63 }, // C5 — 5th over F
+  { step: 40, freq: 293.66 }, // D5 — left hanging into Em
+];
+
+// Everything the character theme may re-voice. The engine's voices,
+// envelopes, rhythms and layer thresholds are theme-independent; a mode
+// swap only changes this record.
+type ScoreMode = "kitty" | "souls";
+
+type ScoreConfig = {
+  chords: { root: number; tones: number[]; pad: number[] }[];
+  motif: { step: number; freq: number }[];
+  bpmMin: number;
+  bpmSpan: number;
+  padFilterHz: number;
+};
+
+const SCORE_MODES: Record<ScoreMode, ScoreConfig> = {
+  kitty: { chords: CHORDS, motif: MOTIF, bpmMin: 96, bpmSpan: 36, padFilterHz: 1100 },
+  souls: { chords: SOULS_CHORDS, motif: SOULS_MOTIF, bpmMin: 78, bpmSpan: 32, padFilterHz: 760 },
+};
+
 export class Soundtrack {
   private ctx: AudioContext;
   private bed: GainNode;
@@ -60,6 +98,10 @@ export class Soundtrack {
   private motifLvl = 0;
   private canPan: boolean;
   private sparkleSide = 1;
+  // The active score mode ("kitty" pastel | "souls" ashen). Swapped by the
+  // page when the character changes; the sequencer keeps its step position,
+  // so the new harmony simply takes over at the next bar.
+  private cfg: ScoreConfig = SCORE_MODES.kitty;
 
   constructor(ctx: AudioContext, destination: AudioNode) {
     this.ctx = ctx;
@@ -143,7 +185,7 @@ export class Soundtrack {
       this.nextTime = Math.max(this.nextTime, now + 0.06); // park the sequencer.
       return;
     }
-    const bpm = 96 + 36 * speedNorm;
+    const bpm = this.cfg.bpmMin + this.cfg.bpmSpan * speedNorm;
     const stepDur = 60 / bpm / 4;
     // Dotted-eighth echo glides to follow the tempo.
     this.delay.delayTime.setTargetAtTime((0.75 * 60) / bpm, now, 0.1);
@@ -158,6 +200,12 @@ export class Soundtrack {
     this.duckUntil = this.ctx.currentTime + 0.45;
   }
 
+  // Theme switch: the harmony, tempo band and pad tone change; the running
+  // step position and every gain stay untouched.
+  setMode(mode: ScoreMode): void {
+    this.cfg = SCORE_MODES[mode];
+  }
+
   private scheduleStep(
     step: number,
     t: number,
@@ -167,7 +215,8 @@ export class Soundtrack {
     stepDur: number,
   ): void {
     const inBar = step % STEPS_PER_BAR;
-    const chord = CHORDS[Math.floor(step / STEPS_PER_BAR) % CHORDS.length];
+    const cfg = this.cfg;
+    const chord = cfg.chords[Math.floor(step / STEPS_PER_BAR) % cfg.chords.length];
 
     // Warm analog pad at the top of every bar.
     if (inBar === 0) {
@@ -205,9 +254,9 @@ export class Soundtrack {
     }
     // Kitty motif — the lead, floating in delay + reverb.
     if (this.motifLvl > 0.02) {
-      for (let i = 0; i < MOTIF.length; i += 1) {
-        if (MOTIF[i].step === step) {
-          this.motif(MOTIF[i].freq, t, 0.09 * this.motifLvl);
+      for (let i = 0; i < cfg.motif.length; i += 1) {
+        if (cfg.motif[i].step === step) {
+          this.motif(cfg.motif[i].freq, t, 0.09 * this.motifLvl);
           break;
         }
       }
@@ -266,10 +315,11 @@ export class Soundtrack {
   }
 
   // Four detuned saws through one lowpass — the classic warm analog pad.
+  // The cutoff is the mode's tone dial: pastel warm, souls dark.
   private pad(freqs: number[], t: number, duration: number): void {
     const filter = this.ctx.createBiquadFilter();
     filter.type = "lowpass";
-    filter.frequency.value = 1100;
+    filter.frequency.value = this.cfg.padFilterHz;
     filter.Q.value = 0.7;
     this.panTo(filter, -0.1).connect(this.bed);
     this.send(filter, 0.3, 0);

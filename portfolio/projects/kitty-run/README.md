@@ -6,7 +6,12 @@ alive. Hearts and big cross-hearts mend her; crates break her. Chain pickups
 into a combo multiplier for score — every hazard in the run can be cleared
 with a well-timed jump.
 
-Three features carry the engineering story:
+Two characters share the one run: the pastel kitty in her bow, and the
+**ashen knight** — a Dark Souls re-theme (helm, soul wisps, a dusk world,
+YOU DIED) picked from the character chips on the ready card. It is strictly
+a cosmetic variant: physics, pacing, seeds and replays are untouched.
+
+Four features carry the engineering story:
 
 - **Bullet-time dash** — every dash dips the whole simulation clock to
   0.35× and wells it back up. The dilation is deterministic: the player
@@ -29,6 +34,17 @@ Three features carry the engineering story:
   timed inputs; a faded afterimage replays it on the very same track and
   gives chase once you open a lead. Same seed, same physics, same
   bullet-time — a deterministic replay you can outrun.
+- **Two characters, one run** — the character chips on the ready card
+  select the theme; the choice persists (with a `?souls` deep link). The
+  ashen knight reskins every surface by palette swap only: a dusk sky with
+  a blooming moon, ash ground with an ember edge, iron crates with bone
+  rivets, soul wisps instead of hearts, a serif HUD, and a YOU DIED
+  overture on the game-over card. The soundtrack follows too — the same
+  engine re-voiced onto an Andalusian lament (Am7–Gsus2–Fadd9–Em7,
+  78→110 bpm, darker pad filter), so the menu vamp alone reads as Dark
+  Souls. The simulation never sees the theme: it lives in a `theme.ts`
+  layer threaded through props, and the echo renders as an ash-memory
+  ghost of whichever character you are.
 
 ## How it fits the shell
 
@@ -129,6 +145,15 @@ the route is `/projects/kitty-run`. Shell-side additions: the
   particle sprite are canvas-generated textures; Kitty herself is
   procedural vector art: `THREE.ShapeGeometry` parts (head, ears, bow,
   dress, whiskers) with an ink copy grown behind each fill as an outline.
+  The souls variant adds its kit from the same technique (helm dome,
+  crest, brow band, ember plume, belt) — steel tones reuse the `bowRed`/
+  `bowDeep` palette keys, so the ghost retint keeps working by hex lookup.
+- **Theme layer, not theme branches** — `web/lib/theme.ts` holds both
+  palettes, the UI copy and the CSS accents; `character` is page state
+  threaded through props (never stored on the world), texture builders
+  take their palette as a parameter, per-theme colour records are built
+  once at module scope, and selection can only happen on the ready
+  screen — so a switch is a plain re-render while nothing is simulating.
 - **Responsive framing** — `web/lib/framing.ts` derives camera distance,
   field of view and the look target from the viewport aspect, guaranteeing
   eleven world units of run-ahead on portrait phones (Kitty reads as a

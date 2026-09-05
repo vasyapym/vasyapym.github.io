@@ -23,7 +23,11 @@ import {
   STAGE_BEHIND_MARGIN,
 } from "../lib/framing.ts";
 import { PALETTE } from "../lib/palette.ts";
+import { THEMES, type CharacterId } from "../lib/theme.ts";
 import type { WorldState } from "./world.ts";
+
+const SOULS_P = THEMES.souls.palette;
+
 
 const ECHO_OPACITY = 0.66;
 // The holder's z: the quad reconstructs a fullscreen plane at this depth,
@@ -33,19 +37,32 @@ const ECHO_Z = -1.2;
 // draws nothing else.
 const RIG_LAYER = 1;
 
-// The restyle: every rig colour maps into one dusty-rose family pulled
-// toward the scene's own pinks, so the copy reads as a faded print of
-// Kitty rather than a second one — and never as the icy specter the old
-// blue-white tint made of her.
-const FADED: Record<string, string> = {
-  [PALETTE.kittyWhite]: "#f9f2f6",
-  [PALETTE.suitPink]: "#f0d3e0",
-  [PALETTE.bowRed]: "#e3b3c7",
-  [PALETTE.bowDeep]: "#dca6bd",
-  [PALETTE.noseYellow]: "#f1e4d4",
-  [PALETTE.cheek]: "#eed3de",
-  // outlineInk and eyeInk share one ink hex; both map here together.
-  [PALETTE.outlineInk]: "#c49cb2",
+// The restyle: every rig colour maps into one faded family pulled toward
+// the scene's own mood, so the copy reads as a watercolour print of the
+// character rather than a second one. The kitty map lands in the dusty-rose
+// family; the souls map lands in ash memory — desaturated warm greys,
+// never icy blue. Keys are the rig's own hexes, so a map only ever matches
+// the theme it was built for.
+const FADED: Record<CharacterId, Record<string, string>> = {
+  kitty: {
+    [PALETTE.kittyWhite]: "#f9f2f6",
+    [PALETTE.suitPink]: "#f0d3e0",
+    [PALETTE.bowRed]: "#e3b3c7",
+    [PALETTE.bowDeep]: "#dca6bd",
+    [PALETTE.noseYellow]: "#f1e4d4",
+    [PALETTE.cheek]: "#eed3de",
+    // outlineInk and eyeInk share one ink hex; both map here together.
+    [PALETTE.outlineInk]: "#c49cb2",
+  },
+  souls: {
+    [SOULS_P.kittyWhite]: "#eae4dc",
+    [SOULS_P.suitPink]: "#cbb9ad",
+    [SOULS_P.bowRed]: "#b8ada4",
+    [SOULS_P.bowDeep]: "#ab9f96",
+    [SOULS_P.noseYellow]: "#d9c9b8",
+    [SOULS_P.cheek]: "#d6c6bb",
+    [SOULS_P.outlineInk]: "#9a8f86",
+  },
 };
 
 // When the stage clamp pins the echo next to the player (narrow phones),
@@ -64,10 +81,10 @@ function proximityFactor(drawnX: number): number {
 // target's own depth buffer resolves head-over-body occlusion, and the
 // single fade happens later on the composite quad — any per-part opacity
 // would drag the interior alpha stacking straight back in.
-function retint(material: THREE.Material): void {
+function retint(material: THREE.Material, map: Record<string, string>): void {
   const basic = material as THREE.MeshBasicMaterial;
   if (basic.color) {
-    const mapped = FADED[`#${basic.color.getHexString()}`];
+    const mapped = map[`#${basic.color.getHexString()}`];
     if (mapped) basic.color.set(mapped);
   }
 }
@@ -75,9 +92,11 @@ function retint(material: THREE.Material): void {
 export function Echo({
   world,
   echo,
+  character,
 }: {
   world: WorldState;
   echo: WorldState;
+  character: CharacterId;
 }) {
   const holder = useRef<THREE.Group>(null);
   const rig = useRef<THREE.Group>(null);
@@ -133,11 +152,14 @@ export function Echo({
     camera.layers.disable(RIG_LAYER);
   }, [camera]);
 
-  // Retint once and move the whole rig subtree onto the rig-only layer so the
-  // main camera skips it and the RT camera captures it alone.
+  // Retint once per character and move the whole rig subtree onto the
+  // rig-only layer so the main camera skips it and the RT camera captures
+  // it alone. The rig is keyed by character, so a switch builds fresh
+  // materials and this pass re-maps them into the new faded family.
   useEffect(() => {
     const group = rig.current;
     if (!group) return;
+    const map = FADED[character];
     group.traverse((obj) => {
       obj.layers.set(RIG_LAYER);
       const mesh = obj as Partial<THREE.Mesh>;
@@ -145,9 +167,9 @@ export function Echo({
       const materials = Array.isArray(mesh.material)
         ? mesh.material
         : [mesh.material];
-      for (const material of materials) retint(material);
+      for (const material of materials) retint(material, map);
     });
-  }, []);
+  }, [character]);
 
   // Keep the RT at framebuffer resolution as the viewport / dpr change.
   useEffect(() => {
@@ -240,7 +262,7 @@ export function Echo({
   return (
     <group ref={holder} position={[0, 0, ECHO_Z]}>
       <group ref={rig}>
-        <Kitty world={echo} />
+        <Kitty key={character} world={echo} character={character} />
       </group>
       <mesh
         ref={quad}

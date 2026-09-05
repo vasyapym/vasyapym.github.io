@@ -6,6 +6,7 @@ import * as THREE from "three";
 import { Canvas, useFrame } from "@react-three/fiber";
 import { PALETTE } from "../lib/palette.ts";
 import { BASE_CAM_Z, BASE_FOV, frameFor } from "../lib/framing.ts";
+import type { CharacterId } from "../lib/theme.ts";
 import type { Sfx } from "../lib/audio.ts";
 import type { Soundtrack } from "../lib/music.ts";
 import type { GameStatus, WorldState } from "./world.ts";
@@ -68,6 +69,7 @@ export function RunCanvas({
   trackRef,
   muted,
   hud,
+  character,
   onStatus,
 }: {
   world: WorldState;
@@ -81,6 +83,10 @@ export function RunCanvas({
   trackRef?: React.RefObject<Soundtrack | null>;
   muted: boolean;
   hud: HudRefs;
+  // The selected character: presentation only. The simulation never sees
+  // it — every themed component re-renders on a switch, which can only
+  // happen on the ready screen.
+  character: CharacterId;
   onStatus: (status: GameStatus) => void;
 }) {
   return (
@@ -103,17 +109,17 @@ export function RunCanvas({
       }}
     >
       <CameraRig world={world} reducedMotion={reducedMotion} />
-      <Parallax world={world} />
-      <Ground world={world} />
+      <Parallax world={world} character={character} />
+      <Ground world={world} character={character} />
       <Shadow world={world} />
-      <Obstacles world={world} />
-      <Pickups world={world} />
+      <Obstacles world={world} character={character} />
+      <Pickups world={world} character={character} />
       <Particles world={world} />
-      <Kitty world={world} />
+      <Kitty world={world} character={character} />
       {echo && echoInputs && (
-        <Echo world={world} echo={echo} />
+        <Echo world={world} echo={echo} character={character} />
       )}
-      <Effects world={world} reducedMotion={reducedMotion} />
+      <Effects world={world} reducedMotion={reducedMotion} character={character} />
       <GameLoop
         world={world}
         echo={echo}
@@ -123,6 +129,7 @@ export function RunCanvas({
         muted={muted}
         hud={hud}
         reducedMotion={reducedMotion}
+        character={character}
         onStatus={onStatus}
       />
     </Canvas>

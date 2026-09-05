@@ -525,11 +525,60 @@
   gap: 12px;
 }
 
+/* Character chips: the two-character row at the top of the ready stack.
+   Paper pills in the watch button's language; the active character wears
+   the bow-red border so the selection reads at a glance. The souls theme
+   re-voices this row under the page-level modifier class. */
+.kitty-run-characters {
+  display: flex;
+  gap: 8px;
+}
+
+.kitty-run-char {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 2px;
+  padding: 8px 16px;
+  border: 1px solid #f2cfdd;
+  border-radius: 14px;
+  background: rgba(255, 248, 251, 0.85);
+  color: #4a3b52;
+  cursor: pointer;
+  font-family: var(--mono);
+  transition: border-color 160ms ease, background 160ms ease,
+    box-shadow 160ms ease;
+}
+
+.kitty-run-char:hover {
+  border-color: #e88bab;
+  background: #fff8fb;
+}
+
+.kitty-run-char.is-active {
+  border-color: #e94f64;
+  background: #fff8fb;
+  box-shadow: 0 4px 14px rgba(233, 79, 100, 0.18);
+}
+
+.kitty-run-char-name {
+  font-size: 12px;
+  font-weight: 700;
+  letter-spacing: 0.07em;
+  text-transform: uppercase;
+  color: #d13a50;
+}
+
+.kitty-run-char-blurb {
+  font-size: 11px;
+  letter-spacing: 0.04em;
+  color: #8a6f7e;
+}
+
 /* Autopilot invitation: a quieter paper pill under the start card. It
    sells the engineering story in one line — the same lookahead bot that
    verifies every generated track plays the live game on request. */
-.kitty-run-watch {
-  display: flex;
+.kitty-run-watch {  display: flex;
   flex-direction: column;
   align-items: center;
   gap: 3px;
@@ -789,4 +838,350 @@
   .kitty-run-debug {
     display: none;
   }
+}
+
+/* =====================================================================
+   kitty-run × Dark Souls — souls stylesheet
+   Appended overrides. Every rule is prefixed .kitty-run-page--souls .
+   Palette: ember #e8863c · emberDeep #b8601f · soul #dcecff ·
+            soulGlow #7fa8d8 · death #d23b2f · card #1b1917 ·
+            cardLine #3d3733 · inkMuted #9b928a · bone #e8e2d6 ·
+            near-black #1a1614
+   ===================================================================== */
+
+/* ------------------------------------------------ page title (optional) */
+.kitty-run-page--souls .kitty-run-title {
+  font-family: Georgia, "Times New Roman", serif;
+  font-weight: 400;
+  letter-spacing: 0.08em;
+  color: #e8e2d6;
+  text-shadow: 0 2px 0 rgba(26, 22, 20, 0.9), 0 4px 14px rgba(26, 22, 20, 0.6);
+}
+
+/* ------------------------------------------------------ stage & scrims */
+.kitty-run-page--souls .kitty-run-stage {
+  background: #1a1614;
+}
+
+.kitty-run-page--souls .kitty-run-overlay {
+  background: rgba(26, 22, 20, 0.62);
+  -webkit-backdrop-filter: blur(3px);
+  backdrop-filter: blur(3px);
+}
+
+/* ready wash: ash with a breath of cold soul-light; parking/centring
+   geometry is inherited untouched from the base rule + media block */
+.kitty-run-page--souls .kitty-run-overlay--ready {
+  background:
+    linear-gradient(rgba(127, 168, 216, 0.05), rgba(127, 168, 216, 0.05)),
+    rgba(26, 22, 20, 0.42);
+  -webkit-backdrop-filter: blur(2px);
+  backdrop-filter: blur(2px);
+}
+
+/* ------------------------------------------------------------ HUD: souls */
+/* The glow lives on the group: a drop-shadow filter on the wisp itself
+   would be clipped by its own clip-path. */
+.kitty-run-page--souls .kitty-run-hearts {
+  filter: drop-shadow(0 0 5px rgba(127, 168, 216, 0.7));
+}
+
+.kitty-run-page--souls .kitty-run-heart {
+  clip-path: path("M13 1.5 C17.6 1.5 20.6 5 20.6 9.2 C20.6 12.6 18.4 14.8 16.4 16.8 C15 18.2 15.8 20.4 14.2 23 C12.4 20.6 11.6 19 10 17 C7.6 14.8 5.4 12.6 5.4 9.2 C5.4 5 8.4 1.5 13 1.5 Z");
+  background: radial-gradient(circle at 50% 36%, #dcecff 0 30%, rgba(127, 168, 216, 0.95) 100%);
+}
+
+/* spent husk: ash, no light (base rule still supplies scale(0.85)) */
+.kitty-run-page--souls .kitty-run-heart.is-empty {
+  background: #9b928a;
+  opacity: 0.3;
+}
+
+/* ---------------------------------------------------- HUD: pause / score */
+.kitty-run-page--souls .kitty-run-pause {
+  background: rgba(27, 25, 23, 0.92);
+  box-shadow: inset 0 0 0 1px #3d3733, 0 2px 8px rgba(26, 22, 20, 0.55);
+}
+
+.kitty-run-page--souls .kitty-run-pause::before,
+.kitty-run-page--souls .kitty-run-pause::after {
+  background: #e8e2d6;
+}
+
+.kitty-run-page--souls .kitty-run-score {
+  font-family: Georgia, "Times New Roman", serif;
+  color: #e8e2d6;
+  text-shadow: 0 1px 0 rgba(26, 22, 20, 0.95), 0 2px 10px rgba(26, 22, 20, 0.7);
+}
+
+.kitty-run-page--souls .kitty-run-best {
+  font-family: Georgia, "Times New Roman", serif;
+  color: #e8e2d6;
+  text-shadow: 0 1px 0 rgba(26, 22, 20, 0.9);
+}
+
+/* ---------------------------------------------------- HUD: combo / banner */
+.kitty-run-page--souls .kitty-run-combo span {
+  font-family: Georgia, "Times New Roman", serif;
+  color: #e8863c;
+  text-shadow: 0 1px 0 rgba(26, 22, 20, 0.95), 0 0 10px rgba(232, 134, 60, 0.35);
+}
+
+.kitty-run-page--souls .kitty-run-combo-track {
+  background: rgba(232, 226, 214, 0.16);
+}
+
+.kitty-run-page--souls .kitty-run-combo-bar {
+  background: #e8863c;
+  box-shadow: 0 0 6px rgba(232, 134, 60, 0.55);
+}
+
+.kitty-run-page--souls .kitty-run-milestone {
+  font-family: Georgia, "Times New Roman", serif;
+  font-weight: 400;
+  letter-spacing: 0.06em;
+  color: #e8e2d6;
+  text-shadow:
+    0 2px 0 rgba(26, 22, 20, 0.95),
+    0 0 18px rgba(232, 134, 60, 0.45),
+    0 6px 20px rgba(26, 22, 20, 0.7);
+}
+
+/* ---------------------------------------------------- HUD: dash / pilot */
+.kitty-run-page--souls .kitty-run-dash {
+  background: rgba(27, 25, 23, 0.9);
+  color: #e8e2d6;
+  box-shadow: inset 0 0 0 1px #3d3733, 0 6px 18px rgba(26, 22, 20, 0.55);
+}
+
+/* ember cooldown arc — same conic expression, mask/geometry untouched */
+.kitty-run-page--souls .kitty-run-dash::before {
+  background: conic-gradient(#e8863c calc((1 - var(--cd, 0)) * 360deg), rgba(232, 226, 214, 0.14) 0);
+}
+
+.kitty-run-page--souls .kitty-run-pilotchip {
+  background: rgba(61, 55, 51, 0.94);
+  color: #dcecff;
+  box-shadow: inset 0 0 0 1px rgba(127, 168, 216, 0.35), 0 4px 14px rgba(26, 22, 20, 0.5);
+}
+
+.kitty-run-page--souls .kitty-run-pilotchip:hover {
+  background: rgba(232, 134, 60, 0.94);
+  color: #1a1614;
+  box-shadow: inset 0 0 0 1px rgba(184, 96, 31, 0.8), 0 4px 14px rgba(26, 22, 20, 0.5);
+}
+
+/* --------------------------------------------- bullet-time vignette / debug */
+.kitty-run-page--souls .kitty-run-bullet {
+  mix-blend-mode: multiply;
+  background:
+    radial-gradient(ellipse at 50% 55%, rgba(127, 168, 216, 0) 40%, rgba(61, 55, 51, 0.78) 100%),
+    radial-gradient(ellipse at 50% 50%, rgba(220, 236, 255, 0.55) 0%, rgba(127, 168, 216, 0.25) 55%, rgba(26, 22, 20, 0.4) 100%);
+}
+
+.kitty-run-page--souls .kitty-run-debug {
+  color: #9b928a;
+  text-shadow: 0 1px 0 rgba(26, 22, 20, 0.9);
+}
+
+/* ------------------------------------------------------------- floaters */
+.kitty-run-page--souls .kitty-run-floater {
+  font-family: Georgia, "Times New Roman", serif;
+  color: #e8e2d6;
+  text-shadow: 0 1px 0 rgba(26, 22, 20, 0.95), 0 2px 8px rgba(26, 22, 20, 0.6);
+}
+
+.kitty-run-page--souls .kitty-run-floater-star,
+.kitty-run-page--souls .kitty-run-floater-bonus {
+  color: #e8863c;
+  text-shadow: 0 1px 0 rgba(26, 22, 20, 0.95), 0 2px 8px rgba(26, 22, 20, 0.6);
+}
+
+/* estus: ember with a warm flare */
+.kitty-run-page--souls .kitty-run-floater-heal {
+  color: #e8863c;
+  text-shadow:
+    0 1px 0 rgba(26, 22, 20, 0.95),
+    0 0 10px rgba(232, 134, 60, 0.7),
+    0 0 22px rgba(232, 134, 60, 0.35);
+}
+
+.kitty-run-page--souls .kitty-run-floater-hurt {
+  color: #7fa8d8;
+  text-shadow: 0 1px 0 rgba(26, 22, 20, 0.95), 0 2px 8px rgba(26, 22, 20, 0.7);
+}
+
+/* ------------------------------------------------------------------ cards */
+.kitty-run-page--souls .kitty-run-card {
+  border-color: #3d3733;
+  background: rgba(27, 25, 23, 0.92);
+  color: #e8e2d6;
+  box-shadow: 0 18px 40px rgba(26, 22, 20, 0.55);
+}
+
+.kitty-run-page--souls .kitty-run-card:hover {
+  border-color: #e8863c;
+}
+
+/* the ready card trades paper for iron; float keyframes untouched */
+.kitty-run-page--souls .kitty-run-card--ready {
+  border-color: #3d3733;
+  background: rgba(27, 25, 23, 0.9);
+  color: #e8e2d6;
+}
+
+.kitty-run-page--souls .kitty-run-card--ready:hover {
+  border-color: rgba(232, 134, 60, 0.75);
+}
+
+.kitty-run-page--souls .kitty-run-card-kicker,
+.kitty-run-page--souls .kitty-run-card--ready .kitty-run-card-kicker {
+  color: #e8863c;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+}
+
+/* ----------------------------------------------------------- YOU DIED */
+.kitty-run-page--souls .kitty-run-card--over .kitty-run-card-kicker {
+  font-family: Georgia, "Times New Roman", serif;
+  font-size: clamp(44px, 8vw, 56px);
+  font-weight: 400;
+  line-height: 1.05;
+  letter-spacing: 0.24em;
+  text-transform: uppercase;
+  color: #d23b2f;
+  text-shadow:
+    0 0 1px rgba(210, 59, 47, 0.85),
+    0 0 24px rgba(210, 59, 47, 0.35),
+    0 2px 0 rgba(26, 22, 20, 0.95),
+    0 6px 20px rgba(26, 22, 20, 0.85);
+  animation: kitty-souls-died 2.6s ease-out both;
+}
+
+/* the one new keyframe: a slow exhale, not a flash */
+@keyframes kitty-souls-died {
+  from { opacity: 0; letter-spacing: 0.1em; }
+  to   { opacity: 1; letter-spacing: 0.24em; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .kitty-run-page--souls .kitty-run-card--over .kitty-run-card-kicker {
+    animation: none;
+  }
+}
+
+/* --------------------------------------------------------- card innards */
+.kitty-run-page--souls .kitty-run-card-badge {
+  background: #e8863c;
+  color: #1a1614;
+  box-shadow: 0 0 12px rgba(232, 134, 60, 0.4);
+}
+
+.kitty-run-page--souls .kitty-run-card-echo,
+.kitty-run-page--souls .kitty-run-card--ready .kitty-run-card-echo {
+  border-color: rgba(127, 168, 216, 0.45);
+  background: rgba(127, 168, 216, 0.12);
+  color: #dcecff;
+}
+
+.kitty-run-page--souls .kitty-run-card-title {
+  font-family: Georgia, "Times New Roman", serif;
+  font-weight: 400;
+  letter-spacing: 0.02em;
+  color: #e8e2d6;
+  text-shadow: 0 2px 0 rgba(26, 22, 20, 0.9);
+}
+
+.kitty-run-page--souls .kitty-run-card-stat {
+  color: #e8863c;
+}
+
+.kitty-run-page--souls .kitty-run-card-hint,
+.kitty-run-page--souls .kitty-run-card--ready .kitty-run-card-hint {
+  color: #9b928a;
+}
+
+.kitty-run-page--souls .kitty-run-card-action,
+.kitty-run-page--souls .kitty-run-card--ready .kitty-run-card-action {
+  background: #e8863c;
+  color: #1a1614;
+  box-shadow: 0 4px 14px rgba(26, 22, 20, 0.5);
+}
+
+.kitty-run-page--souls .kitty-run-card-action:hover,
+.kitty-run-page--souls .kitty-run-card--ready .kitty-run-card-action:hover {
+  background: #b8601f;
+  color: #1a1614;
+}
+
+/* ------------------------------------------------------- watch pill */
+.kitty-run-page--souls .kitty-run-watch {
+  border-color: #3d3733;
+  background: rgba(27, 25, 23, 0.88);
+  color: #e8e2d6;
+}
+
+.kitty-run-page--souls .kitty-run-watch-title {
+  color: #e8863c;
+  letter-spacing: 0.12em;
+}
+
+.kitty-run-page--souls .kitty-run-watch-hint {
+  color: #9b928a;
+}
+
+/* --------------------------------------------------- character picker */
+.kitty-run-page--souls .kitty-run-char {
+  border-color: #3d3733;
+  background: rgba(27, 25, 23, 0.88);
+  color: #e8e2d6;
+  box-shadow: 0 2px 8px rgba(26, 22, 20, 0.4);
+}
+
+.kitty-run-page--souls .kitty-run-char:hover {
+  border-color: rgba(232, 134, 60, 0.6);
+}
+
+.kitty-run-page--souls .kitty-run-char.is-active {
+  border-color: #e8863c;
+  box-shadow: 0 0 0 1px rgba(232, 134, 60, 0.35), 0 0 16px rgba(232, 134, 60, 0.3);
+}
+
+.kitty-run-page--souls .kitty-run-char-name {
+  color: #e8e2d6;
+  letter-spacing: 0.1em;
+}
+
+.kitty-run-page--souls .kitty-run-char-blurb {
+  color: #9b928a;
+}
+
+/* ---------------------------------------------------------------------
+   Integration patches (not part of the delegated stylesheet): the base
+   file's hover/cooling states would otherwise flash pastel paper on the
+   iron controls. Same palette, same geometry — recolour only.
+   --------------------------------------------------------------------- */
+.kitty-run-page--souls .kitty-run-pause {
+  border-color: rgba(61, 55, 51, 0.9);
+}
+
+.kitty-run-page--souls .kitty-run-pause:hover {
+  background: #3d3733;
+}
+
+.kitty-run-page--souls .kitty-run-dash:hover {
+  background: #3d3733;
+}
+
+.kitty-run-page--souls .kitty-run-dash.is-cooling {
+  color: rgba(232, 134, 60, 0.5);
+  background: rgba(27, 25, 23, 0.55);
+}
+
+.kitty-run-page--souls .kitty-run-card:hover .kitty-run-card-action {
+  background: #b8601f;
+}
+
+.kitty-run-page--souls .kitty-run-card--ready:hover .kitty-run-card-action {
+  background: #b8601f;
 }

@@ -11,15 +11,22 @@ import {
   TALL_HALF,
 } from "../lib/spawn.ts";
 import { crateTexture } from "../lib/textures.ts";
+import { paletteFor, type CharacterId } from "../lib/theme.ts";
 import type { WorldState } from "./world.ts";
 
 const MAX_PER_KIND = 24;
 
-export function Obstacles({ world }: { world: WorldState }) {
+export function Obstacles({
+  world,
+  character,
+}: {
+  world: WorldState;
+  character: CharacterId;
+}) {
   const boxRef = useRef<THREE.InstancedMesh>(null);
   const tallRef = useRef<THREE.InstancedMesh>(null);
   const hoverRef = useRef<THREE.InstancedMesh>(null);
-  const crateMap = useMemo(() => crateTexture(), []);
+  const crateMap = useMemo(() => crateTexture(paletteFor(character)), [character]);
   const dummy = useMemo(() => new THREE.Object3D(), []);
 
   useFrame(() => {

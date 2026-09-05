@@ -1,12 +1,95 @@
+# BRIEF — kitty-run × Dark Souls, deliverable 3: the ashen knight's helm
+
+You are redesigning a procedural vector-art character for one of its two
+themes. You have no access to the repository; the complete current source of
+the file you will rewrite is in this brief. Return **one complete TypeScript
+file** — implementation happens elsewhere.
+
+## The project
+
+"Cat Runner": a pastel endless runner. The hero is a procedural vector cat —
+flat shapes (`THREE.ShapeGeometry`) layered with an inverted-hull style ink
+outline behind each fill — posed every frame by a pure rig function. The
+default character is a white cat in a red bow and pink dress. A second
+selectable character, the **Dark Souls cat ("ashen")**, re-themes the whole
+game; you now give **her** a body worthy of it: a knight's **helm** instead
+of the bow, and any small iron/leather touches that read at phone size.
+Everything else about her run, pose and motion stays as it is.
+
+The game renders her at roughly 160 px tall on phones; every part must read
+as a clean silhouette. Zero image assets — she is built from shapes only.
+
+## Hard constraints
+
+1. **The pastel mode must stay byte-identical.** When `character === "kitty"`,
+   the rendered JSX must be equivalent to today's (same shapes, same
+   transforms, same z's). The only tolerated pastel-mode change: every
+   `<Part>` gains an explicit `outlineColor={palette.outlineInk}` prop
+   (today they fall back to the pastel ink constant — same value, so this
+   is visual no-op, but it must become explicit so the souls mode themes
+   its outlines too).
+2. **Souls mode colours may ONLY come from the existing palette keys** of
+   the active `palette` object — never a new hex literal. Why: the best-run
+   echo renders the same rig as a faded ghost, retinted by a lookup keyed on
+   the rig's exact hexes. Palette keys are already in that lookup; new hexes
+   would break the ghost. Available in souls mode (value shown):
+
+   - `kittyWhite #ece5d8` — bone body
+   - `outlineInk #1c1816` — outlines, whiskers
+   - `eyeInk #241d1a` — eyes
+   - `noseYellow #e8803c` — ember nose (the one warm "living" spot)
+   - `cheek #c9a08c` — ash blush
+   - `suitPink #925039` / `suitDeep #5a3024` — the rust tunic (the dress
+     shape already picks these up automatically via `palette.suitPink`)
+   - `bowRed #7c7a78` / `bowDeep #4f4c4a` — **designed as steel/leather**:
+     these are the helm's iron tones (the bow itself is NOT rendered in
+     souls mode)
+
+3. **The helm replaces the bow group in souls mode** (conditional JSX, not
+   visibility toggles). Motion choice — pick ONE and say so in your notes:
+   - attach the helm group to `bowRef` (it inherits the rig's `bowRot` /
+     `bowScale` — the bob that currently drives the bow: `-headRot * 1.5`
+     plus a small run-phase jiggle, scaled up slightly on happy/squash), or
+   - leave the helm un-referenced (a child of the head group only — it
+     inherits head bob/tilt and feels heavy/solid; a knight's helm should
+     not jiggle like a ribbon).
+   Do NOT change `rig.ts` — no new pose fields.
+4. **Same drawing technique as the rest of the file**: `Part` (ink copy
+   grown ~1.05–1.2× behind the fill, z gap 0.03+), or plain
+   `<mesh><meshBasicMaterial/></mesh>` for small detail pieces like the
+   existing whiskers/eyes. New shapes are built as `THREE.Shape` builder
+   functions alongside `earShape`/`dressShape` and joined into the single
+   `geo` memo.
+5. **Z discipline**: the head fill sits at z 0.22, face details at z 0.26–0.27,
+   the bow at z 0.32+0.004/0.016. The helm must pick explicit z's that layer
+   cleanly against those (state the plan in your notes). Generous gaps —
+   16-bit mobile depth buffers z-fight on thin offsets.
+6. **The face stays visible**: eyes, ember nose, whiskers, blush are
+   untouched and unoccluded. Ears stay too (they flap via `earLRef`/
+   `earRRef`); compose the helm WITH the ears (e.g. dome seated between
+   them, ears reading just in front/below its edge, or a brim that leaves
+   them clear). A full-face visor is forbidden — her face is the charm.
+7. **Chunky parts only**: nothing thinner than ~0.06 world units; the whole
+   helm stays inside the head's silhouette bounds (head ellipse rx 1.0,
+   ry 0.84; ears at ±0.58 x, 0.52 y). She must not turn into a wide
+   silhouette — the helm is a crown, not a bucket.
+8. Optional small touches (all optional, all must obey rule 2): an ember
+   plume (the `noseYellow` key — plume and nose sharing the ember family is
+   intentional), a tunic belt or cloak collar (`suitDeep`), steel shoulder
+   accents (`bowRed`/`bowDeep`). No weapons, no shields, no capes that
+   change her silhouette width.
+9. Imports, exports, props and the `useFrame` body stay as they are (the
+   `bowRef` guard already tolerates the bow being absent). No new
+   dependencies, no three.js APIs beyond what the file already uses
+   (`THREE.Shape`, `THREE.ShapeGeometry`, `THREE.PlaneGeometry`).
+
+## Current source — `web/kitty/Kitty.tsx` (rewrite this file)
+
+```tsx
 // The procedural cat hero: flat vector shapes (THREE.ShapeGeometry)
 // layered with an inverted-hull style ink outline behind each fill, posed
 // every frame from the pure rig. React renders the parts once; useFrame
 // writes transforms directly.
-//
-// Two bodies share the one rig. The pastel kitty wears the bow; the ashen
-// knight wears a helm and a tunic belt built from the same palette keys
-// (bowRed/bowDeep are steel in her palette), so the best-run ghost can
-// still retint her by hex lookup.
 
 import { useMemo, useRef } from "react";
 import * as THREE from "three";
@@ -41,74 +124,6 @@ function dressShape(): THREE.Shape {
   shape.quadraticCurveTo(0.68, 0.6, 0.62, 0.2);
   shape.quadraticCurveTo(0, 0.06, -0.62, 0.2);
   shape.quadraticCurveTo(-0.68, 0.6, -0.5, 1.06);
-  shape.closePath();
-  return shape;
-}
-
-// --- souls-only shapes -----------------------------------------------
-// Every helm/belt shape is authored around its own origin and placed with
-// Part's `position`, so the grown ink copy reads as an even outline instead
-// of drifting upward with the scale.
-
-// Skullcap: sits on the crown between the ears (width ±0.50, peak +0.26).
-function helmDomeShape(): THREE.Shape {
-  const shape = new THREE.Shape();
-  shape.moveTo(-0.5, -0.26);
-  shape.quadraticCurveTo(-0.52, 0.14, 0, 0.26);
-  shape.quadraticCurveTo(0.52, 0.14, 0.5, -0.26);
-  shape.closePath();
-  return shape;
-}
-
-// Centre ridge running up the dome, rounded at the top.
-function helmCrestShape(): THREE.Shape {
-  const shape = new THREE.Shape();
-  shape.moveTo(-0.06, -0.25);
-  shape.lineTo(0.06, -0.25);
-  shape.lineTo(0.05, 0.17);
-  shape.quadraticCurveTo(0, 0.25, -0.05, 0.17);
-  shape.closePath();
-  return shape;
-}
-
-// Brow band: a 0.16-thick strip following the forehead curve (±0.66).
-function helmBandShape(): THREE.Shape {
-  const shape = new THREE.Shape();
-  shape.moveTo(-0.66, -0.08);
-  shape.quadraticCurveTo(0, -0.18, 0.66, -0.08);
-  shape.lineTo(0.66, 0.08);
-  shape.quadraticCurveTo(0, -0.02, -0.66, 0.08);
-  shape.closePath();
-  return shape;
-}
-
-// Ember tuft on the crest — a short flame, base 0.16 wide.
-function plumeShape(): THREE.Shape {
-  const shape = new THREE.Shape();
-  shape.moveTo(-0.08, -0.08);
-  shape.quadraticCurveTo(-0.1, 0.02, 0.01, 0.08);
-  shape.quadraticCurveTo(0.1, 0.02, 0.08, -0.08);
-  shape.closePath();
-  return shape;
-}
-
-// Tunic belt: 0.12-thick, follows the dress curve (±0.56).
-function beltShape(): THREE.Shape {
-  const shape = new THREE.Shape();
-  shape.moveTo(-0.56, -0.06);
-  shape.quadraticCurveTo(0, -0.1, 0.56, -0.06);
-  shape.lineTo(0.56, 0.06);
-  shape.quadraticCurveTo(0, 0.02, -0.56, 0.06);
-  shape.closePath();
-  return shape;
-}
-
-function rectShape(w: number, h: number): THREE.Shape {
-  const shape = new THREE.Shape();
-  shape.moveTo(-w / 2, -h / 2);
-  shape.lineTo(w / 2, -h / 2);
-  shape.lineTo(w / 2, h / 2);
-  shape.lineTo(-w / 2, h / 2);
   shape.closePath();
   return shape;
 }
@@ -171,7 +186,6 @@ export function Kitty({
   character: CharacterId;
 }) {
   const palette = paletteFor(character);
-  const isSouls = character !== "kitty";
   const rootRef = useRef<THREE.Group>(null);
   const squashRef = useRef<THREE.Group>(null);
   const tiltRef = useRef<THREE.Group>(null);
@@ -200,13 +214,6 @@ export function Kitty({
       dress: new THREE.ShapeGeometry(dressShape(), seg),
       foot: new THREE.ShapeGeometry(ellipseShape(0.11, 0.085), seg),
       arm: new THREE.ShapeGeometry(ellipseShape(0.12, 0.2), seg),
-      // souls kit
-      helmDome: new THREE.ShapeGeometry(helmDomeShape(), seg),
-      helmCrest: new THREE.ShapeGeometry(helmCrestShape(), seg),
-      helmBand: new THREE.ShapeGeometry(helmBandShape(), seg),
-      plume: new THREE.ShapeGeometry(plumeShape(), seg),
-      belt: new THREE.ShapeGeometry(beltShape(), seg),
-      buckle: new THREE.ShapeGeometry(rectShape(0.14, 0.14), seg),
     };
   }, []);
 
@@ -261,99 +268,32 @@ export function Kitty({
         <group ref={tiltRef}>
           {/* feet peek below the dress hem */}
           <group ref={footLRef} position={[-0.18, 0.1, 0.03]}>
-            <Part
-              geometry={geo.foot}
-              color={palette.kittyWhite}
-              z={0}
-              outline={1.15}
-              outlineColor={palette.outlineInk}
-            />
+            <Part geometry={geo.foot} color={palette.kittyWhite} z={0} outline={1.15} />
           </group>
           <group ref={footRRef} position={[0.18, 0.1, 0.03]}>
-            <Part
-              geometry={geo.foot}
-              color={palette.kittyWhite}
-              z={0}
-              outline={1.15}
-              outlineColor={palette.outlineInk}
-            />
+            <Part geometry={geo.foot} color={palette.kittyWhite} z={0} outline={1.15} />
           </group>
 
-          {/* dress (the rust tunic in souls mode — same shape) */}
-          <Part
-            geometry={geo.dress}
-            color={palette.suitPink}
-            z={0.12}
-            outline={1.05}
-            outlineColor={palette.outlineInk}
-          />
-
-          {/* souls: leather belt across the tunic, steel buckle.
-              Sits below the head's ink (bottom y≈0.62) and clear of the
-              arms (y≥0.72), so z 0.20/0.17 never meets another surface. */}
-          {isSouls && (
-            <>
-              <Part
-                geometry={geo.belt}
-                color={palette.suitDeep}
-                z={0.2}
-                position={[0, 0.52]}
-                outline={1.05}
-                outlineColor={palette.outlineInk}
-              />
-              <mesh geometry={geo.buckle} position={[0, 0.52, 0.24]}>
-                <meshBasicMaterial color={palette.bowRed} />
-              </mesh>
-            </>
-          )}
+          {/* dress */}
+          <Part geometry={geo.dress} color={palette.suitPink} z={0.12} outline={1.05} />
 
           {/* arms pivot at the shoulder */}
           <group ref={armLRef} position={[-0.62, 0.92, 0]}>
-            <Part
-              geometry={geo.arm}
-              color={palette.kittyWhite}
-              z={0.16}
-              outline={1.14}
-              outlineColor={palette.outlineInk}
-            />
+            <Part geometry={geo.arm} color={palette.kittyWhite} z={0.16} outline={1.14} />
           </group>
           <group ref={armRRef} position={[0.62, 0.92, 0]}>
-            <Part
-              geometry={geo.arm}
-              color={palette.kittyWhite}
-              z={0.16}
-              outline={1.14}
-              outlineColor={palette.outlineInk}
-            />
+            <Part geometry={geo.arm} color={palette.kittyWhite} z={0.16} outline={1.14} />
           </group>
 
           {/* head */}
           <group ref={headRef} position={[0, 1.5, 0]}>
             <group ref={earLRef} position={[-0.58, 0.52, 0.15]}>
-              <Part
-                geometry={geo.ear}
-                color={palette.kittyWhite}
-                z={0}
-                outline={1.12}
-                outlineColor={palette.outlineInk}
-              />
+              <Part geometry={geo.ear} color={palette.kittyWhite} z={0} outline={1.12} />
             </group>
             <group ref={earRRef} position={[0.58, 0.52, 0.15]}>
-              <Part
-                geometry={geo.ear}
-                color={palette.kittyWhite}
-                z={0}
-                outline={1.12}
-                outlineColor={palette.outlineInk}
-              />
+              <Part geometry={geo.ear} color={palette.kittyWhite} z={0} outline={1.12} />
             </group>
-            <Part
-              geometry={geo.head}
-              color={palette.kittyWhite}
-              z={0.22}
-              outline={1.045}
-              outlineColor={palette.outlineInk}
-            />
+            <Part geometry={geo.head} color={palette.kittyWhite} z={0.22} outline={1.045} />
 
             <mesh
               ref={eyeLRef}
@@ -391,79 +331,53 @@ export function Kitty({
               )),
             )}
 
-            {isSouls ? (
-              /* helm — a child of the head only (no bowRef): it rides the
-                 head bob/tilt and nothing else, so it feels like iron, not
-                 ribbon. Z ladder above the face (0.27): dome 0.34 (ink 0.31),
-                 crest 0.40, band 0.46, plume 0.52 — every ink copy sits
-                 ≥0.03 above the fill it overlaps. */
-              <group position={[0, 0, 0]}>
-                <Part
-                  geometry={geo.helmDome}
-                  color={palette.bowRed}
-                  z={0.34}
-                  position={[0, 0.66]}
-                  outline={1.06}
-                  outlineColor={palette.outlineInk}
-                />
-                <Part
-                  geometry={geo.helmCrest}
-                  color={palette.bowDeep}
-                  z={0.4}
-                  position={[0, 0.69]}
-                  outline={1.16}
-                  outlineColor={palette.outlineInk}
-                />
-                <Part
-                  geometry={geo.helmBand}
-                  color={palette.bowDeep}
-                  z={0.46}
-                  position={[0, 0.4]}
-                  outline={1.05}
-                  outlineColor={palette.outlineInk}
-                />
-                <Part
-                  geometry={geo.plume}
-                  color={palette.noseYellow}
-                  z={0.52}
-                  position={[0, 0.96]}
-                  outline={1.16}
-                  outlineColor={palette.outlineInk}
-                />
-              </group>
-            ) : (
-              /* bow */
-              <group ref={bowRef} position={[0.52, 0.66, 0.32]}>
-                <Part
-                  geometry={geo.bowLoop}
-                  color={palette.bowRed}
-                  z={0.004}
-                  position={[-0.3, 0]}
-                  rotation={0.45}
-                  outline={1.12}
-                  outlineColor={palette.outlineInk}
-                />
-                <Part
-                  geometry={geo.bowLoop}
-                  color={palette.bowRed}
-                  z={0.004}
-                  position={[0.3, 0]}
-                  rotation={-0.45}
-                  outline={1.12}
-                  outlineColor={palette.outlineInk}
-                />
-                <Part
-                  geometry={geo.bowKnot}
-                  color={palette.bowDeep}
-                  z={0.016}
-                  outline={1.18}
-                  outlineColor={palette.outlineInk}
-                />
-              </group>
-            )}
+            {/* bow */}
+            <group ref={bowRef} position={[0.52, 0.66, 0.32]}>
+              <Part
+                geometry={geo.bowLoop}
+                color={palette.bowRed}
+                z={0.004}
+                position={[-0.3, 0]}
+                rotation={0.45}
+                outline={1.12}
+              />
+              <Part
+                geometry={geo.bowLoop}
+                color={palette.bowRed}
+                z={0.004}
+                position={[0.3, 0]}
+                rotation={-0.45}
+                outline={1.12}
+              />
+              <Part
+                geometry={geo.bowKnot}
+                color={palette.bowDeep}
+                z={0.016}
+                outline={1.18}
+              />
+            </group>
           </group>
         </group>
       </group>
     </group>
   );
 }
+```
+
+## Rig contract you may rely on (do not change it)
+
+`computePose(...)` returns, among others: `bowRot` (the bow's rotation.z
+oscillation: `-headRot * 1.5` + a run-phase jiggle when grounded, or a
+velocity tilt mid-air) and `bowScale` (`1 + happyT * 0.5 + max(0, squash) *
+0.18` — puffs on pickups, squashes on landings). The head group additionally
+gets `headBobY` / `headRot` every frame; the ears get flap offsets.
+
+## Required output format (exactly two blocks)
+
+1. **`Kitty.tsx`** — the complete replacement file, TypeScript, in one
+   fenced block. Keep the header comment style (the file's existing voice),
+   keep `ROOT_SCALE`, keep the public signature
+   `Kitty({ world, character })`.
+2. **Notes** — ≤ 10 bullets: helm motion choice and why, the z plan, how
+   ears and helm compose, silhouette check at phone size, anything you
+   considered and rejected.

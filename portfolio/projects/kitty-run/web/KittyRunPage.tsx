@@ -19,6 +19,14 @@ import {
 import { resetPilot } from "./lib/pilot.ts";
 import { buzz } from "./lib/haptics.ts";
 import { Soundtrack } from "./lib/music.ts";
+import {
+  CHARACTER_IDS,
+  characterFromParams,
+  readStoredCharacter,
+  storeCharacter,
+  THEMES,
+  type CharacterId,
+} from "./lib/theme.ts";
 import "./kitty-run.css";
 
 // The three loudness sliders (master / SFX / music), persisted so a visit
@@ -54,6 +62,17 @@ export default function KittyRunPage() {
   const world = useMemo(() => createWorld(readBestScore(window.localStorage)), []);
   const reducedMotion = useReducedMotion();
   const [webglOk, setWebglOk] = useState(true);
+  // The selected character: a presentation choice, persisted like the audio
+  // mix. ?souls overrides for one page load; the chip row handles the rest.
+  // Only the ready screen offers the switch, so a selection never races a
+  // live run.
+  const [character, setCharacter] = useState<CharacterId>(() => {
+    const fromParams = characterFromParams(
+      new URLSearchParams(window.location.search),
+    );
+    return fromParams ?? readStoredCharacter(window.localStorage);
+  });
+  const theme = THEMES[character];
   const [status, setStatus] = useState<GameStatus>(world.status);
   const [best, setBest] = useState(world.best);
   const [muted, setMuted] = useState(false);
@@ -148,9 +167,17 @@ export default function KittyRunPage() {
     sfx.setMusic(audio.music);
     if (!trackRef.current && sfx.context && sfx.musicOutput) {
       trackRef.current = new Soundtrack(sfx.context, sfx.musicOutput);
+      // A freshly built graph comes up in the selected character's mood.
+      trackRef.current.setMode(character);
     }
     return sfx;
-  }, [muted, audio]);
+  }, [muted, audio, character]);
+
+  // The score follows the character: a swap re-voices harmony, tempo band
+  // and pad tone at the next bar; the sequencer itself never resets.
+  useEffect(() => {
+    trackRef.current?.setMode(character);
+  }, [character]);
 
   // Slider drag: clamp, persist, and glide the live bus (a no-op before the
   // first gesture — the stored value is applied when the graph is built).
@@ -215,6 +242,13 @@ export default function KittyRunPage() {
 
   const handleStart = useCallback(() => beginRun(false), [beginRun]);
   const handleWatch = useCallback(() => beginRun(true), [beginRun]);
+
+  // Character switch: presentation state plus persistence. The scene
+  // re-renders through props; the simulation objects are untouched.
+  const chooseCharacter = useCallback((id: CharacterId) => {
+    setCharacter(id);
+    storeCharacter(window.localStorage, id);
+  }, []);
 
   // Mid-run handover: the visitor takes the sticks back from the bot.
   const takeControl = useCallback(() => {
@@ -376,6 +410,7 @@ export default function KittyRunPage() {
         trackRef={trackRef}
         muted={muted}
         hud={hud}
+        character={character}
         onStatus={handleStatus}
       />
       <Floaters world={world} stageRef={stageRef} />
@@ -392,7 +427,9 @@ export default function KittyRunPage() {
             <span className="kitty-run-score" ref={scoreRef}>
               0
             </span>
-            <span className="kitty-run-best">best {best}</span>
+            <span className="kitty-run-best">
+              {theme.text.best} {best}
+            </span>
           </div>
           {status === "running" && (
             <button
@@ -427,7 +464,7 @@ export default function KittyRunPage() {
               buzz(10);
             }}
           >
-            dash
+            {theme.text.dashLabel}
           </button>
         )}
         {autoPilot && status === "running" && (
@@ -437,7 +474,7 @@ export default function KittyRunPage() {
             onPointerDown={(event) => event.stopPropagation()}
             onClick={takeControl}
           >
-            autopilot · take control
+            {theme.text.pilotLabel}
           </button>
         )}
         <span
@@ -449,13 +486,31 @@ export default function KittyRunPage() {
       {status === "ready" && (
         <div className="kitty-run-overlay kitty-run-overlay--ready">
           <div className="kitty-run-ready-stack">
+            <div className="kitty-run-characters" role="group" aria-label="Character">
+              {CHARACTER_IDS.map((id) => (
+                <button
+                  key={id}
+                  type="button"
+                  className={`kitty-run-char${id === character ? " is-active" : ""}`}
+                  aria-pressed={id === character}
+                  onMouseEnter={uiHover}
+                  onClick={() => {
+                    uiClick();
+                    chooseCharacter(id);
+                  }}
+                >
+                  <span className="kitty-run-char-name">{THEMES[id].text.name}</span>
+                  <span className="kitty-run-char-blurb">{THEMES[id].text.blurb}</span>
+                </button>
+              ))}
+            </div>
             <button
               type="button"
               className="kitty-run-card kitty-run-card--ready"
               onMouseEnter={uiHover}
               onClick={handleStart}
             >
-              <span className="kitty-run-card-kicker">ready</span>
+              <span className="kitty-run-card-kicker">{theme.text.readyKicker}</span>
               {replay && (
                 <span className="kitty-run-card-echo">your best run will chase you</span>
               )}
@@ -464,7 +519,7 @@ export default function KittyRunPage() {
                   ? "tap to jump · dash pad blasts through"
                   : "space — jump · shift — dash · p — pause"}
               </span>
-              <span className="kitty-run-card-action">start</span>
+              <span className="kitty-run-card-action">{theme.text.readyAction}</span>
             </button>
             <button
               type="button"
@@ -472,10 +527,8 @@ export default function KittyRunPage() {
               onMouseEnter={uiHover}
               onClick={handleWatch}
             >
-              <span className="kitty-run-watch-title">or watch it play itself</span>
-              <span className="kitty-run-watch-hint">
-                autopilot · the lookahead bot that verifies every track
-              </span>
+              <span className="kitty-run-watch-title">{theme.text.watchTitle}</span>
+              <span className="kitty-run-watch-hint">{theme.text.watchHint}</span>
             </button>
           </div>
         </div>
@@ -492,9 +545,9 @@ export default function KittyRunPage() {
               togglePause(world);
             }}
           >
-            <span className="kitty-run-card-kicker">paused</span>
-            <span className="kitty-run-card-hint">p or esc resumes · r restarts</span>
-            <span className="kitty-run-card-action">resume</span>
+            <span className="kitty-run-card-kicker">{theme.text.pausedKicker}</span>
+            <span className="kitty-run-card-hint">{theme.text.pausedHint}</span>
+            <span className="kitty-run-card-action">{theme.text.pausedAction}</span>
           </button>
         </div>
       )}
@@ -503,13 +556,13 @@ export default function KittyRunPage() {
         <div className="kitty-run-overlay">
           <button
             type="button"
-            className="kitty-run-card"
+            className="kitty-run-card kitty-run-card--over"
             onMouseEnter={uiHover}
             onClick={handleRestart}
           >
-            <span className="kitty-run-card-kicker">run over</span>
+            <span className="kitty-run-card-kicker">{theme.text.overKicker}</span>
             {world.newBest && world.score > 0 && (
-              <span className="kitty-run-card-badge">new best!</span>
+              <span className="kitty-run-card-badge">{theme.text.overBadge}</span>
             )}
             <span className="kitty-run-card-title">
               {world.score.toLocaleString()} points
@@ -530,9 +583,9 @@ export default function KittyRunPage() {
               </span>
             )}
             <span className="kitty-run-card-hint">
-              best {best} · {coarse ? "tap to run again" : "space or r runs again"}
+              {theme.text.best} {best} · {coarse ? "tap to run again" : "space or r runs again"}
             </span>
-            <span className="kitty-run-card-action">again</span>
+            <span className="kitty-run-card-action">{theme.text.overAction}</span>
           </button>
         </div>
       )}
@@ -545,7 +598,9 @@ export default function KittyRunPage() {
 
   return (
     <div className="kitty-run-field">
-      <article className="kitty-run-page">
+      <article
+        className={`kitty-run-page${character === "souls" ? " kitty-run-page--souls" : ""}`}
+      >
         <header className="kitty-run-intro section-shell">
           <h1 className="kitty-run-title">Cat Runner</h1>
           <div className="kitty-run-audio">
