@@ -273,3 +273,7 @@
 {"type":"edge.added","id":"e129","ts":"2026-09-05T10:03:31.126Z","from":"n134","to":"n135","rel":"continues"}
 {"type":"node.added","id":"n136","ts":"2026-09-05T10:23:07.104Z","kind":"iteration","actor":"user","title":"feat(kitty-run): hk portrait decided — inked poster candidate wired into the character select","artifacts":[{"kind":"git-commit","ref":"f59830a"}],"meta":{"source":"auto"}}
 {"type":"edge.added","id":"e130","ts":"2026-09-05T10:23:07.109Z","from":"n135","to":"n136","rel":"continues"}
+{"type":"node.added","id":"n137","ts":"2026-09-05T10:30:58.538Z","kind":"iteration","actor":"user","title":"docs(kitty-run): ashen survey verdict corrected — Ashen Dusk retained, refinement next session","artifacts":[{"kind":"git-commit","ref":"e29db11"}],"meta":{"source":"auto"}}
+{"type":"edge.added","id":"e131","ts":"2026-09-05T10:30:58.554Z","from":"n136","to":"n137","rel":"continues"}
+{"type":"node.added","id":"n138","ts":"2026-09-05T20:18:45.632Z","kind":"iteration","actor":"user","title":"fix(kitty-run): sound/mix clicks no longer shift the page — mute toggle reserves its widest label (content-box, 9ch + tracking), site reserves the classic-scrollbar gutter","artifacts":[{"kind":"git-commit","ref":"b452f37"}],"meta":{"source":"auto"}}
+{"type":"edge.added","id":"e132","ts":"2026-09-05T20:18:45.681Z","from":"n137","to":"n138","rel":"continues"}
