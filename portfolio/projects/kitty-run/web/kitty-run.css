@@ -41,6 +41,12 @@
 }
 
 .kitty-run-mute {
+  /* the label swaps "sound on"/"sound off" (8 vs 9 chars): reserve the widest
+     label + its letter-spacing so the box never resizes; content-box because
+     the global border-box reset would otherwise squeeze the text into wrap */
+  min-width: calc(9ch + 0.5em);
+  box-sizing: content-box;
+  text-align: center;
   padding: 6px 14px;
   border: 1px solid var(--ink-line);
   border-radius: 0;
