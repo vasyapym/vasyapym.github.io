@@ -82,3 +82,5 @@
 {"type":"edge.added","id":"e39","ts":"2026-09-05T09:53:17.105Z","from":"n42","to":"n43","rel":"continues"}
 {"type":"node.added","id":"n44","ts":"2026-09-05T10:03:31.089Z","kind":"iteration","actor":"user","title":"fix(kitty-run): kitty head reads gigantic — revert to balanced bust, match official HK art proportions (1.48:1 flat-wide head, right-ear bow, low wide-set face)","artifacts":[{"kind":"git-commit","ref":"7e9d362"}],"meta":{"source":"auto"}}
 {"type":"edge.added","id":"e40","ts":"2026-09-05T10:03:31.096Z","from":"n43","to":"n44","rel":"continues"}
+{"type":"node.added","id":"n45","ts":"2026-09-05T10:23:07.055Z","kind":"iteration","actor":"user","title":"feat(kitty-run): hk portrait decided — inked poster candidate wired into the character select","artifacts":[{"kind":"git-commit","ref":"f59830a"}],"meta":{"source":"auto"}}
+{"type":"edge.added","id":"e41","ts":"2026-09-05T10:23:07.065Z","from":"n44","to":"n45","rel":"continues"}
