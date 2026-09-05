@@ -18,47 +18,47 @@ export function KittyPortrait() {
       strokeLinejoin="round"
       strokeLinecap="round"
     >
-      {/* tiny stubby arms (Hello-Kitty scale), mostly tucked behind the small torso */}
-      <ellipse cx="27" cy="86" rx="4.5" ry="7.5" fill="#ffffff" transform="rotate(-8 27 86)" />
-      <ellipse cx="73" cy="86" rx="4.5" ry="7.5" fill="#ffffff" transform="rotate(8 73 86)" />
+      {/* stubby white arms at the sides, mostly behind the dress */}
+      <ellipse cx="28" cy="80" rx="5.5" ry="9" fill="#ffffff" transform="rotate(-14 28 80)" />
+      <ellipse cx="72" cy="80" rx="5.5" ry="9" fill="#ffffff" transform="rotate(14 72 80)" />
 
-      {/* small red jumper sliver (about half the head's width), past the frame bottom */}
+      {/* red pinafore dress (about half the head's width), past the frame bottom */}
       <path
-        d="M 33 100 C 33 88 38 78 44 74.5 L 56 74.5 C 62 78 67 88 67 100 Z"
+        d="M 31 100 C 31 87 36 77 43 63 L 57 63 C 64 77 69 87 69 100 Z"
         fill="#e94f64"
       />
-      <rect x="46" y="82" width="8" height="6" rx="2" fill="#d13a50" stroke="none" />
+      <rect x="45" y="70" width="10" height="7.5" rx="2" fill="#d13a50" stroke="none" />
 
-      {/* the head dominates: wide oval, center 50,44 rx 36 ry 30 — wider than the whole torso */}
+      {/* HK head: flat-wide oval, center 50,40 rx 34 ry 23 (~1.48:1) with small ears */}
       <path
-        d="M 21 26 C 17 15 22 9 31 9 C 37 9 40 11 41 15 A 36 30 0 0 1 59 15 C 60 11 63 9 69 9 C 78 9 83 15 79 26 A 36 30 0 1 1 21 26 Z"
+        d="M 22 27 C 18.5 17 23.5 8 30 8 C 36 8 39.5 12 41 17.8 A 34 23 0 0 1 59 17.8 C 60.5 12 64 8 70 8 C 76.5 8 81.5 17 78 27 A 34 23 0 1 1 22 27 Z"
         fill="#ffffff"
       />
 
-      {/* pink inner-ear caps (ears stay small, HK-like) */}
-      <path d="M 25 22 C 24.5 15.5 26.5 12.5 30 12 C 32.5 13 34 15.5 35.5 19 Z" fill="#f6a9c0" stroke="none" />
-      <path d="M 75 22 C 75.5 15.5 73.5 12.5 70 12 C 67.5 13 66 15.5 64.5 19 Z" fill="#f6a9c0" stroke="none" />
+      {/* pink inner-ear caps (small HK ears) */}
+      <path d="M 25.5 23.5 C 24.5 16.5 26.5 13 29.5 12.5 C 32 13.5 33.5 16 34.5 20 Z" fill="#f6a9c0" stroke="none" />
+      <path d="M 74.5 23.5 C 75.5 16.5 73.5 13 70.5 12.5 C 68 13.5 66.5 16 65.5 20 Z" fill="#f6a9c0" stroke="none" />
 
       {/* single flat shadow, strictly inside the head */}
-      <ellipse cx="50" cy="69" rx="13" ry="3" fill="#ece4ee" stroke="none" />
+      <ellipse cx="50" cy="58" rx="14" ry="2.8" fill="#ece4ee" stroke="none" />
 
-      {/* the bow: upper-left, at ear level, straddling the head edge */}
-      <path d="M 22 32 C 18 26 12 27 13 32 C 14 37 19 37 22 32 Z" fill="#e94f64" />
-      <path d="M 22 32 C 26 26 32 27 31 32 C 30 37 25 37 22 32 Z" fill="#e94f64" />
-      <circle cx="22" cy="32" r="2.8" fill="#d13a50" />
+      {/* the bow: worn on the upper-right ear like the official art */}
+      <path d="M 70 13.5 C 66.5 7.5 61 8.5 62 13.5 C 63 18.5 67.5 18.5 70 13.5 Z" fill="#e94f64" />
+      <path d="M 70 13.5 C 73.5 7.5 79 8.5 78 13.5 C 77 18.5 72.5 18.5 70 13.5 Z" fill="#e94f64" />
+      <circle cx="70" cy="13.5" r="3" fill="#d13a50" />
 
-      {/* face in the lower half of the big head (big forehead): button eyes, yellow nose, NO mouth */}
-      <ellipse cx="37" cy="52" rx="2.8" ry="3.8" fill={OUTLINE_PASTEL} stroke="none" />
-      <ellipse cx="63" cy="52" rx="2.8" ry="3.8" fill={OUTLINE_PASTEL} stroke="none" />
-      <ellipse cx="50" cy="56" rx="3.5" ry="2.5" fill="#ffd44d" strokeWidth={2} />
+      {/* face in the lower half: wide-set button eyes, nose at eye level, NO mouth */}
+      <ellipse cx="36" cy="46" rx="2.8" ry="3.8" fill={OUTLINE_PASTEL} stroke="none" />
+      <ellipse cx="64" cy="46" rx="2.8" ry="3.8" fill={OUTLINE_PASTEL} stroke="none" />
+      <ellipse cx="50" cy="49.5" rx="3.5" ry="2.5" fill="#ffd44d" strokeWidth={2} />
 
-      {/* whiskers: three per side, long, crossing well past the head outline */}
-      <path d="M 10 48 L 26 50.5" strokeWidth={2} />
-      <path d="M 10 55 L 26 55" strokeWidth={2} />
-      <path d="M 10 62 L 26 59.5" strokeWidth={2} />
-      <path d="M 90 48 L 74 50.5" strokeWidth={2} />
-      <path d="M 90 55 L 74 55" strokeWidth={2} />
-      <path d="M 90 62 L 74 59.5" strokeWidth={2} />
+      {/* whiskers: three long ones per side at eye level, well past the head outline */}
+      <path d="M 9 44 L 27 46.5" strokeWidth={2} />
+      <path d="M 9 51 L 27 51" strokeWidth={2} />
+      <path d="M 9 58 L 28 55.5" strokeWidth={2} />
+      <path d="M 91 44 L 73 46.5" strokeWidth={2} />
+      <path d="M 91 51 L 73 51" strokeWidth={2} />
+      <path d="M 91 58 L 72 55.5" strokeWidth={2} />
     </svg>
   );
 }
