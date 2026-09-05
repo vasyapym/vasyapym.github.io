@@ -366,13 +366,122 @@ function StandingPortrait() {
   );
 }
 
+// HK redo round — three candidates on one measured skeleton (head 1.5:1 at
+// 75% frame width, face in the lower half, bow ~40% of head width on the
+// upper-right ear, no mouth), varying the outline register and crop.
+function KittyHK_a() {
+  return (
+    <svg viewBox="0 0 100 100" role="img" aria-hidden="true" focusable="false">
+      <path d="M24 84 C24 71 36 64 50 64 C64 64 76 71 76 84 L78 100 L22 100 Z" fill="#ffffff" />
+      <path d="M36 64 L41 64 L41 74 L59 74 L59 64 L64 64 L64 74 L70 74 L76 100 L24 100 L30 74 L36 74 Z" fill="#f6a9c0" />
+      <ellipse cx="23" cy="78" rx="9" ry="4.8" transform="rotate(38 23 78)" fill="#ffffff" />
+      <ellipse cx="77" cy="78" rx="9" ry="4.8" transform="rotate(-38 77 78)" fill="#ffffff" />
+      <path d="M12.5 46 C12.5 30 26 18 50 18 C74 18 87.5 30 87.5 46 C87.5 60 70 68 50 68 C30 68 12.5 60 12.5 46 Z" fill="#ffffff" />
+      <path d="M21.5 27.5 L25 14 Q26.5 11 29 13.5 L37.5 20.5 Z" fill="#ffffff" />
+      <path d="M78.5 27.5 L75 14 Q73.5 11 71 13.5 L62.5 20.5 Z" fill="#ffffff" />
+      <path d="M26 22.5 L27.5 15 L33.5 19.5 Z" fill="#ece4ee" />
+      <path d="M74 22.5 L72.5 15 L66.5 19.5 Z" fill="#ece4ee" />
+      <path d="M67 22 C61 12 51 15 54.5 22 C51 29 61 32 67 22 Z" fill="#e94f64" />
+      <path d="M69 22 C75 12 85 15 81.5 22 C85 29 75 32 69 22 Z" fill="#e94f64" />
+      <ellipse cx="68" cy="22" rx="3.6" ry="4.4" fill="#d13a50" />
+      <ellipse cx="34" cy="49" rx="2.2" ry="3.4" fill="#3a3142" />
+      <ellipse cx="66" cy="49" rx="2.2" ry="3.4" fill="#3a3142" />
+      <ellipse cx="50" cy="50.5" rx="2.6" ry="1.9" fill="#ffd44d" />
+      <path d="M27 45 L3 40.5 M27 49 L2 49 M27 53 L3 57.5" fill="none" stroke="#3a3142" strokeWidth={2} strokeLinecap="round" />
+      <path d="M73 45 L97 40.5 M73 49 L98 49 M73 53 L97 57.5" fill="none" stroke="#3a3142" strokeWidth={2} strokeLinecap="round" />
+    </svg>
+  );
+}
+
+function KittyHK_b() {
+  return (
+    <svg
+      viewBox="0 0 100 100"
+      role="img"
+      aria-hidden="true"
+      focusable="false"
+      fill="none"
+      stroke="#3a3142"
+      strokeWidth={3}
+      strokeLinejoin="round"
+      strokeLinecap="round"
+    >
+      <path d="M24 84 C24 71 36 64 50 64 C64 64 76 71 76 84 L78 100 L22 100 Z" fill="#ffffff" />
+      <path d="M36 64 L41 64 L41 74 L59 74 L59 64 L64 64 L64 74 L70 74 L76 100 L24 100 L30 74 L36 74 Z" fill="#f6a9c0" />
+      <ellipse cx="23" cy="78" rx="9" ry="4.8" transform="rotate(38 23 78)" fill="#ffffff" />
+      <ellipse cx="77" cy="78" rx="9" ry="4.8" transform="rotate(-38 77 78)" fill="#ffffff" />
+      <path d="M12.5 46 C12.5 30 26 18 50 18 C74 18 87.5 30 87.5 46 C87.5 60 70 68 50 68 C30 68 12.5 60 12.5 46 Z" fill="#ffffff" />
+      <path d="M21.5 27.5 L25 14 Q26.5 11 29 13.5 L37.5 20.5" fill="#ffffff" />
+      <path d="M78.5 27.5 L75 14 Q73.5 11 71 13.5 L62.5 20.5" fill="#ffffff" />
+      <path d="M67 22 C61 12 51 15 54.5 22 C51 29 61 32 67 22 Z" fill="#e94f64" />
+      <path d="M69 22 C75 12 85 15 81.5 22 C85 29 75 32 69 22 Z" fill="#e94f64" />
+      <ellipse cx="68" cy="22" rx="3.6" ry="4.4" fill="#d13a50" />
+      <ellipse cx="34" cy="49" rx="2.2" ry="3.4" fill="#3a3142" stroke="none" />
+      <ellipse cx="66" cy="49" rx="2.2" ry="3.4" fill="#3a3142" stroke="none" />
+      <ellipse cx="50" cy="50.5" rx="2.6" ry="1.9" fill="#ffd44d" stroke="none" />
+      <path d="M27 45 L3 40.5 M27 49 L2 49 M27 53 L3 57.5" strokeWidth={2} />
+      <path d="M73 45 L97 40.5 M73 49 L98 49 M73 53 L97 57.5" strokeWidth={2} />
+    </svg>
+  );
+}
+
+function KittyHK_c() {
+  return (
+    <svg
+      viewBox="0 0 100 100"
+      role="img"
+      aria-hidden="true"
+      focusable="false"
+      fill="none"
+      stroke="#3a3142"
+      strokeWidth={3}
+      strokeLinejoin="round"
+      strokeLinecap="round"
+    >
+      <path d="M21 86 C21 73 35 66 50 66 C65 66 79 73 79 86 L81 100 L19 100 Z" fill="#ffffff" />
+      <path d="M35 66 L40 66 L40 76 L60 76 L60 66 L65 66 L65 76 L71 76 L78 100 L22 100 L29 76 L35 76 Z" fill="#f6a9c0" />
+      <ellipse cx="21" cy="81" rx="9.5" ry="5" transform="rotate(38 21 81)" fill="#ffffff" />
+      <ellipse cx="79" cy="81" rx="9.5" ry="5" transform="rotate(-38 79 81)" fill="#ffffff" />
+      <path d="M10 46 C10 29 24 16 50 16 C76 16 90 29 90 46 C90 61 71 70 50 70 C29 70 10 61 10 46 Z" fill="#ffffff" />
+      <path d="M19.5 26 L23.5 12 Q25.3 8.6 28 11.4 L36.5 18.5" fill="#ffffff" />
+      <path d="M80.5 26 L76.5 12 Q74.7 8.6 72 11.4 L63.5 18.5" fill="#ffffff" />
+      <path d="M66 21 C60 10 49 13 52.5 21 C49 29 60 32 66 21 Z" fill="#e94f64" />
+      <path d="M68 21 C74 10 85 13 81.5 21 C85 29 74 32 68 21 Z" fill="#e94f64" />
+      <ellipse cx="67" cy="21" rx="3.8" ry="4.5" fill="#d13a50" />
+      <ellipse cx="32.8" cy="49.5" rx="2.4" ry="3.6" fill="#3a3142" stroke="none" />
+      <ellipse cx="67.2" cy="49.5" rx="2.4" ry="3.6" fill="#3a3142" stroke="none" />
+      <ellipse cx="50" cy="51" rx="2.8" ry="2" fill="#ffd44d" stroke="none" />
+      <path d="M25 45 L1 40 M25 49.5 L1 49.5 M25 54 L1 59" strokeWidth={2} />
+      <path d="M75 45 L99 40 M75 49.5 L99 49.5 M75 54 L99 59" strokeWidth={2} />
+    </svg>
+  );
+}
+
 type PortraitEntry = { label: string; name: string; look: string; Mark: () => ReactElement };
 
 const PORTRAITS: readonly PortraitEntry[] = [
   {
-    label: "the pick · live",
-    name: "Hello bust (upper body)",
-    look: "Proportions matched to the official Hello Kitty art (reference-images/hello-kitty.png): a flat-wide 1.48:1 head with small ears, wide-set low face, long whiskers, the bow worn on the upper-right ear, red pinafore at the crop line. Now live in the game.",
+    label: "hk candidate b · chosen · live",
+    name: "Inked Poster",
+    look: "The pick — identical measured geometry with our poster ink; ears are open paths so no stroke crosses their base; eyes and nose stay unstroked (a 3-wide ring would blob the 5-unit nose). Now live in the game.",
+    Mark: KittyHK_b,
+  },
+  {
+    label: "hk candidate a",
+    name: "Soft Flat",
+    look: "No outline anywhere — pure flat fills like the official art; the white head edge is deliberately unread and the silhouette is carried by eyes, nose, whiskers, bow and the pink pinafore.",
+    Mark: KittyHK_a,
+  },
+  {
+    label: "hk candidate c",
+    name: "Tight Crop",
+    look: "The knight's tight bust framing: head 80×54 at 1.48:1 fills the width, dress runs off the bottom corners, whisker caps kiss the frame edges.",
+    Mark: KittyHK_c,
+  },
+  {
+    label: "previous · not it",
+    name: "the rejected reference",
+    look: "The last attempt — matched the official proportions by the numbers but still read wrong to the owner.",
     Mark: BustPortrait,
   },
   {
@@ -478,10 +587,11 @@ export function KittyPortraitRoundSection() {
         <p className="art-variant-label">cat portrait · concept rethink · decided</p>
         <h2 className="art-variant-name">sprinter, restyled standing</h2>
         <p className="art-variant-thesis">
-          The owner picked <strong>Sprinter</strong> and directed: make it read as Hello Kitty,
-          make it stand, then crop it to the upper body like the knight portrait. The first card
-          below — head + jumper shoulders in the frame — is live in the game's character select.
-          The source pose and the other nine concepts remain for reference.
+          Five solo attempts were rejected, so this round delegates with measurements taken from
+          the official Hello Kitty art (head 1.48:1 at 75% frame width, face in the lower half,
+          bow ≈ 40% of head width on the upper-right ear, no mouth). Three candidates share that
+          one skeleton and vary only the outline register (soft flat / inked poster) and the crop
+          (moderate / knight-tight). The previous attempt is kept below as the rejected reference.
         </p>
       </div>
       <div className="ashen-grid">
