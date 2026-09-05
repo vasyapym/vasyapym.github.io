@@ -13,6 +13,17 @@ grill verdict, the character facts (the law), then the round record.
   and `styles.css` html rule gains `scrollbar-gutter: stable`. Owner accepted
   without eyes-on ("suppose it fixed"); if the shift persists, the fallback
   scope is `height: 100dvh; overflow-y: auto` on the page container.
+  **Owner reported the shift persists (Sep 6). Instrumented re-verification
+  (Sep 6, `tests/kitty-run.audiobug.mjs`): NOT reproducible — both themes
+  (pastel + souls, headless and headed), desktop + mobile, dev server AND the
+  live deployed site: zero geometry deltas in any click window, zero browser
+  events (scroll/resize) in screenshot-free windows, no canvas jump spikes
+  (interval pixel-diff), header strips byte-identical. The live bundle
+  (`KittyRunPage-Ch624xUk.css`) verified to carry both b452f37 rules. The only
+  visible click consequence is the button's own hover ember recolour
+  (colour-only, no movement). Open question back to the owner: does it still
+  shift after a hard reload (Cmd+Shift+R), on dev or live, and if yes —
+  which browser, macOS scrollbar setting, zoom level?
 - **The ashen refinement section is REMOVED** from the gallery: the two
   "improved take" stills (Vigil of the Pale Cat / Ember-Crowned Ascendant) and
   the earlier three micro-delta stills were all rejected. The section wiring is
