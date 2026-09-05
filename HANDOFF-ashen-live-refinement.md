@@ -24,6 +24,24 @@ grill verdict, the character facts (the law), then the round record.
   (colour-only, no movement). Open question back to the owner: does it still
   shift after a hard reload (Cmd+Shift+R), on dev or live, and if yes —
   which browser, macOS scrollbar setting, zoom level?
+  **RESOLVED (Sep 6, owner answered: Safari macOS + iOS, ashen only). The
+  bug was never layout — it was the WebGL drawing buffer. Chromium probes
+  could never see it; a Playwright WebKit (Safari 18.2 engine) probe
+  reproduced it immediately: every header click that re-rendered the page
+  (mute/mix — NOT a bare focus click on the title) disturbed the canvas
+  backing for one frame — click-frame canvas delta 4.0-5.4 vs baseline 0.16
+  — and the distance-driven world (ground edge, city silhouettes) read as
+  having jumped. Sim was innocent (distance frozen across the spike frame;
+  dt already clamped). Fix a46eb0f: (1) the canvas subtree is React.memo'd
+  on stable props and never re-renders for header state — `muted` reaches
+  GameLoop through a ref (`mutedRef`, the characterRef pattern); (2) the
+  R3F renderer config (`gl`/`dpr`/`camera`/`onCreated`) is hoisted to
+  module scope so re-renders can never re-apply it; (3) the sim step
+  ceiling tightened 0.05→0.025s so a hitched frame can never carry more
+  than ~1.5 normal steps. Post-fix WebKit probe: all click deltas 0.23-0.25
+  (baseline noise); Chromium gates clean; ?preserve is a dev handle that
+  lets a probe diff the buffer per rAF. WebKit gate committed as
+  tests/kitty-run.webkit-shift.mjs (skips when playwright/webkit absent).
 - **The ashen refinement section is REMOVED** from the gallery: the two
   "improved take" stills (Vigil of the Pale Cat / Ember-Crowned Ascendant) and
   the earlier three micro-delta stills were all rejected. The section wiring is
