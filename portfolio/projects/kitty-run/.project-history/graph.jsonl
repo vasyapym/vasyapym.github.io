@@ -76,3 +76,5 @@
 {"type":"edge.added","id":"e36","ts":"2026-09-05T09:39:11.033Z","from":"n39","to":"n40","rel":"continues"}
 {"type":"node.added","id":"n41","ts":"2026-09-05T09:44:05.990Z","kind":"iteration","actor":"user","title":"feat(kitty-run): hero select polish — CAT rename, standing hello-kitty portrait, ashen art-direction gallery","artifacts":[{"kind":"git-commit","ref":"eb99a15"}],"meta":{"source":"auto"}}
 {"type":"edge.added","id":"e37","ts":"2026-09-05T09:44:05.993Z","from":"n40","to":"n41","rel":"continues"}
+{"type":"node.added","id":"n42","ts":"2026-09-05T09:48:22.922Z","kind":"iteration","actor":"user","title":"fix(kitty-run): kitty bust balance — head recentered, smaller torso and hands","artifacts":[{"kind":"git-commit","ref":"4d9d88b"}],"meta":{"source":"auto"}}
+{"type":"edge.added","id":"e38","ts":"2026-09-05T09:48:22.931Z","from":"n41","to":"n42","rel":"continues"}
