@@ -1,13 +1,14 @@
-// Layered pastel backdrop: gradient sky with a baked sun, drifting cloud
-// puffs, and two tileable hill silhouettes. Every layer scrolls at its own
-// fraction of the run distance — the parallax that sells the depth.
+// Layered backdrop: gradient sky with a baked sun, drifting cloud sprites,
+// and a per-character stack of tileable silhouettes (BACKDROPS lookup).
+// Every layer scrolls at its own fraction of the run distance — the
+// parallax that sells the depth.
 
 import { useMemo, useRef } from "react";
 import * as THREE from "three";
 import { useFrame } from "@react-three/fiber";
 import { createRng } from "../lib/rng.ts";
 import { paletteFor, type CharacterId } from "../lib/theme.ts";
-import { cloudTexture, hillTexture, skyTexture } from "../lib/textures.ts";
+import { BACKDROPS, skyTexture } from "../lib/textures.ts";
 import type { WorldState } from "./world.ts";
 
 const SPAN = 64;
@@ -36,6 +37,7 @@ function ScrollingPlane(props: {
   speed: number;
   distance: number;
   opacity?: number;
+  height?: number;
 }) {
   const groupRef = useRef<THREE.Group>(null);
   useFrame(() => {
@@ -50,7 +52,7 @@ function ScrollingPlane(props: {
           position={[i * PLANE_WIDTH, props.y, props.z]}
           renderOrder={-5}
         >
-          <planeGeometry args={[PLANE_WIDTH, PLANE_HEIGHT]} />
+          <planeGeometry args={[PLANE_WIDTH, props.height ?? PLANE_HEIGHT]} />
           <meshBasicMaterial
             map={props.map}
             transparent
@@ -73,20 +75,22 @@ export function Parallax({
   // The theme is read as a prop, so a character switch rebuilds exactly
   // these textures (same seeds — same shapes, new colours).
   const palette = paletteFor(character);
+  const backdrop = useMemo(() => BACKDROPS[character], [character]);
   const skyMap = useMemo(() => skyTexture(palette), [palette]);
+  const layerMaps = useMemo(
+    () => backdrop.layers.map((layer) => layer.build(palette)),
+    [backdrop, palette],
+  );
+  const cloudStyle = backdrop.cloud;
   const cloudMaps = useMemo(
-    () => [0, 1, 2].map((i) => cloudTexture(`kitty-run/cloud/${i}`, palette)),
-    [palette],
-  );
-  const farMap = useMemo(
-    () => hillTexture(palette.hillFar, 5, "kitty-run/hills/far"),
-    [palette],
-  );
-  const nearMap = useMemo(
-    () => hillTexture(palette.hillNear, 4, "kitty-run/hills/near"),
-    [palette],
+    () =>
+      cloudStyle
+        ? [0, 1, 2].map((i) => cloudStyle.build(`kitty-run/cloud/${i}`, palette))
+        : [],
+    [cloudStyle, palette],
   );
 
+  // Cloud positions share one seed across themes so a switch keeps the sky.
   const clouds = useMemo<CloudSpec[]>(() => {
     const rng = createRng("kitty-run/clouds/v1");
     return Array.from({ length: 8 }, () => ({
@@ -117,40 +121,39 @@ export function Parallax({
         <meshBasicMaterial map={skyMap} depthWrite={false} />
       </mesh>
 
-      {clouds.map((spec, i) => (
-        <mesh
-          key={i}
-          ref={(mesh) => {
-            cloudRefs.current[i] = mesh;
-          }}
-          position={[spec.x - SPAN / 2, spec.y, spec.z]}
-          scale={spec.size}
-          renderOrder={-8}
-        >
-          <planeGeometry args={[2, 1]} />
-          <meshBasicMaterial
-            map={cloudMaps[i % cloudMaps.length]}
-            transparent
-            depthWrite={false}
-          />
-        </mesh>
-      ))}
+      {cloudStyle &&
+        clouds.map((spec, i) => (
+          <mesh
+            key={i}
+            ref={(mesh) => {
+              cloudRefs.current[i] = mesh;
+            }}
+            position={[spec.x - SPAN / 2, spec.y, spec.z]}
+            scale={spec.size * cloudStyle.scale}
+            renderOrder={-8}
+          >
+            <planeGeometry args={[2, 1]} />
+            <meshBasicMaterial
+              map={cloudMaps[i % cloudMaps.length]}
+              transparent
+              opacity={cloudStyle.opacity ?? 1}
+              depthWrite={false}
+            />
+          </mesh>
+        ))}
 
-      <ScrollingPlane
-        map={farMap}
-        z={-9}
-        y={3.2}
-        speed={0.22}
-        distance={world.distance}
-        opacity={0.85}
-      />
-      <ScrollingPlane
-        map={nearMap}
-        z={-7}
-        y={2.4}
-        speed={0.42}
-        distance={world.distance}
-      />
+      {backdrop.layers.map((layer, i) => (
+        <ScrollingPlane
+          key={i}
+          map={layerMaps[i]}
+          z={layer.z}
+          y={layer.y}
+          height={layer.height}
+          speed={layer.speed}
+          opacity={layer.opacity}
+          distance={world.distance}
+        />
+      ))}
     </>
   );
 }

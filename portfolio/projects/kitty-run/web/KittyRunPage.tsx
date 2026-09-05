@@ -19,6 +19,7 @@ import {
 import { resetPilot } from "./lib/pilot.ts";
 import { buzz } from "./lib/haptics.ts";
 import { Soundtrack } from "./lib/music.ts";
+import { KittyPortrait, KnightPortrait } from "./CharacterPortraits";
 import {
   CHARACTER_IDS,
   characterFromParams,
@@ -170,13 +171,18 @@ export default function KittyRunPage() {
       // A freshly built graph comes up in the selected character's mood.
       trackRef.current.setMode(character);
     }
+    // The SFX register follows the character too: cloth/iron voices vs the
+    // pastel set. Pure table swap on the Sfx instance.
+    sfx.setMode(character);
     return sfx;
   }, [muted, audio, character]);
 
-  // The score follows the character: a swap re-voices harmony, tempo band
-  // and pad tone at the next bar; the sequencer itself never resets.
+  // The score and the SFX register follow the character: a swap re-voices
+  // harmony, tempo band and pad tone at the next bar; the sequencer itself
+  // never resets.
   useEffect(() => {
     trackRef.current?.setMode(character);
+    sfxRef.current?.setMode(character);
   }, [character]);
 
   // Slider drag: clamp, persist, and glide the live bus (a no-op before the
@@ -250,6 +256,16 @@ export default function KittyRunPage() {
     storeCharacter(window.localStorage, id);
   }, []);
 
+  // Keyboard cycling reads the ref, not the state: the keydown effect's
+  // dependency list deliberately excludes `character`, so a closure over
+  // the state would go stale after the first switch.
+  const characterRef = useRef<CharacterId>(character);
+  characterRef.current = character;
+  const stepCharacter = useCallback((dir: 1 | -1): CharacterId => {
+    const i = CHARACTER_IDS.indexOf(characterRef.current);
+    return CHARACTER_IDS[(i + dir + CHARACTER_IDS.length) % CHARACTER_IDS.length];
+  }, []);
+
   // Mid-run handover: the visitor takes the sticks back from the bot.
   const takeControl = useCallback(() => {
     world.autopilot = false;
@@ -320,6 +336,23 @@ export default function KittyRunPage() {
             handleRestart();
           }
           break;
+        case "Digit1":
+        case "Digit2": {
+          if (world.status !== "ready") break;
+          event.preventDefault();
+          uiClick();
+          chooseCharacter(CHARACTER_IDS[event.code === "Digit1" ? 0 : 1]);
+          break;
+        }
+        case "ArrowLeft":
+        case "ArrowRight": {
+          // Mid-run these belong to the duck/swipe gesture set.
+          if (world.status !== "ready") break;
+          event.preventDefault();
+          uiClick();
+          chooseCharacter(stepCharacter(event.code === "ArrowRight" ? 1 : -1));
+          break;
+        }
       }
     };
     const onKeyUp = (event: KeyboardEvent) => {
@@ -336,7 +369,7 @@ export default function KittyRunPage() {
       window.removeEventListener("keydown", onKeyDown);
       window.removeEventListener("keyup", onKeyUp);
     };
-  }, [world, handleStart, handleRestart]);
+  }, [world, handleStart, handleRestart, uiClick, chooseCharacter, stepCharacter]);
 
   // --- touch: tap = jump, swipe down = dash -------------------------------------
   //
@@ -486,23 +519,41 @@ export default function KittyRunPage() {
       {status === "ready" && (
         <div className="kitty-run-overlay kitty-run-overlay--ready">
           <div className="kitty-run-ready-stack">
-            <div className="kitty-run-characters" role="group" aria-label="Character">
-              {CHARACTER_IDS.map((id) => (
-                <button
-                  key={id}
-                  type="button"
-                  className={`kitty-run-char${id === character ? " is-active" : ""}`}
-                  aria-pressed={id === character}
-                  onMouseEnter={uiHover}
-                  onClick={() => {
-                    uiClick();
-                    chooseCharacter(id);
-                  }}
-                >
-                  <span className="kitty-run-char-name">{THEMES[id].text.name}</span>
-                  <span className="kitty-run-char-blurb">{THEMES[id].text.blurb}</span>
-                </button>
-              ))}
+            <p className="kitty-run-pick-label" id="kitty-run-pick-label">
+              {theme.text.pickLabel}
+              {!coarse && (
+                <span className="kitty-run-pick-keys" aria-hidden="true">
+                  {" "}· 1 / 2 · ← →
+                </span>
+              )}
+            </p>
+            <div
+              className="kitty-run-characters"
+              role="group"
+              aria-labelledby="kitty-run-pick-label"
+            >
+              {CHARACTER_IDS.map((id) => {
+                const active = id === character;
+                return (
+                  <button
+                    key={id}
+                    type="button"
+                    className={`kitty-run-char kitty-run-char--${id}${active ? " is-active" : ""}`}
+                    aria-pressed={active}
+                    onMouseEnter={uiHover}
+                    onClick={() => {
+                      uiClick();
+                      chooseCharacter(id);
+                    }}
+                  >
+                    <span className="kitty-run-char-portrait" aria-hidden="true">
+                      {id === "kitty" ? <KittyPortrait /> : <KnightPortrait />}
+                    </span>
+                    <span className="kitty-run-char-name">{THEMES[id].text.name}</span>
+                    <span className="kitty-run-char-blurb">{THEMES[id].text.blurb}</span>
+                  </button>
+                );
+              })}
             </div>
             <button
               type="button"

@@ -4,9 +4,10 @@
 // writes transforms directly.
 //
 // Two bodies share the one rig. The pastel kitty wears the bow; the ashen
-// knight wears a helm and a tunic belt built from the same palette keys
-// (bowRed/bowDeep are steel in her palette), so the best-run ghost can
-// still retint her by hex lookup.
+// knight wears a great helm (visor + ember eyes), pauldrons, a two-layer
+// cape and a greatsword over the shoulder, all built from the same palette
+// keys (bowRed/bowDeep are steel in her palette), so the best-run ghost
+// can still retint her by hex lookup.
 
 import { useMemo, useRef } from "react";
 import * as THREE from "three";
@@ -45,54 +46,63 @@ function dressShape(): THREE.Shape {
   return shape;
 }
 
-// --- souls-only shapes -----------------------------------------------
-// Every helm/belt shape is authored around its own origin and placed with
-// Part's `position`, so the grown ink copy reads as an even outline instead
-// of drifting upward with the scale.
-
-// Skullcap: sits on the crown between the ears (width ±0.50, peak +0.26).
-function helmDomeShape(): THREE.Shape {
+function rectShape(w: number, h: number): THREE.Shape {
   const shape = new THREE.Shape();
-  shape.moveTo(-0.5, -0.26);
-  shape.quadraticCurveTo(-0.52, 0.14, 0, 0.26);
-  shape.quadraticCurveTo(0.52, 0.14, 0.5, -0.26);
+  shape.moveTo(-w / 2, -h / 2);
+  shape.lineTo(w / 2, -h / 2);
+  shape.lineTo(w / 2, h / 2);
+  shape.lineTo(-w / 2, h / 2);
   shape.closePath();
   return shape;
 }
 
-// Centre ridge running up the dome, rounded at the top.
+function roundedRectShape(w: number, h: number, r: number): THREE.Shape {
+  const hw = w / 2;
+  const hh = h / 2;
+  const shape = new THREE.Shape();
+  shape.moveTo(-hw + r, -hh);
+  shape.lineTo(hw - r, -hh);
+  shape.quadraticCurveTo(hw, -hh, hw, -hh + r);
+  shape.lineTo(hw, hh - r);
+  shape.quadraticCurveTo(hw, hh, hw - r, hh);
+  shape.lineTo(-hw + r, hh);
+  shape.quadraticCurveTo(-hw, hh, -hw, hh - r);
+  shape.lineTo(-hw, -hh + r);
+  shape.quadraticCurveTo(-hw, -hh, -hw + r, -hh);
+  shape.closePath();
+  return shape;
+}
+
+// --- souls-only shapes -----------------------------------------------
+// Wide/flat pieces take a `pad` so their ink copy can be authored with an
+// even margin instead of grown by uniform scale (which starves the short
+// axis and fattens the long one).
+
+function helmDomeShape(pad = 0): THREE.Shape {
+  const x0 = 0.92 + pad;
+  const yb = -0.36 - pad;
+  const yt = 0.42 + pad;
+  const shape = new THREE.Shape();
+  shape.moveTo(-x0, yb);
+  shape.quadraticCurveTo(-0.98 - pad, 0.02, -0.62 - pad * 0.6, 0.2 + pad * 0.8);
+  shape.quadraticCurveTo(-0.22, yt, 0, yt);
+  shape.quadraticCurveTo(0.22, yt, 0.62 + pad * 0.6, 0.2 + pad * 0.8);
+  shape.quadraticCurveTo(0.98 + pad, 0.02, x0, yb);
+  shape.quadraticCurveTo(0, yb - 0.05, -x0, yb);
+  shape.closePath();
+  return shape;
+}
+
 function helmCrestShape(): THREE.Shape {
   const shape = new THREE.Shape();
-  shape.moveTo(-0.06, -0.25);
-  shape.lineTo(0.06, -0.25);
-  shape.lineTo(0.05, 0.17);
-  shape.quadraticCurveTo(0, 0.25, -0.05, 0.17);
+  shape.moveTo(-0.06, -0.32);
+  shape.lineTo(0.06, -0.32);
+  shape.lineTo(0.05, 0.22);
+  shape.quadraticCurveTo(0, 0.3, -0.05, 0.22);
   shape.closePath();
   return shape;
 }
 
-// Brow band: a 0.16-thick strip following the forehead curve (±0.66).
-function helmBandShape(): THREE.Shape {
-  const shape = new THREE.Shape();
-  shape.moveTo(-0.66, -0.08);
-  shape.quadraticCurveTo(0, -0.18, 0.66, -0.08);
-  shape.lineTo(0.66, 0.08);
-  shape.quadraticCurveTo(0, -0.02, -0.66, 0.08);
-  shape.closePath();
-  return shape;
-}
-
-// Ember tuft on the crest — a short flame, base 0.16 wide.
-function plumeShape(): THREE.Shape {
-  const shape = new THREE.Shape();
-  shape.moveTo(-0.08, -0.08);
-  shape.quadraticCurveTo(-0.1, 0.02, 0.01, 0.08);
-  shape.quadraticCurveTo(0.1, 0.02, 0.08, -0.08);
-  shape.closePath();
-  return shape;
-}
-
-// Tunic belt: 0.12-thick, follows the dress curve (±0.56).
 function beltShape(): THREE.Shape {
   const shape = new THREE.Shape();
   shape.moveTo(-0.56, -0.06);
@@ -103,12 +113,59 @@ function beltShape(): THREE.Shape {
   return shape;
 }
 
-function rectShape(w: number, h: number): THREE.Shape {
+// Capes are authored with the shoulder line at y +0.36 so the same offset
+// hangs both layers from the pivot group; the hem trails to -x (she runs
+// right). Centre hem points stay above y -0.3 so a forward sway can never
+// reach the feet.
+function capeBackShape(): THREE.Shape {
   const shape = new THREE.Shape();
-  shape.moveTo(-w / 2, -h / 2);
-  shape.lineTo(w / 2, -h / 2);
-  shape.lineTo(w / 2, h / 2);
-  shape.lineTo(-w / 2, h / 2);
+  shape.moveTo(-0.46, 0.36);
+  shape.lineTo(0.46, 0.36);
+  shape.quadraticCurveTo(0.52, 0.0, 0.42, -0.26);
+  shape.lineTo(0.12, -0.14);
+  shape.lineTo(-0.2, -0.3);
+  shape.lineTo(-0.5, -0.22);
+  shape.lineTo(-1.0, -0.46);
+  shape.quadraticCurveTo(-1.02, 0.02, -0.46, 0.36);
+  shape.closePath();
+  return shape;
+}
+
+function capeFrontShape(): THREE.Shape {
+  const shape = new THREE.Shape();
+  shape.moveTo(-0.4, 0.36);
+  shape.lineTo(0.4, 0.36);
+  shape.quadraticCurveTo(0.44, 0.02, 0.34, -0.18);
+  shape.lineTo(0.06, -0.08);
+  shape.lineTo(-0.22, -0.26);
+  shape.lineTo(-0.48, -0.16);
+  shape.lineTo(-0.8, -0.34);
+  shape.quadraticCurveTo(-0.84, 0.04, -0.4, 0.36);
+  shape.closePath();
+  return shape;
+}
+
+function pauldronShape(pad = 0): THREE.Shape {
+  const w = 0.27 + pad;
+  const top = 0.13 + pad;
+  const bot = -0.09 - pad;
+  const shape = new THREE.Shape();
+  shape.moveTo(-w, bot);
+  shape.quadraticCurveTo(-w - 0.03, top, 0, top);
+  shape.quadraticCurveTo(w + 0.03, top, w, bot);
+  shape.quadraticCurveTo(0, bot - 0.06, -w, bot);
+  shape.closePath();
+  return shape;
+}
+
+function bladeShape(hw: number, len: number): THREE.Shape {
+  const h = len / 2;
+  const shape = new THREE.Shape();
+  shape.moveTo(-hw, -h);
+  shape.lineTo(hw, -h);
+  shape.lineTo(hw, h - 0.36);
+  shape.quadraticCurveTo(hw * 0.5, h - 0.12, 0, h);
+  shape.quadraticCurveTo(-hw * 0.5, h - 0.12, -hw, h - 0.36);
   shape.closePath();
   return shape;
 }
@@ -122,6 +179,8 @@ type PartProps = {
   scale?: number;
   outline?: number;
   outlineColor?: string;
+  // Explicit padded ink shape for long/thin parts; used at scale 1.
+  inkGeometry?: THREE.ShapeGeometry;
 };
 
 // One silhouette part: an ink copy slightly grown behind the fill reads as
@@ -137,16 +196,18 @@ function Part({
   scale = 1,
   outline = 0,
   outlineColor,
+  inkGeometry,
 }: PartProps) {
   const ink = outlineColor ?? PALETTE.outlineInk;
+  const hasInk = outline > 0 || inkGeometry !== undefined;
   return (
     <>
-      {outline > 0 && (
+      {hasInk && (
         <mesh
-          geometry={geometry}
+          geometry={inkGeometry ?? geometry}
           position={position ? [position[0], position[1], z - 0.03] : [0, 0, z - 0.03]}
           rotation={[0, 0, rotation ?? 0]}
-          scale={scale * outline}
+          scale={inkGeometry ? scale : scale * outline}
         >
           <meshBasicMaterial color={ink} />
         </mesh>
@@ -185,6 +246,8 @@ export function Kitty({
   const footRRef = useRef<THREE.Group>(null);
   const armLRef = useRef<THREE.Group>(null);
   const armRRef = useRef<THREE.Group>(null);
+  const capeBackRef = useRef<THREE.Group>(null);
+  const capeFrontRef = useRef<THREE.Group>(null);
 
   const geo = useMemo(() => {
     const seg = 20;
@@ -202,9 +265,23 @@ export function Kitty({
       arm: new THREE.ShapeGeometry(ellipseShape(0.12, 0.2), seg),
       // souls kit
       helmDome: new THREE.ShapeGeometry(helmDomeShape(), seg),
+      helmDomeInk: new THREE.ShapeGeometry(helmDomeShape(0.035), seg),
       helmCrest: new THREE.ShapeGeometry(helmCrestShape(), seg),
-      helmBand: new THREE.ShapeGeometry(helmBandShape(), seg),
-      plume: new THREE.ShapeGeometry(plumeShape(), seg),
+      visorPlate: new THREE.ShapeGeometry(roundedRectShape(1.5, 0.46, 0.18), seg),
+      visorPlateInk: new THREE.ShapeGeometry(roundedRectShape(1.56, 0.52, 0.21), seg),
+      visorSlit: new THREE.ShapeGeometry(rectShape(1.16, 0.11), seg),
+      ember: new THREE.ShapeGeometry(ellipseShape(0.085, 0.04), seg),
+      capeBack: new THREE.ShapeGeometry(capeBackShape(), seg),
+      capeFront: new THREE.ShapeGeometry(capeFrontShape(), seg),
+      pauldron: new THREE.ShapeGeometry(pauldronShape(), seg),
+      pauldronInk: new THREE.ShapeGeometry(pauldronShape(0.03), seg),
+      blade: new THREE.ShapeGeometry(bladeShape(0.085, 2.5), seg),
+      bladeInk: new THREE.ShapeGeometry(bladeShape(0.115, 2.56), seg),
+      grip: new THREE.ShapeGeometry(roundedRectShape(0.1, 0.46, 0.03), seg),
+      gripInk: new THREE.ShapeGeometry(roundedRectShape(0.16, 0.52, 0.05), seg),
+      guard: new THREE.ShapeGeometry(roundedRectShape(0.5, 0.1, 0.04), seg),
+      guardInk: new THREE.ShapeGeometry(roundedRectShape(0.56, 0.16, 0.06), seg),
+      pommel: new THREE.ShapeGeometry(ellipseShape(0.1, 0.09), seg),
       belt: new THREE.ShapeGeometry(beltShape(), seg),
       buckle: new THREE.ShapeGeometry(rectShape(0.14, 0.14), seg),
     };
@@ -253,12 +330,64 @@ export function Kitty({
     }
     if (armLRef.current) armLRef.current.rotation.z = -pose.armSwing;
     if (armRRef.current) armRRef.current.rotation.z = pose.armSwing;
+
+    // Cape (souls only; refs are null on the pastel branch). The hem trails
+    // to -x, so a *negative* z rotation about the shoulder pivot lifts it
+    // up and back. Sway alternates between the layers; falling billows,
+    // rising drags; a dash kicks it out flat behind her.
+    if (capeBackRef.current && capeFrontRef.current) {
+      const sway = Math.sin(k.runPhase) * 0.07;
+      const lift = k.grounded
+        ? 0
+        : 0.1 + THREE.MathUtils.clamp(-k.vy * 0.02, -0.2, 0.2);
+      const dash = k.dashT > 0 ? Math.min(1, k.dashT * 8) * 0.45 : 0;
+      const base = lift + dash;
+      capeBackRef.current.rotation.z = -THREE.MathUtils.clamp(
+        base + sway,
+        -0.08,
+        0.75,
+      );
+      capeFrontRef.current.rotation.z = -THREE.MathUtils.clamp(
+        base * 0.85 - sway * 0.8,
+        -0.08,
+        0.75,
+      );
+    }
   });
 
   return (
     <group ref={rootRef} scale={ROOT_SCALE}>
       <group ref={squashRef}>
         <group ref={tiltRef}>
+          {/* souls: two-layer tattered cape hung from the shoulder line.
+              z ladder (body): cape back ink -0.11 / fill -0.08, cape front
+              ink -0.05 / fill -0.02 — everything else in the body sits at
+              ≥ 0.00, and the hem never reaches the feet's x range. */}
+          {isSouls && (
+            <>
+              <group ref={capeBackRef} position={[0, 1.0, 0]}>
+                <Part
+                  geometry={geo.capeBack}
+                  color={palette.suitDeep}
+                  z={-0.08}
+                  position={[0, -0.36]}
+                  outline={1.045}
+                  outlineColor={palette.outlineInk}
+                />
+              </group>
+              <group ref={capeFrontRef} position={[0, 1.0, 0]}>
+                <Part
+                  geometry={geo.capeFront}
+                  color={palette.suitPink}
+                  z={-0.02}
+                  position={[0, -0.36]}
+                  outline={1.05}
+                  outlineColor={palette.outlineInk}
+                />
+              </group>
+            </>
+          )}
+
           {/* feet peek below the dress hem */}
           <group ref={footLRef} position={[-0.18, 0.1, 0.03]}>
             <Part
@@ -279,6 +408,49 @@ export function Kitty({
             />
           </group>
 
+          {/* souls: greatsword over the right shoulder. Authored vertical
+              (blade +y, origin at the crossguard) and rotated so the blade
+              runs up-left behind the head and only the tip clears its
+              silhouette; grip/pommel show past the right arm. Sword z:
+              blade+grip ink 0.01 / fill 0.04, guard+pommel ink 0.07 /
+              fill 0.10 — below the arm ink (0.13) and clear of the dress
+              footprint, so the dress ladder is untouched. */}
+          {isSouls && (
+            <group position={[0.75, 1.18, 0]} rotation={[0, 0, 1.0]}>
+              <Part
+                geometry={geo.blade}
+                inkGeometry={geo.bladeInk}
+                color={palette.sunCore}
+                z={0.04}
+                position={[0, 1.27]}
+                outlineColor={palette.outlineInk}
+              />
+              <Part
+                geometry={geo.grip}
+                inkGeometry={geo.gripInk}
+                color={palette.suitDeep}
+                z={0.04}
+                position={[0, -0.25]}
+                outlineColor={palette.outlineInk}
+              />
+              <Part
+                geometry={geo.guard}
+                inkGeometry={geo.guardInk}
+                color={palette.bowRed}
+                z={0.1}
+                outlineColor={palette.outlineInk}
+              />
+              <Part
+                geometry={geo.pommel}
+                color={palette.bowRed}
+                z={0.1}
+                position={[0, -0.5]}
+                outline={1.3}
+                outlineColor={palette.outlineInk}
+              />
+            </group>
+          )}
+
           {/* dress (the rust tunic in souls mode — same shape) */}
           <Part
             geometry={geo.dress}
@@ -288,9 +460,7 @@ export function Kitty({
             outlineColor={palette.outlineInk}
           />
 
-          {/* souls: leather belt across the tunic, steel buckle.
-              Sits below the head's ink (bottom y≈0.62) and clear of the
-              arms (y≥0.72), so z 0.20/0.17 never meets another surface. */}
+          {/* souls: leather belt across the tunic, steel buckle. */}
           {isSouls && (
             <>
               <Part
@@ -327,6 +497,22 @@ export function Kitty({
             />
           </group>
 
+          {/* souls: pauldrons over the arm pivots. They straddle the head's
+              lower edge (head fill 0.22), so they sit above it: ink 0.25 /
+              fill 0.28. Static — the arm ellipses barely move visually. */}
+          {isSouls &&
+            [-1, 1].map((side) => (
+              <Part
+                key={side}
+                geometry={geo.pauldron}
+                inkGeometry={geo.pauldronInk}
+                color={palette.bowRed}
+                z={0.28}
+                position={[side * 0.64, 0.98]}
+                outlineColor={palette.outlineInk}
+              />
+            ))}
+
           {/* head */}
           <group ref={headRef} position={[0, 1.5, 0]}>
             <group ref={earLRef} position={[-0.58, 0.52, 0.15]}>
@@ -355,78 +541,85 @@ export function Kitty({
               outlineColor={palette.outlineInk}
             />
 
-            <mesh
-              ref={eyeLRef}
-              geometry={geo.eye}
-              position={[-0.4, 0.06, 0.27]}
-            >
-              <meshBasicMaterial color={palette.eyeInk} />
-            </mesh>
-            <mesh
-              ref={eyeRRef}
-              geometry={geo.eye}
-              position={[0.4, 0.06, 0.27]}
-            >
-              <meshBasicMaterial color={palette.eyeInk} />
-            </mesh>
-            <mesh geometry={geo.nose} position={[0, -0.16, 0.27]}>
-              <meshBasicMaterial color={palette.noseYellow} />
-            </mesh>
-            <mesh geometry={geo.cheek} position={[-0.68, -0.22, 0.26]}>
-              <meshBasicMaterial color={palette.cheek} />
-            </mesh>
-            <mesh geometry={geo.cheek} position={[0.68, -0.22, 0.26]}>
-              <meshBasicMaterial color={palette.cheek} />
-            </mesh>
-            {[-1, 1].map((side) =>
-              [0.18, 0.02, -0.14].map((y, i) => (
+            {/* face — pastel only; the visor replaces it in souls mode */}
+            {!isSouls && (
+              <>
                 <mesh
-                  key={`${side}:${i}`}
-                  geometry={geo.whisker}
-                  position={[side * 0.88, y, 0.27]}
-                  rotation={[0, 0, side * (0.08 - i * 0.08)]}
+                  ref={eyeLRef}
+                  geometry={geo.eye}
+                  position={[-0.4, 0.06, 0.27]}
                 >
-                  <meshBasicMaterial color={palette.outlineInk} />
+                  <meshBasicMaterial color={palette.eyeInk} />
                 </mesh>
-              )),
+                <mesh
+                  ref={eyeRRef}
+                  geometry={geo.eye}
+                  position={[0.4, 0.06, 0.27]}
+                >
+                  <meshBasicMaterial color={palette.eyeInk} />
+                </mesh>
+                <mesh geometry={geo.nose} position={[0, -0.16, 0.27]}>
+                  <meshBasicMaterial color={palette.noseYellow} />
+                </mesh>
+                <mesh geometry={geo.cheek} position={[-0.68, -0.22, 0.26]}>
+                  <meshBasicMaterial color={palette.cheek} />
+                </mesh>
+                <mesh geometry={geo.cheek} position={[0.68, -0.22, 0.26]}>
+                  <meshBasicMaterial color={palette.cheek} />
+                </mesh>
+                {[-1, 1].map((side) =>
+                  [0.18, 0.02, -0.14].map((y, i) => (
+                    <mesh
+                      key={`${side}:${i}`}
+                      geometry={geo.whisker}
+                      position={[side * 0.88, y, 0.27]}
+                      rotation={[0, 0, side * (0.08 - i * 0.08)]}
+                    >
+                      <meshBasicMaterial color={palette.outlineInk} />
+                    </mesh>
+                  )),
+                )}
+              </>
             )}
 
             {isSouls ? (
-              /* helm — a child of the head only (no bowRef): it rides the
-                 head bob/tilt and nothing else, so it feels like iron, not
-                 ribbon. Z ladder above the face (0.27): dome 0.34 (ink 0.31),
-                 crest 0.40, band 0.46, plume 0.52 — every ink copy sits
-                 ≥0.03 above the fill it overlaps. */
+              /* great helm — head-local z ladder over the head fill (0.22):
+                 visor plate ink 0.25 / plate 0.28, slit 0.31, embers 0.34,
+                 dome ink 0.31 / dome 0.34, crest ink 0.37 / crest 0.40.
+                 The dome's lower ink line lands on the plate's top edge so
+                 no bone shows between visor and helm; slit and embers stay
+                 well below the dome, so they never share a z band with it. */
               <group position={[0, 0, 0]}>
                 <Part
+                  geometry={geo.visorPlate}
+                  inkGeometry={geo.visorPlateInk}
+                  color={palette.bowDeep}
+                  z={0.28}
+                  position={[0, 0.03]}
+                  outlineColor={palette.outlineInk}
+                />
+                <mesh geometry={geo.visorSlit} position={[0, 0.06, 0.31]}>
+                  <meshBasicMaterial color={palette.outlineInk} />
+                </mesh>
+                <mesh geometry={geo.ember} position={[-0.34, 0.06, 0.34]}>
+                  <meshBasicMaterial color={palette.noseYellow} />
+                </mesh>
+                <mesh geometry={geo.ember} position={[0.34, 0.06, 0.34]}>
+                  <meshBasicMaterial color={palette.noseYellow} />
+                </mesh>
+                <Part
                   geometry={geo.helmDome}
+                  inkGeometry={geo.helmDomeInk}
                   color={palette.bowRed}
                   z={0.34}
                   position={[0, 0.66]}
-                  outline={1.06}
                   outlineColor={palette.outlineInk}
                 />
                 <Part
                   geometry={geo.helmCrest}
                   color={palette.bowDeep}
                   z={0.4}
-                  position={[0, 0.69]}
-                  outline={1.16}
-                  outlineColor={palette.outlineInk}
-                />
-                <Part
-                  geometry={geo.helmBand}
-                  color={palette.bowDeep}
-                  z={0.46}
-                  position={[0, 0.4]}
-                  outline={1.05}
-                  outlineColor={palette.outlineInk}
-                />
-                <Part
-                  geometry={geo.plume}
-                  color={palette.noseYellow}
-                  z={0.52}
-                  position={[0, 0.96]}
+                  position={[0, 0.76]}
                   outline={1.16}
                   outlineColor={palette.outlineInk}
                 />

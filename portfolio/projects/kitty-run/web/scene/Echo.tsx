@@ -55,13 +55,14 @@ const FADED: Record<CharacterId, Record<string, string>> = {
     [PALETTE.outlineInk]: "#c49cb2",
   },
   souls: {
-    [SOULS_P.kittyWhite]: "#eae4dc",
-    [SOULS_P.suitPink]: "#cbb9ad",
-    [SOULS_P.bowRed]: "#b8ada4",
-    [SOULS_P.bowDeep]: "#ab9f96",
-    [SOULS_P.noseYellow]: "#d9c9b8",
-    [SOULS_P.cheek]: "#d6c6bb",
-    [SOULS_P.outlineInk]: "#9a8f86",
+    [SOULS_P.kittyWhite]: "#efe9df",
+    [SOULS_P.suitPink]: "#b39a8c",
+    [SOULS_P.suitDeep]: "#7d6a5e",
+    [SOULS_P.bowRed]: "#969290",
+    [SOULS_P.bowDeep]: "#6b6661",
+    [SOULS_P.noseYellow]: "#d6a57c",
+    [SOULS_P.cheek]: "#c0a999",
+    [SOULS_P.outlineInk]: "#4a423c",
   },
 };
 

@@ -7,9 +7,11 @@ into a combo multiplier for score — every hazard in the run can be cleared
 with a well-timed jump.
 
 Two characters share the one run: the pastel kitty in her bow, and the
-**ashen knight** — a Dark Souls re-theme (helm, soul wisps, a dusk world,
-YOU DIED) picked from the character chips on the ready card. It is strictly
-a cosmetic variant: physics, pacing, seeds and replays are untouched.
+**ashen knight** — a Dark Souls re-theme (a great helm with ember eyes, a
+tattered cape and a greatsword, a gothic castle-city under an ember dusk,
+falling ash, soul wisps, YOU DIED) chosen from the hero cards on the ready
+screen. It is strictly a cosmetic variant: physics, pacing, seeds and
+replays are untouched.
 
 Four features carry the engineering story:
 
@@ -22,7 +24,9 @@ Four features carry the engineering story:
   crawls.
 - **Adaptive soundtrack** — no audio files, Celeste-flavoured. A Web Audio
   lookahead scheduler sequences a Cmaj7–Am7–Fmaj7–G7 loop whose tempo
-  follows the run speed (96→132 bpm): warm saw pads, melodic sine+triangle
+  follows the run speed (96→132 bpm; the ashen knight re-voices the same
+  engine into a 58→66 bpm lament — see *Two characters, one run*): warm
+  saw pads, melodic sine+triangle
   bass, plucky arp, hats and a soft snare crossfade in as speed and combo
   build; the recurring kitty motif floats in a tempo-locked dotted-eighth
   delay and a procedural reverb; the kick breathes the whole mix through a
@@ -34,17 +38,24 @@ Four features carry the engineering story:
   timed inputs; a faded afterimage replays it on the very same track and
   gives chase once you open a lead. Same seed, same physics, same
   bullet-time — a deterministic replay you can outrun.
-- **Two characters, one run** — the character chips on the ready card
-  select the theme; the choice persists (with a `?souls` deep link). The
-  ashen knight reskins every surface by palette swap only: a dusk sky with
-  a blooming moon, ash ground with an ember edge, iron crates with bone
-  rivets, soul wisps instead of hearts, a serif HUD, and a YOU DIED
-  overture on the game-over card. The soundtrack follows too — the same
-  engine re-voiced onto an Andalusian lament (Am7–Gsus2–Fadd9–Em7,
-  78→110 bpm, darker pad filter), so the menu vamp alone reads as Dark
-  Souls. The simulation never sees the theme: it lives in a `theme.ts`
-  layer threaded through props, and the echo renders as an ash-memory
-  ghost of whichever character you are.
+- **Two characters, one run** — the ready screen leads with two hero
+  character cards (flat-vector portraits, staggered entrance, keyboard
+  `1`/`2` and `←`/`→` cycling); the choice persists (with a `?souls`
+  deep link). The ashen knight reskins every surface by palette swap: a
+  slate dusk sky melting into an ash-rose horizon, a colossal gothic
+  castle-city in three parallax silhouette layers with smoldering ember
+  windows, streaky ember-lit clouds, falling ash, iron crates, soul
+  wisps, a serif HUD, and a YOU DIED overture on the game-over card. The
+  knight herself is rebuilt — a full great helm with a visor slit and
+  ember eyes, a two-layer tattered cape that billows in the air and
+  streams flat in a dash, pauldrons, a greatsword over the shoulder. The
+  soundtrack re-generres: the same engine re-voiced as a slow lament
+  (formant choir, sub drone, one deep bell per loop, a bowed cello lead,
+  a heartbeat boom, no drums at 58→66 bpm), and the SFX register swaps to
+  weight — cloth, iron rings, armored thumps, soul-absorb shimmers. The
+  simulation never sees the theme: it lives in a `theme.ts` layer
+  threaded through props, and the echo renders as an ash-memory ghost of
+  whichever character you are.
 
 ## How it fits the shell
 
@@ -141,12 +152,18 @@ the route is `/projects/kitty-run`. Shell-side additions: the
 
 ## Implementation notes
 
-- **Zero image assets** — the sky, clouds, hills, crate dots and the
-  particle sprite are canvas-generated textures; Kitty herself is
-  procedural vector art: `THREE.ShapeGeometry` parts (head, ears, bow,
-  dress, whiskers) with an ink copy grown behind each fill as an outline.
-  The souls variant adds its kit from the same technique (helm dome,
-  crest, brow band, ember plume, belt) — steel tones reuse the `bowRed`/
+- **Zero image assets** — the sky, clouds, castle silhouettes, ground,
+  crate dots and the particle sprite are canvas-generated textures; Kitty
+  herself is procedural vector art: `THREE.ShapeGeometry` parts (head,
+  ears, bow, dress, whiskers) with an ink copy grown behind each fill as
+  an outline. The souls variant rebuilds her kit the same way (great helm
+  with a visor slit and ember eyes, two-layer tattered cape, pauldrons,
+  greatsword); the character select renders each card's poster as inline
+  SVG. The backdrop is a per-character lookup (`BACKDROPS`): rolling hills
+  and puffy clouds for the pastel, a gothic castle-city (needle spires,
+  crenellated towers, cathedral bodies, arcades, ember windows) across
+  three parallax layers with streaky ember-lit clouds and instanced
+  falling-ash motes for the knight. Steel tones reuse the `bowRed`/
   `bowDeep` palette keys, so the ghost retint keeps working by hex lookup.
 - **Theme layer, not theme branches** — `web/lib/theme.ts` holds both
   palettes, the UI copy and the CSS accents; `character` is page state
@@ -154,6 +171,9 @@ the route is `/projects/kitty-run`. Shell-side additions: the
   take their palette as a parameter, per-theme colour records are built
   once at module scope, and selection can only happen on the ready
   screen — so a switch is a plain re-render while nothing is simulating.
+  The soundtrack and the SFX register follow the same shape: `ScoreConfig`
+  and `VoiceSet` records swapped by `setMode()`, so the sequencer and the
+  voices never ask which theme is playing.
 - **Responsive framing** — `web/lib/framing.ts` derives camera distance,
   field of view and the look target from the viewport aspect, guaranteeing
   eleven world units of run-ahead on portrait phones (Kitty reads as a
@@ -178,9 +198,10 @@ the route is `/projects/kitty-run`. Shell-side additions: the
   under the Kitty, tightening and fading as she climbs, so she lands *on*
   the rolling ground at the pulled-back framing instead of floating over
   it.
-- **First impression** — the ready overlay is a light pastel wash, and its
-  paper card parks in the run-ahead space, so visitors see Kitty idling in
-  her world the moment the page loads; pause and game-over keep the dark,
+- **First impression** — the ready overlay opens on the two hero character
+  cards (staggered rise-in, active card glowing), its start card parks in
+  the run-ahead space, so visitors see Kitty idling in her world the
+  moment the page loads; pause and game-over keep the dark,
   focus-pulling treatment.
 - **Pure simulation** — `web/scene/step.ts` advances the whole run and only
   touches plain data from `web/scene/world.ts`; rendering components read

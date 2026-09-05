@@ -1,14 +1,99 @@
-// Cat Runner — procedural adaptive score. One engine, two registers:
-//   - "kitty": Celeste (Lena Raine) flavoured pastel — warm detuned-saw pads,
-//     soft melodic bass, a floating delay/reverb lead, gentle drums driving a
-//     sidechain pump. This mode's sound is frozen; only the record describes it.
-//   - "souls": the Majula / Firelink lament — the same pad engine, quieter and
-//     darker, under a formant choir, a sub drone, one deep inharmonic bell per
-//     loop, a legato "cello" lead and a heartbeat boom. No drums, no arp, no
-//     hats, no pump. Slow. Mostly reverb.
-// 100% Web Audio, no files: a lookahead scheduler sequences a four-bar chord
-// loop while the game conducts tempo and layers from live gameplay state. Every
-// voice is theme-independent; a mode swap only changes the ScoreConfig record.
+# BRIEF — kitty-run × Dark Souls v2, deliverable 4: the lament score
+
+You are re-voicing the **procedural adaptive soundtrack** of an existing
+browser game for its Dark Souls character theme. You have no repo access —
+the full current engine file is below. Return **one complete TS file**, in
+the exact output format at the end.
+
+## The engine today (what must survive)
+
+100% Web Audio, zero audio files. A lookahead scheduler (`LOOKAHEAD = 0.14`,
+16 steps/bar, 64-step loop) sequences chords while the game conducts tempo
+and layer levels from live state each frame (`update(world, muted)`).
+Signal path: voices → `bed` → `pump` (sidechain gain) → destination; shared
+`reverbSend` (procedural 1.6s convolver) and tempo-locked dotted-eighth
+`delay` buses tap voices wet. `setMode(mode)` swaps the active `ScoreConfig`
+record while keeping the running step position. `duck()` ducks on hits.
+The pastel mode is well-liked — **its sound must not change at all**.
+
+The owner's verdict on the current souls variant: it is the same Celeste
+engine in a minor key — the drums/arp/hats/sidechain-pump rhythm section
+reads "game-y chiptune", NOT Dark Souls. Souls must become a **different
+genre**: slow somber orchestral-choral atmosphere.
+
+## The souls direction (Majula / Firelink shrine register)
+
+- **No drums, no arp, no hats, no snare, no sidechain pump breath** in
+  souls mode. Nothing percussive except one deep, soft boom.
+- **Slow**: 58–66 bpm (bpmMin 58, bpmSpan 8).
+- **Choir**: at each bar start, a sustained soft "aah" — build it from the
+  chord's top three pad tones with detuned triangle+sine voices through a
+  small **formant pair** (two parallel bandpass filters, F1 ≈ 660 Hz,
+  F2 ≈ 1100 Hz, modest Q) so it vowels like distant voices, not a synth
+  pad. Slow attack (≥ 0.4s), sustain most of the bar, quiet per-voice
+  gains (~0.012–0.02), generous reverb send. It must sit BEHIND the pad.
+- **Bell**: one deep toll at the loop's first bar (step 0): an inharmonic
+  partial stack (e.g. ratios 1.0, 2.76, 5.4 of the chord root ×2) with a
+  long exponential decay (~3.5s), quiet (~0.05 peak), mostly reverb. This
+  is the menu vamp's signature.
+- **Drone**: a low sustained root (root ÷ 2) swelling per bar under
+  everything — quiet sub foundation (sine, ~0.05).
+- **Cello lead**: the existing souls motif (same steps/frequencies) played
+  an octave down as a slow legato "cello": sawtooth through a lowpass
+  (~900 Hz), attack ~0.12s, duration ~3 steps, gentle vibrato (4 Hz, ±4
+  cents), warm volume, strong reverb send. It enters with the same motif
+  level gate as today (intensity > 0.45), so the ready-screen vamp stays
+  pad/choir/drone/bell only, and the run adds the cello as speed builds.
+- **Soft boom** every two bars (inBar 0 of bars 1 and 3, zero-indexed
+  bars 1 and 3): a 55→38 Hz sine thump, very quiet (~0.12), a heartbeat
+  under the lament — the ONLY percussion.
+- **No sparkle line in souls** (the combo ≥ 8 sparkle is a pastel joy) —
+  gate it off.
+- Pad: keep the existing 4-detuned-saw pad voice but souls gets a quieter
+  pad (per-mode pad volume, souls ≈ 0.013) so the choir reads.
+
+## Architecture constraints (the project's rules)
+
+- ONE engine, no theme branches outside `ScoreConfig`: extend the
+  `ScoreConfig` record with per-mode fields and gate voices on them
+  (lookups, not `if (mode === "souls")` scattered in scheduleStep). The
+  record drives: `bpmMin/bpmSpan`, `padFilterHz`, plus new fields — at
+  minimum: pad volume, lead voice selection ("sparkle" | "cello"), and
+  booleans/arrays for drums, arp, choir, drone, bell, boom. Design the
+  shape yourself; keep it small and typed.
+- `SCORE_MODES.kitty` must reproduce the current sound EXACTLY: same
+  chords/motif/bpm (96 + 36·speedNorm)/padFilter 1100, drums/arp/lead
+  sparkle/sparkle line on, choir/drone/bell/boom off, pad vol 0.02.
+- `SCORE_MODES.souls`: keep the existing SOULS_CHORDS and SOULS_MOTIF
+  (reproduced below), bpm 58 + 8·speedNorm, padFilter 760.
+- Keep: WorldLike, LOOKAHEAD, STEPS_PER_BAR, LOOP_STEPS, the constructor's
+  graph (bed → pump → destination; reverb; delay), update()'s easing and
+  gates, duck(), setMode(), scheduleStep()'s overall shape, and the
+  existing voices pastel mode uses (pad, bass, kick, snare, arp, hat,
+  motif, sparkle). Add new private voices for the souls record.
+- No per-note allocation beyond what the existing voices already do
+  (oscillators/filters per note are the existing pattern); no audio files;
+  no fetch. Deterministic: no Math.random in the sequencer (Math.random in
+  noise-buffer reads inside existing voices stays as-is; reuse the same
+  pattern for new voices only if needed — the boom/bell/choir/cello don't
+  need noise).
+- `Soundtrack` class shape/exports unchanged (`new Soundtrack(ctx, destination)`,
+  `update`, `duck`, `setMode`). TypeScript, no `any`.
+
+## The current file (full — you are rewriting it)
+
+// Cat Runner — procedural adaptive score, Celeste (Lena Raine) flavoured.
+//
+// NOT a chiptune. 100% Web Audio, no files: a lookahead scheduler sequences a
+// four-bar maj7/min7 chord loop while the game conducts tempo and layers from
+// live gameplay state. Richness comes from TEXTURE, not loudness:
+//   - warm analog-style pads: four detuned saws through a shared lowpass,
+//   - soft melodic bass (sine + octave-up triangle), never gated,
+//   - a "kitty" lead that floats in a tempo-locked dotted-eighth delay +
+//     reverb, with a gentle vibrato LFO,
+//   - gentle drums driving a sidechain PUMP so the whole mix breathes,
+//   - a procedural stereo convolution reverb built once in the constructor.
+// The output loudness sits deliberately between the old harsh values.
 
 type WorldLike = {
   status: "ready" | "running" | "paused" | "over";
@@ -22,18 +107,15 @@ const LOOKAHEAD = 0.14;
 const STEPS_PER_BAR = 16;
 const LOOP_STEPS = STEPS_PER_BAR * 4; // 64: one four-bar chord cycle.
 
-type Chord = { root: number; tones: number[]; pad: number[] };
-type MotifNote = { step: number; freq: number };
-
 // root + arp tones kept exactly; `pad` is a warm four-voice 7th voicing.
-const CHORDS: Chord[] = [
+const CHORDS: { root: number; tones: number[]; pad: number[] }[] = [
   { root: 130.81, tones: [261.63, 329.63, 392.0, 523.25], pad: [261.63, 329.63, 392.0, 493.88] }, // Cmaj7
   { root: 110.0, tones: [261.63, 329.63, 440.0, 523.25], pad: [220.0, 261.63, 329.63, 392.0] }, // Am7
   { root: 87.31, tones: [261.63, 349.23, 440.0, 523.25], pad: [174.61, 220.0, 261.63, 349.23] }, // Fmaj7
   { root: 98.0, tones: [246.94, 293.66, 392.0, 493.88], pad: [196.0, 246.94, 293.66, 349.23] }, // G7
 ];
 
-const MOTIF: MotifNote[] = [
+const MOTIF: { step: number; freq: number }[] = [
   { step: 16, freq: 329.63 }, // E5
   { step: 20, freq: 392.0 }, // G5
   { step: 24, freq: 440.0 }, // A5
@@ -43,17 +125,17 @@ const MOTIF: MotifNote[] = [
   { step: 40, freq: 261.63 }, // C5
 ];
 
-// The souls harmony: the Andalusian lament (i7 – ♭VII(sus2) – ♭VI(add9) – v7)
-// — a descending breath that resolves Em7 → Am7 by fifth. The motif is a
-// b6→5 sigh that never "arrives"; in souls mode it is bowed an octave down.
-const SOULS_CHORDS: Chord[] = [
+// The souls variant: the Andalusian lament (i7 – ♭VII(sus2) – ♭VI(add9) – v7)
+// over the same engine — a descending breath that resolves Em7 → Am7 by
+// fifth. Slower ceiling, darker pad, a b6→5 sigh motif that never "arrives".
+const SOULS_CHORDS: { root: number; tones: number[]; pad: number[] }[] = [
   { root: 110.0, tones: [220.0, 261.63, 329.63, 440.0], pad: [220.0, 261.63, 329.63, 392.0] }, // Am7   (i7)
   { root: 98.0, tones: [220.0, 293.66, 392.0, 440.0], pad: [196.0, 220.0, 293.66, 392.0] }, // Gsus2 (♭VII, no third)
   { root: 87.31, tones: [220.0, 261.63, 349.23, 392.0], pad: [174.61, 220.0, 261.63, 392.0] }, // Fadd9 (♭VI, no 7th)
   { root: 82.41, tones: [246.94, 293.66, 329.63, 392.0], pad: [164.81, 196.0, 246.94, 293.66] }, // Em7   (v7)
 ];
 
-const SOULS_MOTIF: MotifNote[] = [
+const SOULS_MOTIF: { step: number; freq: number }[] = [
   { step: 16, freq: 440.0 }, // A5 — 9th over G, floating
   { step: 20, freq: 329.63 }, // E5 — falls a fourth, the sigh
   { step: 24, freq: 349.23 }, // F5 — the ♭6 leans in
@@ -65,67 +147,20 @@ const SOULS_MOTIF: MotifNote[] = [
 
 // Everything the character theme may re-voice. The engine's voices,
 // envelopes, rhythms and layer thresholds are theme-independent; a mode
-// swap only changes this record. Voices are gated by lookups on it — the
-// sequencer never asks which theme is playing.
+// swap only changes this record.
 type ScoreMode = "kitty" | "souls";
 
-// Which voice plays the motif notes: the pastel delay/reverb lead, or the
-// slow bowed cello an octave down.
-type LeadVoice = "sparkle" | "cello";
-
 type ScoreConfig = {
-  chords: Chord[];
-  motif: MotifNote[];
+  chords: { root: number; tones: number[]; pad: number[] }[];
+  motif: { step: number; freq: number }[];
   bpmMin: number;
   bpmSpan: number;
   padFilterHz: number;
-  padVolume: number; // per-voice pad gain (pastel 0.02, souls quieter so the choir reads).
-  lead: LeadVoice;
-  bass: boolean; // plucked quarter-note bass.
-  drums: boolean; // kick + sidechain pump, snare backbeat, off-beat hats.
-  arp: boolean; // plucky chord-tone arp.
-  sparkleLine: boolean; // the combo ≥ 8 ping-pong sparkle.
-  choir: boolean; // formant "aah" on the chord's top three pad tones, every bar.
-  drone: boolean; // sub root (root ÷ 2) swelling under every bar.
-  bell: boolean; // one deep inharmonic toll at the loop's first bar.
-  boomBars: readonly number[]; // zero-indexed bars whose downbeat gets the soft boom; [] = none.
 };
 
 const SCORE_MODES: Record<ScoreMode, ScoreConfig> = {
-  kitty: {
-    chords: CHORDS,
-    motif: MOTIF,
-    bpmMin: 96,
-    bpmSpan: 36,
-    padFilterHz: 1100,
-    padVolume: 0.02,
-    lead: "sparkle",
-    bass: true,
-    drums: true,
-    arp: true,
-    sparkleLine: true,
-    choir: false,
-    drone: false,
-    bell: false,
-    boomBars: [],
-  },
-  souls: {
-    chords: SOULS_CHORDS,
-    motif: SOULS_MOTIF,
-    bpmMin: 58,
-    bpmSpan: 8,
-    padFilterHz: 760,
-    padVolume: 0.013,
-    lead: "cello",
-    bass: false,
-    drums: false,
-    arp: false,
-    sparkleLine: false,
-    choir: true,
-    drone: true,
-    bell: true,
-    boomBars: [1, 3],
-  },
+  kitty: { chords: CHORDS, motif: MOTIF, bpmMin: 96, bpmSpan: 36, padFilterHz: 1100 },
+  souls: { chords: SOULS_CHORDS, motif: SOULS_MOTIF, bpmMin: 78, bpmSpan: 32, padFilterHz: 760 },
 };
 
 export class Soundtrack {
@@ -249,8 +284,8 @@ export class Soundtrack {
     this.duckUntil = this.ctx.currentTime + 0.45;
   }
 
-  // Theme switch: the harmony, tempo band, pad tone and voice set change; the
-  // running step position and every gain stay untouched.
+  // Theme switch: the harmony, tempo band and pad tone change; the running
+  // step position and every gain stay untouched.
   setMode(mode: ScoreMode): void {
     this.cfg = SCORE_MODES[mode];
   }
@@ -264,64 +299,48 @@ export class Soundtrack {
     stepDur: number,
   ): void {
     const inBar = step % STEPS_PER_BAR;
-    const bar = Math.floor(step / STEPS_PER_BAR);
     const cfg = this.cfg;
-    const chord = cfg.chords[bar % cfg.chords.length];
-    const barDur = stepDur * STEPS_PER_BAR;
+    const chord = cfg.chords[Math.floor(step / STEPS_PER_BAR) % cfg.chords.length];
 
-    // Bar-length layers at the top of every bar: the pad always; the sub
-    // drone, the formant choir, the loop bell and the heartbeat boom by record.
+    // Warm analog pad at the top of every bar.
     if (inBar === 0) {
-      this.pad(chord.pad, t, barDur);
-      if (cfg.drone) this.drone(chord.root / 2, t, barDur);
-      if (cfg.choir) this.choir(chord.pad.slice(-3), t, barDur);
-      if (cfg.bell && step === 0) this.bell(chord.root * 2, t);
-      if (cfg.boomBars.indexOf(bar) !== -1) this.boom(t);
+      this.pad(chord.pad, t, stepDur * STEPS_PER_BAR);
     }
     // Melodic bass on the strong quarters: root, root, fifth, root.
-    if (cfg.bass && (inBar === 0 || inBar === 4 || inBar === 8 || inBar === 12)) {
+    if (inBar === 0 || inBar === 4 || inBar === 8 || inBar === 12) {
       const idx = inBar / 4;
       this.bass(idx === 2 ? chord.root * 1.5 : chord.root, t);
     }
     // Kick drives the sidechain pump breath (scheduled ahead — never fights bed).
-    if (cfg.drums && this.kickLvl > 0.02 && (inBar === 0 || inBar === 8)) {
+    if (this.kickLvl > 0.02 && (inBar === 0 || inBar === 8)) {
       this.kick(t);
       this.pump.gain.setValueAtTime(0.72, t);
       this.pump.gain.linearRampToValueAtTime(1, t + 0.22);
     }
     // Soft snare backbeat with a touch of reverb space.
-    if (cfg.drums && this.hatLvl > 0.02 && (inBar === 4 || inBar === 12)) {
+    if (this.hatLvl > 0.02 && (inBar === 4 || inBar === 12)) {
       this.snare(t, 0.07 * this.hatLvl);
     }
     // Plucky arp climbing the chord tones.
-    if (cfg.arp && this.arpLvl > 0.02 && inBar % 2 === 0) {
+    if (this.arpLvl > 0.02 && inBar % 2 === 0) {
       const note = chord.tones[Math.floor(step / 2) % chord.tones.length];
       this.arp(note, t, (0.07 + 0.06 * speedNorm) * this.arpLvl);
     }
     // Airy off-beat hats.
-    if (
-      cfg.drums &&
-      this.hatLvl > 0.02 &&
-      (inBar === 2 || inBar === 6 || inBar === 10 || inBar === 14)
-    ) {
+    if (this.hatLvl > 0.02 && (inBar === 2 || inBar === 6 || inBar === 10 || inBar === 14)) {
       this.hat(t, (0.04 + 0.03 * intensity) * this.hatLvl, -0.25);
     }
-    // Combo sparkle, ping-ponged into the delay (a pastel joy only).
-    if (cfg.sparkleLine && combo >= 8 && inBar === 4) {
+    // Combo sparkle, ping-ponged into the delay.
+    if (combo >= 8 && inBar === 4) {
       const pan = 0.4 * this.sparkleSide;
       this.sparkleSide = -this.sparkleSide;
       this.sparkle(chord.tones[3] * 2, t, pan);
     }
-    // The motif — either the floating delay/reverb lead, or the bowed cello
-    // an octave down. Same level gate either way.
+    // Kitty motif — the lead, floating in delay + reverb.
     if (this.motifLvl > 0.02) {
       for (let i = 0; i < cfg.motif.length; i += 1) {
         if (cfg.motif[i].step === step) {
-          if (cfg.lead === "cello") {
-            this.cello(cfg.motif[i].freq * 0.5, t, stepDur * 3, 0.11 * this.motifLvl);
-          } else {
-            this.motif(cfg.motif[i].freq, t, 0.09 * this.motifLvl);
-          }
+          this.motif(cfg.motif[i].freq, t, 0.09 * this.motifLvl);
           break;
         }
       }
@@ -380,8 +399,7 @@ export class Soundtrack {
   }
 
   // Four detuned saws through one lowpass — the classic warm analog pad.
-  // The cutoff and per-voice volume are the mode's tone dials: pastel warm and
-  // present, souls dark and tucked under the choir.
+  // The cutoff is the mode's tone dial: pastel warm, souls dark.
   private pad(freqs: number[], t: number, duration: number): void {
     const filter = this.ctx.createBiquadFilter();
     filter.type = "lowpass";
@@ -390,7 +408,6 @@ export class Soundtrack {
     this.panTo(filter, -0.1).connect(this.bed);
     this.send(filter, 0.3, 0);
     const attack = Math.min(0.5, duration * 0.3);
-    const volume = this.cfg.padVolume;
     freqs.forEach((freq, i) => {
       const osc = this.ctx.createOscillator();
       osc.type = "sawtooth";
@@ -398,7 +415,7 @@ export class Soundtrack {
       osc.detune.setValueAtTime(i % 2 === 0 ? -5 : 5, t); // gentle chorus warmth.
       const gain = this.ctx.createGain();
       gain.gain.setValueAtTime(0, t);
-      gain.gain.linearRampToValueAtTime(volume, t + attack);
+      gain.gain.linearRampToValueAtTime(0.02, t + attack);
       gain.gain.exponentialRampToValueAtTime(0.001, t + duration);
       osc.connect(gain);
       gain.connect(filter);
@@ -519,9 +536,9 @@ export class Soundtrack {
     src.start(t, Math.random() * 0.5, 0.05);
   }
 
-  // The pastel lead: triangle + glassy octave-up sine, gentle vibrato LFO, sent
-  // into the tempo-locked delay and the reverb. The delay tail fills the low
-  // body, so there is no octave-down voice anymore.
+  // The lead: triangle + glassy octave-up sine, gentle vibrato LFO, sent into
+  // the tempo-locked delay and the reverb. The delay tail fills the low body,
+  // so there is no octave-down voice anymore.
   private motif(freq: number, t: number, volume: number): void {
     const dur = 0.32;
     const out = this.ctx.createGain();
@@ -576,194 +593,33 @@ export class Soundtrack {
     osc.start(t);
     osc.stop(t + dur + 0.03);
   }
-
-  // ---------------------------------------------------------------------
-  // Souls voices — the lament register. All gated by the ScoreConfig record.
-  // ---------------------------------------------------------------------
-
-  // Distant "aah": detuned triangle+sine per tone, summed into a formant pair
-  // (two parallel bandpasses at F1 ≈ 660 Hz and F2 ≈ 1100 Hz, modest Q) so the
-  // cluster vowels like far-off voices rather than a synth pad. Slow attack,
-  // sustain most of the bar, release over the next bar's rise. Sits behind the
-  // pad: quiet per-voice gains, generous reverb.
-  private choir(freqs: number[], t: number, duration: number): void {
-    const out = this.ctx.createGain();
-    out.gain.value = 1;
-    this.panTo(out, 0.12).connect(this.bed);
-    this.send(out, 0.7, 0);
-
-    // Formant pair; F1 gets a little makeup because the fundamentals sit below it.
-    const f1 = this.ctx.createBiquadFilter();
-    f1.type = "bandpass";
-    f1.frequency.value = 660;
-    f1.Q.value = 1.4;
-    const f1Gain = this.ctx.createGain();
-    f1Gain.gain.value = 1.6;
-    f1.connect(f1Gain).connect(out);
-
-    const f2 = this.ctx.createBiquadFilter();
-    f2.type = "bandpass";
-    f2.frequency.value = 1100;
-    f2.Q.value = 1.6;
-    const f2Gain = this.ctx.createGain();
-    f2Gain.gain.value = 1.0;
-    f2.connect(f2Gain).connect(out);
-
-    const input = this.ctx.createGain();
-    input.gain.value = 1;
-    input.connect(f1);
-    input.connect(f2);
-
-    // One slow breath LFO (±3 cents) shared by every voice — human drift.
-    const drift = this.ctx.createOscillator();
-    drift.type = "sine";
-    drift.frequency.setValueAtTime(0.35, t);
-    const driftAmt = this.ctx.createGain();
-    driftAmt.gain.value = 3;
-    drift.connect(driftAmt);
-    drift.start(t);
-    drift.stop(t + duration + 0.4);
-
-    const attack = Math.min(0.9, Math.max(0.4, duration * 0.22));
-    const hold = t + duration * 0.78;
-    const end = t + duration + 0.25; // breathes into the next bar's attack.
-
-    const voice = (type: OscType, freq: number, detune: number, volume: number): void => {
-      const osc = this.ctx.createOscillator();
-      osc.type = type;
-      osc.frequency.setValueAtTime(freq, t);
-      osc.detune.setValueAtTime(detune, t);
-      driftAmt.connect(osc.detune);
-      const gain = this.ctx.createGain();
-      gain.gain.setValueAtTime(0, t);
-      gain.gain.linearRampToValueAtTime(volume, t + attack);
-      gain.gain.setValueAtTime(volume, hold);
-      gain.gain.exponentialRampToValueAtTime(0.001, end);
-      osc.connect(gain);
-      gain.connect(input);
-      osc.start(t);
-      osc.stop(end + 0.05);
-    };
-
-    freqs.forEach((freq, i) => {
-      const spread = i % 2 === 0 ? 1 : -1;
-      voice("triangle", freq, -7 * spread, 0.016);
-      voice("sine", freq, 6 * spread, 0.014);
-    });
-  }
-
-  // One deep toll: an inharmonic partial stack (1.0, 2.76, 5.4) with long
-  // exponential decays, quiet and mostly reverb. The menu vamp's signature.
-  private bell(freq: number, t: number): void {
-    const out = this.ctx.createGain();
-    out.gain.value = 1;
-    const dry = this.ctx.createGain();
-    dry.gain.value = 0.22; // the dry strike barely there; the room carries it.
-    out.connect(dry);
-    this.panTo(dry, -0.06).connect(this.bed);
-    this.send(out, 1.0, 0);
-
-    const partials: { ratio: number; amp: number; decay: number }[] = [
-      { ratio: 1.0, amp: 1.0, decay: 3.5 },
-      { ratio: 2.76, amp: 0.55, decay: 2.6 },
-      { ratio: 5.4, amp: 0.3, decay: 1.7 },
-    ];
-    for (let i = 0; i < partials.length; i += 1) {
-      const p = partials[i];
-      const osc = this.ctx.createOscillator();
-      osc.type = "sine";
-      osc.frequency.setValueAtTime(freq * p.ratio, t);
-      const gain = this.ctx.createGain();
-      gain.gain.setValueAtTime(0, t);
-      gain.gain.linearRampToValueAtTime(0.05 * p.amp, t + 0.006);
-      gain.gain.exponentialRampToValueAtTime(0.001, t + p.decay);
-      osc.connect(gain);
-      gain.connect(out);
-      osc.start(t);
-      osc.stop(t + p.decay + 0.05);
-    }
-  }
-
-  // Sub drone: the root an octave below the bass register, swelling into each
-  // bar and fading through the next downbeat. A quiet sine foundation.
-  private drone(freq: number, t: number, duration: number): void {
-    const osc = this.ctx.createOscillator();
-    osc.type = "sine";
-    osc.frequency.setValueAtTime(freq, t);
-    const gain = this.ctx.createGain();
-    gain.gain.setValueAtTime(0, t);
-    gain.gain.linearRampToValueAtTime(0.05, t + duration * 0.35);
-    gain.gain.setValueAtTime(0.05, t + duration * 0.7);
-    gain.gain.exponentialRampToValueAtTime(0.001, t + duration + 0.2);
-    osc.connect(gain);
-    gain.connect(this.bed);
-    this.send(gain, 0.2, 0);
-    osc.start(t);
-    osc.stop(t + duration + 0.25);
-  }
-
-  // Bowed lead: two saws (one +6 cents) through a warm lowpass, slow bow-in
-  // attack, held legato, vibrato blooming after the onset. Strong reverb.
-  private cello(freq: number, t: number, duration: number, volume: number): void {
-    const filter = this.ctx.createBiquadFilter();
-    filter.type = "lowpass";
-    filter.frequency.value = 900;
-    filter.Q.value = 0.9;
-    const out = this.ctx.createGain();
-    out.gain.setValueAtTime(0, t);
-    out.gain.linearRampToValueAtTime(volume, t + 0.12);
-    out.gain.setValueAtTime(volume, t + duration * 0.7);
-    out.gain.exponentialRampToValueAtTime(0.001, t + duration + 0.05);
-    filter.connect(out);
-    this.panTo(out, -0.08).connect(this.bed);
-    this.send(out, 0.55, 0.08);
-
-    // 4 Hz, ±4 cents, fading in over the first third of a second.
-    const lfo = this.ctx.createOscillator();
-    lfo.type = "sine";
-    lfo.frequency.setValueAtTime(4, t);
-    const lfoAmt = this.ctx.createGain();
-    lfoAmt.gain.setValueAtTime(0, t);
-    lfoAmt.gain.linearRampToValueAtTime(4, t + 0.35);
-    lfo.connect(lfoAmt);
-    lfo.start(t);
-    lfo.stop(t + duration + 0.1);
-
-    const stopAt = t + duration + 0.1;
-    const main = this.ctx.createOscillator();
-    main.type = "sawtooth";
-    main.frequency.setValueAtTime(freq, t);
-    lfoAmt.connect(main.detune);
-    main.connect(filter);
-    main.start(t);
-    main.stop(stopAt);
-
-    const body = this.ctx.createOscillator();
-    body.type = "sawtooth";
-    body.frequency.setValueAtTime(freq, t);
-    body.detune.setValueAtTime(6, t);
-    lfoAmt.connect(body.detune);
-    const bodyGain = this.ctx.createGain();
-    bodyGain.gain.value = 0.5;
-    body.connect(bodyGain).connect(filter);
-    body.start(t);
-    body.stop(stopAt);
-  }
-
-  // The heartbeat: a 55→38 Hz sine thump, very quiet — the only percussion.
-  private boom(t: number): void {
-    const osc = this.ctx.createOscillator();
-    osc.type = "sine";
-    osc.frequency.setValueAtTime(55, t);
-    osc.frequency.exponentialRampToValueAtTime(38, t + 0.3);
-    const gain = this.ctx.createGain();
-    gain.gain.setValueAtTime(0, t);
-    gain.gain.linearRampToValueAtTime(0.12, t + 0.015);
-    gain.gain.exponentialRampToValueAtTime(0.001, t + 0.55);
-    osc.connect(gain);
-    gain.connect(this.bed);
-    this.send(gain, 0.35, 0);
-    osc.start(t);
-    osc.stop(t + 0.6);
-  }
 }
+
+## Souls harmony reference (already integrated — keep these values)
+
+```ts
+const SOULS_CHORDS: { root: number; tones: number[]; pad: number[] }[] = [
+  { root: 110.0, tones: [220.0, 261.63, 329.63, 440.0], pad: [220.0, 261.63, 329.63, 392.0] }, // Am7
+  { root: 98.0, tones: [220.0, 293.66, 392.0, 440.0], pad: [196.0, 220.0, 293.66, 392.0] }, // Gsus2
+  { root: 87.31, tones: [220.0, 261.63, 349.23, 392.0], pad: [174.61, 220.0, 261.63, 392.0] }, // Fadd9
+  { root: 82.41, tones: [246.94, 293.66, 329.63, 392.0], pad: [164.81, 196.0, 246.94, 293.66] }, // Em7
+];
+
+const SOULS_MOTIF: { step: number; freq: number }[] = [
+  { step: 16, freq: 440.0 },  // A5
+  { step: 20, freq: 329.63 }, // E5
+  { step: 24, freq: 349.23 }, // F5
+  { step: 28, freq: 329.63 }, // E5
+  { step: 32, freq: 293.66 }, // D5
+  { step: 36, freq: 261.63 }, // C5
+  { step: 40, freq: 293.66 }, // D5
+];
+```
+
+## Required output format
+
+1. **Full replacement `music.ts`** — one complete TS code block.
+2. **Notes** — ≤ 8 bullets: the ScoreConfig shape you settled, the formant
+   choir recipe, how the boom/bell are scheduled, anything you had to
+   assume. Flag explicitly if pastel mode's exact behavior required any
+   code-path change beyond the record fields (it should not).

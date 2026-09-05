@@ -33,6 +33,8 @@ export type ThemeText = {
   // HUD labels.
   dashLabel: string;
   pilotLabel: string;
+  // The small header above the character-select cards.
+  pickLabel: string;
 };
 
 export type Theme = {
@@ -57,53 +59,62 @@ const KITTY_TEXT: ThemeText = {
   overAction: "again",
   dashLabel: "dash",
   pilotLabel: "autopilot · take control",
+  pickLabel: "choose your runner",
 };
 
-// Dusk, not midnight: a steel-blue mid-tone sky the whole way up (dark iron
-// hazards still read against it) warming to ash-rose at the horizon. Ember
-// carries everything living; ash, bone and cold soul-light carry the dead.
-// Value rungs stay distinct — sky mid ≈ 0.24, ground ≈ 0.13, crates ≈ 0.05,
-// bone cat ≈ 0.79 — so silhouettes never share a value. Only the moon and
-// the soul glow sit above the bloom threshold, on purpose.
+// Dark Souls v2, re-authored against the owner's reference vista: a tiny
+// knight, a vast dead gothic city, a dying sun. Two families only — cold
+// (slate → ash → bone → soul-light) is the dead world; warm (ash-rose →
+// peach → ember) is every living light. Value does the storytelling:
+// deep slate overhead, a lit horizon, castle layers fading upward into
+// mist (≈ 0.28 → 0.14 → 0.04), a dark stone ground, and a bone knight as
+// the brightest solid thing on screen. Only sunCore and heart cross the
+// bloom line; windowEmber rides the knee on purpose (smoldering windows).
 const SOULS_PALETTE: ThemePalette = {
-  kittyWhite: "#ece5d8",
-  outlineInk: "#1c1816",
-  bowRed: "#7c7a78",
-  bowDeep: "#4f4c4a",
-  suitPink: "#925039",
-  suitDeep: "#5a3024",
-  noseYellow: "#e8803c",
-  cheek: "#c9a08c",
-  eyeInk: "#241d1a",
+  kittyWhite: "#e8e1d2",
+  outlineInk: "#17130f",
+  bowRed: "#6a6d72",
+  bowDeep: "#3d4045",
+  suitPink: "#8a4a33",
+  suitDeep: "#522a1e",
+  noseYellow: "#e07a34",
+  cheek: "#bd917a",
+  eyeInk: "#1e1815",
 
-  skyTop: "#55647e",
-  skyMid: "#7b8797",
-  skyBottom: "#a89484",
-  sunCore: "#eef2f8",
-  sunHalo: "#ccd6e2",
-  sunHaloSoft: "#a3afbf",
-  cloud: "#aab1b9",
-  hillFar: "#66748a",
-  hillNear: "#4a5566",
+  skyTop: "#3d4a5f",
+  skyMid: "#78889f",
+  skyBottom: "#b48f85",
+  sunCore: "#eaf0f6",
+  sunHalo: "#c8d2dd",
+  sunHaloSoft: "#8e9caf",
+  cloud: "#4f5c70",
+  cloudLit: "#e8a878",
+  hillFar: "#6f7c8d",
+  hillNear: "#4d586a",
+  castleFar: "#8a929f",
+  castleMid: "#5d6a7c",
+  castleNear: "#323b49",
+  windowEmber: "#ffe09a",
+  ash: "#c9c1b6",
 
-  groundTop: "#6b655d",
-  groundBody: "#3e3a36",
-  groundDot: "#e89a5e",
-  pathEdge: "#55504a",
+  groundTop: "#67645f",
+  groundBody: "#3a3835",
+  groundDot: "#d98a4e",
+  pathEdge: "#4c4844",
 
-  obstaclePlum: "#4a3b36",
-  obstacleDeep: "#1e1917",
-  obstacleDot: "#d9b98e",
+  obstaclePlum: "#3a302c",
+  obstacleDeep: "#16110f",
+  obstacleDot: "#d4b48c",
 
-  heart: "#dcecff",
-  heartGlow: "#9ec4ee",
-  star: "#f5b642",
-  starGlow: "#d9781f",
-  heal: "#ea6a24",
-  healBurst: "#ffb37a",
+  heart: "#e6f1ff",
+  heartGlow: "#b7d3f2",
+  star: "#f2b03e",
+  starGlow: "#cf6d1c",
+  heal: "#ec6a22",
+  healBurst: "#ffbf85",
 
-  ink: "#1a1614",
-  paper: "#e8e2d6",
+  ink: "#15110e",
+  paper: "#e6dfd1",
 };
 
 const SOULS_TEXT: ThemeText = {
@@ -122,21 +133,24 @@ const SOULS_TEXT: ThemeText = {
   overAction: "rekindle",
   dashLabel: "roll",
   pilotLabel: "phantom · take control",
+  pickLabel: "choose your vessel",
 };
 
 // CSS-facing accents for the souls theme. The HUD/overlay styles consume
 // these as literals (CSS cannot import TS); they are recorded here so the
-// whole design system stays in one place. `death` is for the large YOU DIED
-// kicker only — ≈3.7:1 on the card surface, too low for small text.
+// whole design system stays in one place. The v2 accents lean cold-slate
+// (card #171a1f, cardLine #3a4250) to sit inside the new dead-stone world;
+// ember stays the single warm voice. `death` is for the large YOU DIED
+// kicker only — ≈3.3:1 on the card surface, too low for small text.
 export const SOULS_UI = {
   ember: "#e8863c",
-  emberDeep: "#b8601f",
-  soul: "#dcecff",
-  soulGlow: "#7fa8d8",
-  death: "#d23b2f",
-  card: "#1b1917",
-  cardLine: "#3d3733",
-  inkMuted: "#9b928a",
+  emberDeep: "#b85f22",
+  soul: "#dbe9fb",
+  soulGlow: "#8fb4dc",
+  death: "#cc372c",
+  card: "#171a1f",
+  cardLine: "#3a4250",
+  inkMuted: "#9aa3ae",
 } as const;
 
 export const THEMES: Record<CharacterId, Theme> = {

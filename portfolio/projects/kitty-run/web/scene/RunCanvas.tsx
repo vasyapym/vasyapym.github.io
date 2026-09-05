@@ -3,14 +3,14 @@
 
 import { useEffect, useRef, useState } from "react";
 import * as THREE from "three";
-import { Canvas, useFrame } from "@react-three/fiber";
-import { PALETTE } from "../lib/palette.ts";
+import { Canvas, useFrame, useThree } from "@react-three/fiber";
 import { BASE_CAM_Z, BASE_FOV, frameFor } from "../lib/framing.ts";
-import type { CharacterId } from "../lib/theme.ts";
+import { paletteFor, type CharacterId } from "../lib/theme.ts";
 import type { Sfx } from "../lib/audio.ts";
 import type { Soundtrack } from "../lib/music.ts";
 import type { GameStatus, WorldState } from "./world.ts";
 import { Parallax } from "./Parallax";
+import { AshFall } from "./AshFall";
 import { Ground } from "./Ground";
 import { Shadow } from "./Shadow";
 import { Obstacles } from "./Obstacles";
@@ -23,6 +23,16 @@ import { Kitty } from "../kitty/Kitty";
 import type { RunInput } from "../lib/replay.ts";
 
 const CAMERA_BASE = new THREE.Vector3(0, 3.2, BASE_CAM_Z);
+
+// The canvas clear colour follows the theme's sky bottom, so nothing pastel
+// peeks in at the viewport edges in the dark theme.
+function ClearColor({ color }: { color: string }) {
+  const gl = useThree((state) => state.gl);
+  useEffect(() => {
+    gl.setClearColor(color);
+  }, [gl, color]);
+  return null;
+}
 
 function CameraRig({ world, reducedMotion }: { world: WorldState; reducedMotion: boolean }) {
   const lookTarget = useRef(new THREE.Vector3());
@@ -103,13 +113,19 @@ export function RunCanvas({
       // depth buffers the Kitty's paper-thin layers otherwise z-fight and
       // read as transparent.
       camera={{ fov: BASE_FOV, near: 2, far: 90, position: [0, 3.2, BASE_CAM_Z] }}
-      onCreated={({ camera, gl }) => {
-        gl.setClearColor(PALETTE.skyBottom);
+      onCreated={({ camera }) => {
         camera.lookAt(2.4, 2.6, 0);
       }}
     >
+      <ClearColor color={paletteFor(character).skyBottom} />
       <CameraRig world={world} reducedMotion={reducedMotion} />
       <Parallax world={world} character={character} />
+      <AshFall
+        world={world}
+        palette={paletteFor(character)}
+        character={character}
+        reducedMotion={reducedMotion}
+      />
       <Ground world={world} character={character} />
       <Shadow world={world} />
       <Obstacles world={world} character={character} />
