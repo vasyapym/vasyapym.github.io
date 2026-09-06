@@ -84,11 +84,6 @@
   cursor: not-allowed;
 }
 
-/* Start Anew is a tree-wide escape hatch, not a sibling of the undo pair. */
-.spine-root #spine-btn-reset {
-  margin-left: 12px;
-}
-
 .spine-root fieldset {
   border: 1px solid var(--spine-line);
   border-radius: 8px;
@@ -261,6 +256,9 @@
   .spine-code {
     border-right: none;
     border-left: none;
+    /* Panes stack in one column here; without side borders they would read
+       as one continuous surface. A hairline top rule marks each section. */
+    border-top: 1px solid var(--spine-line);
     max-height: 420px;
   }
 
