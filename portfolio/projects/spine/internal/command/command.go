@@ -143,7 +143,6 @@ type Move struct {
 	fromParent string
 	fromIndex  int
 }
-
 func (c *Move) Name() string { return "move node" }
 
 func (c *Move) Apply(root *model.Node) {
@@ -174,4 +173,31 @@ func (c *Move) Revert(root *model.Node) {
 	if from, _ := root.Find(c.fromParent); from != nil {
 		from.InsertChild(n, c.fromIndex)
 	}
+}
+
+// ReplaceTree swaps the entire tree for a fresh structure (e.g. the demo
+// tree), reversibly, without changing the root pointer identity the wasm
+// module holds onto across React re-binds.
+type ReplaceTree struct {
+	fresh *model.Node // template copied in on Apply (never mutated)
+	prev  *model.Node // snapshot captured on Apply, restored on Revert
+}
+
+// NewReplaceTree builds a reset command from a fresh tree template.
+func NewReplaceTree(fresh *model.Node) *ReplaceTree {
+	return &ReplaceTree{fresh: fresh}
+}
+
+func (c *ReplaceTree) Name() string { return "Start Anew" }
+
+func (c *ReplaceTree) Apply(root *model.Node) {
+	c.prev = root.Clone()    // snapshot the tree we're replacing
+	*root = *c.fresh.Clone() // copy the fresh structure in place; keep the pointer
+}
+
+func (c *ReplaceTree) Revert(root *model.Node) {
+	if c.prev == nil {
+		return
+	}
+	*root = *c.prev.Clone() // restore the snapshot in place; keep prev for redo
 }

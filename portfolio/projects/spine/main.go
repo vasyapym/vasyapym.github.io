@@ -225,10 +225,26 @@ func wireToolbar() {
 	})
 	on("spine-btn-undo", "click", func(js.Value) { history.Undo() })
 	on("spine-btn-redo", "click", func(js.Value) { history.Redo() })
+	on("spine-btn-reset", "click", func(js.Value) {
+		history.Do(command.NewReplaceTree(demoTree()))
+		selectedID = history.Root().ID // selection back to the fresh root
+		render()                       // re-renders + re-syncs the URL hash
+	})
 	on("spine-btn-copy", "click", func(js.Value) {
 		html := doc.Call("getElementById", "spine-code-html").Get("textContent").String()
 		css := doc.Call("getElementById", "spine-code-css").Get("textContent").String()
 		js.Global().Get("navigator").Get("clipboard").Call("writeText", html+"\n\n/* CSS */\n"+css)
+		// Transient feedback: the copy used to be silent, so visitors could
+		// not tell it fired. Swap the label for a beat, then restore it.
+		btn := doc.Call("getElementById", "spine-btn-copy")
+		btn.Set("textContent", "Copied")
+		var restore js.Func
+		restore = js.FuncOf(func(js.Value, []js.Value) any {
+			btn.Set("textContent", "Copy")
+			restore.Release()
+			return nil
+		})
+		js.Global().Call("setTimeout", restore, 1200)
 	})
 }
 

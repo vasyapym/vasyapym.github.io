@@ -57,6 +57,7 @@ const CENTER_MARKS: Partial<Record<ProjectCenter, () => ReactElement>> = {
   blast: BlastCenterMark,
   spiral: SpiralCenterMark,
   trail: TrailCenterMark,
+  spine: SpineCenterMark,
 };
 
 function CenterMark({ mark, label }: { mark: ProjectCenter; label: string }) {
@@ -428,6 +429,45 @@ function TrailCenterMark() {
         <circle cx="146.5" cy="82.5" r="1.5" fill="#d6f2ff" />
         <circle cx="145" cy="81" r="1" fill="#ffffff" />
       </g>
+    </svg>
+  );
+}
+
+/* ── 7 · Spine — chartreuse spot ink, a flex row re-flows: the accent item
+   drops into the trailing dashed slot while a nested column (one step darker
+   than the family ramp, so containment reads) holds its committed children.
+   Motion is a single vertical drop — depth by containment, not Raft's
+   lateral cascade. ── */
+function SpineCenterMark() {
+  return (
+    <svg viewBox="0 0 260 160" aria-hidden="true">
+      <defs>
+        <pattern id="gem-spine-dense" patternUnits="userSpaceOnUse" width="7" height="7"><circle cx="3.5" cy="3.5" r="1.9" fill="#b4e05a" /></pattern>
+        <pattern id="gem-spine-sparse" patternUnits="userSpaceOnUse" width="11" height="11"><circle cx="5.5" cy="5.5" r="1.6" fill="#7d7669" /></pattern>
+        <pattern id="gem-spine-halo" patternUnits="userSpaceOnUse" width="7" height="7"><circle cx="3.5" cy="3.5" r="1.9" fill="#b4e05a" /></pattern>
+      </defs>
+      <ellipse cx="130" cy="80" rx="104" ry="64" fill="url(#gem-spine-sparse)" opacity="0.09" />
+      <ellipse className="gem-halo" cx="130" cy="80" rx="58" ry="42" fill="url(#gem-spine-halo)" style={haloVar(0.12)} opacity={0.12} />
+      {/* root container — the outer flex row */}
+      <rect x="50" y="46" width="160" height="68" rx="4" fill="#26333b" stroke="#b6ac95" strokeWidth="3" />
+      {/* child 1 — committed item A */}
+      <rect x="60" y="60" width="26" height="40" rx="2" fill="#465059" stroke="#b6ac95" strokeWidth="2.5" />
+      {/* child 2 — nested column container holding B / C */}
+      <rect x="96" y="56" width="46" height="48" rx="3" fill="#1c262d" stroke="#b6ac95" strokeWidth="2.5" />
+      <rect x="104" y="62" width="30" height="16" rx="2" fill="#465059" stroke="#b6ac95" strokeWidth="2" />
+      <rect x="104" y="82" width="30" height="16" rx="2" fill="#465059" stroke="#b6ac95" strokeWidth="2" />
+      {/* child 3 — empty drop target, not yet placed (dashed = "empty") */}
+      <rect x="152" y="62" width="44" height="40" rx="2" fill="none" stroke="#7d7669" strokeWidth="1.5" strokeDasharray="4 4" />
+      {/* flex-gap ticks between siblings */}
+      <line x1="91" y1="106" x2="91" y2="111" stroke="#7d7669" strokeWidth="2" />
+      <line x1="147" y1="106" x2="147" y2="111" stroke="#7d7669" strokeWidth="2" />
+      {/* chartreuse protagonist — item re-flowing down into the slot */}
+      <polyline points="174,50 174,60" fill="none" stroke="#5c6e1a" strokeWidth="3" />
+      <polyline points="169,55 174,61 179,55" fill="none" stroke="#5c6e1a" strokeWidth="3" />
+      <rect x="158" y="26" width="34" height="22" rx="3" fill="url(#gem-spine-dense)" stroke="#5c6e1a" strokeWidth="2.5" />
+      <rect x="164" y="32" width="10" height="4" rx="1" fill="#b4e05a" />
+      {/* glint */}
+      <rect x="162" y="30" width="9" height="3" fill="#ffffff" opacity="0.5" />
     </svg>
   );
 }

@@ -84,6 +84,11 @@
   cursor: not-allowed;
 }
 
+/* Start Anew is a tree-wide escape hatch, not a sibling of the undo pair. */
+.spine-root #spine-btn-reset {
+  margin-left: 12px;
+}
+
 .spine-root fieldset {
   border: 1px solid var(--spine-line);
   border-radius: 8px;
@@ -111,13 +116,41 @@
 
 .spine-root select,
 .spine-root input {
-  background: var(--spine-bg);
   color: var(--spine-text);
   border: 1px solid var(--spine-line);
   border-radius: 6px;
   padding: 6px 8px;
   font-size: 13px;
   font-family: inherit;
+}
+
+.spine-root input {
+  background: var(--spine-bg);
+}
+
+/* Native select chrome (the OS bezel gradient + white popup) fights the
+   dark theme — reset the appearance and draw a matching flat control with
+   a custom chevron instead. */
+.spine-root select {
+  appearance: none;
+  -webkit-appearance: none;
+  -moz-appearance: none;
+  background-color: var(--spine-node);
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8' viewBox='0 0 12 8'%3E%3Cpath d='M1 1l5 5 5-5' fill='none' stroke='%237d7669' stroke-width='1.5' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-position: right 8px center;
+  padding-right: 26px;
+  cursor: pointer;
+}
+
+.spine-root select:hover,
+.spine-root input:hover {
+  border-color: var(--spine-accent);
+}
+
+.spine-root select option {
+  background: var(--spine-bg);
+  color: var(--spine-text);
 }
 
 .spine-root select:focus,

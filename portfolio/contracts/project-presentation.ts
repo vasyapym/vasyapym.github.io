@@ -21,7 +21,8 @@ export type ProjectCenter =
   | "blast"
   | "spiral"
   | "trail"
-  | "raft";
+  | "raft"
+  | "spine";
 
 export type ProjectPresentationPart = {
   readonly id: ProjectPartId;

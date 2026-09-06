@@ -31,6 +31,7 @@ export default function SpinePage() {
           <button id="spine-btn-delete" type="button">Delete</button>
           <button id="spine-btn-undo" type="button" disabled>Undo</button>
           <button id="spine-btn-redo" type="button" disabled>Redo</button>
+          <button id="spine-btn-reset" type="button">Start Anew</button>
         </div>
 
         <div id="spine-panel-mode" className="spine-field">

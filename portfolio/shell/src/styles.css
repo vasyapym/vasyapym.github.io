@@ -1077,6 +1077,7 @@ textarea:focus-visible {
   .signal-index-card:nth-child(5) .project-artwork-center svg { animation-delay: 1.6s; }
   .signal-index-card:nth-child(6) .project-artwork-center svg { animation-delay: 2s; }
   .signal-index-card:nth-child(7) .project-artwork-center svg { animation-delay: 2.4s; }
+  .signal-index-card:nth-child(8) .project-artwork-center svg { animation-delay: 2.8s; }
 
   /* halo pulse — Raft + Planck only, same 4s clock */
   .presentation-raft-cluster .gem-halo,

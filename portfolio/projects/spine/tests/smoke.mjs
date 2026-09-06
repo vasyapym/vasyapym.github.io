@@ -243,6 +243,25 @@ try {
   );
   if (leftover !== 0) throw new Error(`${leftover} drag marker classes survived the drop`);
 
+  // --- Start Anew: reset → demo tree (6 nodes, flex), undo restores ---------
+  const preResetCount = await countNodes();
+  await page.click("#spine-btn-reset");
+  await wait(200);
+  const resetCount = await countNodes();
+  if (resetCount !== 6) {
+    throw new Error(`Start Anew: expected 6 nodes after reset, got ${resetCount}`);
+  }
+  const rootMode = await page.$eval("#spine-f-mode", (el) => el.value);
+  if (rootMode !== "flex") {
+    throw new Error(`Start Anew: expected root mode 'flex', got '${rootMode}'`);
+  }
+  await page.click("#spine-btn-undo");
+  await wait(200);
+  const undoneCount = await countNodes();
+  if (undoneCount !== preResetCount) {
+    throw new Error(`Start Anew undo: expected ${preResetCount} nodes, got ${undoneCount}`);
+  }
+
   await page.screenshot({ path: join(SHOTS, "spine.png"), fullPage: false });
 
   log("all steps done");
