@@ -196,7 +196,9 @@ textarea:focus-visible {
   align-items: stretch;
   min-height: 100vh;
   min-height: 100svh;
-  padding: clamp(3rem, 5vw, 4.5rem) 0 clamp(2.5rem, 4vw, 3.5rem);
+  /* Bottom pad is measured from JS (--hero-bottom-pad) so the rail→viewport
+     gap equals the header→copy gap; the clamp is the no-JS fallback. */
+  padding: clamp(3rem, 5vw, 4.5rem) 0 var(--hero-bottom-pad, clamp(2.5rem, 4vw, 3.5rem));
   isolation: isolate;
   color: #eeeae0;
   opacity: calc(1 - var(--hero-exit, 0));}
@@ -352,6 +354,48 @@ textarea:focus-visible {
 .signal-index-beneath-row span { color: var(--ink-faint); }
 .signal-index-beneath-row strong { font-weight: 500; }
 .signal-index-beneath-rule { display: none; }
+
+
+/* "more ↓" — the overflow affordance when the catalogue exceeds the cap
+   (5 rows mobile, 6 rows desktop). Mobile: a plain list row. From 561px up:
+   a centred full-width row under the grid — the downward arrow says the rest
+   of the catalogue lives below the fold. With exactly 6 projects the
+   desktop grid already shows everything, so the affordance retreats to
+   mobile only (data-more-mobile-only). */
+.signal-index-beneath-more {
+  display: inline-flex;
+  align-items: baseline;
+  gap: 0.5rem;
+  min-height: 44px;
+  padding: 0.3rem 0;
+  font-family: var(--mono);
+  font-size: 0.76rem;
+  color: var(--ink-muted);
+  text-decoration: none;
+  transition: color 200ms ease;}
+
+
+.signal-index-beneath-more:hover,
+.signal-index-beneath-more:focus-visible { color: var(--ink-text); }
+
+.signal-index-beneath-more span {
+  display: inline-block;
+  transition: transform 200ms ease;}
+
+.signal-index-beneath-more:hover span,
+.signal-index-beneath-more:focus-visible span {
+  transform: translateY(3px);}
+
+
+@media (min-width: 561px) {
+  .signal-index-beneath-more {
+    grid-column: 1 / -1;
+    justify-self: center;
+    padding: 0.3rem 0.75rem;}
+
+  .signal-index-beneath-more[data-more-mobile-only] {
+    display: none;}
+}
 
 
 @keyframes signal-index-type-rise {
@@ -751,7 +795,8 @@ textarea:focus-visible {
 
 @media (max-width: 560px) {
   /* Hero hugs content (no 100svh floor). Copy top clears the 64px absolute
-     header (≥84px at 320×568). All six catalogue rows show in one column,
+     header (≥84px at 320×568). The catalogue is capped at 5 rows in one
+     column (row 6 hides, the "more ↓" affordance points at the cards below),
      rows ≥44px, zero horizontal overflow at 320px. The fluid canvas fills the
      content-hugged height and is self-driven, so it lives without input. */
   .signal-index-hero-fluid {
@@ -791,6 +836,12 @@ textarea:focus-visible {
     grid-row: auto;
     align-self: start;
     grid-template-columns: 1fr;
+  }
+
+  /* Cap: on phones the 6th catalogue row hides and the "more ↓" row points
+     at the full card grid below the fold. */
+  .signal-index-beneath-row[data-beneath-overflow] {
+    display: none;
   }}
 
 
@@ -1025,6 +1076,7 @@ textarea:focus-visible {
   .signal-index-card:nth-child(4) .project-artwork-center svg { animation-delay: 1.2s; }
   .signal-index-card:nth-child(5) .project-artwork-center svg { animation-delay: 1.6s; }
   .signal-index-card:nth-child(6) .project-artwork-center svg { animation-delay: 2s; }
+  .signal-index-card:nth-child(7) .project-artwork-center svg { animation-delay: 2.4s; }
 
   /* halo pulse — Raft + Planck only, same 4s clock */
   .presentation-raft-cluster .gem-halo,
@@ -1068,6 +1120,10 @@ textarea:focus-visible {
 
   .signal-index-card:hover .gem-card-open span,
   .signal-index-card:focus-visible .gem-card-open span {
+    transform: none;}
+
+  .signal-index-beneath-more:hover span,
+  .signal-index-beneath-more:focus-visible span {
     transform: none;}
 }
 

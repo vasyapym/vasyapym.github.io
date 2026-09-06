@@ -18,19 +18,19 @@ function documentOffsetTop(element: HTMLElement) {
   return y;
 }
 
-function animateScrollToCard(projectId: string) {
-  const card = document.getElementById(`project-${projectId}`);
-  if (!card) {
+function animateScrollToAnchor(elementId: string) {
+  const target = document.getElementById(elementId);
+  if (!target) {
     return;
   }
   if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) {
-    card.scrollIntoView();
+    target.scrollIntoView();
     return;
   }
 
-  const scrollMargin = parseFloat(getComputedStyle(card).scrollMarginTop || "0");
+  const scrollMargin = parseFloat(getComputedStyle(target).scrollMarginTop || "0");
   const startY = window.scrollY;
-  const distance = Math.abs(documentOffsetTop(card) - scrollMargin - startY);
+  const distance = Math.abs(documentOffsetTop(target) - scrollMargin - startY);
   const nativeMs = 220 + distance * 0.15;
   const duration = Math.min(1400, Math.max(360, nativeMs * 1.3));
 
@@ -52,11 +52,11 @@ function animateScrollToCard(projectId: string) {
     }
     const elapsed = now - start;
     const t = Math.min(1, elapsed / duration);
-    const targetY = documentOffsetTop(card) - scrollMargin;
+    const targetY = documentOffsetTop(target) - scrollMargin;
     const position = t >= 1 ? targetY : startY + (targetY - startY) * easeInOutCubic(t);
     window.scrollTo({ top: position, behavior: "instant" });
     const chasing = t >= 1 && elapsed < duration + settleMs &&
-      Math.abs(card.getBoundingClientRect().top - scrollMargin) > 2;
+      Math.abs(target.getBoundingClientRect().top - scrollMargin) > 2;
     if (t < 1 || chasing) {
       requestAnimationFrame(step);
     } else {
@@ -123,7 +123,8 @@ export default function LandingPage({ projects, onOpenProject }: LandingPageProp
     // impossible here: every un-revealed card is tested against the reveal band
     // on every settled frame. GUARANTEE: no card stays hidden while any part of
     // it is inside the viewport, for any velocity, order, restoration or deep
-    // link. 6 cards => a getBoundingClientRect sweep is trivially cheap.
+    // link. The grid grows with the portfolio; a rect sweep stays trivially
+    // cheap at this scale.
     const revealed = new Set<string>();
     const revealBand = () => window.innerHeight * bandFactor;
 
@@ -171,7 +172,7 @@ export default function LandingPage({ projects, onOpenProject }: LandingPageProp
 
     // Mount check + deferred checks catch: initial in-view rows, browser scroll
     // restoration (fires after paint), and animateScrollToCard smooth-scroll
-    // settling. Cheap belt-and-braces — 6 rects.
+    // settling. Cheap belt-and-braces — one rect per card.
     sweep();
     const t1 = window.setTimeout(sweep, 120);
     const t2 = window.setTimeout(sweep, 700);
@@ -269,6 +270,62 @@ export default function LandingPage({ projects, onOpenProject }: LandingPageProp
     };
   }, []);
 
+  // Symmetric hero rhythm (desktop): the copy panel is centred in the free
+  // middle row, so its top gap grows with the viewport while the bottom rail
+  // keeps a fixed padding — top and bottom never match by accident. Here the
+  // header→copy gap is measured once and the hero's bottom padding is set to
+  // the same value, so header→copy, copy→rail and rail→viewport-bottom all
+  // read equal at any desktop height. The copy re-centres when the padding
+  // changes; the measured-gap + current-pad pair solves that feedback in one
+  // closed-form step, and re-running it after that is a no-op.
+  useEffect(() => {
+    const hero = heroRef.current;
+    if (!hero) {
+      return;
+    }
+
+    let cancelled = false;
+    const desktop = window.matchMedia("(min-width: 561px)");
+
+    const settle = () => {
+      if (cancelled || !desktop.matches) {
+        return;
+      }
+      const header = hero.querySelector<HTMLElement>(".signal-index-header");
+      const copy = hero.querySelector<HTMLElement>(".signal-index-hero-copy");
+      if (!header || !copy) {
+        return;
+      }
+      const gap =
+        copy.getBoundingClientRect().top - header.getBoundingClientRect().bottom;
+      if (gap <= 0) {
+        return;
+      }
+      const currentPad = parseFloat(getComputedStyle(hero).paddingBottom);
+      const free = gap + currentPad / 2;
+      const pad = Math.max(16, (2 / 3) * free);
+      hero.style.setProperty("--hero-bottom-pad", `${pad.toFixed(1)}px`);
+    };
+
+    settle();
+    // Late settles: webfonts reflow the copy/beneath heights, and browser
+    // resize (incl. crossing the 561px gate) re-runs the same no-op-when-
+    // settled math.
+    const t1 = window.setTimeout(settle, 300);
+    document.fonts?.ready.then(() => {
+      if (!cancelled) {
+        settle();
+      }
+    });
+    window.addEventListener("resize", settle);
+
+    return () => {
+      cancelled = true;
+      window.clearTimeout(t1);
+      window.removeEventListener("resize", settle);
+    };
+  }, []);
+
   useEffect(() => {
     scheduleIdleWarm(() => {
       for (const project of projects) {
@@ -323,15 +380,16 @@ export default function LandingPage({ projects, onOpenProject }: LandingPageProp
           </div>
           <div className="signal-index-graphic signal-index-beneath">
             <span className="signal-index-beneath-label">beneath the surface</span>
-            {projects.map((project, index) => (
+            {projects.slice(0, 6).map((project, index) => (
               <a
                 className="signal-index-beneath-row"
                 href={`#project-${project.id}`}
                 key={project.id}
+                data-beneath-overflow={index === 5 ? "" : undefined}
                 onClick={(event: MouseEvent<HTMLAnchorElement>) => {
                   if (event.button === 0 && !event.metaKey && !event.ctrlKey && !event.shiftKey && !event.altKey) {
                     event.preventDefault();
-                    animateScrollToCard(project.id);
+                    animateScrollToAnchor(`project-${project.id}`);
                   }
                 }}
               >
@@ -342,6 +400,21 @@ export default function LandingPage({ projects, onOpenProject }: LandingPageProp
                 <strong>— {project.title}</strong>
               </a>
             ))}
+            {projects.length > 5 && (
+              <a
+                className="signal-index-beneath-more"
+                href="#projects"
+                data-more-mobile-only={projects.length === 6 ? "" : undefined}
+                onClick={(event: MouseEvent<HTMLAnchorElement>) => {
+                  if (event.button === 0 && !event.metaKey && !event.ctrlKey && !event.shiftKey && !event.altKey) {
+                    event.preventDefault();
+                    animateScrollToAnchor("projects");
+                  }
+                }}
+              >
+                more <span aria-hidden="true">↓</span>
+              </a>
+            )}
             <span className="signal-index-beneath-rule" />
           </div>
         </section>
