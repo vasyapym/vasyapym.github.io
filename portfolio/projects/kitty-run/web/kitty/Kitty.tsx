@@ -19,6 +19,15 @@ import type { WorldState } from "../scene/world.ts";
 
 const ROOT_SCALE = 0.72;
 
+// Souls-only wear shading, drawn INSIDE existing silhouettes (character
+// law: same rig, material only). Values sit one step from the host fill
+// toward the ink, hard-edged — no gradients. The pastel cat never
+// renders these; bone-white for the one specular chip is palette.kittyWhite.
+const SOULS_MATERIAL = {
+  steelShadow: "#26292d",
+  bladeFuller: "#a9b0ba",
+} as const;
+
 function ellipseShape(rx: number, ry: number): THREE.Shape {
   const shape = new THREE.Shape();
   shape.absellipse(0, 0, rx, ry, 0, Math.PI * 2, false, 0);
@@ -141,6 +150,19 @@ function capeFrontShape(): THREE.Shape {
   shape.lineTo(-0.48, -0.16);
   shape.lineTo(-0.8, -0.34);
   shape.quadraticCurveTo(-0.84, 0.04, -0.4, 0.36);
+  shape.closePath();
+  return shape;
+}
+
+// A thin wedge hugging the trailing hem tip's upper edge, inside the front
+// cape's silhouette: the fold where the cloth turns away from the sun.
+// Thicker at the shoulder side, thinning toward the tip.
+function capeFoldShape(): THREE.Shape {
+  const shape = new THREE.Shape();
+  shape.moveTo(-0.46, -0.13);
+  shape.lineTo(-0.78, -0.3);
+  shape.lineTo(-0.74, -0.2);
+  shape.lineTo(-0.48, -0.09);
   shape.closePath();
   return shape;
 }
@@ -287,6 +309,10 @@ export function Kitty({
       pommel: new THREE.ShapeGeometry(ellipseShape(0.1, 0.09), seg),
       belt: new THREE.ShapeGeometry(beltShape(), seg),
       buckle: new THREE.ShapeGeometry(rectShape(0.14, 0.14), seg),
+      // souls material overlays (drawn inside existing silhouettes)
+      chip: new THREE.ShapeGeometry(rectShape(0.18, 0.05), seg),
+      fuller: new THREE.ShapeGeometry(rectShape(0.032, 1.6), seg),
+      capeFold: new THREE.ShapeGeometry(capeFoldShape(), seg),
     };
   }, []);
 
@@ -387,6 +413,12 @@ export function Kitty({
                   outline={1.05}
                   outlineColor={palette.outlineInk}
                 />
+                {/* Fold shadow: the hem tip turning away from the sun —
+                    a wedge one step darker (the back cape's value) just
+                    above the front fill, tapering toward the tip. */}
+                <mesh geometry={geo.capeFold} position={[0, -0.36, 0]}>
+                  <meshBasicMaterial color={palette.suitDeep} />
+                </mesh>
               </group>
             </>
           )}
@@ -428,6 +460,12 @@ export function Kitty({
                 position={[0, 1.27]}
                 outlineColor={palette.outlineInk}
               />
+              {/* Fuller: a dirty mid-steel line down the blade's centre —
+                  worn metal catching less light than the edges. Inside the
+                  blade's own silhouette, clear of the tip curve and guard. */}
+              <mesh geometry={geo.fuller} position={[0, 1.28, 0.06]}>
+                <meshBasicMaterial color={SOULS_MATERIAL.bladeFuller} />
+              </mesh>
               <Part
                 geometry={geo.grip}
                 inkGeometry={geo.gripInk}
@@ -477,9 +515,13 @@ export function Kitty({
             outlineColor={palette.outlineInk}
           />
 
-          {/* souls: leather belt across the tunic, steel buckle. */}
+          {/* souls: leather belt across the tunic, steel buckle. The belt
+              also pools a hard occlusion band on the tunic just below it. */}
           {isSouls && (
             <>
+              <mesh geometry={geo.visorSlit} scale={0.62} position={[0, 0.38, 0.15]}>
+                <meshBasicMaterial color={palette.suitDeep} />
+              </mesh>
               <Part
                 geometry={geo.belt}
                 color={palette.suitDeep}
@@ -618,6 +660,12 @@ export function Kitty({
                 <mesh geometry={geo.visorSlit} position={[0, 0.06, 0.31]}>
                   <meshBasicMaterial color={palette.outlineInk} />
                 </mesh>
+                {/* Brow shadow: the dome pools a hard occlusion band on the
+                    plate just under its seam — the visor reads as recessed
+                    steel, not a flat decal. Clear of the slit and embers. */}
+                <mesh geometry={geo.visorSlit} position={[0, 0.195, 0.305]}>
+                  <meshBasicMaterial color={SOULS_MATERIAL.steelShadow} />
+                </mesh>
                 <mesh geometry={geo.ember} position={[-0.34, 0.06, 0.34]}>
                   <meshBasicMaterial color={palette.noseYellow} />
                 </mesh>
@@ -643,6 +691,16 @@ export function Kitty({
                   position={[0, 0.66]}
                   outlineColor={palette.outlineInk}
                 />
+                {/* Specular chip: one clipped bone-white glint on the
+                    dome's sun-facing upper curve — tarnished steel reads
+                    through the specular being small and dirty. */}
+                <mesh
+                  geometry={geo.chip}
+                  position={[0.34, 0.92, 0.36]}
+                  rotation={[0, 0, -0.7]}
+                >
+                  <meshBasicMaterial color={palette.kittyWhite} />
+                </mesh>
                 <Part
                   geometry={geo.helmCrest}
                   color={palette.bowDeep}
