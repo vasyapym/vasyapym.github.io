@@ -3,3 +3,5 @@
 {"type":"edge.added","id":"e1","ts":"2026-09-06T00:58:29.797Z","from":"n1","to":"n2","rel":"continues"}
 {"type":"node.added","id":"n3","ts":"2026-09-06T00:58:39.789Z","kind":"iteration","actor":"user","title":"chore(spine): drop throwaway spawn-debug script","artifacts":[{"kind":"git-commit","ref":"c304171"}],"meta":{"source":"auto"}}
 {"type":"edge.added","id":"e2","ts":"2026-09-06T00:58:39.792Z","from":"n2","to":"n3","rel":"continues"}
+{"type":"node.added","id":"n4","ts":"2026-09-06T01:02:28.002Z","kind":"iteration","actor":"user","title":"test(spine): live-site probe — SPA navigation to /projects/spine, engine boot, add-item, code output","artifacts":[{"kind":"git-commit","ref":"f024270"}],"meta":{"source":"auto"}}
+{"type":"edge.added","id":"e3","ts":"2026-09-06T01:02:28.222Z","from":"n3","to":"n4","rel":"continues"}

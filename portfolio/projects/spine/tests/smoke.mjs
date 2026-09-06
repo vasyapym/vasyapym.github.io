@@ -184,6 +184,65 @@ try {
     throw new Error(`delete undo expected ${beforeDelete} nodes, got ${afterUndoDelete}`);
   }
 
+  // --- wrap default: many items must stay inside the root --------------------
+  // (selection is root at this point; put it back into flex mode first)
+  await page.evaluate(() => {
+    document
+      .querySelector("#spine-canvas > .node")
+      .dispatchEvent(new MouseEvent("click", { bubbles: true }));
+  });
+  await page.select("#spine-f-mode", "flex");
+  await wait(150);
+  for (let i = 0; i < 20; i += 1) {
+    await page.click("#spine-btn-add-item");
+  }
+  const overflow = await page.$eval(
+    "#spine-canvas > .node",
+    (el) => el.scrollWidth - el.clientWidth,
+  );
+  if (overflow > 2) {
+    throw new Error(`root overflows horizontally by ${overflow}px — flex-wrap default broken`);
+  }
+
+  // --- drag feedback + a synthetic drop must actually re-nest -----------------
+  const childIds = () =>
+    page.$$eval("#spine-canvas > .node > .node", (els) => els.map((e) => e.dataset.id));
+  const before = await childIds();
+  await page.evaluate(() => {
+    const dt = new DataTransfer();
+    const src = document.querySelector("#spine-canvas > .node > .node");
+    const target = document.querySelectorAll("#spine-canvas > .node > .node")[2];
+    src.dispatchEvent(new DragEvent("dragstart", { bubbles: true, dataTransfer: dt }));
+    target.dispatchEvent(
+      new DragEvent("dragover", { bubbles: true, dataTransfer: dt, cancelable: true }),
+    );
+  });
+  const srcDragging = await page.$eval("#spine-canvas > .node > .node", (el) =>
+    el.classList.contains("dragging"),
+  );
+  if (!srcDragging) throw new Error("dragged source did not get .dragging");
+  const targetMarked = await page.$eval(
+    "#spine-canvas > .node > .node:nth-child(3)",
+    (el) => el.classList.contains("drop-target"),
+  );
+  if (!targetMarked) throw new Error("drop target did not get .drop-target");
+  await page.evaluate(() => {
+    const dt = new DataTransfer();
+    const target = document.querySelectorAll("#spine-canvas > .node > .node")[2];
+    target.dispatchEvent(
+      new DragEvent("drop", { bubbles: true, dataTransfer: dt, cancelable: true }),
+    );
+  });
+  const after = await childIds();
+  if (after.length !== before.length || JSON.stringify(after) === JSON.stringify(before)) {
+    throw new Error(`drop did not re-nest: before=${before} after=${after}`);
+  }
+  const leftover = await page.$$eval(
+    "#spine-canvas .dragging, #spine-canvas .drop-target",
+    (els) => els.length,
+  );
+  if (leftover !== 0) throw new Error(`${leftover} drag marker classes survived the drop`);
+
   await page.screenshot({ path: join(SHOTS, "spine.png"), fullPage: false });
 
   log("all steps done");

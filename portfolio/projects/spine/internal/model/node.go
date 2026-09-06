@@ -60,11 +60,14 @@ func NewID(prefix string) string {
 
 func DefaultContainerProps() Props {
 	return Props{
-		Label:               "container",
-		JustifyContent:      "flex-start",
-		AlignItems:          "stretch",
-		FlexDirection:       "row",
-		FlexWrap:            "nowrap",
+		Label:          "container",
+		JustifyContent: "flex-start",
+		AlignItems:     "stretch",
+		FlexDirection:  "row",
+		// Demo-friendly default: children wrap to new lines instead of
+		// overflowing the container (CSS's own default is nowrap, which
+		// shrinks items to their minimum and then lets them spill out).
+		FlexWrap:            "wrap",
 		Gap:                 "8px",
 		GridTemplateColumns: "1fr 1fr",
 		GridTemplateRows:    "auto",

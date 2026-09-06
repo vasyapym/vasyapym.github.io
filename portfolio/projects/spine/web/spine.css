@@ -169,6 +169,18 @@
   outline-offset: 1px;
 }
 
+/* While carrying a box: the original dims so the translucent browser drag
+   ghost reads as intentional, and the box under the cursor gets a dashed
+   outline showing exactly where the drop would land. */
+.spine-root .node.dragging {
+  opacity: 0.45;
+}
+
+.spine-root .node.drop-target {
+  outline: 2px dashed var(--spine-accent);
+  outline-offset: 1px;
+}
+
 /* ---- code output ----------------------------------------------------------- */
 
 .spine-code-head {

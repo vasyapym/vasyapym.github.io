@@ -39,6 +39,13 @@ func TestFindAndAncestor(t *testing.T) {
 	}
 }
 
+func TestDefaultContainerWraps(t *testing.T) {
+	// The demo-friendly default: many items must wrap, not overflow.
+	if got := DefaultContainerProps().FlexWrap; got != "wrap" {
+		t.Fatalf("default flex-wrap = %q, want wrap", got)
+	}
+}
+
 func TestCloneIsDeep(t *testing.T) {
 	root := NewContainer()
 	root.InsertChild(NewItem("a"), 0)

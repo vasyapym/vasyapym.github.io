@@ -13,10 +13,11 @@ import (
 )
 
 var (
-	doc        js.Value
-	history    *command.History
-	selectedID string
-	dragID     string
+	doc          js.Value
+	history      *command.History
+	selectedID   string
+	dragID       string
+	dropTargetEl js.Value
 )
 
 func main() {
@@ -93,34 +94,89 @@ func wireDelegation() {
 	}))
 
 	canvas.Call("addEventListener", "dragstart", js.FuncOf(func(_ js.Value, a []js.Value) any {
-		el := a[0].Get("target").Call("closest", "[data-id]")
+		e := a[0]
+		el := e.Get("target").Call("closest", "[data-id]")
 		if el.Truthy() {
 			dragID = el.Get("dataset").Get("id").String()
-			a[0].Get("dataTransfer").Set("effectAllowed", "move")
+			// Dim the source explicitly so the translucent drag ghost
+			// reads as "this box is being carried", not as a glitch.
+			el.Get("classList").Call("add", "dragging")
+			e.Get("dataTransfer").Set("effectAllowed", "move")
 		}
 		return nil
 	}))
 
 	canvas.Call("addEventListener", "dragover", js.FuncOf(func(_ js.Value, a []js.Value) any {
-		a[0].Call("preventDefault")
+		e := a[0]
+		e.Call("preventDefault") // required for the drop event to fire
+		el := e.Get("target").Call("closest", "[data-id]")
+		if !el.Truthy() {
+			return nil
+		}
+		id := el.Get("dataset").Get("id").String()
+		if id == dragID {
+			return nil // no drop-target theatre on the dragged box itself
+		}
+		current := ""
+		if dropTargetEl.Truthy() {
+			current = dropTargetEl.Get("dataset").Get("id").String()
+		}
+		if id != current {
+			clearDropTarget()
+			dropTargetEl = el
+			el.Get("classList").Call("add", "drop-target")
+		}
+		return nil
+	}))
+
+	canvas.Call("addEventListener", "dragleave", js.FuncOf(func(_ js.Value, a []js.Value) any {
+		related := a[0].Get("relatedTarget")
+		// dragleave fires between children all the time; only clear when
+		// the pointer truly left the canvas.
+		if !related.Truthy() || !canvas.Call("contains", related).Truthy() {
+			clearDropTarget()
+		}
 		return nil
 	}))
 
 	canvas.Call("addEventListener", "drop", js.FuncOf(func(_ js.Value, a []js.Value) any {
 		e := a[0]
 		e.Call("preventDefault")
+		clearDropTarget()
 		if dragID == "" {
 			return nil
 		}
 		el := e.Get("target").Call("closest", "[data-id]")
-		if !el.Truthy() {
-			return nil
+		if el.Truthy() {
+			targetID := el.Get("dataset").Get("id").String()
+			handleDrop(dragID, targetID)
 		}
-		targetID := el.Get("dataset").Get("id").String()
-		handleDrop(dragID, targetID)
 		dragID = ""
 		return nil
 	}))
+
+	// dragend fires on the source after a drop or a cancelled drag. The
+	// source element may already have been replaced by a re-render, so
+	// sweep any leftover marker class off whatever is in the canvas now.
+	canvas.Call("addEventListener", "dragend", js.FuncOf(func(_ js.Value, _ []js.Value) any {
+		dragID = ""
+		clearDropTarget()
+		marked := canvas.Call("querySelectorAll", ".dragging")
+		for i := 0; i < marked.Length(); i++ {
+			marked.Index(i).Get("classList").Call("remove", "dragging")
+		}
+		return nil
+	}))
+}
+
+// clearDropTarget removes the highlight from the tracked drop target (the
+// element may already be detached after a re-render — removing a class from
+// a detached node is harmless).
+func clearDropTarget() {
+	if dropTargetEl.Truthy() {
+		dropTargetEl.Get("classList").Call("remove", "drop-target")
+	}
+	dropTargetEl = js.Value{}
 }
 
 func handleDrop(srcID, targetID string) {
