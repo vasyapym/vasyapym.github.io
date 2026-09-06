@@ -16,7 +16,6 @@ import type { WorldState } from "./world.ts";
 // highest leaps still keep a whisper of grounding.
 type ShadowLook = {
   color: string;
-  texture: "soft" | "contact";
   // The knight (steel + greatsword) is heavier than the cat: the ellipse
   // sits tighter to the feet and reads a step stronger on the ground.
   width: number;

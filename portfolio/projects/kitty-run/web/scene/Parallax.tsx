@@ -16,8 +16,7 @@ import { useFrame } from "@react-three/fiber";
 import { createRng } from "../lib/rng.ts";
 import { paletteFor, type CharacterId } from "../lib/theme.ts";
 import { useCharacterSwap, type CharacterRef } from "./themeSwap.ts";
-import { skyTexture } from "../lib/textures.ts";
-import { backdropFor } from "../lib/ashenVariants.ts";
+import { BACKDROPS, skyTexture } from "../lib/textures.ts";
 import type { WorldState } from "./world.ts";
 
 const SPAN = 64;
@@ -75,7 +74,6 @@ function ScrollingPlane(props: {
 }
 
 // One theme's complete backdrop, built once against a fixed character.
-// ?ashen=N reroutes the souls spec through the candidate scaffold.
 function Backdrop({
   world,
   character,
@@ -84,7 +82,7 @@ function Backdrop({
   character: CharacterId;
 }) {
   const palette = paletteFor(character);
-  const backdrop = useMemo(() => backdropFor(character), [character]);
+  const backdrop = useMemo(() => BACKDROPS[character], [character]);
   const skyMap = useMemo(() => skyTexture(palette), [palette]);
   const layerMaps = useMemo(
     () => backdrop.layers.map((layer) => layer.build(palette)),

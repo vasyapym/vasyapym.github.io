@@ -12,16 +12,15 @@ import {
 } from "@react-three/postprocessing";
 import type { ChromaticAberrationEffect, VignetteEffect } from "postprocessing";
 import type { CharacterId } from "../lib/theme.ts";
-import { soulsVignette } from "../lib/ashenVariants.ts";
 import { useCharacterSwap, type CharacterRef } from "./themeSwap.ts";
 import type { WorldState } from "./world.ts";
 
 // The dark theme leans on a deeper vignette; the pastel original stays as
-// it shipped. The souls value is resolved through the ?ashen scaffold, so a
-// candidate also carries its own vignette depth (A 0.24 / B 0.30 / C 0.34).
+// it shipped. In the Ash Lake read the frame closes in — the deepest of
+// the candidate reads (held-breath intimacy).
 const VIGNETTE_DARKNESS: Record<CharacterId, number> = {
   kitty: 0.26,
-  souls: soulsVignette(),
+  souls: 0.34,
 };
 
 export function Effects({

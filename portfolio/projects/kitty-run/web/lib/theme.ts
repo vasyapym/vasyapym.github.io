@@ -3,7 +3,6 @@
 // never reads any of it. Selection is presentation, tied to the character
 // chip on the ready card — a cosmetic variant, never a difficulty change.
 
-import { ASHEN_VARIANT, ASHEN_VARIANT_PALETTES } from "./ashenVariants.ts";
 import { PALETTE } from "./palette.ts";
 
 export type CharacterId = "kitty" | "souls";
@@ -63,73 +62,68 @@ const KITTY_TEXT: ThemeText = {
   pickLabel: "choose your runner",
 };
 
-// Dark Souls v2, re-authored against the owner's reference vista: a tiny
-// knight, a vast dead gothic city, a dying sun. Two families only — cold
-// (slate → ash → bone → soul-light) is the dead world; warm (ash-rose →
-// peach → ember) is every living light. Value does the storytelling:
-// deep slate overhead, a lit horizon, castle layers fading upward into
-// mist (≈ 0.28 → 0.14 → 0.04), a dark stone ground, and a bone knight as
-// the brightest solid thing on screen. Only sunCore and heart cross the
-// bloom line; windowEmber rides the knee on purpose (smoldering windows).
-// The depth ladder spreads the city apart in value — bone-mist far (≈ 0.68),
-// slate mid (≈ 0.41), deep near (≈ 0.19) — so the mass recedes instead of
-// stacking three similar greys.
-const BASE_SOULS_PALETTE: ThemePalette = {
-  kittyWhite: "#e8e1d2",
-  outlineInk: "#17130f",
-  bowRed: "#6a6d72",
-  bowDeep: "#3d4045",
-  suitPink: "#8a4a33",
-  suitDeep: "#522a1e",
-  noseYellow: "#e07a34",
-  cheek: "#bd917a",
-  eyeInk: "#1e1815",
+// Dark Souls v3 — the owner's pick from the three live art-direction
+// candidates: candidate C, "Ash Lake Hollow". The near-monochrome read:
+// colour drained to slate, scale carried by value and veils of particulate.
+// Two families only — cold (slate → ash → bone → soul-light) is the dead
+// world; the warm budget collapses to ONE ember window cluster
+// (windowEmber) plus the knight's ember eyes, the single warm pixels on
+// screen. Value does the storytelling: deep cold overhead, a pale barely-lit
+// horizon, three thin cold haze banks flattening the city into veiled grey
+// layers, a dark cold-stone ground, and a dimmed bone knight modelled by
+// VALUE against the mist — no rim light anywhere. Only sunCore and heart
+// cross the bloom line; windowEmber rides the knee on purpose. The depth
+// ladder still recedes — bone-mist far (≈ 0.62), slate mid (≈ 0.35), deep
+// near (≈ 0.15) — but colder than the v2 vista it replaces. Pickups keep
+// their saturated families on purpose: the readability floor, and the only
+// colour besides the window.
+const SOULS_PALETTE: ThemePalette = {
+  kittyWhite: "#ddd6c8", // bone, dimmed (vast dark)
+  outlineInk: "#100d0b",
+  bowRed: "#5f6166", // steel, near-neutral cool
+  bowDeep: "#34363a",
+  suitPink: "#5c554d", // leather drained to grey-brown
+  suitDeep: "#37312b",
+  noseYellow: "#e8913c", // ember eyes — the one warm accent on the rig
+  cheek: "#9a938a",
+  eyeInk: "#151210",
 
-  skyTop: "#3d4a5f",
-  skyMid: "#78889f",
-  skyBottom: "#b48f85",
-  sunCore: "#eaf0f6",
-  sunHalo: "#c8d2dd",
-  sunHaloSoft: "#8e9caf",
-  cloud: "#4f5c70",
-  cloudLit: "#e8a878",
-  hillFar: "#6f7c8d",
-  hillNear: "#4d586a",
-  castleFar: "#a7aeb8",
-  castleMid: "#5d6a7c",
-  castleNear: "#2a3140",
-  windowEmber: "#ffe09a",
-  ash: "#c9c1b6",
+  skyTop: "#2c333f", // deep cold overhead
+  skyMid: "#5a616e",
+  skyBottom: "#828791", // pale cold horizon, barely lit
+  sunCore: "#e8ecef", // cold white, crosses bloom
+  sunHalo: "#aab2bd",
+  sunHaloSoft: "#767e8a",
+  cloud: "#40454f",
+  cloudLit: "#8a8f98", // cold rim — no warmth in the sky at all
+  hillFar: "#646b76",
+  hillNear: "#454b55",
+  castleFar: "#9ba0a7", // bone-mist, cool
+  castleMid: "#565c66",
+  castleNear: "#242830",
+  windowEmber: "#ffb861", // the SINGLE warm point — the whole payload
+  ash: "#c4bfb6",
 
-  groundTop: "#67645f",
-  groundBody: "#3a3835",
-  // The lit edge: stone catching the low sun — warm mineral, not a glowing
-  // ember line running the whole screen width.
-  groundDot: "#7a6a5d",
-  pathEdge: "#4c4844",
+  groundTop: "#5c5b58",
+  groundBody: "#323230",
+  // Cold-lit stone: no warm sun-dot here — the edge is mineral, not lit.
+  groundDot: "#6a6763",
+  pathEdge: "#434240",
 
-  obstaclePlum: "#3a302c",
-  obstacleDeep: "#16110f",
-  obstacleDot: "#d4b48c",
+  obstaclePlum: "#33302c",
+  obstacleDeep: "#141210",
+  obstacleDot: "#b9b3a8", // cold stone lid, not warm
 
-  heart: "#e6f1ff",
-  heartGlow: "#b7d3f2",
-  star: "#f2b03e",
-  starGlow: "#cf6d1c",
-  heal: "#ec6a22",
-  healBurst: "#ffbf85",
+  heart: "#eef3ff", // crosses bloom — cold, but so is everything
+  heartGlow: "#c2d6f2",
+  star: "#e9b64a", // pickups keep their identity (readability floor)
+  starGlow: "#c66a1c",
+  heal: "#ec6a20",
+  healBurst: "#ffbb7e",
 
-  ink: "#15110e",
-  paper: "#e6dfd1",
+  ink: "#120f0c",
+  paper: "#ded8ca",
 };
-
-// ?ashen=a|b|c review scaffold: a candidate's full palette replaces the
-// souls baseline before THEMES is built, so every palette-keyed record in
-// the scene picks the variant up by lookup alone (no scene branch, no prop).
-// See web/lib/ashenVariants.ts; the param also implies souls mode below.
-const SOULS_PALETTE: ThemePalette = ASHEN_VARIANT
-  ? ASHEN_VARIANT_PALETTES[ASHEN_VARIANT]
-  : BASE_SOULS_PALETTE;
 
 const SOULS_TEXT: ThemeText = {
   name: "ashen",
@@ -207,11 +201,10 @@ export function storeCharacter(storage: Storage, character: CharacterId): void {
 }
 
 // ?souls deep-links straight into the dark theme; persistence handles
-// switching back interactively, so there is no ?kitty counterpart. An
-// ?ashen candidate param implies souls too — it IS a souls-mode review.
+// switching back interactively, so there is no ?kitty counterpart.
 export function characterFromParams(
   params: URLSearchParams,
 ): CharacterId | null {
-  if (params.has("souls") || ASHEN_VARIANT) return "souls";
+  if (params.has("souls")) return "souls";
   return null;
 }

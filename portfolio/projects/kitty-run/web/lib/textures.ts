@@ -659,13 +659,12 @@ export const BACKDROPS: Record<CharacterId, BackdropSpec> = {
     layers: [
       {
         // Plane spans y −1.5…10.5; spire tops land around y 9–10.
-        // Sun rims on the far and mid silhouettes only; the near layer stays
-        // matte so its ember windows keep the spotlight.
+        // NO rim light in the Ash Lake read: the far city is a value, not
+        // an edge — mist, not sun.
         build: (p) =>
           castleTexture(p.castleFar, "kitty-run/castle/far", {
-            density: 0.95,
-            baseline: 0.22,
-            rim: p.cloudLit,
+            density: 0.9,
+            baseline: 0.18,
           }),
         z: -11,
         y: 4.5,
@@ -674,12 +673,11 @@ export const BACKDROPS: Record<CharacterId, BackdropSpec> = {
         opacity: 0.9,
       },
       {
-        // Plane spans y −2…7; tops around y 6–6.5.
+        // Plane spans y −2…7; tops around y 6–6.5. Matte like the far layer.
         build: (p) =>
           castleTexture(p.castleMid, "kitty-run/castle/mid", {
-            density: 0.7,
-            baseline: 0.28,
-            rim: p.cloudLit,
+            density: 0.66,
+            baseline: 0.24,
           }),
         z: -9,
         y: 2.5,
@@ -688,10 +686,11 @@ export const BACKDROPS: Record<CharacterId, BackdropSpec> = {
       },
       {
         // Plane spans y −2…5; sparse thin towers, solid mass only below ~y 0.1.
+        // The ember windows live here — the SINGLE warm point in the world.
         build: (p) =>
           castleTexture(p.castleNear, "kitty-run/castle/near", {
             windows: p.windowEmber,
-            density: 0.35,
+            density: 0.3,
             baseline: 0.3,
           }),
         z: -7,
@@ -701,24 +700,30 @@ export const BACKDROPS: Record<CharacterId, BackdropSpec> = {
       },
     ],
     haze: [
+      // Three thin cold banks (far/mid, mid/near, and a front veil) flatten
+      // depth into layers of grey — uniform cold, no horizon glow.
       {
-        // Sinks the far city's base into mist (far z -11, mid z -9): densest
-        // at the mass line ~y 0, thinning upward across the spire zone.
-        build: (p) => hazeTexture(p.skyMid, 0.62),
+        build: (p) => hazeTexture(p.skyMid, 0.7),
         z: -10,
         y: 0.6,
         height: 5,
-        opacity: 0.42,
+        opacity: 0.4,
       },
       {
-        // Second bank the near towers rise out of (mid z -9, near z -7).
-        build: (p) => hazeTexture(p.skyMid, 0.68),
+        build: (p) => hazeTexture(p.skyMid, 0.7),
         z: -8,
         y: 0.9,
         height: 4.4,
-        opacity: 0.36,
+        opacity: 0.34,
+      },
+      {
+        build: (p) => hazeTexture(p.skyMid, 0.7),
+        z: -6.5,
+        y: 1.4,
+        height: 4,
+        opacity: 0.28,
       },
     ],
-    cloud: { build: duskCloudTexture, scale: 1.5, opacity: 0.9 },
+    cloud: { build: duskCloudTexture, scale: 1.7, opacity: 0.7 },
   },
 };
