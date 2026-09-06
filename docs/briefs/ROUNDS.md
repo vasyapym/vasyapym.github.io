@@ -1,6 +1,6 @@
 # Brief round-log — compaction checkpoint
 
-One line per delegation brief/handoff. `docs/briefs/` is the archive; root files referenced by graphs stay at root. Outcome = verdict/next from the referencing graph node(s); `(text)` = outcome recorded in node prose rather than artifacts. Orphans (no recorded outcome) flagged for the baseline doc.
+One line per delegation brief/handoff. `docs/briefs/` is the archive; graph-referenced state docs live in `docs/` (e.g. `docs/HANDOFF-ashen-live-refinement.md`); only the open kitty-run direction's round inputs (ashen/knight series, CONCEPT, rollback record) still sit at repo root. Outcome = verdict/next from the referencing graph node(s); `(text)` = outcome recorded in node prose rather than artifacts. Orphans (no recorded outcome) flagged for the baseline doc.
 
 | File | Graph refs | Verdict / outcome |
 | --- | --- | --- |

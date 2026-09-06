@@ -29,8 +29,9 @@ Read this first. One screen; everything else is pointed to, not copied.
 
 - Graphs: `portfolio/.project-history/graph.jsonl` + `portfolio/projects/<id>/.project-history/graph.jsonl` (9 files; CLI: `node scripts/project-graph/bin/project-graph.js …`).
 - Design record: `docs/portfolio-redesign-handoff.md` (compacted; ALL 52 headings/anchors byte-identical to pre-compaction).
-- Brief archive: `docs/briefs/` + `docs/briefs/ROUNDS.md` (one line per brief: outcome/verdict; orphans flagged). Root keeps only briefs referenced by graphs (bare-name refs): the ashen/knight/souls-1 series, `CONCEPT-kitty-run-ashen-five-reimaginings.md`, `HANDOFF-ashen-live-refinement.md` (the live character law), `HANDOFF-kitty-run-rollback.md`, `BRIEF-kitty-mark-redraw-neutral.md`, `BRIEF-card-artwork-iteration-2.md`.
-- Handoff archive: `docs/archive/handoffs/` (raw pre-compaction handoffs). Compact stubs replaced the old chains: `HANDOFF-explosion-chain.md`, `HANDOFF-ashen-dusk-refinement.md`, `docs/hero-saga-handoff.md`.
+- Brief archive: `docs/briefs/` + `docs/briefs/ROUNDS.md` (one line per brief: outcome/verdict; orphans flagged). Graph-referenced state docs live in `docs/`: `HANDOFF-ashen-live-refinement.md` (the live character law), `HANDOFF-ashen-dusk-refinement.md` (superseded stub), `HANDOFF-explosion-chain.md`, `hero-saga-handoff.md`.
+- Handoff archive: `docs/archive/handoffs/` (raw pre-compaction handoffs).
+- Repo root keeps ONLY the open kitty-run direction's round inputs (bare-name graph refs): the ashen/knight BRIEF series, `CONCEPT-kitty-run-ashen-five-reimaginings.md`, `HANDOFF-kitty-run-rollback.md`, `BRIEF-kitty-mark-redraw-neutral.md`, `BRIEF-card-artwork-iteration-2.md`.
 - Completed card-art briefs (tracked): `docs/briefs/BRIEF-card-art-*.md`.
 
 ## Checkpoint record

@@ -2,7 +2,7 @@
 
 This round is **closed**. It delivered the hero-select polish and the ashen art-direction
 gallery (kitty-run `n37`); its open ends were picked up by the next round, whose record is
-**`HANDOFF-ashen-live-refinement.md`** (root) — that file carries the current state: the
+**`docs/HANDOFF-ashen-live-refinement.md`** — that file carries the current state: the
 style bible, the round record, deferrals, and the live-character law (great helm replaces
 the face; no bow/whiskers/spear in souls mode).
 
