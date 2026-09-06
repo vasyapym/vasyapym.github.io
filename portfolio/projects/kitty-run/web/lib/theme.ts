@@ -61,7 +61,7 @@ const KITTY_TEXT: ThemeText = {
   overAction: "again",
   dashLabel: "dash",
   pilotLabel: "autopilot · take control",
-  swapLabel: "change character",
+  swapLabel: "transform",
   pickLabel: "choose your runner",
 };
 
@@ -144,7 +144,7 @@ const SOULS_TEXT: ThemeText = {
   overAction: "rekindle",
   dashLabel: "roll",
   pilotLabel: "phantom · take control",
-  swapLabel: "change character",
+  swapLabel: "transform",
   pickLabel: "choose your vessel",
 };
 
