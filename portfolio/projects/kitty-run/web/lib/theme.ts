@@ -3,6 +3,7 @@
 // never reads any of it. Selection is presentation, tied to the character
 // chip on the ready card — a cosmetic variant, never a difficulty change.
 
+import { ASHEN_VARIANT, ASHEN_VARIANT_PALETTES } from "./ashenVariants.ts";
 import { PALETTE } from "./palette.ts";
 
 export type CharacterId = "kitty" | "souls";
@@ -73,7 +74,7 @@ const KITTY_TEXT: ThemeText = {
 // The depth ladder spreads the city apart in value — bone-mist far (≈ 0.68),
 // slate mid (≈ 0.41), deep near (≈ 0.19) — so the mass recedes instead of
 // stacking three similar greys.
-const SOULS_PALETTE: ThemePalette = {
+const BASE_SOULS_PALETTE: ThemePalette = {
   kittyWhite: "#e8e1d2",
   outlineInk: "#17130f",
   bowRed: "#6a6d72",
@@ -121,6 +122,14 @@ const SOULS_PALETTE: ThemePalette = {
   ink: "#15110e",
   paper: "#e6dfd1",
 };
+
+// ?ashen=a|b|c review scaffold: a candidate's full palette replaces the
+// souls baseline before THEMES is built, so every palette-keyed record in
+// the scene picks the variant up by lookup alone (no scene branch, no prop).
+// See web/lib/ashenVariants.ts; the param also implies souls mode below.
+const SOULS_PALETTE: ThemePalette = ASHEN_VARIANT
+  ? ASHEN_VARIANT_PALETTES[ASHEN_VARIANT]
+  : BASE_SOULS_PALETTE;
 
 const SOULS_TEXT: ThemeText = {
   name: "ashen",
@@ -198,10 +207,11 @@ export function storeCharacter(storage: Storage, character: CharacterId): void {
 }
 
 // ?souls deep-links straight into the dark theme; persistence handles
-// switching back interactively, so there is no ?kitty counterpart.
+// switching back interactively, so there is no ?kitty counterpart. An
+// ?ashen candidate param implies souls too — it IS a souls-mode review.
 export function characterFromParams(
   params: URLSearchParams,
 ): CharacterId | null {
-  if (params.has("souls")) return "souls";
+  if (params.has("souls") || ASHEN_VARIANT) return "souls";
   return null;
 }

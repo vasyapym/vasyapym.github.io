@@ -3,12 +3,13 @@
 // floating over it — especially at the pulled-back framing, where a
 // character without a shadow reads as pasted onto the scene.
 
-import { useMemo, useRef } from "react";
+import { useRef } from "react";
 import * as THREE from "three";
 import { useFrame } from "@react-three/fiber";
 import { groundY } from "../lib/ground.ts";
 import { contactShadowTexture, softDotTexture } from "../lib/textures.ts";
 import type { CharacterId } from "../lib/theme.ts";
+import { useCharacterSwap, type CharacterRef } from "./themeSwap.ts";
 import type { WorldState } from "./world.ts";
 
 // Shadow strength falls to this floor at the top of the jump arc, so the
@@ -50,22 +51,39 @@ const SHADOW: Record<CharacterId, ShadowLook> = {
   },
 };
 
+// Both looks' textures built once at module scope — a mid-run theme swap
+// never allocates, it only swaps the map and recolours.
+const SHADOW_TEXTURES: Record<CharacterId, THREE.CanvasTexture> = {
+  kitty: softDotTexture(),
+  souls: contactShadowTexture(),
+};
+
 export function Shadow({
   world,
-  character,
+  characterRef,
 }: {
   world: WorldState;
-  character: CharacterId;
+  characterRef: CharacterRef;
 }) {
   const meshRef = useRef<THREE.Mesh>(null);
-  const soft = useMemo(() => softDotTexture(), []);
-  const contact = useMemo(() => contactShadowTexture(), []);
-  const look = SHADOW[character];
-  const texture = look.texture === "contact" ? contact : soft;
+  const matRef = useRef<THREE.MeshBasicMaterial>(null);
+
+  // Mid-run theme swap: texture + tint swap imperatively. The per-frame
+  // ellipse/opacity read below follows the active look automatically.
+  useCharacterSwap(characterRef, (c) => {
+    const look = SHADOW[c];
+    const mat = matRef.current;
+    if (mat) {
+      mat.map = SHADOW_TEXTURES[c];
+      mat.color.set(look.color);
+      mat.needsUpdate = true;
+    }
+  });
 
   useFrame(() => {
     const mesh = meshRef.current;
     if (!mesh) return;
+    const look = SHADOW[characterRef.current];
     const material = mesh.material as THREE.MeshBasicMaterial;
     // The Kitty stays at world x = 0 while the ground scrolls underneath,
     // so the shadow samples the same ground function the physics uses.
@@ -81,11 +99,14 @@ export function Shadow({
       look.groundOpacity - (look.groundOpacity - look.minOpacity) * t;
   });
 
+  const look = SHADOW[characterRef.current];
+
   return (
     <mesh ref={meshRef} renderOrder={-2}>
       <planeGeometry />
       <meshBasicMaterial
-        map={texture}
+        ref={matRef}
+        map={SHADOW_TEXTURES[characterRef.current]}
         color={look.color}
         transparent
         opacity={look.groundOpacity}

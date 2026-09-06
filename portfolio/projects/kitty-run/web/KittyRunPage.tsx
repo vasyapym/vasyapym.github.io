@@ -2,7 +2,12 @@ import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { Sfx } from "./lib/audio.ts";
 import { readBestScore } from "./lib/score.ts";
 import { loadReplay, type StoredReplay } from "./lib/replay.ts";
-import { createWorld, type GameStatus, type WorldState } from "./scene/world.ts";
+import {
+  createWorld,
+  effectiveDistance,
+  type GameStatus,
+  type WorldState,
+} from "./scene/world.ts";
 import {
   hasWebGL,
   RunCanvas,
@@ -123,6 +128,7 @@ export default function KittyRunPage() {
   const comboRef = useRef<HTMLSpanElement | null>(null);
   const comboBarRef = useRef<HTMLDivElement | null>(null);
   const milestoneRef = useRef<HTMLDivElement | null>(null);
+  const metersRef = useRef<HTMLSpanElement | null>(null);
   const dashRef = useRef<HTMLButtonElement | null>(null);
   const bulletRef = useRef<HTMLDivElement | null>(null);
   const debugRef = useRef<HTMLSpanElement | null>(null);
@@ -134,6 +140,7 @@ export default function KittyRunPage() {
       combo: comboRef,
       comboBar: comboBarRef,
       milestone: milestoneRef,
+      meters: metersRef,
       dash: dashRef,
       bullet: bulletRef,
       debug: debugRef,
@@ -256,9 +263,15 @@ export default function KittyRunPage() {
   const handleStart = useCallback(() => beginRun(false), [beginRun]);
   const handleWatch = useCallback(() => beginRun(true), [beginRun]);
 
-  // Character switch: presentation state plus persistence. The scene
-  // re-renders through props; the simulation objects are untouched.
+  // Character switch: presentation state plus persistence. The canvas
+  // subtree samples characterRef frame-by-frame, so write it straight away:
+  // the swap lands next frame with NO React re-render of the memoised WebGL
+  // tree (WebKit drawing-buffer law). setCharacter only drives page chrome
+  // (CSS class, HUD copy, portraits) and the existing audio setMode effect
+  // on [character]. (characterRef is declared just below; the closure reads
+  // it at call time, never during render.)
   const chooseCharacter = useCallback((id: CharacterId) => {
+    characterRef.current = id;
     setCharacter(id);
     storeCharacter(window.localStorage, id);
   }, []);
@@ -272,6 +285,13 @@ export default function KittyRunPage() {
     const i = CHARACTER_IDS.indexOf(characterRef.current);
     return CHARACTER_IDS[(i + dir + CHARACTER_IDS.length) % CHARACTER_IDS.length];
   }, []);
+
+  // Live character swap for the HUD chip and KeyC. Cosmetic only — it never
+  // pauses the run, never touches the world, and (via chooseCharacter) never
+  // re-renders the memoised canvas subtree.
+  const cycleCharacter = useCallback(() => {
+    chooseCharacter(stepCharacter(1));
+  }, [chooseCharacter, stepCharacter]);
 
   // Mid-run handover: the visitor takes the sticks back from the bot.
   const takeControl = useCallback(() => {
@@ -343,6 +363,15 @@ export default function KittyRunPage() {
             handleRestart();
           }
           break;
+        case "KeyC":
+          // Swap character anywhere but the over card — ready, mid-run, or
+          // paused. Unlike jump/dash it is cosmetic, so it stays live even
+          // while the autopilot drives.
+          if (world.status === "over") break;
+          event.preventDefault();
+          uiClick();
+          cycleCharacter();
+          break;
         case "Digit1":
         case "Digit2": {
           if (world.status !== "ready") break;
@@ -376,7 +405,7 @@ export default function KittyRunPage() {
       window.removeEventListener("keydown", onKeyDown);
       window.removeEventListener("keyup", onKeyUp);
     };
-  }, [world, handleStart, handleRestart, uiClick, chooseCharacter, stepCharacter]);
+  }, [world, handleStart, handleRestart, uiClick, chooseCharacter, stepCharacter, cycleCharacter]);
 
   // --- touch: tap = jump, swipe down = dash -------------------------------------
   //
@@ -450,7 +479,7 @@ export default function KittyRunPage() {
         trackRef={trackRef}
         mutedRef={mutedRef}
         hud={hud}
-        character={character}
+        characterRef={characterRef}
         onStatus={handleStatus}
       />
       <Floaters world={world} stageRef={stageRef} />
@@ -467,10 +496,28 @@ export default function KittyRunPage() {
             <span className="kitty-run-score" ref={scoreRef}>
               0
             </span>
+            <span className="kitty-run-meters">
+              <span ref={metersRef}>0</span> m
+            </span>
             <span className="kitty-run-best">
               {theme.text.best} {best}
             </span>
           </div>
+          {status === "running" && (
+            <button
+              type="button"
+              className="kitty-run-swap"
+              aria-label="Change character"
+              onPointerDown={(event) => event.stopPropagation()}
+              onMouseEnter={uiHover}
+              onClick={() => {
+                uiClick();
+                cycleCharacter();
+              }}
+            >
+              {theme.text.name}
+            </button>
+          )}
           {status === "running" && (
             <button
               type="button"
@@ -626,7 +673,7 @@ export default function KittyRunPage() {
               {world.score.toLocaleString()} points
             </span>
             <span className="kitty-run-card-stat">
-              {Math.floor(world.distance).toLocaleString()} m run
+              {Math.floor(effectiveDistance(world)).toLocaleString()} m run
             </span>
             {autoRan && (
               <span className="kitty-run-card-echo">
@@ -635,9 +682,9 @@ export default function KittyRunPage() {
             )}
             {raceTarget && (
               <span className="kitty-run-card-echo">
-                {world.distance >= raceTarget.distance
-                  ? `${Math.max(1, Math.round(world.distance - raceTarget.distance))} m past your best mark`
-                  : `${Math.max(1, Math.round(raceTarget.distance - world.distance))} m short of your best mark`}
+                {effectiveDistance(world) >= raceTarget.distance
+                  ? `${Math.max(1, Math.round(effectiveDistance(world) - raceTarget.distance))} m past your best mark`
+                  : `${Math.max(1, Math.round(raceTarget.distance - effectiveDistance(world)))} m short of your best mark`}
               </span>
             )}
             <span className="kitty-run-card-hint">

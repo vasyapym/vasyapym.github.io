@@ -6,7 +6,7 @@
 // Run: node --experimental-strip-types tests/kitty-run.sim.ts
 
 import { requestDash, requestJump, startRun } from "../web/scene/actions.ts";
-import { createWorld, type WorldState } from "../web/scene/world.ts";
+import { createWorld, effectiveDistance, type WorldState } from "../web/scene/world.ts";
 import { stepWorld } from "../web/scene/step.ts";
 import { groundY } from "../web/lib/ground.ts";
 import { TUNING } from "../web/lib/tuning.ts";
@@ -86,7 +86,7 @@ for (let i = 1; i < run.milestoneMeters.length; i += 1) {
 check(
   "milestones fire once each, in order",
   milestonesOnceEach &&
-    run.milestoneMeters.length === Math.floor(w.distance / 500),
+    run.milestoneMeters.length === Math.floor(effectiveDistance(w) / 500),
 );
 check("distance scoring keeps pace with travel", w.score >= Math.floor(w.distance));
 check("hearts never exceed the meter", w.hearts >= 0 && w.hearts <= 3);

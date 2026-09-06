@@ -12,6 +12,7 @@ import {
 } from "../lib/spawn.ts";
 import { crateTexture } from "../lib/textures.ts";
 import { THEMES, paletteFor, type CharacterId } from "../lib/theme.ts";
+import { useCharacterSwap, type CharacterRef } from "./themeSwap.ts";
 import type { WorldState } from "./world.ts";
 
 const MAX_PER_KIND = 24;
@@ -24,23 +25,38 @@ const CRATE_LID: Record<CharacterId, string | null> = {
   souls: THEMES.souls.palette.cloudLit,
 };
 
+// Both crate maps built once at module scope — a mid-run theme swap never
+// allocates, it only swaps the shared map on the three instanced materials.
+// ?ashen=N flows through automatically: THEMES.souls carries the variant.
+const CRATE_MAPS: Record<CharacterId, THREE.CanvasTexture> = {
+  kitty: crateTexture(paletteFor("kitty"), { lid: CRATE_LID.kitty ?? undefined }),
+  souls: crateTexture(paletteFor("souls"), { lid: CRATE_LID.souls ?? undefined }),
+};
+
 export function Obstacles({
   world,
-  character,
+  characterRef,
 }: {
   world: WorldState;
-  character: CharacterId;
+  characterRef: CharacterRef;
 }) {
   const boxRef = useRef<THREE.InstancedMesh>(null);
   const tallRef = useRef<THREE.InstancedMesh>(null);
   const hoverRef = useRef<THREE.InstancedMesh>(null);
-  const crateMap = useMemo(
-    () =>
-      crateTexture(paletteFor(character), {
-        lid: CRATE_LID[character] ?? undefined,
-      }),
-    [character],
-  );
+  const boxMatRef = useRef<THREE.MeshBasicMaterial>(null);
+  const tallMatRef = useRef<THREE.MeshBasicMaterial>(null);
+  const hoverMatRef = useRef<THREE.MeshBasicMaterial>(null);
+
+  // Mid-run theme swap: the shared crate map re-points imperatively.
+  useCharacterSwap(characterRef, (c) => {
+    const map = CRATE_MAPS[c];
+    for (const mat of [boxMatRef.current, tallMatRef.current, hoverMatRef.current]) {
+      if (!mat) continue;
+      mat.map = map;
+      mat.needsUpdate = true;
+    }
+  });
+
   const dummy = useMemo(() => new THREE.Object3D(), []);
 
   useFrame(() => {
@@ -96,7 +112,7 @@ export function Obstacles({
         frustumCulled={false}
       >
         <boxGeometry args={[BOX_HALF * 2, BOX_HALF * 2, BOX_HALF * 2]} />
-        <meshBasicMaterial map={crateMap} />
+        <meshBasicMaterial ref={boxMatRef} map={CRATE_MAPS[characterRef.current]} />
       </instancedMesh>
       <instancedMesh
         ref={tallRef}
@@ -104,7 +120,7 @@ export function Obstacles({
         frustumCulled={false}
       >
         <boxGeometry args={[TALL_HALF * 2, TALL_HALF * 2, TALL_HALF * 2]} />
-        <meshBasicMaterial map={crateMap} />
+        <meshBasicMaterial ref={tallMatRef} map={CRATE_MAPS[characterRef.current]} />
       </instancedMesh>
       <instancedMesh
         ref={hoverRef}
@@ -112,7 +128,7 @@ export function Obstacles({
         frustumCulled={false}
       >
         <sphereGeometry args={[HOVER_RADIUS, 20, 16]} />
-        <meshBasicMaterial map={crateMap} />
+        <meshBasicMaterial ref={hoverMatRef} map={CRATE_MAPS[characterRef.current]} />
       </instancedMesh>
     </>
   );

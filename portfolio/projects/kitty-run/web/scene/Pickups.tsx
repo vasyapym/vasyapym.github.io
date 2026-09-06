@@ -7,6 +7,7 @@ import * as THREE from "three";
 import { useFrame } from "@react-three/fiber";
 import { softDotTexture } from "../lib/textures.ts";
 import { THEMES, type CharacterId } from "../lib/theme.ts";
+import type { CharacterRef } from "./themeSwap.ts";
 import type { WorldState } from "./world.ts";
 
 const MAX_PICKUPS = 48;
@@ -66,10 +67,10 @@ const PICKUP_COLORS: Record<CharacterId, PickupColors> = {
 
 export function Pickups({
   world,
-  character,
+  characterRef,
 }: {
   world: WorldState;
-  character: CharacterId;
+  characterRef: CharacterRef;
 }) {
   const heartRef = useRef<THREE.InstancedMesh>(null);
   const starRef = useRef<THREE.InstancedMesh>(null);
@@ -79,9 +80,12 @@ export function Pickups({
   const heartGeo = useMemo(() => new THREE.ShapeGeometry(heartShape(), 14), []);
   const starGeo = useMemo(() => new THREE.ShapeGeometry(starShape(), 8), []);
   const dummy = useMemo(() => new THREE.Object3D(), []);
-  const colors = PICKUP_COLORS[character];
 
   useFrame(() => {
+    // The colour record is looked up per frame from the live character ref:
+    // the loop was already allocation-free against a prebuilt record, and a
+    // mid-run swap re-points it with a single object lookup.
+    const colors = PICKUP_COLORS[characterRef.current];
     let heartCount = 0;
     let starCount = 0;
     let crossCount = 0;

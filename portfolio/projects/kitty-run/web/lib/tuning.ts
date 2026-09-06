@@ -47,6 +47,13 @@ export const TUNING = {
   // (~50-90 ms), short enough to never eat a deliberate jump.
   jumpCancelWindow: 0.12,
 
+  // Minimum airtime before a touchdown counts as a landing. Steep downhill
+  // at top speed floats the cat for only 1-2 frames (~0.017-0.034 s) before
+  // she re-lands; a real single jump airs ~0.75 s (2·jumpV/gravity). 0.10 s
+  // sits well above the micro-bounce and far below any true jump, so it
+  // silences the downhill thump train without muting a real landing.
+  landMinAir: 0.1,
+
   invulnTime: 1.3,
   hitStopTime: 0.06,
   knockbackV: 6,
@@ -54,6 +61,10 @@ export const TUNING = {
   maxHearts: 3,
   kittyRadius: 0.75,
   kittyCenterLift: 0.95,
+
+  // Each star grants this many bonus metres toward the effective distance
+  // (HUD meter, milestones, game-over stat, stored replay). Flat, not scaled.
+  starBonusMeters: 5,
 
   // Every this many metres the run throws a little celebration.
   milestoneStep: 500,

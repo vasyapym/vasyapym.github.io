@@ -5,7 +5,8 @@ import { memo, useEffect, useRef, useState } from "react";
 import * as THREE from "three";
 import { Canvas, useFrame, useThree } from "@react-three/fiber";
 import { BASE_CAM_Z, BASE_FOV, frameFor } from "../lib/framing.ts";
-import { paletteFor, type CharacterId } from "../lib/theme.ts";
+import { paletteFor } from "../lib/theme.ts";
+import { useCharacterSwap, type CharacterRef } from "./themeSwap.ts";
 import type { Sfx } from "../lib/audio.ts";
 import type { Soundtrack } from "../lib/music.ts";
 import type { GameStatus, WorldState } from "./world.ts";
@@ -53,17 +54,53 @@ function onCreated({ camera }: { camera: THREE.Camera }): void {
   camera.lookAt(2.4, 2.6, 0);
 }
 
-// The canvas clear colour follows the theme's sky bottom, so nothing pastel
-// peeks in at the viewport edges in the dark theme.
-function ClearColor({ color }: { color: string }) {
+// The canvas clear colour follows the theme's sky bottom. It is now driven
+// imperatively from characterRef, so a mid-run swap re-tints the clear colour
+// without a canvas re-render.
+function ClearColor({ characterRef }: { characterRef: CharacterRef }) {
   const gl = useThree((state) => state.gl);
-  useEffect(() => {
-    gl.setClearColor(color);
-  }, [gl, color]);
+  useCharacterSwap(characterRef, (c) => {
+    gl.setClearColor(paletteFor(c).skyBottom);
+  });
   return null;
 }
 
-function CameraRig({ world, reducedMotion }: { world: WorldState; reducedMotion: boolean }) {
+// Both player rigs mounted with a FIXED character prop (so their internal
+// memoised geometry/colour never rebuilds); visibility is toggled from the
+// ref each frame. A swap is two boolean writes — zero allocation, and the
+// hidden rig is skipped by the renderer.
+function CharacterRigs({
+  world,
+  characterRef,
+}: {
+  world: WorldState;
+  characterRef: CharacterRef;
+}) {
+  const kittyRef = useRef<THREE.Group>(null);
+  const soulsRef = useRef<THREE.Group>(null);
+  useCharacterSwap(characterRef, (c) => {
+    if (kittyRef.current) kittyRef.current.visible = c === "kitty";
+    if (soulsRef.current) soulsRef.current.visible = c === "souls";
+  });
+  return (
+    <>
+      <group ref={kittyRef} visible={characterRef.current === "kitty"}>
+        <Kitty world={world} character="kitty" />
+      </group>
+      <group ref={soulsRef} visible={characterRef.current === "souls"}>
+        <Kitty world={world} character="souls" />
+      </group>
+    </>
+  );
+}
+
+function CameraRig({
+  world,
+  reducedMotion,
+}: {
+  world: WorldState;
+  reducedMotion: boolean;
+}) {
   const lookTarget = useRef(new THREE.Vector3());
 
   useFrame((state, delta) => {
@@ -89,7 +126,9 @@ function CameraRig({ world, reducedMotion }: { world: WorldState; reducedMotion:
     // further still — the lens breathes with the clock dip and eases
     // back as the world wells up to full speed again.
     const dashKick = reducedMotion ? 0 : frame.fov * 0.13;
-    const bulletKick = reducedMotion ? 0 : (1 - Math.min(1, world.timeScale)) * frame.fov * 0.4;
+    const bulletKick = reducedMotion
+      ? 0
+      : (1 - Math.min(1, world.timeScale)) * frame.fov * 0.4;
     const targetFov = frame.fov + dashKick + bulletKick + shake * 2;
     const camera = state.camera as THREE.PerspectiveCamera;
     camera.fov += (targetFov - camera.fov) * Math.min(1, 9 * delta);
@@ -99,11 +138,12 @@ function CameraRig({ world, reducedMotion }: { world: WorldState; reducedMotion:
   return null;
 }
 
-// Memoised on purpose: every prop here is a stable ref/object except the
-// character. Page state (mute, mix popover, status transitions) re-renders
-// the header and overlays but must never re-render the WebGL subtree — in
-// WebKit each such re-render disturbed the drawing buffer for one frame
-// and the distance-driven world read as if it had jumped.
+// Memoised on purpose: EVERY prop here is a stable ref/object. `character` is
+// no longer a prop — the selected character now arrives as `characterRef`, a
+// stable ref sampled frame-by-frame by the children. That is what lets a
+// mid-run switch retheme the scene with ZERO re-render of this WebGL subtree:
+// in WebKit each such re-render disturbed the drawing buffer for one frame and
+// the distance-driven world read as if it had jumped.
 export const RunCanvas = memo(function RunCanvas({
   world,
   echo,
@@ -113,7 +153,7 @@ export const RunCanvas = memo(function RunCanvas({
   trackRef,
   mutedRef,
   hud,
-  character,
+  characterRef,
   onStatus,
 }: {
   world: WorldState;
@@ -128,10 +168,10 @@ export const RunCanvas = memo(function RunCanvas({
   // Live mute flag, read frame-by-frame (see the memo note above).
   mutedRef: { current: boolean };
   hud: HudRefs;
-  // The selected character: presentation only. The simulation never sees
-  // it — every themed component re-renders on a switch, which can only
-  // happen on the ready screen.
-  character: CharacterId;
+  // Live character selection: presentation only, read frame-by-frame. The
+  // simulation never sees it; a switch is a per-frame retheme, never a
+  // re-render of this tree.
+  characterRef: CharacterRef;
   onStatus: (status: GameStatus) => void;
 }) {
   return (
@@ -146,25 +186,28 @@ export const RunCanvas = memo(function RunCanvas({
       camera={CAMERA_SPEC}
       onCreated={onCreated}
     >
-      <ClearColor color={paletteFor(character).skyBottom} />
+      <ClearColor characterRef={characterRef} />
       <CameraRig world={world} reducedMotion={reducedMotion} />
-      <Parallax world={world} character={character} />
+      <Parallax world={world} characterRef={characterRef} />
       <AshFall
         world={world}
-        palette={paletteFor(character)}
-        character={character}
+        characterRef={characterRef}
         reducedMotion={reducedMotion}
       />
-      <Ground world={world} character={character} />
-      <Shadow world={world} character={character} />
-      <Obstacles world={world} character={character} />
-      <Pickups world={world} character={character} />
+      <Ground world={world} characterRef={characterRef} />
+      <Shadow world={world} characterRef={characterRef} />
+      <Obstacles world={world} characterRef={characterRef} />
+      <Pickups world={world} characterRef={characterRef} />
       <Particles world={world} />
-      <Kitty world={world} character={character} />
+      <CharacterRigs world={world} characterRef={characterRef} />
       {echo && echoInputs && (
-        <Echo world={world} echo={echo} character={character} />
+        <Echo world={world} echo={echo} characterRef={characterRef} />
       )}
-      <Effects world={world} reducedMotion={reducedMotion} character={character} />
+      <Effects
+        world={world}
+        reducedMotion={reducedMotion}
+        characterRef={characterRef}
+      />
       <GameLoop
         world={world}
         echo={echo}
@@ -174,7 +217,7 @@ export const RunCanvas = memo(function RunCanvas({
         mutedRef={mutedRef}
         hud={hud}
         reducedMotion={reducedMotion}
-        character={character}
+        characterRef={characterRef}
         onStatus={onStatus}
       />
     </Canvas>

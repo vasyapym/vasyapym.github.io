@@ -10,8 +10,10 @@ import { useMemo, useRef } from "react";
 import * as THREE from "three";
 import { useFrame } from "@react-three/fiber";
 import { createRng } from "../lib/rng.ts";
-import type { CharacterId, ThemePalette } from "../lib/theme.ts";
+import { paletteFor } from "../lib/theme.ts";
+import { ashTiersFor, type AshTiers } from "../lib/ashenVariants.ts";
 import { softDotTexture } from "../lib/textures.ts";
+import { useCharacterSwap, type CharacterRef } from "./themeSwap.ts";
 import type { WorldState } from "./world.ts";
 
 const SPAN = 48;
@@ -20,42 +22,12 @@ const Y_RANGE = 10;
 
 // The two classes. The old single batch was 60 motes at z −3..−1, opacity
 // 0.4, scroll 0.3 — the tiers split that same envelope so the mean feel is
-// unchanged while the depth read sharpens.
-type Tier = {
-  count: number;
-  opacity: number;
-  size: [number, number];
-  fall: [number, number];
-  sway: [number, number];
-  freq: [number, number];
-  z: [number, number];
-  // Motes sit close to the camera, so they take a modest share of run
-  // scroll — the near class slightly more, the far class slightly less.
-  scroll: number;
-};
+// unchanged while the depth read sharpens. The record itself lives in the
+// ?ashen scaffold (ashenVariants.ts), which carries the defaults and lets a
+// candidate re-count/re-grade the motes without touching this file.
+type Tier = AshTiers["far"];
 
-const TIERS: Record<"far" | "near", Tier> = {
-  far: {
-    count: 42,
-    opacity: 0.26,
-    size: [0.06, 0.11],
-    fall: [0.3, 0.7],
-    sway: [0.2, 0.55],
-    freq: [0.25, 0.75],
-    z: [-3.4, -2.6],
-    scroll: 0.24,
-  },
-  near: {
-    count: 18,
-    opacity: 0.5,
-    size: [0.13, 0.24],
-    fall: [0.42, 0.82],
-    sway: [0.25, 0.6],
-    freq: [0.25, 0.75],
-    z: [-1.6, -0.8],
-    scroll: 0.36,
-  },
-};
+const TIERS = ashTiersFor();
 
 const TIER_IDS = ["far", "near"] as const;
 type TierId = (typeof TIER_IDS)[number];
@@ -85,20 +57,30 @@ function between(range: [number, number], r: number): number {
 
 export function AshFall({
   world,
-  palette,
-  character,
+  characterRef,
   reducedMotion,
 }: {
   world: WorldState;
-  palette: ThemePalette;
-  character: CharacterId;
+  characterRef: CharacterRef;
   reducedMotion: boolean;
 }) {
   const farRef = useRef<THREE.InstancedMesh>(null);
   const nearRef = useRef<THREE.InstancedMesh>(null);
   const refs = { far: farRef, near: nearRef };
+  const groupRef = useRef<THREE.Group>(null);
   const map = useMemo(() => softDotTexture(), []);
   const dummy = useMemo(() => new THREE.Object3D(), []);
+  // Ash is a souls-only feature; the colour resolves through the theme
+  // lookup once (the ?ashen variant palette flows through automatically).
+  const ashColor = paletteFor("souls").ash;
+
+  // Always mounted (a hook-safe component cannot early-return before its
+  // hooks); the whole group toggles visible instead — when kitty is active
+  // the batches stay in the graph but are skipped by the renderer.
+  useCharacterSwap(characterRef, (c) => {
+    if (groupRef.current) groupRef.current.visible = c === "souls";
+  });
+
   const motes = useMemo<Mote[]>(() => {
     const rng = createRng("kitty-run/ash/v2");
     const taken: Record<TierId, number> = { far: 0, near: 0 };
@@ -149,10 +131,8 @@ export function AshFall({
     }
   });
 
-  if (character !== "souls") return null;
-
   return (
-    <>
+    <group ref={groupRef} visible={characterRef.current === "souls"}>
       {TIER_IDS.map((tier) => (
         <instancedMesh
           key={tier}
@@ -164,7 +144,7 @@ export function AshFall({
           <planeGeometry args={[1, 1]} />
           <meshBasicMaterial
             map={map}
-            color={palette.ash}
+            color={ashColor}
             transparent
             opacity={TIERS[tier].opacity}
             depthWrite={false}
@@ -172,6 +152,6 @@ export function AshFall({
           />
         </instancedMesh>
       ))}
-    </>
+    </group>
   );
 }

@@ -217,6 +217,29 @@
   transform: scale(1.06);
 }
 
+/* Change-character chip: sits beside the pause button while running. A
+   cosmetic swap — it never pauses the run, and the canvas rethemes
+   imperatively (no re-render, no WebKit background jump). */
+.kitty-run-swap {
+  height: 34px;
+  padding: 0 12px;
+  border-radius: 999px;
+  border: 1px solid rgba(74, 59, 82, 0.22);
+  background: rgba(255, 248, 251, 0.82);
+  color: #4a3b52;
+  font-size: 12px;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  cursor: pointer;
+  pointer-events: auto;
+  transition: transform 0.14s ease, background 0.14s ease;
+}
+
+.kitty-run-swap:hover {
+  background: #fff8fb;
+  transform: scale(1.06);
+}
+
 .kitty-run-heart {
   width: 26px;
   height: 24px;
@@ -265,6 +288,16 @@
 .kitty-run-best {
   font-size: 12px;
   opacity: 0.6;
+  font-variant-numeric: tabular-nums;
+}
+
+/* Live effective-distance meter (running + star bonus) — the number the
+   milestone banner counts against. Quieter than the score, louder than best. */
+.kitty-run-meters {
+  font-size: 13px;
+  font-weight: 600;
+  letter-spacing: 0.01em;
+  opacity: 0.8;
   font-variant-numeric: tabular-nums;
 }
 
@@ -893,6 +926,16 @@
     font-size: 11px;
   }
 
+  .kitty-run-meters {
+    font-size: 12px;
+  }
+
+  .kitty-run-swap {
+    height: 30px;
+    padding: 0 10px;
+    font-size: 11px;
+  }
+
   .kitty-run-combo {
     left: 14px;
     top: 46px;
@@ -1038,6 +1081,12 @@
 }
 
 .kitty-run-page--souls .kitty-run-best {
+  font-family: Georgia, "Times New Roman", serif;
+  color: #e6dfd1;
+  text-shadow: 0 1px 0 rgba(21, 17, 14, 0.9);
+}
+
+.kitty-run-page--souls .kitty-run-meters {
   font-family: Georgia, "Times New Roman", serif;
   color: #e6dfd1;
   text-shadow: 0 1px 0 rgba(21, 17, 14, 0.9);
@@ -1355,6 +1404,20 @@
 }
 
 .kitty-run-page--souls .kitty-run-pause:hover {
+  background: #3a4250;
+}
+
+.kitty-run-page--souls .kitty-run-swap {
+  font-family: Georgia, "Times New Roman", serif;
+  font-weight: 400;
+  letter-spacing: 0.06em;
+  background: rgba(23, 26, 31, 0.9);
+  color: #e6dfd1;
+  border-color: rgba(58, 66, 80, 0.9);
+  box-shadow: inset 0 0 0 1px #3a4250, 0 6px 18px rgba(21, 17, 14, 0.55);
+}
+
+.kitty-run-page--souls .kitty-run-swap:hover {
   background: #3a4250;
 }
 

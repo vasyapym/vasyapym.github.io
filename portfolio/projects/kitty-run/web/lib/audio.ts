@@ -37,6 +37,10 @@
 
 type Ctor = typeof AudioContext;
 
+// PickupKind arrives type-only from the scene's world module — the SFX
+// engine voices pickups per kind (star vs heart) but never reads world state.
+import type { PickupKind } from "../scene/world.ts";
+
 export type SfxMode = "kitty" | "souls";
 
 // One complete register. Public voice methods delegate to whichever set is
@@ -47,7 +51,9 @@ type VoiceSet = {
   doubleJump(): void;
   dash(): void;
   land(impact: number): void;
-  pickup(combo: number): void;
+  // Owner-ordered redesign: pickup is voiced per kind (star vs heart).
+  // "heal" stays minimal because GameLoop also calls heal() on a mend.
+  pickup(kind: PickupKind, combo: number): void;
   heal(): void;
   milestone(): void;
   hit(): void;
@@ -366,8 +372,8 @@ export class Sfx {
   land(impact: number): void {
     this.voiceSet.land(impact);
   }
-  pickup(combo: number): void {
-    this.voiceSet.pickup(combo);
+  pickup(kind: PickupKind, combo: number): void {
+    this.voiceSet.pickup(kind, combo);
   }
   heal(): void {
     this.voiceSet.heal();
@@ -475,16 +481,30 @@ export class Sfx {
         });
       },
 
-      // Pickup chime climbs the pentatonic ladder with combo. Body + delayed
-      // fifth + a fast-decaying octave bell partial for sparkle.
-      pickup: (combo: number) => {
+      // KITTY pickup — OWNER-ORDERED EXCEPTION to the FROZEN kitty-set convention:
+      // the owner explicitly ordered the pickup voice redesigned. Celeste-style
+      // transient (tick) + tuned body + short tail, voiced per kind. Combo climbs
+      // the same pentatonic ladder.
+      pickup: (kind: PickupKind, combo: number) => {
         const step =
           PENTATONIC[combo % PENTATONIC.length] +
           Math.floor(combo / PENTATONIC.length) * 12;
         const hz = PICKUP_BASE_HZ * Math.pow(2, Math.min(24, step) / 12);
-        this.tone({ type: "sine", from: hz, duration: 0.16, volume: 0.16 });
-        this.tone({ type: "sine", from: hz * 1.5, at: 0.04, duration: 0.14, volume: 0.09 });
-        this.tone({ type: "sine", from: hz * 2, duration: 0.09, volume: 0.06 });
+        if (kind === "star") {
+          // bright, fast-decaying, with a sparkle two octaves up
+          this.noiseBurst({ duration: 0.015, volume: 0.05, filterType: "highpass", from: 4200, q: 0.7 });
+          this.tone({ type: "triangle", from: hz, duration: 0.11, volume: 0.17, attack: 0.002 });
+          this.tone({ type: "sine", from: hz * 4, at: 0.012, duration: 0.06, volume: 0.05, attack: 0.001 });
+          this.tone({ type: "sine", from: hz * 3, at: 0.03, duration: 0.05, volume: 0.035 });
+        } else if (kind === "heart") {
+          // warmer, rounder, slightly softer body + gentle fifth
+          this.noiseBurst({ duration: 0.012, volume: 0.03, filterType: "highpass", from: 3000, q: 0.7 });
+          this.tone({ type: "sine", from: hz, duration: 0.16, volume: 0.15, attack: 0.004 });
+          this.tone({ type: "sine", from: hz * 1.5, at: 0.03, duration: 0.12, volume: 0.07, attack: 0.004 });
+        } else {
+          // heal pickup: minimal — heal() carries the voice, avoid doubling up
+          this.tone({ type: "sine", from: hz, duration: 0.08, volume: 0.06, attack: 0.004 });
+        }
       },
 
       // Rising, hopeful pair of triangle sweeps.
@@ -690,25 +710,28 @@ export class Sfx {
         });
       },
 
-      // Soul absorb: the combo ladder walks a minor pentatonic up from A4.
-      // Glassy sine with a soft attack, a quiet fifth arriving a touch late,
-      // and a breathy rising bandpass tail — the light drawn in, not a chime.
-      pickup: (combo: number) => {
+      // SOULS pickup — same transient/body/tail discipline, lower and darker.
+      // Voiced per kind on the minor-pentatonic ladder from A4.
+      pickup: (kind: PickupKind, combo: number) => {
         const step =
           SOULS_PENTATONIC[combo % SOULS_PENTATONIC.length] +
           Math.floor(combo / SOULS_PENTATONIC.length) * 12;
         const hz = SOULS_PICKUP_BASE_HZ * Math.pow(2, Math.min(24, step) / 12);
-        this.tone({ type: "sine", from: hz, duration: 0.26, volume: 0.1, attack: 0.02 });
-        this.tone({ type: "sine", from: hz * 1.5, at: 0.06, duration: 0.22, volume: 0.05, attack: 0.02 });
-        this.noiseBurst({
-          duration: 0.3,
-          volume: 0.02,
-          filterType: "bandpass",
-          from: hz * 2,
-          to: hz * 4,
-          q: 3,
-          at: 0.02,
-        });
+        if (kind === "star") {
+          // crisp souls-shard: brighter body, fast decay, struck-metal shimmer
+          this.noiseBurst({ duration: 0.014, volume: 0.04, filterType: "highpass", from: 3500, q: 0.7 });
+          this.tone({ type: "triangle", from: hz, duration: 0.12, volume: 0.14, attack: 0.004 });
+          this.tone({ type: "sine", from: hz * 3, at: 0.02, duration: 0.06, volume: 0.03 });
+          this.ring({ partials: [hz * 2, hz * 3.1], duration: 0.08, volume: 0.02, at: 0.01 });
+        } else if (kind === "heart") {
+          // warmer, rounder, slower — a life-ember, not a shard
+          this.noiseBurst({ duration: 0.012, volume: 0.025, filterType: "highpass", from: 2500, q: 0.7 });
+          this.tone({ type: "sine", from: hz, duration: 0.2, volume: 0.14, attack: 0.012 });
+          this.tone({ type: "sine", from: hz * 1.5, at: 0.05, duration: 0.16, volume: 0.06, attack: 0.012 });
+        } else {
+          // heal pickup: minimal — heal() ("estus") carries the voice
+          this.tone({ type: "sine", from: hz, duration: 0.1, volume: 0.05, attack: 0.02 });
+        }
       },
 
       // Estus: a warm lowpassed swell rising through the chest register, a

@@ -2,13 +2,22 @@
 // and a per-character stack of tileable silhouettes (BACKDROPS lookup).
 // Every layer scrolls at its own fraction of the run distance — the
 // parallax that sells the depth.
+//
+// A mid-run character switch cannot map-swap here: the two themes have
+// different LAYER COUNTS (kitty 2 + no haze, souls 3 + 2 haze banks) and
+// different cloud styles. So both backdrops are mounted once (each builds its
+// own textures against a FIXED character, no per-frame allocation) and one
+// group's `visible` is toggled from characterRef each frame — the same
+// dual-mount discipline the player rig uses.
 
 import { useMemo, useRef } from "react";
 import * as THREE from "three";
 import { useFrame } from "@react-three/fiber";
 import { createRng } from "../lib/rng.ts";
 import { paletteFor, type CharacterId } from "../lib/theme.ts";
-import { BACKDROPS, skyTexture } from "../lib/textures.ts";
+import { useCharacterSwap, type CharacterRef } from "./themeSwap.ts";
+import { skyTexture } from "../lib/textures.ts";
+import { backdropFor } from "../lib/ashenVariants.ts";
 import type { WorldState } from "./world.ts";
 
 const SPAN = 64;
@@ -65,17 +74,17 @@ function ScrollingPlane(props: {
   );
 }
 
-export function Parallax({
+// One theme's complete backdrop, built once against a fixed character.
+// ?ashen=N reroutes the souls spec through the candidate scaffold.
+function Backdrop({
   world,
   character,
 }: {
   world: WorldState;
   character: CharacterId;
 }) {
-  // The theme is read as a prop, so a character switch rebuilds exactly
-  // these textures (same seeds — same shapes, new colours).
   const palette = paletteFor(character);
-  const backdrop = useMemo(() => BACKDROPS[character], [character]);
+  const backdrop = useMemo(() => backdropFor(character), [character]);
   const skyMap = useMemo(() => skyTexture(palette), [palette]);
   const layerMaps = useMemo(
     () => backdrop.layers.map((layer) => layer.build(palette)),
@@ -174,6 +183,31 @@ export function Parallax({
           />
         </mesh>
       ))}
+    </>
+  );
+}
+
+export function Parallax({
+  world,
+  characterRef,
+}: {
+  world: WorldState;
+  characterRef: CharacterRef;
+}) {
+  const kittyRef = useRef<THREE.Group>(null);
+  const soulsRef = useRef<THREE.Group>(null);
+  useCharacterSwap(characterRef, (c) => {
+    if (kittyRef.current) kittyRef.current.visible = c === "kitty";
+    if (soulsRef.current) soulsRef.current.visible = c === "souls";
+  });
+  return (
+    <>
+      <group ref={kittyRef} visible={characterRef.current === "kitty"}>
+        <Backdrop world={world} character="kitty" />
+      </group>
+      <group ref={soulsRef} visible={characterRef.current === "souls"}>
+        <Backdrop world={world} character="souls" />
+      </group>
     </>
   );
 }

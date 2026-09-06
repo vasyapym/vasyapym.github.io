@@ -10,27 +10,39 @@ import {
   EffectComposer,
   Vignette,
 } from "@react-three/postprocessing";
-import type { ChromaticAberrationEffect } from "postprocessing";
+import type { ChromaticAberrationEffect, VignetteEffect } from "postprocessing";
 import type { CharacterId } from "../lib/theme.ts";
+import { soulsVignette } from "../lib/ashenVariants.ts";
+import { useCharacterSwap, type CharacterRef } from "./themeSwap.ts";
 import type { WorldState } from "./world.ts";
 
 // The dark theme leans on a deeper vignette; the pastel original stays as
-// it shipped.
+// it shipped. The souls value is resolved through the ?ashen scaffold, so a
+// candidate also carries its own vignette depth (A 0.24 / B 0.30 / C 0.34).
 const VIGNETTE_DARKNESS: Record<CharacterId, number> = {
   kitty: 0.26,
-  souls: 0.26,
+  souls: soulsVignette(),
 };
 
 export function Effects({
   world,
   reducedMotion,
-  character,
+  characterRef,
 }: {
   world: WorldState;
   reducedMotion: boolean;
-  character: CharacterId;
+  characterRef: CharacterRef;
 }) {
   const caRef = useRef<ChromaticAberrationEffect>(null);
+  const vignetteRef = useRef<VignetteEffect>(null);
+
+  // Mid-run theme swap: the vignette depth follows the active character
+  // imperatively (this also resolves the recorded 0.26/0.26 discrepancy —
+  // each candidate now sets its own souls depth).
+  useCharacterSwap(characterRef, (c) => {
+    const vignette = vignetteRef.current;
+    if (vignette) vignette.darkness = VIGNETTE_DARKNESS[c];
+  });
 
   // ?plain skips the post chain entirely — a debug/low-end escape hatch for
   // weak GPUs where the composer dominates the frame budget.
@@ -60,7 +72,11 @@ export function Effects({
         mipmapBlur
       />
       <ChromaticAberration ref={caRef} offset={[0, 0]} />
-      <Vignette darkness={VIGNETTE_DARKNESS[character]} offset={0.3} />
+      <Vignette
+        ref={vignetteRef}
+        darkness={VIGNETTE_DARKNESS[characterRef.current]}
+        offset={0.3}
+      />
     </EffectComposer>
   );
 }

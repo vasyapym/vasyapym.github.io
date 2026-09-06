@@ -7,7 +7,8 @@ import { useMemo, useRef } from "react";
 import * as THREE from "three";
 import { useFrame } from "@react-three/fiber";
 import { groundY } from "../lib/ground.ts";
-import { paletteFor, type CharacterId } from "../lib/theme.ts";
+import { paletteFor } from "../lib/theme.ts";
+import { useCharacterSwap, type CharacterRef } from "./themeSwap.ts";
 import type { WorldState } from "./world.ts";
 
 const X_LEFT = -16;
@@ -68,12 +69,24 @@ function updateRibbonSpan(
 
 export function Ground({
   world,
-  character,
+  characterRef,
 }: {
   world: WorldState;
-  character: CharacterId;
+  characterRef: CharacterRef;
 }) {
-  const palette = paletteFor(character);
+  const bodyMatRef = useRef<THREE.MeshBasicMaterial>(null);
+  const bandMatRef = useRef<THREE.MeshBasicMaterial>(null);
+  const edgeMatRef = useRef<THREE.MeshBasicMaterial>(null);
+
+  // Mid-run theme swap: the three ribbon materials recolour imperatively —
+  // the per-frame geometry rewrite below never allocates and never re-renders.
+  useCharacterSwap(characterRef, (c) => {
+    const p = paletteFor(c);
+    if (bodyMatRef.current) bodyMatRef.current.color.set(p.groundBody);
+    if (bandMatRef.current) bandMatRef.current.color.set(p.groundTop);
+    if (edgeMatRef.current) edgeMatRef.current.color.set(p.groundDot);
+  });
+
   const bandRef = useRef<THREE.Mesh>(null);
   const edgeRef = useRef<THREE.Mesh>(null);
   const bodyRef = useRef<THREE.Mesh>(null);
@@ -91,13 +104,22 @@ export function Ground({
   return (
     <group>
       <mesh ref={bodyRef} geometry={bodyGeometry} position={[0, 0, -0.05]}>
-        <meshBasicMaterial color={palette.groundBody} />
+        <meshBasicMaterial
+          ref={bodyMatRef}
+          color={paletteFor(characterRef.current).groundBody}
+        />
       </mesh>
       <mesh ref={bandRef} geometry={bandGeometry}>
-        <meshBasicMaterial color={palette.groundTop} />
+        <meshBasicMaterial
+          ref={bandMatRef}
+          color={paletteFor(characterRef.current).groundTop}
+        />
       </mesh>
       <mesh ref={edgeRef} geometry={edgeGeometry} position={[0, 0, 0.01]}>
-        <meshBasicMaterial color={palette.groundDot} />
+        <meshBasicMaterial
+          ref={edgeMatRef}
+          color={paletteFor(characterRef.current).groundDot}
+        />
       </mesh>
     </group>
   );

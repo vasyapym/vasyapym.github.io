@@ -24,6 +24,7 @@ import {
 } from "../lib/framing.ts";
 import { PALETTE } from "../lib/palette.ts";
 import { THEMES, type CharacterId } from "../lib/theme.ts";
+import type { CharacterRef } from "./themeSwap.ts";
 import type { WorldState } from "./world.ts";
 
 const SOULS_P = THEMES.souls.palette;
@@ -33,9 +34,12 @@ const ECHO_OPACITY = 0.66;
 // The holder's z: the quad reconstructs a fullscreen plane at this depth,
 // and the RT capture is sized to fill the frustum here.
 const ECHO_Z = -1.2;
-// The rig-only layer: the main camera never draws it; a dedicated RT camera
-// draws nothing else.
-const RIG_LAYER = 1;
+// The rig-only layers: the main camera never draws either; the dedicated RT
+// camera draws exactly one of them per frame. Two layers (not one + visibility)
+// guarantee only the ACTIVE ghost is captured, with no dependency on useFrame
+// ordering against the capture pass.
+const RIG_LAYER_KITTY = 1;
+const RIG_LAYER_SOULS = 2;
 
 // The restyle: every rig colour maps into one faded family pulled toward
 // the scene's own mood, so the copy reads as a watercolour print of the
@@ -96,14 +100,15 @@ function retint(material: THREE.Material, map: Record<string, string>): void {
 export function Echo({
   world,
   echo,
-  character,
+  characterRef,
 }: {
   world: WorldState;
   echo: WorldState;
-  character: CharacterId;
+  characterRef: CharacterRef;
 }) {
   const holder = useRef<THREE.Group>(null);
-  const rig = useRef<THREE.Group>(null);
+  const rigKitty = useRef<THREE.Group>(null);
+  const rigSouls = useRef<THREE.Group>(null);
   const quad = useRef<THREE.Mesh>(null);
 
   const { gl, scene, camera, size, viewport } = useThree();
@@ -119,12 +124,13 @@ export function Echo({
     return target;
   }, []);
 
-  // A camera that only ever sees the rig layer; its transform + projection
-  // are mirrored from the main camera each frame (fov animates) so the
-  // capture lands pixel-for-pixel where the rig would otherwise draw.
+  // A camera that only ever sees the active ghost rig's layer; its transform
+  // + projection are mirrored from the main camera each frame (fov animates)
+  // so the capture lands pixel-for-pixel where the rig would otherwise draw.
+  // The initial layer is re-pinned every frame before the capture.
   const rtCamera = useMemo(() => {
     const cam = new THREE.PerspectiveCamera();
-    cam.layers.set(RIG_LAYER);
+    cam.layers.set(RIG_LAYER_KITTY);
     return cam;
   }, []);
 
@@ -150,30 +156,39 @@ export function Echo({
   const camDir = useMemo(() => new THREE.Vector3(), []);
 
   // The main camera is shared with the composer (and its animated fov); it
-  // must never draw the rig directly — the echo only ever reaches the screen
+  // must never draw the rigs directly — the echo only ever reaches the screen
   // through the composite quad.
   useEffect(() => {
-    camera.layers.disable(RIG_LAYER);
+    camera.layers.disable(RIG_LAYER_KITTY);
+    camera.layers.disable(RIG_LAYER_SOULS);
   }, [camera]);
 
-  // Retint once per character and move the whole rig subtree onto the
-  // rig-only layer so the main camera skips it and the RT camera captures
-  // it alone. The rig is keyed by character, so a switch builds fresh
-  // materials and this pass re-maps them into the new faded family.
+  // Both ghost rigs are dual-mounted with FIXED characters (their internal
+  // memos never rebuild); each rig is walked ONCE at mount to join its own
+  // render layer and take its own faded family — the FADED map is keyed by
+  // hex, so the ?ashen variant palette flows through automatically. Both
+  // rigs stay opaque; the single ECHO_OPACITY fade still happens on the
+  // composite quad.
   useEffect(() => {
-    const group = rig.current;
-    if (!group) return;
-    const map = FADED[character];
-    group.traverse((obj) => {
-      obj.layers.set(RIG_LAYER);
-      const mesh = obj as Partial<THREE.Mesh>;
-      if (!mesh.isMesh || !mesh.material) return;
-      const materials = Array.isArray(mesh.material)
-        ? mesh.material
-        : [mesh.material];
-      for (const material of materials) retint(material, map);
-    });
-  }, [character]);
+    const assign = (
+      group: THREE.Group | null,
+      layer: number,
+      map: Record<string, string>,
+    ): void => {
+      if (!group) return;
+      group.traverse((obj) => {
+        obj.layers.set(layer);
+        const mesh = obj as Partial<THREE.Mesh>;
+        if (!mesh.isMesh || !mesh.material) return;
+        const materials = Array.isArray(mesh.material)
+          ? mesh.material
+          : [mesh.material];
+        for (const material of materials) retint(material, map);
+      });
+    };
+    assign(rigKitty.current, RIG_LAYER_KITTY, FADED.kitty);
+    assign(rigSouls.current, RIG_LAYER_SOULS, FADED.souls);
+  }, []);
 
   // Keep the RT at framebuffer resolution as the viewport / dpr change.
   useEffect(() => {
@@ -225,11 +240,15 @@ export function Echo({
     quadMaterial.opacity = ECHO_OPACITY * presence;
 
     // Mirror the main camera so the capture aligns. copy() overwrites the
-    // layer mask, so re-pin the rig-only layer AFTER the whole-object copy;
-    // recursive=false to avoid cloning any camera children.
+    // layer mask, so re-pin the active rig-only layer AFTER the whole-object
+    // copy; recursive=false to avoid cloning any camera children. Only the
+    // ACTIVE ghost's layer is captured — the other rig is invisible to this
+    // camera no matter what order the frame callbacks ran in.
     const cam = state.camera as THREE.PerspectiveCamera;
     rtCamera.copy(cam, false);
-    rtCamera.layers.set(RIG_LAYER);
+    rtCamera.layers.set(
+      characterRef.current === "souls" ? RIG_LAYER_SOULS : RIG_LAYER_KITTY,
+    );
 
     // Screen-locked quad. The camera is NOT axis-aligned — it yaws toward
     // the run-ahead side and pitches down, and its fov breathes with dash
@@ -265,8 +284,11 @@ export function Echo({
 
   return (
     <group ref={holder} position={[0, 0, ECHO_Z]}>
-      <group ref={rig}>
-        <Kitty key={character} world={echo} character={character} />
+      <group ref={rigKitty}>
+        <Kitty world={echo} character="kitty" />
+      </group>
+      <group ref={rigSouls}>
+        <Kitty world={echo} character="souls" />
       </group>
       <mesh
         ref={quad}
