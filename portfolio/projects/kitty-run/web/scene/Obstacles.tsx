@@ -30,7 +30,7 @@ const CRATE_LID: Record<CharacterId, string | null> = {
 // ?ashen=N flows through automatically: THEMES.souls carries the variant.
 const CRATE_MAPS: Record<CharacterId, THREE.CanvasTexture> = {
   kitty: crateTexture(paletteFor("kitty"), { lid: CRATE_LID.kitty ?? undefined }),
-  souls: crateTexture(paletteFor("souls"), { lid: CRATE_LID.souls ?? undefined }),
+  souls: crateTexture(paletteFor("souls"), { lid: CRATE_LID.souls ?? undefined, worn: true }),
 };
 
 export function Obstacles({

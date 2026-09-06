@@ -59,17 +59,21 @@ const FADED: Record<CharacterId, Record<string, string>> = {
     [PALETTE.outlineInk]: "#c49cb2",
   },
   souls: {
-    [SOULS_P.kittyWhite]: "#efe9df",
-    [SOULS_P.suitPink]: "#b39a8c",
-    [SOULS_P.suitDeep]: "#7d6a5e",
-    [SOULS_P.bowRed]: "#969290",
-    [SOULS_P.bowDeep]: "#6b6661",
-    [SOULS_P.noseYellow]: "#d6a57c",
-    [SOULS_P.cheek]: "#c0a999",
-    [SOULS_P.outlineInk]: "#4a423c",
-    // The sun-rim plates join the ash-memory family; unmapped, the fringe
-    // would glow full-strength on the faded ghost.
-    [SOULS_P.cloudLit]: "#c9a284",
+    [SOULS_P.kittyWhite]: "#e4e0d8", // dimmed cold bone
+    [SOULS_P.suitPink]: "#8f8b85", // cold ash cloth
+    [SOULS_P.suitDeep]: "#5e5b57", // deep cold cloth
+    [SOULS_P.bowRed]: "#8c8f94", // cold steel
+    [SOULS_P.bowDeep]: "#5d6065", // dark cold steel
+    [SOULS_P.noseYellow]: "#c6905a", // faded ember — the one surviving warmth
+    [SOULS_P.cheek]: "#9ea19f", // cold neutral
+    [SOULS_P.outlineInk]: "#3e4043", // ink lifted, cold
+    // The sun-rim plates (and now the pauldron rim + seam-family) join the
+    // ash-memory family; unmapped, the fringe would glow full-strength.
+    [SOULS_P.cloudLit]: "#9ba1a8", // cold rim memory
+    // SOULS_MATERIAL literals mirrored as raw hex — previously ABSENT, so the
+    // ghost rendered the brow occlusion and blade fuller at full strength.
+    "#26292d": "#3a3d41", // SOULS_MATERIAL.steelShadow → faded cold occlusion
+    "#a9b0ba": "#9297a0", // SOULS_MATERIAL.bladeFuller → faded cold fuller
   },
 };
 

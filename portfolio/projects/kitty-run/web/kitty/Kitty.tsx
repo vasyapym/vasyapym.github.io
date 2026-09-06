@@ -180,6 +180,42 @@ function pauldronShape(pad = 0): THREE.Shape {
   return shape;
 }
 
+// souls material overlay shapes (drawn INSIDE existing silhouettes) --------
+// A thin arc on the pauldron's TOP curve — the sun catching the steel.
+function pauldronRimShape(): THREE.Shape {
+  const w = 0.2;
+  const top = 0.13;
+  const shape = new THREE.Shape();
+  shape.moveTo(-w, top - 0.04);
+  shape.quadraticCurveTo(0, top - 0.005, w, top - 0.04);
+  shape.quadraticCurveTo(0, top - 0.085, -w, top - 0.04);
+  shape.closePath();
+  return shape;
+}
+
+// A hard crescent hugging the pauldron's LOWER rim (arm shading under steel).
+function pauldronShadowShape(): THREE.Shape {
+  const w = 0.24;
+  const bot = -0.09;
+  const shape = new THREE.Shape();
+  shape.moveTo(-w, bot);
+  shape.quadraticCurveTo(0, bot - 0.045, w, bot);
+  shape.quadraticCurveTo(0, bot + 0.02, -w, bot);
+  shape.closePath();
+  return shape;
+}
+
+// A thin band along the tunic bottom hem (cloth weight); stays inside the
+// dress silhouette (dress hem dips to y 0.06 at centre, 0.2 at the sides).
+function tunicHemShape(): THREE.Shape {
+  const shape = new THREE.Shape();
+  shape.moveTo(-0.6, 0.2);
+  shape.quadraticCurveTo(0, 0.06, 0.6, 0.2);
+  shape.quadraticCurveTo(0, 0.125, -0.6, 0.2);
+  shape.closePath();
+  return shape;
+}
+
 function bladeShape(hw: number, len: number): THREE.Shape {
   const h = len / 2;
   const shape = new THREE.Shape();
@@ -312,7 +348,11 @@ export function Kitty({
       // souls material overlays (drawn inside existing silhouettes)
       chip: new THREE.ShapeGeometry(rectShape(0.18, 0.05), seg),
       fuller: new THREE.ShapeGeometry(rectShape(0.032, 1.6), seg),
+      bladeEdge: new THREE.ShapeGeometry(rectShape(0.026, 1.5), seg),
       capeFold: new THREE.ShapeGeometry(capeFoldShape(), seg),
+      pauldronRim: new THREE.ShapeGeometry(pauldronRimShape(), seg),
+      pauldronShadow: new THREE.ShapeGeometry(pauldronShadowShape(), seg),
+      tunicHem: new THREE.ShapeGeometry(tunicHemShape(), seg),
     };
   }, []);
 
@@ -447,7 +487,8 @@ export function Kitty({
               (blade +y, origin at the crossguard) and rotated so the blade
               runs up-left behind the head and only the tip clears its
               silhouette; grip/pommel show past the right arm. Sword z:
-              blade+grip ink 0.01 / fill 0.04, guard+pommel ink 0.07 /
+              blade+grip ink 0.01 / fill 0.04, fuller + edge-light 0.06
+              (inside the blade, non-overlapping in x), guard+pommel ink 0.07 /
               fill 0.10 — below the arm ink (0.13) and clear of the dress
               footprint, so the dress ladder is untouched. */}
           {isSouls && (
@@ -465,6 +506,14 @@ export function Kitty({
                   blade's own silhouette, clear of the tip curve and guard. */}
               <mesh geometry={geo.fuller} position={[0, 1.28, 0.06]}>
                 <meshBasicMaterial color={SOULS_MATERIAL.bladeFuller} />
+              </mesh>
+              {/* Edge light: a thin kittyWhite line down the blade's
+                  sun-facing (+x) edge — worn steel catching the dying light.
+                  Inside the blade silhouette (x 0.052, blade hw 0.085), clear
+                  of the fuller (x 0, no xy overlap) and the tip curve. z 0.06,
+                  between the blade fill (0.04) and the arm ink (0.13). */}
+              <mesh geometry={geo.bladeEdge} position={[0.052, 1.28, 0.06]}>
+                <meshBasicMaterial color={palette.kittyWhite} />
               </mesh>
               <Part
                 geometry={geo.grip}
@@ -514,6 +563,15 @@ export function Kitty({
             outline={1.05}
             outlineColor={palette.outlineInk}
           />
+          {/* souls: tunic hem occlusion — a suitDeep band tucked along the
+              bottom hem (cloth weight), inside the dress silhouette, clear of
+              the belt (y 0.52) and the feet. z 0.14 (dress fill 0.12, gap
+              0.02); one value step from suitPink. */}
+          {isSouls && (
+            <mesh geometry={geo.tunicHem} position={[0, 0, 0.14]}>
+              <meshBasicMaterial color={palette.suitDeep} />
+            </mesh>
+          )}
 
           {/* souls: leather belt across the tunic, steel buckle. The belt
               also pools a hard occlusion band on the tunic just below it. */}
@@ -558,18 +616,39 @@ export function Kitty({
 
           {/* souls: pauldrons over the arm pivots. They straddle the head's
               lower edge (head fill 0.22), so they sit above it: ink 0.25 /
-              fill 0.28. Static — the arm ellipses barely move visually. */}
+              fill 0.28, top rim + under-edge occlusion 0.30 (top and bottom
+              arcs don't overlap in xy). Static — the arm ellipses barely
+              move visually. */}
           {isSouls &&
             [-1, 1].map((side) => (
-              <Part
-                key={side}
-                geometry={geo.pauldron}
-                inkGeometry={geo.pauldronInk}
-                color={palette.bowRed}
-                z={0.28}
-                position={[side * 0.64, 0.98]}
-                outlineColor={palette.outlineInk}
-              />
+              <group key={side}>
+                <Part
+                  geometry={geo.pauldron}
+                  inkGeometry={geo.pauldronInk}
+                  color={palette.bowRed}
+                  z={0.28}
+                  position={[side * 0.64, 0.98]}
+                  outlineColor={palette.outlineInk}
+                />
+                {/* Top rim: a thin cloudLit arc on the upper curve — the low
+                    sun catching the steel; reinforces the "brightest solid
+                    figure" read. Inside the silhouette (w 0.2 < 0.27). */}
+                <mesh
+                  geometry={geo.pauldronRim}
+                  position={[side * 0.64, 0.98, 0.3]}
+                >
+                  <meshBasicMaterial color={palette.cloudLit} />
+                </mesh>
+                {/* Under-edge occlusion: a hard bowDeep crescent on the lower
+                    rim (arm shading under steel), one value step from the
+                    bowRed fill. */}
+                <mesh
+                  geometry={geo.pauldronShadow}
+                  position={[side * 0.64, 0.98, 0.3]}
+                >
+                  <meshBasicMaterial color={palette.bowDeep} />
+                </mesh>
+              </group>
             ))}
 
           {/* head */}

@@ -191,7 +191,7 @@ export function contactShadowTexture(): THREE.CanvasTexture {
 // catching the lid edge — living light on a dead object.
 export function crateTexture(
   p: ThemePalette,
-  opts?: { lid?: string },
+  opts?: { lid?: string; worn?: boolean },
 ): THREE.CanvasTexture {
   const rng = createRng("kitty-run/crate/v1");
   const { canvas, ctx } = makeCanvas(256, 256);
@@ -210,18 +210,58 @@ export function crateTexture(
       ctx.fill();
     }
   }
-  // Lid light. Painted last so it warms the dots too; horizontally clipped to
-  // the interior (the 18px border runs 0..18, so the face starts at 18) and
-  // faded out by ~26% of the canvas height. Consumes no rng.
+
+  // Worn iron (souls only). ALL new rng draws live HERE — strictly after the
+  // dot loop, and ONLY when opts.worn is set — so the pastel call reproduces
+  // today's exact stream (16 dot radii) and byte-identical pixels.
+  if (opts?.worn) {
+    const faceLo = 30;
+    const faceHi = 226;
+    // Rust pools: 3 hard flat blotches, one value from the face toward ink
+    // (obstacleDeep), rgba so they darken the plum without a gradient.
+    for (let i = 0; i < 3; i += 1) {
+      const cx = faceLo + rng() * (faceHi - faceLo);
+      const cy = faceLo + rng() * (faceHi - faceLo);
+      const r = 20 + rng() * 26;
+      ctx.fillStyle = rgba(p.obstacleDeep, 0.5);
+      ctx.beginPath();
+      ctx.arc(cx, cy, r, 0, Math.PI * 2);
+      ctx.fill();
+    }
+    // Scuff streaks: 2 bright thin scratches (obstacleDot) — worn metal
+    // catching light. Flat strokes, low alpha.
+    ctx.strokeStyle = rgba(p.obstacleDot, 0.34);
+    ctx.lineWidth = 3;
+    for (let i = 0; i < 2; i += 1) {
+      const x0 = faceLo + rng() * (faceHi - faceLo);
+      const y0 = faceLo + rng() * (faceHi - faceLo);
+      const len = 40 + rng() * 60;
+      ctx.beginPath();
+      ctx.moveTo(x0, y0);
+      ctx.lineTo(x0 + len, y0 - len * 0.4);
+      ctx.stroke();
+    }
+  }
+
+  // Lid light. Worn iron: a THIN BRIGHT EDGE LINE at the very top of the face
+  // (rim-lit metal edge) + a faint FLAT wash below. Pastel: the original soft
+  // warm gradient band, untouched. Consumes no rng in either path.
   if (opts?.lid) {
     const faceLeft = 18;
     const faceWidth = 238 - faceLeft;
-    const fadeEnd = Math.round(256 * 0.26);
-    const grad = ctx.createLinearGradient(0, faceLeft, 0, fadeEnd);
-    grad.addColorStop(0, rgba(opts.lid, 0.32));
-    grad.addColorStop(1, rgba(opts.lid, 0));
-    ctx.fillStyle = grad;
-    ctx.fillRect(faceLeft, faceLeft, faceWidth, fadeEnd - faceLeft);
+    if (opts.worn) {
+      ctx.fillStyle = rgba(opts.lid, 0.9);
+      ctx.fillRect(faceLeft, faceLeft, faceWidth, 6);
+      ctx.fillStyle = rgba(opts.lid, 0.1);
+      ctx.fillRect(faceLeft, faceLeft + 6, faceWidth, 26);
+    } else {
+      const fadeEnd = Math.round(256 * 0.26);
+      const grad = ctx.createLinearGradient(0, faceLeft, 0, fadeEnd);
+      grad.addColorStop(0, rgba(opts.lid, 0.32));
+      grad.addColorStop(1, rgba(opts.lid, 0));
+      ctx.fillStyle = grad;
+      ctx.fillRect(faceLeft, faceLeft, faceWidth, fadeEnd - faceLeft);
+    }
   }
   return toTexture(canvas);
 }
@@ -229,6 +269,43 @@ export function crateTexture(
 function rgba(hex: string, a: number): string {
   const c = hexRgb(hex);
   return `rgba(${c.r}, ${c.g}, ${c.b}, ${a})`;
+}
+
+// Tileable weathered-stone joints for the souls ground: a flat fill plus
+// darker mortar lines (horizontal courses + running-bond vertical joints).
+// OPAQUE on purpose — a transparent map on the band would reveal the body
+// plane behind it, not the band colour — so the souls ground material carries
+// white and lets the baked palette show; the pastel ground passes no map and
+// stays byte-identical. No rng: the joints sit on a clean 128px period so the
+// tile wraps seamlessly under repeat + scroll.
+export function stoneJointTexture(
+  fill: string,
+  joint: string,
+  courses: number,
+): THREE.CanvasTexture {
+  const { canvas, ctx } = makeCanvas(256, 256);
+  ctx.fillStyle = fill;
+  ctx.fillRect(0, 0, 256, 256);
+  ctx.fillStyle = joint;
+  const courseH = 256 / courses;
+  // Horizontal mortar courses (including the top/bottom lip lines).
+  for (let r = 0; r <= courses; r += 1) {
+    const y = Math.min(Math.round(r * courseH), 253);
+    ctx.fillRect(0, y, 256, 3);
+  }
+  // Vertical joints, running bond (alternate rows shift 64px). x = 0 and 128
+  // give a joint exactly at the 256 wrap, so the tile is seamless.
+  for (let r = 0; r < courses; r += 1) {
+    const y = Math.round(r * courseH);
+    const off = (r % 2) * 64;
+    for (const jx of [off, off + 128]) {
+      ctx.fillRect(jx, y, 3, Math.ceil(courseH));
+    }
+  }
+  const tex = toTexture(canvas);
+  tex.wrapS = THREE.RepeatWrapping;
+  tex.wrapT = THREE.ClampToEdgeWrapping;
+  return tex;
 }
 
 // Long streaky dusk cloud: dark slate bands whose undersides catch a warm
