@@ -1,0 +1,3 @@
+{"type":"node.added","id":"n1","ts":"2026-09-06T00:58:29.796Z","kind":"snapshot","actor":"user","title":"portfolio/projects/spine project start"}
+{"type":"node.added","id":"n2","ts":"2026-09-06T00:58:29.797Z","kind":"iteration","actor":"user","title":"feat(spine): draggable Flexbox/Grid layout engine — Go core compiled to WebAssembly","artifacts":[{"kind":"git-commit","ref":"87cd63b"}],"meta":{"source":"auto"}}
+{"type":"edge.added","id":"e1","ts":"2026-09-06T00:58:29.797Z","from":"n1","to":"n2","rel":"continues"}
