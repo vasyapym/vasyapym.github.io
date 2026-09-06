@@ -14,10 +14,6 @@ import * as THREE from "three";
 import { useFrame } from "@react-three/fiber";
 import { PALETTE } from "../lib/palette.ts";
 import { paletteFor, type CharacterId } from "../lib/theme.ts";
-import {
-  KNIGHT_VARIANTS,
-  type KnightVariantId,
-} from "../lib/knightVariants.tsx";
 import { computePose } from "./rig.ts";
 import type { WorldState } from "../scene/world.ts";
 
@@ -245,14 +241,11 @@ type PartProps = {
   inkGeometry?: THREE.ShapeGeometry;
 };
 
-export type { PartProps };
-
 // One silhouette part: an ink copy slightly grown behind the fill reads as
 // a crisp uniform outline at any resolution. The z gap between the copy and
 // the fill is generous on purpose — thin offsets z-fight on mobile depth
-// buffers and the character turns see-through. Exported for the knight
-// costume variants (knightVariants.ts), which mount their own gear parts.
-export function Part({
+// buffers and the character turns see-through.
+function Part({
   geometry,
   color,
   z,
@@ -292,18 +285,12 @@ export function Part({
 export function Kitty({
   world,
   character,
-  knight = null,
 }: {
   world: WorldState;
   character: CharacterId;
-  // The costume variant (round 47c): ?souls&knight=a..e. Null = the shipped
-  // knight. Per-page-load stable — it never changes mid-run, so the memoised
-  // canvas discipline is untouched.
-  knight?: KnightVariantId | null;
 }) {
   const palette = paletteFor(character);
   const isSouls = character !== "kitty";
-  const variant = isSouls && knight ? KNIGHT_VARIANTS[knight] : null;
   const rootRef = useRef<THREE.Group>(null);
   const squashRef = useRef<THREE.Group>(null);
   const tiltRef = useRef<THREE.Group>(null);
@@ -371,10 +358,6 @@ export function Kitty({
 
   useFrame(() => {
     const k = world.kitty;
-    // The root rides the sim's y for EVERY body (the variant rigs animate
-    // themselves from world.kitty and need only this placement).
-    if (rootRef.current) rootRef.current.position.y = k.y;
-    if (variant) return;
     const pose = computePose({
       runPhase: k.runPhase,
       grounded: k.grounded,
@@ -387,6 +370,7 @@ export function Kitty({
       now: world.time,
     });
     if (!rootRef.current || !squashRef.current || !tiltRef.current) return;
+    rootRef.current.position.y = k.y;
     rootRef.current.visible = pose.visible;
     squashRef.current.position.y = pose.bobY;
     squashRef.current.scale.set(pose.scaleX, pose.scaleY, 1);
@@ -442,19 +426,13 @@ export function Kitty({
 
   return (
     <group ref={rootRef} scale={ROOT_SCALE}>
-      {variant ? (
-        /* costume variant (round 47c, full-rig contract): the whole body
-           plan is the variant's — it mounts at the root (scale 0.72 applied)
-           and animates itself from world.kitty. */
-        <variant.rig palette={palette} world={world} />
-      ) : (
       <group ref={squashRef}>
         <group ref={tiltRef}>
           {/* souls: two-layer tattered cape hung from the shoulder line.
               z ladder (body): cape back ink -0.11 / fill -0.08, cape front
               ink -0.05 / fill -0.02 — everything else in the body sits at
               ≥ 0.00, and the hem never reaches the feet's x range. */}
-          {isSouls && !variant && (
+          {isSouls && (
             <>
               <group ref={capeBackRef} position={[0, 1.0, 0]}>
                 <Part
@@ -513,7 +491,7 @@ export function Kitty({
               (inside the blade, non-overlapping in x), guard+pommel ink 0.07 /
               fill 0.10 — below the arm ink (0.13) and clear of the dress
               footprint, so the dress ladder is untouched. */}
-          {isSouls && !variant && (
+          {isSouls && (
             <group position={[0.75, 1.18, 0]} rotation={[0, 0, 1.0]}>
               <Part
                 geometry={geo.blade}
@@ -571,7 +549,7 @@ export function Kitty({
               frozen arm and pauldron on purpose — those ARE the lit contour
               there. Reuses the dress geometry; the x offset does all the
               work, the frozen tunic edge is never reshaped. */}
-          {isSouls && !variant && (
+          {isSouls && (
             <mesh geometry={geo.dress} position={[0.08, 0, -0.15]}>
               <meshBasicMaterial color={palette.cloudLit} />
             </mesh>
@@ -595,17 +573,13 @@ export function Kitty({
             </mesh>
           )}
 
-          {/* souls: tunic collar mark — shared with every variant (the one
-              piece of the shipped outfit that reads as part of the tunic). */}
-          {isSouls && (
-            <mesh geometry={geo.visorSlit} scale={0.62} position={[0, 0.38, 0.15]}>
-              <meshBasicMaterial color={palette.suitDeep} />
-            </mesh>
-          )}
           {/* souls: leather belt across the tunic, steel buckle. The belt
               also pools a hard occlusion band on the tunic just below it. */}
-          {isSouls && !variant && (
+          {isSouls && (
             <>
+              <mesh geometry={geo.visorSlit} scale={0.62} position={[0, 0.38, 0.15]}>
+                <meshBasicMaterial color={palette.suitDeep} />
+              </mesh>
               <Part
                 geometry={geo.belt}
                 color={palette.suitDeep}
@@ -645,7 +619,7 @@ export function Kitty({
               fill 0.28, top rim + under-edge occlusion 0.30 (top and bottom
               arcs don't overlap in xy). Static — the arm ellipses barely
               move visually. */}
-          {isSouls && !variant &&
+          {isSouls &&
             [-1, 1].map((side) => (
               <group key={side}>
                 <Part
@@ -747,8 +721,12 @@ export function Kitty({
             )}
 
             {isSouls ? (
-              /* great helm — the shipped knight's head (the variant rigs
-                 carry their own heads; this branch is the control). */
+              /* great helm — head-local z ladder over the head fill (0.22):
+                 visor plate ink 0.25 / plate 0.28, slit 0.31, embers 0.34,
+                 dome ink 0.31 / dome 0.34, crest ink 0.37 / crest 0.40.
+                 The dome's lower ink line lands on the plate's top edge so
+                 no bone shows between visor and helm; slit and embers stay
+                 well below the dome, so they never share a z band with it. */
               <group position={[0, 0, 0]}>
                 <Part
                   geometry={geo.visorPlate}
@@ -774,13 +752,13 @@ export function Kitty({
                   <meshBasicMaterial color={palette.noseYellow} />
                 </mesh>
                 {/* Sun rim for the helm: the padded dome contour shifted
-                        toward the sun, behind every head layer. z 0.08 keeps a
-                        0.04 gap under the ear inks (0.12) — 0.15 would be
-                        coplanar with the ear fills and z-fight the visible tips
-                        on 16-bit mobile depth — and behind the head ink (0.19),
-                        so only the right/upper-right curve peeks past the dome's
-                        own ink. Lives in the head group, so it tracks bob and
-                        rotation. */}
+                    toward the sun, behind every head layer. z 0.08 keeps a
+                    0.04 gap under the ear inks (0.12) — 0.15 would be
+                    coplanar with the ear fills and z-fight the visible tips
+                    on 16-bit mobile depth — and behind the head ink (0.19),
+                    so only the right/upper-right curve peeks past the dome's
+                    own ink. Lives in the head group, so it tracks bob and
+                    rotation. */}
                 <mesh geometry={geo.helmDomeRim} position={[0.07, 0.66, 0.08]}>
                   <meshBasicMaterial color={palette.cloudLit} />
                 </mesh>
@@ -844,7 +822,6 @@ export function Kitty({
           </group>
         </group>
       </group>
-      )}
     </group>
   );
 }

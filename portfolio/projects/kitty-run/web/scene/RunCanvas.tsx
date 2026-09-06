@@ -6,10 +6,6 @@ import * as THREE from "three";
 import { Canvas, useFrame, useThree } from "@react-three/fiber";
 import { BASE_CAM_Z, BASE_FOV, frameFor } from "../lib/framing.ts";
 import { paletteFor } from "../lib/theme.ts";
-import {
-  knightVariantFromParams,
-  type KnightVariantId,
-} from "../lib/knightVariants.tsx";
 import { useCharacterSwap, type CharacterRef } from "./themeSwap.ts";
 import type { Sfx } from "../lib/audio.ts";
 import type { Soundtrack } from "../lib/music.ts";
@@ -48,13 +44,6 @@ const GL_CONFIG = {
     new URLSearchParams(window.location.search).has("preserve"),
 };
 const DPR: [number, number] = [1, 2];
-// The knight costume variant (?souls&knight=a..e), read ONCE at module
-// scope — page-load stable like the GL config above, so it never disturbs
-// the memoised canvas subtree. Null = the shipped knight.
-const KNIGHT_VARIANT =
-  typeof window !== "undefined"
-    ? knightVariantFromParams(new URLSearchParams(window.location.search))
-    : null;
 const CAMERA_SPEC = {
   fov: BASE_FOV,
   near: 2,
@@ -83,13 +72,9 @@ function ClearColor({ characterRef }: { characterRef: CharacterRef }) {
 function CharacterRigs({
   world,
   characterRef,
-  knight,
 }: {
   world: WorldState;
   characterRef: CharacterRef;
-  // Costume variant (round 47c): per-page-load stable, mirrors into the
-  // souls rig. Null = the shipped knight.
-  knight?: KnightVariantId | null;
 }) {
   const kittyRef = useRef<THREE.Group>(null);
   const soulsRef = useRef<THREE.Group>(null);
@@ -103,7 +88,7 @@ function CharacterRigs({
         <Kitty world={world} character="kitty" />
       </group>
       <group ref={soulsRef} visible={characterRef.current === "souls"}>
-        <Kitty world={world} character="souls" knight={knight} />
+        <Kitty world={world} character="souls" />
       </group>
     </>
   );
@@ -169,7 +154,6 @@ export const RunCanvas = memo(function RunCanvas({
   mutedRef,
   hud,
   characterRef,
-  knight = KNIGHT_VARIANT,
   onStatus,
 }: {
   world: WorldState;
@@ -188,9 +172,6 @@ export const RunCanvas = memo(function RunCanvas({
   // simulation never sees it; a switch is a per-frame retheme, never a
   // re-render of this tree.
   characterRef: CharacterRef;
-  // Costume variant (round 47c): ?souls&knight=a..e, read once per page
-  // load — a stable prop, so the memo discipline above is untouched.
-  knight?: KnightVariantId | null;
   onStatus: (status: GameStatus) => void;
 }) {
   return (
@@ -218,9 +199,9 @@ export const RunCanvas = memo(function RunCanvas({
       <Obstacles world={world} characterRef={characterRef} />
       <Pickups world={world} characterRef={characterRef} />
       <Particles world={world} />
-      <CharacterRigs world={world} characterRef={characterRef} knight={knight} />
+      <CharacterRigs world={world} characterRef={characterRef} />
       {echo && echoInputs && (
-        <Echo world={world} echo={echo} characterRef={characterRef} knight={knight} />
+        <Echo world={world} echo={echo} characterRef={characterRef} />
       )}
       <Effects
         world={world}

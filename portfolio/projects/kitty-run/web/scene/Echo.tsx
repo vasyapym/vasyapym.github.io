@@ -23,10 +23,6 @@ import {
   STAGE_BEHIND_MARGIN,
 } from "../lib/framing.ts";
 import { PALETTE } from "../lib/palette.ts";
-import {
-  KNIGHT_VARIANTS,
-  type KnightVariantId,
-} from "../lib/knightVariants.tsx";
 import { THEMES, type CharacterId } from "../lib/theme.ts";
 import type { CharacterRef } from "./themeSwap.ts";
 import type { WorldState } from "./world.ts";
@@ -109,14 +105,10 @@ export function Echo({
   world,
   echo,
   characterRef,
-  knight = null,
 }: {
   world: WorldState;
   echo: WorldState;
   characterRef: CharacterRef;
-  // The costume variant (round 47c): per-page-load stable, mirrors the
-  // player's rig so the ghost wears the same costume concept.
-  knight?: KnightVariantId | null;
 }) {
   const holder = useRef<THREE.Group>(null);
   const rigKitty = useRef<THREE.Group>(null);
@@ -199,13 +191,7 @@ export function Echo({
       });
     };
     assign(rigKitty.current, RIG_LAYER_KITTY, FADED.kitty);
-    // The variant's own literal hexes merge over the souls base map (a
-    // variant with no new literals merges as a no-op).
-    const soulsFaded =
-      knight && KNIGHT_VARIANTS[knight]?.faded
-        ? { ...FADED.souls, ...KNIGHT_VARIANTS[knight].faded }
-        : FADED.souls;
-    assign(rigSouls.current, RIG_LAYER_SOULS, soulsFaded);
+    assign(rigSouls.current, RIG_LAYER_SOULS, FADED.souls);
   }, []);
 
   // Keep the RT at framebuffer resolution as the viewport / dpr change.
@@ -306,7 +292,7 @@ export function Echo({
         <Kitty world={echo} character="kitty" />
       </group>
       <group ref={rigSouls}>
-        <Kitty world={echo} character="souls" knight={knight} />
+        <Kitty world={echo} character="souls" />
       </group>
       <mesh
         ref={quad}
