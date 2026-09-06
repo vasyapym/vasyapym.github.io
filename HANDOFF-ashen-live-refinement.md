@@ -1,164 +1,109 @@
-# HANDOFF — Ashen live refinement (next session)
+# HANDOFF — Ashen qualitative round (next session)
 
-Written at the close of the grilling session that rejected the gallery-still
-refinement round and moved the work in-game. Read top to bottom: state, the
-grill verdict, the character facts (the law), then the round record.
+Written at the close of the round that delivered the material + grounding pass
+in-game. Read top to bottom: state, the style bible (compressed), the round
+record, what is deferred, then protocol.
 
 ## Where things stand (all pushed to origin/main)
 
-- **b452f37** — the audio bugfix is committed and pushed: `.kitty-run-mute`
-  reserves its widest label (`min-width: calc(9ch + 0.5em)`, `box-sizing:
-  content-box`, `text-align: center` — the global `* { box-sizing: border-box }`
-  in `portfolio/shell/src/styles.css:37` would otherwise wrap the 9-char label),
-  and `styles.css` html rule gains `scrollbar-gutter: stable`. Owner accepted
-  without eyes-on ("suppose it fixed"); if the shift persists, the fallback
-  scope is `height: 100dvh; overflow-y: auto` on the page container.
-  **Owner reported the shift persists (Sep 6). Instrumented re-verification
-  (Sep 6, `tests/kitty-run.audiobug.mjs`): NOT reproducible — both themes
-  (pastel + souls, headless and headed), desktop + mobile, dev server AND the
-  live deployed site: zero geometry deltas in any click window, zero browser
-  events (scroll/resize) in screenshot-free windows, no canvas jump spikes
-  (interval pixel-diff), header strips byte-identical. The live bundle
-  (`KittyRunPage-Ch624xUk.css`) verified to carry both b452f37 rules. The only
-  visible click consequence is the button's own hover ember recolour
-  (colour-only, no movement). Open question back to the owner: does it still
-  shift after a hard reload (Cmd+Shift+R), on dev or live, and if yes —
-  which browser, macOS scrollbar setting, zoom level?
-  **RESOLVED (Sep 6, owner answered: Safari macOS + iOS, ashen only). The
-  bug was never layout — it was the WebGL drawing buffer. Chromium probes
-  could never see it; a Playwright WebKit (Safari 18.2 engine) probe
-  reproduced it immediately: every header click that re-rendered the page
-  (mute/mix — NOT a bare focus click on the title) disturbed the canvas
-  backing for one frame — click-frame canvas delta 4.0-5.4 vs baseline 0.16
-  — and the distance-driven world (ground edge, city silhouettes) read as
-  having jumped. Sim was innocent (distance frozen across the spike frame;
-  dt already clamped). Fix a46eb0f: (1) the canvas subtree is React.memo'd
-  on stable props and never re-renders for header state — `muted` reaches
-  GameLoop through a ref (`mutedRef`, the characterRef pattern); (2) the
-  R3F renderer config (`gl`/`dpr`/`camera`/`onCreated`) is hoisted to
-  module scope so re-renders can never re-apply it; (3) the sim step
-  ceiling tightened 0.05→0.025s so a hitched frame can never carry more
-  than ~1.5 normal steps. Post-fix WebKit probe: all click deltas 0.23-0.25
-  (baseline noise); Chromium gates clean; ?preserve is a dev handle that
-  lets a probe diff the buffer per rAF. WebKit gate committed as
-  tests/kitty-run.webkit-shift.mjs (skips when playwright/webkit absent).
-- **The ashen refinement section is REMOVED** from the gallery: the two
-  "improved take" stills (Vigil of the Pale Cat / Ember-Crowned Ascendant) and
-  the earlier three micro-delta stills were all rejected. The section wiring is
-  gone from `ArtDirections.tsx`; `ashenRefinements.tsx` deleted; `AshenCard` is
-  non-exported again. `portfolio/shell` typechecks green. The rejected stills
-  live only in this handoff's git history (deleted file) — their WORLD values
-  are the starting palette for the live pass (below).
-- Gallery state on /art-directions = origin/main: ashen nine-directions round
-  + kitty portrait round + the card-artwork rounds. Nothing of mine remains.
+- **The owner's verdict on the previous three picks (depth haze, liturgical
+  HUD type, warm rims): ACCEPTED as baseline.** The new pass builds on them.
+- **This round (material + grounding), three picks in-game, one commit each:**
+  1. **ec5e4c7 — ash quality.** The 60-mote batch split into two flat
+     opacity classes: near (18 motes, opacity 0.5, size 0.13–0.24, z −1.6…−0.8,
+     scroll 0.36) and far (42, 0.26, 0.06–0.11, z −3.4…−2.6, scroll 0.24).
+     Sway re-eased through a smoothstep pendulum (velocity ≈ 0 at the drift
+     extremes — "held-breath drift, not uniform snow"), freq slowed to
+     0.25–0.75. Same envelope, same colour, no new particles. Seed bumped to
+     `kitty-run/ash/v2` (layout re-rolled deterministically).
+  2. **f333dbc — knight material pass.** Worn-steel / worn-cloth shading
+     INSIDE existing silhouettes (character law respected — rig untouched):
+     brow-occlusion pool on the visor plate under the dome seam
+     (`SOULS_MATERIAL.steelShadow` #26292d, z 0.305), one bone-white
+     specular chip on the dome's sun curve (kittyWhite, 0.18×0.05, rot −0.7,
+     z 0.36), dirty fuller line down the greatsword (#a9b0ba, z 0.06), cape
+     fold wedge along the trailing hem tip (`capeFoldShape()`, suitDeep,
+     z 0.0 inside capeFrontRef), belt occlusion band on the tunic (suitDeep,
+     visorSlit geometry at scale 0.62, z 0.15). All hard-edged, no gradients;
+     z-gaps ≥ 0.02 per the codebase convention.
+  3. **5ab3f05 — contact shadow regraded (was a live bug).** The souls
+     knight's ground shadow was the pastel-pink leftover #b96a8a (Shadow.tsx
+     never took a theme input). Fixed with a per-theme SHADOW record: souls
+     = warm-dark stone #241f1a on a NEW dense `contactShadowTexture()`
+     (textures.ts), ellipse 1.2×0.36, lift 0.01, opacity 0.62→0.30; pastel
+     keeps the exact shipped read (#b96a8a, soft dot, 0.72×0.23, 0.36→0.14).
+     RunCanvas passes `character` to Shadow now.
+- **The shadow root-cause finding (do not re-derive):** the shadow always
+  rendered but was nearly invisible — softDotTexture's alpha-1 core is ~4px
+  of a 62px radial gradient, squashed into a 0.2-unit ellipse the visible
+  dark core is a few pixels (pixel-probed at −6.5% vs the expected −35%).
+  The dense contact texture (solid core out to half-radius) is what makes it
+  read. Verified by pixel probe (center #4f443b at the 1.0-opacity test) and
+  by eye in close-up crops.
+- Gates green at every step: `portfolio/shell` typecheck, kitty-run
+  `tests/kitty-run.check.ts` + `tests/kitty-run.sim.ts`.
+- **Verification = owner's eyes on /projects/kitty-run (souls).** The
+  dome chip is the one element flagged borderline: at 3× crop zoom it reads
+  slightly "stuck-on"; at game scale it is a 2px accent. Owner to judge.
 
-## This round (implemented, awaiting the owner's eyes)
+## The style bible (delivered by the delegated slate, compressed)
 
-All three picks are in-game, one commit each, gates green at every step
-(typecheck + check 50/50 + sim). Verification = owner's eyes on
-/projects/kitty-run (dev server :5173 was already running).
+Mood pillars: **beautiful exhaustion** (every light is the last of
+something) · **cold vastness, warm intimacy** (small precious warms) ·
+**weight and patience** (steel tarnished, cloth tired — the knight is
+furniture of the landscape) · **held breath** (stillness with slow drift).
 
-1. **e858b66 — depth.** `castleFar` #8a929f→#a7aeb8 (bone-mist),
-   `castleNear` #323b49→#2a3140 (deep slate); ladder ≈0.68→0.41→0.19. Two
-   static cool haze banks (`hazeTexture` in textures.ts, colour = souls
-   `skyMid` #78889f) between the city layers at z −10 (opacity 0.42) and z −8
-   (0.36), rendered through the transparent pass's back-to-front z sort.
-   `hillFar`/`hillNear` turned out to be dead keys in souls (pastel backdrop
-   only) — untouched. Fog was rejected on purpose: it would wash the sky plane
-   and the knight.
-2. **fd977b5 — type.** Ritual prompts (rise/rest/begin/go on/rekindle) in calm
-   Georgia serif, bone #e6dfd1, 0.3em tracking, 1.6s fade (action +0.3s);
-   YOU DIED's exhale settles at 0.3em; the one ember accent is the 2px #e8863c
-   rule under the kicker (not under YOU DIED — its red is the statement).
-   Kicker moved ember→bone per the "one ember accent" reading; reduced-motion
-   kills the fades (block appended last for source order).
-3. **d4394c6 — light.** Delegated in two chat-model briefs, integrated here.
-   Castle silhouettes (far/mid only; near stays matte for its ember windows)
-   gain a hard warm rim: full silhouette repainted on a scratch canvas in
-   `cloudLit` #e8a878, self-erased shifted (−3, +2) leaving right 3px / top
-   2px slivers, stamped `source-atop` at **0.7 alpha** (integrator temper —
-   full strength read as sticker edges). Crate lids: warm band (alpha 0.32→0,
-   top 26%) via `crateTexture(p, { lid })`, wired through a per-theme
-   `CRATE_LID` record in Obstacles. Knight's right contour: two opaque
-   back-plate fringes (`cloudLit`, no transparency) — tunic plate reusing
-   `geo.dress` offset +0.08 at z −0.15, dome plate `helmDomeShape(0.05)`
-   offset +0.07 at head-local z **0.08** (the brief's 0.15 was coplanar with
-   the ear fills — integrator z-fix; 0.04 gap under the ear inks). Ghost rim
-   joins Echo's FADED map as #c9a284 (unmapped, the fringe would glow on the
-   faded ghost). Ground lit edge regraded `groundDot` #d98a4e→#7a6a5d (lit
-   stone, not a full-width ember line).
-   Rollback: `git revert d4394c6` (or per-file, e.g. Kitty.tsx alone for the
-   knight fringe).
+Material language (flat-vector translation): worn cloth = 3 flat value
+steps, no gradients; tarnished steel = occlusion pool + mid plane + one
+clipped bone-white chip; cracked stone = value-stepped facets terminating
+into existing shadows; ash = flat opacity classes, never blur.
 
-Tuning knobs if the owner wants adjustments: haze opacity (0.42/0.36 in
-textures.ts BACKDROPS souls haze), rim stamp alpha (0.7 in castleTexture),
-fringe offsets (0.08 tunic / 0.07+0.05 pad dome in Kitty.tsx), ground edge
-(#7a6a5d in theme.ts).
+References the slate anchored: Firelink Shrine (warm/cold ratio), Majula
+(low mournful sun), Anor Londo (rim discipline), Ash Lake (vast quiet),
+Undead Burg (matte value layering).
 
-## The grill verdict (owner, previous session)
+## Deferred by the owner (do NOT implement without a new go)
 
-1. Remove the refinement section; **implement the refinements in the live game**,
-   not on art-directions.
-2. Character: **frozen — never redesign it again.** (Owner: "why do you keep
-   changing the current Ashen character? i didn't ask you to". The delegated
-   takes' big-eared whiskered cat was a different character and "ugly".)
-3. Medium: straight to the live game; verification is the owner's eyes on
-   `/projects/kitty-run` (dev server :5173).
-4. Scope: **all three picks** — depth ladder, warm rims, liturgical HUD type.
-5. The owner has NOT judged the world deltas yet (only the cat was called
-   ugly) — implement visibly but keep the ashen identity; make each pick easy
-   to roll back (separate commits, one per pick, is safest).
-6. The audio bugfix is accepted and committed (b452f37).
+The owner picked all six slate moves but then ordered A/B/C first, D/F/E
+**later**. The three waiting picks, with the slate's own risk notes:
 
-## The character law (fact-checked this session — do not re-derive)
+- **D — rim discipline.** Thin all sun-rims (city + knight) to a consistent
+  2px hairline. Risk: could undo the accepted 0.7-alpha rim temper from the
+  light pass (d4394c6). Knobs: rim stamp alpha 0.7 + 3px/2px offsets in
+  `castleTexture`, fringe offsets 0.08/0.07+0.05 in Kitty.tsx.
+- **F — Echo cold-core.** Two-stage fade: cold soul-core holds, warm rim
+  arrives last. Heaviest build — Echo fades as ONE pre-composited quad
+  (Echo.tsx:225); the rim must split into a second quad. Cap to a single
+  lerp channel to protect 60fps (slate's own note).
+- **E — vignette warm-bias.** Cool-corner vignette keeping the sun side
+  warmer. Needs custom post/overlay work (postprocessing's Vignette has no
+  tint); slate flagged over-tint muddying the near-city deep slate. Note:
+  Effects.tsx:19-22 comment says "dark theme leans deeper" but BOTH themes
+  sit at 0.26 — a discrepancy to resolve inside this pick.
 
-The live ashen knight is the SAME cat rig re-skinned (`kitty/Kitty.tsx`,
-`isSouls` branches at :235+; palette mapping in `web/lib/theme.ts:73-118`):
+## Tuning knobs for the owner's eyes-on
 
-- Wide flat head (ellipse 2.0 × 1.68), small ears with flaps, bone chin below
-  the visor. In souls mode the pastel face is REPLACED: no bow, no whiskers,
-  no cheeks, no mouth — a great helm covers the face (dome #6a6d72, crest
-  #3d4045, visor plate #3d4045, slit, two ember eyes #e07a34).
-- Steel pauldrons over arm pivots, belt + buckle, two-layer tattered rust cape
-  (#8a4a33 front / #522a1e back), bone limbs (#e8e1d2), rust tunic.
-- Weapon: a GREATSWORD over the right shoulder (blade #eaf0f6, ~2.9 units,
-  up-left behind the head). The gallery stills' SPEAR does not exist in-game.
-- Scale: ~19% of canvas height on desktop, ~20% in from the left edge —
-  "part of the landscape" by design (`web/lib/framing.ts:5-7`).
-- Any future 2D representation must be THIS character at THIS scale.
-
-## Original objective (for reference — delivered this round)
-
-Starting values imported from the rejected stills (tune live, keep ashen):
-
-1. **Depth — mist value ladder.** Regrade the city layers via SOULS_PALETTE:
-   `castleFar` toward bone-mist (≈#a7aeb8), `castleNear` deeper (≈#2a3140);
-   check `hillFar`/`hillNear` fit the ladder. Add visible cool haze between
-   layers (≈#78889f, opacity 0.35–0.45 — R3F fog or translucent planes; explore
-   `web/scene/` first to see how the city layers render before choosing).
-2. **Light — ember-rose rims.** Warm directional light from the sun side (the
-   sun sits at ~71% across the frame, right) or rim/fresnel accents on
-   sun-facing edges: tower tops, crate lids, ground lit edge (≈#7a6a5d), the
-   knight's right contour (#e8a878/#b48f85 family). A rim, not a glow.
-3. **Type — liturgical HUD.** kitty-run.css: wide tracking (~0.3em), calm
-   weight, slow fade-in on the ritual prompts from SOULS_TEXT (rise / begin /
-   go on / rekindle / YOU DIED). Copy text is frozen — typography only. One
-   ember accent allowed (thin #e8863c rule under the kicker).
-
-Constraints (frozen): menu layout, souls pickup economy, star pickups, the
-character (above). Palette law: cold = dead world, warm = living light; only
-sun core + soul wisps cross the bloom line.
+- Ash: tier counts/opacities/sizes in `AshFall.tsx` TIERS record.
+- Knight material: `SOULS_MATERIAL` values + overlay positions in
+  `Kitty.tsx` (each overlay is one mesh; comment above each).
+- Shadow: `SHADOW` record in `Shadow.tsx`; texture stops in
+  `contactShadowTexture()` (textures.ts).
+- Rollback: `git revert 5ab3f05` / `f333dbc` / `ec5e4c7` (per pick).
 
 ## Protocol
 
-- `git pull --ff-only origin main` first; other agents share the tree — stage
-  only your own paths (`git commit <paths>`); the commit-msg/post-commit hooks
-  auto-record graph nodes.
-- One commit per pick so the owner can bisect by eye; push with
-  `/usr/bin/git` (local git build can't do network ops).
-- Checks: `cd portfolio/shell && npm run typecheck`; kitty-run's own gates in
-  `portfolio/projects/kitty-run/tests/` (check/sim pattern, see graph n15).
-- Delegated chat-model briefs only if the scene-light work proves nontrivial;
-  palette + CSS are direct edits.
+- `git pull --ff-only origin main` first (use `/usr/bin/git` for network
+  ops — the local build can't). Other agents share the tree — stage only
+  your own paths; untracked BRIEF/HANDOFF-kitty-run-* files at root belong
+  to another agent.
+- One commit per pick; commit-msg hook auto-records graph nodes.
+- Checks: `cd portfolio/shell && npm run typecheck`; kitty-run gates in
+  `tests/` (check/sim).
+- Screenshot probe pattern: boot Vite on a scratch port (see
+  `tests/kitty-run.shots.mjs`), deep-link `?souls&autostart`; puppeteer-core
+  with the Playwright chromium at
+  `~/Library/Caches/ms-playwright/chromium-1134/.../Chromium` (no system
+  Chrome); use `domcontentloaded` + fixed waits (networkidle0 hangs on the
+  HMR websocket).
 - Record the verdict/pass as a graph node before wrapping up; update this
-  handoff or replace it if the round completes.
+  handoff when the round completes.
