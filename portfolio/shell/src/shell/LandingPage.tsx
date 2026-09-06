@@ -385,7 +385,6 @@ export default function LandingPage({ projects, onOpenProject }: LandingPageProp
                 className="signal-index-beneath-row"
                 href={`#project-${project.id}`}
                 key={project.id}
-                data-beneath-overflow={index === 5 ? "" : undefined}
                 onClick={(event: MouseEvent<HTMLAnchorElement>) => {
                   if (event.button === 0 && !event.metaKey && !event.ctrlKey && !event.shiftKey && !event.altKey) {
                     event.preventDefault();

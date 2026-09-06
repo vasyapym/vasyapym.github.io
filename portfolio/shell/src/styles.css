@@ -356,12 +356,11 @@ textarea:focus-visible {
 .signal-index-beneath-rule { display: none; }
 
 
-/* "more ↓" — the overflow affordance when the catalogue exceeds the cap
-   (5 rows mobile, 6 rows desktop). Always a centred full-width row under
-   the grid — the downward arrow says the rest of the catalogue lives
-   below the fold. With exactly 6 projects the desktop grid already shows
-   everything, so the affordance retreats to mobile only
-   (data-more-mobile-only). */
+/* "more ↓" — the overflow affordance when the catalogue exceeds the 6-row
+   cap (all viewports). Always a centred full-width row under the grid — the
+   downward arrow says the rest of the catalogue lives below the fold. With
+   exactly 6 projects the list already shows everything, so the affordance
+   retreats to mobile only (data-more-mobile-only). */
 .signal-index-beneath-more {
   grid-column: 1 / -1;
   justify-self: center;
@@ -795,10 +794,10 @@ textarea:focus-visible {
 
 @media (max-width: 560px) {
   /* Hero hugs content (no 100svh floor). Copy top clears the 64px absolute
-     header (≥84px at 320×568). The catalogue is capped at 5 rows in one
-     column (row 6 hides, the "more ↓" affordance points at the cards below),
-     rows ≥44px, zero horizontal overflow at 320px. The fluid canvas fills the
-     content-hugged height and is self-driven, so it lives without input. */
+     header (≥84px at 320×568). The catalogue lists 6 rows in one column with
+     the "more ↓" affordance pointing at the cards below, rows ≥44px, zero
+     horizontal overflow at 320px. The fluid canvas fills the content-hugged
+     height and is self-driven, so it lives without input. */
   .signal-index-hero-fluid {
     grid-template-rows: auto auto auto;
     min-height: auto;
@@ -836,12 +835,6 @@ textarea:focus-visible {
     grid-row: auto;
     align-self: start;
     grid-template-columns: 1fr;
-  }
-
-  /* Cap: on phones the 6th catalogue row hides and the "more ↓" row points
-     at the full card grid below the fold. */
-  .signal-index-beneath-row[data-beneath-overflow] {
-    display: none;
   }}
 
 
