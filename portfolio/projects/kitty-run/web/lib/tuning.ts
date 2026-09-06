@@ -62,11 +62,7 @@ export const TUNING = {
   kittyRadius: 0.75,
   kittyCenterLift: 0.95,
 
-  // Each star grants this many bonus metres toward the effective distance
-  // (HUD meter, milestones, game-over stat, stored replay). Flat, not scaled.
-  starBonusMeters: 5,
-
-  // Every this many metres the run throws a little celebration.
+  // Every this many points the run throws a little celebration.
   milestoneStep: 500,
 
   // The best-run echo waits until the player opens this much of a lead,

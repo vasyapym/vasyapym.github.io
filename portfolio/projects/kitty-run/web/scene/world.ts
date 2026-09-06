@@ -57,8 +57,8 @@ export type GameEvent =
   | { type: "dash" }
   | { type: "hit" }
   | { type: "gameover" }
-  // The run crossed a milestone distance — celebrate it.
-  | { type: "milestone"; meters: number }
+  // The run crossed a milestone score — celebrate it.
+  | { type: "milestone"; points: number }
   | {
       type: "pickup";
       pickup: PickupKind;
@@ -88,9 +88,6 @@ export type WorldState = {
   runSeed: string;
   time: number;
   distance: number;
-  // Star-pickup bonus metres, added to running distance for the effective
-  // distance shown/celebrated/recorded. Gameplay stays keyed on `distance`.
-  bonusDistance: number;
   speed: number;
 
   hearts: number;
@@ -103,7 +100,8 @@ export type WorldState = {
   comboTimer: number;
   best: number;
 
-  // Distance of the next milestone celebration.
+  // Score of the next milestone celebration (a points game: every
+  // milestoneStep points throws the banner).
   nextMilestone: number;
 
   shake: number;
@@ -169,7 +167,6 @@ export function createWorld(best = 0, runSeed = freshSeed()): WorldState {
     runSeed,
     time: 0,
     distance: 0,
-    bonusDistance: 0,
     speed: TUNING.speedStart,
 
     hearts: TUNING.maxHearts,
@@ -258,13 +255,4 @@ export function resetWorld(world: WorldState): void {
   const best = world.best;
   const fresh = createWorld(best);
   Object.assign(world, fresh);
-}
-
-// Effective distance = metres actually run + star bonus metres. This is the
-// number the HUD meter shows, milestones fire on, and the game-over card and
-// stored replay record. Gameplay (speed ramp, spawns, echo gate) stays on
-// `distance`. Kept here rather than in score.ts because it reads WorldState
-// directly, and score.ts is a pure pickup-scoring module with no such import.
-export function effectiveDistance(world: WorldState): number {
-  return world.distance + world.bonusDistance;
 }

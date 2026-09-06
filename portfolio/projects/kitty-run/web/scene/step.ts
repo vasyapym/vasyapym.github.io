@@ -15,7 +15,7 @@ import {
 } from "../lib/spawn.ts";
 import { COMBO_WINDOW, fullHealthBonus, healsHeart, pickupScore } from "../lib/score.ts";
 import { TUNING, speedFor } from "../lib/tuning.ts";
-import { effectiveDistance, type Obstacle, type PickupKind, type WorldState } from "./world.ts";
+import type { Obstacle, PickupKind, WorldState } from "./world.ts";
 
 export { startRun, restartRun, togglePause } from "./actions.ts";
 
@@ -164,14 +164,13 @@ export function stepWorld(world: WorldState, rawDt: number): void {
     world.scoredDistance = wholeMeters;
   }
 
-  // Milestones: crossing a step raises the celebration exactly once. Fired on
-  // EFFECTIVE distance (running + star bonus) so the banner matches the HUD
-  // meter the player reads. A single star is +5 m « milestoneStep, so at most
-  // one step is crossed per frame — the single-if stays correct.
-  if (effectiveDistance(world) >= world.nextMilestone) {
-    const meters = world.nextMilestone;
+  // Milestones: a points game — crossing a milestoneStep total throws the
+  // celebration exactly once. A single pickup is worth well under 500, so
+  // at most one step is crossed per frame — the single-if stays correct.
+  if (world.score >= world.nextMilestone) {
+    const points = world.nextMilestone;
     world.nextMilestone += TUNING.milestoneStep;
-    world.events.push({ type: "milestone", meters });
+    world.events.push({ type: "milestone", points });
   }
 
   // --- input ----------------------------------------------------------------
@@ -331,9 +330,6 @@ export function stepWorld(world: WorldState, rawDt: number): void {
     world.combo += 1;
     world.comboTimer = COMBO_WINDOW;
     k.happyT = 0.5;
-
-    // Stars grant flat bonus metres toward the effective distance.
-    if (p.kind === "star") world.bonusDistance += TUNING.starBonusMeters;
 
     // Hearts mend first; with the meter full they convert to bonus points
     // so the pickup never lands silently.

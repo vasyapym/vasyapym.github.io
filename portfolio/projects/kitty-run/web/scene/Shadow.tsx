@@ -28,7 +28,6 @@ type ShadowLook = {
 const SHADOW: Record<CharacterId, ShadowLook> = {
   kitty: {
     color: "#b96a8a",
-    texture: "soft",
     width: 0.72,
     height: 0.23,
     lift: 0.02,
@@ -41,7 +40,6 @@ const SHADOW: Record<CharacterId, ShadowLook> = {
   // pulled-back framing: the soft dot's few-px core vanished on stone.
   souls: {
     color: "#241f1a",
-    texture: "contact",
     width: 1.2,
     height: 0.36,
     lift: 0.01,

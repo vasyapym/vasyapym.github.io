@@ -6,7 +6,7 @@
 // Run: node --experimental-strip-types tests/kitty-run.sim.ts
 
 import { requestDash, requestJump, startRun } from "../web/scene/actions.ts";
-import { createWorld, effectiveDistance, type WorldState } from "../web/scene/world.ts";
+import { createWorld, type WorldState } from "../web/scene/world.ts";
 import { stepWorld } from "../web/scene/step.ts";
 import { groundY } from "../web/lib/ground.ts";
 import { TUNING } from "../web/lib/tuning.ts";
@@ -19,7 +19,7 @@ type SimResult = {
   world: WorldState;
   seconds: number;
   gameOver: boolean;
-  milestoneMeters: number[];
+  milestonePoints: number[];
   kindsSeen: Set<string>;
 };
 
@@ -30,7 +30,7 @@ function simulate(runSeed: string): SimResult {
 
   let time = 0;
   const kindsSeen = new Set<string>();
-  const milestoneMeters: number[] = [];
+  const milestonePoints: number[] = [];
   let gameOver = false;
 
   while (time < MAX_SIM_SECONDS && world.status !== "over") {
@@ -44,13 +44,13 @@ function simulate(runSeed: string): SimResult {
       if (slot.active) kindsSeen.add(slot.data.kind);
     }
     for (const event of world.events) {
-      if (event.type === "milestone") milestoneMeters.push(event.meters);
+      if (event.type === "milestone") milestonePoints.push(event.points);
       if (event.type === "gameover") gameOver = true;
     }
     world.events.length = 0;
   }
 
-  return { world, seconds: time, gameOver, milestoneMeters, kindsSeen };
+  return { world, seconds: time, gameOver, milestonePoints, kindsSeen };
 }
 
 let failures = 0;
@@ -79,14 +79,14 @@ for (const kind of run.kindsSeen) {
 }
 check("only known, jumpable hazard kinds ever spawn", kindsKnown);
 
-let milestonesOnceEach = run.milestoneMeters.length > 0;
-for (let i = 1; i < run.milestoneMeters.length; i += 1) {
-  if (run.milestoneMeters[i] <= run.milestoneMeters[i - 1]) milestonesOnceEach = false;
+let milestonesOnceEach = run.milestonePoints.length > 0;
+for (let i = 1; i < run.milestonePoints.length; i += 1) {
+  if (run.milestonePoints[i] <= run.milestonePoints[i - 1]) milestonesOnceEach = false;
 }
 check(
   "milestones fire once each, in order",
   milestonesOnceEach &&
-    run.milestoneMeters.length === Math.floor(effectiveDistance(w) / 500),
+    run.milestonePoints.length === Math.floor(w.score / 500),
 );
 check("distance scoring keeps pace with travel", w.score >= Math.floor(w.distance));
 check("hearts never exceed the meter", w.hearts >= 0 && w.hearts <= 3);

@@ -24,7 +24,7 @@ import { pilotSteer } from "../lib/pilot.ts";
 import { THEMES, type CharacterId } from "../lib/theme.ts";
 import { stepWorld } from "./step.ts";
 import type { CharacterRef } from "./themeSwap.ts";
-import { effectiveDistance, type GameStatus, type WorldState } from "./world.ts";
+import type { GameStatus, WorldState } from "./world.ts";
 
 export type HudRefs = {
   score: React.RefObject<HTMLSpanElement | null>;
@@ -32,8 +32,6 @@ export type HudRefs = {
   combo: React.RefObject<HTMLSpanElement | null>;
   comboBar: React.RefObject<HTMLDivElement | null>;
   milestone: React.RefObject<HTMLDivElement | null>;
-  // The live effective-distance meter (running + star bonus).
-  meters: React.RefObject<HTMLSpanElement | null>;
   // The touch dash pad: the loop paints its cooldown ring every frame.
   dash?: React.RefObject<HTMLButtonElement | null>;
   // Bullet-time vignette: opacity follows the clock's dip.
@@ -120,7 +118,8 @@ function handleEvents(
         sparkBurst(world, 0, k.y + 1.1, reducedMotion ? 4 : 10, colors.star, 2.8);
         if (hud.milestone.current) {
           const node = hud.milestone.current;
-          node.textContent = `${event.meters} m!`;
+          // A points game: the banner celebrates the score, no units.
+          node.textContent = `${event.points}!`;
           const travel = (dy: number): Keyframe[] => [
             { opacity: 0, transform: `translate(-50%, ${dy}px) scale(0.7)` },
             { opacity: 1, transform: "translate(-50%, 0) scale(1)", offset: 0.18 },
@@ -185,7 +184,7 @@ function handleEvents(
           saveReplayIfBest(window.localStorage, {
             seed: world.runSeed,
             score: world.score,
-            distance: effectiveDistance(world),
+            distance: world.distance,
             inputs: world.inputLog,
           });
         }
@@ -198,13 +197,6 @@ function handleEvents(
 function writeHud(world: WorldState, hud: HudRefs): void {
   if (hud.score.current) {
     hud.score.current.textContent = String(world.score);
-  }
-  if (hud.meters.current) {
-    const text = Math.floor(effectiveDistance(world)).toLocaleString();
-    // Cheap guard: only touch the DOM when the whole-metre text changes.
-    if (hud.meters.current.textContent !== text) {
-      hud.meters.current.textContent = text;
-    }
   }
   if (hud.hearts.current) {
     const children = hud.hearts.current.children;
@@ -239,7 +231,7 @@ function writeHud(world: WorldState, hud: HudRefs): void {
     hud.bullet.current.style.opacity = depth.toFixed(3);
   }
   if (hud.debug?.current) {
-    hud.debug.current.textContent = `${world.status} · ${effectiveDistance(world).toFixed(0)}m · obs ${world.obstacles.slots.filter((s) => s.active).length}`;
+    hud.debug.current.textContent = `${world.status} · ${world.distance.toFixed(0)}m · obs ${world.obstacles.slots.filter((s) => s.active).length}`;
   }
 }
 

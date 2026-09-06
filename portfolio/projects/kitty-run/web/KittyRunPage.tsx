@@ -2,12 +2,7 @@ import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { Sfx } from "./lib/audio.ts";
 import { readBestScore } from "./lib/score.ts";
 import { loadReplay, type StoredReplay } from "./lib/replay.ts";
-import {
-  createWorld,
-  effectiveDistance,
-  type GameStatus,
-  type WorldState,
-} from "./scene/world.ts";
+import { createWorld, type GameStatus, type WorldState } from "./scene/world.ts";
 import {
   hasWebGL,
   RunCanvas,
@@ -128,7 +123,6 @@ export default function KittyRunPage() {
   const comboRef = useRef<HTMLSpanElement | null>(null);
   const comboBarRef = useRef<HTMLDivElement | null>(null);
   const milestoneRef = useRef<HTMLDivElement | null>(null);
-  const metersRef = useRef<HTMLSpanElement | null>(null);
   const dashRef = useRef<HTMLButtonElement | null>(null);
   const bulletRef = useRef<HTMLDivElement | null>(null);
   const debugRef = useRef<HTMLSpanElement | null>(null);
@@ -140,7 +134,6 @@ export default function KittyRunPage() {
       combo: comboRef,
       comboBar: comboBarRef,
       milestone: milestoneRef,
-      meters: metersRef,
       dash: dashRef,
       bullet: bulletRef,
       debug: debugRef,
@@ -496,9 +489,6 @@ export default function KittyRunPage() {
             <span className="kitty-run-score" ref={scoreRef}>
               0
             </span>
-            <span className="kitty-run-meters">
-              <span ref={metersRef}>0</span> m
-            </span>
             <span className="kitty-run-best">
               {theme.text.best} {best}
             </span>
@@ -672,9 +662,6 @@ export default function KittyRunPage() {
             <span className="kitty-run-card-title">
               {world.score.toLocaleString()} points
             </span>
-            <span className="kitty-run-card-stat">
-              {Math.floor(effectiveDistance(world)).toLocaleString()} m run
-            </span>
             {autoRan && (
               <span className="kitty-run-card-echo">
                 flown by the engine's test pilot — your records untouched
@@ -682,9 +669,9 @@ export default function KittyRunPage() {
             )}
             {raceTarget && (
               <span className="kitty-run-card-echo">
-                {effectiveDistance(world) >= raceTarget.distance
-                  ? `${Math.max(1, Math.round(effectiveDistance(world) - raceTarget.distance))} m past your best mark`
-                  : `${Math.max(1, Math.round(raceTarget.distance - effectiveDistance(world)))} m short of your best mark`}
+                {world.score >= raceTarget.score
+                  ? `${Math.max(1, Math.round(world.score - raceTarget.score))} points past your best mark`
+                  : `${Math.max(1, Math.round(raceTarget.score - world.score))} points short of your best mark`}
               </span>
             )}
             <span className="kitty-run-card-hint">

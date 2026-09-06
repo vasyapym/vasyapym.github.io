@@ -291,16 +291,6 @@
   font-variant-numeric: tabular-nums;
 }
 
-/* Live effective-distance meter (running + star bonus) — the number the
-   milestone banner counts against. Quieter than the score, louder than best. */
-.kitty-run-meters {
-  font-size: 13px;
-  font-weight: 600;
-  letter-spacing: 0.01em;
-  opacity: 0.8;
-  font-variant-numeric: tabular-nums;
-}
-
 .kitty-run-combo {
   position: absolute;
   left: 24px;
@@ -340,7 +330,7 @@
   transform: scaleX(0);
 }
 
-/* Milestone celebration: "500 m!" pops in, holds, drifts away. The
+/* Milestone celebration: "500!" pops in, holds, drifts away. The
    animation is driven per event with the Web Animations API, so the base
    style just parks it invisible. */
 .kitty-run-milestone {
@@ -926,10 +916,6 @@
     font-size: 11px;
   }
 
-  .kitty-run-meters {
-    font-size: 12px;
-  }
-
   .kitty-run-swap {
     height: 30px;
     padding: 0 10px;
@@ -1081,12 +1067,6 @@
 }
 
 .kitty-run-page--souls .kitty-run-best {
-  font-family: Georgia, "Times New Roman", serif;
-  color: #e6dfd1;
-  text-shadow: 0 1px 0 rgba(21, 17, 14, 0.9);
-}
-
-.kitty-run-page--souls .kitty-run-meters {
   font-family: Georgia, "Times New Roman", serif;
   color: #e6dfd1;
   text-shadow: 0 1px 0 rgba(21, 17, 14, 0.9);

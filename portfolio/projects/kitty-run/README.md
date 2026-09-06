@@ -96,8 +96,9 @@ the route is `/projects/kitty-run`. Shell-side additions: the
   span tops out at 650 m; every hazard in the run can still be cleared
   with a well-timed jump.
 - **Score breathes** — distance ticks one point per metre, so the counter
-  moves even between pickups, and every 500 m throws a milestone
-  celebration: a rising chime, confetti and a big banner.
+  moves even between pickups, and every 500 points throws a milestone
+  celebration: a rising chime, confetti and a big banner. A pure points
+  game — the HUD carries the score and nothing else.
 - **Combo** — consecutive pickups raise the score multiplier (every fourth,
   capped ×8); taking a hit resets it.
 - **Forgiving dashes** — the invulnerable window is a generous 0.32 s (a
