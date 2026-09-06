@@ -189,6 +189,19 @@
       "message": "Hero pass staged only its three shell files by name (discover-projects.ts, LandingPage.tsx, styles.css), but the project-graph auto-record hook had pre-staged kitty-run's graph.jsonl appends from commit 59d31b3 (auto-node n61 + edge e55, 'ashen winner'), which shipped with c05d18f in the designed one-commit lag. Only hook-generated history lines carried; no kitty-run work files. Action for owner: none.",
       "ackBy": null,
       "ackAt": null
+    },
+    {
+      "id": "sweep-report-ed57b32-kitty-run-graph-one-commit-lag",
+      "ts": "2026-09-06T02:52:00Z",
+      "kind": "sweep-report",
+      "agent": "opencode (design-iteration hero mobile follow-up: centred more row)",
+      "commit": "ed57b32",
+      "files": [
+        "portfolio/projects/kitty-run/.project-history/graph.jsonl"
+      ],
+      "message": "Same designed one-commit lag as the c05d18f report: the auto-record hook had pre-staged kitty-run's graph.jsonl appends from commit c8640be (auto-node n64 + edge e58, 'change character' chip), which shipped with ed57b32. Only hook-generated history lines carried; no kitty-run work files. Action for owner: none.",
+      "ackBy": null,
+      "ackAt": null
     }
   ]
 }

@@ -283,3 +283,5 @@
 {"type":"edge.added","id":"e134","ts":"2026-09-06T02:34:36.275Z","from":"n139","to":"n140","rel":"continues"}
 {"type":"node.added","id":"n141","ts":"2026-09-06T02:36:53.890Z","kind":"iteration","actor":"user","title":"feat(shell): hero catalogue cap + More affordance, symmetric desktop rhythm; Explosion 3rd / Spine 4th","artifacts":[{"kind":"git-commit","ref":"c05d18f"}],"meta":{"source":"auto"}}
 {"type":"edge.added","id":"e135","ts":"2026-09-06T02:36:53.929Z","from":"n140","to":"n141","rel":"continues"}
+{"type":"node.added","id":"n142","ts":"2026-09-06T02:49:28.795Z","kind":"iteration","actor":"user","title":"fix(shell): centre the more-down affordance on mobile too — 5 rows + centred more row below the list","artifacts":[{"kind":"git-commit","ref":"ed57b32"}],"meta":{"source":"auto"}}
+{"type":"edge.added","id":"e136","ts":"2026-09-06T02:49:28.810Z","from":"n141","to":"n142","rel":"continues"}
