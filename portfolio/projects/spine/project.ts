@@ -9,7 +9,7 @@ const spine: ProjectModule = {
     "Drag, nest and retune Flexbox and Grid containers in real time. The layout engine runs in Go compiled to WebAssembly — with undo/redo history, clean HTML/CSS export and shareable URLs.",
   technologies: ["Go", "WebAssembly", "Flexbox & Grid", "syscall/js"],
   status: "available",
-  accent: "chartreuse",
+  accent: "ochre",
   presentation: {
     className: "presentation-spine",
     motion: "stack",

@@ -433,38 +433,40 @@ function TrailCenterMark() {
   );
 }
 
-/* ── 7 · Spine — chartreuse spot ink, "Off the Board": the item is the
-   athlete — it corkscrews off the committed flex row and dives, squashed and
-   stretched, into the dashed drop slot under the crosshair. The boxes stay
-   dead-orthogonal; the diver's body owns all the diagonal energy. ── */
+/* ── 7 · Spine — ochre spot ink, "routed trace": the item is placed, not
+   thrown. It travels an L-shaped dotted trace (the way a reflow is routed)
+   with sample ticks along the run, over a committed row holding a nested
+   container, landing on the dashed slot's crosshair. A centre-of-mass dot
+   and one glint finish the drafting register. ── */
 function SpineCenterMark() {
   return (
     <svg viewBox="0 0 260 160" aria-hidden="true">
       <defs>
-        <pattern id="gem-spine-dense" patternUnits="userSpaceOnUse" width="7" height="7"><circle cx="3.5" cy="3.5" r="1.9" fill="#b4e05a" /></pattern>
+        <pattern id="gem-spine-dense" patternUnits="userSpaceOnUse" width="7" height="7"><circle cx="3.5" cy="3.5" r="1.9" fill="#d39b61" /></pattern>
         <pattern id="gem-spine-sparse" patternUnits="userSpaceOnUse" width="11" height="11"><circle cx="5.5" cy="5.5" r="1.6" fill="#7d7669" /></pattern>
-        <pattern id="gem-spine-halo" patternUnits="userSpaceOnUse" width="7" height="7"><circle cx="3.5" cy="3.5" r="1.9" fill="#b4e05a" /></pattern>
+        <pattern id="gem-spine-halo" patternUnits="userSpaceOnUse" width="7" height="7"><circle cx="3.5" cy="3.5" r="1.9" fill="#d39b61" /></pattern>
       </defs>
       <ellipse cx="130" cy="80" rx="104" ry="64" fill="url(#gem-spine-sparse)" opacity="0.09" />
       <ellipse className="gem-halo" cx="130" cy="80" rx="58" ry="42" fill="url(#gem-spine-halo)" style={haloVar(0.12)} opacity={0.12} />
-      {/* committed row — the springboard the diver just left */}
-      <rect x="40" y="84" width="150" height="34" rx="4" fill="#26333b" stroke="#b6ac95" strokeWidth="3" />
-      <rect x="48" y="92" width="26" height="18" rx="2" fill="#465059" stroke="#b6ac95" strokeWidth="2" />
-      <rect x="80" y="92" width="26" height="18" rx="2" fill="#465059" stroke="#b6ac95" strokeWidth="2" />
-      <rect x="112" y="92" width="26" height="18" rx="2" fill="#465059" stroke="#b6ac95" strokeWidth="2" />
-      {/* dashed drop slot the dive is aimed at */}
-      <rect x="146" y="90" width="34" height="22" rx="2" fill="none" stroke="#7d7669" strokeWidth="1.5" strokeDasharray="4 4" />
-      <line x1="163" y1="94" x2="163" y2="108" stroke="#5c6e1a" strokeWidth="1.5" />
-      <line x1="156" y1="101" x2="170" y2="101" stroke="#5c6e1a" strokeWidth="1.5" />
-      {/* arc of the dive */}
-      <path d="M70 44 Q120 28 158 92" fill="none" stroke="#5c6e1a" strokeWidth="2" strokeDasharray="2 5" />
-      {/* the athlete — squash-stretched item mid-corkscrew */}
-      <g transform="rotate(40 108 54)">
-        <rect x="88" y="42" width="40" height="20" rx="7" fill="url(#gem-spine-dense)" stroke="#5c6e1a" strokeWidth="2.5" />
+      {/* committed row — item, nested column container, and the dashed slot */}
+      <rect x="40" y="86" width="150" height="32" rx="3" fill="#26333b" stroke="#b6ac95" strokeWidth="3" />
+      <rect x="46" y="93" width="24" height="18" rx="2" fill="#465059" stroke="#b6ac95" strokeWidth="2" />
+      <rect x="78" y="90" width="54" height="24" rx="2" fill="#1c262d" stroke="#b6ac95" strokeWidth="2" />
+      <rect x="84" y="94" width="20" height="6" rx="1" fill="#7d7669" />
+      <rect x="84" y="104" width="14" height="6" rx="1" fill="#7d7669" />
+      <rect x="146" y="92" width="34" height="20" rx="2" fill="none" stroke="#7d7669" strokeWidth="1.5" strokeDasharray="4 4" />
+      <line x1="163" y1="95" x2="163" y2="109" stroke="#d39b61" strokeWidth="1.5" />
+      <line x1="156" y1="102" x2="170" y2="102" stroke="#d39b61" strokeWidth="1.5" />
+      {/* the reflow, routed like a trace: right, then down into the lane */}
+      <path d="M114 47 H147 Q163 47 163 63 V88" fill="none" stroke="#7a5230" strokeWidth="2" strokeDasharray="2 5" />
+      <line x1="124" y1="44" x2="124" y2="51" stroke="#7a5230" strokeWidth="1.5" opacity="0.7" />
+      <line x1="136" y1="44" x2="136" y2="51" stroke="#7a5230" strokeWidth="1.5" opacity="0.5" />
+      {/* the item — precise, with a centre-of-mass marker and a glint */}
+      <g transform="rotate(10 100 40)">
+        <rect x="79" y="29" width="42" height="22" rx="2" fill="url(#gem-spine-dense)" stroke="#7a5230" strokeWidth="2.5" />
+        <circle cx="100" cy="40" r="2" fill="#eeeae0" />
       </g>
-      {/* trailing stretch streaks */}
-      <line x1="70" y1="46" x2="86" y2="50" stroke="#b4e05a" strokeWidth="2.5" strokeLinecap="round" opacity="0.7" />
-      <line x1="68" y1="54" x2="82" y2="57" stroke="#b4e05a" strokeWidth="2" strokeLinecap="round" opacity="0.45" />
+      <rect x="85" y="32" width="5" height="2" fill="#ffffff" opacity="0.6" />
     </svg>
   );
 }
