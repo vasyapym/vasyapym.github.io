@@ -32,9 +32,17 @@ function toTexture(canvas: HTMLCanvasElement): THREE.CanvasTexture {
   return texture;
 }
 
-// Vertical gradient with a soft sun (or moon) baked into the top right,
-// voiced by whichever theme's palette is passed in.
-export function skyTexture(p: ThemePalette): THREE.CanvasTexture {
+// Vertical gradient with a soft sun (or moon) baked into the top right, voiced
+// by whichever theme's palette is passed in. `opts` (all optional, all default
+// to today's exact behaviour so the pastel call stays pixel-identical) let a
+// theme dim the disc into a dying, ash-veiled sun: `sunScale` shrinks the core
+// (base radius 34) and the glow's inner radius, `sunGlow` scales the halo's
+// outer radius and its alpha (flatter = greyer), `sunDrop` nudges the disc down
+// toward the horizon.
+export function skyTexture(
+  p: ThemePalette,
+  opts: { sunScale?: number; sunGlow?: number; sunDrop?: number } = {},
+): THREE.CanvasTexture {
   const { canvas, ctx } = makeCanvas(512, 512);
   const gradient = ctx.createLinearGradient(0, 0, 0, 512);
   gradient.addColorStop(0, p.skyTop);
@@ -43,20 +51,25 @@ export function skyTexture(p: ThemePalette): THREE.CanvasTexture {
   ctx.fillStyle = gradient;
   ctx.fillRect(0, 0, 512, 512);
 
+  const sunScale = opts.sunScale ?? 1;
+  const glowScale = opts.sunGlow ?? 1;
   const sunX = 396;
-  const sunY = 172;
+  const sunY = 172 + (opts.sunDrop ?? 0);
   const halo = hexRgb(p.sunHalo);
   const haloSoft = hexRgb(p.sunHaloSoft);
   const core = hexRgb(p.sunCore);
-  const glow = ctx.createRadialGradient(sunX, sunY, 8, sunX, sunY, 150);
-  glow.addColorStop(0, `rgba(${halo.r}, ${halo.g}, ${halo.b}, 0.95)`);
-  glow.addColorStop(0.25, `rgba(${haloSoft.r}, ${haloSoft.g}, ${haloSoft.b}, 0.5)`);
+  const glow = ctx.createRadialGradient(
+    sunX, sunY, 8 * sunScale,
+    sunX, sunY, 150 * glowScale,
+  );
+  glow.addColorStop(0, `rgba(${halo.r}, ${halo.g}, ${halo.b}, ${0.95 * glowScale})`);
+  glow.addColorStop(0.25, `rgba(${haloSoft.r}, ${haloSoft.g}, ${haloSoft.b}, ${0.5 * glowScale})`);
   glow.addColorStop(1, `rgba(${haloSoft.r}, ${haloSoft.g}, ${haloSoft.b}, 0)`);
   ctx.fillStyle = glow;
   ctx.fillRect(0, 0, 512, 512);
   ctx.fillStyle = `rgba(${core.r}, ${core.g}, ${core.b}, 0.98)`;
   ctx.beginPath();
-  ctx.arc(sunX, sunY, 34, 0, Math.PI * 2);
+  ctx.arc(sunX, sunY, 34 * sunScale, 0, Math.PI * 2);
   ctx.fill();
 
   return toTexture(canvas);
@@ -290,28 +303,24 @@ export function hazeTexture(colour: string, peak: number): THREE.CanvasTexture {
   return toTexture(canvas);
 }
 
-type CastleRidge = { x: number; w: number; top: number };
-type CastleShape =
-  | { kind: "spire"; x: number; w: number; top: number; needle: number }
-  | { kind: "tower"; x: number; w: number; top: number; cap: number }
-  | {
-      kind: "cathedral";
-      x: number;
-      w: number;
-      top: number;
-      towerTop: number;
-      needle: number;
-    }
-  | { kind: "arcade"; x: number; w: number; top: number; arches: number }
-  | { kind: "houses"; x: number; ridges: CastleRidge[] };
-type CastleZone = { x: number; w: number; top: number; bottom: number };
+type Prim =
+  | { t: "box"; x: number; y: number; w: number; h: number }
+  | { t: "roof"; x: number; y: number; w: number; h: number }
+  | { t: "pinnacle"; x: number; y: number; w: number; h: number }
+  | { t: "merlon"; x: number; y: number; w: number }
+  | { t: "buttress"; x: number; w: number; h: number };
+type Slit = { x: number; y: number; w: number; h: number; arched: boolean };
 type CastleWindow = { x: number; y: number; w: number; h: number; arched: boolean };
+type CastleLayer = "far" | "mid" | "near";
 
-// Tileable gothic skyline. `density` (0 airy … 1 packed) sets how much the
-// buildings overlap; `baseline` is the fraction of the canvas that stays
-// solid at the bottom. All rng is consumed before drawing so the three
-// wrap copies are identical. `rim` (when present) bakes a hard-edged warm
-// sliver on every sun-facing edge (right ~3px, top ~2px); it consumes no rng.
+// Tileable gothic skyline. Composition is anchored per `layer` (2–4 deliberate
+// groups, not scatter): far = one cathedral-mass + curtain wall + secondary
+// keeps; mid = heavy bastion runs; near = a low broken rampart, one lit keep
+// (the ember cluster) and one colossal broken column. All rng is consumed in
+// the build phase before any drawing, so the three wrap copies are identical.
+// `rim` (when present) bakes a hard warm sliver on sun-facing edges and
+// consumes no rng; souls never passes it. `density` is accepted for call-site
+// compatibility but no longer drives the anchored layout.
 export function castleTexture(
   color: string,
   seed: string,
@@ -320,227 +329,296 @@ export function castleTexture(
     density?: number;
     baseline?: number;
     rim?: string;
+    layer?: CastleLayer;
   } = {},
 ): THREE.CanvasTexture {
   const rng = createRng(seed);
   const width = 1024;
   const height = 256;
-  const density = opts.density ?? 0.8;
+  const layer: CastleLayer = opts.layer ?? "mid";
   const baseline = height - Math.round(height * (opts.baseline ?? 0.2));
   const reach = baseline - 18;
   const { canvas, ctx } = makeCanvas(width, height);
   ctx.clearRect(0, 0, width, height);
 
-  const shapes: CastleShape[] = [];
-  const zones: CastleZone[] = [];
-  let x = rng() * 40;
-  while (x < width) {
-    const roll = rng();
-    let advance: number;
-    if (roll < 0.28) {
-      const w = 8 + rng() * 10;
-      const top = baseline - reach * (0.3 + rng() * 0.45);
-      const needle = Math.min(reach * (0.18 + rng() * 0.25), top - 6);
-      shapes.push({ kind: "spire", x, w, top, needle });
-      zones.push({ x, w, top, bottom: baseline });
-      advance = w;
-    } else if (roll < 0.58) {
-      const w = 16 + rng() * 26;
-      const top = baseline - reach * (0.18 + Math.pow(rng(), 1.4) * 0.65);
-      const cap = rng() < 0.45 ? w * (0.9 + rng() * 0.6) : 0;
-      shapes.push({ kind: "tower", x, w, top, cap });
-      zones.push({ x, w, top, bottom: baseline });
-      advance = w;
-    } else if (roll < 0.58 + 0.2 * density) {
-      const w = 60 + rng() * 60;
-      const top = baseline - reach * (0.25 + rng() * 0.3);
-      const towerTop = Math.max(10, top - w * (0.15 + rng() * 0.2));
-      const needle = Math.min(w * (0.5 + rng() * 0.5), towerTop - 8);
-      shapes.push({ kind: "cathedral", x, w, top, towerTop, needle });
-      const tw = w * 0.18;
-      zones.push({ x, w, top, bottom: baseline });
-      zones.push({ x, w: tw, top: towerTop, bottom: baseline });
-      zones.push({ x: x + w - tw, w: tw, top: towerTop, bottom: baseline });
-      advance = w;
-    } else if (roll < 0.58 + 0.2 * density + 0.12) {
-      const w = 70 + rng() * 70;
-      const top = baseline - (18 + rng() * 18);
-      const arches = 3 + Math.floor(rng() * 4);
-      shapes.push({ kind: "arcade", x, w, top, arches });
-      advance = w;
-    } else {
-      const ridges: CastleRidge[] = [];
-      const n = 2 + Math.floor(rng() * 4);
-      let hx = x;
-      for (let i = 0; i < n; i += 1) {
-        const rw = 12 + rng() * 14;
-        ridges.push({ x: hx, w: rw, top: baseline - (10 + rng() * 22) });
-        hx += rw + rng() * 4;
-      }
-      shapes.push({ kind: "houses", x, ridges });
-      advance = hx - x;
-    }
-    x += advance * (0.55 + (1 - density) * 1.3 + rng() * 0.6);
-  }
+  const clampTop = (y: number) => Math.max(8, y);
 
+  // ---- Build phase: consumes ALL rng, emits drawable primitives only. ------
+  const prims: Prim[] = [];
+  const slits: Slit[] = [];
   const windows: CastleWindow[] = [];
-  if (opts.windows && zones.length > 0) {
-    const count = 12 + Math.floor(rng() * 14);
-    const limit = height * 0.85;
-    let tries = 0;
-    while (windows.length < count && tries < count * 6) {
-      tries += 1;
-      const z = zones[Math.floor(rng() * zones.length)];
-      const zb = Math.min(z.bottom, limit);
-      const w = 2 + Math.floor(rng() * 2);
-      const h = 3 + Math.floor(rng() * 3);
-      if (z.w < w + 4 || zb - z.top < h + 8) continue;
-      // Squared rng pulls windows towards the tower tops.
-      const wx = z.x + 2 + rng() * (z.w - w - 4);
-      const wy = z.top + 4 + Math.pow(rng(), 2.2) * (zb - z.top - h - 6);
-      windows.push({ x: Math.round(wx), y: Math.round(wy), w, h, arched: rng() < 0.5 });
+
+  const addWall = (wx: number, ww: number, topRaw: number, buttress = true) => {
+    const topY = clampTop(topRaw);
+    prims.push({ t: "box", x: wx, y: topY, w: ww, h: baseline - topY });
+    prims.push({ t: "merlon", x: wx, y: topY, w: ww });
+    if (buttress) {
+      const step = 46 + rng() * 22;
+      for (let px = wx + 12; px < wx + ww - 12; px += step) {
+        prims.push({
+          t: "buttress",
+          x: px,
+          w: 8 + rng() * 4,
+          h: (baseline - topY) * (0.45 + rng() * 0.2),
+        });
+      }
+    }
+  };
+
+  // A large tiered keep: full body -> narrower crenellated upper tier ->
+  // steep pitched roof, 2 pinnacles at the tier corners, arched slits in the
+  // body. Returns its body region so the caller can seat an ember cluster.
+  const addKeep = (bx: number, bw: number, bodyTopRaw: number) => {
+    const bodyTopY = clampTop(bodyTopRaw);
+    const bottom = baseline;
+    prims.push({ t: "box", x: bx, y: bodyTopY, w: bw, h: bottom - bodyTopY });
+
+    const uw = Math.round(bw * (0.54 + rng() * 0.12));
+    const ux = Math.round(bx + (bw - uw) / 2);
+    const upperTopY = clampTop(
+      bodyTopY - Math.round((bottom - bodyTopY) * (0.3 + rng() * 0.16)),
+    );
+    prims.push({ t: "box", x: ux, y: upperTopY, w: uw, h: bodyTopY - upperTopY });
+
+    const ledgeL = ux - bx;
+    const ledgeR = bx + bw - (ux + uw);
+    if (ledgeL > 5) prims.push({ t: "merlon", x: bx, y: bodyTopY, w: ledgeL });
+    if (ledgeR > 5) prims.push({ t: "merlon", x: ux + uw, y: bodyTopY, w: ledgeR });
+
+    let roofH = Math.round(uw * (0.95 + rng() * 0.25));
+    if (upperTopY - roofH < 8) roofH = Math.max(6, upperTopY - 8);
+    prims.push({ t: "roof", x: ux, y: upperTopY, w: uw, h: roofH });
+
+    let ph = 10 + rng() * 8;
+    if (upperTopY - ph < 8) ph = Math.max(6, upperTopY - 8);
+    prims.push({ t: "pinnacle", x: ux - 4, y: upperTopY + 3, w: 4, h: ph });
+    prims.push({ t: "pinnacle", x: ux + uw, y: upperTopY + 3, w: 4, h: ph });
+
+    const rows = 2 + Math.floor(rng() * 2);
+    for (let i = 0; i < rows; i += 1) {
+      const sw = 3 + Math.floor(rng() * 3);
+      const sh = 6 + Math.floor(rng() * 4);
+      const sx = Math.round(bx + bw * (0.28 + rng() * 0.44) - sw / 2);
+      const sy = Math.round(bodyTopY + 12 + i * (sh + 7));
+      if (sy + sh < bottom - 6)
+        slits.push({ x: sx, y: sy, w: sw, h: sh, arched: true });
+    }
+    return { bx, bw, bodyTopY, bottom };
+  };
+
+  const addArcade = (ax: number, aw: number, topRaw: number, arches: number) => {
+    const topY = clampTop(topRaw);
+    prims.push({ t: "box", x: ax, y: topY, w: aw, h: baseline - topY });
+    prims.push({ t: "merlon", x: ax, y: topY, w: aw });
+    const pitch = aw / arches;
+    const arcW = pitch * 0.58;
+    const yb = baseline - 4;
+    const yt = topY + 6;
+    for (let i = 0; i < arches; i += 1) {
+      const cx = ax + pitch * i + (pitch - arcW) / 2;
+      slits.push({
+        x: Math.round(cx),
+        y: Math.round(yt),
+        w: Math.round(arcW),
+        h: Math.round(yb - yt),
+        arched: true,
+      });
+    }
+  };
+
+  const addColumn = (cx: number, cw: number, topRaw: number) => {
+    const topY = clampTop(topRaw);
+    prims.push({ t: "box", x: cx, y: topY, w: cw, h: baseline - topY });
+    // stepped, damaged flat crown (v2's column was fine — keep it)
+    prims.push({ t: "box", x: cx - 3, y: topY, w: cw + 6, h: 8 });
+    prims.push({
+      t: "box",
+      x: Math.round(cx + cw * 0.18),
+      y: topY - 10,
+      w: Math.round(cw * 0.5),
+      h: 12,
+    });
+    prims.push({
+      t: "box",
+      x: Math.round(cx + cw * 0.12),
+      y: topY - 4,
+      w: Math.round(cw * 0.34),
+      h: 8,
+    });
+    slits.push({
+      x: Math.round(cx + cw / 2 - 2),
+      y: Math.round(topY + 22),
+      w: 4,
+      h: 11,
+      arched: true,
+    });
+  };
+
+  if (layer === "far") {
+    // One great cathedral-mass anchored left.
+    const cx = 40 + rng() * 50;
+    const cw = 160 + rng() * 80;
+    const naveTop = clampTop(baseline - reach * (0.46 + rng() * 0.08));
+    prims.push({ t: "box", x: cx, y: naveTop, w: cw, h: baseline - naveTop });
+    prims.push({ t: "roof", x: cx, y: naveTop, w: cw, h: Math.round(cw * 0.15) });
+    for (let i = 0; i < 3; i += 1) {
+      slits.push({
+        x: Math.round(cx + cw * (0.15 + 0.3 * i)),
+        y: Math.round(naveTop + 14),
+        w: 4,
+        h: 10,
+        arched: true,
+      });
+    }
+    // Dominant tower rising from the nave, tiers + tall roof, top in upper reach.
+    const twW = Math.max(72, Math.round(cw * 0.34));
+    const twX = Math.round(cx + cw * 0.48);
+    addKeep(twX, twW, baseline - reach * (0.6 + rng() * 0.06));
+    // Connecting curtain wall.
+    const wX = cx + cw + 8;
+    const wW = 150 + rng() * 60;
+    addWall(wX, wW, baseline - reach * (0.32 + rng() * 0.08));
+    // 1–2 secondary tiered keeps.
+    addKeep(wX + wW + 12, 82 + rng() * 24, baseline - reach * (0.52 + rng() * 0.1));
+    addKeep(
+      wX + wW + 120 + rng() * 40,
+      76 + rng() * 22,
+      baseline - reach * (0.46 + rng() * 0.1),
+    );
+  } else if (layer === "mid") {
+    // 2–3 heavy bastion groups, generous sky gaps, slightly lower than far.
+    const anchors = [0.06, 0.4, 0.72];
+    for (let g = 0; g < anchors.length; g += 1) {
+      const gx = Math.round(width * anchors[g] + rng() * 40);
+      const runW = 120 + rng() * 80;
+      addWall(gx, runW, baseline - reach * (0.26 + rng() * 0.08));
+      addKeep(gx + 10 + rng() * 20, 82 + rng() * 40, baseline - reach * (0.66 + rng() * 0.16));
+      if (rng() < 0.6)
+        addKeep(gx + runW * 0.55, 74 + rng() * 28, baseline - reach * (0.56 + rng() * 0.12));
+    }
+    // One gothic arcade run for variety (pointed arches).
+    addArcade(width * 0.55 + rng() * 20, 120 + rng() * 50, baseline - reach * 0.22, 4 + Math.floor(rng() * 3));
+  } else {
+    // NEAR: low broken crenellated rampart across the whole tile (dark & quiet
+    // behind the lane), one lit keep (ember), one colossal broken column.
+    const rampTop = baseline - reach * (0.28 + rng() * 0.06);
+    const gapStart = Math.round(width * (0.55 + rng() * 0.1));
+    const gapW = 40 + rng() * 30;
+    addWall(0, gapStart, rampTop);
+    addWall(gapStart + gapW, width - (gapStart + gapW), rampTop);
+
+    const keepX = Math.round(width * (0.12 + rng() * 0.06));
+    const keepW = 90 + rng() * 30;
+    const keep = addKeep(keepX, keepW, baseline - reach * (0.7 + rng() * 0.1));
+
+    const colX = Math.round(width * (0.7 + rng() * 0.05));
+    const colW = 34 + rng() * 12;
+    addColumn(colX, colW, baseline - reach * (0.9 + rng() * 0.06));
+
+    // ONE ember window cluster on the lit keep (4–7, arched, spread ≤ 60).
+    if (opts.windows) {
+      const n = 4 + Math.floor(rng() * 4);
+      const spread = Math.min(60, keep.bw - 14);
+      const cx0 = keep.bx + (keep.bw - spread) / 2;
+      const rowY = keep.bodyTopY + 16;
+      for (let i = 0; i < n; i += 1) {
+        const ww = 3 + Math.floor(rng() * 3);
+        const wh = 5 + Math.floor(rng() * 5);
+        const wx = cx0 + (spread / n) * i + rng() * 3;
+        const wy = rowY + (i % 2) * (wh + 4) + rng() * 4;
+        if (wy + wh < baseline - 8)
+          windows.push({
+            x: Math.round(wx),
+            y: Math.round(wy),
+            w: ww,
+            h: wh,
+            arched: true,
+          });
+      }
     }
   }
 
-  // Shape primitives now take an explicit context so the rim layer can reuse
-  // the exact same geometry on a second canvas without touching rng.
-  const needle = (
-    c: CanvasRenderingContext2D,
-    nx: number,
-    ny: number,
-    w: number,
-    h: number,
-  ) => {
-    c.beginPath();
-    c.moveTo(nx, ny);
-    c.quadraticCurveTo(nx + w * 0.12, ny - h * 0.45, nx + w / 2, ny - h);
-    c.quadraticCurveTo(nx + w * 0.88, ny - h * 0.45, nx + w, ny);
-    c.closePath();
-    c.fill();
-  };
-  const cone = (
-    c: CanvasRenderingContext2D,
-    cx: number,
-    cy: number,
-    w: number,
-    h: number,
-  ) => {
-    c.beginPath();
-    c.moveTo(cx, cy);
-    c.lineTo(cx + w / 2, cy - h);
-    c.lineTo(cx + w, cy);
-    c.closePath();
-    c.fill();
-  };
-  const merlons = (
-    c: CanvasRenderingContext2D,
-    mx: number,
-    top: number,
-    w: number,
-  ) => {
-    const m = Math.max(3, Math.floor(w / 7));
-    for (let px = mx; px <= mx + w - m; px += m * 2) {
-      c.fillRect(px, top - m, m, m + 1);
-    }
-  };
-
-  // Pass 1: solid ground mass and arcades (arch openings are cut with
-  // destination-out, so they must land before any spire can overlap them).
-  const drawBase = (
+  // ---- Draw phase: no rng, pure functions of the built primitives. ---------
+  const drawSolids = (
     c: CanvasRenderingContext2D,
     offset: number,
     fill: string,
   ) => {
     c.fillStyle = fill;
     c.fillRect(offset, baseline, width, height - baseline);
-    for (const s of shapes) {
-      if (s.kind !== "arcade") continue;
-      const x0 = s.x + offset;
-      c.fillRect(x0, s.top, s.w, baseline - s.top + 1);
-      merlons(c, x0, s.top, s.w);
-      c.globalCompositeOperation = "destination-out";
-      const pitch = s.w / s.arches;
-      const aw = pitch * 0.6;
-      const yb = baseline - 4;
-      const yt = s.top + 5;
-      const ys = yb - (yb - yt) * 0.45;
-      for (let i = 0; i < s.arches; i += 1) {
-        const ax = x0 + pitch * i + (pitch - aw) / 2;
-        c.beginPath();
-        c.moveTo(ax, yb);
-        c.lineTo(ax, ys);
-        c.quadraticCurveTo(ax + aw * 0.1, yt, ax + aw / 2, yt);
-        c.quadraticCurveTo(ax + aw * 0.9, yt, ax + aw, ys);
-        c.lineTo(ax + aw, yb);
-        c.closePath();
-        c.fill();
+    for (const p of prims) {
+      switch (p.t) {
+        case "box":
+          c.fillRect(p.x + offset, p.y, p.w, p.h + 1);
+          break;
+        case "roof": {
+          const rx = p.x + offset;
+          c.beginPath();
+          c.moveTo(rx, p.y);
+          c.lineTo(rx + p.w / 2, p.y - p.h);
+          c.lineTo(rx + p.w, p.y);
+          c.closePath();
+          c.fill();
+          break;
+        }
+        case "pinnacle": {
+          const px = p.x + offset;
+          const stub = p.h * 0.4;
+          c.fillRect(px, p.y - stub, p.w, stub + 1);
+          c.beginPath();
+          c.moveTo(px, p.y - stub);
+          c.lineTo(px + p.w / 2, p.y - p.h);
+          c.lineTo(px + p.w, p.y - stub);
+          c.closePath();
+          c.fill();
+          break;
+        }
+        case "merlon": {
+          if (p.w < 4) break;
+          const mx = p.x + offset;
+          const m = Math.max(3, Math.floor(p.w / 7));
+          for (let qx = mx; qx <= mx + p.w - m; qx += m * 2) {
+            c.fillRect(qx, p.y - m, m, m + 1);
+          }
+          break;
+        }
+        case "buttress": {
+          const bx = p.x + offset;
+          c.beginPath();
+          c.moveTo(bx, baseline + 1);
+          c.lineTo(bx + p.w, baseline - p.h);
+          c.lineTo(bx + p.w, baseline + 1);
+          c.closePath();
+          c.fill();
+          break;
+        }
       }
-      c.globalCompositeOperation = "source-over";
     }
   };
 
-  // Pass 2: the skyline proper.
-  const drawShapes = (
-    c: CanvasRenderingContext2D,
-    offset: number,
-    fill: string,
-  ) => {
-    c.fillStyle = fill;
-    for (const s of shapes) {
-      switch (s.kind) {
-        case "spire": {
-          const x0 = s.x + offset;
-          c.fillRect(x0, s.top, s.w, baseline - s.top + 1);
-          needle(c, x0, s.top, s.w, s.needle);
-          cone(c, x0 - 1.5, s.top, 3, 6);
-          cone(c, x0 + s.w - 1.5, s.top, 3, 6);
-          break;
-        }
-        case "tower": {
-          const x0 = s.x + offset;
-          c.fillRect(x0, s.top, s.w, baseline - s.top + 1);
-          merlons(c, x0, s.top, s.w);
-          if (s.cap > 0) cone(c, x0 - 1, s.top, s.w + 2, s.cap);
-          break;
-        }
-        case "cathedral": {
-          const x0 = s.x + offset;
-          const bodyH = baseline - s.top;
-          const ridgeY = s.top - s.w * 0.3;
-          c.fillRect(x0, s.top, s.w, bodyH + 1);
-          cone(c, x0, s.top, s.w, s.w * 0.3);
-          c.fillRect(x0 + s.w / 2 - 3, ridgeY + 2, 6, 8);
-          needle(c, x0 + s.w / 2 - 3, ridgeY + 2, 6, s.needle);
-          const tw = s.w * 0.18;
-          for (const tx of [x0, x0 + s.w - tw]) {
-            c.fillRect(tx, s.towerTop, tw, baseline - s.towerTop + 1);
-            merlons(c, tx, s.towerTop, tw);
-            needle(c, tx + tw * 0.2, s.towerTop, tw * 0.6, tw * 1.6);
-          }
-          for (let i = 0; i < 2; i += 1) {
-            const sign = i === 0 ? -1 : 1;
-            const bx = i === 0 ? x0 : x0 + s.w;
-            c.beginPath();
-            c.moveTo(bx + sign * s.w * 0.12, baseline + 1);
-            c.lineTo(bx, baseline - bodyH * 0.55);
-            c.lineTo(bx, baseline + 1);
-            c.closePath();
-            c.fill();
-          }
-          break;
-        }
-        case "houses": {
-          for (const r of s.ridges) {
-            const rx = r.x + offset;
-            c.fillRect(rx, r.top, r.w, baseline - r.top + 1);
-            cone(c, rx - 1, r.top, r.w + 2, r.w * 0.45);
-          }
-          break;
-        }
-        case "arcade":
-          break;
+  // Arched/rectangular dark slits, cut AFTER all solids so overlaps can't
+  // refill them. destination-out ignores fill colour (alpha carves).
+  const drawSlits = (c: CanvasRenderingContext2D, offset: number) => {
+    c.globalCompositeOperation = "destination-out";
+    for (const s of slits) {
+      const sx = s.x + offset;
+      if (s.arched) {
+        const yb = s.y + s.h;
+        const yt = s.y;
+        const ys = yb - (yb - yt) * 0.4;
+        c.beginPath();
+        c.moveTo(sx, yb);
+        c.lineTo(sx, ys);
+        c.quadraticCurveTo(sx + s.w * 0.1, yt, sx + s.w / 2, yt);
+        c.quadraticCurveTo(sx + s.w * 0.9, yt, sx + s.w, ys);
+        c.lineTo(sx + s.w, yb);
+        c.closePath();
+        c.fill();
+      } else {
+        c.fillRect(sx, s.y, s.w, s.h);
       }
     }
+    c.globalCompositeOperation = "source-over";
   };
 
   const drawWindows = (
@@ -569,22 +647,18 @@ export function castleTexture(
     c.shadowBlur = 0;
   };
 
-  // Skyline in the base colour — identical to the historical output.
-  for (const offset of [0, -width, width]) drawBase(ctx, offset, color);
-  for (const offset of [0, -width, width]) drawShapes(ctx, offset, color);
+  // Skyline in the base colour, then the dark slits cut through it.
+  for (const offset of [0, -width, width]) drawSolids(ctx, offset, color);
+  for (const offset of [0, -width, width]) drawSlits(ctx, offset);
 
-  // Rim pass (opt-in). Build the whole silhouette again in the warm key on a
-  // scratch canvas, then carve its own interior away by stamping itself back
-  // shifted (-3, +2): the shift-left leaves the right 3px, the shift-down
-  // leaves the top 2px — a crisp warm sliver, no shadowBlur. We then stamp the
-  // slivers onto the skyline with source-atop, so they can only land on opaque
-  // masonry; arch cutouts and open sky are never coloured. INTEGRATOR: the
-  // stamp runs at 0.7 alpha — full-strength peach reads as a sticker edge,
-  // 0.7 settles the sliver into the stone. No rng is touched.
+  // Rim pass (opt-in; souls never passes it, kept working). Rebuild the whole
+  // silhouette in the warm key on a scratch canvas, carve its interior by
+  // stamping itself shifted (-3,+2) to leave a right/top sliver, then stamp
+  // onto the skyline with source-atop so it only lands on opaque masonry.
   if (opts.rim) {
     const rim = makeCanvas(width, height);
-    for (const offset of [0, -width, width]) drawBase(rim.ctx, offset, opts.rim);
-    for (const offset of [0, -width, width]) drawShapes(rim.ctx, offset, opts.rim);
+    for (const offset of [0, -width, width]) drawSolids(rim.ctx, offset, opts.rim);
+    for (const offset of [0, -width, width]) drawSlits(rim.ctx, offset);
     rim.ctx.globalCompositeOperation = "destination-out";
     rim.ctx.drawImage(rim.canvas, -3, 2);
     rim.ctx.globalCompositeOperation = "source-over";
@@ -630,7 +704,12 @@ export type BackdropSpec = {
     build: (seed: string, p: ThemePalette) => THREE.CanvasTexture;
     scale: number;
     opacity?: number;
+    // Per-theme sprite count (default 8 = today). The shared seeded array is
+    // sliced, never reseeded, so pastel stays byte-identical.
+    count?: number;
   } | null;
+  // Optional per-theme sun knobs threaded into skyTexture. Absent = today.
+  sky?: { sunScale?: number; sunGlow?: number; sunDrop?: number };
 };
 
 // Per-character backdrop lookup; scene code never branches on theme.
@@ -658,12 +737,11 @@ export const BACKDROPS: Record<CharacterId, BackdropSpec> = {
   souls: {
     layers: [
       {
-        // Plane spans y −1.5…10.5; spire tops land around y 9–10.
-        // NO rim light in the Ash Lake read: the far city is a value, not
-        // an edge — mist, not sun.
+        // Plane spans y −1.5…10.5. ONE cathedral-mass + curtain wall + keeps.
+        // NO rim: the far city is a value in mist, not a sun-lit edge.
         build: (p) =>
           castleTexture(p.castleFar, "kitty-run/castle/far", {
-            density: 0.9,
+            layer: "far",
             baseline: 0.18,
           }),
         z: -11,
@@ -673,10 +751,10 @@ export const BACKDROPS: Record<CharacterId, BackdropSpec> = {
         opacity: 0.9,
       },
       {
-        // Plane spans y −2…7; tops around y 6–6.5. Matte like the far layer.
+        // Plane spans y −2…7. Heavy bastion runs, generous sky gaps.
         build: (p) =>
           castleTexture(p.castleMid, "kitty-run/castle/mid", {
-            density: 0.66,
+            layer: "mid",
             baseline: 0.24,
           }),
         z: -9,
@@ -685,12 +763,12 @@ export const BACKDROPS: Record<CharacterId, BackdropSpec> = {
         speed: 0.22,
       },
       {
-        // Plane spans y −2…5; sparse thin towers, solid mass only below ~y 0.1.
-        // The ember windows live here — the SINGLE warm point in the world.
+        // Plane spans y −2…5. Low broken rampart (dark & quiet behind the
+        // lane) + one lit keep (the SINGLE ember cluster) + one broken column.
         build: (p) =>
           castleTexture(p.castleNear, "kitty-run/castle/near", {
+            layer: "near",
             windows: p.windowEmber,
-            density: 0.3,
             baseline: 0.3,
           }),
         z: -7,
@@ -700,8 +778,7 @@ export const BACKDROPS: Record<CharacterId, BackdropSpec> = {
       },
     ],
     haze: [
-      // Three thin cold banks (far/mid, mid/near, and a front veil) flatten
-      // depth into layers of grey — uniform cold, no horizon glow.
+      // Two thin cold banks (far/mid and mid/near); the front veil is dropped.
       {
         build: (p) => hazeTexture(p.skyMid, 0.7),
         z: -10,
@@ -716,14 +793,8 @@ export const BACKDROPS: Record<CharacterId, BackdropSpec> = {
         height: 4.4,
         opacity: 0.34,
       },
-      {
-        build: (p) => hazeTexture(p.skyMid, 0.7),
-        z: -6.5,
-        y: 1.4,
-        height: 4,
-        opacity: 0.28,
-      },
     ],
-    cloud: { build: duskCloudTexture, scale: 1.7, opacity: 0.7 },
+    cloud: { build: duskCloudTexture, scale: 2.1, opacity: 0.7, count: 5 },
+    sky: { sunScale: 0.5, sunGlow: 0.45, sunDrop: 40 },
   },
 };

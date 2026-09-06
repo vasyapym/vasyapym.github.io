@@ -83,7 +83,10 @@ function Backdrop({
 }) {
   const palette = paletteFor(character);
   const backdrop = useMemo(() => BACKDROPS[character], [character]);
-  const skyMap = useMemo(() => skyTexture(palette), [palette]);
+  const skyMap = useMemo(
+    () => skyTexture(palette, backdrop.sky),
+    [backdrop, palette],
+  );
   const layerMaps = useMemo(
     () => backdrop.layers.map((layer) => layer.build(palette)),
     [backdrop, palette],
@@ -134,7 +137,11 @@ function Backdrop({
       </mesh>
 
       {cloudStyle &&
-        clouds.map((spec, i) => (
+        clouds
+          // Per-theme cloud budget: the shared seeded array is sliced, never
+          // reseeded, so a theme without a count keeps all 8 sprites.
+          .slice(0, cloudStyle.count ?? 8)
+          .map((spec, i) => (
           <mesh
             key={i}
             ref={(mesh) => {
