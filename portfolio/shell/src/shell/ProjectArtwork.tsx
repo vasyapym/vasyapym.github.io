@@ -433,40 +433,36 @@ function TrailCenterMark() {
   );
 }
 
-/* ── 7 · Spine — ochre spot ink, "routed trace": the item is placed, not
-   thrown. It travels an L-shaped dotted trace (the way a reflow is routed)
-   with sample ticks along the run, over a committed row holding a nested
-   container, landing on the dashed slot's crosshair. A centre-of-mass dot
-   and one glint finish the drafting register. ── */
+/* ── 7 · Spine — dusty steel spot ink, "The Seventh": the project name earned
+   literally — a column of stacked vertebrae threaded on an alignment rail,
+   one slot empty (dashed) and its keyed replacement registered beside it with
+   registration ticks. The anatomy of a stack: rhythm, load, a missing member. ── */
 function SpineCenterMark() {
   return (
     <svg viewBox="0 0 260 160" aria-hidden="true">
       <defs>
-        <pattern id="gem-spine-dense" patternUnits="userSpaceOnUse" width="7" height="7"><circle cx="3.5" cy="3.5" r="1.9" fill="#d39b61" /></pattern>
+        <pattern id="gem-spine-dense" patternUnits="userSpaceOnUse" width="7" height="7"><circle cx="3.5" cy="3.5" r="1.9" fill="#7b93b3" /></pattern>
         <pattern id="gem-spine-sparse" patternUnits="userSpaceOnUse" width="11" height="11"><circle cx="5.5" cy="5.5" r="1.6" fill="#7d7669" /></pattern>
-        <pattern id="gem-spine-halo" patternUnits="userSpaceOnUse" width="7" height="7"><circle cx="3.5" cy="3.5" r="1.9" fill="#d39b61" /></pattern>
+        <pattern id="gem-spine-halo" patternUnits="userSpaceOnUse" width="7" height="7"><circle cx="3.5" cy="3.5" r="1.9" fill="#7b93b3" /></pattern>
       </defs>
       <ellipse cx="130" cy="80" rx="104" ry="64" fill="url(#gem-spine-sparse)" opacity="0.09" />
       <ellipse className="gem-halo" cx="130" cy="80" rx="58" ry="42" fill="url(#gem-spine-halo)" style={haloVar(0.12)} opacity={0.12} />
-      {/* committed row — item, nested column container, and the dashed slot */}
-      <rect x="40" y="86" width="150" height="32" rx="3" fill="#26333b" stroke="#b6ac95" strokeWidth="3" />
-      <rect x="46" y="93" width="24" height="18" rx="2" fill="#465059" stroke="#b6ac95" strokeWidth="2" />
-      <rect x="78" y="90" width="54" height="24" rx="2" fill="#1c262d" stroke="#b6ac95" strokeWidth="2" />
-      <rect x="84" y="94" width="20" height="6" rx="1" fill="#7d7669" />
-      <rect x="84" y="104" width="14" height="6" rx="1" fill="#7d7669" />
-      <rect x="146" y="92" width="34" height="20" rx="2" fill="none" stroke="#7d7669" strokeWidth="1.5" strokeDasharray="4 4" />
-      <line x1="163" y1="95" x2="163" y2="109" stroke="#d39b61" strokeWidth="1.5" />
-      <line x1="156" y1="102" x2="170" y2="102" stroke="#d39b61" strokeWidth="1.5" />
-      {/* the reflow, routed like a trace: right, then down into the lane */}
-      <path d="M114 47 H147 Q163 47 163 63 V88" fill="none" stroke="#7a5230" strokeWidth="2" strokeDasharray="2 5" />
-      <line x1="124" y1="44" x2="124" y2="51" stroke="#7a5230" strokeWidth="1.5" opacity="0.7" />
-      <line x1="136" y1="44" x2="136" y2="51" stroke="#7a5230" strokeWidth="1.5" opacity="0.5" />
-      {/* the item — precise, with a centre-of-mass marker and a glint */}
-      <g transform="rotate(10 100 40)">
-        <rect x="79" y="29" width="42" height="22" rx="2" fill="url(#gem-spine-dense)" stroke="#7a5230" strokeWidth="2.5" />
-        <circle cx="100" cy="40" r="2" fill="#eeeae0" />
+      {/* the alignment rail the column threads on */}
+      <line x1="128" y1="26" x2="128" y2="136" stroke="#465059" strokeWidth="1.5" strokeDasharray="1 4" />
+      {/* vertebrae — rhythm of widths; the third slot waits dashed */}
+      <rect x="104" y="30" width="48" height="17" rx="2" fill="#26333b" stroke="#b6ac95" strokeWidth="2.5" />
+      <rect x="98" y="51" width="60" height="17" rx="2" fill="#465059" stroke="#b6ac95" strokeWidth="2.5" />
+      <rect x="102" y="72" width="52" height="17" rx="2" fill="none" stroke="#7d7669" strokeWidth="1.5" strokeDasharray="4 4" />
+      <rect x="96" y="93" width="64" height="17" rx="2" fill="#465059" stroke="#b6ac95" strokeWidth="2.5" />
+      <rect x="106" y="114" width="44" height="15" rx="2" fill="#1c262d" stroke="#7d7669" strokeWidth="2" />
+      {/* registration ticks keying the replacement to the empty slot */}
+      <line x1="158" y1="76" x2="166" y2="76" stroke="#7b93b3" strokeWidth="1.5" />
+      <line x1="158" y1="85" x2="166" y2="85" stroke="#7b93b3" strokeWidth="1.5" />
+      {/* the keyed replacement vertebra */}
+      <g transform="rotate(-4 196 81)">
+        <rect x="176" y="72" width="42" height="17" rx="2" fill="url(#gem-spine-dense)" stroke="#42536b" strokeWidth="2.5" />
+        <rect x="178" y="75" width="5" height="2" fill="#ffffff" opacity="0.55" />
       </g>
-      <rect x="85" y="32" width="5" height="2" fill="#ffffff" opacity="0.6" />
     </svg>
   );
 }
