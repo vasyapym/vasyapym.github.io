@@ -118,3 +118,5 @@
 {"type":"edge.added","id":"e56","ts":"2026-09-06T02:43:05.806Z","from":"n60","to":"n62","rel":"continues"}
 {"type":"node.added","id":"n63","ts":"2026-09-06T02:43:21.665Z","kind":"iteration","actor":"user","title":"feat(kitty-run): pure points game — HUD meters and over-card 'm run' removed, milestones fire on score","artifacts":[{"kind":"git-commit","ref":"f8da291"}],"meta":{"source":"auto"}}
 {"type":"edge.added","id":"e57","ts":"2026-09-06T02:43:21.674Z","from":"n62","to":"n63","rel":"continues"}
+{"type":"node.added","id":"n64","ts":"2026-09-06T02:47:35.791Z","kind":"iteration","actor":"user","title":"fix(kitty-run): character-swap chip says 'change character' — visitors should not have to guess","artifacts":[{"kind":"git-commit","ref":"c8640be"}],"meta":{"source":"auto"}}
+{"type":"edge.added","id":"e58","ts":"2026-09-06T02:47:35.794Z","from":"n63","to":"n64","rel":"continues"}

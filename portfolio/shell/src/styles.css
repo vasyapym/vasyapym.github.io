@@ -357,12 +357,14 @@ textarea:focus-visible {
 
 
 /* "more ↓" — the overflow affordance when the catalogue exceeds the cap
-   (5 rows mobile, 6 rows desktop). Mobile: a plain list row. From 561px up:
-   a centred full-width row under the grid — the downward arrow says the rest
-   of the catalogue lives below the fold. With exactly 6 projects the
-   desktop grid already shows everything, so the affordance retreats to
-   mobile only (data-more-mobile-only). */
+   (5 rows mobile, 6 rows desktop). Always a centred full-width row under
+   the grid — the downward arrow says the rest of the catalogue lives
+   below the fold. With exactly 6 projects the desktop grid already shows
+   everything, so the affordance retreats to mobile only
+   (data-more-mobile-only). */
 .signal-index-beneath-more {
+  grid-column: 1 / -1;
+  justify-self: center;
   display: inline-flex;
   align-items: baseline;
   gap: 0.5rem;
@@ -389,8 +391,6 @@ textarea:focus-visible {
 
 @media (min-width: 561px) {
   .signal-index-beneath-more {
-    grid-column: 1 / -1;
-    justify-self: center;
     padding: 0.3rem 0.75rem;}
 
   .signal-index-beneath-more[data-more-mobile-only] {
