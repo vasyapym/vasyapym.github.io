@@ -289,3 +289,5 @@
 {"type":"edge.added","id":"e137","ts":"2026-09-06T09:04:23.785Z","from":"n142","to":"n143","rel":"continues"}
 {"type":"node.added","id":"n144","ts":"2026-09-06T09:59:56.251Z","kind":"iteration","actor":"user","title":"feat(spine): 'Off the Board' card mark — corkscrew diver into the crosshair slot; spine joins the halo pulse","artifacts":[{"kind":"git-commit","ref":"1ad971e"}],"meta":{"source":"auto"}}
 {"type":"edge.added","id":"e138","ts":"2026-09-06T09:59:56.257Z","from":"n143","to":"n144","rel":"continues"}
+{"type":"node.added","id":"n145","ts":"2026-09-06T10:16:52.806Z","kind":"iteration","actor":"user","title":"feat(spine): senior reroll of the card mark — routed-trace placement in ochre, nested container in the row","artifacts":[{"kind":"git-commit","ref":"4db546c"}],"meta":{"source":"auto"}}
+{"type":"edge.added","id":"e139","ts":"2026-09-06T10:16:52.819Z","from":"n144","to":"n145","rel":"continues"}

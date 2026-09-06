@@ -13,3 +13,5 @@
 {"type":"edge.added","id":"e6","ts":"2026-09-06T09:04:23.789Z","from":"n6","to":"n7","rel":"continues"}
 {"type":"node.added","id":"n8","ts":"2026-09-06T09:33:00.590Z","kind":"iteration","actor":"user","title":"fix(spine): mobile inspector polish — Start Anew wraps flush with + Item, pane hairlines stack INSPECTOR/OUTPUT","artifacts":[{"kind":"git-commit","ref":"2158c8e"}],"meta":{"source":"auto"}}
 {"type":"edge.added","id":"e7","ts":"2026-09-06T09:33:00.592Z","from":"n7","to":"n8","rel":"continues"}
+{"type":"node.added","id":"n9","ts":"2026-09-06T10:16:52.668Z","kind":"iteration","actor":"user","title":"feat(spine): senior reroll of the card mark — routed-trace placement in ochre, nested container in the row","artifacts":[{"kind":"git-commit","ref":"4db546c"}],"meta":{"source":"auto"}}
+{"type":"edge.added","id":"e8","ts":"2026-09-06T10:16:52.672Z","from":"n8","to":"n9","rel":"continues"}
