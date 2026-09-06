@@ -291,3 +291,5 @@
 {"type":"edge.added","id":"e138","ts":"2026-09-06T09:59:56.257Z","from":"n143","to":"n144","rel":"continues"}
 {"type":"node.added","id":"n145","ts":"2026-09-06T10:16:52.806Z","kind":"iteration","actor":"user","title":"feat(spine): senior reroll of the card mark — routed-trace placement in ochre, nested container in the row","artifacts":[{"kind":"git-commit","ref":"4db546c"}],"meta":{"source":"auto"}}
 {"type":"edge.added","id":"e139","ts":"2026-09-06T10:16:52.819Z","from":"n144","to":"n145","rel":"continues"}
+{"type":"node.added","id":"n146","ts":"2026-09-06T10:20:56.620Z","kind":"iteration","actor":"user","title":"fix(shell): beneath-the-surface lists 6 rows + more affordance on mobile too — overflow cap removed","artifacts":[{"kind":"git-commit","ref":"471cf39"}],"meta":{"source":"auto"}}
+{"type":"edge.added","id":"e140","ts":"2026-09-06T10:20:56.635Z","from":"n145","to":"n146","rel":"continues"}
