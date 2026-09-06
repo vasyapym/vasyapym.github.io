@@ -433,11 +433,10 @@ function TrailCenterMark() {
   );
 }
 
-/* ── 7 · Spine — chartreuse spot ink, a flex row re-flows: the accent item
-   drops into the trailing dashed slot while a nested column (one step darker
-   than the family ramp, so containment reads) holds its committed children.
-   Motion is a single vertical drop — depth by containment, not Raft's
-   lateral cascade. ── */
+/* ── 7 · Spine — chartreuse spot ink, "Off the Board": the item is the
+   athlete — it corkscrews off the committed flex row and dives, squashed and
+   stretched, into the dashed drop slot under the crosshair. The boxes stay
+   dead-orthogonal; the diver's body owns all the diagonal energy. ── */
 function SpineCenterMark() {
   return (
     <svg viewBox="0 0 260 160" aria-hidden="true">
@@ -448,26 +447,24 @@ function SpineCenterMark() {
       </defs>
       <ellipse cx="130" cy="80" rx="104" ry="64" fill="url(#gem-spine-sparse)" opacity="0.09" />
       <ellipse className="gem-halo" cx="130" cy="80" rx="58" ry="42" fill="url(#gem-spine-halo)" style={haloVar(0.12)} opacity={0.12} />
-      {/* root container — the outer flex row */}
-      <rect x="50" y="46" width="160" height="68" rx="4" fill="#26333b" stroke="#b6ac95" strokeWidth="3" />
-      {/* child 1 — committed item A */}
-      <rect x="60" y="60" width="26" height="40" rx="2" fill="#465059" stroke="#b6ac95" strokeWidth="2.5" />
-      {/* child 2 — nested column container holding B / C */}
-      <rect x="96" y="56" width="46" height="48" rx="3" fill="#1c262d" stroke="#b6ac95" strokeWidth="2.5" />
-      <rect x="104" y="62" width="30" height="16" rx="2" fill="#465059" stroke="#b6ac95" strokeWidth="2" />
-      <rect x="104" y="82" width="30" height="16" rx="2" fill="#465059" stroke="#b6ac95" strokeWidth="2" />
-      {/* child 3 — empty drop target, not yet placed (dashed = "empty") */}
-      <rect x="152" y="62" width="44" height="40" rx="2" fill="none" stroke="#7d7669" strokeWidth="1.5" strokeDasharray="4 4" />
-      {/* flex-gap ticks between siblings */}
-      <line x1="91" y1="106" x2="91" y2="111" stroke="#7d7669" strokeWidth="2" />
-      <line x1="147" y1="106" x2="147" y2="111" stroke="#7d7669" strokeWidth="2" />
-      {/* chartreuse protagonist — item re-flowing down into the slot */}
-      <polyline points="174,50 174,60" fill="none" stroke="#5c6e1a" strokeWidth="3" />
-      <polyline points="169,55 174,61 179,55" fill="none" stroke="#5c6e1a" strokeWidth="3" />
-      <rect x="158" y="26" width="34" height="22" rx="3" fill="url(#gem-spine-dense)" stroke="#5c6e1a" strokeWidth="2.5" />
-      <rect x="164" y="32" width="10" height="4" rx="1" fill="#b4e05a" />
-      {/* glint */}
-      <rect x="162" y="30" width="9" height="3" fill="#ffffff" opacity="0.5" />
+      {/* committed row — the springboard the diver just left */}
+      <rect x="40" y="84" width="150" height="34" rx="4" fill="#26333b" stroke="#b6ac95" strokeWidth="3" />
+      <rect x="48" y="92" width="26" height="18" rx="2" fill="#465059" stroke="#b6ac95" strokeWidth="2" />
+      <rect x="80" y="92" width="26" height="18" rx="2" fill="#465059" stroke="#b6ac95" strokeWidth="2" />
+      <rect x="112" y="92" width="26" height="18" rx="2" fill="#465059" stroke="#b6ac95" strokeWidth="2" />
+      {/* dashed drop slot the dive is aimed at */}
+      <rect x="146" y="90" width="34" height="22" rx="2" fill="none" stroke="#7d7669" strokeWidth="1.5" strokeDasharray="4 4" />
+      <line x1="163" y1="94" x2="163" y2="108" stroke="#5c6e1a" strokeWidth="1.5" />
+      <line x1="156" y1="101" x2="170" y2="101" stroke="#5c6e1a" strokeWidth="1.5" />
+      {/* arc of the dive */}
+      <path d="M70 44 Q120 28 158 92" fill="none" stroke="#5c6e1a" strokeWidth="2" strokeDasharray="2 5" />
+      {/* the athlete — squash-stretched item mid-corkscrew */}
+      <g transform="rotate(40 108 54)">
+        <rect x="88" y="42" width="40" height="20" rx="7" fill="url(#gem-spine-dense)" stroke="#5c6e1a" strokeWidth="2.5" />
+      </g>
+      {/* trailing stretch streaks */}
+      <line x1="70" y1="46" x2="86" y2="50" stroke="#b4e05a" strokeWidth="2.5" strokeLinecap="round" opacity="0.7" />
+      <line x1="68" y1="54" x2="82" y2="57" stroke="#b4e05a" strokeWidth="2" strokeLinecap="round" opacity="0.45" />
     </svg>
   );
 }

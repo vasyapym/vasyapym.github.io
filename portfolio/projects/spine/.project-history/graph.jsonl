@@ -11,3 +11,5 @@
 {"type":"edge.added","id":"e5","ts":"2026-09-06T09:03:30.436Z","from":"n5","to":"n6","rel":"continues"}
 {"type":"node.added","id":"n7","ts":"2026-09-06T09:04:23.789Z","kind":"iteration","actor":"user","title":"feat(spine): original card illustration, undoable Start Anew reset, flat dropdowns + copy feedback","artifacts":[{"kind":"git-commit","ref":"cbf05ca"}],"meta":{"source":"auto"}}
 {"type":"edge.added","id":"e6","ts":"2026-09-06T09:04:23.789Z","from":"n6","to":"n7","rel":"continues"}
+{"type":"node.added","id":"n8","ts":"2026-09-06T09:33:00.590Z","kind":"iteration","actor":"user","title":"fix(spine): mobile inspector polish — Start Anew wraps flush with + Item, pane hairlines stack INSPECTOR/OUTPUT","artifacts":[{"kind":"git-commit","ref":"2158c8e"}],"meta":{"source":"auto"}}
+{"type":"edge.added","id":"e7","ts":"2026-09-06T09:33:00.592Z","from":"n7","to":"n8","rel":"continues"}

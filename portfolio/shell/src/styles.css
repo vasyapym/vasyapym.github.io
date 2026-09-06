@@ -1079,9 +1079,10 @@ textarea:focus-visible {
   .signal-index-card:nth-child(7) .project-artwork-center svg { animation-delay: 2.4s; }
   .signal-index-card:nth-child(8) .project-artwork-center svg { animation-delay: 2.8s; }
 
-  /* halo pulse — Raft + Planck only, same 4s clock */
+  /* halo pulse — Raft + Planck + Spine, same 4s clock */
   .presentation-raft-cluster .gem-halo,
-  .presentation-planck-to-now .gem-halo {
+  .presentation-planck-to-now .gem-halo,
+  .presentation-spine .gem-halo {
     animation: gem-halo-pulse 4s ease-in-out infinite;}
 }
 
