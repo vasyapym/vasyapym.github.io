@@ -287,3 +287,5 @@
 {"type":"edge.added","id":"e136","ts":"2026-09-06T02:49:28.810Z","from":"n141","to":"n142","rel":"continues"}
 {"type":"node.added","id":"n143","ts":"2026-09-06T09:04:23.775Z","kind":"iteration","actor":"user","title":"feat(spine): original card illustration, undoable Start Anew reset, flat dropdowns + copy feedback","artifacts":[{"kind":"git-commit","ref":"cbf05ca"}],"meta":{"source":"auto"}}
 {"type":"edge.added","id":"e137","ts":"2026-09-06T09:04:23.785Z","from":"n142","to":"n143","rel":"continues"}
+{"type":"node.added","id":"n144","ts":"2026-09-06T09:59:56.251Z","kind":"iteration","actor":"user","title":"feat(spine): 'Off the Board' card mark — corkscrew diver into the crosshair slot; spine joins the halo pulse","artifacts":[{"kind":"git-commit","ref":"1ad971e"}],"meta":{"source":"auto"}}
+{"type":"edge.added","id":"e138","ts":"2026-09-06T09:59:56.257Z","from":"n143","to":"n144","rel":"continues"}
