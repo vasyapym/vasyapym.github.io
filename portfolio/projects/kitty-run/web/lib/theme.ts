@@ -33,6 +33,8 @@ export type ThemeText = {
   // HUD labels.
   dashLabel: string;
   pilotLabel: string;
+  // The mid-run character-swap chip beside the pause button.
+  swapLabel: string;
   // The small header above the character-select cards.
   pickLabel: string;
 };
@@ -59,6 +61,7 @@ const KITTY_TEXT: ThemeText = {
   overAction: "again",
   dashLabel: "dash",
   pilotLabel: "autopilot · take control",
+  swapLabel: "change character",
   pickLabel: "choose your runner",
 };
 
@@ -141,6 +144,7 @@ const SOULS_TEXT: ThemeText = {
   overAction: "rekindle",
   dashLabel: "roll",
   pilotLabel: "phantom · take control",
+  swapLabel: "change character",
   pickLabel: "choose your vessel",
 };
 

@@ -505,7 +505,7 @@ export default function KittyRunPage() {
                 cycleCharacter();
               }}
             >
-              {theme.text.name}
+              {theme.text.swapLabel}
             </button>
           )}
           {status === "running" && (

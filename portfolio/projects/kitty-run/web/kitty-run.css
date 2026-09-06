@@ -230,6 +230,7 @@
   font-size: 12px;
   font-weight: 700;
   letter-spacing: 0.04em;
+  white-space: nowrap;
   cursor: pointer;
   pointer-events: auto;
   transition: transform 0.14s ease, background 0.14s ease;
@@ -918,8 +919,9 @@
 
   .kitty-run-swap {
     height: 30px;
-    padding: 0 10px;
+    padding: 0 8px;
     font-size: 11px;
+    letter-spacing: 0.02em;
   }
 
   .kitty-run-combo {
