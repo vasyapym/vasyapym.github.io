@@ -285,3 +285,5 @@
 {"type":"edge.added","id":"e135","ts":"2026-09-06T02:36:53.929Z","from":"n140","to":"n141","rel":"continues"}
 {"type":"node.added","id":"n142","ts":"2026-09-06T02:49:28.795Z","kind":"iteration","actor":"user","title":"fix(shell): centre the more-down affordance on mobile too — 5 rows + centred more row below the list","artifacts":[{"kind":"git-commit","ref":"ed57b32"}],"meta":{"source":"auto"}}
 {"type":"edge.added","id":"e136","ts":"2026-09-06T02:49:28.810Z","from":"n141","to":"n142","rel":"continues"}
+{"type":"node.added","id":"n143","ts":"2026-09-06T09:04:23.775Z","kind":"iteration","actor":"user","title":"feat(spine): original card illustration, undoable Start Anew reset, flat dropdowns + copy feedback","artifacts":[{"kind":"git-commit","ref":"cbf05ca"}],"meta":{"source":"auto"}}
+{"type":"edge.added","id":"e137","ts":"2026-09-06T09:04:23.785Z","from":"n142","to":"n143","rel":"continues"}
