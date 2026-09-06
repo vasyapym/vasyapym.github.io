@@ -293,3 +293,5 @@
 {"type":"edge.added","id":"e139","ts":"2026-09-06T10:16:52.819Z","from":"n144","to":"n145","rel":"continues"}
 {"type":"node.added","id":"n146","ts":"2026-09-06T10:20:56.620Z","kind":"iteration","actor":"user","title":"fix(shell): beneath-the-surface lists 6 rows + more affordance on mobile too — overflow cap removed","artifacts":[{"kind":"git-commit","ref":"471cf39"}],"meta":{"source":"auto"}}
 {"type":"edge.added","id":"e140","ts":"2026-09-06T10:20:56.635Z","from":"n145","to":"n146","rel":"continues"}
+{"type":"node.added","id":"n147","ts":"2026-09-06T10:54:32.212Z","kind":"iteration","actor":"user","title":"feat(spine): 'The Seventh' card mark — vertebrae column on an alignment rail in dusty steel, keyed replacement registered beside the empty slot","artifacts":[{"kind":"git-commit","ref":"1373911"}],"meta":{"source":"auto"}}
+{"type":"edge.added","id":"e141","ts":"2026-09-06T10:54:32.271Z","from":"n146","to":"n147","rel":"continues"}
