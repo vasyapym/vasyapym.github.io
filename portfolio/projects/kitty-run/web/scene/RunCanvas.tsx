@@ -156,7 +156,7 @@ export const RunCanvas = memo(function RunCanvas({
         reducedMotion={reducedMotion}
       />
       <Ground world={world} character={character} />
-      <Shadow world={world} />
+      <Shadow world={world} character={character} />
       <Obstacles world={world} character={character} />
       <Pickups world={world} character={character} />
       <Particles world={world} />

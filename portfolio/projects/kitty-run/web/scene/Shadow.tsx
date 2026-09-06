@@ -7,17 +7,61 @@ import { useMemo, useRef } from "react";
 import * as THREE from "three";
 import { useFrame } from "@react-three/fiber";
 import { groundY } from "../lib/ground.ts";
-import { softDotTexture } from "../lib/textures.ts";
+import { contactShadowTexture, softDotTexture } from "../lib/textures.ts";
+import type { CharacterId } from "../lib/theme.ts";
 import type { WorldState } from "./world.ts";
 
 // Shadow strength falls to this floor at the top of the jump arc, so the
 // highest leaps still keep a whisper of grounding.
-const MIN_OPACITY = 0.14;
-const GROUND_OPACITY = 0.36;
+type ShadowLook = {
+  color: string;
+  texture: "soft" | "contact";
+  // The knight (steel + greatsword) is heavier than the cat: the ellipse
+  // sits tighter to the feet and reads a step stronger on the ground.
+  width: number;
+  height: number;
+  lift: number;
+  groundOpacity: number;
+  minOpacity: number;
+};
 
-export function Shadow({ world }: { world: WorldState }) {
+const SHADOW: Record<CharacterId, ShadowLook> = {
+  kitty: {
+    color: "#b96a8a",
+    texture: "soft",
+    width: 0.72,
+    height: 0.23,
+    lift: 0.02,
+    groundOpacity: 0.36,
+    minOpacity: 0.14,
+  },
+  // Warm-dark stone shadow, between the ink (#17130f) and the ground body
+  // (#3a3835) — the pastel pink was a leftover that broke the palette law.
+  // The dense contact texture is what makes it actually read at the
+  // pulled-back framing: the soft dot's few-px core vanished on stone.
+  souls: {
+    color: "#241f1a",
+    texture: "contact",
+    width: 1.2,
+    height: 0.36,
+    lift: 0.01,
+    groundOpacity: 0.62,
+    minOpacity: 0.3,
+  },
+};
+
+export function Shadow({
+  world,
+  character,
+}: {
+  world: WorldState;
+  character: CharacterId;
+}) {
   const meshRef = useRef<THREE.Mesh>(null);
-  const texture = useMemo(() => softDotTexture(), []);
+  const soft = useMemo(() => softDotTexture(), []);
+  const contact = useMemo(() => contactShadowTexture(), []);
+  const look = SHADOW[character];
+  const texture = look.texture === "contact" ? contact : soft;
 
   useFrame(() => {
     const mesh = meshRef.current;
@@ -31,9 +75,10 @@ export function Shadow({ world }: { world: WorldState }) {
     // tightens toward the feet and fades, like a real drop shadow.
     const t = Math.min(1, height / 3.2);
     const shrink = 1 - t * 0.45;
-    mesh.position.set(0, groundTop + 0.02 + height * 0.02, 0.02);
-    mesh.scale.set(0.72 * shrink, 0.23 * shrink, 1);
-    material.opacity = GROUND_OPACITY - (GROUND_OPACITY - MIN_OPACITY) * t;
+    mesh.position.set(0, groundTop + look.lift + height * 0.02, 0.02);
+    mesh.scale.set(look.width * shrink, look.height * shrink, 1);
+    material.opacity =
+      look.groundOpacity - (look.groundOpacity - look.minOpacity) * t;
   });
 
   return (
@@ -41,9 +86,9 @@ export function Shadow({ world }: { world: WorldState }) {
       <planeGeometry />
       <meshBasicMaterial
         map={texture}
-        color="#b96a8a"
+        color={look.color}
         transparent
-        opacity={GROUND_OPACITY}
+        opacity={look.groundOpacity}
         depthWrite={false}
       />
     </mesh>

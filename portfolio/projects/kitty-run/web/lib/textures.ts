@@ -156,6 +156,22 @@ export function softDotTexture(): THREE.CanvasTexture {
   return toTexture(canvas);
 }
 
+// A denser contact shadow: the soft dot's alpha-1 core is a few pixels —
+// squashed into a ground ellipse it reads as nothing. This one holds a
+// near-solid core out to half the radius so the shadow has actual weight,
+// then falls away quickly. Souls only; the pastel read stays untouched.
+export function contactShadowTexture(): THREE.CanvasTexture {
+  const { canvas, ctx } = makeCanvas(128, 128);
+  const gradient = ctx.createRadialGradient(64, 64, 4, 64, 64, 62);
+  gradient.addColorStop(0, "rgba(255, 255, 255, 1)");
+  gradient.addColorStop(0.5, "rgba(255, 255, 255, 0.85)");
+  gradient.addColorStop(0.8, "rgba(255, 255, 255, 0.3)");
+  gradient.addColorStop(1, "rgba(255, 255, 255, 0)");
+  ctx.fillStyle = gradient;
+  ctx.fillRect(0, 0, 128, 128);
+  return toTexture(canvas);
+}
+
 // Polka-dot face for crates and balloons — hazards read as candy (or, in
 // the dark theme, as iron), not as debris. `opts.lid` (when present) bakes a
 // warm translucent band across the top of the face, as if the low sun is
