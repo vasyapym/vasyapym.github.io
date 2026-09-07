@@ -9,9 +9,10 @@
 //
 // Uses the system Chrome via puppeteer-core (no browser download). Skips
 // cleanly when no Chrome is available so the command stays safe on headless
-// machines. HTML5 drag-and-drop is intentionally not simulated here — the
-// synthetic event machinery required to make it fire is notoriously
-// browser-specific; the rest of the mutation surface is covered.
+// machines. HTML5 drag-and-drop runs through synthetic DragEvents; the
+// touch-only pointer path runs through synthetic PointerEvents — real
+// browser drag machinery is deliberately not driven, only the engine's
+// event handling.
 
 import { spawn } from "node:child_process";
 import { existsSync, mkdirSync } from "node:fs";
@@ -245,6 +246,95 @@ try {
   );
   if (leftover !== 0) throw new Error(`${leftover} drag marker classes survived the drop`);
 
+  // --- pointer-events drag (touch path) ---------------------------------------
+  // Touch devices get no HTML5 drag events; the Go engine carries them via
+  // pointer events. Synthetic PointerEvents exercise that path here —
+  // setPointerCapture throws InvalidPointerId for untracked ids, which the
+  // Go side recovers from, so the blocks below still pass headless.
+  const assert = (cond, msg) => {
+    if (!cond) throw new Error(msg);
+  };
+  const centerOf = (sel, idx) =>
+    page.evaluate(
+      (s, i) => {
+        const el = document.querySelectorAll(s)[i];
+        const r = el.getBoundingClientRect();
+        return { x: r.left + r.width / 2, y: r.top + r.height / 2, id: el.dataset.id };
+      },
+      sel,
+      idx,
+    );
+  const CHILD_SEL = "#spine-canvas > .node > .node";
+  const markerCount = () =>
+    page.$$eval("#spine-canvas .dragging, #spine-canvas .drop-target", (e) => e.length);
+
+  // (a) touch drag: down + >8px move + up reorders and cleans up
+  {
+    const beforeIds = await childIds();
+    const src = await centerOf(CHILD_SEL, 0);
+    const dst = await centerOf(CHILD_SEL, beforeIds.length - 1);
+    await page.evaluate(
+      (src, dst) => {
+        const canvas = document.getElementById("spine-canvas");
+        const srcEl = document.querySelectorAll("#spine-canvas > .node > .node")[0];
+        const base = { bubbles: true, cancelable: true, pointerId: 1, pointerType: "touch", isPrimary: true };
+        srcEl.dispatchEvent(new PointerEvent("pointerdown", { ...base, clientX: src.x, clientY: src.y }));
+        canvas.dispatchEvent(new PointerEvent("pointermove", { ...base, clientX: src.x + 30, clientY: src.y + 30 }));
+        window.__spineDragging = document.querySelectorAll("#spine-canvas .dragging").length;
+        canvas.dispatchEvent(new PointerEvent("pointermove", { ...base, clientX: dst.x, clientY: dst.y }));
+        window.__spineDropTargets = document.querySelectorAll("#spine-canvas .drop-target").length;
+        canvas.dispatchEvent(new PointerEvent("pointerup", { ...base, clientX: dst.x, clientY: dst.y }));
+        canvas.dispatchEvent(new MouseEvent("click", { bubbles: true }));
+      },
+      src,
+      dst,
+    );
+    await wait(50);
+    const engaged = await page.evaluate(() => window.__spineDragging);
+    const targeted = await page.evaluate(() => window.__spineDropTargets);
+    assert(engaged === 1, "pointer drag engaged (.dragging on source)");
+    assert(targeted === 1, "pointer drag highlighted a drop target");
+    const afterIds = await childIds();
+    assert(
+      afterIds.join(",") !== beforeIds.join(","),
+      `pointer drop re-nested children (${beforeIds} -> ${afterIds})`,
+    );
+    assert((await markerCount()) === 0, "no leftover .dragging/.drop-target after pointer drop");
+  }
+
+  // (b) pointerType "mouse" must not engage the pointer path
+  {
+    const src = await centerOf(CHILD_SEL, 0);
+    const mouseEngaged = await page.evaluate((src) => {
+      const canvas = document.getElementById("spine-canvas");
+      const srcEl = document.querySelectorAll("#spine-canvas > .node > .node")[0];
+      const base = { bubbles: true, cancelable: true, pointerId: 2, pointerType: "mouse", isPrimary: true };
+      srcEl.dispatchEvent(new PointerEvent("pointerdown", { ...base, clientX: src.x, clientY: src.y }));
+      canvas.dispatchEvent(new PointerEvent("pointermove", { ...base, clientX: src.x + 60, clientY: src.y + 60 }));
+      const n = document.querySelectorAll("#spine-canvas .dragging").length;
+      canvas.dispatchEvent(new PointerEvent("pointerup", { ...base, clientX: src.x + 60, clientY: src.y + 60 }));
+      return n;
+    }, src);
+    assert(mouseEngaged === 0, "mouse pointerType does not engage the pointer drag path");
+    assert((await markerCount()) === 0, "mouse pointer sequence left no markers");
+  }
+
+  // (c) touch tap (no move) still selects the tapped node
+  {
+    const tapTarget = await centerOf(CHILD_SEL, 1);
+    await page.evaluate((t) => {
+      const el = [...document.querySelectorAll("#spine-canvas > .node > .node")][1];
+      const base = { bubbles: true, cancelable: true, pointerId: 3, pointerType: "touch", isPrimary: true };
+      el.dispatchEvent(new PointerEvent("pointerdown", { ...base, clientX: t.x, clientY: t.y }));
+      el.dispatchEvent(new PointerEvent("pointerup", { ...base, clientX: t.x + 2, clientY: t.y + 1 }));
+      el.dispatchEvent(new MouseEvent("click", { bubbles: true, clientX: t.x, clientY: t.y }));
+    }, tapTarget);
+    await wait(50);
+    const selId = await page.$eval("#spine-canvas .node.selected", (e) => e.dataset.id);
+    assert(selId === tapTarget.id, `touch tap selected the tapped node (${selId})`);
+    assert((await markerCount()) === 0, "touch tap left no drag markers");
+  }
+
   // --- Start Anew: reset → demo tree (6 nodes, flex), undo restores ---------
   const preResetCount = await countNodes();
   await page.click("#spine-btn-reset");
@@ -350,7 +440,7 @@ try {
   }
 
   console.log(
-    `spine smoke: ok (${initial} → ${afterAdd} nodes, grid toggle, undo/redo, hash, sel-label, modebar, mobile shots in ${SHOTS})`,
+    `spine smoke: ok (${initial} → ${afterAdd} nodes, grid toggle, undo/redo, hash, sel-label, modebar, html5+pointer drag, mobile shots in ${SHOTS})`,
   );
 } catch (err) {
   failed = true;

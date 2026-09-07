@@ -18,7 +18,21 @@ var (
 	selectedID   string
 	dragID       string
 	dropTargetEl js.Value
+
+	// Pointer-drag state. Touch/pen only — mouse still rides the HTML5
+	// drag path, which works and is already smoke-tested.
+	ptrID       int
+	ptrActive   bool
+	ptrEngaged  bool
+	ptrStartX   float64
+	ptrStartY   float64
+	ptrCandID   string
+	justDragged bool
 )
+
+// ptrDragThreshold is the slop below which a touch is a tap, not a drag;
+// staying below it keeps the gesture a plain selection.
+const ptrDragThreshold = 8.0
 
 func main() {
 	doc = js.Global().Get("document")
@@ -84,6 +98,13 @@ func wireDelegation() {
 
 	canvas.Call("addEventListener", "click", js.FuncOf(func(_ js.Value, a []js.Value) any {
 		e := a[0]
+		// After an engaged pointer drag the browser still emits a click
+		// (retargeted to the canvas) — swallow it so a drop never also
+		// reselects.
+		if justDragged {
+			justDragged = false
+			return nil
+		}
 		el := e.Get("target").Call("closest", "[data-id]")
 		if el.Truthy() {
 			e.Call("stopPropagation")
@@ -167,6 +188,170 @@ func wireDelegation() {
 		}
 		return nil
 	}))
+
+	// --- Pointer path: touch/pen only. HTML5 drag events never fire on
+	// touch devices, which left the core interaction dead on phones.
+	// Capture engages at pointerdown, not at first movement: events then
+	// retarget to the canvas no matter where the finger wanders, so a lift
+	// over the topbar can never strand the state machine in ARMED.
+
+	canvas.Call("addEventListener", "pointerdown", js.FuncOf(func(_ js.Value, a []js.Value) any {
+		e := a[0]
+		if e.Get("pointerType").String() == "mouse" {
+			return nil // desktop keeps the native drag path
+		}
+		if ptrActive {
+			return nil // one finger owns the gesture; ignore the rest
+		}
+		el := e.Get("target").Call("closest", "[data-id]")
+		if !el.Truthy() {
+			return nil
+		}
+		// Deliberately no preventDefault: cancelling here would kill the
+		// synthesised click that mouse-style input still relies on.
+		ptrActive = true
+		ptrEngaged = false
+		ptrID = e.Get("pointerId").Int()
+		ptrStartX = e.Get("clientX").Float()
+		ptrStartY = e.Get("clientY").Float()
+		ptrCandID = el.Get("dataset").Get("id").String()
+		// Capture on the canvas, not the node: the canvas is never
+		// replaced (only its innerHTML), so the capture survives, and
+		// every later move/up/cancel lands here even off-canvas.
+		safeCapture(canvas, ptrID)
+		return nil
+	}))
+
+	canvas.Call("addEventListener", "pointermove", js.FuncOf(func(_ js.Value, a []js.Value) any {
+		e := a[0]
+		if !ptrActive || e.Get("pointerId").Int() != ptrID {
+			return nil
+		}
+		x := e.Get("clientX").Float()
+		y := e.Get("clientY").Float()
+		if !ptrEngaged {
+			dx := x - ptrStartX
+			dy := y - ptrStartY
+			if dx*dx+dy*dy < ptrDragThreshold*ptrDragThreshold {
+				return nil // still a tap
+			}
+			ptrEngaged = true
+			dragID = ptrCandID
+			src := canvas.Call("querySelector", "[data-id=\""+dragID+"\"]")
+			if src.Truthy() {
+				src.Get("classList").Call("add", "dragging")
+			}
+		}
+		e.Call("preventDefault") // once engaged, the gesture is ours
+
+		// Capture redirects events to the canvas, so the event target is
+		// useless for hit-testing — ask the document what is under the finger.
+		hit := doc.Call("elementFromPoint", x, y)
+		if !hit.Truthy() {
+			clearDropTarget()
+			return nil
+		}
+		el := hit.Call("closest", "[data-id]")
+		if !el.Truthy() {
+			clearDropTarget()
+			return nil
+		}
+		id := el.Get("dataset").Get("id").String()
+		if id == dragID {
+			return nil // no drop-target theatre on the dragged box itself
+		}
+		current := ""
+		if dropTargetEl.Truthy() {
+			current = dropTargetEl.Get("dataset").Get("id").String()
+		}
+		if id != current {
+			clearDropTarget()
+			dropTargetEl = el
+			el.Get("classList").Call("add", "drop-target")
+		}
+		return nil
+	}))
+
+	canvas.Call("addEventListener", "pointerup", js.FuncOf(func(_ js.Value, a []js.Value) any {
+		e := a[0]
+		if !ptrActive || e.Get("pointerId").Int() != ptrID {
+			return nil
+		}
+		if !ptrEngaged {
+			// A tap. Capture retargets the derived click to the canvas,
+			// where closest("[data-id]") fails — so selection happens
+			// here, explicitly, instead of riding the click.
+			selectedID = ptrCandID
+			endPointerDrag(canvas)
+			render()
+			return nil
+		}
+		targetID := ""
+		if dropTargetEl.Truthy() {
+			targetID = dropTargetEl.Get("dataset").Get("id").String()
+		}
+		src := dragID
+		justDragged = true
+		endPointerDrag(canvas)
+		if src != "" && targetID != "" {
+			handleDrop(src, targetID) // re-renders through the command layer
+		}
+		return nil
+	}))
+
+	canvas.Call("addEventListener", "pointercancel", js.FuncOf(func(_ js.Value, a []js.Value) any {
+		if ptrActive && a[0].Get("pointerId").Int() == ptrID {
+			endPointerDrag(canvas)
+		}
+		return nil
+	}))
+
+	// The OS can steal a capture (system gesture, page switch); treat it as
+	// an abort rather than leaving marker classes stuck on the tree. The
+	// explicit release in endPointerDrag also fires this; ptrActive is
+	// already false by then, so the handler is a no-op.
+	canvas.Call("addEventListener", "lostpointercapture", js.FuncOf(func(_ js.Value, a []js.Value) any {
+		if ptrActive && a[0].Get("pointerId").Int() == ptrID {
+			endPointerDrag(canvas)
+		}
+		return nil
+	}))
+}
+
+// safeCapture swallows the InvalidPointerId that setPointerCapture throws
+// for pointer ids the browser is not tracking (synthetic events in tests,
+// pointers already released). A failed capture only costs us out-of-canvas
+// moves, so it must never abort the gesture.
+func safeCapture(el js.Value, id int) {
+	defer func() { _ = recover() }()
+	el.Call("setPointerCapture", id)
+}
+
+// safeRelease mirrors safeCapture for the same reason.
+func safeRelease(el js.Value, id int) {
+	defer func() { _ = recover() }()
+	if el.Call("hasPointerCapture", id).Truthy() {
+		el.Call("releasePointerCapture", id)
+	}
+}
+
+// endPointerDrag returns to IDLE and sweeps marker classes off the whole
+// canvas — the source ref may be stale after a re-render, the classes may not.
+func endPointerDrag(canvas js.Value) {
+	if ptrActive {
+		safeRelease(canvas, ptrID)
+	}
+	ptrActive = false
+	ptrEngaged = false
+	ptrCandID = ""
+	dragID = ""
+	clearDropTarget()
+	marked := canvas.Call("querySelectorAll", ".dragging, .drop-target")
+	for i := 0; i < marked.Length(); i++ {
+		cl := marked.Index(i).Get("classList")
+		cl.Call("remove", "dragging")
+		cl.Call("remove", "drop-target")
+	}
 }
 
 // clearDropTarget removes the highlight from the tracked drop target (the

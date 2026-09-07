@@ -236,6 +236,9 @@
   min-height: 40px;
   cursor: grab;
   user-select: none;
+  /* Scoped to nodes only: a gesture that starts on a box is always a drag,
+     while the topbar, inspector and canvas gaps keep normal page scroll. */
+  touch-action: none;
 }
 
 .spine-root .node.container {
@@ -270,6 +273,7 @@
    outline showing exactly where the drop would land. */
 .spine-root .node.dragging {
   opacity: 0.45;
+  cursor: grabbing;
 }
 
 .spine-root .node.drop-target {
