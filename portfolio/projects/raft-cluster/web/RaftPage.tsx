@@ -1,8 +1,26 @@
-// web/RaftPage.tsx — React page: a live, interactive Raft cluster on canvas (revision 1).
+// web/RaftPage.tsx — React page: a live, interactive Raft cluster on canvas (revision 2).
+// Revision 2: decoded frame glyphs (comets / chevrons / pips), arrival rings,
+// drop fizzles, candidate tally arcs, quorum + term + grant marks, log bars
+// that read "empty, ready", hover inspection in the DOM panel, a legend, and
+// a reduced-motion policy that keeps information and drops decoration.
 
 import { useCallback, useEffect, useRef, useState, type MouseEvent as ReactMouseEvent } from "react";
 import { loadRaftCore, type RaftCore } from "./raft-core";
-import { ClusterSim, type Snapshot } from "./cluster";
+import { ClusterSim, type NodeView, type Snapshot } from "./cluster";
+import {
+  clamp,
+  clamp01,
+  drawArcFraction,
+  drawChevron,
+  drawComet,
+  drawCross,
+  drawDashedBaseline,
+  easeOut,
+  fillCircle,
+  ink,
+  lerp,
+  strokeCircle,
+} from "./glyphs";
 import "./raft.css";
 
 /** Cluster sizes offered in the UI. */
@@ -13,6 +31,16 @@ const SPEEDS = [0.25, 0.5, 1, 2, 4, 8] as const;
 type Mode = "select" | "link";
 /** Max UTF-8 bytes accepted by the propose input. */
 const MAX_PROPOSE_BYTES = 24;
+
+/** Lifespan of each transient canvas mark, in sim-time ms (sim TTLs match). */
+const ARRIVAL_MS = 180;
+const GRANT_MS = 250;
+const QUORUM_RING_MS = 320;
+const LINK_BRIGHTEN_MS = 400;
+const TERM_FLASH_MS = 300;
+const COMMIT_FADE_MS = 220;
+const FIZZLE_MS = 220;
+const DROP_TTL_MS = 300;
 
 /** Shared UTF-8 encoder for proposal payloads. */
 const ENCODER = new TextEncoder();
@@ -25,12 +53,16 @@ type Palette = {
   node: string;
   teal: string;
   bg: string;
+  danger: string;
   /** Resolved mono font stack — canvas `ctx.font` cannot use `var()`. */
   fontMono: string;
 };
 
 /** Cached node geometry from the last draw, used for click hit-testing. */
 type Layout = { positions: Map<number, { x: number; y: number }>; nodeRadius: number };
+
+/** Renderer-side memory of a node's last commit advance, for the fade-in. */
+type CommitFade = { prevCommitted: number; fadeFrom: number; fadeTo: number; fadeAt: number };
 
 /** Generate a fresh 32-bit cluster seed (UI concern only — never used inside the sim's RNG path). */
 function freshSeed(): number {
@@ -51,6 +83,7 @@ function readPalette(el: HTMLElement | null): Palette {
     node: get("--raft-node", "rgba(238,234,224,.55)"),
     teal: get("--raft-msg-vote", "#4bb3a7"),
     bg: get("--ink-bg", "#0b1317"),
+    danger: get("--raft-danger", "#c85a54"),
     fontMono: get("--mono", "ui-monospace, SFMono-Regular, Menlo, monospace"),
   };
 }
@@ -67,6 +100,32 @@ function ringPosition(i: number, count: number, cx: number, cy: number, r: numbe
   return { x: cx + Math.cos(angle) * r, y: cy + Math.sin(angle) * r };
 }
 
+/** Three mono lines describing a node's live (or frozen) state. */
+function formatReadout(node: NodeView): { l1: string; l2: string; l3: string } {
+  const s = node.status;
+  const l1 = node.alive
+    ? `n${node.id} · ${s.role} · term ${s.term}`
+    : `n${node.id} · down · term ${s.term} (last seen)`;
+  const l2 = `commit ${s.commitIndex} / log ${s.logLen} · applied ${s.lastApplied}`;
+  const voted = s.votedFor > 0 ? `n${s.votedFor}` : "—";
+  const leader = s.leaderId > 0 ? `n${s.leaderId}` : "—";
+  const l3 = `voted ${voted} · leader ${leader}`;
+  return { l1, l2, l3 };
+}
+
+/** The DOM readout for the hovered-or-selected node (11px mono, faint). */
+function NodeReadoutView({ node }: { node: NodeView }) {
+  const { l1, l2, l3 } = formatReadout(node);
+  const dim = node.alive ? undefined : "is-dim";
+  return (
+    <div className="raft-node-readout raft-mono">
+      <div>{l1}</div>
+      <div className={dim}>{l2}</div>
+      <div className={dim}>{l3}</div>
+    </div>
+  );
+}
+
 /**
  * The Raft cluster page. Default-exported so the shell can lazy-load it.
  * Renders an inline explanation instead of throwing when the core can't load.
@@ -76,6 +135,8 @@ export default function RaftPage() {
   const canvasRef = useRef<HTMLCanvasElement | null>(null);
   const simRef = useRef<ClusterSim | null>(null);
   const layoutRef = useRef<Layout | null>(null);
+  const paletteRef = useRef<Palette>(readPalette(null));
+  const commitFadesRef = useRef<Map<number, CommitFade>>(new Map());
 
   const [core, setCore] = useState<RaftCore | null>(null);
   const [loadError, setLoadError] = useState<string | null>(null);
@@ -113,6 +174,8 @@ export default function RaftPage() {
   modeRef.current = mode;
   const reducedRef = useRef(reducedMotion);
   reducedRef.current = reducedMotion;
+  const hoveredRef = useRef<number | null>(null);
+  const [hoveredId, setHoveredId] = useState<number | null>(null);
 
   // ---- core load -----------------------------------------------------------
 
@@ -137,6 +200,7 @@ export default function RaftPage() {
     if (!core) return;
     const sim = new ClusterSim(core, size, seed);
     simRef.current = sim;
+    commitFadesRef.current.clear();
     setSnapshot(sim.snapshot());
     setSelectedId(null);
     setLinkFirst(null);
@@ -167,13 +231,20 @@ export default function RaftPage() {
     return () => io.disconnect();
   }, [core]);
 
+  const refreshPalette = useCallback((): void => {
+    paletteRef.current = readPalette(rootRef.current);
+  }, []);
+
   useEffect(() => {
     if (typeof matchMedia === "undefined") return;
     const mq = matchMedia("(prefers-reduced-motion: reduce)");
-    const on = (): void => setReducedMotion(mq.matches);
+    const on = (): void => {
+      setReducedMotion(mq.matches);
+      refreshPalette();
+    };
     mq.addEventListener("change", on);
     return () => mq.removeEventListener("change", on);
-  }, []);
+  }, [refreshPalette]);
 
   // ---- rAF loop (runs only when active) ------------------------------------
 
@@ -219,7 +290,7 @@ export default function RaftPage() {
     ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
     ctx.clearRect(0, 0, w, h);
 
-    const palette = readPalette(rootRef.current);
+    const palette = paletteRef.current;
     const reduced = reducedRef.current;
     const count = snap.nodes.length;
     const cx = w / 2;
@@ -232,8 +303,59 @@ export default function RaftPage() {
     layoutRef.current = { positions, nodeRadius };
 
     const cutSet = new Set(snap.cuts);
+    const hovered = hoveredRef.current;
+    const now = snap.nowMs;
 
-    // Links (behind everything).
+    // Bucket the transient emphasis records once per frame.
+    const arrivals: Snapshot["fx"] = [];
+    const grants = new Map<number, number>();
+    const quorums: Snapshot["fx"] = [];
+    const terms = new Map<number, number>();
+    for (const f of snap.fx) {
+      const age = now - f.atMs;
+      if (f.type === "arrival") {
+        if (age <= ARRIVAL_MS) arrivals.push(f);
+      } else if (f.type === "grant") {
+        if (age <= GRANT_MS && (grants.get(f.id) ?? Infinity) > age) grants.set(f.id, age);
+      } else if (f.type === "quorum") {
+        if (age <= LINK_BRIGHTEN_MS) quorums.push(f);
+      } else if (age <= TERM_FLASH_MS && (terms.get(f.id) ?? Infinity) > age) {
+        terms.set(f.id, age);
+      }
+    }
+
+    // Quorum link-brighten: an overlay stroke on the new leader's links.
+    // Peak overlay ≈ 0.12 lifts the resolved base line (≈ .26 alpha) to ≈ .35.
+    const brighten = new Map<number, number>();
+    if (!reduced) {
+      for (const f of quorums) {
+        const t = (now - f.atMs) / LINK_BRIGHTEN_MS;
+        const a = 0.12 * (t < 0.7 ? 1 : 1 - (t - 0.7) / 0.3);
+        brighten.set(f.id, Math.max(brighten.get(f.id) ?? 0, a));
+      }
+    }
+
+    // Commit fades: track each node's committed-boundary advance.
+    const fades = commitFadesRef.current;
+    for (const node of snap.nodes) {
+      const c1 = node.committedTerms.length;
+      const rec = fades.get(node.id);
+      if (!rec) {
+        fades.set(node.id, { prevCommitted: c1, fadeFrom: 0, fadeTo: 0, fadeAt: 0 });
+      } else if (c1 > rec.prevCommitted) {
+        rec.fadeFrom = rec.prevCommitted;
+        rec.fadeTo = c1;
+        rec.fadeAt = now;
+        rec.prevCommitted = c1;
+      } else if (c1 < rec.prevCommitted) {
+        rec.prevCommitted = c1;
+        rec.fadeFrom = 0;
+        rec.fadeTo = 0;
+        rec.fadeAt = 0;
+      }
+    }
+
+    // Links (behind everything), with quorum brighten overlays.
     ctx.lineWidth = 1;
     for (let a = 0; a < snap.nodes.length; a++) {
       for (let b = a + 1; b < snap.nodes.length; b++) {
@@ -267,26 +389,75 @@ export default function RaftPage() {
           ctx.moveTo(pa.x, pa.y);
           ctx.lineTo(pb.x, pb.y);
           ctx.stroke();
+          const boost = brighten.get(idA) ?? brighten.get(idB);
+          if (boost !== undefined && boost > 0.001) {
+            ctx.strokeStyle = ink(boost);
+            ctx.beginPath();
+            ctx.moveTo(pa.x, pa.y);
+            ctx.lineTo(pb.x, pb.y);
+            ctx.stroke();
+          }
         }
       }
     }
 
-    // In-flight message dots.
-    if (!reduced) {
-      for (const m of snap.inflight) {
-        const from = positions.get(m.from);
-        const to = positions.get(m.to);
-        if (!from || !to) continue;
-        const span = m.deliverAt - m.sentAt;
-        const p = span > 0 ? Math.min(1, Math.max(0, (snap.nowMs - m.sentAt) / span)) : 1;
-        const x = from.x + (to.x - from.x) * p;
-        const y = from.y + (to.y - from.y) * p;
-        const isVote = m.kind === "rv" || m.kind === "rvr";
-        ctx.fillStyle = isVote ? palette.teal : palette.accent;
-        ctx.beginPath();
-        ctx.arc(x, y, 3, 0, Math.PI * 2);
-        ctx.fill();
+    // Candidate tally arcs: "2 of 3 votes in" at a glance.
+    for (const node of snap.nodes) {
+      if (node.status.role !== "candidate" || !node.tally) continue;
+      const p = positions.get(node.id);
+      if (!p) continue;
+      const frac = node.tally.needed > 0 ? clamp01(node.tally.granted / node.tally.needed) : 0;
+      strokeCircle(ctx, p.x, p.y, nodeRadius + 7, 1, palette.line);
+      if (frac > 0) {
+        drawArcFraction(ctx, p.x, p.y, nodeRadius + 7, frac, palette.teal, 1.5);
       }
+    }
+
+    // In-flight message glyphs. Reduced motion keeps every glyph (they are
+    // information) but replaces trails with plain dots.
+    for (const m of snap.inflight) {
+      const from = positions.get(m.from);
+      const to = positions.get(m.to);
+      if (!from || !to) continue;
+      const span = m.deliverAt - m.sentAt;
+      const p = span > 0 ? clamp01((now - m.sentAt) / span) : 1;
+      const x = lerp(from.x, to.x, p);
+      const y = lerp(from.y, to.y, p);
+      const angle = Math.atan2(to.y - from.y, to.x - from.x);
+      const linkLen = Math.hypot(to.x - from.x, to.y - from.y);
+      const meta = m.meta;
+      const isVote = meta.kind === "rv" || meta.kind === "rvr";
+      const color = isVote ? palette.teal : palette.accent;
+
+      if (meta.kind === "rvr" || meta.kind === "aer") {
+        if (meta.ok === false) {
+          fillCircle(ctx, x, y, 2.5, palette.danger, 0.8);
+        } else {
+          drawChevron(ctx, x, y, angle, reduced ? 3.5 : 5, color, 0.9);
+        }
+      } else if (reduced) {
+        fillCircle(ctx, x, y, 2.5, color, meta.kind === "ae" && meta.entryCount === 0 ? 0.45 : 0.9);
+      } else if (meta.kind === "ae" && meta.entryCount === 0) {
+        // Heartbeat: idle traffic recedes.
+        drawComet(ctx, x, y, angle, clamp(linkLen * 0.06, 4, 8), 1.4, color, 0.45, false);
+      } else {
+        // Request-vote or replicating AppendEntries: full comet; entries get a head.
+        drawComet(ctx, x, y, angle, clamp(linkLen * 0.06, 6, 14), 2.4, color, 0.95, meta.kind === "ae");
+      }
+    }
+
+    // Drop fizzles: where a message died, a brief ×-cross.
+    for (const d of snap.drops) {
+      const age = now - d.atMs;
+      if (age > FIZZLE_MS) continue;
+      const f = positions.get(d.from);
+      const t = positions.get(d.to);
+      if (!f || !t) continue;
+      const x = lerp(f.x, t.x, d.fraction);
+      const y = lerp(f.y, t.y, d.fraction);
+      const linkAngle = Math.atan2(t.y - f.y, t.x - f.x);
+      const alpha = reduced ? 1 : 0.7 * (1 - age / FIZZLE_MS);
+      drawCross(ctx, x, y, 4, 1.2, palette.danger, alpha, linkAngle + Math.PI / 4);
     }
 
     // Nodes + badges + log bars.
@@ -312,12 +483,15 @@ export default function RaftPage() {
         if (role === "candidate") {
           ctx.strokeStyle = palette.accent;
           ctx.setLineDash([5, 4]);
-          ctx.lineDashOffset = reduced ? 0 : -((snap.nowMs / 16) % 1000);
+          ctx.lineDashOffset = reduced ? 0 : -((now / 16) % 1000);
           ctx.stroke();
           ctx.setLineDash([]);
           ctx.lineDashOffset = 0;
         } else {
-          ctx.strokeStyle = palette.node;
+          // Follower outline; a just-granted vote flashes it brighter.
+          const grantAge = !reduced ? grants.get(node.id) : undefined;
+          const extra = grantAge !== undefined ? 0.45 * (1 - grantAge / GRANT_MS) : 0;
+          ctx.strokeStyle = ink(0.55 + extra);
           ctx.stroke();
         }
       }
@@ -329,19 +503,29 @@ export default function RaftPage() {
       ctx.textBaseline = "middle";
       ctx.fillText(`n${node.id}`, p.x, p.y);
 
-      // Term badge (top-right).
+      // Term badge (top-right); amber + underline for 300 ms on term change.
+      const termAge = !reduced ? terms.get(node.id) : undefined;
+      const termFlashing = termAge !== undefined;
       const bx = p.x + nodeRadius * 0.72;
       const by = p.y - nodeRadius * 0.72;
+      const br = nodeRadius * 0.46;
       ctx.beginPath();
-      ctx.arc(bx, by, nodeRadius * 0.46, 0, Math.PI * 2);
+      ctx.arc(bx, by, br, 0, Math.PI * 2);
       ctx.fillStyle = palette.bg;
       ctx.fill();
       ctx.lineWidth = 1;
-      ctx.strokeStyle = palette.node;
+      ctx.strokeStyle = termFlashing ? palette.accent : palette.node;
       ctx.stroke();
       ctx.fillStyle = palette.text;
       ctx.font = `600 9px ${palette.fontMono}`;
       ctx.fillText(String(node.status.term), bx, by);
+      if (termFlashing) {
+        ctx.strokeStyle = palette.accent;
+        ctx.beginPath();
+        ctx.moveTo(bx - br * 0.5, by + br * 0.55);
+        ctx.lineTo(bx + br * 0.5, by + br * 0.55);
+        ctx.stroke();
+      }
 
       // Crashed marker (X).
       if (!alive) {
@@ -356,20 +540,29 @@ export default function RaftPage() {
         ctx.stroke();
       }
 
-      // Log bar under the node.
+      // Log bar under the node: dashed "empty, ready" baseline until entries land.
       const barW = nodeRadius * 2.8;
       const barH = 7;
       const barX = p.x - barW / 2;
       const barY = p.y + nodeRadius + 9;
-      ctx.fillStyle = palette.line;
-      ctx.fillRect(barX, barY, barW, barH);
       const n = node.logTerms.length;
-      if (n > 0) {
+      if (n === 0) {
+        drawDashedBaseline(ctx, barX, barY + barH / 2, barW, palette.line);
+      } else {
         const committed = node.committedTerms.length;
         const segW = barW / n;
+        const fade = fades.get(node.id);
         for (let i = 0; i < n; i++) {
-          const isCommitted = i < committed;
-          ctx.fillStyle = termColor(node.logTerms[i], isCommitted ? 1 : 0.35);
+          let alpha: number;
+          if (i < committed) {
+            alpha = 1;
+            if (!reduced && fade && i >= fade.fadeFrom && i < fade.fadeTo) {
+              alpha = 0.35 + 0.65 * easeOut((now - fade.fadeAt) / COMMIT_FADE_MS);
+            }
+          } else {
+            alpha = 0.35;
+          }
+          ctx.fillStyle = termColor(node.logTerms[i], alpha);
           ctx.fillRect(barX + i * segW, barY, Math.max(1, segW - 0.5), barH);
         }
         // Commit marker notch at the committed / uncommitted boundary.
@@ -395,41 +588,92 @@ export default function RaftPage() {
         ctx.arc(p.x, p.y, nodeRadius + 5, 0, Math.PI * 2);
         ctx.stroke();
       }
+
+      // Hover halo.
+      if (node.id === hovered) {
+        strokeCircle(ctx, p.x, p.y, nodeRadius + 4, 1, palette.node);
+      }
+    }
+
+    // Arrival rings (delivery feedback), then the quorum flash.
+    if (!reduced) {
+      for (const f of arrivals) {
+        const p = positions.get(f.id);
+        if (!p || f.type !== "arrival") continue;
+        const t = clamp01((now - f.atMs) / ARRIVAL_MS);
+        const color = f.kind === "rv" || f.kind === "rvr" ? palette.teal : palette.accent;
+        strokeCircle(ctx, p.x, p.y, nodeRadius + 6 * easeOut(t), 1, color, 0.5 * (1 - t));
+      }
+      for (const f of quorums) {
+        const age = now - f.atMs;
+        if (age > QUORUM_RING_MS) continue;
+        const p = positions.get(f.id);
+        if (!p) continue;
+        const t = age / QUORUM_RING_MS;
+        strokeCircle(ctx, p.x, p.y, nodeRadius + 7 + 9 * easeOut(t), 1.5, palette.accent, 0.6 * (1 - t));
+      }
     }
   }, []);
 
   // Redraw on any visual state change.
   useEffect(() => {
     draw();
-  }, [draw, snapshot, selectedId, linkFirst, mode, reducedMotion]);
+  }, [draw, snapshot, selectedId, linkFirst, mode, reducedMotion, hoveredId]);
 
-  // Redraw on resize.
+  // Redraw on resize (and re-resolve the palette — the CSS box may have moved).
   useEffect(() => {
     const canvas = canvasRef.current;
     if (!canvas || typeof ResizeObserver === "undefined") return;
-    const ro = new ResizeObserver(() => draw());
+    const ro = new ResizeObserver(() => {
+      refreshPalette();
+      draw();
+    });
     ro.observe(canvas);
     return () => ro.disconnect();
-  }, [draw, core]);
+  }, [draw, refreshPalette, core]);
+
+  // Resolve the palette once the page (and its CSS) is actually mounted.
+  useEffect(() => {
+    refreshPalette();
+  }, [refreshPalette, core]);
 
   // ---- interactions --------------------------------------------------------
 
+  const hitTest = useCallback((clientX: number, clientY: number): number | null => {
+    const layout = layoutRef.current;
+    const canvas = canvasRef.current;
+    if (!layout || !canvas) return null;
+    const rect = canvas.getBoundingClientRect();
+    const x = clientX - rect.left;
+    const y = clientY - rect.top;
+    let hit: number | null = null;
+    for (const [id, pos] of layout.positions) {
+      if (Math.hypot(pos.x - x, pos.y - y) <= layout.nodeRadius) {
+        hit = id;
+        break;
+      }
+    }
+    return hit;
+  }, []);
+
+  const onCanvasMove = useCallback(
+    (e: ReactMouseEvent<HTMLCanvasElement>): void => {
+      const hit = hitTest(e.clientX, e.clientY);
+      const canvas = canvasRef.current;
+      if (canvas) canvas.style.cursor = hit !== null ? "pointer" : "auto";
+      setHoveredId(hit);
+    },
+    [hitTest],
+  );
+
+  const onCanvasLeave = useCallback((): void => {
+    setHoveredId(null);
+  }, []);
+
   const onCanvasClick = useCallback(
     (e: ReactMouseEvent<HTMLCanvasElement>): void => {
-      const layout = layoutRef.current;
-      const canvas = canvasRef.current;
+      const hit = hitTest(e.clientX, e.clientY);
       const sim = simRef.current;
-      if (!layout || !canvas) return;
-      const rect = canvas.getBoundingClientRect();
-      const x = e.clientX - rect.left;
-      const y = e.clientY - rect.top;
-      let hit: number | null = null;
-      for (const [id, pos] of layout.positions) {
-        if (Math.hypot(pos.x - x, pos.y - y) <= layout.nodeRadius) {
-          hit = id;
-          break;
-        }
-      }
       if (hit === null) return;
 
       if (modeRef.current === "select") {
@@ -447,7 +691,7 @@ export default function RaftPage() {
         if (sim) setSnapshot(sim.snapshot());
       }
     },
-    [linkFirst],
+    [linkFirst, hitTest],
   );
 
   const rebuild = useCallback((): void => {
@@ -500,6 +744,8 @@ export default function RaftPage() {
   }, [proposeDisabled, proposeText]);
 
   const selectedNode = snapshot?.nodes.find((n) => n.id === selectedId) ?? null;
+  const hoveredNode = snapshot?.nodes.find((n) => n.id === hoveredId) ?? null;
+  const readoutNode = hoveredNode ?? selectedNode;
   const aliveCount = snapshot ? snapshot.nodes.filter((n) => n.alive).length : 0;
   const totalCount = snapshot ? snapshot.nodes.length : 0;
   const cutCount = snapshot ? snapshot.cuts.length : 0;
@@ -561,6 +807,8 @@ export default function RaftPage() {
             ref={canvasRef}
             className="raft-canvas"
             onClick={onCanvasClick}
+            onMouseMove={onCanvasMove}
+            onMouseLeave={onCanvasLeave}
             aria-label="Raft cluster diagram (click nodes to select or link)"
           />
           <div className="raft-strip raft-mono">
@@ -575,6 +823,16 @@ export default function RaftPage() {
               {aliveCount}/{totalCount} up
             </span>
             <span>{cutCount} links cut</span>
+          </div>
+          <div className="raft-legend raft-mono">
+            <p>
+              teal = votes · amber = replication (dim = heartbeat) · red = rejected or dropped ·
+              bar = log, solid = committed
+            </p>
+            <p>
+              a synthetic client proposes a value every few seconds. the network is simulated; the
+              consensus is not.
+            </p>
           </div>
         </section>
 
@@ -643,21 +901,26 @@ export default function RaftPage() {
             {mode === "select" && (
               <div className="raft-row">
                 <span className="raft-label">Node</span>
-                {selectedNode ? (
-                  <div className="raft-node-ctl">
-                    <span className="raft-mono">n{selectedNode.id}</span>
-                    {selectedNode.alive ? (
-                      <button type="button" onClick={() => doCrash(selectedNode.id)}>
-                        Crash
-                      </button>
-                    ) : (
-                      <button type="button" onClick={() => doRecover(selectedNode.id)}>
-                        Resume (recover)
-                      </button>
+                {readoutNode ? (
+                  <div className="raft-node-col">
+                    <NodeReadoutView node={readoutNode} />
+                    {selectedNode && (
+                      <div className="raft-node-ctl">
+                        <span className="raft-mono">n{selectedNode.id}</span>
+                        {selectedNode.alive ? (
+                          <button type="button" onClick={() => doCrash(selectedNode.id)}>
+                            Crash
+                          </button>
+                        ) : (
+                          <button type="button" onClick={() => doRecover(selectedNode.id)}>
+                            Resume (recover)
+                          </button>
+                        )}
+                      </div>
                     )}
                   </div>
                 ) : (
-                  <span className="raft-hint">Click a node to select it.</span>
+                  <span className="raft-hint">Hover or click a node to inspect it.</span>
                 )}
               </div>
             )}
@@ -693,7 +956,7 @@ export default function RaftPage() {
                 <li className="raft-hint">nothing yet…</li>
               ) : (
                 feed.map((ev, i) => (
-                  <li key={`${ev.tMs}-${i}`}>
+                  <li key={`${ev.tMs}-${i}`} className={`raft-tone-${ev.tone}`}>
                     <span className="raft-t">{(ev.tMs / 1000).toFixed(1)}s</span> {ev.text}
                   </li>
                 ))

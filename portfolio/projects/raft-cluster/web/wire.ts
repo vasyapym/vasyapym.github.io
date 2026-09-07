@@ -214,3 +214,45 @@ export function decodeFrame(bytes: Uint8Array): RaftFrame | null {
     return null;
   }
 }
+
+/** Coarse message class used by the renderer. `status` never appears in flight. */
+export type FrameKind = "rv" | "rvr" | "ae" | "aer" | "status";
+
+/**
+ * The only frame internals the UI may consume: enough to render a message
+ * glyph (kind), colour it by term if ever needed, distinguish a replicating
+ * AppendEntries from a heartbeat (`entryCount`), and mark a reply as granted
+ * or denied (`ok`). Everything else about the wire stays private to this file.
+ */
+export type FrameMeta = {
+  kind: FrameKind;
+  term: number;
+  /** Entries carried by an AppendEntries frame; 0 for every other kind. */
+  entryCount: number;
+  /** `voteGranted` (rvr) / `success` (aer); null for requests. */
+  ok: boolean | null;
+};
+
+/**
+ * Summarize a raw frame for the renderer. Returns `null` when the frame is
+ * undecodable (truncated, unknown type, trailing bytes) — callers fall back
+ * to classifying by the leading type byte.
+ */
+export function summarize(frame: Uint8Array): FrameMeta | null {
+  const decoded = decodeFrame(frame);
+  if (!decoded) {
+    return null;
+  }
+  switch (decoded.kind) {
+    case "request-vote":
+      return { kind: "rv", term: decoded.term, entryCount: 0, ok: null };
+    case "request-vote-reply":
+      return { kind: "rvr", term: decoded.term, entryCount: 0, ok: decoded.voteGranted };
+    case "append-entries":
+      return { kind: "ae", term: decoded.term, entryCount: decoded.entries.length, ok: null };
+    case "append-entries-reply":
+      return { kind: "aer", term: decoded.term, entryCount: 0, ok: decoded.success };
+    case "status-report":
+      return { kind: "status", term: decoded.term, entryCount: 0, ok: null };
+  }
+}
