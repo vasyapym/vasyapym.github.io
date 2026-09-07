@@ -19,13 +19,22 @@ import type { WorldState } from "../scene/world.ts";
 
 const ROOT_SCALE = 0.72;
 
+// Souls spaulder damping: the plates ride the arm pivot, but steel that
+// sways a full ±0.5 rad reads distracting. useFrame counter-rotates the
+// spaulder groups by this share of the arm swing, leaving a net −0.3·swing
+// nod (~0.15 rad grounded) — enough that the plates visibly belong to the
+// shoulder, small enough that the tucked lame never clears the arm
+// silhouette at the top of the swing.
+const PAULDRON_DAMP = 0.7;
+
 // Souls-only wear shading, drawn INSIDE existing silhouettes (character
 // law: same rig, material only). Values sit one step from the host fill
-// toward the ink, hard-edged — no gradients. The pastel cat never
-// renders these; bone-white for the one specular chip is palette.kittyWhite.
+// toward the ink, hard-edged — no gradients. The pastel cat never renders
+// these. The blade fuller is palette-keyed (palette.bowDeep) and the one
+// specular chip uses palette.kittyWhite, so steelShadow is the only literal
+// left here — mirrored as raw hex in the ghost retint.
 const SOULS_MATERIAL = {
   steelShadow: "#26292d",
-  bladeFuller: "#a9b0ba",
 } as const;
 
 function ellipseShape(rx: number, ry: number): THREE.Shape {
@@ -87,27 +96,56 @@ function roundedRectShape(w: number, h: number, r: number): THREE.Shape {
 // even margin instead of grown by uniform scale (which starves the short
 // axis and fattens the long one).
 
+// Ogival great-helm dome. Crown raised to yt 0.52 (was 0.42) and the side
+// curves made steep: the flank runs almost vertical to (0.70, 0.24) and then
+// converges on a narrow apex through a control point held 0.04 under the
+// top, so the crown reads as a pointed steel skull rather than a rounded
+// cap. Same pad behaviour as before, so the ink (0.035) and sun-rim (0.05)
+// copies follow the new contour automatically. Base width unchanged
+// (x0 0.92, widest ~0.98) — it still sits inside the head's rx 1.0.
 function helmDomeShape(pad = 0): THREE.Shape {
   const x0 = 0.92 + pad;
   const yb = -0.36 - pad;
-  const yt = 0.42 + pad;
+  const yt = 0.52 + pad;
   const shape = new THREE.Shape();
   shape.moveTo(-x0, yb);
-  shape.quadraticCurveTo(-0.98 - pad, 0.02, -0.62 - pad * 0.6, 0.2 + pad * 0.8);
-  shape.quadraticCurveTo(-0.22, yt, 0, yt);
-  shape.quadraticCurveTo(0.22, yt, 0.62 + pad * 0.6, 0.2 + pad * 0.8);
-  shape.quadraticCurveTo(0.98 + pad, 0.02, x0, yb);
+  shape.quadraticCurveTo(-1.0 - pad, 0.0, -0.7 - pad * 0.6, 0.24 + pad * 0.8);
+  shape.quadraticCurveTo(-0.34 - pad * 0.3, yt - 0.04, 0, yt);
+  shape.quadraticCurveTo(0.34 + pad * 0.3, yt - 0.04, 0.7 + pad * 0.6, 0.24 + pad * 0.8);
+  shape.quadraticCurveTo(1.0 + pad, 0.0, x0, yb);
   shape.quadraticCurveTo(0, yb - 0.05, -x0, yb);
   shape.closePath();
   return shape;
 }
 
+// Comb ridge. Narrow (max width 0.12 <= 0.13) and tall: base tucked at
+// -0.30 (inside the dome, so the lower part reads as the comb's front
+// profile on the steel), rising to 0.76 crest-local = 0.34 above the new
+// dome apex. The tip sweeps back (toward -x, away from the sun side) so
+// the silhouette has direction; the front face stays straight and the
+// back edge returns straight, keeping it a hard flat-vector shape.
 function helmCrestShape(): THREE.Shape {
   const shape = new THREE.Shape();
-  shape.moveTo(-0.06, -0.32);
-  shape.lineTo(0.06, -0.32);
-  shape.lineTo(0.05, 0.22);
-  shape.quadraticCurveTo(0, 0.3, -0.05, 0.22);
+  shape.moveTo(-0.055, -0.3);
+  shape.lineTo(0.055, -0.3);
+  shape.lineTo(0.06, 0.3);
+  shape.quadraticCurveTo(0.02, 0.76, -0.1, 0.74);
+  shape.lineTo(-0.065, 0.3);
+  shape.closePath();
+  return shape;
+}
+
+// Brow reinforcement ridge: a shallow 1.3-wide arched band, 0.07 thick
+// (~2.3 world-px at game scale — the thinnest detail that survives the
+// 55 px head). Painted cloudLit on the dome's lower front, directly above
+// the visor seam, so the seam becomes a hard light/dark step: ridge above,
+// steelShadow brow band below.
+function helmBrowShape(): THREE.Shape {
+  const shape = new THREE.Shape();
+  shape.moveTo(-0.65, -0.035);
+  shape.quadraticCurveTo(0, 0.02, 0.65, -0.035);
+  shape.lineTo(0.65, 0.035);
+  shape.quadraticCurveTo(0, 0.09, -0.65, 0.035);
   shape.closePath();
   return shape;
 }
@@ -167,40 +205,75 @@ function capeFoldShape(): THREE.Shape {
   return shape;
 }
 
+// souls pauldron: a deep lens that WRAPS the upper arm (was a shallow cap
+// beside the neck). Narrower than before (w 0.24 vs 0.27) and twice as
+// deep (+0.16 / -0.16): the top arc covers the arm's top curve and the
+// tunic's shoulder corner, the bottom arc bellies down over the arm's
+// roundness (apex at -0.20). pad feeds the ink copy exactly as before.
 function pauldronShape(pad = 0): THREE.Shape {
-  const w = 0.27 + pad;
-  const top = 0.13 + pad;
-  const bot = -0.09 - pad;
+  const w = 0.24 + pad;
+  const top = 0.16 + pad;
+  const bot = -0.16 - pad;
   const shape = new THREE.Shape();
   shape.moveTo(-w, bot);
   shape.quadraticCurveTo(-w - 0.03, top, 0, top);
   shape.quadraticCurveTo(w + 0.03, top, w, bot);
-  shape.quadraticCurveTo(0, bot - 0.06, -w, bot);
+  shape.quadraticCurveTo(0, bot - 0.08, -w, bot);
   shape.closePath();
   return shape;
 }
 
 // souls material overlay shapes (drawn INSIDE existing silhouettes) --------
 // A thin arc on the pauldron's TOP curve — the sun catching the steel.
+// Re-fitted to the deeper lens: the sides now fall away faster, so the arc
+// is narrower (w 0.15, host edge at x 0.15 is y ~0.122, arc ends at 0.11)
+// and its crest sits 0.03 under the plate's top (0.16). Band ~0.04 thick.
 function pauldronRimShape(): THREE.Shape {
-  const w = 0.2;
-  const top = 0.13;
+  const w = 0.15;
+  const top = 0.16;
   const shape = new THREE.Shape();
-  shape.moveTo(-w, top - 0.04);
-  shape.quadraticCurveTo(0, top - 0.005, w, top - 0.04);
-  shape.quadraticCurveTo(0, top - 0.085, -w, top - 0.04);
+  shape.moveTo(-w, top - 0.05);
+  shape.quadraticCurveTo(0, top - 0.01, w, top - 0.05);
+  shape.quadraticCurveTo(0, top - 0.095, -w, top - 0.05);
   shape.closePath();
   return shape;
 }
 
 // A hard crescent hugging the pauldron's LOWER rim (arm shading under steel).
+// Re-fitted: endpoints 0.03 inside the new corners (w 0.21 < 0.24), lower
+// arc apex at -0.19 (host apex -0.20, 0.01 inside), upper arc apex -0.145.
 function pauldronShadowShape(): THREE.Shape {
-  const w = 0.24;
-  const bot = -0.09;
+  const w = 0.21;
+  const bot = -0.16;
   const shape = new THREE.Shape();
   shape.moveTo(-w, bot);
-  shape.quadraticCurveTo(0, bot - 0.045, w, bot);
-  shape.quadraticCurveTo(0, bot + 0.02, -w, bot);
+  shape.quadraticCurveTo(0, bot - 0.06, w, bot);
+  shape.quadraticCurveTo(0, bot + 0.03, -w, bot);
+  shape.closePath();
+  return shape;
+}
+
+// Second lame: a 0.30 x 0.09 rounded band (r 0.02) authored in the plate's
+// local frame, so it shares the plate's mesh offset. Its top edge (-0.18)
+// sits ABOVE the plate's bottom curve across its whole span (plate edge is
+// -0.184 at x 0.15, -0.20 at center), so it tucks under the plate with no
+// gap in y; ~0.04-0.05 of it shows below the plate's ink halo (-0.23 at
+// center, -0.218 at x 0.15). Narrower than the plate (0.30 vs 0.48).
+function pauldronLameShape(): THREE.Shape {
+  const w = 0.15;
+  const top = -0.18;
+  const bot = -0.27;
+  const r = 0.02;
+  const shape = new THREE.Shape();
+  shape.moveTo(-w + r, top);
+  shape.lineTo(w - r, top);
+  shape.quadraticCurveTo(w, top, w, top - r);
+  shape.lineTo(w, bot + r);
+  shape.quadraticCurveTo(w, bot, w - r, bot);
+  shape.lineTo(-w + r, bot);
+  shape.quadraticCurveTo(-w, bot, -w, bot + r);
+  shape.lineTo(-w, top - r);
+  shape.quadraticCurveTo(-w, top, -w + r, top);
   shape.closePath();
   return shape;
 }
@@ -304,6 +377,10 @@ export function Kitty({
   const footRRef = useRef<THREE.Group>(null);
   const armLRef = useRef<THREE.Group>(null);
   const armRRef = useRef<THREE.Group>(null);
+  // souls: spaulder groups get their own refs so useFrame can counter-rotate
+  // most of the arm swing they inherit (see the damping block in useFrame).
+  const pauldronLRef = useRef<THREE.Group>(null);
+  const pauldronRRef = useRef<THREE.Group>(null);
   const capeBackRef = useRef<THREE.Group>(null);
   const capeFrontRef = useRef<THREE.Group>(null);
 
@@ -328,6 +405,7 @@ export function Kitty({
       // back-plate fringe (see the souls head block).
       helmDomeRim: new THREE.ShapeGeometry(helmDomeShape(0.05), seg),
       helmCrest: new THREE.ShapeGeometry(helmCrestShape(), seg),
+      helmBrow: new THREE.ShapeGeometry(helmBrowShape(), seg),
       visorPlate: new THREE.ShapeGeometry(roundedRectShape(1.5, 0.46, 0.18), seg),
       visorPlateInk: new THREE.ShapeGeometry(roundedRectShape(1.56, 0.52, 0.21), seg),
       visorSlit: new THREE.ShapeGeometry(rectShape(1.16, 0.11), seg),
@@ -352,6 +430,8 @@ export function Kitty({
       capeFold: new THREE.ShapeGeometry(capeFoldShape(), seg),
       pauldronRim: new THREE.ShapeGeometry(pauldronRimShape(), seg),
       pauldronShadow: new THREE.ShapeGeometry(pauldronShadowShape(), seg),
+      // souls: descending lame under the pauldron, rides the arm pivot.
+      pauldronLame: new THREE.ShapeGeometry(pauldronLameShape(), seg),
       tunicHem: new THREE.ShapeGeometry(tunicHemShape(), seg),
     };
   }, []);
@@ -399,6 +479,11 @@ export function Kitty({
     }
     if (armLRef.current) armLRef.current.rotation.z = -pose.armSwing;
     if (armRRef.current) armRRef.current.rotation.z = pose.armSwing;
+    // Spaulder damping (PAULDRON_DAMP, module scope): each plate keeps a net
+    // ±0.3·swing nod. Sign flips with the pivot: the left arm rotates by
+    // −armSwing (counter +0.7·swing), the right by +armSwing (counter −0.7).
+    if (pauldronLRef.current) pauldronLRef.current.rotation.z = pose.armSwing * PAULDRON_DAMP;
+    if (pauldronRRef.current) pauldronRRef.current.rotation.z = -pose.armSwing * PAULDRON_DAMP;
 
     // Cape (souls only; refs are null on the pastel branch). The hem trails
     // to -x, so a *negative* z rotation about the shoulder pivot lifts it
@@ -496,22 +581,26 @@ export function Kitty({
               <Part
                 geometry={geo.blade}
                 inkGeometry={geo.bladeInk}
-                color={palette.sunCore}
+                color={palette.cloudLit}
                 z={0.04}
                 position={[0, 1.27]}
                 outlineColor={palette.outlineInk}
               />
-              {/* Fuller: a dirty mid-steel line down the blade's centre —
-                  worn metal catching less light than the edges. Inside the
-                  blade's own silhouette, clear of the tip curve and guard. */}
+              {/* Fuller: the recessed groove down the blade's centre — worn
+                  metal in shadow, two value steps from the cloudLit fill
+                  toward ink. Inside the blade's own silhouette, clear of the
+                  tip curve and guard. */}
               <mesh geometry={geo.fuller} position={[0, 1.28, 0.06]}>
-                <meshBasicMaterial color={SOULS_MATERIAL.bladeFuller} />
+                <meshBasicMaterial color={palette.bowDeep} />
               </mesh>
               {/* Edge light: a thin kittyWhite line down the blade's
-                  sun-facing (+x) edge — worn steel catching the dying light.
-                  Inside the blade silhouette (x 0.052, blade hw 0.085), clear
-                  of the fuller (x 0, no xy overlap) and the tip curve. z 0.06,
-                  between the blade fill (0.04) and the arm ink (0.13). */}
+                  sun-facing (+x) edge — worn steel catching the dying light,
+                  now correctly the brightest value on the tarnished
+                  cloudLit steel (the old sunCore fill crossed the bloom
+                  threshold and glowed). Inside the blade silhouette
+                  (x 0.052, blade hw 0.085), clear of the fuller (x 0, no xy
+                  overlap) and the tip curve. z 0.06, between the blade fill
+                  (0.04) and the arm ink (0.13). */}
               <mesh geometry={geo.bladeEdge} position={[0.052, 1.28, 0.06]}>
                 <meshBasicMaterial color={palette.kittyWhite} />
               </mesh>
@@ -603,6 +692,48 @@ export function Kitty({
               outline={1.14}
               outlineColor={palette.outlineInk}
             />
+            {/* souls: layered spaulder, parented INSIDE the arm pivot so it
+                rides the arm swing (+-0.5 rad grounded, -0.55 airborne)
+                instead of hovering over it. Local offset [0, 0.03] puts the
+                plate at ~[-0.62, 0.95] world, top at y 1.11 — covering the
+                arm's top curve and the tunic's shoulder corner (y 1.06) and
+                still straddling the head's lower edge (head fill 0.22).
+                z ladder, bottom to top: arm fill 0.16, lame 0.18 (behind the
+                plate so its tucked top edge is hidden), plate ink 0.25,
+                plate 0.28, rim + shadow 0.30 (rim y 0.0875..0.13, shadow
+                y -0.19..-0.145 — never share xy). All gaps >= 0.02. */}
+            {isSouls && (
+              /* damped: useFrame counter-rotates this group by PAULDRON_DAMP
+                 of the arm swing — net a subtle nod, not the full arc */
+              <group ref={pauldronLRef}>
+                {/* Lame: next plate down the arm, one value step toward ink
+                    (bowDeep) — it lives in the main plate's shadow. Reads
+                    below the plate's ink halo from ~-0.22 to -0.27. */}
+                <mesh geometry={geo.pauldronLame} position={[0, 0.03, 0.18]}>
+                  <meshBasicMaterial color={palette.bowDeep} />
+                </mesh>
+                <Part
+                  geometry={geo.pauldron}
+                  inkGeometry={geo.pauldronInk}
+                  color={palette.bowRed}
+                  z={0.28}
+                  position={[0, 0.03]}
+                  outlineColor={palette.outlineInk}
+                />
+                {/* Top rim: a thin cloudLit arc on the upper curve — the low
+                    sun catching the steel; reinforces the "brightest solid
+                    figure" read. Inside the silhouette (w 0.15 < 0.24). */}
+                <mesh geometry={geo.pauldronRim} position={[0, 0.03, 0.3]}>
+                  <meshBasicMaterial color={palette.cloudLit} />
+                </mesh>
+                {/* Under-edge occlusion: a hard bowDeep crescent on the lower
+                    rim (arm shading under steel), one value step from the
+                    bowRed fill. Bridges visually into the lame below. */}
+                <mesh geometry={geo.pauldronShadow} position={[0, 0.03, 0.3]}>
+                  <meshBasicMaterial color={palette.bowDeep} />
+                </mesh>
+              </group>
+            )}
           </group>
           <group ref={armRRef} position={[0.62, 0.92, 0]}>
             <Part
@@ -612,44 +743,36 @@ export function Kitty({
               outline={1.14}
               outlineColor={palette.outlineInk}
             />
-          </group>
-
-          {/* souls: pauldrons over the arm pivots. They straddle the head's
-              lower edge (head fill 0.22), so they sit above it: ink 0.25 /
-              fill 0.28, top rim + under-edge occlusion 0.30 (top and bottom
-              arcs don't overlap in xy). Static — the arm ellipses barely
-              move visually. */}
-          {isSouls &&
-            [-1, 1].map((side) => (
-              <group key={side}>
+            {/* souls: right spaulder — same local offsets and z ladder as
+                the left (the shapes are symmetric, no mirroring needed).
+                The greatsword is a sibling group at [0.75, 1.18], untouched. */}
+            {isSouls && (
+              /* damped: counter-rotated by PAULDRON_DAMP of the arm swing in
+                 useFrame, same net subtle nod as the left plate */
+              <group ref={pauldronRRef}>
+                {/* Lame under the plate, z 0.18 (arm fill 0.16). */}
+                <mesh geometry={geo.pauldronLame} position={[0, 0.03, 0.18]}>
+                  <meshBasicMaterial color={palette.bowDeep} />
+                </mesh>
                 <Part
                   geometry={geo.pauldron}
                   inkGeometry={geo.pauldronInk}
                   color={palette.bowRed}
                   z={0.28}
-                  position={[side * 0.64, 0.98]}
+                  position={[0, 0.03]}
                   outlineColor={palette.outlineInk}
                 />
-                {/* Top rim: a thin cloudLit arc on the upper curve — the low
-                    sun catching the steel; reinforces the "brightest solid
-                    figure" read. Inside the silhouette (w 0.2 < 0.27). */}
-                <mesh
-                  geometry={geo.pauldronRim}
-                  position={[side * 0.64, 0.98, 0.3]}
-                >
+                {/* Top rim (cloudLit) and under-edge crescent (bowDeep),
+                    both z 0.30, disjoint in xy. */}
+                <mesh geometry={geo.pauldronRim} position={[0, 0.03, 0.3]}>
                   <meshBasicMaterial color={palette.cloudLit} />
                 </mesh>
-                {/* Under-edge occlusion: a hard bowDeep crescent on the lower
-                    rim (arm shading under steel), one value step from the
-                    bowRed fill. */}
-                <mesh
-                  geometry={geo.pauldronShadow}
-                  position={[side * 0.64, 0.98, 0.3]}
-                >
+                <mesh geometry={geo.pauldronShadow} position={[0, 0.03, 0.3]}>
                   <meshBasicMaterial color={palette.bowDeep} />
                 </mesh>
               </group>
-            ))}
+            )}
+          </group>
 
           {/* head */}
           <group ref={headRef} position={[0, 1.5, 0]}>
@@ -721,12 +844,15 @@ export function Kitty({
             )}
 
             {isSouls ? (
-              /* great helm — head-local z ladder over the head fill (0.22):
-                 visor plate ink 0.25 / plate 0.28, slit 0.31, embers 0.34,
-                 dome ink 0.31 / dome 0.34, crest ink 0.37 / crest 0.40.
+              /* great helm (comb great helm) — head-local z ladder over the
+                 head fill (0.22): chin band 0.24, visor plate ink 0.25 /
+                 plate 0.28, brow shadow 0.305, slit 0.31, embers 0.34,
+                 dome ink 0.31 / dome 0.34, brow ridge + chip 0.36 (disjoint
+                 xy), crest ink 0.37 / crest 0.40, sun rim behind all at 0.08.
                  The dome's lower ink line lands on the plate's top edge so
                  no bone shows between visor and helm; slit and embers stay
-                 well below the dome, so they never share a z band with it. */
+                 well below the dome (y <= 0.11 vs dome ink bottom 0.265),
+                 so they never share a z band with it in xy. */
               <group position={[0, 0, 0]}>
                 <Part
                   geometry={geo.visorPlate}
@@ -736,30 +862,51 @@ export function Kitty({
                   position={[0, 0.03]}
                   outlineColor={palette.outlineInk}
                 />
-                <mesh geometry={geo.visorSlit} position={[0, 0.06, 0.31]}>
+                {/* Vision slit dropped 0.04 deeper (0.06 -> 0.02) so more
+                    dark steel sits between brow and eyes: the stare comes
+                    from under the brow, not from the middle of the band. */}
+                <mesh geometry={geo.visorSlit} position={[0, 0.02, 0.31]}>
                   <meshBasicMaterial color={palette.outlineInk} />
                 </mesh>
                 {/* Brow shadow: the dome pools a hard occlusion band on the
                     plate just under its seam — the visor reads as recessed
-                    steel, not a flat decal. Clear of the slit and embers. */}
+                    steel, not a flat decal. Clear of the slit and embers;
+                    pairs with the cloudLit ridge above the seam. */}
                 <mesh geometry={geo.visorSlit} position={[0, 0.195, 0.305]}>
                   <meshBasicMaterial color={SOULS_MATERIAL.steelShadow} />
                 </mesh>
-                <mesh geometry={geo.ember} position={[-0.34, 0.06, 0.34]}>
+                {/* Chin occlusion: a hard cheek-value band hugging the
+                    visor's lower edge — the steel brim casting onto the
+                    exposed bone chin, killing the cartoon-muzzle read on the
+                    bare oval below the plate. The reused slit stays inside
+                    the face silhouette (1.16×1.28 < the plate's 1.5 width);
+                    z 0.24 clears the head fill (0.22) by 0.02 and sits below
+                    the plate in y, so it never shares the plate ink's band. */}
+                <mesh
+                  geometry={geo.visorSlit}
+                  position={[0, -0.27, 0.24]}
+                  scale={[1.28, 1.2, 1]}
+                >
+                  <meshBasicMaterial color={palette.cheek} />
+                </mesh>
+                {/* Embers ride the slit (same y 0.02), z 0.34 clears the slit
+                    ink (0.31) by 0.03. */}
+                <mesh geometry={geo.ember} position={[-0.34, 0.02, 0.34]}>
                   <meshBasicMaterial color={palette.noseYellow} />
                 </mesh>
-                <mesh geometry={geo.ember} position={[0.34, 0.06, 0.34]}>
+                <mesh geometry={geo.ember} position={[0.34, 0.02, 0.34]}>
                   <meshBasicMaterial color={palette.noseYellow} />
                 </mesh>
                 {/* Sun rim for the helm: the padded dome contour shifted
                     toward the sun, behind every head layer. z 0.08 keeps a
-                    0.04 gap under the ear inks (0.12) — 0.15 would be
-                    coplanar with the ear fills and z-fight the visible tips
-                    on 16-bit mobile depth — and behind the head ink (0.19),
-                    so only the right/upper-right curve peeks past the dome's
-                    own ink. Lives in the head group, so it tracks bob and
-                    rotation. */}
-                <mesh geometry={geo.helmDomeRim} position={[0.07, 0.66, 0.08]}>
+                    0.04 gap under the ear inks (0.12) and sits behind the
+                    head ink (0.19). Offset re-fit for the ogival crown:
+                    x +0.08 makes the right flank peek by ~0.13 while the
+                    left (0.05 pad - 0.08 shift) stays hidden under the dome
+                    ink; y 0.64 (dome at 0.66) pulls the rim's apex 0.02
+                    under the dome's, so the narrow point does not grow a
+                    pale halo on top — the fringe stays right/upper-right. */}
+                <mesh geometry={geo.helmDomeRim} position={[0.08, 0.64, 0.08]}>
                   <meshBasicMaterial color={palette.cloudLit} />
                 </mesh>
                 <Part
@@ -770,16 +917,35 @@ export function Kitty({
                   position={[0, 0.66]}
                   outlineColor={palette.outlineInk}
                 />
-                {/* Specular chip: one clipped bone-white glint on the
-                    dome's sun-facing upper curve — tarnished steel reads
-                    through the specular being small and dirty. */}
+                {/* Brow reinforcement ridge: hard cloudLit band on the dome's
+                    lower front, y 0.335..0.46 head-local — above the dome's
+                    base edge (0.30 at the corners, ~0.28 at centre) and the
+                    visor seam, well inside the dome's ~1.9 width at that
+                    height. z 0.36 clears the dome fill (0.34) by 0.02 and
+                    shares the band with the chip only, which lives at
+                    y ~0.96 — never the same xy. */}
+                <mesh geometry={geo.helmBrow} position={[0, 0.37, 0.36]}>
+                  <meshBasicMaterial color={palette.cloudLit} />
+                </mesh>
+                {/* Specular chip: a short bone-white glint clipped inside
+                    the dome's sun-facing upper-right curve. Re-fit to the
+                    ogival flank: dome-local (0.30, 0.30) -> head-local
+                    (0.30, 0.96), where the new surface passes at ~y 0.44
+                    dome-local, so the chip sits ~0.14 under the steel edge;
+                    tilt -1.1 rad follows the steeper tangent. */}
                 <mesh
                   geometry={geo.chip}
-                  position={[0.34, 0.92, 0.36]}
-                  rotation={[0, 0, -0.7]}
+                  position={[0.3, 0.96, 0.36]}
+                  rotation={[0, 0, -1.1]}
+                  scale={[0.65, 1, 1]}
                 >
                   <meshBasicMaterial color={palette.kittyWhite} />
                 </mesh>
+                {/* Comb: crest-local -0.30..0.76 -> head-local 0.46..1.52,
+                    base buried in the dome (apex 1.18), tip 0.34 above it,
+                    swept back toward -x. bowDeep = one step toward ink from
+                    the dome, its own ink via outline 1.16 (ink 0.37 / fill
+                    0.40 over the dome's 0.34). */}
                 <Part
                   geometry={geo.helmCrest}
                   color={palette.bowDeep}

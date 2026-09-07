@@ -38,10 +38,17 @@ function toTexture(canvas: HTMLCanvasElement): THREE.CanvasTexture {
 // theme dim the disc into a dying, ash-veiled sun: `sunScale` shrinks the core
 // (base radius 34) and the glow's inner radius, `sunGlow` scales the halo's
 // outer radius and its alpha (flatter = greyer), `sunDrop` nudges the disc down
-// toward the horizon.
+// toward the horizon, and `sunAspect` stretches the sun's canvas shapes
+// vertically by this factor so radial shapes read round on the 72x30 sky plane;
+// default 1 = today, pastel byte-identical.
 export function skyTexture(
   p: ThemePalette,
-  opts: { sunScale?: number; sunGlow?: number; sunDrop?: number } = {},
+  opts: {
+    sunScale?: number;
+    sunGlow?: number;
+    sunDrop?: number;
+    sunAspect?: number;
+  } = {},
 ): THREE.CanvasTexture {
   const { canvas, ctx } = makeCanvas(512, 512);
   const gradient = ctx.createLinearGradient(0, 0, 0, 512);
@@ -58,6 +65,18 @@ export function skyTexture(
   const halo = hexRgb(p.sunHalo);
   const haloSoft = hexRgb(p.sunHaloSoft);
   const core = hexRgb(p.sunCore);
+
+  // The sky canvas (512x512) is stretched over a plane 72 wide x 30 tall, so a
+  // canvas circle renders 2.4:1 squashed in world space. Pre-stretch the sun in
+  // y about its own centre so the glow and the disc come out round on screen.
+  // The scale centre lies inside the canvas, so the glow's full-canvas fillRect
+  // still covers every pixel after the transform. aspect 1 = identity = today.
+  const aspect = opts.sunAspect ?? 1;
+  ctx.save();
+  ctx.translate(sunX, sunY);
+  ctx.scale(1, aspect);
+  ctx.translate(-sunX, -sunY);
+
   const glow = ctx.createRadialGradient(
     sunX, sunY, 8 * sunScale,
     sunX, sunY, 150 * glowScale,
@@ -71,6 +90,8 @@ export function skyTexture(
   ctx.beginPath();
   ctx.arc(sunX, sunY, 34 * sunScale, 0, Math.PI * 2);
   ctx.fill();
+
+  ctx.restore();
 
   return toTexture(canvas);
 }
@@ -309,7 +330,11 @@ export function stoneJointTexture(
 }
 
 // Long streaky dusk cloud: dark slate bands whose undersides catch a warm
-// sunset from below. Strokes are elongated ellipses so nothing reads puffy.
+// sunset from below. Strokes are elongated ellipses so nothing reads puffy —
+// and they are deliberately thinner and longer than a normal cloud sprite,
+// with lower body/lit alphas and tighter shadow blur, because the ashen sky
+// should whisper depth behind the city rather than smear bright blobs across
+// it. rng call order is untouched; only the constants moved.
 export function duskCloudTexture(seed: string, p: ThemePalette): THREE.CanvasTexture {
   const rng = createRng(seed);
   const { canvas, ctx } = makeCanvas(512, 256);
@@ -319,14 +344,17 @@ export function duskCloudTexture(seed: string, p: ThemePalette): THREE.CanvasTex
     const t = bands === 1 ? 0.5 : b / (bands - 1);
     const cy = 70 + t * 110 + (rng() - 0.5) * 30;
     const cx = 256 + (rng() - 0.5) * 60;
-    const half = 130 + rng() * 90;
-    const thick = 9 + rng() * 12;
+    // Wider span, shallower profile: the band should be a horizon-parallel
+    // streak, not a lozenge.
+    const half = 175 + rng() * 80;
+    const thick = 6 + rng() * 8;
 
-    // Body: layered translucent strokes, shorter towards the band ends.
+    // Body: layered translucent strokes, shorter towards the band ends. Lower
+    // alpha and blur keep the slate reading as haze rather than as a solid mass.
     ctx.globalCompositeOperation = "source-over";
-    ctx.shadowBlur = 16;
+    ctx.shadowBlur = 10;
     ctx.shadowColor = rgba(p.cloud, 0.85);
-    ctx.fillStyle = rgba(p.cloud, 0.55);
+    ctx.fillStyle = rgba(p.cloud, 0.42);
     const strokes = 6 + Math.floor(rng() * 4);
     for (let s = 0; s < strokes; s += 1) {
       const u = (rng() - 0.5) * 2;
@@ -339,11 +367,12 @@ export function duskCloudTexture(seed: string, p: ThemePalette): THREE.CanvasTex
       ctx.fill();
     }
 
-    // Lit underside: source-atop keeps the warmth inside the cloud body.
+    // Lit underside: source-atop keeps the warmth inside the cloud body. Dimmer
+    // than before so the only bright thing on the skyline stays the keep embers.
     ctx.globalCompositeOperation = "source-atop";
-    ctx.shadowBlur = 10;
+    ctx.shadowBlur = 6;
     ctx.shadowColor = rgba(p.cloudLit, 0.7);
-    ctx.fillStyle = rgba(p.cloudLit, 0.5);
+    ctx.fillStyle = rgba(p.cloudLit, 0.32);
     const litStrokes = 3 + Math.floor(rng() * 3);
     for (let s = 0; s < litStrokes; s += 1) {
       const u = (rng() - 0.5) * 2;
@@ -391,18 +420,25 @@ type CastleWindow = { x: number; y: number; w: number; h: number; arched: boolea
 type CastleLayer = "far" | "mid" | "near";
 
 // Tileable gothic skyline. Composition is anchored per `layer` (2–4 deliberate
-// groups, not scatter): far = one cathedral-mass + curtain wall + secondary
-// keeps; mid = heavy bastion runs; near = a low broken rampart, one lit keep
-// (the ember cluster) and one colossal broken column. All rng is consumed in
+// groups, not scatter): far = ONE twin-tower cathedral island (nave + mirrored
+// colossal shafts + curtain wall + one low keep); mid = one colossal central
+// shaft with supporting bastion groups + an arcade; near = a low broken
+// rampart, one lit keep (the ember cluster) and one colossal broken column.
+// Per-building symmetry is deliberate: mirrored slit columns, twin turrets.
+// All rng is consumed in
 // the build phase before any drawing, so the three wrap copies are identical.
-// `rim` (when present) bakes a hard warm sliver on sun-facing edges and
-// consumes no rng; souls never passes it. `density` is accepted for call-site
-// compatibility but no longer drives the anchored layout.
+// `slitFill` (when present) paints the arched slits as opaque voids in that
+// colour instead of cutting through the silhouette — dark gothic windows,
+// never pale sky holes; absent = today's cut-through. `rim` (when present)
+// bakes a hard warm sliver on sun-facing edges and consumes no rng; souls
+// never passes it. `density` is accepted for call-site compatibility but no
+// longer drives the anchored layout.
 export function castleTexture(
   color: string,
   seed: string,
   opts: {
     windows?: string;
+    slitFill?: string;
     density?: number;
     baseline?: number;
     rim?: string;
@@ -443,8 +479,10 @@ export function castleTexture(
   };
 
   // A large tiered keep: full body -> narrower crenellated upper tier ->
-  // steep pitched roof, 2 pinnacles at the tier corners, arched slits in the
-  // body. Returns its body region so the caller can seat an ember cluster.
+  // flat battlement crown with thin corner turrets, arched slits in the body.
+  // No pitched roof anywhere: a triangle on a box reads as a house, and this
+  // skyline must read monumental gothic. Returns its body region so the
+  // caller can seat an ember cluster.
   const addKeep = (bx: number, bw: number, bodyTopRaw: number) => {
     const bodyTopY = clampTop(bodyTopRaw);
     const bottom = baseline;
@@ -462,25 +500,156 @@ export function castleTexture(
     if (ledgeL > 5) prims.push({ t: "merlon", x: bx, y: bodyTopY, w: ledgeL });
     if (ledgeR > 5) prims.push({ t: "merlon", x: ux + uw, y: bodyTopY, w: ledgeR });
 
-    let roofH = Math.round(uw * (0.95 + rng() * 0.25));
-    if (upperTopY - roofH < 8) roofH = Math.max(6, upperTopY - 8);
-    prims.push({ t: "roof", x: ux, y: upperTopY, w: uw, h: roofH });
+    // A full battlement crown keeps the upper mass square and fortified.
+    prims.push({ t: "merlon", x: ux, y: upperTopY, w: uw });
 
-    let ph = 10 + rng() * 8;
-    if (upperTopY - ph < 8) ph = Math.max(6, upperTopY - 8);
-    prims.push({ t: "pinnacle", x: ux - 4, y: upperTopY + 3, w: 4, h: ph });
-    prims.push({ t: "pinnacle", x: ux + uw, y: upperTopY + 3, w: 4, h: ph });
+    // Thin corner turrets with tiny pyramidal caps — the only pointed forms.
+    // All rng draws happen before the pushes, so a skip never shifts the
+    // stream; the clamp keeps a short crown from cresting the canvas top.
+    const leftTurretW = 6 + Math.floor(rng() * 3);
+    let leftTurretH = 18 + rng() * 12;
+    const leftCapH = 7 + Math.floor(rng() * 5);
+    if (upperTopY - leftTurretH < 10) leftTurretH = Math.max(0, upperTopY - 10);
+    if (leftTurretH > 0) {
+      prims.push({
+        t: "box",
+        x: ux - 3,
+        y: upperTopY - leftTurretH,
+        w: leftTurretW,
+        h: leftTurretH,
+      });
+      prims.push({
+        t: "pinnacle",
+        x: ux - 3,
+        y: upperTopY - leftTurretH,
+        w: leftTurretW,
+        h: leftCapH,
+      });
+    }
 
+    const rightTurretW = 6 + Math.floor(rng() * 3);
+    let rightTurretH = 18 + rng() * 12;
+    const rightCapH = 7 + Math.floor(rng() * 5);
+    if (upperTopY - rightTurretH < 10) rightTurretH = Math.max(0, upperTopY - 10);
+    if (rightTurretH > 0) {
+      prims.push({
+        t: "box",
+        x: ux + uw - 3,
+        y: upperTopY - rightTurretH,
+        w: rightTurretW,
+        h: rightTurretH,
+      });
+      prims.push({
+        t: "pinnacle",
+        x: ux + uw - 3,
+        y: upperTopY - rightTurretH,
+        w: rightTurretW,
+        h: rightCapH,
+      });
+    }
+
+    // Symmetric fenestration: ONE slit column per side, mirrored about the
+    // body's centre axis at +-0.22*bw, sharing the row rhythm — a facade,
+    // not the old random-x scatter (which read as noise).
     const rows = 2 + Math.floor(rng() * 2);
+    const axis = bx + bw / 2;
+    const inset = Math.round(bw * 0.22);
     for (let i = 0; i < rows; i += 1) {
-      const sw = 3 + Math.floor(rng() * 3);
-      const sh = 6 + Math.floor(rng() * 4);
-      const sx = Math.round(bx + bw * (0.28 + rng() * 0.44) - sw / 2);
+      const sw = 3 + Math.floor(rng() * 3); // 3-5
+      const sh = 6 + Math.floor(rng() * 4); // 6-9
       const sy = Math.round(bodyTopY + 12 + i * (sh + 7));
-      if (sy + sh < bottom - 6)
-        slits.push({ x: sx, y: sy, w: sw, h: sh, arched: true });
+      if (sy + sh < bottom - 6) {
+        slits.push({ x: Math.round(axis - inset - sw / 2), y: sy, w: sw, h: sh, arched: true });
+        slits.push({ x: Math.round(axis + inset - sw / 2), y: sy, w: sw, h: sh, arched: true });
+      }
     }
     return { bx, bw, bodyTopY, bottom };
+  };
+
+  // ---------------------------------------------------------------------
+  // addTower — the slim COLOSSAL shaft.
+  // Where addKeep is a tiered mass, this is a single unbroken shaft: one box
+  // from the crown straight to the baseline, so nothing steps in and breaks
+  // the vertical run. Callers pass bw 26–40 with tops at 0.84–0.95 of reach,
+  // i.e. roughly 1:4.5–1:5.5 width:height on the canvas — the gothic
+  // proportion the squat 1:1.2–1.7 keeps were missing.
+  // Detail recipe is deliberately IDENTICAL to addKeep's crown: full-width
+  // merlon + two clamped corner turrets with pyramidal caps, all rng drawn
+  // before any push so the primitive list is stable for the three wrap copies.
+  // Fenestration is two MIRRORED slit columns at ±0.24*bw from the shaft's
+  // centre axis, sharing one y per row (one jitter drawn per row, applied to
+  // both slits) so every pair reads dead level — designed, not scattered.
+  // ---------------------------------------------------------------------
+  const addTower = (bx: number, bw: number, topRaw: number) => {
+    const topY = clampTop(topRaw);
+
+    // All rng for this builder is consumed up front, before the first push.
+    const leftTurretW = 6 + Math.floor(rng() * 3);
+    const leftTurretH = Math.min(18 + rng() * 12, Math.max(0, topY - 10));
+    const leftCapH = 7 + Math.floor(rng() * 5);
+    const rightTurretW = 6 + Math.floor(rng() * 3);
+    const rightTurretH = Math.min(18 + rng() * 12, Math.max(0, topY - 10));
+    const rightCapH = 7 + Math.floor(rng() * 5);
+    const rows = 3 + Math.floor(rng() * 2);
+    const slitPlan: { w: number; h: number; jitter: number }[] = [];
+    for (let r = 0; r < rows; r += 1) {
+      slitPlan.push({
+        w: 3 + Math.floor(rng() * 3), // 3-5
+        h: 8 + Math.floor(rng() * 5), // 8-12
+        jitter: rng() * 3, // shared by the mirrored pair of this row
+      });
+    }
+
+    // Single shaft + crenellated crown.
+    prims.push({ t: "box", x: bx, y: topY, w: bw, h: baseline - topY });
+    prims.push({ t: "merlon", x: bx, y: topY, w: bw });
+
+    // Twin corner turrets (same clamp discipline as addKeep: never crest y 10).
+    if (leftTurretH > 0) {
+      prims.push({
+        t: "box",
+        x: bx - 3,
+        y: topY - leftTurretH,
+        w: leftTurretW,
+        h: leftTurretH,
+      });
+      prims.push({
+        t: "pinnacle",
+        x: bx - 3,
+        y: topY - leftTurretH,
+        w: leftTurretW,
+        h: leftCapH,
+      });
+    }
+    if (rightTurretH > 0) {
+      prims.push({
+        t: "box",
+        x: bx + bw - 3,
+        y: topY - rightTurretH,
+        w: rightTurretW,
+        h: rightTurretH,
+      });
+      prims.push({
+        t: "pinnacle",
+        x: bx + bw - 3,
+        y: topY - rightTurretH,
+        w: rightTurretW,
+        h: rightCapH,
+      });
+    }
+
+    // Two mirrored slit columns, equidistant from the centre axis, 18 px pitch.
+    const axis = bx + bw / 2;
+    const inset = Math.round(bw * 0.24);
+    for (let r = 0; r < rows; r += 1) {
+      const s = slitPlan[r];
+      const sy = Math.round(topY + 16 + r * 18 + s.jitter);
+      if (sy + s.h > baseline - 6) continue; // never run into the ground line
+      slits.push({ x: Math.round(axis - inset) - 2, y: sy, w: s.w, h: s.h, arched: true });
+      slits.push({ x: Math.round(axis + inset) - 2, y: sy, w: s.w, h: s.h, arched: true });
+    }
+
+    return { bx, bw, topY };
   };
 
   const addArcade = (ax: number, aw: number, topRaw: number, arches: number) => {
@@ -532,52 +701,111 @@ export function castleTexture(
   };
 
   if (layer === "far") {
-    // One great cathedral-mass anchored left.
-    const cx = 40 + rng() * 50;
-    const cw = 160 + rng() * 80;
-    const naveTop = clampTop(baseline - reach * (0.46 + rng() * 0.08));
-    prims.push({ t: "box", x: cx, y: naveTop, w: cw, h: baseline - naveTop });
-    prims.push({ t: "roof", x: cx, y: naveTop, w: cw, h: Math.round(cw * 0.15) });
+    // FAR: one DESIGNED cathedral island per tile, not a bag of keeps.
+    // A nave mass (parapet merlon, 0.5-0.56 reach) is flanked by TWIN TOWERS
+    // mirrored about the nave's centre axis, their centres 0.18*cw inboard
+    // from the nave's ends. The twins share ONE width (30-40) and ONE top
+    // (0.84-0.92 reach) so the silhouette is symmetric — only their turret and
+    // slit detail rng differs. At ~1:5 they clearly dominate the nave, which
+    // in turn dominates the single secondary keep (0.62-0.72) reached by a
+    // curtain wall: three descending steps, an obvious subject.
+    // Anchors are jittered <= 20 px, the whole island stays clear of both tile
+    // edges, and the one big sky gap self-joins across the wrap.
+    const naveW = 150 + rng() * 40;
+    const naveX = Math.round(210 + rng() * 20);
+    const naveTop = clampTop(baseline - reach * (0.5 + rng() * 0.06));
+    const towerW = Math.round(30 + rng() * 10);
+    const towerTop = baseline - reach * (0.84 + rng() * 0.08);
+    const wallW = 220 + rng() * 70;
+    const wallTop = baseline - reach * (0.3 + rng() * 0.06);
+    const sideKeepW = 64 + rng() * 20;
+    const sideKeepTop = baseline - reach * (0.62 + rng() * 0.1);
+
+    // The nave: a square parapet mass reads as a nave, never as a house roof.
+    prims.push({ t: "box", x: naveX, y: naveTop, w: naveW, h: baseline - naveTop });
+    prims.push({ t: "merlon", x: naveX, y: naveTop, w: naveW });
+
+    // Three clerestory slits, evenly spaced and centred in the bay BETWEEN the
+    // towers (0.35/0.50/0.65 of the nave) so no void is painted over a shaft.
     for (let i = 0; i < 3; i += 1) {
       slits.push({
-        x: Math.round(cx + cw * (0.15 + 0.3 * i)),
+        x: Math.round(naveX + naveW * (0.35 + 0.15 * i)) - 2,
         y: Math.round(naveTop + 14),
         w: 4,
-        h: 10,
+        h: 12,
         arched: true,
       });
     }
-    // Dominant tower rising from the nave, tiers + tall roof, top in upper reach.
-    const twW = Math.max(72, Math.round(cw * 0.34));
-    const twX = Math.round(cx + cw * 0.48);
-    addKeep(twX, twW, baseline - reach * (0.6 + rng() * 0.06));
-    // Connecting curtain wall.
-    const wX = cx + cw + 8;
-    const wW = 150 + rng() * 60;
-    addWall(wX, wW, baseline - reach * (0.32 + rng() * 0.08));
-    // 1–2 secondary tiered keeps.
-    addKeep(wX + wW + 12, 82 + rng() * 24, baseline - reach * (0.52 + rng() * 0.1));
-    addKeep(
-      wX + wW + 120 + rng() * 40,
-      76 + rng() * 22,
-      baseline - reach * (0.46 + rng() * 0.1),
-    );
+
+    // Twin towers: centres at axis +- 0.32*cw (= 0.18*cw inboard of the ends).
+    const naveAxis = naveX + naveW / 2;
+    const towerInset = Math.round(naveW * 0.32);
+    addTower(Math.round(naveAxis - towerInset - towerW / 2), towerW, towerTop);
+    addTower(Math.round(naveAxis + towerInset - towerW / 2), towerW, towerTop);
+
+    // Curtain wall running off the nave's right flank into the low keep, whose
+    // base overlaps the wall's end so the group reads as one structure.
+    const wallX = Math.round(naveX + naveW + 16);
+    addWall(wallX, wallW, wallTop);
+    addKeep(Math.round(wallX + wallW - 10), sideKeepW, sideKeepTop);
   } else if (layer === "mid") {
-    // 2–3 heavy bastion groups, generous sky gaps, slightly lower than far.
-    const anchors = [0.06, 0.4, 0.72];
-    for (let g = 0; g < anchors.length; g += 1) {
-      const gx = Math.round(width * anchors[g] + rng() * 40);
-      const runW = 120 + rng() * 80;
-      addWall(gx, runW, baseline - reach * (0.26 + rng() * 0.08));
-      addKeep(gx + 10 + rng() * 20, 82 + rng() * 40, baseline - reach * (0.66 + rng() * 0.16));
-      if (rng() < 0.6)
-        addKeep(gx + runW * 0.55, 74 + rng() * 28, baseline - reach * (0.56 + rng() * 0.12));
+    // MID: still three anchors, but no longer three equals. The CENTRE anchor
+    // (~0.42 of the tile) is ONE colossal addTower shaft (w 30-40, 0.88-0.95
+    // reach, ~1:4.5) approached by a wall run on its left carrying a single
+    // supporting keep at 0.7-0.8. The two flanks get a wall plus ONE keep each
+    // at 0.62-0.74 — always shorter than the centre, so the hierarchy
+    // (shaft > centre keep > flank keeps > walls) reads instantly instead of
+    // the old three near-identical wall+keep groups.
+    // Every tower/keep is clamped >= 24 px from both tile edges.
+    const anchors = [0.06, 0.42, 0.74];
+
+    // Centre: the colossal shaft and its stepped approach.
+    const shaftW = Math.round(30 + rng() * 10);
+    const shaftX = Math.round(width * anchors[1] + rng() * 20);
+    const shaftTop = baseline - reach * (0.88 + rng() * 0.07);
+    const cWallW = 110 + rng() * 40;
+    const cWallTop = baseline - reach * (0.24 + rng() * 0.08);
+    const cKeepW = 60 + rng() * 20;
+    const cKeepTop = baseline - reach * (0.7 + rng() * 0.1);
+    // The wall's right end tucks 8 px under the shaft's base: they connect.
+    const cWallX = Math.round(shaftX + 8 - cWallW);
+    const cKeepX = Math.round(
+      Math.min(cWallX + cWallW * 0.2, shaftX - cKeepW - 8),
+    );
+    addWall(cWallX, cWallW, cWallTop);
+    addKeep(cKeepX, cKeepW, cKeepTop);
+    addTower(shaftX, shaftW, shaftTop);
+
+    // Flanks: mirrored roles — one wall run, one lower keep standing on it.
+    const sides = [anchors[0], anchors[2]];
+    for (let g = 0; g < sides.length; g += 1) {
+      const gx = Math.round(width * sides[g] + rng() * 20);
+      const runW = 120 + rng() * 60;
+      const kW = 60 + rng() * 20;
+      const kTop = baseline - reach * (0.62 + rng() * 0.12);
+      addWall(gx, runW, baseline - reach * (0.24 + rng() * 0.07));
+      const kX = Math.round(
+        Math.min(Math.max(gx + runW * 0.3, 28), width - 28 - kW),
+      );
+      addKeep(kX, kW, kTop);
     }
-    // One gothic arcade run for variety (pointed arches).
-    addArcade(width * 0.55 + rng() * 20, 120 + rng() * 50, baseline - reach * 0.22, 4 + Math.floor(rng() * 3));
+
+    // One gothic arcade run for variety (pointed arches) — unchanged, and it
+    // sits in the gap between the centre group and the right flank.
+    addArcade(
+      width * 0.55 + rng() * 20,
+      120 + rng() * 50,
+      baseline - reach * 0.22,
+      4 + Math.floor(rng() * 3),
+    );
   } else {
-    // NEAR: low broken crenellated rampart across the whole tile (dark & quiet
-    // behind the lane), one lit keep (ember), one colossal broken column.
+    // NEAR: structurally unchanged — low broken crenellated rampart across the
+    // whole tile (dark and quiet behind the lane, its ONE deliberate gap
+    // self-joining across the wrap), one lit keep, one colossal broken column.
+    // Only the proportions move: the lit keep narrows to 70-90 and rises to
+    // 0.78-0.86 reach so it is unmistakably the tallest near thing, and the
+    // ruin column narrows to 26-36 at 0.9-0.96 reach — a slim shattered shaft
+    // rather than a stump. Both stay clear of the tile edges.
     const rampTop = baseline - reach * (0.28 + rng() * 0.06);
     const gapStart = Math.round(width * (0.55 + rng() * 0.1));
     const gapW = 40 + rng() * 30;
@@ -585,24 +813,27 @@ export function castleTexture(
     addWall(gapStart + gapW, width - (gapStart + gapW), rampTop);
 
     const keepX = Math.round(width * (0.12 + rng() * 0.06));
-    const keepW = 90 + rng() * 30;
-    const keep = addKeep(keepX, keepW, baseline - reach * (0.7 + rng() * 0.1));
+    const keepW = 70 + rng() * 20;
+    const keep = addKeep(keepX, keepW, baseline - reach * (0.78 + rng() * 0.08));
 
     const colX = Math.round(width * (0.7 + rng() * 0.05));
-    const colW = 34 + rng() * 12;
+    const colW = 26 + rng() * 10;
     addColumn(colX, colW, baseline - reach * (0.9 + rng() * 0.06));
 
     // ONE ember window cluster on the lit keep (4–7, arched, spread ≤ 60).
+    // Openings sized to read at game scale: 3–5 px wide mapped to 64 world
+    // units never cleared ~2 screen px — the world's one warm payload must
+    // be legible, so the windows grow instead of multiplying.
     if (opts.windows) {
       const n = 4 + Math.floor(rng() * 4);
       const spread = Math.min(60, keep.bw - 14);
       const cx0 = keep.bx + (keep.bw - spread) / 2;
       const rowY = keep.bodyTopY + 16;
       for (let i = 0; i < n; i += 1) {
-        const ww = 3 + Math.floor(rng() * 3);
-        const wh = 5 + Math.floor(rng() * 5);
+        const ww = 5 + Math.floor(rng() * 4);
+        const wh = 9 + Math.floor(rng() * 5);
         const wx = cx0 + (spread / n) * i + rng() * 3;
-        const wy = rowY + (i % 2) * (wh + 4) + rng() * 4;
+        const wy = rowY + (i % 2) * (wh + 6) + rng() * 4;
         if (wy + wh < baseline - 8)
           windows.push({
             x: Math.round(wx),
@@ -673,9 +904,18 @@ export function castleTexture(
     }
   };
 
-  // Arched/rectangular dark slits, cut AFTER all solids so overlaps can't
-  // refill them. destination-out ignores fill colour (alpha carves).
-  const drawSlits = (c: CanvasRenderingContext2D, offset: number) => {
+  // Arched/rectangular dark slits. When `slitFill` is provided they paint
+  // OPAQUELY in that colour (dark voids on the masonry); when absent they cut
+  // through to the sky (destination-out ignores fill colour). Either way they
+  // run AFTER all solids, so overlaps can't refill them.
+  const drawSlits = (
+    c: CanvasRenderingContext2D,
+    offset: number,
+    slitFill?: string,
+  ) => {
+    const opaqueSlits = slitFill !== undefined;
+    c.globalCompositeOperation = opaqueSlits ? "source-over" : "destination-out";
+    if (opaqueSlits) c.fillStyle = slitFill;
     c.globalCompositeOperation = "destination-out";
     for (const s of slits) {
       const sx = s.x + offset;
@@ -705,7 +945,7 @@ export function castleTexture(
   ) => {
     c.fillStyle = win;
     c.shadowColor = win;
-    c.shadowBlur = 4;
+    c.shadowBlur = 8;
     for (const w of windows) {
       const wx = w.x + offset;
       if (w.arched) {
@@ -724,9 +964,9 @@ export function castleTexture(
     c.shadowBlur = 0;
   };
 
-  // Skyline in the base colour, then the dark slits cut through it.
+  // Skyline in the base colour, then the dark slits painted into it.
   for (const offset of [0, -width, width]) drawSolids(ctx, offset, color);
-  for (const offset of [0, -width, width]) drawSlits(ctx, offset);
+  for (const offset of [0, -width, width]) drawSlits(ctx, offset, opts.slitFill);
 
   // Rim pass (opt-in; souls never passes it, kept working). Rebuild the whole
   // silhouette in the warm key on a scratch canvas, carve its interior by
@@ -786,7 +1026,14 @@ export type BackdropSpec = {
     count?: number;
   } | null;
   // Optional per-theme sun knobs threaded into skyTexture. Absent = today.
-  sky?: { sunScale?: number; sunGlow?: number; sunDrop?: number };
+  // sunAspect pre-stretches the sun in canvas y so it reads round on the
+  // 72x30 sky plane (2.4); absent = 1 = today's exact draw.
+  sky?: {
+    sunScale?: number;
+    sunGlow?: number;
+    sunDrop?: number;
+    sunAspect?: number;
+  };
 };
 
 // Per-character backdrop lookup; scene code never branches on theme.
@@ -815,11 +1062,14 @@ export const BACKDROPS: Record<CharacterId, BackdropSpec> = {
     layers: [
       {
         // Plane spans y −1.5…10.5. ONE cathedral-mass + curtain wall + keeps.
-        // NO rim: the far city is a value in mist, not a sun-lit edge.
+        // NO rim: the far city is a value in mist, not a sun-lit edge. Slits
+        // paint dark (outlineInk) instead of cutting to sky — pale holes read
+        // as specks on the silhouette.
         build: (p) =>
           castleTexture(p.castleFar, "kitty-run/castle/far", {
             layer: "far",
             baseline: 0.18,
+            slitFill: p.outlineInk,
           }),
         z: -11,
         y: 4.5,
@@ -833,6 +1083,7 @@ export const BACKDROPS: Record<CharacterId, BackdropSpec> = {
           castleTexture(p.castleMid, "kitty-run/castle/mid", {
             layer: "mid",
             baseline: 0.24,
+            slitFill: p.outlineInk,
           }),
         z: -9,
         y: 2.5,
@@ -847,6 +1098,7 @@ export const BACKDROPS: Record<CharacterId, BackdropSpec> = {
             layer: "near",
             windows: p.windowEmber,
             baseline: 0.3,
+            slitFill: p.outlineInk,
           }),
         z: -7,
         y: 1.5,
@@ -856,22 +1108,28 @@ export const BACKDROPS: Record<CharacterId, BackdropSpec> = {
     ],
     haze: [
       // Two thin cold banks (far/mid and mid/near); the front veil is dropped.
+      // Opacities trimmed: the stacked veils were washing the mid bastions into
+      // the sky, so keep the veiled-depth read but let the stone come through.
       {
         build: (p) => hazeTexture(p.skyMid, 0.7),
         z: -10,
         y: 0.6,
         height: 5,
-        opacity: 0.4,
+        opacity: 0.3,
       },
       {
         build: (p) => hazeTexture(p.skyMid, 0.7),
         z: -8,
         y: 0.9,
         height: 4.4,
-        opacity: 0.34,
+        opacity: 0.26,
       },
     ],
-    cloud: { build: duskCloudTexture, scale: 2.1, opacity: 0.7, count: 5 },
-    sky: { sunScale: 0.5, sunGlow: 0.45, sunDrop: 40 },
+    // Fewer, wider, fainter: the larger scale stretches each streak further
+    // across the sky while the lower opacity keeps it a suggestion of weather
+    // behind the city rather than a bright band in front of it.
+    cloud: { build: duskCloudTexture, scale: 2.4, opacity: 0.55, count: 5 },
+    // 2.4 = 72/30, the exact sky-plane aspect, so the dying disc reads round.
+    sky: { sunScale: 0.5, sunGlow: 0.45, sunDrop: 40, sunAspect: 2.4 },
   },
 };

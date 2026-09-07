@@ -70,10 +70,11 @@ const FADED: Record<CharacterId, Record<string, string>> = {
     // The sun-rim plates (and now the pauldron rim + seam-family) join the
     // ash-memory family; unmapped, the fringe would glow full-strength.
     [SOULS_P.cloudLit]: "#9ba1a8", // cold rim memory
-    // SOULS_MATERIAL literals mirrored as raw hex — previously ABSENT, so the
-    // ghost rendered the brow occlusion and blade fuller at full strength.
+    // The SOULS_MATERIAL steelShadow literal is mirrored as raw hex; without
+    // this map the ghost would render the brow/belt occlusion at full
+    // strength. (The blade fuller is palette-keyed bowDeep now — mapped
+    // above, so its old raw-hex line is gone.)
     "#26292d": "#3a3d41", // SOULS_MATERIAL.steelShadow → faded cold occlusion
-    "#a9b0ba": "#9297a0", // SOULS_MATERIAL.bladeFuller → faded cold fuller
   },
 };
 
