@@ -11,19 +11,43 @@
 // re-entering the page after SPA navigation just re-binds the fresh DOM via
 // the spineRebind hook the Go side exposes.
 
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import { mountSpine } from "./loader";
 import "./spine.css";
 
 export default function SpinePage() {
+  // Pane-level chrome only: which mode is visible on narrow viewports.
+  // The Go engine is blind to this — both panes stay mounted so its id
+  // bindings never break, and the desktop grid ignores data-mode entirely.
+  const [mode, setMode] = useState<"design" | "code">("design");
+
   useEffect(() => {
     mountSpine();
   }, []);
 
   return (
-    <div className="spine-root">
-      <aside className="spine-inspector">
-        <h2 className="spine-heading">Inspector</h2>
+    <div className="spine-root" data-mode={mode}>
+      <div className="spine-topbar">
+        <h2 className="spine-heading spine-inspector-heading">
+          Inspector<span id="spine-sel-label" />
+        </h2>
+
+        <div className="spine-modebar" role="group" aria-label="View mode">
+          <button
+            type="button"
+            aria-pressed={mode === "design"}
+            onClick={() => setMode("design")}
+          >
+            Design
+          </button>
+          <button
+            type="button"
+            aria-pressed={mode === "code"}
+            onClick={() => setMode("code")}
+          >
+            Code
+          </button>
+        </div>
 
         <div className="spine-toolbar">
           <button id="spine-btn-add-item" type="button">+ Item</button>
@@ -33,6 +57,9 @@ export default function SpinePage() {
           <button id="spine-btn-redo" type="button" disabled>Redo</button>
           <button id="spine-btn-reset" type="button">Start Anew</button>
         </div>
+      </div>
+
+      <aside className="spine-inspector" aria-label="Inspector">
 
         <div id="spine-panel-mode" className="spine-field">
           <label htmlFor="spine-f-mode">Mode</label>

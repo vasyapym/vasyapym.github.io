@@ -324,6 +324,20 @@ func populateInspector(n *model.Node) {
 		setVal("spine-f-mode", "flex")
 	}
 
+	// Selection echo in the heading: runs every render (select, undo, redo,
+	// add, delete), so the label never desyncs from the canvas outline.
+	if el := doc.Call("getElementById", "spine-sel-label"); el.Truthy() {
+		name := n.Props.Label
+		if name == "" {
+			if n.Kind == model.KindContainer {
+				name = "container"
+			} else {
+				name = "item"
+			}
+		}
+		el.Set("textContent", name)
+	}
+
 	isContainer := n.Kind == model.KindContainer
 	toggleClass("spine-panel-flex", "hidden", !(isContainer && n.Mode == model.ModeFlex))
 	toggleClass("spine-panel-grid", "hidden", !(isContainer && n.Mode == model.ModeGrid))

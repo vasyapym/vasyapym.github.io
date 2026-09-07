@@ -1,7 +1,9 @@
 // Browser smoke test for Spine, run against a real Chromium. Self-contained:
 // boots the Vite dev server on a scratch port, opens /projects/spine/, waits
 // for the Go wasm engine to bind, then exercises the inspector, the toolbar,
-// undo/redo and the code output — and fails on any console or page error.
+// undo/redo, the code output, the selection echo in the heading, the mobile
+// modebar (both panes must stay mounted) and a 390px rebind pass — and fails
+// on any console or page error.
 //
 //   node portfolio/projects/spine/tests/smoke.mjs
 //
@@ -264,6 +266,79 @@ try {
 
   await page.screenshot({ path: join(SHOTS, "spine.png"), fullPage: false });
 
+  // --- selection echo in the Inspector heading --------------------------------
+  await page.evaluate(() => {
+    const root = document.querySelector("#spine-canvas > .node");
+    const inner = root.querySelector(":scope > .node.container");
+    inner.dispatchEvent(new MouseEvent("click", { bubbles: true }));
+  });
+  await wait(150);
+  const selLabel = await page.$eval("#spine-sel-label", (el) => el.textContent);
+  if (selLabel !== "container") {
+    throw new Error(`selection label is "${selLabel}", expected "container"`);
+  }
+  await page.evaluate(() => {
+    document
+      .querySelector("#spine-canvas > .node")
+      .dispatchEvent(new MouseEvent("click", { bubbles: true }));
+  });
+  await wait(150);
+  const rootSelLabel = await page.$eval("#spine-sel-label", (el) => el.textContent);
+  if (rootSelLabel !== "root") {
+    throw new Error(`selection label is "${rootSelLabel}", expected "root"`);
+  }
+
+  // --- modebar: toggles data-mode, every pane id stays mounted ----------------
+  await page.evaluate(() => {
+    document
+      .querySelector(".spine-modebar button[aria-pressed='false']")
+      .dispatchEvent(new MouseEvent("click", { bubbles: true }));
+  });
+  await wait(100);
+  const modeAfter = await page.$eval(".spine-root", (el) => el.dataset.mode);
+  if (modeAfter !== "code") {
+    throw new Error(`modebar toggle failed — data-mode is "${modeAfter}"`);
+  }
+  const idsIntact = await page.evaluate(() =>
+    ["spine-canvas", "spine-f-mode", "spine-code-html", "spine-btn-add-item"].every(
+      (id) => !!document.getElementById(id),
+    ),
+  );
+  if (!idsIntact) throw new Error("pane ids disappeared after mode switch");
+  await page.evaluate(() => {
+    document
+      .querySelector(".spine-modebar button[aria-pressed='false']")
+      .dispatchEvent(new MouseEvent("click", { bubbles: true }));
+  });
+  await wait(100);
+  const modeBack = await page.$eval(".spine-root", (el) => el.dataset.mode);
+  if (modeBack !== "design") {
+    throw new Error(`modebar toggle-back failed — data-mode is "${modeBack}"`);
+  }
+
+  // --- mobile pass: 390px, both modes ------------------------------------------
+  // (the wasm module survives the reload; the page re-binds via spineRebind,
+  // which is itself the SPA-remount path worth exercising here)
+  await page.setViewport({ width: 390, height: 844 });
+  await page.reload({ waitUntil: "domcontentloaded" });
+  await page.waitForFunction(() => window.spineReady === true, {
+    timeout: 30000,
+    polling: 250,
+  });
+  await wait(300);
+  const mobileNodes = await countNodes();
+  if (mobileNodes < 4) {
+    throw new Error(`mobile rebind lost the tree (nodes: ${mobileNodes})`);
+  }
+  await page.screenshot({ path: join(SHOTS, "spine-mobile-design.png"), fullPage: true });
+  await page.evaluate(() => {
+    document
+      .querySelector(".spine-modebar button[aria-pressed='false']")
+      .dispatchEvent(new MouseEvent("click", { bubbles: true }));
+  });
+  await wait(200);
+  await page.screenshot({ path: join(SHOTS, "spine-mobile-code.png"), fullPage: true });
+
   log("all steps done");
   await browser.close();
   browser = null;
@@ -274,7 +349,9 @@ try {
     process.exit(1);
   }
 
-  console.log(`spine smoke: ok (${initial} → ${afterAdd} nodes, grid toggle, undo/redo, hash, screenshots in ${SHOTS})`);
+  console.log(
+    `spine smoke: ok (${initial} → ${afterAdd} nodes, grid toggle, undo/redo, hash, sel-label, modebar, mobile shots in ${SHOTS})`,
+  );
 } catch (err) {
   failed = true;
   console.error(`spine smoke: FAILED — ${err.message}`);

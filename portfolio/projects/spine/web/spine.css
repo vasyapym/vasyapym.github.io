@@ -12,6 +12,10 @@
 
   display: grid;
   grid-template-columns: 300px 1fr 340px;
+  grid-template-rows: auto 1fr;
+  grid-template-areas:
+    "topbar workspace code"
+    "inspector workspace code";
   /* The frame topbar is 60px + 1px rule; fill the rest of the viewport. */
   height: calc(100dvh - 61px);
   min-height: 560px;
@@ -30,6 +34,22 @@
 
 /* ---- panes ---------------------------------------------------------------- */
 
+.spine-topbar {
+  grid-area: topbar;
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+  background: var(--spine-panel);
+  border-right: 1px solid var(--spine-line);
+  padding: 16px;
+}
+
+/* The heading + toolbar live in the topbar above the inspector fields, so
+   the left rail reads the same as before; the fields simply continue below. */
+.spine-topbar .spine-heading {
+  margin: 0;
+}
+
 .spine-inspector,
 .spine-code {
   background: var(--spine-panel);
@@ -38,10 +58,14 @@
 }
 
 .spine-inspector {
+  grid-area: inspector;
   border-right: 1px solid var(--spine-line);
+  /* The topbar above already carries the top padding; fields start flush. */
+  padding-top: 0;
 }
 
 .spine-code {
+  grid-area: code;
   border-left: 1px solid var(--spine-line);
 }
 
@@ -54,13 +78,39 @@
   color: var(--spine-muted);
 }
 
+/* Selection echo: the engine writes the selected node's name here on every
+   render, so "where will + Item land" is answered next to the buttons. */
+.spine-root #spine-sel-label {
+  color: var(--spine-accent);
+  text-transform: none;
+  letter-spacing: 0;
+  font-weight: 500;
+}
+
+.spine-root #spine-sel-label:not(:empty)::before {
+  content: "· ";
+}
+
+/* ---- mode switch (narrow viewports only) ----------------------------------- */
+
+.spine-modebar {
+  display: none;
+}
+
+.spine-modebar button[aria-pressed="true"] {
+  color: var(--spine-accent);
+  border-color: var(--spine-accent);
+  background: color-mix(in srgb, var(--spine-accent) 12%, transparent);
+  position: relative;
+  z-index: 1;
+}
+
 /* ---- inspector ------------------------------------------------------------- */
 
 .spine-toolbar {
   display: flex;
   flex-wrap: wrap;
   gap: 6px;
-  margin-bottom: 16px;
 }
 
 .spine-root button {
@@ -72,11 +122,18 @@
   cursor: pointer;
   font-size: 13px;
   font-family: inherit;
-  transition: border-color 160ms ease, color 160ms ease;
+  transition: border-color 160ms ease, color 160ms ease, background 160ms ease;
 }
 
 .spine-root button:hover {
   border-color: var(--spine-accent);
+}
+
+/* Touch has no hover — the pressed state is the only tap feedback there is. */
+.spine-root button:active {
+  border-color: var(--spine-accent);
+  color: var(--spine-accent);
+  background: color-mix(in srgb, var(--spine-accent) 12%, transparent);
 }
 
 .spine-root button:disabled {
@@ -162,6 +219,7 @@
 /* ---- canvas ---------------------------------------------------------------- */
 
 .spine-workspace {
+  grid-area: workspace;
   padding: 24px;
   overflow: auto;
 }
@@ -182,6 +240,16 @@
 
 .spine-root .node.container {
   background: color-mix(in srgb, var(--spine-accent) 8%, transparent);
+}
+
+/* Nested containers deepen one step per level so hierarchy stays legible
+   in deep trees without adding borders or labels. */
+.spine-root .node .node.container {
+  background: color-mix(in srgb, var(--spine-accent) 13%, transparent);
+}
+
+.spine-root .node .node .node.container {
+  background: color-mix(in srgb, var(--spine-accent) 18%, transparent);
 }
 
 .spine-root .node.item {
@@ -243,27 +311,100 @@
   white-space: pre;
 }
 
-/* ---- narrow viewports: stack the panes ------------------------------------- */
+/* ---- narrow viewports: one page scroll, two modes ---------------------------
+   The three desktop panes reorganise into a single column behind a sticky
+   chrome bar (selection heading + mode switch + tree actions). Design mode
+   shows canvas + inspector — the edit→see-result loop stays short; Code mode
+   swaps the canvas for the read-only Output pane. Both panes stay mounted so
+   the wasm engine's id bindings never notice the switch. */
 
 @media (max-width: 1100px) {
   .spine-root {
     grid-template-columns: 1fr;
+    grid-template-rows: auto auto auto auto;
+    grid-template-areas:
+      "topbar"
+      "workspace"
+      "inspector"
+      "code";
     height: auto;
     min-height: calc(100dvh - 61px);
   }
 
+  /* Sticky chrome: opaque background so canvas and fields scroll under it. */
+  .spine-topbar {
+    position: sticky;
+    top: 0;
+    z-index: 10;
+    gap: 12px;
+    background: var(--spine-bg);
+    border-right: none;
+    border-bottom: 1px solid var(--spine-line);
+    padding: 12px 16px;
+  }
+
+  .spine-modebar {
+    display: flex;
+  }
+
+  .spine-modebar button {
+    flex: 1;
+  }
+
+  .spine-modebar button:first-child {
+    border-radius: 6px 0 0 6px;
+  }
+
+  .spine-modebar button:last-child {
+    border-radius: 0 6px 6px 0;
+    margin-left: -1px;
+  }
+
+  .spine-root[data-mode="design"] .spine-code {
+    display: none;
+  }
+
+  .spine-root[data-mode="code"] .spine-inspector,
+  .spine-root[data-mode="code"] .spine-workspace,
+  .spine-root[data-mode="code"] .spine-toolbar,
+  .spine-root[data-mode="code"] .spine-inspector-heading {
+    display: none;
+  }
+
+  /* No pane-internal scrolling: the page is the single scroll context, so
+     the old 420px caps and their nested scrollbars go away. */
   .spine-inspector,
   .spine-code {
+    overflow: visible;
+    max-height: none;
     border-right: none;
     border-left: none;
-    /* Panes stack in one column here; without side borders they would read
-       as one continuous surface. A hairline top rule marks each section. */
+    padding: 16px;
+  }
+
+  .spine-inspector {
+    border-top: none; /* the sticky topbar's rule separates it already */
+  }
+
+  .spine-code {
     border-top: 1px solid var(--spine-line);
-    max-height: 420px;
   }
 
   .spine-workspace {
-    min-height: 480px;
-    order: -1;
+    padding: 16px;
+    /* A workable canvas above the fold, growing with content. */
+    min-height: min(62dvh, 520px);
+  }
+
+  /* Touch targets: 44px minimum with slightly larger type. */
+  .spine-root button,
+  .spine-root select,
+  .spine-root input {
+    min-height: 44px;
+    font-size: 14px;
+  }
+
+  .spine-root button {
+    padding: 10px 12px;
   }
 }
