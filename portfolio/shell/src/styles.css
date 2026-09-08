@@ -417,6 +417,17 @@ textarea:focus-visible {
   }}
 
 
+/* 900–1199px laptop band: hold the approved 3×2 catalogue rhythm through the
+   whole band instead of letting auto-fit fall back to an airy 2×3 (which sat
+   47px taller and flipped column count at an arbitrary ~1130px). Columns run
+   narrower here (~240–320px), so the column gap eases to 1.5rem; a long title
+   wraps inside its 44px row rather than overflowing. ≥1200px is untouched —
+   auto-fit already resolves to the same three columns there. */
+@media (min-width: 900px) and (max-width: 1199px) {
+  .signal-index-hero-fluid .signal-index-beneath {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 0.2rem 1.5rem;
+  }}
 
 
 .signal-index-graphic {
