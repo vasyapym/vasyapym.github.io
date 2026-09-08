@@ -7,6 +7,10 @@
 // hour, then full sunrise); the middle dips into deep night where only
 // fireflies and stars carry the scene. Visitors who find the forest too
 // dark can simply drag toward sunrise.
+//
+// Tuning note: night is separated from dusk by TEMPERATURE, not brightness —
+// its fog and sky pull hard toward steel blue so silhouettes read against
+// the murk while intensities stay low (the dark middle is a standing rule).
 
 export type Rgb = [number, number, number];
 
@@ -40,10 +44,10 @@ type DaylightKey = DaylightSample & { t: number };
 const GOLDEN_HOUR: DaylightKey = {
   t: 0,
   horizon: hex("#f2955a"),
-  band: hex("#b06a86"),
+  band: hex("#b3688a"),
   upper: hex("#58409a"),
   zenith: hex("#3a2a66"),
-  fog: hex("#9a6a72"),
+  fog: hex("#9f6a70"),
   fogDensity: 0.0105,
   hemiSky: hex("#b3aadf"),
   hemiGround: hex("#63513a"),
@@ -62,7 +66,7 @@ const LATE_DUSK: DaylightKey = {
   band: hex("#8a5078"),
   upper: hex("#40307e"),
   zenith: hex("#241a4a"),
-  fog: hex("#6e4a60"),
+  fog: hex("#66486a"),
   fogDensity: 0.013,
   hemiSky: hex("#8f86cc"),
   hemiGround: hex("#2c2018"),
@@ -77,17 +81,17 @@ const LATE_DUSK: DaylightKey = {
 
 const NIGHT: DaylightKey = {
   t: 0.55,
-  horizon: hex("#54486a"),
-  band: hex("#3a3560"),
-  upper: hex("#232a54"),
-  zenith: hex("#10142c"),
-  fog: hex("#3c3a56"),
+  horizon: hex("#4b4a72"),
+  band: hex("#333a66"),
+  upper: hex("#1e2a58"),
+  zenith: hex("#0b1230"),
+  fog: hex("#31365a"),
   fogDensity: 0.014,
-  hemiSky: hex("#6a72a8"),
-  hemiGround: hex("#171420"),
+  hemiSky: hex("#5f6db2"),
+  hemiGround: hex("#121424"),
   hemiIntensity: 1.4,
-  sunColor: hex("#bcd2ff"),
-  sunIntensity: 1.1,
+  sunColor: hex("#c9dcff"),
+  sunIntensity: 1.15,
   sunDir: [-0.25, 0.62, -0.45],
   starGain: 1,
   fireflyGain: 1,
@@ -100,7 +104,7 @@ const PRE_DAWN: DaylightKey = {
   band: hex("#5c4a70"),
   upper: hex("#33406e"),
   zenith: hex("#1c2140"),
-  fog: hex("#57495e"),
+  fog: hex("#514a66"),
   fogDensity: 0.012,
   hemiSky: hex("#8286b8"),
   hemiGround: hex("#221d1c"),
@@ -119,7 +123,7 @@ const SUNRISE: DaylightKey = {
   band: hex("#d88a6a"),
   upper: hex("#8a90c4"),
   zenith: hex("#4a6899"),
-  fog: hex("#a98a80"),
+  fog: hex("#ab8a86"),
   fogDensity: 0.0095,
   hemiSky: hex("#b7bede"),
   hemiGround: hex("#46382a"),

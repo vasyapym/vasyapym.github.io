@@ -36,6 +36,7 @@ One line per delegation brief/handoff. `docs/briefs/` is the archive; graph-refe
 | BRIEF-evening-forest-nature-bed.md | **(orphan)** |
 | BRIEF-evening-forest-nature-tonal.md | evening-forest n32(text): Owner pivot: kill all white-noise layers, rewrite the scor |
 | BRIEF-evening-forest-score-rewrite.md | evening-forest n32(text): Owner pivot: kill all white-noise layers, rewrite the scor |
+| BRIEF-evening-forest-visual-refinement.md | evening-forest n35: Pass 11 qualitative visual refinement integrated (cloud band + moon, split-tone grade, tree tint jitter, moss/mottle, seeded fireflies) — commit pending owner look |
 | BRIEF-gemstones-implementation.md | main n91(text): Gemstones concept received and advanced to implementation; |
 | BRIEF-kitty-mark-redraw-neutral.md | main n100: Card round 6 'three marks': Raft reads as consensus topolo — active |
 | BRIEF-kitty-run-ashen-castles-monumental.md | kitty-run h3: handoff offer (code-iteration) |

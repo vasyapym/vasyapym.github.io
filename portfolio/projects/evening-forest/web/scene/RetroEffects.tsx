@@ -9,10 +9,10 @@ import {
 } from "@react-three/postprocessing";
 import { BlendFunction, Effect } from "postprocessing";
 
-// The 8-bit pass: a gentle dusk grade, ordered dithering (4x4 Bayer matrix)
-// and palette quantisation in one fragment shader. Pixelation itself is
-// free — the Canvas renders at ~0.36 device pixels and CSS upscales it
-// with image-rendering: pixelated.
+// The 8-bit pass: a dusk split-tone grade, ordered dithering (4x4 Bayer
+// matrix) and palette quantisation in one fragment shader. Pixelation
+// itself is free — the Canvas renders at ~0.36 device pixels and CSS
+// upscales it with image-rendering: pixelated.
 const FRAGMENT_SHADER = /* glsl */ `
   uniform vec2 uResolution;
   uniform float uLevels;
@@ -26,11 +26,23 @@ const FRAGMENT_SHADER = /* glsl */ `
 
   void mainImage(const in vec4 inputColor, const in vec2 uv, out vec4 outputColor) {
     vec3 c = inputColor.rgb;
+    float luma = dot(c, vec3(0.2126, 0.7152, 0.0722));
+
+    // Dusk split-tone: shadows drift violet-blue, highlights warm amber.
+    // This is where the palette crunch gets its intent — the 6 quantised
+    // bands land on cool-vs-warm hues instead of grey steps, and night
+    // gains separation through COLOUR rather than brightness.
+    vec3 shadowTint = vec3(0.88, 0.92, 1.10);
+    vec3 highlightTint = vec3(1.07, 1.00, 0.90);
+    c *= mix(shadowTint, highlightTint, smoothstep(0.08, 0.62, luma));
+
+    // Gentle saturation push so neighbouring bands stay distinct hues.
+    c = mix(vec3(dot(c, vec3(0.2126, 0.7152, 0.0722))), c, 1.10);
 
     // Dusk readability: warm the mids, lift the toe just enough that the
     // shadow side of the meadow keeps texture after 6-level quantisation.
     c = pow(c, vec3(0.88, 0.94, 0.86));
-    c += vec3(0.015, 0.008, 0.03);
+    c += vec3(0.012, 0.008, 0.030);
 
     vec2 pixel = floor(uv * uResolution);
     float bayer = bayer2(pixel * 0.5) * 0.25 + bayer2(pixel);

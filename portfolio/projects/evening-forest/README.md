@@ -17,9 +17,16 @@ Everything lives inside this directory; no shell routing changes.
   device pixels and CSS upscales it with `image-rendering: pixelated`, which
   is the pixelation effect and the main performance win at once.
 - **8-bit pass** — a single custom `postprocessing` effect (`web/scene/RetroEffects.tsx`)
-  does dusk grading (including a toe lift so shadow side keeps texture
-  through quantisation), ordered dithering (4×4 Bayer) and palette
-  quantisation; plus library `Bloom` and `Vignette` around it.
+  does dusk grading (a split-tone — violet-blue shadows, amber highlights —
+  plus a toe lift so shadow side keeps texture through quantisation), ordered
+  dithering (4×4 Bayer) and palette quantisation; plus library `Bloom` and
+  `Vignette` around it.
+- **Sky** — the `DuskSky` shader dome carries a painterly drifting cloud
+  band (2-octave value noise on the shared clock), per-star magnitude and
+  twinkle, and a crisp moon gated by `starGain`; clouds, sun and moon tint
+  themselves entirely from the daylight uniforms, so every phase relights
+  them for free. Night separates from dusk by TEMPERATURE (steel-blue fog
+  and sky) rather than brightness — the dark middle is a standing rule.
 - **Daylight engine** — `web/lib/daylight.ts` expands one number (time of
   day, 0..1) into every lighting decision: five keyframes from golden hour
   through night to sunrise, smoothly interpolated. The pure module is
@@ -46,14 +53,18 @@ Everything lives inside this directory; no shell routing changes.
   feature; the dither hides the difference.
 - **Foliage** — trees and grass are `InstancedMesh` draws (a handful of draw
   calls total); wind sway is injected into the vertex shader via
-  `onBeforeCompile` and driven by one shared clock uniform. Trunks are solid:
+  `onBeforeCompile` and driven by one shared clock uniform. Per-instance
+  tint jitter (seeded) and a baked dark-to-light crown shade keep the
+  forest reading as individuals, not clones. Trunks are solid:
   the walking rig collides against the same seeded scatter via
   `web/lib/tree-field.ts` (pure, headless-asserted) — circle pushout with
   slide, looked up through a spatial hash.
 - **Fireflies** — GPU-only drift in a points shader seeded deterministically.
   Inside ~12 m they lean toward the walker via a shared player-position
   uniform, so strolling through the hollow stirs sparks around you; stray
-  further than ~46 m and the whole swarm quietly re-seeds around you.
+  further than ~46 m and the whole swarm quietly re-seeds around you
+  (counter-seeded rng, no `Math.random`). Each spark leans warm amber toward
+  pale green so the swarm shimmers like a real one.
 - **The fox** — a fully procedural animal (`web/scene/fox/`): the brain
   (`brain.ts`) is dependency-free TypeScript — a wander → alert → curious →
   flee state machine with a relocation "director" so the fox always lives in
@@ -71,10 +82,12 @@ Everything lives inside this directory; no shell routing changes.
   `M`, or the Fox-mind button on touch).
 - **Terrain** — one 520 u displaced plane whose heights come from
   `web/lib/heightfield.ts`; the walking rig samples the same function so feet
-  stay on the ground. The walkable radius is ~230 m, ending in a rim of
-  hills the fog eats. Grass is a single instanced meadow that re-plants
-  itself in whole-tile steps around the walker, so the ground is grassy
-  everywhere without thousands of extra instances.
+  stay on the ground. Vertex colouring layers cool moss into the hollows and
+  a broad HSL mottle over the altitude ramp, so the dither bites into
+  patches instead of banding. The walkable radius is ~230 m, ending in a
+  rim of hills the fog eats. Grass is a single instanced meadow that
+  re-plants itself in whole-tile steps around the walker, so the ground is
+  grassy everywhere without thousands of extra instances.
 - **Score** — the background music is a procedural, Dark Souls-flavoured
   tranquil ambient loop (`web/lib/music.ts`): a breathing D-aeolian drone
   (with D3/D4 partials so phone speakers hear it), slow open-fifth pad
