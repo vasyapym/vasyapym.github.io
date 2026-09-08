@@ -1,7 +1,9 @@
-import { useEffect, useRef, useState, type CSSProperties, type MouseEvent } from "react";
+import { useCallback, useEffect, useRef, useState, type CSSProperties, type MouseEvent } from "react";
 import type { ProjectModule } from "../../../contracts/project-module";
 import HeroFluid from "./HeroFluid";
 import ProjectArtwork from "./ProjectArtwork";
+import RealmMode from "./RealmMode";
+import "./realm.css";
 
 type LandingPageProps = {
   projects: readonly ProjectModule[];
@@ -83,6 +85,14 @@ function scheduleIdleWarm(callback: () => void) {
 
 export default function LandingPage({ projects, onOpenProject }: LandingPageProps) {
   const pageRef = useRef<HTMLElement>(null);
+  const realmChipRef = useRef<HTMLButtonElement | null>(null);
+  const [realmOpen, setRealmOpen] = useState(false);
+  // exit restores the landing exactly (it was never unmounted) and returns
+  // focus to the chip, satisfying the esc-returns-focus a11y law.
+  const handleRealmExit = useCallback(() => {
+    setRealmOpen(false);
+    window.requestAnimationFrame(() => realmChipRef.current?.focus());
+  }, []);
   const heroRef = useRef<HTMLElement>(null);
   const [revealedProjects, setRevealedProjects] = useState<ReadonlyMap<string, number>>(
     () => new Map(),
@@ -336,7 +346,11 @@ export default function LandingPage({ projects, onOpenProject }: LandingPageProp
 
   return (
     <main ref={pageRef} className="signal-index">
-      <div className="signal-index-shell">
+      <div
+        className="signal-index-shell"
+        aria-hidden={realmOpen || undefined}
+        inert={realmOpen || undefined}
+      >
         <section
           ref={heroRef}
           className="signal-index-hero signal-index-hero-fluid"
@@ -465,6 +479,23 @@ export default function LandingPage({ projects, onOpenProject }: LandingPageProp
         </section>
 
       </div>
+      {!realmOpen && (
+        <button
+          type="button"
+          className="realm-enter-chip"
+          ref={realmChipRef}
+          onClick={() => setRealmOpen(true)}
+        >
+          enter the realm
+        </button>
+      )}
+      {realmOpen ? (
+        <RealmMode
+          projects={projects}
+          onOpenProject={onOpenProject}
+          onExit={handleRealmExit}
+        />
+      ) : null}
     </main>
   );
 }
