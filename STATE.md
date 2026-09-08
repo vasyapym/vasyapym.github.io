@@ -16,7 +16,7 @@ Read this first. One screen; everything else is pointed to, not copied.
 
 1. kitty-run knight direction — awaiting owner steer; stale handoff **h3** (acknowledged, never closed — chase it, don't fork around it).
 2. evening-forest — owner listen-pass pending (n33). The working tree holds uncommitted evening-forest + CLAUDE.md changes from other sessions — leave them alone.
-3. main page — hero more-row wrapping at 900–1100px review (n140).
+3. main page — hero 3×2 catalogue now held through 900–1199px (n148, brief 11 verdict REFINE); owner look pending — row-01 title wraps inside its 44px row at ≤~1040px viewports (within the delivered design; noted in ROUNDS).
 4. practice-map — migrate the next deep-lesson route pair (Pass 21 ledger note).
 
 ## Protocols (unchanged by compaction)
