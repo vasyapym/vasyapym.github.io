@@ -202,6 +202,19 @@
       "message": "Same designed one-commit lag as the c05d18f report: the auto-record hook had pre-staged kitty-run's graph.jsonl appends from commit c8640be (auto-node n64 + edge e58, 'change character' chip), which shipped with ed57b32. Only hook-generated history lines carried; no kitty-run work files. Action for owner: none.",
       "ackBy": null,
       "ackAt": null
+    },
+    {
+      "id": "sweep-0d7d487-main-graph",
+      "ts": "2026-09-09T21:28:02.302Z",
+      "kind": "sweep-report",
+      "agent": "opencode (explosion relay: chip + cinder fault)",
+      "commit": "0d7d487",
+      "files": [
+        "portfolio/.project-history/graph.jsonl"
+      ],
+      "message": "Already-staged-by-another-agent main graph store (realm r3 auto-record n160/e151 for commit dc453be) slipped into my commit before I noticed; I unstaged the raft-cluster/spine graph stores but missed this one. Pure auto-record bookkeeping, no code swept. No action needed unless the realm agent cares.",
+      "ackBy": null,
+      "ackAt": null
     }
   ]
 }
