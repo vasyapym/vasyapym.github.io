@@ -5,93 +5,90 @@
    lantern is the cursor, so the system cursor hides over the light-field
    and returns over real controls. amber is the single interactive signal. */
 
-/* ── entry chip (lives on the landing, fixed at all scroll positions) ── */
+/* ── entry tab (the fore-edge of the landing) ── */
 .realm-enter-chip {
   position: fixed;
   z-index: 30;
-  left: 32px;
-  bottom: 24px;
-  display: grid;
-  grid-template-columns: auto minmax(0, 1fr) 52px;
-  align-items: stretch;
+  top: calc(50vh - 94px);
+  right: 0;
+  bottom: auto;
+  left: auto;
+  display: flex;
+  align-items: center;
+  justify-content: center;
   box-sizing: border-box;
-  width: 360px;
-  max-width: calc(100vw - 64px);
-  min-height: 64px;
+  width: 44px;
+  height: 188px;
+  min-width: 44px;
+  min-height: 44px;
+  max-width: none;
   margin: 0;
-  padding: 0;
+  padding: 12px 0;
   appearance: none;
-  border: 1px solid var(--ink-line);
-  border-top: 2px solid var(--ink-accent);
+  border: 0;
+  border-left: 1px solid rgba(238, 234, 224, 0.26);
   border-radius: 0;
   background: #0b1317;
-  color: var(--ink-text);
+  box-shadow: none;
+  color: rgb(238, 234, 224);
   font-family: var(--mono);
-  font-size: 14px;
+  font-size: 12px;
   font-weight: 400;
   line-height: 1.25;
   letter-spacing: 0;
-  text-align: left;
-  text-transform: none;
+  text-align: center;
+  text-transform: lowercase;
   cursor: pointer;
   touch-action: manipulation;
+  transform: none;
   opacity: 0;
   visibility: hidden;
   pointer-events: none;
-  transition: opacity 160ms ease, transform 120ms ease;
+  transition: opacity 160ms ease;
 }
 .realm-enter-chip.is-visible {
   opacity: 1;
   visibility: visible;
   pointer-events: auto;
 }
-.realm-enter-chip .realm-index {
-  display: flex;
-  align-items: center;
-  padding: 0 16px;
-  color: var(--ink-accent);
-  font-size: 11px;
+.realm-enter-chip .realm-index,
+.realm-enter-chip .realm-chip-caption,
+.realm-enter-chip .realm-end {
+  display: none;
 }
 .realm-enter-chip .realm-copy {
-  display: flex;
-  flex-direction: column;
-  justify-content: center;
-  gap: 4px;
-  padding: 10px 12px 10px 0;
+  display: block;
+  padding: 0;
+  writing-mode: vertical-rl;
+  text-orientation: mixed;
+  white-space: nowrap;
+  color: inherit;
+  opacity: 0.82;
 }
-.realm-enter-chip .realm-chip-caption {
-  color: var(--ink-muted);
-  font-size: 10px;
-  letter-spacing: 0.04em;
+/* the ink takes a slow breath; only the letters' opacity changes.
+   the edge stays still, and ochre waits for intent. */
+.realm-enter-chip.is-visible .realm-copy {
+  animation: realm-tab-ink-breath 5.6s ease-in-out infinite;
 }
-.realm-enter-chip .realm-end {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  border-left: 1px solid var(--ink-line);
-  color: var(--ink-accent);
-}
-.realm-enter-chip .realm-arrow {
-  width: 20px;
-  height: 20px;
-  transition: transform 120ms ease;
+@keyframes realm-tab-ink-breath {
+  0%, 100% { opacity: 0.82; }
+  50% { opacity: 0.95; }
 }
 .realm-enter-chip:hover {
-  border-top-color: var(--ink-accent-bright);
-  color: var(--ink-accent-bright);
-}
-.realm-enter-chip:hover .realm-end {
-  color: var(--ink-accent-bright);
-}
-.realm-enter-chip:hover .realm-arrow {
-  transform: translateY(3px);
+  color: #d39b61;
 }
 .realm-enter-chip:active {
-  transform: translateY(1px);
+  color: #e8b57c;
+  transform: none;
 }
 .realm-enter-chip:focus-visible {
-  outline: 2px solid var(--ink-accent-bright);
-  outline-offset: 4px;
+  color: #e8b57c;
+  outline: 2px solid #e8b57c;
+  outline-offset: -3px;
+}
+.realm-enter-chip:is(:hover, :focus-visible, :active) .realm-copy {
+  animation: none;
+  opacity: 1;
 }
 
 /* the floor: a fixed near-black gradient that ramps in over the last
@@ -111,31 +108,27 @@
 
 @media (max-width: 767px) {
   .realm-enter-chip {
-    left: max(12px, env(safe-area-inset-left, 0px));
-    right: max(12px, env(safe-area-inset-right, 0px));
-    bottom: max(12px, env(safe-area-inset-bottom, 0px));
-    width: auto;
-    max-width: none;
-    min-height: 48px;
-    grid-template-columns: auto minmax(0, 1fr) 44px;
-    font-size: 13px;
-  }
-  .realm-enter-chip .realm-index {
+    top: auto;
+    right: calc(12px + env(safe-area-inset-right, 0px));
+    bottom: calc(12px + env(safe-area-inset-bottom, 0px));
+    left: auto;
+    width: 188px;
+    height: 44px;
     padding: 0 12px;
+    border-left: 0;
+    border-top: 1px solid rgba(238, 234, 224, 0.26);
   }
-  .realm-enter-chip .realm-chip-caption {
-    display: none;
+  .realm-enter-chip .realm-copy {
+    writing-mode: horizontal-tb;
   }
 }
 
 @media (prefers-reduced-motion: reduce) {
-  .realm-enter-chip,
-  .realm-enter-chip .realm-arrow {
+  .realm-enter-chip {
     transition: none;
   }
-  .realm-enter-chip:hover .realm-arrow,
-  .realm-enter-chip:active {
-    transform: none;
+  .realm-enter-chip.is-visible .realm-copy {
+    animation: none;
   }
 }
 

@@ -68,6 +68,24 @@ full-width strip with the arrow field.
   present while open and removed after exit, sheet geometry 602..844 at
   390×844. Real-device checklist handed to the owner (n157).
 
+## Pass C — the quiet round (owner verdict: "visually noisy")
+
+Five quieter relayed concepts were built into live mockups over the real
+backdrops (baseline included). c2 ("header footnote") was rejected for real
+collisions (project count + card `open ↗` at top-right); the transparent
+variants c1/c4 were flagged for text-over-card collisions (they would need a
+legibility backstop). The owner picked the **fore-edge tab** (c3) and asked
+for a restrained attention mechanism: the chat model chose **"ink breath"** —
+only the letters' opacity cycles 0.82 → 0.95 over 5.6s, stopped under
+`:is(:hover, :focus-visible, :active)` (ochre reserved for intent). TSX
+untouched; `.realm-bottom-floor` untouched.
+
+Acceptance: probe 31/31; tab acceptance 8/9 (the one "failure" is Chromium's
+`transition: none` reporting `1e-05s` — a computed-style artifact;
+reduced-motion crops identical over 2.8s). Desktop 44×188 right-attached at
+50vh; mobile 188×44 at right/bottom + 12px, hidden at scroll 0, one-shot
+reveal. Graph n159.
+
 ## Graph
 
-n156 (pass A), n157 (pass B). Closed by the round's closing commit.
+n156 (pass A), n157 (pass B), n159 (pass C). Closed by the round's commits.
