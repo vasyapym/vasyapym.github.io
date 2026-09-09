@@ -21,3 +21,5 @@
 {"type":"edge.added","id":"ec-cfcb7196","ts":"2026-09-06T21:27:19.777Z","from":"n10","to":"compaction-cfcb7196","rel":"continues"}
 {"type":"node.added","id":"n11","ts":"2026-09-07T16:59:59.242Z","kind":"iteration","actor":"user","title":"feat(spine): mobile two-mode reflow — sticky topbar, 44px touch targets, selection echo, depth tint","artifacts":[{"kind":"git-commit","ref":"4001916"}],"meta":{"source":"auto"}}
 {"type":"edge.added","id":"e10","ts":"2026-09-07T16:59:59.243Z","from":"compaction-cfcb7196","to":"n11","rel":"continues"}
+{"type":"node.added","id":"n12","ts":"2026-09-07T17:27:36.567Z","kind":"iteration","actor":"user","title":"feat(spine): touch drag via pointer events — phones can now nest and reorder","artifacts":[{"kind":"git-commit","ref":"0920adf"}],"meta":{"source":"auto"}}
+{"type":"edge.added","id":"e11","ts":"2026-09-07T17:27:36.570Z","from":"n11","to":"n12","rel":"continues"}
