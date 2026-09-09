@@ -1,7 +1,9 @@
-import { useEffect, useRef, useState, type CSSProperties, type MouseEvent } from "react";
+import { useCallback, useEffect, useRef, useState, type CSSProperties, type MouseEvent } from "react";
 import type { ProjectModule } from "../../../contracts/project-module";
 import HeroFluid from "./HeroFluid";
 import ProjectArtwork from "./ProjectArtwork";
+import RealmMode from "./RealmMode";
+import "./realm.css";
 
 type LandingPageProps = {
   projects: readonly ProjectModule[];
@@ -83,6 +85,25 @@ function scheduleIdleWarm(callback: () => void) {
 
 export default function LandingPage({ projects, onOpenProject }: LandingPageProps) {
   const pageRef = useRef<HTMLElement>(null);
+  const realmChipRef = useRef<HTMLButtonElement | null>(null);
+  const [realmOpen, setRealmOpen] = useState(false);
+  // the realm's ink flood starts from the chip's screen position; captured at
+  // click time (the chip unmounts while the realm is open, so it can't be
+  // measured then). fallback ≈ the chip's fixed resting spot.
+  const [realmEntry, setRealmEntry] = useState<{ x: number; y: number }>(() => ({
+    x: 60, y: Math.max(60, window.innerHeight - 60),
+  }));
+  // exit restores the landing exactly (it was never unmounted) and returns
+  // focus to the chip, satisfying the esc-returns-focus a11y law.
+  const handleRealmExit = useCallback(() => {
+    setRealmOpen(false);
+    window.requestAnimationFrame(() => realmChipRef.current?.focus());
+  }, []);
+  const handleRealmEnter = useCallback(() => {
+    const r = realmChipRef.current?.getBoundingClientRect();
+    if (r) setRealmEntry({ x: r.left + r.width / 2, y: r.top + r.height / 2 });
+    setRealmOpen(true);
+  }, []);
   const heroRef = useRef<HTMLElement>(null);
   const [revealedProjects, setRevealedProjects] = useState<ReadonlyMap<string, number>>(
     () => new Map(),
@@ -336,7 +357,11 @@ export default function LandingPage({ projects, onOpenProject }: LandingPageProp
 
   return (
     <main ref={pageRef} className="signal-index">
-      <div className="signal-index-shell">
+      <div
+        className="signal-index-shell"
+        aria-hidden={realmOpen || undefined}
+        inert={realmOpen || undefined}
+      >
         <section
           ref={heroRef}
           className="signal-index-hero signal-index-hero-fluid"
@@ -465,6 +490,24 @@ export default function LandingPage({ projects, onOpenProject }: LandingPageProp
         </section>
 
       </div>
+      {!realmOpen && (
+        <button
+          type="button"
+          className="realm-enter-chip"
+          ref={realmChipRef}
+          onClick={handleRealmEnter}
+        >
+          enter the realm
+        </button>
+      )}
+      {realmOpen ? (
+        <RealmMode
+          projects={projects}
+          onOpenProject={onOpenProject}
+          onExit={handleRealmExit}
+          entry={realmEntry}
+        />
+      ) : null}
     </main>
   );
 }

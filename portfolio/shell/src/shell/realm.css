@@ -1,0 +1,386 @@
+/* realm.css — "the deep" chrome.
+   all light lives on the canvases (additive gpu fluid + bloom); the dom is
+   its inverse: flat near-black scrims, 1px hairlines, lowercase ibm plex
+   mono, hard edges. no blur, no glow shadows, no soft dom gradients. the
+   lantern is the cursor, so the system cursor hides over the light-field
+   and returns over real controls. amber is the single interactive signal. */
+
+/* ── entry chip (lives on the landing, fixed at all scroll positions) ── */
+.realm-enter-chip {
+  position: fixed;
+  left: max(1.1rem, env(safe-area-inset-left));
+  bottom: max(1.1rem, env(safe-area-inset-bottom));
+  z-index: 30;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.5rem 0.8rem;
+  font-family: var(--mono);
+  font-size: 0.72rem;
+  letter-spacing: 0.04em;
+  text-transform: lowercase;
+  color: var(--ink-text);
+  background: rgba(4, 8, 11, 0.82);
+  border: 1px solid var(--ink-line);
+  border-radius: var(--panel-radius);
+  cursor: pointer;
+  transition: border-color 0.2s ease, color 0.2s ease;
+}
+/* the single ochre mark — a hard square, never a glow */
+.realm-enter-chip::before {
+  content: "";
+  width: 0.5rem;
+  height: 0.5rem;
+  background: var(--ink-accent-bright);
+}
+.realm-enter-chip:hover,
+.realm-enter-chip:focus-visible {
+  border-color: var(--ink-accent);
+  color: var(--ink-accent-bright);
+  outline: none;
+}
+
+/* ── root layer ─────────────────────────────────────────────── */
+.realm-layer {
+  position: fixed;
+  inset: 0;
+  z-index: 60; /* above the landing grain (z 4) */
+  background: transparent; /* landing shows through the ink flood */
+  overflow: hidden;
+  outline: none;
+  cursor: none; /* the on-canvas lantern replaces the pointer */
+  font-family: var(--mono);
+  color: var(--ink-text);
+  -webkit-font-smoothing: antialiased;
+}
+.realm-layer:focus,
+.realm-layer:focus-visible { outline: none; } /* takes programmatic focus */
+
+/* ── canvases ───────────────────────────────────────────────── */
+.realm-gl,
+.realm-overlay {
+  position: absolute;
+  inset: 0;
+  display: block;
+  width: 100%;
+  height: 100%;
+  cursor: none;
+}
+.realm-overlay { pointer-events: none; } /* aria-hidden 2d decoration */
+
+/* leave: opacity 1 → 0 over 0.9s ease-in (locked to engine leave script) */
+.realm-gl--fade {
+  opacity: 0;
+  transition: opacity 0.9s ease-in;
+}
+.realm-reduced .realm-gl--fade { transition: opacity 0.45s linear; }
+
+/* reduced-motion entry: gl crossfades in (non-reduced needs no css) */
+.realm-reduced .realm-gl {
+  animation: realm-entry 0.36s ease-out both;
+}
+@keyframes realm-entry { from { opacity: 0; } to { opacity: 1; } }
+
+/* degraded: the overlay canvas is the whole render — never dim it: a
+   fractional opacity on a per-frame-repainted canvas makes the compositor
+   serve a stale layer (observed in headless), and the dim serves nothing. */
+
+/* ── iris (only while diving) ───────────────────────────────── */
+.realm-iris {
+  position: absolute;
+  inset: 0;
+  z-index: 90; /* swallows hud + panel */
+  pointer-events: none;
+  background: radial-gradient(
+    circle at 50% 50%,
+    var(--iris-hue, var(--ink-accent)) 0%,
+    #04080b 78%
+  );
+  animation: realm-iris-close 1s ease-in both;
+}
+@keyframes realm-iris-close {
+  from { clip-path: circle(120% at 50% 50%); }
+  to   { clip-path: circle(0% at 50% 50%); }
+}
+/* reduced: no aperture — flat blended fill, plain 0.4s fade */
+.realm-reduced .realm-iris {
+  clip-path: none;
+  background:
+    linear-gradient(#04080b, #04080b) padding-box,
+    var(--iris-hue, var(--ink-accent));
+  background-blend-mode: multiply;
+  animation: realm-iris-fade 0.4s linear both;
+}
+@keyframes realm-iris-fade { from { opacity: 0; } to { opacity: 1; } }
+
+/* ── shared interactive chrome (hud + legend buttons) ───────── */
+.realm-btn,
+.realm-legend-btn {
+  font-family: var(--mono);
+  text-transform: lowercase;
+  color: var(--ink-muted);
+  background: rgba(4, 8, 11, 0.82);
+  border: 1px solid var(--ink-line);
+  border-radius: var(--panel-radius);
+  cursor: pointer;
+  transition: border-color 0.15s linear, color 0.15s linear;
+}
+.realm-btn:hover,
+.realm-legend-btn:hover {
+  border-color: var(--ink-accent);
+  color: var(--ink-text);
+}
+.realm-btn:focus-visible,
+.realm-legend-btn:focus-visible {
+  outline: none; /* replaced by a visible accent border */
+  border-color: var(--ink-accent);
+  color: var(--ink-text);
+}
+
+/* ── hud (top-right, safe-area aware) ───────────────────────── */
+.realm-hud {
+  position: absolute;
+  top: calc(1rem + env(safe-area-inset-top));
+  right: calc(1rem + env(safe-area-inset-right));
+  display: flex;
+  gap: 0.5rem;
+}
+.realm-btn {
+  font-size: 0.7rem;
+  letter-spacing: 0.04em;
+  padding: 0.4rem 0.7rem;
+}
+
+/* ── caption (bottom-right) ─────────────────────────────────── */
+.realm-caption {
+  position: absolute;
+  bottom: calc(0.9rem + env(safe-area-inset-bottom));
+  right: calc(1rem + env(safe-area-inset-right));
+  margin: 0;
+  font-size: 0.62rem;
+  letter-spacing: 0.08em;
+  text-transform: lowercase;
+  color: var(--ink-faint);
+  pointer-events: none;
+}
+
+/* ── legend (bottom-left, safe-area aware) ──────────────────── */
+.realm-legend {
+  position: absolute;
+  bottom: calc(0.9rem + env(safe-area-inset-bottom));
+  left: calc(1rem + env(safe-area-inset-left));
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.4rem;
+  max-width: 40vw;
+}
+.realm-legend-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.45rem;
+  min-height: 2.2rem; /* touch target */
+  padding: 0.3rem 0.6rem;
+  font-size: 0.66rem;
+  letter-spacing: 0.03em;
+}
+.realm-legend-dot {
+  display: inline-block;
+  width: 0.45rem;
+  height: 0.45rem; /* hard square, inline colour */
+  flex: 0 0 auto;
+}
+
+/* ── panel (right sheet, only while a creature is open) ─────── */
+.realm-panel {
+  position: absolute;
+  top: 0;
+  right: 0;
+  z-index: 70;
+  display: flex;
+  flex-direction: column;
+  width: min(30rem, 92vw);
+  height: 100%;
+  padding: 1.4rem 1.3rem calc(1.4rem + env(safe-area-inset-bottom));
+  background: rgba(4, 8, 11, 0.92);
+  border-left: 1px solid var(--ink-line);
+  overflow-y: auto;
+  cursor: auto;
+  scrollbar-width: thin;
+  scrollbar-color: var(--ink-line) transparent;
+  animation: realm-panel-in 0.28s ease both;
+}
+@keyframes realm-panel-in {
+  from { transform: translateX(100%); }
+  to   { transform: translateX(0); }
+}
+.realm-reduced .realm-panel {
+  animation: realm-panel-fade 0.24s linear both;
+}
+@keyframes realm-panel-fade { from { opacity: 0; } to { opacity: 1; } }
+.realm-panel::-webkit-scrollbar { width: 7px; }
+.realm-panel::-webkit-scrollbar-thumb { background: var(--ink-line); }
+.realm-panel::-webkit-scrollbar-track { background: transparent; }
+
+.realm-panel-close {
+  position: absolute;
+  top: 1rem;
+  right: 1rem;
+  width: 2rem;
+  height: 2rem;
+  display: grid;
+  place-items: center;
+  font-family: var(--mono);
+  font-size: 1rem;
+  color: var(--ink-muted);
+  background: transparent;
+  border: 1px solid var(--ink-line);
+  border-radius: var(--panel-radius);
+  cursor: pointer;
+  transition: border-color 0.15s linear, color 0.15s linear;
+}
+.realm-panel-close:hover,
+.realm-panel-close:focus-visible {
+  outline: none;
+  border-color: var(--ink-accent);
+  color: var(--ink-text);
+}
+
+.realm-panel-eyebrow {
+  margin: 0 0 0.4rem;
+  font-family: var(--mono);
+  font-size: 0.7rem;
+  letter-spacing: 0.1em;
+  text-transform: lowercase;
+  color: var(--ink-accent-bright);
+}
+.realm-panel-title {
+  margin: 0 0 0.7rem;
+  font-family: var(--sans);
+  font-size: 1.5rem;
+  font-weight: 600;
+  line-height: 1.15;
+  color: var(--ink-text);
+}
+.realm-panel-desc {
+  margin: 0 0 1.1rem;
+  font-family: var(--sans);
+  font-size: 0.9rem;
+  line-height: 1.55;
+  color: var(--ink-muted);
+}
+
+.realm-panel-tech {
+  list-style: none;
+  margin: 0 0 1.1rem;
+  padding: 0;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.4rem;
+}
+.realm-panel-chip {
+  font-family: var(--mono);
+  font-size: 0.64rem;
+  letter-spacing: 0.03em;
+  text-transform: lowercase;
+  color: var(--ink-faint);
+  padding: 0.22rem 0.5rem;
+  border: 1px solid var(--ink-line-soft);
+  border-radius: var(--panel-radius);
+}
+
+.realm-panel-links {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 1rem;
+  margin-bottom: 1.3rem;
+}
+.realm-panel-link {
+  font-family: var(--mono);
+  font-size: 0.72rem;
+  text-transform: lowercase;
+  color: var(--ink-muted);
+  text-decoration: none;
+  border-bottom: 1px solid var(--ink-line);
+  padding-bottom: 1px;
+  cursor: pointer;
+  transition: color 0.15s linear, border-color 0.15s linear;
+}
+.realm-panel-link:hover,
+.realm-panel-link:focus-visible {
+  outline: none;
+  color: var(--ink-accent-bright);
+  border-color: var(--ink-accent);
+}
+
+.realm-panel-dive {
+  align-self: flex-start;
+  margin-top: auto;
+  font-family: var(--mono);
+  font-size: 0.76rem;
+  text-transform: lowercase;
+  padding: 0.5rem 0.9rem;
+  color: #04080b; /* near-black text on the one solid element */
+  background: var(--ink-accent-bright);
+  border: 1px solid var(--ink-accent-bright);
+  border-radius: var(--panel-radius);
+  cursor: pointer;
+  transition: background-color 0.15s linear, border-color 0.15s linear;
+}
+.realm-panel-dive:hover {
+  background: var(--ink-accent);
+  border-color: var(--ink-accent);
+}
+.realm-panel-dive:focus-visible {
+  outline: none;
+  background: var(--ink-accent);
+  border-color: var(--ink-accent-deep);
+}
+
+/* ── visually-hidden aria live region ───────────────────────── */
+.realm-aria {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  margin: -1px;
+  padding: 0;
+  border: 0;
+  overflow: hidden;
+  clip: rect(0 0 0 0);
+  clip-path: inset(50%);
+  white-space: nowrap;
+}
+
+/* ── mobile: swipeable legend strip + bottom-sheet panel ────── */
+@media (max-width: 520px) {
+  .realm-legend {
+    right: calc(1rem + env(safe-area-inset-right));
+    max-width: none;
+    flex-wrap: nowrap;
+    overflow-x: auto;
+    padding-right: 2rem; /* last door scrolls clear */
+    scrollbar-width: none;
+  }
+  .realm-legend::-webkit-scrollbar { display: none; }
+  .realm-legend-btn { flex: 0 0 auto; }
+
+  .realm-caption { display: none; } /* avoids colliding with the strip */
+
+  .realm-panel {
+    top: auto;
+    right: 0;
+    left: 0;
+    bottom: 0;
+    width: 100%;
+    height: auto;
+    max-height: 72%;
+    border-left: none;
+    border-top: 1px solid var(--ink-line);
+    padding-bottom: calc(1.4rem + env(safe-area-inset-bottom));
+    animation: realm-panel-in-mobile 0.28s ease both;
+  }
+  @keyframes realm-panel-in-mobile {
+    from { transform: translateY(100%); }
+    to   { transform: translateY(0); }
+  }
+  .realm-reduced .realm-panel { animation: realm-panel-fade 0.24s linear both; }
+}

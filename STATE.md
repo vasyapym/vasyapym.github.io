@@ -4,7 +4,7 @@ Read this first. One screen; everything else is pointed to, not copied.
 
 ## Now — where each active project stands
 
-- **main page** (`portfolio/shell`) — ink catalogue shipped; type-led hero + 6-project rail finalized (main graph n140). Card-art saga closed: Raft landing mark = "shift-register ripple" (n129).
+- **main page** (`portfolio/shell`) — ink catalogue shipped; type-led hero + 6-project rail finalized (main graph n140). The realm shipped on top (n149): opt-in Dark Souls layer over the untouched catalogue. Card-art saga closed: Raft landing mark = "shift-register ripple" (n129).
 - **kitty-run** — ashen Dark Souls era, Round B shipped state (`7ef6381`). Knight direction OPEN (n80: five-being rigs rejected, no partial keep; plumbing lessons preserved there).
 - **evening-forest** — all-tonal audio rewrite integrated (n33: Dm→Bb→F→C score, no noise beds); owner real-device listen-pass pending.
 - **spine** — "The Seventh" card mark shipped (n10, commit `1373911`).
@@ -16,8 +16,9 @@ Read this first. One screen; everything else is pointed to, not copied.
 
 1. kitty-run knight direction — awaiting owner steer; stale handoff **h3** (acknowledged, never closed — chase it, don't fork around it).
 2. evening-forest — owner listen-pass pending (n33). The working tree holds uncommitted evening-forest + CLAUDE.md changes from other sessions — leave them alone.
-3. main page — hero more-row wrapping at 900–1100px review (n140).
-4. practice-map — migrate the next deep-lesson route pair (Pass 21 ledger note).
+3. main page — hero 3×2 catalogue now held through 900–1199px (n148, brief 11 verdict REFINE); owner look pending — row-01 title wraps inside its 44px row at ≤~1040px viewports (within the delivered design; noted in ROUNDS).
+4. main page realm — v1 (n149) REJECTED by owner as flat/no-wow; rebuilt as "The Deep" (portfolio graph n148, brief 13): GPU-fluid abyss with lantern, seven behavioural creatures, abyssal audio, legend chart, dive→SPA handoff, ink flood/drain at the chip; 21/21 probe gates green, GL verified under SwiftShader. Owner look pending — flood beat and wake feel need real-GPU eyes (`npm run dev`).
+5. practice-map — migrate the next deep-lesson route pair (Pass 21 ledger note).
 
 ## Protocols (unchanged by compaction)
 
