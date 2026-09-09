@@ -206,6 +206,14 @@
   padding-right: 10px;
 }
 
+/* Prevent touch-focus auto-zoom without enlarging buttons or mouse-only UI. */
+@media (any-pointer: coarse) {
+  .raft-field select,
+  .raft-field input[type="text"] {
+    font-size: 16px;
+  }
+}
+
 .raft-ctl {
   display: inline-flex;
   align-items: center;

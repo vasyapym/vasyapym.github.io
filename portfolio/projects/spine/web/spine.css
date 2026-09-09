@@ -412,3 +412,12 @@
     padding: 10px 12px;
   }
 }
+
+/* Keep touch entry at the no-auto-zoom threshold, including on hybrid devices.
+   Follow the narrow-layout rules so their 14px declaration cannot win. */
+@media (any-pointer: coarse) {
+  .spine-root select,
+  .spine-root input {
+    font-size: 16px;
+  }
+}
