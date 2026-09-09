@@ -19,6 +19,7 @@ const VERTEX_SHADER = /* glsl */ `
   uniform vec3 uPlayer;
   varying float vFade;
   varying float vNear;
+  varying float vWarm;
 
   void main() {
     vec3 pos = position;
@@ -41,6 +42,7 @@ const VERTEX_SHADER = /* glsl */ `
     float pulse = 0.45 + 0.55 * sin(uTime * (0.8 + aSeed.w * 1.6) + aSeed.x * 60.0);
     vFade = pulse * smoothstep(78.0, 16.0, distView);
     vNear = pull;
+    vWarm = aSeed.y;
   }
 `;
 
@@ -49,12 +51,16 @@ const FRAGMENT_SHADER = /* glsl */ `
   uniform float uGain;
   varying float vFade;
   varying float vNear;
+  varying float vWarm;
 
   void main() {
     float d = length(gl_PointCoord - vec2(0.5));
     float disc = smoothstep(0.5, 0.12, d);
     if (disc < 0.01) discard;
-    gl_FragColor = vec4(uColor, disc * vFade * (1.0 + vNear * 0.7) * uGain);
+    // A per-firefly lean from warm amber toward pale green — a real swarm
+    // never glows one uniform colour.
+    vec3 col = mix(uColor, uColor * vec3(0.82, 1.05, 0.72), vWarm * 0.4);
+    gl_FragColor = vec4(col, disc * vFade * (1.0 + vNear * 0.7) * uGain);
   }
 `;
 
@@ -84,14 +90,19 @@ export function Fireflies({ count = DEFAULT_COUNT }: { count?: number }) {
 
   // The hollow travels: once the walker strays too far from the swarm's
   // centre, the whole cloud quietly re-seeds around them, so fireflies stay
-  // part of every walk instead of being a spawn-area landmark.
+  // part of every walk instead of being a spawn-area landmark. Each replant
+  // uses a counter-derived seed, keeping the whole system Math.random-free.
   const anchorRef = useRef(new THREE.Vector3(0, 0, 0));
+  const replantRef = useRef(0);
   useFrame(() => {
     if (playerPositionUniform.value.distanceTo(anchorRef.current) < 46) return;
     anchorRef.current.copy(playerPositionUniform.value);
+    replantRef.current += 1;
+    const rand = createRng(
+      `evening-forest/fireflies/replant/${replantRef.current}`,
+    );
     const attr = geometry.getAttribute("position") as THREE.BufferAttribute;
     const positions = attr.array as Float32Array;
-    const rand = Math.random;
     for (let i = 0; i < count; i += 1) {
       const angle = rand() * Math.PI * 2;
       const radius = 8 + Math.sqrt(rand()) * 64;
