@@ -47,6 +47,8 @@ export interface RealmScene {
   setPointer(x: number, y: number, active: boolean): void;
   setThrust(x: number, y: number): void;
   setCalling(calling: boolean): void;
+  /** Nearest creature to a SCREEN point within the select radius (touch = wider), or null. Additive; nearestId() untouched. */
+  pickAt(px: number, py: number, touch: boolean): string | null;
   breatheLight(dir: number): void;
   warpTo(index: number): void;
   nearestId(): string | null;
@@ -99,6 +101,8 @@ const WAKE_LEN = 24;
 const POINT_CAP = 3072;
 const LINE_CAP = 1536;
 const MAX_DT = 0.05;
+const WAKE_ON = 120;
+const WAKE_OFF = 70;
 
 // ─── small helpers ───────────────────────────────────────────────────────────
 
@@ -190,6 +194,7 @@ export function createRealmScene(
   let thrustX = 0;
   let thrustY = 0;
   let calling = false;
+  let wakeOn = false;
   let idleT = 0;
   let lure = 0;
   let inputAccum = 0;
@@ -350,20 +355,23 @@ export function createRealmScene(
         // pointer given in viewport css px → world px
         const tx = (ptrX - vw * 0.5) / cam.zoom + cam.camX + vw * 0.5;
         const ty = (ptrY - vh * 0.5) / cam.zoom + cam.camY + vh * 0.5;
-        const k = small ? 90 : 70;
-        const c = small ? 12 : 9;
+        // near-critical: c ≈ 1.88·√k → ζ ≈ 0.94. weighty, arrives in ~0.6s, no
+        // visible overshoot, so the lantern stops hunting around the cursor.
+        const k = small ? 40 : 32;
+        const c = small ? 12 : 10.6;
         ax += (tx - lan.x) * k - lvx * c;
         ay += (ty - lan.y) * k - lvy * c;
       } else {
-        const drag = Math.exp(-2.4 * dt);
+        // gentler coast so the softer thrust still keeps its top speed
+        const drag = Math.exp(-1.7 * dt);
         lvx *= drag;
         lvy *= drag;
       }
-      ax += thrustX * 1600;
-      ay += thrustY * 1600;
+      ax += thrustX * 1100;
+      ay += thrustY * 1100;
       lvx += ax * dt;
       lvy += ay * dt;
-      const vmax = 2600;
+      const vmax = 1500;
       const v = Math.hypot(lvx, lvy);
       if (v > vmax) {
         lvx *= vmax / v;
@@ -535,7 +543,8 @@ export function createRealmScene(
       const c = diveIdx >= 0 ? creatures[diveIdx] : null;
       if (fluid !== null && !reduced && c !== null) {
         const t = clamp(phaseT / DIVE_MS, 0, 1);
-        fluid.vortex(sx(c.x), sy(c.y), Math.min(vw, vh) * 0.5, 40 + 180 * t, hues[diveIdx]);
+        // softer late ramp: the current keeps pulling but stops reading as a blast
+        fluid.vortex(sx(c.x), sy(c.y), Math.min(vw, vh) * 0.5, 40 + 120 * t, hues[diveIdx]);
       }
       if (phaseT >= dur && !fired) {
         fired = true;
@@ -567,8 +576,18 @@ export function createRealmScene(
     if (fluid !== null) {
       fluid.globalDrift(0, -camVy);
       fluid.setLantern(lanSx, lanSy, lan.intensity);
-      if (speed > 140 && phase === "active" && !reduced) {
-        fluid.stroke(lanSx, lanSy, lanSx - prevSx, lanSy - prevSy);
+      if (phase === "active" && !reduced && dt > 1e-4) {
+        // screen px/s: the fluid lives in screen space, so camera motion is part of
+        // the drag the water feels. hysteresis stops the on/off stutter at the gate.
+        const wvx = (lanSx - prevSx) / dt;
+        const wvy = (lanSy - prevSy) / dt;
+        const wsp = Math.hypot(wvx, wvy);
+        wakeOn = wsp > (wakeOn ? WAKE_OFF : WAKE_ON);
+        if (wakeOn) {
+          fluid.stroke(lanSx, lanSy, wvx, wvy);
+        }
+      } else {
+        wakeOn = false;
       }
       fluid.step(dt);
       fluid.render(emitter);
@@ -597,6 +616,20 @@ export function createRealmScene(
     if (full) drawDegradedDisc(g);
   }
 
+  // Select-gesture pick: screen-space distance from the tap point to each creature's
+  // screen anchor. Radii are well inside interactR (world px -> screen via cam.zoom).
+  // Same-tick, no rAF dependency. Does not alter nearestIdx/nearestId().
+  function pickAt(px: number, py: number, touch: boolean): string | null {
+    const r = interactR * (touch ? 0.5 : 0.35) * cam.zoom;
+    let best = -1, bestD = r;
+    for (let i = 0; i < creatures.length; i++) {
+      const c = creatures[i];
+      const d = Math.hypot(sx(c.x) - px, sy(c.y) - py);
+      if (d < bestD) { bestD = d; best = i; }
+    }
+    return best < 0 ? null : creatures[best].id; // creature id === door id === project id
+  }
+
   function drawNames(g: CanvasRenderingContext2D): void {
     for (let i = 0; i < creatures.length; i++) {
       const c = creatures[i];
@@ -605,15 +638,21 @@ export function createRealmScene(
       const x = sx(c.x);
       const y = sy(c.y) + c.radius * 0.55 * cam.zoom + 14;
       if (x < -200 || x > vw + 200 || y < -40 || y > vh + 40) continue;
-      const a = near ? 1 : clamp((c.glow - 0.25) / 0.35, 0, 1);
+      // only the nearest creature's label may be fully opaque; others cap at 0.7
+      const a = near ? 1 : Math.min(0.7, clamp((c.glow - 0.25) / 0.35, 0, 1));
       g.globalAlpha = a;
       g.textAlign = "left";
       const tx = x + 8;
-      // 1px paper-ink shadow for legibility
-      g.fillStyle = INK_CSS;
-      g.fillText(names[i], tx + 1, y + 1);
+      // ONE crisp draw; ink drop-shadow via the canvas shadow API (never reads as doubled text)
+      g.shadowColor = INK_CSS;
+      g.shadowOffsetX = 1;
+      g.shadowOffsetY = 1;
+      g.shadowBlur = 0;
       g.fillStyle = hueCss[i];
       g.fillText(names[i], tx, y);
+      g.shadowColor = "transparent";
+      g.shadowOffsetX = 0;
+      g.shadowOffsetY = 0;
       g.beginPath();
       g.arc(x, y, 1.5, 0, Math.PI * 2);
       g.fill();
@@ -865,6 +904,10 @@ export function createRealmScene(
     setCalling(c) {
       calling = c;
       if (c) idleT = 0;
+    },
+
+    pickAt(px, py, touch) {
+      return pickAt(px, py, touch);
     },
 
     breatheLight(dir) {

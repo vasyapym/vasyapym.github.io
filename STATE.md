@@ -17,7 +17,7 @@ Read this first. One screen; everything else is pointed to, not copied.
 1. kitty-run knight direction — awaiting owner steer; stale handoff **h3** (acknowledged, never closed — chase it, don't fork around it).
 2. evening-forest — owner listen-pass pending (n33). The working tree holds uncommitted evening-forest + CLAUDE.md changes from other sessions — leave them alone.
 3. main page — hero 3×2 catalogue now held through 900–1199px (n148, brief 11 verdict REFINE); owner look pending — row-01 title wraps inside its 44px row at ≤~1040px viewports (within the delivered design; noted in ROUNDS).
-4. main page realm — v1 (n149) REJECTED by owner as flat/no-wow; rebuilt as "The Deep" (portfolio graph n150, brief 13): GPU-fluid abyss with lantern, seven behavioural creatures, abyssal audio, legend chart, dive→SPA handoff, ink flood/drain at the chip; 21/21 probe gates green, GL verified under SwiftShader. Owner look pending — flood beat and wake feel need real-GPU eyes (`npm run dev`).
+4. main page realm — r2 feedback round shipped on top of "The Deep" (n152–n154, brief 14): both flash reports root-caused to unclamped abyss dye (hue-preserving tonemap + accumulation cap), lantern spring near-critical, wake px/s with hysteresis, dive iris grows to full cover, tap=select input model with chrome immunity, chip band (hidden in hero, bottom-centre, hidden at page end) + `--realm-floor` gradient. Probe 26/26; owner real-GPU look pending (feel numbers: k32/c10.6, wake 120/70, chip band 0.765·hero / last 0.5vh).
 5. practice-map — migrate the next deep-lesson route pair (Pass 21 ledger note).
 
 ## Protocols (unchanged by compaction)

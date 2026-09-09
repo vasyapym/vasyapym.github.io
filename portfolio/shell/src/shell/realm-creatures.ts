@@ -91,13 +91,17 @@ abstract class Creature implements RealmCreature {
     const dist = Math.hypot(dx, dy) || 1e-4;
     const prox = smooth(1 - dist / this.radius);
     let target = prox * c.lantern.intensity;
-    if (c.calling) target = Math.max(target, 0.35 + 0.5 * prox);
+    // calling boost scales with proximity: only creatures actually near the lantern answer,
+    // distant ones no longer light up in unison (prox is 0 outside the radius)
+    if (c.calling) target = Math.max(target, (0.35 + 0.5 * prox) * smooth(prox));
     target = clamp(target + c.lure * 0.15, 0, 1);
     const rate = target > this.glow ? 6 : 1.2;               // fast attack, slow release
     this.glow = clamp(this.glow + (target - this.glow) * Math.min(1, rate * c.dt), 0, 1);
-    // lantern lean: curious lean toward when lantern lingers/calls, shy leans away
+    // lantern lean: gentle curiosity, not a jump. The calling term is damped (0.35 -> 0.18)
+    // and ramps in with the creature's own glow attack (~0.4s to full) rather than instantly.
+    const callRamp = c.calling ? clamp(this.glow / 0.6, 0, 1) : 0;
     const lean = c.reduced ? 0
-      : clamp(c.lure * 0.5 + (c.calling ? 0.35 : 0) + this.glow * 0.35, 0, 1)
+      : clamp(c.lure * 0.5 + 0.18 * callRamp + this.glow * 0.25, 0, 1)
         * this.radius * 0.5 * this.leanSign;
     this.cx = this.ax + (dx / dist) * lean; this.cy = this.ay + (dy / dist) * lean;
     this.breath = 0.5 + 0.5 * Math.sin(c.time * 1.6 + this.seed);

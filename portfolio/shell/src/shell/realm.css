@@ -8,29 +8,44 @@
 /* ── entry chip (lives on the landing, fixed at all scroll positions) ── */
 .realm-enter-chip {
   position: fixed;
-  left: max(1.1rem, env(safe-area-inset-left));
-  bottom: max(1.1rem, env(safe-area-inset-bottom));
+  left: 50%;
+  bottom: calc(1.1rem + env(safe-area-inset-bottom, 0px));
   z-index: 30;
   display: inline-flex;
   align-items: center;
-  gap: 0.5rem;
-  padding: 0.5rem 0.8rem;
+  gap: 0.65rem;
+  box-sizing: border-box;
+  width: max-content;
+  max-width: calc(100vw - 2.5rem);
+  min-height: 2.75rem;
+  padding: 0.7rem 1rem;
   font-family: var(--mono);
-  font-size: 0.72rem;
+  font-size: 0.78rem;
+  line-height: 1.25;
   letter-spacing: 0.04em;
   text-transform: lowercase;
   color: var(--ink-text);
-  background: rgba(4, 8, 11, 0.82);
+  background: #020609;
   border: 1px solid var(--ink-line);
-  border-radius: var(--panel-radius);
+  border-radius: 0;
   cursor: pointer;
-  transition: border-color 0.2s ease, color 0.2s ease;
+  opacity: 0;
+  pointer-events: none;
+  transform: translate(-50%, 0.5rem);
+  transition: opacity 0.35s ease-out, transform 0.35s ease-out,
+    border-color 0.2s ease, color 0.2s ease;
+}
+.realm-enter-chip.is-visible {
+  opacity: 1;
+  pointer-events: auto;
+  transform: translate(-50%, 0);
 }
 /* the single ochre mark — a hard square, never a glow */
 .realm-enter-chip::before {
   content: "";
   width: 0.5rem;
   height: 0.5rem;
+  flex-shrink: 0;
   background: var(--ink-accent-bright);
 }
 .realm-enter-chip:hover,
@@ -38,6 +53,29 @@
   border-color: var(--ink-accent);
   color: var(--ink-accent-bright);
   outline: none;
+}
+
+/* the floor: a fixed near-black gradient that ramps in over the last
+   stretch of scroll — the mirror of the hero's --hero-exit fade. it gives
+   the resting chip an intentional zone instead of floating over cards. */
+.realm-bottom-floor {
+  position: fixed;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  height: clamp(7rem, 22vh, 12rem);
+  z-index: 20;
+  pointer-events: none;
+  opacity: var(--realm-floor, 0);
+  background: linear-gradient(to top, #020609, rgba(2, 6, 9, 0));
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .realm-enter-chip,
+  .realm-enter-chip.is-visible {
+    transform: translateX(-50%);
+    transition: opacity 0.35s ease-out;
+  }
 }
 
 /* ── root layer ─────────────────────────────────────────────── */
@@ -94,13 +132,21 @@
   background: radial-gradient(
     circle at 50% 50%,
     var(--iris-hue, var(--ink-accent)) 0%,
-    #04080b 78%
+    var(--iris-hue, var(--ink-accent)) 52%,
+    #061017 100%
   );
-  animation: realm-iris-close 1s ease-in both;
+  animation: realm-iris-close 1s linear both;
 }
+/* the hue GROWS to full cover: the aperture clears the frame at ~0.77s, so the
+   last ~0.23s is the flat signature colour and the SPA cut lands under it.
+   linear timing + accelerating stops = the colour surfaces, then commits. */
 @keyframes realm-iris-close {
-  from { clip-path: circle(120% at 50% 50%); }
-  to   { clip-path: circle(0% at 50% 50%); }
+  0%   { clip-path: circle(0% at 50% 50%); }
+  20%  { clip-path: circle(10% at 50% 50%); }
+  45%  { clip-path: circle(30% at 50% 50%); }
+  70%  { clip-path: circle(58% at 50% 50%); }
+  85%  { clip-path: circle(90% at 50% 50%); }
+  100% { clip-path: circle(125% at 50% 50%); }
 }
 /* reduced: no aperture — flat blended fill, plain 0.4s fade */
 .realm-reduced .realm-iris {

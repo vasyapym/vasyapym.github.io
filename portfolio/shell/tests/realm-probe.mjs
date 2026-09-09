@@ -60,6 +60,16 @@ const waitForServer = async () => {
 
 const wait = (ms) => new Promise((r) => setTimeout(r, ms));
 
+// poll until fn() is truthy (page.evaluate wrapper) — immune to commit/anim timing
+const until = async (page, fn, ms = 2500) => {
+  const t0 = Date.now();
+  while (Date.now() - t0 < ms) {
+    try { if (await page.evaluate(fn)) return true; } catch {}
+    await wait(100);
+  }
+  return false;
+};
+
 let failures = 0;
 const check = (name, ok, detail = "") => {
   const tag = ok ? "PASS" : "FAIL";
@@ -105,8 +115,14 @@ try {
   await desktop.setViewport({ width: 1440, height: 900, deviceScaleFactor: 1 });
   collectErrors(desktop);
   await desktop.goto(BASE, { waitUntil: "networkidle0", timeout: 60000 });
-  await desktop.evaluate(() => window.scrollTo({ top: 620, behavior: "instant" }));
+  // chip band law: hidden while the hero dominates, revealed past it, hidden
+  // again near the page end (enterRealm below scrolls past the hero first).
+  check("chip hidden while in the hero",
+    await desktop.$eval(".realm-enter-chip", (el) => !el.classList.contains("is-visible")));
+  await desktop.evaluate(() => window.scrollTo({ top: 1250, behavior: "instant" }));
   await wait(400);
+  check("chip revealed past the hero",
+    await desktop.$eval(".realm-enter-chip", (el) => el.classList.contains("is-visible")));
 
   await enterRealm(desktop);
   check("realm opens over the landing", await desktop.$(".realm-layer") !== null);
@@ -141,16 +157,31 @@ try {
   await wait(1300);
   check("esc exits the realm", (await desktop.$(".realm-layer")) === null);
   const scrollAfter = await desktop.evaluate(() => window.scrollY);
-  check("landing scroll restored", Math.abs(scrollAfter - 620) < 30, `scrollY=${scrollAfter}`);
+  check("landing scroll restored", Math.abs(scrollAfter - 1250) < 30, `scrollY=${scrollAfter}`);
   check("chip is back", await desktop.evaluate(() =>
     [...document.querySelectorAll("button")].some((b) => b.textContent.trim() === "enter the realm")));
 
-  // ── desktop: dive → SPA handoff ──
+  // ── desktop: canvas tap = select (opens the tapped creature's panel) ──
   const dive = await browser.newPage();
   await dive.setViewport({ width: 1440, height: 900, deviceScaleFactor: 1 });
   collectErrors(dive);
   await dive.goto(BASE, { waitUntil: "networkidle0", timeout: 60000 });
+  await dive.evaluate(() => window.scrollTo({ top: 1250, behavior: "instant" }));
+  await wait(400);
   await enterRealm(dive);
+  await dive.mouse.move(360, 468); // creature 0 anchor: (0.25·vw, 0.26·2vh) at zoom 1, cam 0
+  await wait(600); // settle: hover before the tap, past any entering-frame under load
+  await dive.mouse.down();
+  await dive.mouse.up();
+  check("canvas tap-select opens the tapped creature's panel",
+    await until(dive, () =>
+      document.querySelector(".realm-panel-title")?.textContent.trim().toLowerCase() ===
+      document.querySelector(".realm-legend-btn")?.textContent.split("—").pop().trim().toLowerCase()));
+  await dive.keyboard.press("Escape");
+  await wait(300);
+  check("esc closes the tap-opened panel", (await dive.$(".realm-panel")) === null);
+
+  // ── desktop: dive → SPA handoff ──
   await dive.click(".realm-legend-btn:nth-child(3)"); // explosion
   await wait(400);
   await dive.click(".realm-panel-dive");
@@ -162,14 +193,29 @@ try {
 
   // ── mobile: viewport hygiene ──
   const mobile = await browser.newPage();
-  await mobile.setViewport({ width: 390, height: 844, deviceScaleFactor: 2 });
+  await mobile.setViewport({ width: 390, height: 844, deviceScaleFactor: 2, hasTouch: true });
   collectErrors(mobile);
   await mobile.goto(BASE, { waitUntil: "networkidle0", timeout: 60000 });
+  await mobile.evaluate(() => window.scrollTo({ top: 1100, behavior: "instant" }));
+  await wait(400);
   await enterRealm(mobile);
   const overflow = await mobile.evaluate(() =>
     document.scrollingElement.scrollWidth - window.innerWidth);
   check("no horizontal overflow at 390px", overflow <= 0, `overflow=${overflow}px`);
   check("mobile legend strip reachable", await mobile.$(".realm-legend-btn") !== null);
+
+  // first tap on a creature must open the BOTTOM-SHEET panel (item 8: it used to
+  // only surface a mid-screen canvas label; the sheet must come on tap one)
+  await mobile.touchscreen.touchStart(98, 439); // creature 0 anchor at 390×844
+  await mobile.touchscreen.touchEnd();
+  check("mobile first tap opens the bottom-sheet panel",
+    await until(mobile, () => {
+      const el = document.querySelector(".realm-panel");
+      if (!el) return false;
+      const r = el.getBoundingClientRect();
+      return Math.abs(r.bottom - window.innerHeight) < 4 &&
+        r.top > window.innerHeight * 0.5; // top edge sits in the lower half
+    }));
   await mobile.screenshot({ path: join(outDir, "mobile-realm.png") });
 
   // ── reduced motion: opens, works, exits ──
@@ -178,6 +224,8 @@ try {
   await reduced.emulateMediaFeatures([{ name: "prefers-reduced-motion", value: "reduce" }]);
   collectErrors(reduced);
   await reduced.goto(BASE, { waitUntil: "networkidle0", timeout: 60000 });
+  await reduced.evaluate(() => window.scrollTo({ top: 1250, behavior: "instant" }));
+  await wait(400);
   await enterRealm(reduced);
   check("reduced: realm opens with the reduced class",
     await reduced.$eval(".realm-layer", (el) => el.className.includes("realm-reduced")));

@@ -87,3 +87,4 @@ One line per delegation brief/handoff. `docs/briefs/` is the archive; graph-refe
 | BRIEF-card-art-practicemap-rethink.md | practice-map card-art rethink round; raft saga context in main graph n117-n124 |
 | BRIEF-card-artwork-raft-explosion.md, BRIEF-card-artwork-raft-retheme.md | Raft card-art saga (rounds 1-4) — closed at n124: vault seven-key majority adopted; bans accumulated n117-n120 |
 | docs/briefs/HANDOFF-pass22-hero-sharpness.md | main graph n45: Pass 22 platform-sharp hero + five artworks |
+| BRIEF-realm-r2-feedback-round.md | realm r2 (n151-n154): 8-point owner round in 3 relayed passes — flash/dive blowout root-caused to unclamped abyss dye (tonemap + cap), lantern/wake retuned, tap=select input model, chip band + floor |

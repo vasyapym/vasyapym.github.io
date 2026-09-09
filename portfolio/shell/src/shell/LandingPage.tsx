@@ -95,6 +95,10 @@ export default function LandingPage({ projects, onOpenProject }: LandingPageProp
   }));
   // exit restores the landing exactly (it was never unmounted) and returns
   // focus to the chip, satisfying the esc-returns-focus a11y law.
+  const [realmChipVisible, setRealmChipVisible] = useState(false);
+  const realmFloorRef = useRef<HTMLDivElement>(null);
+  const realmChipBandRef = useRef({ start: 0, end: 0, visible: false });
+
   const handleRealmExit = useCallback(() => {
     setRealmOpen(false);
     window.requestAnimationFrame(() => realmChipRef.current?.focus());
@@ -286,6 +290,51 @@ export default function LandingPage({ projects, onOpenProject }: LandingPageProp
       if (frame !== 0) {
         window.cancelAnimationFrame(frame);
       }
+      window.removeEventListener("scroll", schedule);
+      window.removeEventListener("resize", schedule);
+    };
+  }, []);
+
+  useEffect(() => {
+    const hero = heroRef.current;
+    const floor = realmFloorRef.current;
+    if (!hero || !floor) return;
+    let frame = 0;
+    let cancelled = false;
+    let lastFloor = "";
+
+    const update = () => {
+      frame = 0;
+      if (cancelled) return;
+      const vh = window.innerHeight;
+      const maxScroll = Math.max(0, document.documentElement.scrollHeight - vh);
+      const y = Math.min(maxScroll, Math.max(0, window.scrollY));
+      const band = realmChipBandRef.current;
+      band.start = hero.offsetHeight * 0.9 * 0.85;
+      band.end = maxScroll - vh * 0.5;
+      const visible = y >= band.start && y < band.end;
+      if (visible !== band.visible) {
+        band.visible = visible;
+        setRealmChipVisible(visible);
+      }
+      const floorValue = (maxScroll > 0 && vh > 0
+        ? Math.min(1, Math.max(0, 1 - (maxScroll - y) / (vh * 0.6)))
+        : 0).toFixed(4);
+      if (floorValue !== lastFloor) {
+        lastFloor = floorValue;
+        floor.style.setProperty("--realm-floor", floorValue);
+      }
+    };
+    const schedule = () => {
+      if (frame !== 0 || cancelled) return;
+      frame = window.requestAnimationFrame(update);
+    };
+    update();
+    window.addEventListener("scroll", schedule, { passive: true });
+    window.addEventListener("resize", schedule, { passive: true });
+    return () => {
+      cancelled = true;
+      if (frame !== 0) window.cancelAnimationFrame(frame);
       window.removeEventListener("scroll", schedule);
       window.removeEventListener("resize", schedule);
     };
@@ -490,16 +539,22 @@ export default function LandingPage({ projects, onOpenProject }: LandingPageProp
         </section>
 
       </div>
-      {!realmOpen && (
-        <button
-          type="button"
-          className="realm-enter-chip"
-          ref={realmChipRef}
-          onClick={handleRealmEnter}
-        >
-          enter the realm
-        </button>
-      )}
+      <div
+        className="realm-bottom-floor"
+        ref={realmFloorRef}
+        style={{ opacity: realmOpen ? 0 : undefined }}
+        aria-hidden="true"
+      />
+      <button
+        type="button"
+        className={`realm-enter-chip${realmChipVisible && !realmOpen ? " is-visible" : ""}`}
+        ref={realmChipRef}
+        onClick={handleRealmEnter}
+        tabIndex={realmChipVisible && !realmOpen ? 0 : -1}
+        aria-hidden={!realmChipVisible || realmOpen}
+      >
+        enter the realm
+      </button>
       {realmOpen ? (
         <RealmMode
           projects={projects}

@@ -30,6 +30,7 @@ try {
   const page = await browser.newPage();
   await page.setViewport({ width: 1440, height: 900, deviceScaleFactor: 1 });
   await page.goto(BASE, { waitUntil: "networkidle0", timeout: 60000 });
+  await page.evaluate(() => window.scrollTo({ top: 1250, behavior: "instant" }));
   await wait(600);
 
   await page.evaluate(() => {
@@ -65,6 +66,7 @@ try {
   const mobile = await browser.newPage();
   await mobile.setViewport({ width: 390, height: 844, deviceScaleFactor: 2 });
   await mobile.goto(BASE, { waitUntil: "networkidle0", timeout: 60000 });
+  await mobile.evaluate(() => window.scrollTo({ top: 1100, behavior: "instant" }));
   await wait(500);
   await mobile.evaluate(() => {
     [...document.querySelectorAll("button")].find((b) => b.textContent.trim() === "enter the realm")?.click();

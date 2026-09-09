@@ -197,11 +197,20 @@ uniform vec2 uCenter;
 uniform float uRadius;
 uniform vec3 uColor;
 uniform float uAmount;
+const float DYE_KNEE = 2.6;
+const float DYE_CEIL = 4.0;
 void main() {
   vec2 px = vec2(vUv.x, 1.0 - vUv.y) * uToPx;
   vec2 p = px - uCenter;
   float f = exp(-dot(p, p) / (uRadius * uRadius)) * uAmount;
-  gl_FragColor = texture2D(uDye, vUv) + vec4(uColor * f, f);
+  vec4 c = texture2D(uDye, vUv) + vec4(uColor * f, f);
+  // soft accumulation ceiling. identity below DYE_KNEE, asymptotic to DYE_CEIL
+  // above it, applied as ONE uniform scale so hue (and the ink-mode black-dye
+  // rule: rgb stays 0, alpha is density) survives untouched.
+  float m = max(max(c.r, c.g), max(c.b, c.a));
+  float over = max(m - DYE_KNEE, 0.0);
+  float lim = DYE_KNEE + (DYE_CEIL - DYE_KNEE) * (over / (over + (DYE_CEIL - DYE_KNEE)));
+  gl_FragColor = c * (m > DYE_KNEE ? lim / m : 1.0);
 }`;
 
 // ink mode: premultiplied, density is alpha, colour is forced to the catalogue ink
@@ -219,9 +228,20 @@ const FS_ABYSS = `
 uniform sampler2D uDye;
 uniform vec3 uBase;
 uniform float uGain;
+const float TM_KNEE = 0.55;
+const float TM_CEIL = 0.82;
 void main() {
   vec4 d = texture2D(uDye, vUv);
-  gl_FragColor = vec4(uBase + d.rgb * uGain, 1.0);
+  vec3 c = d.rgb * uGain;
+  // hue-preserving soft shoulder: exactly linear up to TM_KNEE (normal dye and
+  // creature colour read unchanged), then asymptotic to TM_CEIL so no amount of
+  // accumulation can reach 1.0. scaling by the max channel keeps saturation, so
+  // a hot core desaturates toward its own hue, never toward white.
+  float m = max(max(c.r, c.g), c.b);
+  float over = max(m - TM_KNEE, 0.0);
+  float lim = TM_KNEE + (TM_CEIL - TM_KNEE) * (over / (over + (TM_CEIL - TM_KNEE)));
+  c *= m > TM_KNEE ? lim / m : 1.0;
+  gl_FragColor = vec4(uBase + c, 1.0);
 }`;
 
 const VS_SNOW = `
@@ -592,18 +612,26 @@ class Fluid implements FluidHandle {
 
   stroke(x: number, y: number, dx: number, dy: number): void {
     if (this.dead) return;
+    // dx/dy now arrive in css px/s (caller divides the screen delta by dt), so the
+    // wake is frame-rate coherent instead of scaling with frame time.
     const speed = Math.sqrt(dx * dx + dy * dy);
-    if (speed < 0.05) return;
-    // dx/dy are per-frame deltas; scale toward px/s but damped so the wake trails rather than shoots
-    this.splatVel(x, y, 36, dx * 6, dy * 6, 0, 0);
-    this.splatDye(x, y, 28, WARM, Math.min(1, speed * 0.04) * 0.6);
+    if (speed < 1) return;
+    // the water inherits a fraction of the lantern's momentum: it is dragged along
+    // and left behind by advection rather than punched forward.
+    this.splatVel(x, y, 42, dx * 0.16, dy * 0.16, 0, 0);
+    // smooth speed ramp (fades in ~90 px/s, saturates ~800 px/s) instead of tracking
+    // instantaneous speed, which is what made the trail pulse and break into dots.
+    const s = Math.min(1, Math.max(0, (speed - 90) / 710));
+    this.splatDye(x, y, 30, WARM, 0.05 + 0.15 * (s * s * (3 - 2 * s)));
   }
-
-  vortex(x: number, y: number, radius: number, strength: number, color: Rgb): void {
+vortex(x: number, y: number, radius: number, strength: number,
+          color: Rgb): void {
     if (this.dead) return;
     const r = Math.max(4, radius);
+    // per-frame call is kept (the continuity is the current); only the dye rate
+    // drops, so the drain reads as water pulling into a point, not as a flash.
     this.splatVel(x, y, r, 0, 0, -strength * 0.6, strength);
-    this.splatDye(x, y, r * 0.8, color, 0.35);
+    this.splatDye(x, y, r * 0.8, color, 0.12);
   }
 
   globalDrift(vx: number, vy: number): void {

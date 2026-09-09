@@ -97,6 +97,9 @@ export default function RealmMode({ projects, onOpenProject, onExit, entry }: Re
     sceneRef.current?.startGreeting(id);
     audioRef.current?.greeting(id);
   }, []);
+  // latest-value ref so the empty-deps input effect can select without re-binding
+  const openPanelRef = useRef(openProjectPanel);
+  openPanelRef.current = openProjectPanel;
 
   const closePanel = useCallback(() => {
     setOpenId(null);
@@ -199,22 +202,81 @@ export default function RealmMode({ projects, onOpenProject, onExit, entry }: Re
     };
 
     const isTouch = (ev: PointerEvent) => ev.pointerType === "touch";
-
-    const onPointerMove = (ev: PointerEvent) => {
-      const y = isTouch(ev) ? ev.clientY - 60 : ev.clientY; // lift target above finger
-      scene.setPointer(ev.clientX, y, true);
+    const CHROME_SEL = ".realm-hud, .realm-legend, .realm-panel";
+    // pointer over HUD / legend / panel (or their children): scene must not be driven
+    const overChrome = (ev: PointerEvent) => {
+      const t = ev.target;
+      return t instanceof Element && t.closest(CHROME_SEL) !== null;
     };
-    const onPointerDown = (ev: PointerEvent) => {
-      tryResume();
-      const y = isTouch(ev) ? ev.clientY - 60 : ev.clientY;
-      scene.setPointer(ev.clientX, y, true);
+    const lifted = (ev: PointerEvent) => (isTouch(ev) ? ev.clientY - 60 : ev.clientY);
+
+    // deliberate-gesture state (plain locals — no React state, no rAF)
+    const SELECT_MOVE = 8;      // px of total movement allowed for a select
+    const SELECT_MS = 350;      // max press duration for a select
+    let downId = -1;            // active primary pointer id, -1 = none
+    let downX = 0, downY = 0, downT = 0;
+    let moved = false;          // exceeded SELECT_MOVE during this press
+    let holding = false;        // press promoted to travel+call
+    let holdTimer: number | undefined;
+
+    const promoteToHold = () => {
+      if (holding || downId < 0) return;
+      holding = true;
       scene.setCalling(true);
     };
+    const clearHold = () => {
+      if (holdTimer !== undefined) { window.clearTimeout(holdTimer); holdTimer = undefined; }
+    };
+
+    const onPointerMove = (ev: PointerEvent) => {
+      if (!ev.isPrimary) return;
+      if (overChrome(ev)) {
+        // release: lantern coasts to rest via the existing else-branch drag
+        scene.setPointer(ev.clientX, lifted(ev), false);
+        if (downId === ev.pointerId) { clearHold(); scene.setCalling(false); downId = -1; holding = false; }
+        return;
+      }
+      if (downId === ev.pointerId && !moved) {
+        if (Math.hypot(ev.clientX - downX, ev.clientY - downY) > SELECT_MOVE) {
+          moved = true;
+          clearHold();
+          promoteToHold(); // dragging = travelling; call engages
+        }
+      }
+      scene.setPointer(ev.clientX, lifted(ev), true);
+    };
+
+    const onPointerDown = (ev: PointerEvent) => {
+      if (!ev.isPrimary || overChrome(ev)) return; // chrome keeps native click/focus
+      tryResume();
+      if (phaseRef.current !== "active") return;
+      downId = ev.pointerId;
+      downX = ev.clientX; downY = ev.clientY; downT = ev.timeStamp;
+      moved = false; holding = false;
+      clearHold();
+      scene.setPointer(ev.clientX, lifted(ev), true);
+      // not calling yet: a quick release is a select; a held press becomes a call
+      holdTimer = window.setTimeout(promoteToHold, SELECT_MS);
+    };
+
     const endPointer = (ev: PointerEvent) => {
+      if (!ev.isPrimary) return;
+      const wasPress = downId === ev.pointerId;
+      clearHold();
       scene.setCalling(false);
+      if (wasPress) {
+        const quick = !moved && !holding && ev.type === "pointerup"
+          && ev.timeStamp - downT < SELECT_MS && !overChrome(ev);
+        downId = -1; holding = false;
+        if (quick && phaseRef.current === "active") {
+          // pick against the TAP POINT (same-tick geometry, no rAF dependency)
+          const id = scene.pickAt(downX, downY, isTouch(ev));
+          if (id) openPanelRef.current(id);
+        }
+      }
       if (isTouch(ev)) scene.setPointer(ev.clientX, ev.clientY - 60, false);
     };
-    const onMouseLeave = () => scene.setPointer(0, 0, false);
+    const onMouseLeave = () => { clearHold(); scene.setCalling(false); downId = -1; holding = false; scene.setPointer(0, 0, false); };
     const onWheel = (ev: WheelEvent) => {
       ev.preventDefault();
       scene.breatheLight(ev.deltaY > 0 ? -1 : 1);
@@ -285,6 +347,7 @@ export default function RealmMode({ projects, onOpenProject, onExit, entry }: Re
 
     return () => {
       alive = false;
+      clearHold();
       window.removeEventListener("pointermove", onPointerMove);
       window.removeEventListener("pointerdown", onPointerDown);
       window.removeEventListener("pointerup", endPointer);
