@@ -5,7 +5,7 @@ import {
 } from "./modes";
 import "./explosion-luna.css";
 
-const SELECT_ACCENT = "two experiments, one room";
+const SELECT_ACCENT = "three experiments, one room";
 const SELECT_LEDE = "pick an experiment. switch anytime — your choice is remembered.";
 
 const INITIAL_STATS: ModeStats = { fps: 0, engagements: 0 };
@@ -37,7 +37,15 @@ const ICON_INK: ReactElement = (
   </svg>
 );
 
-const MODE_ICONS: Record<ModeId, ReactElement> = { lantern: ICON_LANTERN, ink: ICON_INK };
+const ICON_FAULT: ReactElement = (
+  <svg viewBox="0 0 48 48" width="42" height="42" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+    <circle cx="24" cy="24" r="17" />
+    <path d="m27 7-7 12 8 5-9 10 3 7" />
+    <path d="m20 19-10-4m18 9 12-5M19 34l-7 2" />
+  </svg>
+);
+
+const MODE_ICONS: Record<ModeId, ReactElement> = { lantern: ICON_LANTERN, ink: ICON_INK, fault: ICON_FAULT };
 
 export default function ExplosionLunaPage() {
   const stageRef = useRef<HTMLDivElement | null>(null);
@@ -181,32 +189,52 @@ export default function ExplosionLunaPage() {
     }
     if (!supported || mountFailed) {
       return (
-        <div
-          id="explosion-stage"
-          className="explosion-stage explosion-stage--fallback"
-          data-engagements={0}
-        >
-          <div className="explosion-stage-fallback">
-            {mountFailed ? active?.fallback : "webgl is unavailable — this piece needs a webgl context to render."}
+        <div className="explosion-stage-frame">
+          <div
+            id="explosion-stage"
+            className="explosion-stage explosion-stage--fallback"
+            data-engagements={0}
+          >
+            <div className="explosion-stage-fallback">
+              {mountFailed ? active?.fallback : "webgl is unavailable — this piece needs a webgl context to render."}
+            </div>
           </div>
+          <button
+            type="button"
+            className="explosion-btn explosion-btn-mode"
+            onClick={backToSelect}
+            disabled={!supported}
+          >
+            switch mode
+          </button>
         </div>
       );
     }
     return (
-      <div
-        ref={stageRef}
-        id="explosion-stage"
-        className="explosion-stage"
-        role="button"
-        tabIndex={0}
-        aria-label={active?.stageLabel ?? ""}
-        data-engagements={stats.engagements}
-        onPointerDown={handlePointerDown}
-        onKeyDown={handleKeyDown}
-      >
-        <div className="explosion-hud" aria-hidden="true">
-          {hud ? <span className="explosion-hud-line">{hud}</span> : null}
+      <div className="explosion-stage-frame">
+        <div
+          ref={stageRef}
+          id="explosion-stage"
+          className="explosion-stage"
+          role="button"
+          tabIndex={0}
+          aria-label={active?.stageLabel ?? ""}
+          data-engagements={stats.engagements}
+          onPointerDown={handlePointerDown}
+          onKeyDown={handleKeyDown}
+        >
+          <div className="explosion-hud" aria-hidden="true">
+            {hud ? <span className="explosion-hud-line">{hud}</span> : null}
+          </div>
         </div>
+        <button
+          type="button"
+          className="explosion-btn explosion-btn-mode"
+          onClick={backToSelect}
+          disabled={!supported}
+        >
+          switch mode
+        </button>
       </div>
     );
   };
@@ -252,14 +280,6 @@ export default function ExplosionLunaPage() {
                 aria-pressed={!muted}
               >
                 {muted ? "sound · off" : "sound · on"}
-              </button>
-              <button
-                type="button"
-                className="explosion-btn explosion-btn-mode"
-                onClick={backToSelect}
-                disabled={!supported}
-              >
-                switch mode
               </button>
             </div>
             <p className="explosion-hint">

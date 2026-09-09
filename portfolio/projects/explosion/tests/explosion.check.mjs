@@ -42,6 +42,22 @@ async function waitForServer(url, tries = 40) {
 }
 
 const isWin = process.platform === "win32";
+
+// Cold Vite transforms + SwiftShader can push one networkidle0 past the window;
+// a timed-out navigation is retried rather than crashing the whole run.
+const gotoStable = async (page, url, { timeout = 45000, tries = 3 } = {}) => {
+  for (let attempt = 1; attempt <= tries; attempt += 1) {
+    try {
+      await page.goto(url, { waitUntil: "networkidle0", timeout });
+      return;
+    } catch (err) {
+      if (attempt === tries) throw err;
+      console.log(`  retry ${attempt}/${tries - 1} after navigation timeout: ${err.message}`);
+      await wait(1000);
+    }
+  }
+};
+
 const server = spawn(
   isWin ? "npm.cmd" : "npm",
   ["run", "dev", "--", "--host", "0.0.0.0", "--port", String(PORT), "--strictPort"],
@@ -87,7 +103,9 @@ const readHud = (page) =>
       blooms: num(/blooms (\d+)/),
       splats: num(/splats (\d+)/),
       blasts: num(/blasts (\d+)/),
+      strikes: num(/engagements (\d+)/),
       grid: num(/grid (\d+)/),
+      steps: num(/steps (\d+)/),
     };
   });
 
@@ -118,16 +136,16 @@ async function loadViewport(width, height, label, { mobile = false } = {}) {
   page.on("console", (msg) => {
     if (msg.type() === "error") errors.push(`console.error: ${msg.text()}`);
   });
-  await page.goto(`${BASE}/projects/explosion`, { waitUntil: "networkidle0", timeout: 45000 });
+  await gotoStable(page, `${BASE}/projects/explosion`);
   // Fresh-profile semantics: earlier viewports leak localStorage into this one,
   // so clear it and reload before the first-visit assertions.
   await page.evaluate(() => { try { window.localStorage.clear(); } catch {} });
-  await page.goto(`${BASE}/projects/explosion`, { waitUntil: "networkidle0", timeout: 45000 });
+  await gotoStable(page, `${BASE}/projects/explosion`);
   await wait(1500);
 
-  // First visit: the mode selector, not a canvas. Two cards, then enter lantern.
+  // First visit: the mode selector, not a canvas. Three cards, then enter lantern.
   const cards = await page.$$(".explosion-mode-card");
-  check(cards.length === 2, `${label}: first visit shows two mode cards (${cards.length})`);
+  check(cards.length === 3, `${label}: first visit shows three mode cards (${cards.length})`);
   const noCanvasYet = !(await page.$("#explosion-stage canvas"));
   check(noCanvasYet, `${label}: no stage canvas while the selector is up`);
   await page.click('.explosion-mode-card[data-mode-id="lantern"]');
@@ -201,10 +219,10 @@ async function loadViewport(width, height, label, { mobile = false } = {}) {
 
   // Restore reassembles the lantern. Budget is generous: under SwiftShader load
   // the 0.05s sim-dt clamp makes sim time crawl relative to wall time, and the
-  // settle needs ~1.2 sim-s to converge.
+  // settle needs ~1.2 sim-s to converge. 90×450ms ≈ 40s covers slow machines.
   await page.click(".explosion-btn-restore");
   let settled = null;
-  for (let i = 0; i < 40; i += 1) {
+  for (let i = 0; i < 90; i += 1) {
     await wait(450);
     settled = await readHud(page);
     if (settled.phase === "pristine" && settled.aloft === 0) break;
@@ -262,9 +280,10 @@ async function loadViewport(width, height, label, { mobile = false } = {}) {
     const rect = document.querySelector("#explosion-stage").getBoundingClientRect();
     return { x: rect.left, y: rect.top, width: rect.width, height: rect.height };
   });
-  // The auto-detonation fires ~0.9s after mount (wall-clock countdown).
+  // The auto-detonation fires ~0.9s after mount (wall-clock countdown); shader
+  // compilation under SwiftShader can delay it well past that, so poll wide.
   let inkHud = null;
-  for (let i = 0; i < 12; i += 1) {
+  for (let i = 0; i < 24; i += 1) {
     await wait(500);
     inkHud = await readHud(page);
     if (inkHud.blasts >= 1) break;
@@ -305,9 +324,9 @@ async function loadViewport(width, height, label, { mobile = false } = {}) {
   await shot(`${label}-4-ink`);
 
   // localStorage remembers ink across a reload; the intro refires on the new mount.
-  await page.reload({ waitUntil: "networkidle0" });
+  await gotoStable(page, page.url(), { timeout: 30000 });
   let restoredBlasts = -1;
-  for (let i = 0; i < 12; i += 1) {
+  for (let i = 0; i < 24; i += 1) {
     await wait(500);
     restoredBlasts = (await readHud(page)).blasts;
     if (restoredBlasts >= 1) break;
@@ -317,8 +336,96 @@ async function loadViewport(width, height, label, { mobile = false } = {}) {
   check(restoredMode === "ink" && restoredAloft === -1 && restoredBlasts >= 1,
     `${label}: ink remembered across reload (${restoredMode}, aloft ${restoredAloft}, blasts ${restoredBlasts})`);
 
+  // ---- third mode: runtime switch to the cinder fault, no reload -------------
+  await page.evaluate(() => { window.__explosionProbe = "keep-me"; });
+  await page.click(".explosion-btn-mode");
+  await wait(400);
+  await page.click('.explosion-mode-card[data-mode-id="fault"]');
+  await wait(900);
+  await page.evaluate(() => {
+    document.documentElement.style.scrollBehavior = "auto";
+    document.querySelector("#explosion-stage")?.scrollIntoView({ block: "center" });
+  });
+  await wait(400);
+
+  // The seal mounts pristine: no engagement yet, loop live.
+  let faultHud = null;
+  for (let i = 0; i < 8 && (!faultHud || faultHud.fps < 5); i += 1) {
+    await wait(500);
+    faultHud = await readHud(page);
+  }
+  check(faultHud?.phase === "pristine", `${label}: fault starts pristine (${faultHud?.phase})`);
+  check(faultHud?.strikes === 0, `${label}: fault starts unstruck (${faultHud?.strikes})`);
+  check(faultHud?.grid >= 64, `${label}: fault sim grid reported (${faultHud?.grid})`);
+  check(faultHud?.fps >= 5, `${label}: fault loop is live (fps ${faultHud?.fps})`);
+  const faultField = await page.$eval(".explosion-field", (el) => el.getAttribute("data-mode"));
+  check(faultField === "fault", `${label}: data-mode flips to fault (${faultField})`);
+  const faultProbe = await page.evaluate(() => window.__explosionProbe);
+  check(faultProbe === "keep-me", `${label}: fault switch kept the page alive (probe ${String(faultProbe)})`);
+
+  // Center click strikes the seal: the impact registers same-frame.
+  const stageBox3 = await page.evaluate(() => {
+    const rect = document.querySelector("#explosion-stage").getBoundingClientRect();
+    return { x: rect.left, y: rect.top, width: rect.width, height: rect.height };
+  });
+  await press(
+    page,
+    stageBox3.x + stageBox3.width / 2,
+    stageBox3.y + stageBox3.height / 2,
+  );
+  let strikesAfterHit = -1;
+  for (let i = 0; i < 8; i += 1) {
+    strikesAfterHit = (await readHud(page)).strikes;
+    if (strikesAfterHit >= 1) break;
+    await wait(320);
+  }
+  check(strikesAfterHit >= 1, `${label}: fault center strike fires (engagements ${strikesAfterHit})`);
+  await shot(`${label}-5-fault-blast`);
+
+  // Relax into settling. Sim time accrues at most maxSteps/120 per frame, so
+  // the blast envelope stretches as fps drops — budget for ~4fps SwiftShader.
+  let settlingPhase = "";
+  for (let i = 0; i < 48; i += 1) {
+    settlingPhase = (await readHud(page)).phase;
+    if (settlingPhase === "settling" || settlingPhase === "pristine") break;
+    await wait(450);
+  }
+  check(settlingPhase === "settling", `${label}: fault settles after the blast (${settlingPhase})`);
+  const beforeFaultMiss = await readHud(page);
+  await press(
+    page,
+    stageBox3.x + stageBox3.width * 0.02,
+    stageBox3.y + stageBox3.height * 0.02,
+  );
+  await wait(900);
+  const afterFaultMiss = await readHud(page);
+  check(
+    afterFaultMiss.strikes === beforeFaultMiss.strikes && afterFaultMiss.phase === beforeFaultMiss.phase,
+    `${label}: fault corner miss changes nothing (${beforeFaultMiss.strikes} strikes ${beforeFaultMiss.phase} -> ${afterFaultMiss.strikes} strikes ${afterFaultMiss.phase})`,
+  );
+
+  // Restore reseals: the identical authored seal returns, counters reset.
+  await page.click(".explosion-btn-restore");
+  let faultSettled = null;
+  for (let i = 0; i < 10; i += 1) {
+    await wait(450);
+    faultSettled = await readHud(page);
+    if (faultSettled.phase === "pristine" && faultSettled.strikes === 0) break;
+  }
+  await shot(`${label}-6-fault-restored`);
+  check(
+    faultSettled?.phase === "pristine" && faultSettled?.strikes === 0,
+    `${label}: restore reseals the seal (${faultSettled?.phase}, strikes ${faultSettled?.strikes})`,
+  );
+
+  // ?mode=fault deep link enters the fault directly.
+  await gotoStable(page, `${BASE}/projects/explosion?mode=fault`);
+  await wait(1500);
+  const faultDeepMode = await page.$eval(".explosion-field", (el) => el.getAttribute("data-mode"));
+  check(faultDeepMode === "fault", `${label}: ?mode=fault deep link wins (${faultDeepMode})`);
+
   // ?mode= deep link overrides the remembered mode.
-  await page.goto(`${BASE}/projects/explosion?mode=lantern`, { waitUntil: "networkidle0" });
+  await gotoStable(page, `${BASE}/projects/explosion?mode=lantern`);
   await wait(1500);
   const deepMode = await page.$eval(".explosion-field", (el) => el.getAttribute("data-mode"));
   check(deepMode === "lantern", `${label}: ?mode=lantern deep link wins (${deepMode})`);
@@ -365,7 +472,7 @@ try {
     await landing.setViewport({ width: 1440, height: 900 });
     const landingErrors = [];
     landing.on("pageerror", (err) => landingErrors.push(err.message));
-    await landing.goto(`${BASE}/`, { waitUntil: "networkidle0", timeout: 45000 });
+    await gotoStable(landing, `${BASE}/`);
     const landingText = await landing.content();
     check(
       landingText.includes("paper-lantern") && landingText.includes("/ physics"),

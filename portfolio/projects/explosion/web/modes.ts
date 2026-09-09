@@ -1,4 +1,4 @@
-// modes.ts — the two Explosion modes behind one runtime contract.
+// modes.ts — the three Explosion modes behind one runtime contract.
 // Classic ("ember lantern", detonate.ts) is wrapped, never modified; the ink mode
 // is lazy-loaded on first selection so its shaders/code leave the initial bundle.
 // The page stays mode-agnostic: it mounts a ModeDef, polls handle.stats, and
@@ -6,8 +6,9 @@
 // choice persists in localStorage and ?mode= deep-links straight into a mode.
 import { hasWebGL, mountSpecimen, type SpecimenHandle, type SpecimenStats } from "./detonate";
 import type { InkHandle, InkStats } from "./ink";
+import type { FaultHandle, FaultStats } from "./fault";
 
-export type ModeId = "lantern" | "ink";
+export type ModeId = "lantern" | "ink" | "fault";
 
 // SpecimenStats/InkStats are structurally compatible supersets of this shape.
 export type ModeStats = {
@@ -108,7 +109,34 @@ const ink: ModeDef = {
   },
 };
 
-export const MODES: ReadonlyArray<ModeDef> = [lantern, ink];
+const fault: ModeDef = {
+  id: "fault",
+  title: "cinder fault",
+  tagline: "a solid surface that remembers the blast",
+  accentLine: "stress becomes light",
+  lede: "strike a ceramic seal and watch the shock write its faults in fire.",
+  hint: "click to detonate · restore reseals",
+  stageLabel: "interactive ceramic seal fracture experiment",
+  fallback: "this experiment needs floating-point graphics support.",
+  techniques: [
+    { label: "gpu elastodynamics", detail: "texture-resident displacement and velocity evolve through explicit finite-difference wave propagation" },
+    { label: "cohesive bond damage", detail: "irreversible directional bond weakening turns local strain into persistent fracture scars" },
+    { label: "conservative edge forces", detail: "neighboring cells share bond stiffness, preserving equal-and-opposite internal forces" },
+    { label: "mineral-guided fracture", detail: "a deterministic voronoi microstructure biases failure without prescribing the blast path" },
+    { label: "relief shading", detail: "gpu displacement lit through reconstructed normals and emissive faults — no readback" },
+  ],
+  mount: async (element: HTMLElement): Promise<Mounted | null> => {
+    const mod = await import("./fault");
+    const handle: FaultHandle | null = mod.mountFault(element);
+    if (handle == null) return null;
+    return {
+      handle,
+      formatHud: (stats) => mod.formatFaultHud(stats as FaultStats),
+    };
+  },
+};
+
+export const MODES: ReadonlyArray<ModeDef> = [lantern, ink, fault];
 
 export function getMode(id: ModeId): ModeDef {
   const def = MODES.find((m) => m.id === id);
@@ -116,13 +144,13 @@ export function getMode(id: ModeId): ModeDef {
 }
 
 export function otherMode(id: ModeId): ModeId {
-  return id === "lantern" ? "ink" : "lantern";
+  return id === "lantern" ? "ink" : id === "ink" ? "fault" : "lantern";
 }
 
 const LS_KEY = "explosion-mode";
 
 function isModeId(value: string): value is ModeId {
-  return value === "lantern" || value === "ink";
+  return value === "lantern" || value === "ink" || value === "fault";
 }
 
 export function readPreferredMode(): ModeId | null {

@@ -1,10 +1,11 @@
-# Explosion — two modes, one room
+# Explosion — three modes, one room
 
-A double experiment under one name. The visitor picks a mode on first visit; the
+A triple experiment under one name. The visitor picks a mode on first visit; the
 choice is remembered (`localStorage`, key `explosion-mode`), can be deep-linked
-(`?mode=lantern` / `?mode=ink`), and can be switched at runtime — the **switch
-mode** button returns to the selector, the **m** hotkey cycles directly. Switching
-disposes the active mode and mounts the other one without a page reload.
+(`?mode=lantern` / `?mode=ink` / `?mode=fault`), and can be switched at runtime —
+the **switch mode** button overlays the simulation viewport's bottom-right
+corner, and the **m** hotkey cycles directly. Switching disposes the active mode
+and mounts the other one without a page reload.
 
 ## Mode 1 — Ember Lantern (classic, unchanged)
 
@@ -53,30 +54,60 @@ Techniques:
 
 Files: `web/ink.ts` (entry), `web/ink-shaders.ts` (all GLSL).
 
+## Mode 3 — Cinder Fault
+
+A ceramic seal with grain: a seeded Voronoi microstructure of mineral plates and
+weak boundaries. A click is a strike — a compact impulse drives a view-depth
+wave through the solid, overstrained bonds fail irreversibly along the plates,
+and the released work returns as cooling ember light. The seal remembers every
+strike until a restore reseals it.
+
+Techniques:
+
+- **GPU elastodynamics** — anti-plane (scalar) elastic waves on ping-pong
+  RGBA16F textures: explicit finite differences with shared bond stiffness, so
+  internal forces stay equal-and-opposite; fixed substeps with a bounded
+  accumulator (excess wall time is dropped, never caught up).
+- **Cohesive bond damage** — strain past a hardness-dependent threshold
+  weakens bonds monotonically and permanently; fracture paths follow the
+  microstructure instead of the blast direction.
+- **No-readback interaction** — displacement is along view depth, so the disc's
+  orthographic footprint never changes and hit testing stays analytic; the CPU
+  owns only scalars (phase, counters, FPS EMA).
+- **Software tier** — 64² state fields, ≤320 px drawing buffer, 2 substeps;
+  hardware runs 128², ≤720 px, 4 substeps. Verified ≥5 fps on SwiftShader
+  (9–47 fps observed in CI runs).
+
+Files: `web/fault.ts` (entry), `web/fault-shaders.ts` (all GLSL).
+
 ## Mode plumbing
 
 - `web/modes.ts` — the registry: one `ModeDef` per mode (`title`, `tagline`,
   copy, techniques, `mount()`), a shared `ModeHandle` contract
   (`detonateAt / restore / setMuted / setSlowMo / dispose / stats`), and the
   `localStorage` / `?mode=` helpers. Classic is wrapped, never modified.
-- `web/ExplosionLunaPage.tsx` — mode-agnostic page: first-visit selector (two
+- `web/ExplosionLunaPage.tsx` — mode-agnostic page: first-visit selector (three
   cards), runtime switch without reload, hotkey **m**, stats polling on the
   400 ms cadence, HUD rendered from each mode's own formatter.
-- The ink module is lazy-loaded (`import("./ink")`) on first selection, so its
-  shaders and code stay out of the initial page bundle.
+- The ink and fault modules are lazy-loaded (`import("./ink")`,
+  `import("./fault")`) on first selection, so their shaders and code stay out
+  of the initial page bundle.
 
 ## Browser support and fallbacks
 
 - Needs WebGL2. The lantern additionally needs `EXT_color_buffer_float` for the
-  GPGPU path, else it runs the CPU path; the ink mode needs float (or half-float)
-  color buffers and reports its tier in the HUD (`grid 96` = software tier).
+  GPGPU path, else it runs the CPU path; the ink and fault modes need float (or
+  half-float) color buffers and report their tier in the HUD (`grid 96` /
+  `grid 64` = software tier).
 - Without any WebGL the page shows the locked fallback message instead of the
   stage.
 - `prefers-reduced-motion`: the lantern paints a static pristine sphere and gates
   detonation; the ink paints the deterministic pristine pour and gates stirring,
-  detonation and the intro blast. Restore still works in both.
+  detonation and the intro blast; the fault paints the pristine seal and gates
+  strikes. Restore still works in all three.
 - Verified in the headless suite on SwiftShader software GL (desktop 1440, tablet
-  1024, mobile 390): the ink tier keeps the solver usable in software rendering.
+  1024, mobile 390): the ink tier keeps the solver usable and the fault tier
+  keeps the wave lattice usable in software rendering.
 
 ## Running
 
@@ -86,6 +117,7 @@ node portfolio/projects/explosion/tests/explosion.check.mjs
 # subset: VIEWPORTS=desktop-1440,mobile-390 node .../explosion.check.mjs
 ```
 
-The suite covers both modes: first-visit selector, runtime switch without reload,
-`localStorage` persistence, the `?mode=` deep link, and each mode's interaction
-loop (lantern blooms/aloft, ink blasts/splats/grid).
+The suite covers all three modes: first-visit selector, runtime switch without
+reload, `localStorage` persistence, the `?mode=` deep link, and each mode's
+interaction loop (lantern blooms/aloft, ink blasts/splats/grid, fault
+strikes/settle/miss-invariant).

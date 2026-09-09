@@ -6,7 +6,7 @@ const explosionLuna: ProjectModule = {
   tag: "physics",
   eyebrow: "interactive · three.js",
   description:
-    "two experiments in one dark room: a paper-lantern moon that detonates into the 600 shards it is built from — physics runs in fragment shaders on the gpu — and a pool of living ink you shock into vortices with a navier–stokes solver. click to blast; click to restore.",
+    "three experiments in one dark room: a paper-lantern moon that detonates into the 600 shards it is built from, a pool of living ink you shock into vortices with a navier–stokes solver, and a ceramic seal whose faults open with ember light — physics runs in fragment shaders on the gpu. click to blast; click to restore.",
   technologies: ["React 19", "three.js", "GPGPU", "Navier–Stokes", "Rust", "WebAudio"],
   status: "available",
   accent: "red",
