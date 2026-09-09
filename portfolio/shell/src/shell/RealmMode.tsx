@@ -345,8 +345,45 @@ export default function RealmMode({ projects, onOpenProject, onExit, entry }: Re
     window.addEventListener("keyup", onKeyUp);
     document.addEventListener("mouseleave", onMouseLeave);
 
+    // visible-viewport tracking: iOS toolbars/keyboard make the fixed layer's
+    // inset:0 taller than what the user can see, so the mobile bottom sheet
+    // anchored to layer-bottom lands behind the chrome (reads "mid-screen").
+    // these custom properties carry the true visible bounds to realm.css.
+    const realmViewportRoot = document.documentElement;
+    const realmViewport = window.visualViewport;
+    const realmViewportProperties = ["--realm-visible-height", "--realm-visible-top"];
+    const realmViewportPrevious = realmViewportProperties.map((name) => ({
+      name,
+      value: realmViewportRoot.style.getPropertyValue(name),
+      priority: realmViewportRoot.style.getPropertyPriority(name),
+    }));
+    const syncRealmViewport = () => {
+      realmViewportRoot.style.setProperty(
+        "--realm-visible-height",
+        `${realmViewport?.height ?? window.innerHeight}px`,
+      );
+      realmViewportRoot.style.setProperty(
+        "--realm-visible-top",
+        `${realmViewport?.offsetTop ?? 0}px`,
+      );
+    };
+    syncRealmViewport();
+    window.addEventListener("resize", syncRealmViewport);
+    realmViewport?.addEventListener("resize", syncRealmViewport);
+    realmViewport?.addEventListener("scroll", syncRealmViewport);
+
     return () => {
       alive = false;
+      window.removeEventListener("resize", syncRealmViewport);
+      realmViewport?.removeEventListener("resize", syncRealmViewport);
+      realmViewport?.removeEventListener("scroll", syncRealmViewport);
+      for (const { name, value, priority } of realmViewportPrevious) {
+        if (value) {
+          realmViewportRoot.style.setProperty(name, value, priority);
+        } else {
+          realmViewportRoot.style.removeProperty(name);
+        }
+      }
       clearHold();
       window.removeEventListener("pointermove", onPointerMove);
       window.removeEventListener("pointerdown", onPointerDown);

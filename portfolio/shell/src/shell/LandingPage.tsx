@@ -95,9 +95,11 @@ export default function LandingPage({ projects, onOpenProject }: LandingPageProp
   }));
   // exit restores the landing exactly (it was never unmounted) and returns
   // focus to the chip, satisfying the esc-returns-focus a11y law.
-  const [realmChipVisible, setRealmChipVisible] = useState(false);
+  const [realmChipVisible, setRealmChipVisible] = useState(
+    () => typeof window !== "undefined" && window.matchMedia("(min-width: 768px)").matches,
+  );
   const realmFloorRef = useRef<HTMLDivElement>(null);
-  const realmChipBandRef = useRef({ start: 0, end: 0, visible: false });
+  const realmChipRevealedRef = useRef(false);
 
   const handleRealmExit = useCallback(() => {
     setRealmOpen(false);
@@ -309,14 +311,14 @@ export default function LandingPage({ projects, onOpenProject }: LandingPageProp
       const vh = window.innerHeight;
       const maxScroll = Math.max(0, document.documentElement.scrollHeight - vh);
       const y = Math.min(maxScroll, Math.max(0, window.scrollY));
-      const band = realmChipBandRef.current;
-      band.start = hero.offsetHeight * 0.9 * 0.85;
-      band.end = maxScroll - vh * 0.5;
-      const visible = y >= band.start && y < band.end;
-      if (visible !== band.visible) {
-        band.visible = visible;
-        setRealmChipVisible(visible);
+      const isDesktop = window.matchMedia("(min-width: 768px)").matches;
+      if (!isDesktop && y >= Math.min(0.4 * vh, 320)) {
+        realmChipRevealedRef.current = true;
       }
+      const visible = isDesktop || realmChipRevealedRef.current;
+      setRealmChipVisible((current) =>
+        current === visible ? current : visible,
+      );
       const floorValue = (maxScroll > 0 && vh > 0
         ? Math.min(1, Math.max(0, 1 - (maxScroll - y) / (vh * 0.6)))
         : 0).toFixed(4);
@@ -552,8 +554,25 @@ export default function LandingPage({ projects, onOpenProject }: LandingPageProp
         onClick={handleRealmEnter}
         tabIndex={realmChipVisible && !realmOpen ? 0 : -1}
         aria-hidden={!realmChipVisible || realmOpen}
+        aria-label="enter the deep — enter the immersive realm"
       >
-        enter the realm
+        <span className="realm-index" aria-hidden="true">01 /</span>
+        <span className="realm-copy">
+          <span>enter the deep</span>
+          <span className="realm-chip-caption" aria-hidden="true">immersive catalogue</span>
+        </span>
+        <span className="realm-end" aria-hidden="true">
+          <svg
+            className="realm-arrow"
+            viewBox="0 0 20 20"
+            fill="none"
+            stroke="currentColor"
+            strokeWidth="1.5"
+            focusable="false"
+          >
+            <path d="M10 3v14M4 11l6 6 6-6" />
+          </svg>
+        </span>
       </button>
       {realmOpen ? (
         <RealmMode

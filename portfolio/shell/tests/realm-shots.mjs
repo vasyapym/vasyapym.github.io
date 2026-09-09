@@ -34,7 +34,7 @@ try {
   await wait(600);
 
   await page.evaluate(() => {
-    [...document.querySelectorAll("button")].find((b) => b.textContent.trim() === "enter the realm")?.click();
+    document.querySelector(".realm-enter-chip")?.click();
   });
   await wait(420);
   await page.screenshot({ path: join(outDir, "1-flood.png") });
@@ -69,7 +69,7 @@ try {
   await mobile.evaluate(() => window.scrollTo({ top: 1100, behavior: "instant" }));
   await wait(500);
   await mobile.evaluate(() => {
-    [...document.querySelectorAll("button")].find((b) => b.textContent.trim() === "enter the realm")?.click();
+    document.querySelector(".realm-enter-chip")?.click();
   });
   await wait(1800);
   await mobile.screenshot({ path: join(outDir, "6-mobile.png") });

@@ -87,8 +87,7 @@ const collectErrors = (page) => {
 
 const enterRealm = async (page) => {
   await page.evaluate(() => {
-    const chip = [...document.querySelectorAll("button")]
-      .find((b) => b.textContent.trim() === "enter the realm");
+    const chip = document.querySelector(".realm-enter-chip");
     chip?.click();
   });
   await wait(1700); // flood ≈1.05s + settle
@@ -115,14 +114,66 @@ try {
   await desktop.setViewport({ width: 1440, height: 900, deviceScaleFactor: 1 });
   collectErrors(desktop);
   await desktop.goto(BASE, { waitUntil: "networkidle0", timeout: 60000 });
-  // chip band law: hidden while the hero dominates, revealed past it, hidden
-  // again near the page end (enterRealm below scrolls past the hero first).
-  check("chip hidden while in the hero",
-    await desktop.$eval(".realm-enter-chip", (el) => !el.classList.contains("is-visible")));
+  // chip law: desktop = visible from first render, never scroll-gated, never
+  // hidden at page end (the old band inverted on tall viewports — 2560x1440
+  // never showed the chip at all); mobile = one-shot reveal past
+  // min(0.4·vh, 320px), then it stays.
+  await desktop.evaluate(() => window.scrollTo({ top: 0, behavior: "instant" }));
+  await wait(400);
+  check("chip visible at scroll 0 on desktop",
+    await desktop.$eval(".realm-enter-chip", (el) =>
+      window.scrollY === 0 && el.classList.contains("is-visible")));
   await desktop.evaluate(() => window.scrollTo({ top: 1250, behavior: "instant" }));
   await wait(400);
   check("chip revealed past the hero",
     await desktop.$eval(".realm-enter-chip", (el) => el.classList.contains("is-visible")));
+
+  // regression page: tall desktop (the reported-Edge case) + page end + mobile
+  const regression = await browser.newPage();
+  {
+    await regression.setViewport({ width: 2560, height: 1440, deviceScaleFactor: 1 });
+    await regression.goto(BASE, { waitUntil: "networkidle0", timeout: 60000 });
+    await regression.evaluate(() => window.scrollTo({ top: 0, behavior: "instant" }));
+    await wait(400);
+    check("chip visible at scroll 0 on 2560x1440",
+      await regression.$eval(".realm-enter-chip", (el) =>
+        window.innerWidth === 2560 && window.innerHeight === 1440 &&
+        window.scrollY === 0 && el.classList.contains("is-visible")));
+    await regression.evaluate(() => window.scrollTo({
+      top: document.documentElement.scrollHeight - window.innerHeight,
+      behavior: "instant",
+    }));
+    await wait(400);
+    check("chip remains visible at desktop page end",
+      await regression.$eval(".realm-enter-chip", (el) =>
+        Math.abs(window.scrollY - Math.max(0,
+          document.documentElement.scrollHeight - window.innerHeight)) <= 1 &&
+        el.classList.contains("is-visible")));
+
+    // fresh page for the mobile leg: reloading the scrolled desktop page lets
+    // scroll restoration (>320px) fire the one-shot reveal before we can reset
+    await regression.close();
+    const mobileReg = await browser.newPage();
+    await mobileReg.setViewport({ width: 390, height: 844, deviceScaleFactor: 2, hasTouch: true });
+    await mobileReg.goto(BASE, { waitUntil: "networkidle0", timeout: 60000 });
+    await mobileReg.evaluate(() => window.scrollTo({ top: 0, behavior: "instant" }));
+    await wait(400);
+    check("mobile chip hidden at scroll 0 on 390x844",
+      await mobileReg.$eval(".realm-enter-chip", (el) =>
+        window.innerWidth === 390 && window.innerHeight === 844 &&
+        window.scrollY === 0 && !el.classList.contains("is-visible")));
+    await mobileReg.evaluate(() => window.scrollTo({ top: 400, behavior: "instant" }));
+    await wait(400);
+    check("mobile chip revealed at scroll 400",
+      await mobileReg.$eval(".realm-enter-chip", (el) =>
+        Math.abs(window.scrollY - 400) <= 1 && el.classList.contains("is-visible")));
+    await mobileReg.evaluate(() => window.scrollTo({ top: 0, behavior: "instant" }));
+    await wait(400);
+    check("mobile chip stays visible after returning to scroll 0",
+      await mobileReg.$eval(".realm-enter-chip", (el) =>
+        window.scrollY === 0 && el.classList.contains("is-visible")));
+    await mobileReg.close();
+  }
 
   await enterRealm(desktop);
   check("realm opens over the landing", await desktop.$(".realm-layer") !== null);
@@ -131,7 +182,7 @@ try {
   check("legend has 7 door buttons",
     (await desktop.$$(".realm-legend-btn")).length === 7);
   check("caption names the technique",
-    await desktop.$eval(".realm-caption", (el) => /the deep/.test(el.textContent)));
+    await desktop.$eval(".realm-layer .realm-caption", (el) => /the deep/.test(el.textContent)));
 
   // liveness: two frames ~800ms apart must differ (fluid/snow/creatures move)
   const a = Buffer.from(await desktop.screenshot());
@@ -159,7 +210,7 @@ try {
   const scrollAfter = await desktop.evaluate(() => window.scrollY);
   check("landing scroll restored", Math.abs(scrollAfter - 1250) < 30, `scrollY=${scrollAfter}`);
   check("chip is back", await desktop.evaluate(() =>
-    [...document.querySelectorAll("button")].some((b) => b.textContent.trim() === "enter the realm")));
+    document.querySelector(".realm-enter-chip") !== null));
 
   // ── desktop: canvas tap = select (opens the tapped creature's panel) ──
   const dive = await browser.newPage();
