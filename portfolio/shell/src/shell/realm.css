@@ -5,21 +5,32 @@
    lantern is the cursor, so the system cursor hides over the light-field
    and returns over real controls. amber is the single interactive signal. */
 
-/* ── in-flow threshold: an editorial pause, not another hero ── */
+/* ── in-flow threshold: the surface ends, a recessed opening descends ── */
 .signal-index .realm-threshold {
   position: relative;
+  isolation: isolate;
+  box-sizing: border-box;
   display: grid;
-  grid-template-columns: minmax(0, 1fr) auto;
-  align-items: center;
-  gap: 24px 48px;
+  grid-template-columns: minmax(0, 1fr) minmax(15rem, 21rem);
+  align-items: start;
+  gap: 32px 48px;
+  min-height: 300px;
   margin: 0;
   padding:
-    clamp(32px, 5vw, 64px)
+    clamp(36px, 4.5vw, 60px)
     max(clamp(20px, 5vw, 80px), env(safe-area-inset-right, 0px))
-    clamp(32px, 5vw, 64px)
+    0
     max(clamp(20px, 5vw, 80px), env(safe-area-inset-left, 0px));
-  background: #0b1317;
-  color: #eeeae0;
+  border-bottom: 1px solid var(--ink-line-soft);
+  border-radius: 0;
+  background: linear-gradient(
+    180deg,
+    var(--ink-bg) 0%,
+    #060d11 44%,
+    #020609 78%,
+    #020609 100%
+  );
+  color: var(--ink-text);
 }
 
 .signal-index .realm-threshold::before {
@@ -29,28 +40,21 @@
   left: max(clamp(20px, 5vw, 80px), env(safe-area-inset-left, 0px));
   right: max(clamp(20px, 5vw, 80px), env(safe-area-inset-right, 0px));
   height: 1px;
-  background: rgba(238, 234, 224, 0.26);
+  background: var(--ink-line);
   transform: scaleX(1);
   transform-origin: left;
-}
-
-.signal-index.signal-index-reveal-ready .realm-threshold::before {
-  transform: scaleX(0);
-  transition: transform 600ms cubic-bezier(0.22, 1, 0.36, 1);
-}
-
-.signal-index.signal-index-reveal-ready .realm-threshold.is-revealed::before {
-  transform: scaleX(1);
+  pointer-events: none;
 }
 
 .signal-index .realm-threshold-copy {
   min-width: 0;
   max-width: 38rem;
+  padding-bottom: 40px;
 }
 
 .signal-index .realm-threshold-label {
-  margin: 0 0 12px;
-  color: rgba(238, 234, 224, 0.68);
+  margin: 0 0 20px;
+  color: var(--ink-muted);
   font: 400 11px/1.5 var(--mono);
   letter-spacing: 0.04em;
   text-transform: lowercase;
@@ -58,55 +62,122 @@
 
 .signal-index .realm-threshold h2 {
   margin: 0;
-  color: #eeeae0;
-  font: 400 clamp(20px, 2vw, 28px)/1.25 var(--sans);
+  color: var(--ink-text);
+  font: 400 clamp(24px, 2.4vw, 32px)/1.25 var(--sans);
   letter-spacing: -0.025em;
   text-wrap: pretty;
 }
 
-.signal-index .realm-threshold-note {
-  margin: 12px 0 0;
-  max-width: 34rem;
-  color: rgba(238, 234, 224, 0.68);
-  font: 400 14px/1.6 var(--sans);
-}
-
 .signal-index .realm-threshold-enter {
-  display: inline-flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 24px;
-  justify-self: end;
-  min-width: 188px;
-  min-height: 44px;
-  max-width: 100%;
+  position: relative;
+  box-sizing: border-box;
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-end;
+  align-self: end;
+  justify-self: stretch;
+  width: 100%;
+  min-width: 0;
+  min-height: 188px;
   margin: 0;
-  padding: 12px 16px;
+  padding: 0;
   appearance: none;
-  border: 1px solid rgba(238, 234, 224, 0.26);
+  border: 0;
+  border-inline: 1px solid var(--ink-line);
   border-radius: 0;
-  background: #0b1317;
+  background: #020609;
   box-shadow: none;
-  color: #d39b61;
-  font: 400 12px/1.5 var(--mono);
+  color: var(--ink-bg);
+  font: 500 13px/1.5 var(--mono);
+  letter-spacing: 0.01em;
   text-align: left;
   text-transform: lowercase;
   cursor: pointer;
   touch-action: manipulation;
+  transition: border-color 160ms ease;
+}
+
+.signal-index .realm-threshold-enter::before {
+  content: "";
+  position: absolute;
+  top: 0;
+  right: 29px;
+  bottom: 80px;
+  width: 1px;
+  background: var(--ink-line);
+  transform: scaleY(1);
+  transform-origin: top;
+  pointer-events: none;
+}
+
+.signal-index .realm-threshold-enter-sill {
+  position: relative;
+  box-sizing: border-box;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 24px;
+  width: 100%;
+  min-height: 60px;
+  padding: 18px 20px;
+  background: var(--ink-accent);
+  transition: background-color 160ms ease;
 }
 
 .signal-index .realm-threshold-enter svg {
+  display: block;
   flex: 0 0 20px;
 }
 
-.signal-index .realm-threshold-enter:is(:hover, :focus-visible, :active) {
-  border-color: #d39b61;
-  color: #e8b57c;
+.signal-index .realm-threshold-enter:not(:disabled):is(:hover, :focus-visible) {
+  border-color: var(--ink-accent-bright);
+}
+
+.signal-index .realm-threshold-enter:not(:disabled):is(:hover, :focus-visible)
+  .realm-threshold-enter-sill {
+  background: var(--ink-accent-bright);
+}
+
+.signal-index .realm-threshold-enter:not(:disabled):active
+  .realm-threshold-enter-sill {
+  background: var(--ink-accent-deep);
 }
 
 .signal-index .realm-threshold-enter:focus-visible {
-  outline: 2px solid #e8b57c;
+  outline: 2px solid var(--ink-accent-bright);
   outline-offset: 4px;
+}
+
+.signal-index .realm-threshold-enter:disabled {
+  border-color: var(--ink-line-soft);
+  color: var(--ink-faint);
+  cursor: default;
+}
+
+.signal-index .realm-threshold-enter:disabled .realm-threshold-enter-sill {
+  background: var(--ink-line-soft);
+}
+
+.signal-index.signal-index-reveal-ready .realm-threshold::before {
+  transform: scaleX(0);
+  transition: transform 640ms cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+.signal-index.signal-index-reveal-ready
+  .realm-threshold
+  .realm-threshold-enter::before {
+  transform: scaleY(0);
+  transition: transform 720ms cubic-bezier(0.22, 1, 0.36, 1) 120ms;
+}
+
+.signal-index.signal-index-reveal-ready .realm-threshold.is-revealed::before {
+  transform: scaleX(1);
+}
+
+.signal-index.signal-index-reveal-ready
+  .realm-threshold.is-revealed
+  .realm-threshold-enter::before {
+  transform: scaleY(1);
 }
 
 .signal-index-shell[aria-hidden="true"] .realm-threshold-enter {
@@ -116,10 +187,41 @@
 @media (max-width: 767px) {
   .signal-index .realm-threshold {
     grid-template-columns: minmax(0, 1fr);
+    gap: 28px;
+    min-height: 0;
+    padding-top: 32px;
+  }
+
+  .signal-index .realm-threshold-copy {
+    max-width: none;
+    padding-bottom: 0;
+  }
+
+  .signal-index .realm-threshold-label {
+    margin-bottom: 16px;
+  }
+
+  .signal-index .realm-threshold h2 {
+    font-size: clamp(24px, 6.5vw, 30px);
   }
 
   .signal-index .realm-threshold-enter {
-    justify-self: start;
+    min-height: 136px;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .signal-index.signal-index-reveal-ready .realm-threshold::before,
+  .signal-index.signal-index-reveal-ready
+    .realm-threshold
+    .realm-threshold-enter::before {
+    transform: none;
+    transition: none;
+  }
+
+  .signal-index .realm-threshold-enter,
+  .signal-index .realm-threshold-enter-sill {
+    transition: none;
   }
 }
 

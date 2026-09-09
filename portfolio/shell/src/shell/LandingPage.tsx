@@ -588,10 +588,11 @@ export default function LandingPage({ projects, onOpenProject }: LandingPageProp
         >
           <div className="realm-threshold-copy">
             <p className="realm-threshold-label">another way through</p>
-            <h2 id="realm-threshold-title">the same work, beneath the surface.</h2>
-            <p className="realm-threshold-note">
-              Explore the immersive catalogue, or keep scrolling for projects.
-            </p>
+            <h2 id="realm-threshold-title">
+              the same work,
+              <br />
+              beneath the surface.
+            </h2>
           </div>
           <button
             ref={realmSectionEnterRef}
@@ -601,19 +602,21 @@ export default function LandingPage({ projects, onOpenProject }: LandingPageProp
             disabled={realmOpen}
             aria-label="enter the deep — enter the immersive realm"
           >
-            <span>enter the deep</span>
-            <svg
-              width="20"
-              height="20"
-              viewBox="0 0 20 20"
-              fill="none"
-              stroke="currentColor"
-              strokeWidth="1.5"
-              aria-hidden="true"
-              focusable="false"
-            >
-              <path d="M10 3v14M4 11l6 6 6-6" />
-            </svg>
+            <span className="realm-threshold-enter-sill">
+              <span>enter the deep</span>
+              <svg
+                width="20"
+                height="20"
+                viewBox="0 0 20 20"
+                fill="none"
+                stroke="currentColor"
+                strokeWidth="1.5"
+                aria-hidden="true"
+                focusable="false"
+              >
+                <path d="M10 3v14M4 11l6 6 6-6" />
+              </svg>
+            </span>
           </button>
         </section>
 
