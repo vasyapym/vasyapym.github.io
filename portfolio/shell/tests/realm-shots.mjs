@@ -25,6 +25,21 @@ const server = spawn(process.execPath, [viteJs, "--port", String(PORT), "--stric
 for (let i = 0; i < 120; i++) { try { const r = await fetch(BASE); if (r.ok) break; } catch {} await new Promise(r => setTimeout(r, 250)); }
 const wait = (ms) => new Promise((r) => setTimeout(r, ms));
 
+// the strip only exists past the threshold section: scroll there, await it, click
+const revealAndEnter = async (page) => {
+  await page.evaluate(() => {
+    const t = document.querySelector(".realm-threshold");
+    const bottom = t
+      ? Math.ceil(t.getBoundingClientRect().bottom + window.scrollY)
+      : window.scrollY;
+    window.scrollTo({ top: bottom + 80, behavior: "instant" });
+  });
+  await wait(700);
+  await page.evaluate(() => {
+    document.querySelector(".realm-enter-chip")?.click();
+  });
+};
+
 try {
   const browser = await puppeteer.launch({ executablePath: CHROME, headless: "shell", args: ["--no-sandbox", "--hide-scrollbars"] });
   const page = await browser.newPage();
@@ -33,9 +48,7 @@ try {
   await page.evaluate(() => window.scrollTo({ top: 1250, behavior: "instant" }));
   await wait(600);
 
-  await page.evaluate(() => {
-    document.querySelector(".realm-enter-chip")?.click();
-  });
+  await revealAndEnter(page);
   await wait(420);
   await page.screenshot({ path: join(outDir, "1-flood.png") });
   await wait(1400); // active
@@ -68,9 +81,7 @@ try {
   await mobile.goto(BASE, { waitUntil: "networkidle0", timeout: 60000 });
   await mobile.evaluate(() => window.scrollTo({ top: 1100, behavior: "instant" }));
   await wait(500);
-  await mobile.evaluate(() => {
-    document.querySelector(".realm-enter-chip")?.click();
-  });
+  await revealAndEnter(mobile);
   await wait(1800);
   await mobile.screenshot({ path: join(outDir, "6-mobile.png") });
 

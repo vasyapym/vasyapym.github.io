@@ -5,28 +5,146 @@
    lantern is the cursor, so the system cursor hides over the light-field
    and returns over real controls. amber is the single interactive signal. */
 
-/* ── entry tab (the fore-edge of the landing) ── */
+/* ── in-flow threshold: an editorial pause, not another hero ── */
+.signal-index .realm-threshold {
+  position: relative;
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  align-items: center;
+  gap: 24px 48px;
+  margin: 0;
+  padding:
+    clamp(32px, 5vw, 64px)
+    max(clamp(20px, 5vw, 80px), env(safe-area-inset-right, 0px))
+    clamp(32px, 5vw, 64px)
+    max(clamp(20px, 5vw, 80px), env(safe-area-inset-left, 0px));
+  background: #0b1317;
+  color: #eeeae0;
+}
+
+.signal-index .realm-threshold::before {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: max(clamp(20px, 5vw, 80px), env(safe-area-inset-left, 0px));
+  right: max(clamp(20px, 5vw, 80px), env(safe-area-inset-right, 0px));
+  height: 1px;
+  background: rgba(238, 234, 224, 0.26);
+  transform: scaleX(1);
+  transform-origin: left;
+}
+
+.signal-index.signal-index-reveal-ready .realm-threshold::before {
+  transform: scaleX(0);
+  transition: transform 600ms cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+.signal-index.signal-index-reveal-ready .realm-threshold.is-revealed::before {
+  transform: scaleX(1);
+}
+
+.signal-index .realm-threshold-copy {
+  min-width: 0;
+  max-width: 38rem;
+}
+
+.signal-index .realm-threshold-label {
+  margin: 0 0 12px;
+  color: rgba(238, 234, 224, 0.68);
+  font: 400 11px/1.5 var(--mono);
+  letter-spacing: 0.04em;
+  text-transform: lowercase;
+}
+
+.signal-index .realm-threshold h2 {
+  margin: 0;
+  color: #eeeae0;
+  font: 400 clamp(20px, 2vw, 28px)/1.25 var(--sans);
+  letter-spacing: -0.025em;
+  text-wrap: pretty;
+}
+
+.signal-index .realm-threshold-note {
+  margin: 12px 0 0;
+  max-width: 34rem;
+  color: rgba(238, 234, 224, 0.68);
+  font: 400 14px/1.6 var(--sans);
+}
+
+.signal-index .realm-threshold-enter {
+  display: inline-flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 24px;
+  justify-self: end;
+  min-width: 188px;
+  min-height: 44px;
+  max-width: 100%;
+  margin: 0;
+  padding: 12px 16px;
+  appearance: none;
+  border: 1px solid rgba(238, 234, 224, 0.26);
+  border-radius: 0;
+  background: #0b1317;
+  box-shadow: none;
+  color: #d39b61;
+  font: 400 12px/1.5 var(--mono);
+  text-align: left;
+  text-transform: lowercase;
+  cursor: pointer;
+  touch-action: manipulation;
+}
+
+.signal-index .realm-threshold-enter svg {
+  flex: 0 0 20px;
+}
+
+.signal-index .realm-threshold-enter:is(:hover, :focus-visible, :active) {
+  border-color: #d39b61;
+  color: #e8b57c;
+}
+
+.signal-index .realm-threshold-enter:focus-visible {
+  outline: 2px solid #e8b57c;
+  outline-offset: 4px;
+}
+
+.signal-index-shell[aria-hidden="true"] .realm-threshold-enter {
+  visibility: hidden;
+}
+
+@media (max-width: 767px) {
+  .signal-index .realm-threshold {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  .signal-index .realm-threshold-enter {
+    justify-self: start;
+  }
+}
+
+/* ── fixed strip: the existing mobile presentation at every width ── */
 .realm-enter-chip {
   position: fixed;
   z-index: 30;
-  top: calc(50vh - 94px);
-  right: 0;
-  bottom: auto;
+  top: auto;
+  right: calc(12px + env(safe-area-inset-right, 0px));
+  bottom: calc(12px + env(safe-area-inset-bottom, 0px));
   left: auto;
   display: flex;
   align-items: center;
   justify-content: center;
   box-sizing: border-box;
-  width: 44px;
-  height: 188px;
+  width: 188px;
+  height: 44px;
   min-width: 44px;
   min-height: 44px;
-  max-width: none;
+  max-width: calc(100vw - 24px - env(safe-area-inset-left, 0px) - env(safe-area-inset-right, 0px));
   margin: 0;
-  padding: 12px 0;
+  padding: 0 12px;
   appearance: none;
   border: 0;
-  border-left: 1px solid rgba(238, 234, 224, 0.26);
+  border-top: 1px solid rgba(238, 234, 224, 0.26);
   border-radius: 0;
   background: #0b1317;
   box-shadow: none;
@@ -59,20 +177,14 @@
 .realm-enter-chip .realm-copy {
   display: block;
   padding: 0;
-  writing-mode: vertical-rl;
-  text-orientation: mixed;
+  writing-mode: horizontal-tb;
   white-space: nowrap;
   color: inherit;
   opacity: 0.82;
 }
-/* the ink takes a slow breath; only the letters' opacity changes.
-   the edge stays still, and ochre waits for intent. */
-.realm-enter-chip.is-visible .realm-copy {
-  animation: realm-tab-ink-breath 5.6s ease-in-out infinite;
-}
-@keyframes realm-tab-ink-breath {
-  0%, 100% { opacity: 0.82; }
-  50% { opacity: 0.95; }
+/* No perpetual attention loop: visibility marks location; ochre marks intent. */
+.realm-enter-chip:disabled {
+  cursor: default;
 }
 .realm-enter-chip:hover {
   color: #d39b61;
@@ -106,41 +218,31 @@
   background: linear-gradient(to top, #020609, rgba(2, 6, 9, 0));
 }
 
-@media (max-width: 767px) {
-  .realm-enter-chip {
-    top: auto;
-    right: calc(12px + env(safe-area-inset-right, 0px));
-    bottom: calc(12px + env(safe-area-inset-bottom, 0px));
-    left: auto;
-    width: 188px;
-    height: 44px;
-    padding: 0 12px;
-    border-left: 0;
-    border-top: 1px solid rgba(238, 234, 224, 0.26);
-  }
-  .realm-enter-chip .realm-copy {
-    writing-mode: horizontal-tb;
-  }
-}
-
 @media (prefers-reduced-motion: reduce) {
-  .realm-enter-chip {
+  .realm-enter-chip,
+  .realm-enter-chip .realm-copy {
     transition: none;
-  }
-  .realm-enter-chip.is-visible .realm-copy {
     animation: none;
   }
+
+  .signal-index.signal-index-reveal-ready .realm-threshold::before {
+    transform: none;
+    transition: none;
+  }
 }
 
-/* the document backdrop belongs to the landing, not to the realm's lifetime:
-   while the ink catalogue is mounted the root/body paint #0b1317, so the
-   retile/scroll-restore window after the realm unmounts (and any elastic
-   overscroll) exposes dark pixels instead of the light default background.
-   declarative on purpose — restoring an inline dark style in the unmount
-   cleanup would recreate the same exposure at the exact wrong moment. */
-:root:has(.signal-index),
-:root:has(.signal-index) body {
+/* LandingPage owns this attribute for its entire mounted lifetime.
+   A single opaque root owns the canvas; body does not add another backdrop.
+   No reserved landing gutter means no separately exposed gutter bands.
+   RealmMode unmount / fixed-body restoration does not release ownership.
+   The shared .signal-index class deliberately no longer controls routes. */
+:root[data-signal-index] {
   background-color: #0b1317;
+  scrollbar-gutter: auto;
+}
+
+:root[data-signal-index] body {
+  background-color: transparent;
 }
 
 /* ── root layer ─────────────────────────────────────────────── */

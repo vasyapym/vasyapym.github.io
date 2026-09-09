@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useRef, useState, type CSSProperties, type MouseEvent } from "react";
+import { useCallback, useEffect, useLayoutEffect, useRef, useState, type CSSProperties, type MouseEvent } from "react";
 import type { ProjectModule } from "../../../contracts/project-module";
 import HeroFluid from "./HeroFluid";
 import ProjectArtwork from "./ProjectArtwork";
@@ -85,32 +85,96 @@ function scheduleIdleWarm(callback: () => void) {
 
 export default function LandingPage({ projects, onOpenProject }: LandingPageProps) {
   const pageRef = useRef<HTMLElement>(null);
-  const realmChipRef = useRef<HTMLButtonElement | null>(null);
-  const [realmOpen, setRealmOpen] = useState(false);
-  // the realm's ink flood starts from the chip's screen position; captured at
-  // click time (the chip unmounts while the realm is open, so it can't be
-  // measured then). fallback ≈ the chip's fixed resting spot.
-  const [realmEntry, setRealmEntry] = useState<{ x: number; y: number }>(() => ({
-    x: 60, y: Math.max(60, window.innerHeight - 60),
-  }));
-  // exit restores the landing exactly (it was never unmounted) and returns
-  // focus to the chip, satisfying the esc-returns-focus a11y law.
-  const [realmChipVisible, setRealmChipVisible] = useState(
-    () => typeof window !== "undefined" && window.matchMedia("(min-width: 768px)").matches,
-  );
+  const heroRef = useRef<HTMLElement>(null);
+  const realmThresholdRef = useRef<HTMLElement>(null);
+  const realmSectionEnterRef = useRef<HTMLButtonElement>(null);
+  const realmChipRef = useRef<HTMLButtonElement>(null);
+  const realmActivatorRef = useRef<HTMLButtonElement | null>(null);
+  const realmRestoreFocusRef = useRef(false);
   const realmFloorRef = useRef<HTMLDivElement>(null);
-  const realmChipRevealedRef = useRef(false);
+  const [realmOpen, setRealmOpen] = useState(false);
+  const [realmChipVisible, setRealmChipVisible] = useState(false);
+  const [realmEntry, setRealmEntry] = useState<{ x: number; y: number }>(() => ({
+    x: 60,
+    y: typeof window === "undefined" ? 60 : Math.max(60, window.innerHeight - 60),
+  }));
+
+  // Ownership is route-local, not inferred from the shared .signal-index
+  // class: /art-directions retains its own palette and can opt in separately.
+  // This outlives RealmMode and its fixed-body scroll-restoration cleanup.
+  useLayoutEffect(() => {
+    const root = document.documentElement;
+    const previous = root.getAttribute("data-signal-index");
+    root.setAttribute("data-signal-index", "");
+
+    return () => {
+      if (previous === null) {
+        root.removeAttribute("data-signal-index");
+      } else {
+        root.setAttribute("data-signal-index", previous);
+      }
+    };
+  }, []);
 
   const handleRealmExit = useCallback(() => {
+    realmRestoreFocusRef.current = true;
     setRealmOpen(false);
-    window.requestAnimationFrame(() => realmChipRef.current?.focus());
   }, []);
-  const handleRealmEnter = useCallback(() => {
-    const r = realmChipRef.current?.getBoundingClientRect();
-    if (r) setRealmEntry({ x: r.left + r.width / 2, y: r.top + r.height / 2 });
+
+  const handleRealmEnter = useCallback((event: MouseEvent<HTMLButtonElement>) => {
+    const control = event.currentTarget;
+    const rect = control.getBoundingClientRect();
+    realmActivatorRef.current = control;
+    realmRestoreFocusRef.current = false;
+    // Read before React hides/inerts either entry control.
+    setRealmEntry({
+      x: rect.left + rect.width / 2,
+      y: rect.top + rect.height / 2,
+    });
     setRealmOpen(true);
   }, []);
-  const heroRef = useRef<HTMLElement>(null);
+
+  useEffect(() => {
+    if (realmOpen || !realmRestoreFocusRef.current) return;
+
+    let secondFrame = 0;
+    // Wait for RealmMode's cleanup, scroll restoration, and the strip's
+    // geometry update before deciding which control can accept focus.
+    const firstFrame = window.requestAnimationFrame(() => {
+      secondFrame = window.requestAnimationFrame(() => {
+        if (!realmRestoreFocusRef.current) return;
+        realmRestoreFocusRef.current = false;
+
+        const activated = realmActivatorRef.current;
+        const rect = activated?.getBoundingClientRect();
+        const usable = activated?.isConnected &&
+          !activated.disabled &&
+          !activated.closest('[inert], [aria-hidden="true"]') &&
+          getComputedStyle(activated).visibility === "visible" &&
+          rect && rect.width > 0 && rect.height > 0 &&
+          rect.top >= 0 && rect.bottom <= window.innerHeight &&
+          rect.left >= 0 && rect.right <= window.innerWidth;
+
+        if (usable && activated) {
+          activated.focus({ preventScroll: true });
+          return;
+        }
+
+        // A resize or changed scroll position may have hidden the strip.
+        // The in-flow entry is the stable fallback, never an invisible tab.
+        const fallback = realmSectionEnterRef.current;
+        if (fallback) {
+          fallback.scrollIntoView({ block: "center", behavior: "instant" });
+          fallback.focus({ preventScroll: true });
+        }
+      });
+    });
+
+    return () => {
+      window.cancelAnimationFrame(firstFrame);
+      if (secondFrame !== 0) window.cancelAnimationFrame(secondFrame);
+    };
+  }, [realmOpen]);
   const [revealedProjects, setRevealedProjects] = useState<ReadonlyMap<string, number>>(
     () => new Map(),
   );
@@ -298,27 +362,33 @@ export default function LandingPage({ projects, onOpenProject }: LandingPageProp
   }, []);
 
   useEffect(() => {
+    const page = pageRef.current;
     const hero = heroRef.current;
+    const threshold = realmThresholdRef.current;
     const floor = realmFloorRef.current;
-    if (!hero || !floor) return;
+    if (!page || !hero || !threshold || !floor) return;
     let frame = 0;
     let cancelled = false;
     let lastFloor = "";
 
     const update = () => {
       frame = 0;
-      if (cancelled) return;
+      // A fixed body does not expose useful document scroll geometry.
+      // Re-measure on exit; the JSX independently hides the strip and floor.
+      if (cancelled || realmOpen) return;
+
       const vh = window.innerHeight;
       const maxScroll = Math.max(0, document.documentElement.scrollHeight - vh);
       const y = Math.min(maxScroll, Math.max(0, window.scrollY));
-      const isDesktop = window.matchMedia("(min-width: 768px)").matches;
-      if (!isDesktop && y >= Math.min(0.4 * vh, 320)) {
-        realmChipRevealedRef.current = true;
-      }
-      const visible = isDesktop || realmChipRevealedRef.current;
+      const thresholdBottom =
+        threshold.getBoundingClientRect().bottom + window.scrollY;
+      // One reversible law on desktop and mobile. Clamping y prevents
+      // elastic overscroll from revealing the strip prematurely.
+      const visible = y >= thresholdBottom;
       setRealmChipVisible((current) =>
         current === visible ? current : visible,
       );
+
       const floorValue = (maxScroll > 0 && vh > 0
         ? Math.min(1, Math.max(0, 1 - (maxScroll - y) / (vh * 0.6)))
         : 0).toFixed(4);
@@ -327,20 +397,36 @@ export default function LandingPage({ projects, onOpenProject }: LandingPageProp
         floor.style.setProperty("--realm-floor", floorValue);
       }
     };
+
     const schedule = () => {
       if (frame !== 0 || cancelled) return;
       frame = window.requestAnimationFrame(update);
     };
+
     update();
+    // Hero settling, font reflow, project layout and viewport changes all
+    // feed the same rAF rather than maintaining a cached threshold offset.
+    const layoutObserver = new ResizeObserver(schedule);
+    layoutObserver.observe(page);
+    layoutObserver.observe(hero);
+    layoutObserver.observe(threshold);
+    document.fonts.ready.then(schedule);
+
     window.addEventListener("scroll", schedule, { passive: true });
     window.addEventListener("resize", schedule, { passive: true });
+    window.addEventListener("pageshow", schedule);
+    window.visualViewport?.addEventListener("resize", schedule);
+
     return () => {
       cancelled = true;
       if (frame !== 0) window.cancelAnimationFrame(frame);
+      layoutObserver.disconnect();
       window.removeEventListener("scroll", schedule);
       window.removeEventListener("resize", schedule);
+      window.removeEventListener("pageshow", schedule);
+      window.visualViewport?.removeEventListener("resize", schedule);
     };
-  }, []);
+  }, [realmOpen]);
 
   // Symmetric hero rhythm (desktop): the copy panel is centred in the free
   // middle row, so its top gap grows with the viewport while the bottom rail
@@ -495,6 +581,43 @@ export default function LandingPage({ projects, onOpenProject }: LandingPageProp
         </section>
 
         <section
+          ref={realmThresholdRef}
+          className="realm-threshold"
+          aria-labelledby="realm-threshold-title"
+          data-section-reveal=""
+        >
+          <div className="realm-threshold-copy">
+            <p className="realm-threshold-label">another way through</p>
+            <h2 id="realm-threshold-title">the same work, beneath the surface.</h2>
+            <p className="realm-threshold-note">
+              Explore the immersive catalogue, or keep scrolling for projects.
+            </p>
+          </div>
+          <button
+            ref={realmSectionEnterRef}
+            className="realm-threshold-enter"
+            type="button"
+            onClick={handleRealmEnter}
+            disabled={realmOpen}
+            aria-label="enter the deep — enter the immersive realm"
+          >
+            <span>enter the deep</span>
+            <svg
+              width="20"
+              height="20"
+              viewBox="0 0 20 20"
+              fill="none"
+              stroke="currentColor"
+              strokeWidth="1.5"
+              aria-hidden="true"
+              focusable="false"
+            >
+              <path d="M10 3v14M4 11l6 6 6-6" />
+            </svg>
+          </button>
+        </section>
+
+        <section
           className="signal-index-projects"
           id="projects"
           aria-label="Projects"
@@ -553,6 +676,8 @@ export default function LandingPage({ projects, onOpenProject }: LandingPageProp
         ref={realmChipRef}
         onClick={handleRealmEnter}
         tabIndex={realmChipVisible && !realmOpen ? 0 : -1}
+        disabled={!realmChipVisible || realmOpen}
+        inert={!realmChipVisible || realmOpen || undefined}
         aria-hidden={!realmChipVisible || realmOpen}
         aria-label="enter the deep — enter the immersive realm"
       >

@@ -86,6 +86,34 @@ reduced-motion crops identical over 2.8s). Desktop 44×188 right-attached at
 50vh; mobile 188×44 at right/bottom + 12px, hidden at scroll 0, one-shot
 reveal. Graph n159.
 
+## Pass D — r4: Safari sides + page restructure (staged deliberation round)
+
+Owner reports: macOS Safari blackish left/right sides; the desktop tab
+invisible; the mobile horizontal tab liked. The chat model ran the mandated
+staged deliberation (inventory → root cause → design → risk), blocked once
+pending exact sources, then delivered; test patches stayed blocked (relay
+placeholders), so the orchestrator implemented the probe updates to the
+model's 9-gate spec (deviation noted).
+
+- **Safari fix:** `:root:has(.signal-index)` → LandingPage-owned
+  `data-signal-index` attribute (useLayoutEffect, symmetric restore,
+  route-local; `/art-directions` also carried `.signal-index` — coupling was
+  wider than intended). Root opaque + body transparent +
+  `scrollbar-gutter: auto` under ownership. Outlives RealmMode's fixed-body
+  restoration — the iOS flash fix is preserved.
+- **Structure:** hero → in-flow `.realm-threshold` section (hairline draw-in
+  via the existing section-reveal observer; "another way through / the same
+  work, beneath the surface."; ochre-intent button) → cards.
+- **Strip law:** the liked mobile presentation (188×44 bottom-right) on ALL
+  widths, one reversible rule — visible when scroll passes the threshold
+  section's bottom, hides again above it. Ink-breath loop removed. Flood
+  seeds from the activated control; exit focus restores to the usable
+  activated control (section button = stable fallback).
+- Gates: probe **39/39**; r4 shot pass (hero / threshold / cards+strip /
+  scroll-back hidden / mobile / 2560); realm-shots re-validated. Owner
+  checklist: native Safari bands (incl. `/art-directions` nav), iOS flash
+  re-check. Graph n161.
+
 ## Graph
 
-n156 (pass A), n157 (pass B), n159 (pass C). Closed by the round's commits.
+n156 (pass A), n157 (pass B), n159 (pass C), n161 (pass D).

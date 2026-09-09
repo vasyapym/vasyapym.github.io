@@ -86,11 +86,26 @@ const collectErrors = (page) => {
 };
 
 const enterRealm = async (page) => {
+  // scroll past the in-flow threshold section, await the strip, then click it
   await page.evaluate(() => {
-    const chip = document.querySelector(".realm-enter-chip");
-    chip?.click();
+    const t = document.querySelector(".realm-threshold");
+    const bottom = t
+      ? Math.ceil(t.getBoundingClientRect().bottom + window.scrollY)
+      : window.scrollY;
+    window.scrollTo({ top: bottom + 80, behavior: "instant" });
+  });
+  await until(page, () => {
+    const el = document.querySelector(".realm-enter-chip");
+    return !!el && el.classList.contains("is-visible") && !el.disabled;
+  });
+  // read the entry scroll position BEFORE the click locks the body (a fixed
+  // body collapses document scroll geometry to zero)
+  const at = await page.evaluate(() => window.scrollY);
+  await page.evaluate(() => {
+    document.querySelector(".realm-enter-chip")?.click();
   });
   await wait(1700); // flood ≈1.05s + settle
+  return at;
 };
 
 const exitViaButton = async (page) => {
@@ -114,68 +129,111 @@ try {
   await desktop.setViewport({ width: 1440, height: 900, deviceScaleFactor: 1 });
   collectErrors(desktop);
   await desktop.goto(BASE, { waitUntil: "networkidle0", timeout: 60000 });
-  // chip law: desktop = visible from first render, never scroll-gated, never
-  // hidden at page end (the old band inverted on tall viewports — 2560x1440
-  // never showed the chip at all); mobile = one-shot reveal past
-  // min(0.4·vh, 320px), then it stays.
+  // strip law: one reversible rule on every viewport class. The fixed strip
+  // appears when scroll passes the in-flow threshold section's bottom edge and
+  // hides again when the visitor returns above it (measured positions — the
+  // page gained a threshold section between hero and cards).
+  const thresholdBottomOf = (p) => p.evaluate(() => {
+    const t = document.querySelector(".realm-threshold");
+    return t ? Math.ceil(t.getBoundingClientRect().bottom + window.scrollY) : 0;
+  });
+  const stripVisible = (p) => p.$eval(".realm-enter-chip", (el) =>
+    el.classList.contains("is-visible") && !el.disabled);
+
   await desktop.evaluate(() => window.scrollTo({ top: 0, behavior: "instant" }));
   await wait(400);
-  check("chip visible at scroll 0 on desktop",
-    await desktop.$eval(".realm-enter-chip", (el) =>
-      window.scrollY === 0 && el.classList.contains("is-visible")));
-  await desktop.evaluate(() => window.scrollTo({ top: 1250, behavior: "instant" }));
+  const dT = await thresholdBottomOf(desktop);
+  check("strip hidden at scroll 0 on desktop", !(await stripVisible(desktop)));
+  await desktop.evaluate((y) => window.scrollTo({ top: y - 300, behavior: "instant" }), dT);
   await wait(400);
-  check("chip revealed past the hero",
-    await desktop.$eval(".realm-enter-chip", (el) => el.classList.contains("is-visible")));
+  check("strip hidden while the threshold bottom is still onscreen",
+    !(await stripVisible(desktop)));
+  await desktop.evaluate((y) => window.scrollTo({ top: y + 2, behavior: "instant" }), dT);
+  await wait(400);
+  check("strip appears past the threshold on desktop", await stripVisible(desktop));
+  const dFloor = await desktop.$eval(".realm-bottom-floor", (el) =>
+    parseFloat(getComputedStyle(el).opacity));
+  check("floor still near zero above page end", dFloor < 0.4, `floor=${dFloor}`);
 
-  // regression page: tall desktop (the reported-Edge case) + page end + mobile
+  // regression page: tall desktop (the reported-Edge case) + page end +
+  // scroll-back hide + mobile reversibility
   const regression = await browser.newPage();
   {
     await regression.setViewport({ width: 2560, height: 1440, deviceScaleFactor: 1 });
     await regression.goto(BASE, { waitUntil: "networkidle0", timeout: 60000 });
     await regression.evaluate(() => window.scrollTo({ top: 0, behavior: "instant" }));
     await wait(400);
-    check("chip visible at scroll 0 on 2560x1440",
-      await regression.$eval(".realm-enter-chip", (el) =>
-        window.innerWidth === 2560 && window.innerHeight === 1440 &&
-        window.scrollY === 0 && el.classList.contains("is-visible")));
+    const rT = await thresholdBottomOf(regression);
+    check("strip hidden at scroll 0 on 2560x1440", !(await stripVisible(regression)));
+    await regression.evaluate((y) => window.scrollTo({
+      top: y + 2,
+      behavior: "instant",
+    }), rT);
+    await wait(400);
+    check("strip appears past the threshold on 2560x1440",
+      await stripVisible(regression));
     await regression.evaluate(() => window.scrollTo({
       top: document.documentElement.scrollHeight - window.innerHeight,
       behavior: "instant",
     }));
     await wait(400);
-    check("chip remains visible at desktop page end",
-      await regression.$eval(".realm-enter-chip", (el) =>
-        Math.abs(window.scrollY - Math.max(0,
-          document.documentElement.scrollHeight - window.innerHeight)) <= 1 &&
-        el.classList.contains("is-visible")));
+    check("strip remains visible at desktop page end",
+      await stripVisible(regression));
+    check("floor ramps to full at page end",
+      await regression.$eval(".realm-bottom-floor", (el) =>
+        getComputedStyle(el).opacity) === "1");
+    await regression.evaluate((y) => window.scrollTo({ top: y - 300, behavior: "instant" }), rT);
+    await wait(400);
+    check("strip hides again above the threshold boundary",
+      !(await stripVisible(regression)));
+    check("floor recedes away from page end",
+      await regression.$eval(".realm-bottom-floor", (el) =>
+        parseFloat(getComputedStyle(el).opacity)) < 0.4);
 
-    // fresh page for the mobile leg: reloading the scrolled desktop page lets
-    // scroll restoration (>320px) fire the one-shot reveal before we can reset
+    // fresh page for the mobile leg: reuse would inherit a revealed position
     await regression.close();
     const mobileReg = await browser.newPage();
     await mobileReg.setViewport({ width: 390, height: 844, deviceScaleFactor: 2, hasTouch: true });
     await mobileReg.goto(BASE, { waitUntil: "networkidle0", timeout: 60000 });
     await mobileReg.evaluate(() => window.scrollTo({ top: 0, behavior: "instant" }));
     await wait(400);
-    check("mobile chip hidden at scroll 0 on 390x844",
-      await mobileReg.$eval(".realm-enter-chip", (el) =>
-        window.innerWidth === 390 && window.innerHeight === 844 &&
-        window.scrollY === 0 && !el.classList.contains("is-visible")));
-    await mobileReg.evaluate(() => window.scrollTo({ top: 400, behavior: "instant" }));
+    const mT = await thresholdBottomOf(mobileReg);
+    check("strip hidden at scroll 0 on 390x844", !(await stripVisible(mobileReg)));
+    await mobileReg.evaluate((y) => window.scrollTo({ top: y + 2, behavior: "instant" }), mT);
     await wait(400);
-    check("mobile chip revealed at scroll 400",
-      await mobileReg.$eval(".realm-enter-chip", (el) =>
-        Math.abs(window.scrollY - 400) <= 1 && el.classList.contains("is-visible")));
+    check("strip appears past the threshold on mobile", await stripVisible(mobileReg));
     await mobileReg.evaluate(() => window.scrollTo({ top: 0, behavior: "instant" }));
     await wait(400);
-    check("mobile chip stays visible after returning to scroll 0",
-      await mobileReg.$eval(".realm-enter-chip", (el) =>
-        window.scrollY === 0 && el.classList.contains("is-visible")));
+    check("strip hides again at scroll 0 on mobile", !(await stripVisible(mobileReg)));
     await mobileReg.close();
   }
 
-  await enterRealm(desktop);
+  // ── the in-flow threshold section is its own entry ──
+  const section = await browser.newPage();
+  collectErrors(section);
+  await section.setViewport({ width: 1440, height: 900, deviceScaleFactor: 1 });
+  await section.goto(BASE, { waitUntil: "networkidle0", timeout: 60000 });
+  await section.evaluate(() => {
+    document.querySelector(".realm-threshold-enter")
+      ?.scrollIntoView({ block: "center", behavior: "instant" });
+  });
+  await wait(500);
+  await section.evaluate(() => document.querySelector(".realm-threshold-enter")?.click());
+  await wait(1700);
+  check("threshold section opens the realm", await section.$(".realm-layer") !== null);
+  check("shell inert while immersed",
+    await section.$eval(".signal-index-shell", (el) => el.inert === true));
+  check("strip unavailable while immersed",
+    await section.$eval(".realm-enter-chip", (el) =>
+      el.disabled || !el.classList.contains("is-visible")));
+  await section.keyboard.press("Escape");
+  await wait(1300);
+  check("esc exits from the section entry", (await section.$(".realm-layer")) === null);
+  check("focus returns to the section control", await section.evaluate(() =>
+    document.activeElement?.classList.contains("realm-threshold-enter") === true));
+  await section.close();
+
+  const enteredAt = await enterRealm(desktop);
   check("realm opens over the landing", await desktop.$(".realm-layer") !== null);
   check("gl + overlay canvases present",
     (await desktop.$$(".realm-layer canvas")).length === 2);
@@ -208,7 +266,7 @@ try {
   await wait(1300);
   check("esc exits the realm", (await desktop.$(".realm-layer")) === null);
   const scrollAfter = await desktop.evaluate(() => window.scrollY);
-  check("landing scroll restored", Math.abs(scrollAfter - 1250) < 30, `scrollY=${scrollAfter}`);
+  check("landing scroll restored", Math.abs(scrollAfter - enteredAt) < 30, `scrollY=${scrollAfter}`);
   check("chip is back", await desktop.evaluate(() =>
     document.querySelector(".realm-enter-chip") !== null));
 
@@ -285,7 +343,7 @@ try {
   await exitViaButton(reduced);
   check("reduced: leave restores the landing", (await reduced.$(".realm-layer")) === null);
 
-  for (const p of [desktop, dive, mobile, reduced]) {
+  for (const p of [desktop, dive, mobile, section, reduced]) {
     check(`console clean (${p.errors.length} errors)`, p.errors.length === 0,
       p.errors.slice(0, 2).join(" | "));
   }
