@@ -208,20 +208,96 @@ export default function RealmMode({ projects, onOpenProject, onExit, entry }: Re
     audioRef.current = audio;
 
     // Normal exit:
-    //   max(scene completion, layer transition completion) + 150 ms.
+    //   keep the existing 150 ms settlement floor, and use that time to
+    //   retire canvas layers, unlock the body, then release the shell.
     // Watchdog:
-    //   explicitly hide at 1,500 ms, then exit after 150 ms.
+    //   explicitly hide at 1,500 ms, then use the same staged handoff.
     const EXIT_SETTLE_MS = 150;
     const EXIT_WATCHDOG_MS = 1500;
+    const EXIT_BEAT_FALLBACK_MS = 64;
 
     let leaveStarted = false;
     let leaveSceneDone = false;
     let leaveVisualDone = false;
+    let teardownStarted = false;
+    let settleDone = false;
+    let stagesDone = false;
+    let landingScrollRestored = false;
     let exitSent = false;
 
     let exitTimer: ReturnType<typeof setTimeout> | null = null;
     let watchdogTimer: ReturnType<typeof setTimeout> | null = null;
+    let cancelExitBeat: (() => void) | null = null;
     let leaveLayer: HTMLDivElement | null = null;
+
+    const hiddenCanvases: Array<{
+      node: HTMLCanvasElement;
+      display: string;
+      priority: string;
+    }> = [];
+
+    // This remains the sole body/scroll restoration implementation.
+    // Normal surface exit calls it between rendering stages.
+    // Effect cleanup calls it as the fallback for every other teardown.
+    const restoreLandingScroll = (): void => {
+      if (landingScrollRestored) return;
+      landingScrollRestored = true;
+
+      document.body.style.position = prev.position;
+      document.body.style.top = prev.top;
+      document.body.style.width = prev.width;
+      document.body.style.overflow = prev.overflow;
+      window.scrollTo({ top: scrollY, behavior: "instant" });
+    };
+
+    // A bounded rendering opportunity, not a GPU-commit assertion.
+    // Two nested callbacks leave an opportunity to paint between stages.
+    // The timer prevents a stopped/throttled rAF stream from stranding exit.
+    const afterExitBeat = (next: () => void): (() => void) => {
+      let finished = false;
+      let firstFrame: number | null = null;
+      let secondFrame: number | null = null;
+      let fallbackTimer: ReturnType<typeof setTimeout> | null = null;
+
+      const cancel = (): void => {
+        finished = true;
+
+        if (firstFrame !== null) {
+          cancelAnimationFrame(firstFrame);
+          firstFrame = null;
+        }
+
+        if (secondFrame !== null) {
+          cancelAnimationFrame(secondFrame);
+          secondFrame = null;
+        }
+
+        if (fallbackTimer !== null) {
+          clearTimeout(fallbackTimer);
+          fallbackTimer = null;
+        }
+      };
+
+      const finish = (): void => {
+        if (finished) return;
+        cancel();
+        if (alive) next();
+      };
+
+      firstFrame = requestAnimationFrame(() => {
+        firstFrame = null;
+        if (finished) return;
+
+        secondFrame = requestAnimationFrame(() => {
+          secondFrame = null;
+          finish();
+        });
+      });
+
+      fallbackTimer = setTimeout(finish, EXIT_BEAT_FALLBACK_MS);
+
+      return cancel;
+    };
 
     const clearWatchdog = (): void => {
       if (watchdogTimer !== null) {
@@ -230,19 +306,94 @@ export default function RealmMode({ projects, onOpenProject, onExit, entry }: Re
       }
     };
 
+    const sendExitIfReady = (): void => {
+      if (
+        !alive || exitSent || !teardownStarted ||
+        !settleDone || !stagesDone
+      ) return;
+
+      exitSent = true;
+
+      if (leaveLayer) {
+        leaveLayer.dataset.realmExitStage = "release";
+      }
+
+      onExitRef.current();
+    };
+
     const maybeFinishLeave = (): void => {
       if (
         !alive || !leaveStarted || !leaveSceneDone || !leaveVisualDone ||
-        exitSent || exitTimer !== null
+        teardownStarted || exitSent
       ) return;
 
+      // Do not accept a stale or synthetic transition completion while
+      // the layer still has a visible opacity.
+      if (
+        leaveLayer &&
+        Number.parseFloat(getComputedStyle(leaveLayer).opacity) !== 0
+      ) return;
+
+      teardownStarted = true;
       clearWatchdog();
+
+      // Settlement runs in parallel with staging, not after it.
       exitTimer = setTimeout(() => {
         exitTimer = null;
-        if (!alive || exitSent) return;
-        exitSent = true;
-        onExitRef.current();
+        if (!alive) return;
+        settleDone = true;
+        sendExitIfReady();
       }, EXIT_SETTLE_MS);
+
+      // Stage 1: retire render layers while body lock and shell inertness
+      // are unchanged. Keep React ownership of all DOM nodes.
+      if (leaveLayer) {
+        leaveLayer.querySelectorAll("canvas").forEach((node) => {
+          hiddenCanvases.push({
+            node,
+            display: node.style.getPropertyValue("display"),
+            priority: node.style.getPropertyPriority("display"),
+          });
+
+          node.style.setProperty("display", "none", "important");
+        });
+      }
+
+      // Idempotent scene destruction stops resize/render work and disposes
+      // GL resources. It must continue to avoid WEBGL_lose_context.
+      // Continue the handoff even if a driver-facing disposal call throws.
+      try {
+        scene.destroy();
+      } catch (error) {
+        console.error("realm scene retirement failed", error);
+      }
+
+      if (leaveLayer) {
+        leaveLayer.dataset.realmExitStage = "retired";
+      }
+
+      cancelExitBeat = afterExitBeat(() => {
+        cancelExitBeat = null;
+        if (!alive || exitSent) return;
+
+        // Stage 2: restore the original page position, once and instantly.
+        // The shell is still inert because realmOpen remains true.
+        restoreLandingScroll();
+
+        if (leaveLayer) {
+          leaveLayer.dataset.realmExitStage = "unlocked";
+        }
+
+        cancelExitBeat = afterExitBeat(() => {
+          cancelExitBeat = null;
+          if (!alive || exitSent) return;
+
+          // Stage 3 is now eligible. Parent release still waits for the
+          // original settlement floor.
+          stagesDone = true;
+          sendExitIfReady();
+        });
+      });
     };
 
     const onLeaveTransitionEnd = (event: TransitionEvent): void => {
@@ -250,6 +401,11 @@ export default function RealmMode({ projects, onOpenProject, onExit, entry }: Re
         !alive || !leaveStarted ||
         event.target !== leaveLayer ||
         event.propertyName !== "opacity"
+      ) return;
+
+      if (
+        leaveLayer &&
+        Number.parseFloat(getComputedStyle(leaveLayer).opacity) !== 0
       ) return;
 
       leaveVisualDone = true;
@@ -275,10 +431,9 @@ export default function RealmMode({ projects, onOpenProject, onExit, entry }: Re
 
         watchdogTimer = setTimeout(() => {
           watchdogTimer = null;
-          if (!alive || exitSent) return;
+          if (!alive || exitSent || teardownStarted) return;
 
-          // Recovery for a cancelled/missing transition event, changed motion
-          // preference, disabled transitions, or a scene that stopped ticking.
+          // Establish an invisible layer before entering any teardown stage.
           if (leaveLayer) {
             leaveLayer.style.transition = "none";
             leaveLayer.style.opacity = "0";
@@ -308,21 +463,44 @@ export default function RealmMode({ projects, onOpenProject, onExit, entry }: Re
         exitTimer = null;
       }
 
+      if (cancelExitBeat !== null) {
+        cancelExitBeat();
+        cancelExitBeat = null;
+      }
+
+      // Restore effect-owned inline declarations for reusable DOM nodes.
+      // During normal unmount these restorations and React's DOM removal
+      // occur in the same synchronous cleanup/commit, without a paint.
+      for (const saved of hiddenCanvases) {
+        if (saved.display === "") {
+          saved.node.style.removeProperty("display");
+        } else {
+          saved.node.style.setProperty(
+            "display",
+            saved.display,
+            saved.priority,
+          );
+        }
+      }
+      hiddenCanvases.length = 0;
+
       if (leaveLayer) {
         leaveLayer.removeEventListener(
           "transitionend",
           onLeaveTransitionEnd,
         );
-        // Also leave a clean DOM node after Strict Mode effect cleanup.
         leaveLayer.classList.remove("realm--surfacing");
         leaveLayer.style.removeProperty("transition");
         leaveLayer.style.removeProperty("opacity");
         leaveLayer.style.removeProperty("visibility");
+        delete leaveLayer.dataset.realmExitStage;
       }
 
       if (leaveGateRef.current === leaveGate) {
         leaveGateRef.current = null;
       }
+
+      leaveLayer = null;
     };
 
     // scene callbacks read latest React setters through the stable closures above
@@ -888,17 +1066,22 @@ export default function RealmMode({ projects, onOpenProject, onExit, entry }: Re
       window.removeEventListener("wheel", onWheel);
       window.removeEventListener("keydown", onKeyDown);
       window.removeEventListener("keyup", onKeyUp);
-      // restore scroll + body style; instant — the global smooth scroll-behavior
-      // must not animate the visitor back to where they were.
-      document.body.style.position = prev.position;
-      document.body.style.top = prev.top;
-      document.body.style.width = prev.width;
-      document.body.style.overflow = prev.overflow;
-      window.scrollTo({ top: scrollY, behavior: "instant" });
-      scene.destroy();
-      audio.dispose();
-      sceneRef.current = null;
-      audioRef.current = null;
+
+      // Already completed during a normal staged surface exit.
+      // Still required for Strict Mode replay and other unmount paths.
+      restoreLandingScroll();
+
+      try {
+        // Idempotent: normally destroyed during invisible retirement.
+        scene.destroy();
+      } finally {
+        try {
+          audio.dispose();
+        } finally {
+          sceneRef.current = null;
+          audioRef.current = null;
+        }
+      }
     };
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
@@ -1236,7 +1419,7 @@ export default function RealmMode({ projects, onOpenProject, onExit, entry }: Re
           </button>
         ) : null}
         {opened ? (
-          <>
+          <div key={opened.id} className="realm-panel-body">
             <p className="realm-panel-eyebrow">{opened.eyebrow}</p>
             <h2 className="realm-panel-title">{opened.title}</h2>
             <p className="realm-panel-desc">{opened.description}</p>
@@ -1265,7 +1448,7 @@ export default function RealmMode({ projects, onOpenProject, onExit, entry }: Re
             >
               dive in →
             </button>
-          </>
+          </div>
         ) : null}
       </div>
 

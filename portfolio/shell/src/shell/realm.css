@@ -704,16 +704,13 @@
   min-height: 0;
   max-height: 100%;
 
-  padding: 1.4rem 1.3rem calc(1.4rem + env(safe-area-inset-bottom, 0px));
+  padding: 4rem 1.3rem calc(1.4rem + env(safe-area-inset-bottom, 0px));
   background: #04080b;
   border: 0;
   border-left: 1px solid var(--ink-line);
 
-  overflow-y: auto;
-  overscroll-behavior: contain;
+  overflow: hidden;
   cursor: auto;
-  scrollbar-width: thin;
-  scrollbar-color: var(--ink-line) transparent;
 
   opacity: 0;
   visibility: hidden;
@@ -750,9 +747,29 @@
     transition: opacity 0.24s linear;
   }
 }
-.realm-panel::-webkit-scrollbar { width: 7px; }
-.realm-panel::-webkit-scrollbar-thumb { background: var(--ink-line); }
-.realm-panel::-webkit-scrollbar-track { background: transparent; }
+.realm-panel-body {
+  box-sizing: border-box;
+  display: flex;
+  flex-direction: column;
+  flex: 1 1 auto;
+  min-width: 0;
+  min-height: 0;
+  overflow-x: hidden;
+  overflow-y: auto;
+  overscroll-behavior: contain;
+  touch-action: pan-y;
+  overflow-wrap: anywhere;
+  scrollbar-width: thin;
+  scrollbar-color: var(--ink-line) transparent;
+}
+
+.realm-panel-body > * {
+  flex-shrink: 0;
+}
+
+.realm-panel-body::-webkit-scrollbar { width: 7px; }
+.realm-panel-body::-webkit-scrollbar-thumb { background: var(--ink-line); }
+.realm-panel-body::-webkit-scrollbar-track { background: transparent; }
 
 .realm-panel-close > svg {
   display: block;
@@ -789,8 +806,10 @@
   position: absolute;
   top: 1rem;
   right: 1rem;
+  box-sizing: border-box;
   width: 2rem;
   height: 2rem;
+  padding: 0;
   display: grid;
   place-items: center;
   font-family: var(--mono);
@@ -883,7 +902,7 @@
   font-size: 0.76rem;
   text-transform: lowercase;
   padding: 0.5rem 0.9rem;
-  color: #04080b; /* near-black text on the one solid element */
+  color: var(--ink-bg); /* near-black text on the one solid element */
   background: var(--ink-accent-bright);
   border: 1px solid var(--ink-accent-bright);
   border-radius: var(--panel-radius);
@@ -940,7 +959,7 @@
     min-height: 0;
     max-height: 48%;
 
-    padding: 1.4rem 1.3rem calc(1.4rem + env(safe-area-inset-bottom, 0px));
+    padding: 4rem 1.3rem calc(1.4rem + env(safe-area-inset-bottom, 0px));
     border: 0;
     border-top: 1px solid var(--ink-line);
   }

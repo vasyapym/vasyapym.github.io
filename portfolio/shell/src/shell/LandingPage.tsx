@@ -91,6 +91,7 @@ export default function LandingPage({ projects, onOpenProject }: LandingPageProp
   const realmChipRef = useRef<HTMLButtonElement>(null);
   const realmActivatorRef = useRef<HTMLButtonElement | null>(null);
   const realmRestoreFocusRef = useRef(false);
+  const realmArtworkRefreshPendingRef = useRef(false);
   const realmFloorRef = useRef<HTMLDivElement>(null);
   const [realmOpen, setRealmOpen] = useState(false);
   const [realmChipVisible, setRealmChipVisible] = useState(false);
@@ -117,9 +118,138 @@ export default function LandingPage({ projects, onOpenProject }: LandingPageProp
   }, []);
 
   const handleRealmExit = useCallback(() => {
+    realmArtworkRefreshPendingRef.current = true;
     realmRestoreFocusRef.current = true;
     setRealmOpen(false);
   }, []);
+
+  // Post-exit artwork refresh (r9): after the realm's staged teardown releases
+  // the shell, ask the running artwork animations for a fresh sample behind a
+  // temporary will-change hint, then restore the exact prior declarations.
+  // This is a compositor hint + an animation sampling request — a bounded
+  // recovery for WebKit's layer-tree rebuild after the canvas retirement, not
+  // a repaint guarantee. It has the landing's lifetime, not the realm's.
+  useLayoutEffect(() => {
+    if (realmOpen) {
+      realmArtworkRefreshPendingRef.current = false;
+      return;
+    }
+
+    if (!realmArtworkRefreshPendingRef.current) return;
+    realmArtworkRefreshPendingRef.current = false;
+
+    const ARTWORK_REFRESH_FALLBACK_MS = 64;
+
+    let finished = false;
+    let firstFrame: number | null = null;
+    let secondFrame: number | null = null;
+    let fallbackTimer: ReturnType<typeof setTimeout> | null = null;
+
+    const savedHints: Array<{
+      node: HTMLElement;
+      value: string;
+      priority: string;
+    }> = [];
+
+    const restore = (): void => {
+      if (finished) return;
+      finished = true;
+
+      if (firstFrame !== null) {
+        cancelAnimationFrame(firstFrame);
+        firstFrame = null;
+      }
+
+      if (secondFrame !== null) {
+        cancelAnimationFrame(secondFrame);
+        secondFrame = null;
+      }
+
+      if (fallbackTimer !== null) {
+        clearTimeout(fallbackTimer);
+        fallbackTimer = null;
+      }
+
+      for (const saved of savedHints) {
+        if (saved.value === "") {
+          saved.node.style.removeProperty("will-change");
+        } else {
+          saved.node.style.setProperty(
+            "will-change",
+            saved.value,
+            saved.priority,
+          );
+        }
+      }
+
+      savedHints.length = 0;
+    };
+
+    document
+      .querySelectorAll<HTMLElement>(
+        ".signal-index-shell .project-artwork-object",
+      )
+      .forEach((node) => {
+        savedHints.push({
+          node,
+          value: node.style.getPropertyValue("will-change"),
+          priority: node.style.getPropertyPriority("will-change"),
+        });
+
+        const currentHint = getComputedStyle(node).willChange;
+        const hints = currentHint
+          .split(",")
+          .map((hint) => hint.trim())
+          .filter((hint) => hint !== "" && hint !== "auto");
+
+        if (!hints.includes("transform")) {
+          hints.push("transform");
+        }
+
+        // A temporary, nonvisual compositing request. Keep any existing
+        // computed hints and restore the original inline value afterward.
+        node.style.setProperty(
+          "will-change",
+          hints.join(", "),
+          "important",
+        );
+
+        // Explicitly resample existing running animation effects without
+        // resetting their phase or starting paused/reduced-motion effects.
+        // Older engines without this API still receive the bounded hint.
+        if (typeof node.getAnimations === "function") {
+          for (const animation of node.getAnimations({ subtree: true })) {
+            const currentTime = animation.currentTime;
+
+            if (
+              animation.playState === "running" &&
+              typeof currentTime === "number"
+            ) {
+              animation.currentTime = currentTime;
+            }
+          }
+        }
+      });
+
+    // Leave a rendering opportunity with the refresh request installed,
+    // then restore all declarations. No recurring animation loop is added.
+    firstFrame = requestAnimationFrame(() => {
+      firstFrame = null;
+      if (finished) return;
+
+      secondFrame = requestAnimationFrame(() => {
+        secondFrame = null;
+        restore();
+      });
+    });
+
+    fallbackTimer = setTimeout(
+      restore,
+      ARTWORK_REFRESH_FALLBACK_MS,
+    );
+
+    return restore;
+  }, [realmOpen]);
 
   const handleRealmEnter = useCallback((event: MouseEvent<HTMLButtonElement>) => {
     const control = event.currentTarget;

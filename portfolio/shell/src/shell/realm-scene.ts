@@ -671,6 +671,19 @@ export function createRealmScene(
     }
   }
 
+  const PROXIMITY_EXIT_FACTOR = 1.25;
+  const proximityLatched = new Set<number>();
+
+  function startGreeting(id: (typeof creatures)[number]["id"]): void {
+    if (destroyed || phase !== "active") return;
+    const idx = findIdx(id);
+    if (idx < 0) return;
+    proximityLatched.add(idx);
+    greetIdx = idx;
+    greetT = 0;
+    creatures[idx].greet();
+  }
+
   function updateCreatures(dt: number): void {
     ctx.time = activeT;
     ctx.dt = dt;
@@ -684,12 +697,32 @@ export function createRealmScene(
       ctx.greeting = i === greetIdx ? greetT : 0;
       c.update(ctx as CreatureContext);
       const d = Math.hypot(c.x - lan.x, c.y - lan.y);
+      if (
+        phase === "active" &&
+        d >= interactR * PROXIMITY_EXIT_FACTOR
+      ) {
+        proximityLatched.delete(i);
+      }
       if (d < interactR && d < nearestDist) {
         nearestDist = d;
         nearestIdx = i;
       }
     }
     if (greetIdx >= 0 && greetT > 6) greetIdx = -1; // greeting is one-shot; forget it after a while
+
+    if (
+      !destroyed &&
+      phase === "active" &&
+      nearestIdx >= 0 &&
+      !proximityLatched.has(nearestIdx)
+    ) {
+      // Consume this approach even if busy, reduced, or being lured.
+      // There is no queue: departure beyond the outer band re-arms it.
+      proximityLatched.add(nearestIdx);
+      if (greetIdx < 0 && lure === 0 && !ctx.reduced) {
+        startGreeting(creatures[nearestIdx].id);
+      }
+    }
     const id = phase === "active" && nearestIdx >= 0 ? creatures[nearestIdx].id : null;
     if (id !== lastNearestId) {
       lastNearestId = id;
@@ -1245,12 +1278,9 @@ export function createRealmScene(
     },
 
     startGreeting(id) {
-      if (destroyed || phase !== "active") return;
-      const idx = findIdx(id);
-      if (idx < 0) return;
-      greetIdx = idx;
-      greetT = 0;
-      creatures[idx].greet();
+      // delegate to the shared entry point so selection and proximity
+      // arbitration (the latch set) stay single-sourced
+      startGreeting(id);
     },
 
     setPointer(x, y, active) {

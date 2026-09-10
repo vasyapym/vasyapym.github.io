@@ -319,12 +319,52 @@ try {
   check("closed panel leaves no close button in the DOM",
     (await desktop.$(".realm-panel .realm-panel-close")) === null);
   await desktop.keyboard.press("Escape"); // layer → landing
+  // r9 D1 staged teardown: the retirement must begin only at layer opacity 0,
+  // with the canvases hidden while the body is still locked and the shell inert.
+  // The stage windows are shorter than a poll cadence, so a MutationObserver
+  // records the invariants AT each stage transition instead.
+  await desktop.evaluate(() => {
+    window.__stages = [];
+    const layer = document.querySelector(".realm-layer");
+    if (!layer) return;
+    const record = () => {
+      const canvases = layer.querySelectorAll("canvas");
+      window.__stages.push({
+        stage: layer.dataset.realmExitStage ?? null,
+        canvasesHidden: canvases.length > 0 && Array.from(canvases).every(
+          (c) => getComputedStyle(c).display === "none"),
+        bodyLocked: getComputedStyle(document.body).position === "fixed",
+        shellInert: document.querySelector(".signal-index-shell")?.inert === true,
+        opacity: getComputedStyle(layer).opacity,
+      });
+    };
+    new MutationObserver(record).observe(layer, {
+      attributes: true, attributeFilter: ["data-realm-exit-stage"],
+    });
+    record();
+  });
   check("esc exits the realm",
     await until(desktop, () => document.querySelector(".realm-layer") === null, 4000));
+  check("r9 d1: retirement starts at opacity 0 with canvases hidden, body locked, shell inert",
+    await desktop.evaluate(() => {
+      const stages = window.__stages ?? [];
+      const retired = stages.filter((s) => s.stage === "retired");
+      return retired.length > 0 && retired.every((s) =>
+        s.canvasesHidden && s.bodyLocked && s.shellInert &&
+        Number.parseFloat(s.opacity) === 0);
+    }));
   const scrollAfter = await desktop.evaluate(() => window.scrollY);
   check("landing scroll restored", Math.abs(scrollAfter - enteredAt) < 30, `scrollY=${scrollAfter}`);
   check("chip is back", await desktop.evaluate(() =>
     document.querySelector(".realm-enter-chip") !== null));
+  // r9 D1 artwork refresh: the temporary will-change hint must be fully
+  // restored after the post-exit sampling window (no permanent inline hints).
+  check("r9 d1: artwork refresh hint restored after release",
+    await until(desktop, () => {
+      const nodes = document.querySelectorAll(".project-artwork-object");
+      return Array.from(nodes).every(
+        (n) => n.style.getPropertyValue("will-change") === "");
+    }, 2500));
 
   // ── desktop: canvas tap = select (opens the tapped creature's panel) ──
   const dive = await browser.newPage();
@@ -450,6 +490,76 @@ try {
         r.top > window.innerHeight * 0.5; // top edge sits in the lower half
     }));
   await mobile.screenshot({ path: join(outDir, "mobile-realm.png") });
+
+  // r9 D2 sheet law: the wrapper is a stationary frame; only the inner body
+  // scrolls, and the close X must not move while the copy scrolls beneath it.
+  // (The real device's 34px safe-area inset is what overflows the sheet; the
+  // longest description is used here so Blink overflows the body too.)
+  const closeRectAt = () => mobile.evaluate(() => {
+    const b = document.querySelector(".realm-panel-close")?.getBoundingClientRect();
+    return b ? { top: Math.round(b.top), left: Math.round(b.left) } : null;
+  });
+  await mobile.evaluate(() =>
+    document.querySelectorAll(".realm-legend-btn")[2]?.click()); // explosion: longest copy
+  await wait(700);
+  const closeRest = await closeRectAt();
+  // Emulate the real device's 34px safe-area inset (Blink reports 0): shrink
+  // the sheet's content box by 34px so the longest copy overflows the body —
+  // on iPhone 11 that overflow is what used to scroll the whole sheet.
+  await mobile.evaluate(() => {
+    const panel = document.querySelector(".realm-panel");
+    panel.style.paddingBottom = "calc(1.4rem + 34px)";
+  });
+  await wait(300);
+  // The layer's touch-action:none blocks native panning in Blink (WebKit's
+  // historical quirk allowed it on device — the drift the owner saw), so the
+  // geometry contract is asserted with a programmatic body scroll.
+  await mobile.evaluate(() => {
+    const body = document.querySelector(".realm-panel-body");
+    if (body) body.scrollTop = 120;
+  });
+  await wait(300);
+  const scrolledSheet = await mobile.evaluate(() => ({
+    wrapperScroll: document.querySelector(".realm-panel").scrollTop,
+    bodyScroll: document.querySelector(".realm-panel-body")?.scrollTop ?? -1,
+  }));
+  const closeRectScrolled = await closeRectAt();
+  check("r9 d2: sheet copy scrolls in the body; wrapper and X stay fixed",
+    closeRest !== null && closeRectScrolled !== null &&
+    closeRectScrolled.top === closeRest.top &&
+    closeRectScrolled.left === closeRest.left &&
+    scrolledSheet.wrapperScroll === 0 &&
+    scrolledSheet.bodyScroll > 0,
+    `body=${scrolledSheet.bodyScroll} close=${JSON.stringify(closeRest)}→${JSON.stringify(closeRectScrolled)}`);
+  // the final action stays reachable above the emulated safe-area pad
+  await mobile.evaluate(() => {
+    const body = document.querySelector(".realm-panel-body");
+    if (body) body.scrollTop = body.scrollHeight;
+  });
+  await wait(400);
+  const diveGap = await mobile.evaluate(() => {
+    const dive = document.querySelector(".realm-panel-dive")?.getBoundingClientRect();
+    const panel = document.querySelector(".realm-panel")?.getBoundingClientRect();
+    if (!dive || !panel) return null;
+    return Math.round(panel.bottom - dive.bottom);
+  });
+  check("r9 d2: dive action reachable above the safe-area padding",
+    diveGap !== null && diveGap > 30, `gap=${diveGap}px`);
+  // clean up the emulation before the next gates
+  await mobile.evaluate(() => {
+    const panel = document.querySelector(".realm-panel");
+    panel.style.removeProperty("padding-bottom");
+  });
+  // switching projects resets the body scroll (keyed remount)
+  await mobile.evaluate(() =>
+    document.querySelectorAll(".realm-legend-btn")[0]?.click());
+  check("r9 d2: body scroll resets on project switch",
+    await until(mobile, () => {
+      const body = document.querySelector(".realm-panel-body");
+      return !!body && body.scrollTop === 0;
+    }, 2500));
+  await mobile.keyboard.press("Escape"); // close the sheet before the reduced leg
+  await wait(300);
 
   // ── reduced motion: opens, works, exits ──
   const reduced = await browser.newPage();
