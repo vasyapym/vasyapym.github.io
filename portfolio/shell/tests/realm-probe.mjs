@@ -227,8 +227,10 @@ try {
     await section.$eval(".realm-enter-chip", (el) =>
       el.disabled || !el.classList.contains("is-visible")));
   await section.keyboard.press("Escape");
-  await wait(1300);
-  check("esc exits from the section entry", (await section.$(".realm-layer")) === null);
+  // the leave choreography (0.9s script + unmount) stretches past 1.3s under
+  // software-GL load — poll the unmount instead of trusting a fixed wait
+  check("esc exits from the section entry",
+    await until(section, () => document.querySelector(".realm-layer") === null, 4000));
   check("focus returns to the section control", await section.evaluate(() =>
     document.activeElement?.classList.contains("realm-threshold-enter") === true));
   await section.close();
@@ -264,8 +266,8 @@ try {
   // the panel wrapper is persistent since r5 pass D — closed = no .is-open
   check("esc closes the panel", (await desktop.$(".realm-panel.is-open")) === null);
   await desktop.keyboard.press("Escape"); // layer → landing
-  await wait(1300);
-  check("esc exits the realm", (await desktop.$(".realm-layer")) === null);
+  check("esc exits the realm",
+    await until(desktop, () => document.querySelector(".realm-layer") === null, 4000));
   const scrollAfter = await desktop.evaluate(() => window.scrollY);
   check("landing scroll restored", Math.abs(scrollAfter - enteredAt) < 30, `scrollY=${scrollAfter}`);
   check("chip is back", await desktop.evaluate(() =>
@@ -342,7 +344,8 @@ try {
   check("reduced: legend intact",
     (await reduced.$$(".realm-legend-btn")).length === 7);
   await exitViaButton(reduced);
-  check("reduced: leave restores the landing", (await reduced.$(".realm-layer")) === null);
+  check("reduced: leave restores the landing",
+    await until(reduced, () => document.querySelector(".realm-layer") === null, 4000));
 
   for (const p of [desktop, dive, mobile, section, reduced]) {
     check(`console clean (${p.errors.length} errors)`, p.errors.length === 0,

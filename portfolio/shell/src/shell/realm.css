@@ -5,224 +5,226 @@
    lantern is the cursor, so the system cursor hides over the light-field
    and returns over real controls. amber is the single interactive signal. */
 
-/* ── in-flow threshold: the surface ends, a recessed opening descends ── */
-.signal-index .realm-threshold {
-  position: relative;
-  isolation: isolate;
+/* ── in-flow threshold: the conserved count — 07 holds, the margin flips works ⇄ doors ── */
+/* d — marginal return */
+.realm-threshold.rt-d,
+.realm-threshold.rt-d * {
   box-sizing: border-box;
-  display: grid;
-  grid-template-columns: minmax(0, 1fr) minmax(15rem, 21rem);
-  align-items: start;
-  gap: 32px 48px;
-  min-height: 300px;
-  margin: 0;
-  padding:
-    clamp(36px, 4.5vw, 60px)
-    max(clamp(20px, 5vw, 80px), env(safe-area-inset-right, 0px))
-    0
-    max(clamp(20px, 5vw, 80px), env(safe-area-inset-left, 0px));
+}
+
+.realm-threshold.rt-d {
+  display: block;
+  padding: 24px clamp(24px, 5vw, 80px);
+  border-top: 1px solid var(--ink-line-soft);
   border-bottom: 1px solid var(--ink-line-soft);
   border-radius: 0;
-  background: linear-gradient(
-    180deg,
-    var(--ink-bg) 0%,
-    #060d11 44%,
-    #020609 78%,
-    #020609 100%
-  );
+  background: var(--ink-bg);
   color: var(--ink-text);
-}
-
-.signal-index .realm-threshold::before {
-  content: "";
-  position: absolute;
-  top: 0;
-  left: max(clamp(20px, 5vw, 80px), env(safe-area-inset-left, 0px));
-  right: max(clamp(20px, 5vw, 80px), env(safe-area-inset-right, 0px));
-  height: 1px;
-  background: var(--ink-line);
-  transform: scaleX(1);
-  transform-origin: left;
-  pointer-events: none;
-}
-
-.signal-index .realm-threshold-copy {
-  min-width: 0;
-  max-width: 38rem;
-  padding-bottom: 40px;
-}
-
-.signal-index .realm-threshold-label {
-  margin: 0 0 20px;
-  color: var(--ink-muted);
-  font: 400 11px/1.5 var(--mono);
-  letter-spacing: 0.04em;
-  text-transform: lowercase;
-}
-
-.signal-index .realm-threshold h2 {
-  margin: 0;
-  color: var(--ink-text);
-  font: 400 clamp(24px, 2.4vw, 32px)/1.25 var(--sans);
-  letter-spacing: -0.025em;
-  text-wrap: pretty;
-}
-
-.signal-index .realm-threshold-enter {
-  position: relative;
-  box-sizing: border-box;
-  display: flex;
-  flex-direction: column;
-  justify-content: flex-end;
-  align-self: end;
-  justify-self: stretch;
-  width: 100%;
-  min-width: 0;
-  min-height: 188px;
-  margin: 0;
-  padding: 0;
-  appearance: none;
-  border: 0;
-  border-inline: 1px solid var(--ink-line);
-  border-radius: 0;
-  background: #020609;
-  box-shadow: none;
-  color: var(--ink-bg);
-  font: 500 13px/1.5 var(--mono);
-  letter-spacing: 0.01em;
+  font-family: var(--sans);
+  font-variant-numeric: tabular-nums;
   text-align: left;
-  text-transform: lowercase;
-  cursor: pointer;
-  touch-action: manipulation;
-  transition: border-color 160ms ease;
 }
 
-.signal-index .realm-threshold-enter::before {
-  content: "";
-  position: absolute;
-  top: 0;
-  right: 29px;
-  bottom: 80px;
-  width: 1px;
-  background: var(--ink-line);
-  transform: scaleY(1);
-  transform-origin: top;
-  pointer-events: none;
+.rt-d :where(p, h2) {
+  margin: 0;
 }
 
-.signal-index .realm-threshold-enter-sill {
-  position: relative;
-  box-sizing: border-box;
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 24px;
+.rt-d-inner {
+  display: grid;
+  grid-template-columns: 88px minmax(0, 1fr);
+  grid-template-rows: auto auto auto;
+  align-items: baseline;
+  column-gap: 24px;
+  row-gap: 8px;
   width: 100%;
-  min-height: 60px;
-  padding: 18px 20px;
-  background: var(--ink-accent);
-  transition: background-color 160ms ease;
+  max-width: 1120px;
+  margin-inline: auto;
 }
 
-.signal-index .realm-threshold-enter svg {
+.rt-d-label {
+  grid-column: 2;
+  grid-row: 1;
+  color: var(--ink-muted);
+  font: 400 12px/18px var(--mono);
+}
+
+.rt-d-register {
+  grid-column: 1;
+  grid-row: 2;
+  align-self: baseline;
+  color: var(--ink-muted);
+  font: 400 12px/18px var(--mono);
+}
+
+.rt-d-visual {
+  display: inline-flex;
+  align-items: baseline;
+  gap: 8px;
+  white-space: nowrap;
+}
+
+.rt-d-count {
+  color: var(--ink-text);
+  font-variant-numeric: tabular-nums;
+}
+
+.rt-d-window {
+  display: inline-grid;
+  grid-template-columns: 5ch;
+  grid-template-rows: 18px;
+  width: 5ch;
+  height: 18px;
+  overflow: hidden;
+  letter-spacing: 0;
+}
+
+.rt-d-track {
+  display: grid;
+  grid-template-rows: repeat(2, 18px);
+  width: 5ch;
+  height: 36px;
+  transform: translateY(0);
+  transition: transform 360ms cubic-bezier(.25, .7, .2, 1);
+}
+
+.rt-d-track > span {
   display: block;
-  flex: 0 0 20px;
+  height: 18px;
+  line-height: 18px;
 }
 
-.signal-index .realm-threshold-enter:not(:disabled):is(:hover, :focus-visible) {
-  border-color: var(--ink-accent-bright);
+.signal-index .realm-threshold.rt-d.is-revealed .rt-d-track {
+  transform: translateY(-18px);
 }
 
-.signal-index .realm-threshold-enter:not(:disabled):is(:hover, :focus-visible)
-  .realm-threshold-enter-sill {
-  background: var(--ink-accent-bright);
+.rt-d h2 {
+  grid-column: 2;
+  grid-row: 2;
+  min-width: 0;
+  font: 450 25px/31px var(--sans);
+  letter-spacing: -0.02em;
 }
 
-.signal-index .realm-threshold-enter:not(:disabled):active
-  .realm-threshold-enter-sill {
-  background: var(--ink-accent-deep);
+.rt-d-action {
+  grid-column: 2;
+  grid-row: 3;
+  display: flex;
+  align-items: baseline;
+  gap: 10px;
+  width: max-content;
+  max-width: 100%;
+  font: 400 12px/18px var(--mono);
 }
 
-.signal-index .realm-threshold-enter:focus-visible {
-  outline: 2px solid var(--ink-accent-bright);
+.rt-d-slash {
+  color: var(--ink-faint);
+}
+
+.rt-d .realm-threshold-enter {
+  display: inline-flex;
+  align-items: center;
+  width: max-content;
+  max-width: 100%;
+  min-height: 44px;
+  margin: 0;
+  padding: 13px 0;
+  border: 0;
+  border-radius: 0;
+  appearance: none;
+  background: transparent;
+  color: var(--ink-accent);
+  font: 400 12px/18px var(--mono);
+  font-variant-numeric: tabular-nums;
+  text-align: left;
+  text-decoration-line: underline;
+  text-decoration-thickness: 1px;
+  text-underline-offset: 5px;
+  cursor: pointer;
+}
+
+.rt-d .realm-threshold-enter:hover:not(:disabled) {
+  color: var(--ink-accent-bright);
+}
+
+.rt-d .realm-threshold-enter:active:not(:disabled) {
+  color: var(--ink-accent-deep);
+}
+
+.rt-d .realm-threshold-enter:focus-visible {
+  outline: 1px solid var(--ink-accent);
   outline-offset: 4px;
 }
 
-.signal-index .realm-threshold-enter:disabled {
-  border-color: var(--ink-line-soft);
+.rt-d .realm-threshold-enter:disabled {
   color: var(--ink-faint);
-  cursor: default;
+  text-decoration: none;
+  cursor: not-allowed;
 }
 
-.signal-index .realm-threshold-enter:disabled .realm-threshold-enter-sill {
-  background: var(--ink-line-soft);
+@media (hover: hover) {
+  .signal-index .realm-threshold.rt-d.is-revealed:has(
+    .realm-threshold-enter:hover:not(:disabled)
+  ) .rt-d-track {
+    transform: translateY(0);
+  }
 }
 
-.signal-index.signal-index-reveal-ready .realm-threshold::before {
-  transform: scaleX(0);
-  transition: transform 640ms cubic-bezier(0.22, 1, 0.36, 1);
+.signal-index .realm-threshold.rt-d.is-revealed:has(
+  .realm-threshold-enter:focus-visible:not(:disabled)
+) .rt-d-track {
+  transform: translateY(0);
 }
 
-.signal-index.signal-index-reveal-ready
-  .realm-threshold
-  .realm-threshold-enter::before {
-  transform: scaleY(0);
-  transition: transform 720ms cubic-bezier(0.22, 1, 0.36, 1) 120ms;
-}
-
-.signal-index.signal-index-reveal-ready .realm-threshold.is-revealed::before {
-  transform: scaleX(1);
-}
-
-.signal-index.signal-index-reveal-ready
-  .realm-threshold.is-revealed
-  .realm-threshold-enter::before {
-  transform: scaleY(1);
-}
-
-.signal-index-shell[aria-hidden="true"] .realm-threshold-enter {
-  visibility: hidden;
+.rt-d-sr {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip-path: inset(50%);
+  white-space: nowrap;
+  border: 0;
 }
 
 @media (max-width: 767px) {
-  .signal-index .realm-threshold {
-    grid-template-columns: minmax(0, 1fr);
-    gap: 28px;
-    min-height: 0;
-    padding-top: 32px;
+  .realm-threshold.rt-d {
+    padding: 20px 24px;
   }
 
-  .signal-index .realm-threshold-copy {
-    max-width: none;
-    padding-bottom: 0;
+  .rt-d-inner {
+    grid-template-columns: 62px minmax(0, 1fr);
+    column-gap: 16px;
+    row-gap: 8px;
   }
 
-  .signal-index .realm-threshold-label {
-    margin-bottom: 16px;
+  .rt-d h2 {
+    font-size: 22px;
+    line-height: 28px;
   }
 
-  .signal-index .realm-threshold h2 {
-    font-size: clamp(24px, 6.5vw, 30px);
-  }
-
-  .signal-index .realm-threshold-enter {
-    min-height: 136px;
+  .rt-d h2 > span {
+    display: block;
   }
 }
 
 @media (prefers-reduced-motion: reduce) {
-  .signal-index.signal-index-reveal-ready .realm-threshold::before,
-  .signal-index.signal-index-reveal-ready
-    .realm-threshold
-    .realm-threshold-enter::before {
-    transform: none;
-    transition: none;
+  .rt-d,
+  .rt-d *,
+  .rt-d *::before,
+  .rt-d *::after {
+    animation: none !important;
+    transition: none !important;
   }
 
-  .signal-index .realm-threshold-enter,
-  .signal-index .realm-threshold-enter-sill {
-    transition: none;
+  .rt-d .rt-d-track {
+    transform: translateY(-18px) !important;
   }
+}
+
+/* the section button hides with the shell while the realm is open */
+.signal-index-shell[aria-hidden="true"] .realm-threshold-enter {
+  visibility: hidden;
 }
 
 /* ── fixed strip: the existing mobile presentation at every width ── */
@@ -352,11 +354,8 @@
   position: fixed;
   inset: 0;
   z-index: 60; /* above the landing grain (z 4) */
-  background: transparent; /* landing shows through the ink flood; the
-                              panel itself is solid near-black */
+  background: transparent; /* landing shows through the ink flood */
   overflow: hidden;
-  isolation: isolate;
-  box-sizing: border-box;
   outline: none;
   cursor: none; /* the on-canvas lantern replaces the pointer */
   font-family: var(--mono);
@@ -508,68 +507,33 @@
   flex: 0 0 auto;
 }
 
-/* ── panel (persistent right sheet; content opens via .is-open) ──
-   The wrapper stays mounted with pinned offsets so no insertion can ever
-   paint a misplaced sheet: the static state is hidden, transparent and
-   unanimated; the entrance is a class-added opacity transition. */
+/* ── panel (right sheet, only while a creature is open) ─────── */
 .realm-panel {
   position: absolute;
   top: 0;
   right: 0;
-  bottom: 0;
-  left: calc(100% - min(30rem, 92%));
   z-index: 70;
-
-  box-sizing: border-box;
   display: flex;
   flex-direction: column;
-  width: min(30rem, 92%);
+  width: min(30rem, 92vw);
   height: 100%;
-  min-height: 0;
-  max-height: 100%;
-
-  padding: 1.4rem 1.3rem calc(1.4rem + env(safe-area-inset-bottom, 0px));
-  background: #04080b;
-  border: 0;
+  padding: 1.4rem 1.3rem calc(1.4rem + env(safe-area-inset-bottom));
+  background: rgba(4, 8, 11, 0.92);
   border-left: 1px solid var(--ink-line);
-
   overflow-y: auto;
-  overscroll-behavior: contain;
   cursor: auto;
   scrollbar-width: thin;
   scrollbar-color: var(--ink-line) transparent;
-
-  /* independent of animation startup or js scheduling */
-  opacity: 0;
-  visibility: hidden;
-  pointer-events: none;
-  transform: none;
-  animation: none;
-  transition: none;
+  animation: realm-panel-in 0.28s ease both;
 }
-.realm-panel.is-open {
-  opacity: 1;
-  visibility: visible;
-  pointer-events: auto;
-  transition: opacity 0.28s ease;
+@keyframes realm-panel-in {
+  from { transform: translateX(100%); }
+  to   { transform: translateX(0); }
 }
-.realm-reduced .realm-panel.is-open {
-  transition: opacity 0.24s linear;
+.realm-reduced .realm-panel {
+  animation: realm-panel-fade 0.24s linear both;
 }
-/* defense independent of entrance callbacks */
-.realm-layer[data-realm-leaving="true"] .realm-panel {
-  opacity: 0;
-  visibility: hidden;
-  pointer-events: none;
-  transform: none;
-  animation: none;
-  transition: none;
-}
-@media (prefers-reduced-motion: reduce) {
-  .realm-panel.is-open {
-    transition: opacity 0.24s linear;
-  }
-}
+@keyframes realm-panel-fade { from { opacity: 0; } to { opacity: 1; } }
 .realm-panel::-webkit-scrollbar { width: 7px; }
 .realm-panel::-webkit-scrollbar-thumb { background: var(--ink-line); }
 .realm-panel::-webkit-scrollbar-track { background: transparent; }
@@ -718,20 +682,10 @@
   }
 
   .realm-layer .realm-panel {
-    top: 52%;
-    right: 0;
-    bottom: 0;
-    left: 0;
-
     box-sizing: border-box;
-    width: 100%;
-    height: 48%;
     min-height: 0;
     max-height: 48%;
-
-    padding: 1.4rem 1.3rem calc(1.4rem + env(safe-area-inset-bottom, 0px));
-    border: 0;
-    border-top: 1px solid var(--ink-line);
+    padding-bottom: calc(1.4rem + env(safe-area-inset-bottom, 0px));
   }
 
   .realm-legend {
@@ -746,32 +700,23 @@
   .realm-legend-btn { flex: 0 0 auto; }
 
   .realm-caption { display: none; } /* avoids colliding with the strip */
-}
 
-/* ── surface exit: one opacity envelope for the whole dialog layer ──
-   The layer (canvas + chrome + scrim) fades together; the old canvas-only
-   fade is overridden while surface owns the transition so the two curves
-   never stack. Dive keeps its own iris choreography. */
-.realm-exit-layer {
-  opacity: 1;
-  transition: opacity 600ms cubic-bezier(0.22, 1, 0.36, 1);
-}
-
-.realm-exit-layer.realm--surfacing {
-  opacity: 0;
-}
-
-.realm-exit-layer.realm--surfacing .realm-gl--fade {
-  opacity: 1;
-  transition: none;
-}
-
-.realm-reduced .realm-exit-layer {
-  transition: opacity 240ms linear;
-}
-
-@media (prefers-reduced-motion: reduce) {
-  .realm-exit-layer {
-    transition: opacity 240ms linear;
+  .realm-panel {
+    top: auto;
+    right: 0;
+    left: 0;
+    bottom: 0;
+    width: 100%;
+    height: auto;
+    max-height: 72%;
+    border-left: none;
+    border-top: 1px solid var(--ink-line);
+    padding-bottom: calc(1.4rem + env(safe-area-inset-bottom));
+    animation: realm-panel-in-mobile 0.28s ease both;
   }
+  @keyframes realm-panel-in-mobile {
+    from { transform: translateY(100%); }
+    to   { transform: translateY(0); }
+  }
+  .realm-reduced .realm-panel { animation: realm-panel-fade 0.24s linear both; }
 }
