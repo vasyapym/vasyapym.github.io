@@ -2,7 +2,8 @@
 // then walks the opt-in layer end to end in headless Chrome — enter flood,
 // canvas presence, animation liveness, legend a11y (including the
 // focused-button Enter rule), esc chain, scroll restoration, dive→SPA
-// handoff, mobile viewport hygiene and reduced motion.
+// handoff, the r11 deep-return intent, mobile viewport hygiene and reduced
+// motion.
 //
 //   node portfolio/shell/tests/realm-probe.mjs [outDir]
 //
@@ -537,6 +538,167 @@ try {
   check("dive hands off to the project page",
     await until(dive, () => window.location.pathname.includes("explosion"), 4000));
 
+  // ── r11: returning from a deep-opened project restores the deep ──
+  const ret = await browser.newPage();
+  await ret.setViewport({ width: 1440, height: 900, deviceScaleFactor: 1 });
+  collectErrors(ret);
+  await open(ret);
+  await enterRealm(ret);
+  await ret.evaluate(() => document.querySelectorAll(".realm-legend-btn")[2]?.click());
+  await wait(500);
+  check("r11: entry and panel opening write no return intent",
+    await ret.evaluate(() =>
+      window.sessionStorage.getItem("portfolio.realm.return.v1") === null));
+  await ret.evaluate(() => document.querySelector(".realm-panel-dive")?.click());
+  check("r11: committed dive records the deep-return intent",
+    await until(ret, () =>
+      window.sessionStorage.getItem("portfolio.realm.return.v1") === "deep", 5000));
+  check("r11: dive hands off to the project page",
+    await until(ret, () => window.location.pathname.includes("projects"), 5000));
+  await ret.evaluate(() => document.querySelector(".back-link")?.click());
+  check("r11: in-page back restores the deep (no surface detour)",
+    await until(ret, () =>
+      document.querySelector(".realm-layer") !== null &&
+      window.location.pathname === "/", 5000));
+  await wait(1700); // the re-entry flood must reach the active phase before input
+  check("r11: restored realm owns the screen from the first commit",
+    await until(ret, () =>
+      document.querySelector(".signal-index-shell")?.inert === true &&
+      getComputedStyle(document.body).position === "fixed", 4000));
+  await exitViaButton(ret);
+  check("r11: normal exit from a restored realm clears the intent",
+    await until(ret, () =>
+      document.querySelector(".realm-layer") === null &&
+      window.sessionStorage.getItem("portfolio.realm.return.v1") === null, 5000));
+  check("r11: exit from a restored realm focuses the threshold fallback",
+    await until(ret, () =>
+      document.activeElement?.classList.contains("realm-threshold-enter") === true, 3000));
+  await ret.evaluate(() => {
+    document.querySelector(".signal-index-card")
+      ?.scrollIntoView({ block: "center", behavior: "instant" });
+  });
+  await wait(400);
+  await ret.evaluate(() => document.querySelector(".signal-index-card")?.click());
+  check("r11: surface card still hands off to a project page",
+    await until(ret, () => window.location.pathname.includes("projects"), 5000));
+  check("r11: surface handoff keeps the intent cleared",
+    await ret.evaluate(() =>
+      window.sessionStorage.getItem("portfolio.realm.return.v1") === null));
+  await ret.evaluate(() => document.querySelector(".back-link")?.click());
+  check("r11: surface project still returns to the surface",
+    await until(ret, () =>
+      document.querySelector(".realm-layer") === null &&
+      window.location.pathname === "/", 5000));
+  await ret.close();
+
+  // browser-back + consecutive-deep legs
+  const retBack = await browser.newPage();
+  await retBack.setViewport({ width: 1440, height: 900, deviceScaleFactor: 1 });
+  collectErrors(retBack);
+  await open(retBack);
+  await enterRealm(retBack);
+  await retBack.evaluate(() => document.querySelectorAll(".realm-legend-btn")[2]?.click());
+  await wait(500);
+  await retBack.evaluate(() => document.querySelector(".realm-panel-dive")?.click());
+  await until(retBack, () => window.location.pathname.includes("projects"), 5000);
+  await retBack.goBack();
+  check("r11: browser back restores the deep",
+    await until(retBack, () =>
+      document.querySelector(".realm-layer") !== null &&
+      window.location.pathname === "/", 5000));
+  await wait(1700); // the re-entry flood must reach the active phase before input
+  await retBack.evaluate(() => document.querySelectorAll(".realm-legend-btn")[3]?.click());
+  await wait(500);
+  await retBack.evaluate(() => document.querySelector(".realm-panel-dive")?.click());
+  check("r11: second deep dive hands off again",
+    await until(retBack, () => window.location.pathname.includes("projects"), 5000));
+  await retBack.goBack();
+  check("r11: second deep return still restores the deep (non-consuming intent)",
+    await until(retBack, () =>
+      document.querySelector(".realm-layer") !== null &&
+      window.location.pathname === "/", 5000));
+  await retBack.close();
+
+  // reload legs: session storage must survive a fresh boot on the project page
+  const retReload = await browser.newPage();
+  await retReload.setViewport({ width: 1440, height: 900, deviceScaleFactor: 1 });
+  collectErrors(retReload);
+  await open(retReload);
+  await enterRealm(retReload);
+  await retReload.evaluate(() => document.querySelectorAll(".realm-legend-btn")[2]?.click());
+  await wait(500);
+  await retReload.evaluate(() => document.querySelector(".realm-panel-dive")?.click());
+  await until(retReload, () => window.location.pathname.includes("projects"), 5000);
+  await retReload.reload({ waitUntil: "domcontentloaded" });
+  await retReload.waitForFunction(
+    () => document.querySelector(".back-link") !== null,
+    { timeout: 30000, polling: 250 },
+  );
+  await retReload.evaluate(() => document.querySelector(".back-link")?.click());
+  check("r11: project reload then in-page back restores the deep (session storage)",
+    await until(retReload, () =>
+      document.querySelector(".realm-layer") !== null &&
+      window.location.pathname === "/", 5000));
+  await wait(1700); // the re-entry flood must reach the active phase before input
+  await retReload.evaluate(() => document.querySelectorAll(".realm-legend-btn")[2]?.click());
+  await wait(500);
+  await retReload.evaluate(() => document.querySelector(".realm-panel-dive")?.click());
+  await until(retReload, () => window.location.pathname.includes("projects"), 5000);
+  await retReload.reload({ waitUntil: "domcontentloaded" });
+  await retReload.waitForFunction(
+    () => document.querySelector(".back-link") !== null,
+    { timeout: 30000, polling: 250 },
+  );
+  await retReload.evaluate(() => { window.location.href = "/"; });
+  check("r11: same-tab root navigation after reload restores the deep",
+    await until(retReload, () =>
+      document.querySelector(".realm-layer") !== null, 5000));
+  await retReload.close();
+
+  // fresh boot directly on a project URL (the GitHub Pages 404 path)
+  const retFresh = await browser.newPage();
+  await retFresh.setViewport({ width: 1440, height: 900, deviceScaleFactor: 1 });
+  collectErrors(retFresh);
+  await retFresh.goto(`${BASE}/projects/explosion/`, {
+    waitUntil: "domcontentloaded",
+    timeout: 30000,
+  });
+  await retFresh.waitForFunction(
+    () => document.querySelector(".back-link") !== null,
+    { timeout: 30000, polling: 250 },
+  );
+  await retFresh.evaluate(() => document.querySelector(".back-link")?.click());
+  check("r11: fresh-context direct project boot returns to the surface",
+    await until(retFresh, () =>
+      document.querySelector(".realm-layer") === null &&
+      window.location.pathname === "/", 5000));
+  await retFresh.close();
+
+  // reduced-motion leg: the return uses the settled reduced path
+  const retReduced = await browser.newPage();
+  await retReduced.setViewport({ width: 1440, height: 900, deviceScaleFactor: 1 });
+  await retReduced.emulateMediaFeatures([{ name: "prefers-reduced-motion", value: "reduce" }]);
+  collectErrors(retReduced);
+  await open(retReduced);
+  await enterRealm(retReduced);
+  check("r11 reduced: realm opens with the reduced class",
+    await retReduced.$eval(".realm-layer", (el) => el.className.includes("realm-reduced")));
+  await retReduced.evaluate(() => document.querySelectorAll(".realm-legend-btn")[2]?.click());
+  await wait(500);
+  await retReduced.evaluate(() => document.querySelector(".realm-panel-dive")?.click());
+  await until(retReduced, () => window.location.pathname.includes("projects"), 5000);
+  await retReduced.goBack();
+  check("r11 reduced: return restores the deep with the settled reduced path",
+    await until(retReduced, () => {
+      const layer = document.querySelector(".realm-layer");
+      return layer !== null && layer.className.includes("realm-reduced") &&
+        window.location.pathname === "/";
+    }, 5000));
+  await exitViaButton(retReduced);
+  check("r11 reduced: exit from a restored realm restores the landing",
+    await until(retReduced, () => document.querySelector(".realm-layer") === null, 4000));
+  await retReduced.close();
+
   // ── r8 D2: direct dive — qualified mouse pairing + bare-layer Enter ──
   const direct = await browser.newPage();
   await direct.setViewport({ width: 1440, height: 900, deviceScaleFactor: 1 });
@@ -744,7 +906,7 @@ try {
         getComputedStyle(el).animationName === "none";
     }, 2500));
 
-  for (const p of [desktop, dive, mobile, section, reduced]) {
+  for (const p of [desktop, dive, mobile, section, reduced, ret, retBack, retReload, retFresh, retReduced]) {
     check(`console clean (${p.errors.length} errors)`, p.errors.length === 0,
       p.errors.slice(0, 2).join(" | "));
   }

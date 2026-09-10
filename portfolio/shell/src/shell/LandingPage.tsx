@@ -3,6 +3,11 @@ import type { ProjectModule } from "../../../contracts/project-module";
 import HeroFluid from "./HeroFluid";
 import ProjectArtwork from "./ProjectArtwork";
 import RealmMode from "./RealmMode";
+import {
+  clearRealmReturnIntent,
+  readRealmReturnIntent,
+  rememberRealmReturnIntent,
+} from "./realm-return-intent";
 import "./realm.css";
 
 type LandingPageProps = {
@@ -83,7 +88,25 @@ function scheduleIdleWarm(callback: () => void) {
   window.setTimeout(callback, 900);
 }
 
-export default function LandingPage({ projects, onOpenProject }: LandingPageProps) {
+export default function LandingPage({
+  projects,
+  onOpenProject: openProject,
+}: LandingPageProps) {
+  const onOpenProject = useCallback(
+    (id: string) => {
+      clearRealmReturnIntent();
+      openProject(id);
+    },
+    [openProject],
+  );
+
+  const handleRealmOpenProject = useCallback(
+    (id: string) => {
+      rememberRealmReturnIntent();
+      openProject(id);
+    },
+    [openProject],
+  );
   const pageRef = useRef<HTMLElement>(null);
   const heroRef = useRef<HTMLElement>(null);
   const realmThresholdRef = useRef<HTMLElement>(null);
@@ -93,7 +116,10 @@ export default function LandingPage({ projects, onOpenProject }: LandingPageProp
   const realmRestoreFocusRef = useRef(false);
   const realmArtworkRefreshPendingRef = useRef(false);
   const realmFloorRef = useRef<HTMLDivElement>(null);
-  const [realmOpen, setRealmOpen] = useState(false);
+  // The deep-return intent (r11) is restored during the initial render —
+  // a landing that remounts after a deep-opened project boots straight into
+  // the realm; reads are non-destructive, no consumption effect exists.
+  const [realmOpen, setRealmOpen] = useState(readRealmReturnIntent);
   const [realmChipVisible, setRealmChipVisible] = useState(false);
   const [realmEntry, setRealmEntry] = useState<{ x: number; y: number }>(() => ({
     x: 60,
@@ -118,6 +144,7 @@ export default function LandingPage({ projects, onOpenProject }: LandingPageProp
   }, []);
 
   const handleRealmExit = useCallback(() => {
+    clearRealmReturnIntent();
     realmArtworkRefreshPendingRef.current = true;
     realmRestoreFocusRef.current = true;
     setRealmOpen(false);
@@ -836,7 +863,7 @@ export default function LandingPage({ projects, onOpenProject }: LandingPageProp
       {realmOpen ? (
         <RealmMode
           projects={projects}
-          onOpenProject={onOpenProject}
+          onOpenProject={handleRealmOpenProject}
           onExit={handleRealmExit}
           entry={realmEntry}
         />
