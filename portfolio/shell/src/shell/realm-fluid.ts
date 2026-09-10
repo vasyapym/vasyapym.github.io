@@ -57,6 +57,12 @@ interface Pair { read: Target; write: Target }
 const INK: Rgb = [0x0b / 255, 0x13 / 255, 0x17 / 255];
 const BASE: Rgb = [0x04 / 255, 0x08 / 255, 0x0b / 255];
 const WARM: Rgb = [0xe8 / 255, 0xb5 / 255, 0x7c / 255];
+// wake-only tint; keep the core and phosphor palette unchanged
+const WAKE_DYE: Rgb = [
+  WARM[0] * 1.06,
+  WARM[1] * 0.90,
+  WARM[2] * 0.68,
+];
 // ink-mode dye carries ALPHA only: the flood's look is FS_INK's uInk uniform,
 // and a coloured dye would accumulate across the splash script into a bright
 // cyan stain the moment abyss mode renders base + dye.rgb.
@@ -232,6 +238,20 @@ const float TM_KNEE = 0.55;
 const float TM_CEIL = 0.82;
 void main() {
   vec4 d = texture2D(uDye, vUv);
+
+  // quiet upper-water lift; no moving horizon
+  float depth = smoothstep(0.0, 1.0, vUv.y);
+  vec3 base = uBase * mix(0.82, 1.20, depth);
+  base += vec3(0.0, 0.006, 0.014) * depth;
+
+  // background only; peripheral emissions keep their contrast
+  vec2 edgeUv = vUv * 2.0 - 1.0;
+  float edge = clamp(dot(edgeUv, edgeUv) * 0.5, 0.0, 1.0);
+  base *= 1.0 - 0.10 * edge;
+
+  // a trace of scattering, bounded independently of accumulation
+  base *= 1.0 + 0.04 * clamp(d.a, 0.0, 1.0);
+
   vec3 c = d.rgb * uGain;
   // hue-preserving soft shoulder: exactly linear up to TM_KNEE (normal dye and
   // creature colour read unchanged), then asymptotic to TM_CEIL so no amount of
@@ -241,7 +261,7 @@ void main() {
   float over = max(m - TM_KNEE, 0.0);
   float lim = TM_KNEE + (TM_CEIL - TM_KNEE) * (over / (over + (TM_CEIL - TM_KNEE)));
   c *= m > TM_KNEE ? lim / m : 1.0;
-  gl_FragColor = vec4(uBase + c, 1.0);
+  gl_FragColor = vec4(base + c, 1.0);
 }`;
 
 const VS_SNOW = `
@@ -257,16 +277,31 @@ varying vec2 vUv;
 void main() {
   float depth = aFlake.z;
   float seed = aFlake.w;
-  float par = mix(0.1, 0.8, depth);
-  vec2 sway = vec2(sin(uTime * 0.21 + seed * 6.2831) * 0.006 * par, uTime * 0.0035 * par);
+  float layer = depth * depth;
+
+  // distant flakes travel less; near flakes retain camera parallax
+  float par = mix(0.06, 0.80, layer);
+  vec2 sway = vec2(
+    sin(uTime * 0.14 + seed * 6.2831) * 0.006 * par,
+    uTime * 0.0019 * par
+  );
   vec2 uv = fract(aFlake.xy + sway - uCam * par / uScreen);
   vec2 px = uv * uScreen;
+
   vec2 dl = px - uLantern;
   float lant = uLanternI * exp(-dot(dl, dl) / 90000.0);
-  vBright = mix(0.05, 0.2, depth) * (0.35 + 3.0 * lant);
+
+  // readable ambient water; the lantern remains the main light
+  vBright = mix(0.07, 0.21, layer) * (0.50 + 3.10 * lant);
   vUv = vec2(uv.x, 1.0 - uv.y);
+
   gl_PointSize = (1.0 + 2.0 * depth) * uDpr;
-  gl_Position = vec4(uv.x * 2.0 - 1.0, 1.0 - uv.y * 2.0, 0.0, 1.0);
+  gl_Position = vec4(
+    uv.x * 2.0 - 1.0,
+    1.0 - uv.y * 2.0,
+    0.0,
+    1.0
+  );
 }`;
 
 const FS_SNOW = `
@@ -625,7 +660,7 @@ class Fluid implements FluidHandle {
     // instantaneous speed, which is what made the trail pulse and break into dots.
     const s = Math.min(1, Math.max(0, (speed - 90) / 710));
     const amount = 0.05 + 0.15 * (s * s * (3 - 2 * s));
-    this.splatDye(x, y, 30, WARM, amount * weight);
+    this.splatDye(x, y, 30, WAKE_DYE, amount * weight);
   }
 vortex(x: number, y: number, radius: number, strength: number,
           color: Rgb): void {
