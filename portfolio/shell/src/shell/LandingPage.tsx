@@ -582,50 +582,43 @@ export default function LandingPage({ projects, onOpenProject }: LandingPageProp
 
         <section
           ref={realmThresholdRef}
-          className="realm-threshold rt-d"
+          className="realm-threshold rt-f"
           aria-labelledby="realm-threshold-title"
           data-section-reveal=""
         >
-          <div className="rt-d-inner">
-            <p className="rt-d-label">another way through</p>
+          <div className="rt-f-inner">
+            <h2
+              id="realm-threshold-title"
+              aria-label="the same 7 works, beneath the surface — 7 doors into the same catalogue."
+            >
+              <span className="rt-f-line rt-f-above">
+                <span className="rt-f-phrase">the same work,</span>
 
-            <p className="rt-d-register">
-              <span className="rt-d-sr">
-                The same 7 works, behind 7 doors.
-              </span>
+                <span className="rt-f-register" aria-hidden="true">
+                  <span className="rt-f-count">07</span>
+                  <span className="rt-f-noun">works</span>
+                </span>
+              </span>{" "}
+              <span className="rt-f-line rt-f-below">
+                <span className="rt-f-phrase">beneath the surface.</span>
 
-              <span className="rt-d-visual" aria-hidden="true">
-                <span className="rt-d-count">07</span>
-                <span className="rt-d-window">
-                  <span className="rt-d-track">
-                    <span>works</span>
-                    <span>doors</span>
-                  </span>
+                <span className="rt-f-register" aria-hidden="true">
+                  <span className="rt-f-count">07</span>
+                  <span className="rt-f-noun rt-f-doors">doors</span>
                 </span>
               </span>
-            </p>
-
-            <h2 id="realm-threshold-title">
-              <span>the same work,</span>{" "}
-              <span>beneath the surface.</span>
             </h2>
 
-            <div className="rt-d-action">
-              <span className="rt-d-slash" aria-hidden="true">
-                /
-              </span>
-
-              <button
-                ref={realmSectionEnterRef}
-                className="realm-threshold-enter"
-                type="button"
-                onClick={handleRealmEnter}
-                disabled={realmOpen}
-                aria-label="enter the deep — enter the immersive realm"
-              >
-                <span>enter the deep</span>
-              </button>
-            </div>
+            <button
+              ref={realmSectionEnterRef}
+              className="realm-threshold-enter"
+              type="button"
+              onClick={handleRealmEnter}
+              disabled={realmOpen}
+              aria-label="enter the deep — enter the immersive realm"
+            >
+              <span className="rt-f-entry-copy">enter the deep</span>
+            </button>
           </div>
         </section>
 

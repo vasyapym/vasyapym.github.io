@@ -5,226 +5,305 @@
    lantern is the cursor, so the system cursor hides over the light-field
    and returns over real controls. amber is the single interactive signal. */
 
-/* ── in-flow threshold: the conserved count — 07 holds, the margin flips works ⇄ doors ── */
-/* d — marginal return */
-.realm-threshold.rt-d,
-.realm-threshold.rt-d * {
-  box-sizing: border-box;
-}
+/* ── in-flow threshold: the same seven — two grounds, one inventory, the entry on the seam ── */
+/* f — The same seven */
+.realm-threshold.rt-f {
+  /* Approved abyss alias, retuned only within this threshold. */
+  --ink-abyss: #080f12;
 
-.realm-threshold.rt-d {
+  --rt-f-pad-block: 22px;
+  --rt-f-line-height: 28px;
+  --rt-f-crossing: 28px;
+  --rt-f-half-crossing: 14px;
+  --rt-f-seam:
+    calc(
+      var(--rt-f-pad-block) +
+      var(--rt-f-line-height) +
+      var(--rt-f-half-crossing)
+    );
+
   display: block;
-  padding: 24px clamp(24px, 5vw, 80px);
+  position: relative;
+  isolation: isolate;
+  box-sizing: border-box;
+  width: 100%;
+  height: auto;
+  min-height: 0;
+  margin: 0;
+  padding:
+    var(--rt-f-pad-block)
+    clamp(24px, 5vw, 80px);
+
+  border: 0;
   border-top: 1px solid var(--ink-line-soft);
-  border-bottom: 1px solid var(--ink-line-soft);
   border-radius: 0;
+
   background: var(--ink-bg);
+  box-shadow: none;
   color: var(--ink-text);
-  font-family: var(--sans);
+
+  font-family: var(--sans, "IBM Plex Sans"), sans-serif;
   font-variant-numeric: tabular-nums;
   text-align: left;
+
+  /* The threshold is complete before the reveal callback. */
+  opacity: 1;
+  transform: none;
+  animation: none;
+  transition: none;
 }
 
-.rt-d :where(p, h2) {
-  margin: 0;
+/* One opaque lower material; no fade or tonal ramp. */
+.realm-threshold.rt-f::before {
+  content: "";
+  display: block;
+  position: absolute;
+  z-index: 0;
+  inset: var(--rt-f-seam) 0 0;
+  box-sizing: border-box;
+
+  border: 0;
+  border-top: 1px solid var(--ink-line-soft);
+  border-radius: 0;
+
+  background: var(--ink-abyss);
+  opacity: 1;
+  transform: none;
+  pointer-events: none;
 }
 
-.rt-d-inner {
-  display: grid;
-  grid-template-columns: 88px minmax(0, 1fr);
-  grid-template-rows: auto auto auto;
-  align-items: baseline;
-  column-gap: 24px;
-  row-gap: 8px;
+.realm-threshold.rt-f .rt-f-inner {
+  position: relative;
+  z-index: 1;
+  box-sizing: border-box;
   width: 100%;
   max-width: 1120px;
   margin-inline: auto;
 }
 
-.rt-d-label {
-  grid-column: 2;
-  grid-row: 1;
-  color: var(--ink-muted);
-  font: 400 12px/18px var(--mono);
+.realm-threshold.rt-f h2 {
+  display: block;
+  width: fit-content;
+  max-width: 100%;
+  margin: 0;
+  padding: 0;
+
+  color: var(--ink-text);
+  font-family: var(--unbounded, "Unbounded"), sans-serif;
+  font-size: 19px;
+  font-weight: 400;
+  line-height: var(--rt-f-line-height);
+  letter-spacing: -0.025em;
+  text-align: left;
+  text-transform: none;
 }
 
-.rt-d-register {
-  grid-column: 1;
-  grid-row: 2;
-  align-self: baseline;
-  color: var(--ink-muted);
-  font: 400 12px/18px var(--mono);
-}
-
-.rt-d-visual {
-  display: inline-flex;
+.realm-threshold.rt-f .rt-f-line {
+  display: flex;
   align-items: baseline;
-  gap: 8px;
+  column-gap: 18px;
+  width: fit-content;
+  max-width: 100%;
   white-space: nowrap;
 }
 
-.rt-d-count {
-  color: var(--ink-text);
-  font-variant-numeric: tabular-nums;
+.realm-threshold.rt-f .rt-f-below {
+  margin-top: var(--rt-f-crossing);
 }
 
-.rt-d-window {
-  display: inline-grid;
-  grid-template-columns: 5ch;
-  grid-template-rows: 18px;
-  width: 5ch;
-  height: 18px;
-  overflow: hidden;
-  letter-spacing: 0;
-}
-
-.rt-d-track {
-  display: grid;
-  grid-template-rows: repeat(2, 18px);
-  width: 5ch;
-  height: 36px;
-  transform: translateY(0);
-  transition: transform 360ms cubic-bezier(.25, .7, .2, 1);
-}
-
-.rt-d-track > span {
+.realm-threshold.rt-f .rt-f-phrase {
   display: block;
-  height: 18px;
+  flex: 0 0 auto;
+}
+
+.realm-threshold.rt-f .rt-f-register {
+  display: inline-flex;
+  flex: 0 0 auto;
+  align-items: baseline;
+  column-gap: 1ch;
+
+  color: var(--ink-muted);
+  font-family: var(--mono, "IBM Plex Mono"), monospace;
+  font-size: 12px;
+  font-weight: 400;
+  line-height: 18px;
+  letter-spacing: 0;
+  font-variant-numeric: tabular-nums;
+  white-space: nowrap;
+}
+
+.realm-threshold.rt-f .rt-f-count {
+  display: block;
+  color: var(--ink-text);
+}
+
+.realm-threshold.rt-f .rt-f-noun {
+  display: block;
+  color: var(--ink-muted);
+}
+
+/*
+ * Only the access noun takes depth.
+ * Its layout box, the numeral, and both grounds remain stationary.
+ */
+.realm-threshold.rt-f .rt-f-doors {
+  transform: translateY(-3px);
+  transition:
+    transform 420ms cubic-bezier(.22, .68, .2, 1);
+}
+
+.signal-index .realm-threshold.rt-f.is-revealed .rt-f-doors {
+  transform: translateY(0);
+}
+
+/*
+ * The 44px control is centred on the seam.
+ * Its hard-stop background exactly matches the two grounds:
+ * this erases a segment of hairline, not a visible button plate.
+ */
+.realm-threshold.rt-f .realm-threshold-enter {
+  appearance: none;
+  display: flex;
+  position: absolute;
+  top:
+    calc(
+      var(--rt-f-line-height) +
+      var(--rt-f-half-crossing) -
+      22px
+    );
+  right: 0;
+  bottom: auto;
+  left: auto;
+
+  box-sizing: border-box;
+  align-items: center;
+  justify-content: flex-start;
+  column-gap: 12px;
+
+  width: max-content;
+  min-width: 0;
+  height: 44px;
+  min-height: 44px;
+  margin: 0;
+  padding: 13px 8px;
+
+  border: 0;
+  border-radius: 0;
+
+  background:
+    linear-gradient(
+      to bottom,
+      var(--ink-bg) 0,
+      var(--ink-bg) 22px,
+      var(--ink-abyss) 22px,
+      var(--ink-abyss) 100%
+    );
+  box-shadow: none;
+  color: var(--ink-accent);
+
+  font-family: var(--mono, "IBM Plex Mono"), monospace;
+  font-size: 12px;
+  font-weight: 400;
+  line-height: 18px;
+  letter-spacing: 0;
+  text-align: left;
+  text-transform: none;
+  text-decoration: none;
+  white-space: nowrap;
+
+  opacity: 1;
+  transform: none;
+  transition: none;
+  cursor: pointer;
+  touch-action: manipulation;
+}
+
+.realm-threshold.rt-f .realm-threshold-enter::before {
+  content: "/";
+  display: block;
+  position: static;
+  flex: 0 0 auto;
+  color: var(--ink-faint);
   line-height: 18px;
 }
 
-.signal-index .realm-threshold.rt-d.is-revealed .rt-d-track {
-  transform: translateY(-18px);
-}
-
-.rt-d h2 {
-  grid-column: 2;
-  grid-row: 2;
-  min-width: 0;
-  font: 450 25px/31px var(--sans);
-  letter-spacing: -0.02em;
-}
-
-.rt-d-action {
-  grid-column: 2;
-  grid-row: 3;
-  display: flex;
-  align-items: baseline;
-  gap: 10px;
-  width: max-content;
-  max-width: 100%;
-  font: 400 12px/18px var(--mono);
-}
-
-.rt-d-slash {
-  color: var(--ink-faint);
-}
-
-.rt-d .realm-threshold-enter {
-  display: inline-flex;
-  align-items: center;
-  width: max-content;
-  max-width: 100%;
-  min-height: 44px;
-  margin: 0;
-  padding: 13px 0;
-  border: 0;
-  border-radius: 0;
-  appearance: none;
-  background: transparent;
-  color: var(--ink-accent);
-  font: 400 12px/18px var(--mono);
-  font-variant-numeric: tabular-nums;
-  text-align: left;
+.realm-threshold.rt-f .rt-f-entry-copy {
+  display: block;
+  color: inherit;
   text-decoration-line: underline;
   text-decoration-thickness: 1px;
   text-underline-offset: 5px;
-  cursor: pointer;
 }
 
-.rt-d .realm-threshold-enter:hover:not(:disabled) {
+.realm-threshold.rt-f
+  .realm-threshold-enter:focus-visible:not(:disabled) {
+  outline: 1px solid var(--ink-accent);
+  outline-offset: 4px;
   color: var(--ink-accent-bright);
 }
 
-.rt-d .realm-threshold-enter:active:not(:disabled) {
+.realm-threshold.rt-f
+  .realm-threshold-enter:active:not(:disabled) {
   color: var(--ink-accent-deep);
 }
 
-.rt-d .realm-threshold-enter:focus-visible {
-  outline: 1px solid var(--ink-accent);
-  outline-offset: 4px;
+/* Keep the seam mask opaque when the entry is unavailable. */
+.realm-threshold.rt-f .realm-threshold-enter:disabled {
+  opacity: 1;
+  cursor: default;
 }
 
-.rt-d .realm-threshold-enter:disabled {
-  color: var(--ink-faint);
-  text-decoration: none;
-  cursor: not-allowed;
+.realm-threshold.rt-f
+  .realm-threshold-enter:disabled::before,
+.realm-threshold.rt-f
+  .realm-threshold-enter:disabled
+  .rt-f-entry-copy {
+  opacity: .38;
 }
 
-@media (hover: hover) {
-  .signal-index .realm-threshold.rt-d.is-revealed:has(
-    .realm-threshold-enter:hover:not(:disabled)
-  ) .rt-d-track {
-    transform: translateY(0);
+@media (hover: hover) and (pointer: fine) {
+  .realm-threshold.rt-f
+    .realm-threshold-enter:hover:not(:disabled) {
+    color: var(--ink-accent-bright);
   }
-}
 
-.signal-index .realm-threshold.rt-d.is-revealed:has(
-  .realm-threshold-enter:focus-visible:not(:disabled)
-) .rt-d-track {
-  transform: translateY(0);
-}
-
-.rt-d-sr {
-  position: absolute;
-  width: 1px;
-  height: 1px;
-  padding: 0;
-  margin: -1px;
-  overflow: hidden;
-  clip-path: inset(50%);
-  white-space: nowrap;
-  border: 0;
+  .realm-threshold.rt-f
+    .realm-threshold-enter:hover:active:not(:disabled) {
+    color: var(--ink-accent-deep);
+  }
 }
 
 @media (max-width: 767px) {
-  .realm-threshold.rt-d {
-    padding: 20px 24px;
+  .realm-threshold.rt-f {
+    --rt-f-pad-block: 18px;
+    --rt-f-line-height: 26px;
+    --rt-f-crossing: 56px;
+    --rt-f-half-crossing: 28px;
+
+    padding-inline: 24px;
   }
 
-  .rt-d-inner {
-    grid-template-columns: 62px minmax(0, 1fr);
-    column-gap: 16px;
-    row-gap: 8px;
+  .realm-threshold.rt-f h2 {
+    font-size: 16px;
+    letter-spacing: -0.02em;
   }
 
-  .rt-d h2 {
-    font-size: 22px;
-    line-height: 28px;
+  .realm-threshold.rt-f .rt-f-line {
+    column-gap: 14px;
   }
 
-  .rt-d h2 > span {
-    display: block;
+  .realm-threshold.rt-f .rt-f-register {
+    font-size: 11px;
+    line-height: 18px;
   }
 }
 
 @media (prefers-reduced-motion: reduce) {
-  .rt-d,
-  .rt-d *,
-  .rt-d *::before,
-  .rt-d *::after {
-    animation: none !important;
-    transition: none !important;
+  .realm-threshold.rt-f .rt-f-doors,
+  .realm-threshold.rt-f.is-revealed .rt-f-doors {
+    transform: none;
+    transition: none;
   }
-
-  .rt-d .rt-d-track {
-    transform: translateY(-18px) !important;
-  }
-}
-
-/* the section button hides with the shell while the realm is open */
-.signal-index-shell[aria-hidden="true"] .realm-threshold-enter {
-  visibility: hidden;
 }
 
 /* ── fixed strip: the existing mobile presentation at every width ── */

@@ -149,8 +149,10 @@ try {
   check("strip hidden while the threshold bottom is still onscreen",
     !(await stripVisible(desktop)));
   await desktop.evaluate((y) => window.scrollTo({ top: y + 2, behavior: "instant" }), dT);
-  await wait(400);
-  check("strip appears past the threshold on desktop", await stripVisible(desktop));
+  check("strip appears past the threshold on desktop",
+    await until(desktop, () =>
+      document.querySelector(".realm-enter-chip")?.classList.contains("is-visible") === true &&
+      !document.querySelector(".realm-enter-chip")?.disabled, 2500));
   const dFloor = await desktop.$eval(".realm-bottom-floor", (el) =>
     parseFloat(getComputedStyle(el).opacity));
   check("floor still near zero above page end", dFloor < 0.4, `floor=${dFloor}`);
@@ -169,9 +171,10 @@ try {
       top: y + 2,
       behavior: "instant",
     }), rT);
-    await wait(400);
     check("strip appears past the threshold on 2560x1440",
-      await stripVisible(regression));
+      await until(regression, () =>
+        document.querySelector(".realm-enter-chip")?.classList.contains("is-visible") === true &&
+        !document.querySelector(".realm-enter-chip")?.disabled, 2500));
     await regression.evaluate(() => window.scrollTo({
       top: document.documentElement.scrollHeight - window.innerHeight,
       behavior: "instant",
@@ -183,12 +186,13 @@ try {
       await regression.$eval(".realm-bottom-floor", (el) =>
         getComputedStyle(el).opacity) === "1");
     await regression.evaluate((y) => window.scrollTo({ top: y - 300, behavior: "instant" }), rT);
-    await wait(400);
     check("strip hides again above the threshold boundary",
-      !(await stripVisible(regression)));
+      await until(regression, () =>
+        !(document.querySelector(".realm-enter-chip")?.classList.contains("is-visible") === true &&
+          !document.querySelector(".realm-enter-chip")?.disabled), 2500));
     check("floor recedes away from page end",
-      await regression.$eval(".realm-bottom-floor", (el) =>
-        parseFloat(getComputedStyle(el).opacity)) < 0.4);
+      await until(regression, () =>
+        parseFloat(getComputedStyle(document.querySelector(".realm-bottom-floor")).opacity) < 0.4, 2500));
 
     // fresh page for the mobile leg: reuse would inherit a revealed position
     await regression.close();
@@ -200,8 +204,10 @@ try {
     const mT = await thresholdBottomOf(mobileReg);
     check("strip hidden at scroll 0 on 390x844", !(await stripVisible(mobileReg)));
     await mobileReg.evaluate((y) => window.scrollTo({ top: y + 2, behavior: "instant" }), mT);
-    await wait(400);
-    check("strip appears past the threshold on mobile", await stripVisible(mobileReg));
+    check("strip appears past the threshold on mobile",
+      await until(mobileReg, () =>
+        document.querySelector(".realm-enter-chip")?.classList.contains("is-visible") === true &&
+        !document.querySelector(".realm-enter-chip")?.disabled, 2500));
     await mobileReg.evaluate(() => window.scrollTo({ top: 0, behavior: "instant" }));
     await wait(400);
     check("strip hides again at scroll 0 on mobile", !(await stripVisible(mobileReg)));
@@ -231,8 +237,9 @@ try {
   // software-GL load — poll the unmount instead of trusting a fixed wait
   check("esc exits from the section entry",
     await until(section, () => document.querySelector(".realm-layer") === null, 4000));
-  check("focus returns to the section control", await section.evaluate(() =>
-    document.activeElement?.classList.contains("realm-threshold-enter") === true));
+  check("focus returns to the section control",
+    await until(section, () =>
+      document.activeElement?.classList.contains("realm-threshold-enter") === true, 2000));
   await section.close();
 
   const enteredAt = await enterRealm(desktop);
@@ -297,11 +304,11 @@ try {
   await dive.click(".realm-legend-btn:nth-child(3)"); // explosion
   await wait(400);
   await dive.click(".realm-panel-dive");
-  await wait(350);
-  check("iris closes during the dive", await dive.$(".realm-iris") !== null);
-  await wait(1100); // dive commits at ~1.0s
+  check("iris closes during the dive", await until(dive, () =>
+    document.querySelector(".realm-iris") !== null, 2500));
+  // the dive commits at ~1.0s after the panel action; poll under load
   check("dive hands off to the project page",
-    await dive.evaluate(() => window.location.pathname.includes("explosion")));
+    await until(dive, () => window.location.pathname.includes("explosion"), 4000));
 
   // ── mobile: viewport hygiene ──
   const mobile = await browser.newPage();
