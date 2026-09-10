@@ -21,7 +21,7 @@ export interface FluidHandle {
   resize(cssW: number, cssH: number, dpr: number): void;
   splash(x: number, y: number, radius: number, spread: number, dye: number,
          color: readonly [number, number, number]): void;
-  stroke(x: number, y: number, dx: number, dy: number): void;
+  stroke(x: number, y: number, dx: number, dy: number, weight?: number): void;
   vortex(x: number, y: number, radius: number, strength: number,
          color: readonly [number, number, number]): void;
   globalDrift(vx: number, vy: number): void;
@@ -610,19 +610,22 @@ class Fluid implements FluidHandle {
     if (dye > 0) this.splatDye(x, y, r, color, dye);
   }
 
-  stroke(x: number, y: number, dx: number, dy: number): void {
-    if (this.dead) return;
+  stroke(x: number, y: number, dx: number, dy: number, weight = 1): void {
+    if (this.dead || !Number.isFinite(weight) || weight <= 0) return;
     // dx/dy now arrive in css px/s (caller divides the screen delta by dt), so the
     // wake is frame-rate coherent instead of scaling with frame time.
     const speed = Math.sqrt(dx * dx + dy * dy);
     if (speed < 1) return;
     // the water inherits a fraction of the lantern's momentum: it is dragged along
-    // and left behind by advection rather than punched forward.
-    this.splatVel(x, y, 42, dx * 0.16, dy * 0.16, 0, 0);
+    // and left behind by advection rather than punched forward. subdivisions share
+    // one time-weighted deposit: weight scales the deposit, not the velocity used
+    // for the speed ramp.
+    this.splatVel(x, y, 42, dx * 0.16 * weight, dy * 0.16 * weight, 0, 0);
     // smooth speed ramp (fades in ~90 px/s, saturates ~800 px/s) instead of tracking
     // instantaneous speed, which is what made the trail pulse and break into dots.
     const s = Math.min(1, Math.max(0, (speed - 90) / 710));
-    this.splatDye(x, y, 30, WARM, 0.05 + 0.15 * (s * s * (3 - 2 * s)));
+    const amount = 0.05 + 0.15 * (s * s * (3 - 2 * s));
+    this.splatDye(x, y, 30, WARM, amount * weight);
   }
 vortex(x: number, y: number, radius: number, strength: number,
           color: Rgb): void {

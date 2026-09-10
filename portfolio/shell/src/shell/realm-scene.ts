@@ -47,8 +47,12 @@ export interface RealmScene {
   setPointer(x: number, y: number, active: boolean): void;
   setThrust(x: number, y: number): void;
   setCalling(calling: boolean): void;
-  /** Nearest creature to a SCREEN point within the select radius (touch = wider), or null. Additive; nearestId() untouched. */
+  /** snapshot screen pick geometry for the next select gesture. */
+  markPickAnchor(touch?: boolean): void;
+  /** current or anchored screen geometry; nearestId() remains untouched. */
   pickAt(px: number, py: number, touch: boolean): string | null;
+  /** displayed lantern radius in screen css px (shell-side touch lift). */
+  lightRadius(): number;
   breatheLight(dir: number): void;
   warpTo(index: number): void;
   nearestId(): string | null;
@@ -97,12 +101,24 @@ const SPLASH_COUNT = 8;
 const IDLE_BEFORE_LURE = 8;
 const LURE_RAMP = 3;
 const HINT_INPUT_NEEDED = 2;
-const WAKE_LEN = 24;
 const POINT_CAP = 3072;
 const LINE_CAP = 1536;
 const MAX_DT = 0.05;
 const WAKE_ON = 120;
 const WAKE_OFF = 70;
+
+const TRAIL_CAP = 64;
+const TRAIL_KEEP = 0.55;
+const TRAIL_SAMPLE_DT = 1 / 60;
+const TRAIL_SPACING = 12;
+const TRAIL_LINE_CAP = 256;
+
+const WAKE_SPACING = 14;
+const WAKE_SPLAT_CAP = 16;
+const MOTION_GAP = 0.12;
+
+const PICK_ANCHOR_MS = 450;
+const PICK_CUE_CSS = "rgb(232, 181, 124)";
 
 // ─── small helpers ───────────────────────────────────────────────────────────
 
@@ -199,6 +215,30 @@ export function createRealmScene(
   let lure = 0;
   let inputAccum = 0;
 
+  // ── phosphor trail + motion continuity ──
+  let breathTarget = 0.75;
+
+  const trailX = new Float32Array(TRAIL_CAP);
+  const trailY = new Float32Array(TRAIL_CAP);
+  const trailT = new Float32Array(TRAIL_CAP);
+  const trailG = new Float32Array(TRAIL_CAP);
+  let trailHead = 0;
+  let trailFill = 0;
+  let trailClock = 0;
+  let trailLastSample = 0;
+  let trailGain = 0;
+
+  let motionPrimed = false;
+  let lastTickWall = -1;
+
+  // ── pick anchors (sized by count: creatures always hold exactly count entries) ──
+  const pickAnchorX = new Float32Array(count);
+  const pickAnchorY = new Float32Array(count);
+  let pickAnchorValid = false;
+  let pickAnchorTime = 0;
+  let pickAnchorZoom = 1;
+  let pickTouch: boolean | null = null;
+
   // ── phase ──
   let phase: Phase = "idle";
   let phaseT = 0;
@@ -237,9 +277,6 @@ export function createRealmScene(
   const fluid = createFluid(glCanvas, { reducedMotion: reduced, smallScreen: small });
   const degraded = fluid === null;
   const ctx2d = overlay.getContext("2d");
-  const wake = new Float32Array(WAKE_LEN * 2);
-  let wakeHead = 0;
-  let wakeFill = 0;
 
   // ── loop ──
   let raf = 0;
@@ -254,6 +291,155 @@ export function createRealmScene(
   }
   function sy(wy: number): number {
     return (wy - cam.camY - vh * 0.5) * cam.zoom + vh * 0.5;
+  }
+
+  function clearTrail(): void {
+    trailHead = 0;
+    trailFill = 0;
+    trailClock = 0;
+    trailLastSample = 0;
+    trailGain = 0;
+  }
+
+  function invalidateSceneContinuity(): void {
+    clearTrail();
+    motionPrimed = false;
+    wakeOn = false;
+    pickAnchorValid = false;
+    pickAnchorTime = 0;
+    pickAnchorZoom = 1;
+  }
+
+  function recordTrail(elapsed: number): void {
+    trailClock += elapsed;
+
+    const s = clamp((speed - 40) / 760, 0, 1);
+    const target = s * s * (3 - 2 * s);
+    trailGain += (target - trailGain) * (1 - Math.exp(-12 * elapsed));
+
+    while (trailFill > 0) {
+      const oldest = (trailHead - trailFill + TRAIL_CAP) % TRAIL_CAP;
+      if (trailClock - trailT[oldest] <= TRAIL_KEEP) break;
+      trailFill--;
+    }
+
+    // the live head covers the remainder between stored samples.
+    if (
+      trailFill > 0 &&
+      trailClock - trailLastSample < TRAIL_SAMPLE_DT - 1e-5
+    ) return;
+
+    trailX[trailHead] = lan.x;
+    trailY[trailHead] = lan.y;
+    trailT[trailHead] = trailClock;
+    trailG[trailHead] = trailGain;
+    trailHead = (trailHead + 1) % TRAIL_CAP;
+    trailFill = Math.min(TRAIL_CAP, trailFill + 1);
+    trailLastSample = trailClock;
+  }
+
+  function emitTrail(): void {
+    if (
+      phase !== "active" ||
+      reduced ||
+      trailFill === 0 ||
+      lan.intensity <= 0.01
+    ) return;
+
+    const limit = Math.min(
+      TRAIL_LINE_CAP,
+      Math.max(0, LINE_CAP - emitter.lineCount)
+    );
+    const zoom = cam.zoom;
+    if (limit === 0 || zoom <= 0) return;
+
+    let work = 0;
+
+    // newest first: overload trims the faint tail, never the live head.
+    for (let k = trailFill - 1; k >= 0 && work < limit; k--) {
+      const i = (trailHead - trailFill + k + TRAIL_CAP) % TRAIL_CAP;
+      const bx = trailX[i];
+      const by = trailY[i];
+      const bt = trailT[i];
+      const bg = trailG[i];
+
+      let ax: number;
+      let ay: number;
+      let at: number;
+      let ag: number;
+      if (k === trailFill - 1) {
+        ax = lan.x;
+        ay = lan.y;
+        at = trailClock;
+        ag = trailGain;
+      } else {
+        const newer = (i + 1) % TRAIL_CAP;
+        ax = (bx + trailX[newer]) * 0.5;
+        ay = (by + trailY[newer]) * 0.5;
+        at = (bt + trailT[newer]) * 0.5;
+        ag = (bg + trailG[newer]) * 0.5;
+      }
+
+      let cx: number;
+      let cy: number;
+      let ct: number;
+      let cg: number;
+      if (k === 0) {
+        cx = bx;
+        cy = by;
+        ct = bt;
+        cg = bg;
+      } else {
+        const older = (i - 1 + TRAIL_CAP) % TRAIL_CAP;
+        cx = (bx + trailX[older]) * 0.5;
+        cy = (by + trailY[older]) * 0.5;
+        ct = (bt + trailT[older]) * 0.5;
+        cg = (bg + trailG[older]) * 0.5;
+      }
+
+      // |q'(u)| <= 2 * max(|b-a|, |c-b|), including curved spans.
+      const bound = 2 * zoom * Math.max(
+        Math.hypot(bx - ax, by - ay),
+        Math.hypot(cx - bx, cy - by)
+      );
+      if (bound < 0.01) continue;
+
+      const subdivisions = Math.max(1, Math.ceil(bound / TRAIL_SPACING));
+      let x0 = sx(ax);
+      let y0 = sy(ay);
+
+      for (let j = 1; j <= subdivisions && work < limit; j++) {
+        const u = j / subdivisions;
+        const v = 1 - u;
+        const x1 = sx(v * v * ax + 2 * v * u * bx + u * u * cx);
+        const y1 = sy(v * v * ay + 2 * v * u * by + u * u * cy);
+
+        const m = (j - 0.5) / subdivisions;
+        const n = 1 - m;
+        const time = n * n * at + 2 * n * m * bt + m * m * ct;
+        const gain = n * n * ag + 2 * n * m * bg + m * m * cg;
+        const age = clamp(1 - (trailClock - time) / TRAIL_KEEP, 0, 1);
+        const budgetFade = Math.min(1, (limit - work) / 16);
+        const a = 0.18 * lan.intensity * gain * age * age * budgetFade;
+        const width = Math.max(
+          0.5,
+          0.55 * lan.r * zoom * (0.12 + 0.88 * age)
+        );
+
+        // count attempted subdivisions too, bounding work at extreme zoom.
+        work++;
+        const dx = x1 - x0;
+        const dy = y1 - y0;
+        if (a > 1e-5 && dx * dx + dy * dy > 1e-4) {
+          emitter.line(
+            x0, y0, x1, y1, width,
+            WARM[0] * a, WARM[1] * a, WARM[2] * a
+          );
+        }
+        x0 = x1;
+        y0 = y1;
+      }
+    }
   }
 
   function buildCreatures(): void {
@@ -295,6 +481,7 @@ export function createRealmScene(
     lan.x = clamp(lan.x, 0, world.w);
     lan.y = clamp(lan.y, 0, world.h);
     camYState = clamp(camYState, 0, world.h - vh);
+    invalidateSceneContinuity();
   }
 
   // ─── loop control ─────────────────────────────────────────────────────────
@@ -348,37 +535,41 @@ export function createRealmScene(
 
   function updateLantern(dt: number): void {
     const controllable = phase === "active";
+    if (controllable) {
+      breath += (breathTarget - breath) * (1 - Math.exp(-12 * dt));
+    }
+
     if (controllable && !reduced) {
-      let ax = 0;
-      let ay = 0;
-      if (ptrActive) {
-        // pointer given in viewport css px → world px
-        const tx = (ptrX - vw * 0.5) / cam.zoom + cam.camX + vw * 0.5;
-        const ty = (ptrY - vh * 0.5) / cam.zoom + cam.camY + vh * 0.5;
-        // near-critical: c ≈ 1.88·√k → ζ ≈ 0.94. weighty, arrives in ~0.6s, no
-        // visible overshoot, so the lantern stops hunting around the cursor.
-        const k = small ? 40 : 32;
-        const c = small ? 12 : 10.6;
-        ax += (tx - lan.x) * k - lvx * c;
-        ay += (ty - lan.y) * k - lvy * c;
-      } else {
-        // gentler coast so the softer thrust still keeps its top speed
-        const drag = Math.exp(-1.7 * dt);
-        lvx *= drag;
-        lvy *= drag;
+      const tx = (ptrX - vw * 0.5) / cam.zoom + cam.camX + vw * 0.5;
+      const ty = (ptrY - vh * 0.5) / cam.zoom + cam.camY + vh * 0.5;
+      const k = small ? 196 : 144;
+      const c = small ? 28 : 24;
+      const steps = Math.max(1, Math.ceil(dt * 120));
+      const h = dt / steps;
+
+      // critical damping; substeps keep long frames calm.
+      for (let i = 0; i < steps; i++) {
+        let ax = thrustX * 1100;
+        let ay = thrustY * 1100;
+        if (ptrActive) {
+          ax += (tx - lan.x) * k - lvx * c;
+          ay += (ty - lan.y) * k - lvy * c;
+        } else {
+          const drag = Math.exp(-1.7 * h);
+          lvx *= drag;
+          lvy *= drag;
+        }
+
+        lvx += ax * h;
+        lvy += ay * h;
+        const v = Math.hypot(lvx, lvy);
+        if (v > 1500) {
+          lvx *= 1500 / v;
+          lvy *= 1500 / v;
+        }
+        lan.x += lvx * h;
+        lan.y += lvy * h;
       }
-      ax += thrustX * 1100;
-      ay += thrustY * 1100;
-      lvx += ax * dt;
-      lvy += ay * dt;
-      const vmax = 1500;
-      const v = Math.hypot(lvx, lvy);
-      if (v > vmax) {
-        lvx *= vmax / v;
-        lvy *= vmax / v;
-      }
-      lan.x += lvx * dt;
-      lan.y += lvy * dt;
     } else if (controllable) {
       // reduced motion: direct, softened follow — no overshoot
       if (ptrActive) {
@@ -392,6 +583,7 @@ export function createRealmScene(
       lvx = 0;
       lvy = 0;
     }
+
     // soft walls
     if (lan.x < 0) { lan.x = 0; lvx = Math.abs(lvx) * 0.4; }
     if (lan.x > world.w) { lan.x = world.w; lvx = -Math.abs(lvx) * 0.4; }
@@ -474,6 +666,9 @@ export function createRealmScene(
     for (let i = 0; i < creatures.length; i++) {
       creatures[i].emit(ctx as CreatureContext, view, emitter);
     }
+
+    emitTrail();
+
     // lantern core: two warm points so the light has a body inside the fluid
     if (lan.intensity > 0.01) {
       const s = lan.r * 0.9;
@@ -557,13 +752,23 @@ export function createRealmScene(
   }
 
   function tick(dt: number): void {
+    const wall = performance.now() / 1000;
+    const elapsed = lastTickWall < 0 ? 0 : wall - lastTickWall;
+    lastTickWall = wall;
+
+    let continuous =
+      motionPrimed &&
+      phase === "active" &&
+      !reduced &&
+      elapsed > 0 &&
+      elapsed <= MOTION_GAP;
+
+    prevSx = lanSx;
+    prevSy = lanSy;
+
     updateInput(dt);
     updateLantern(dt);
     updateCamera(dt);
-    prevSx = lanSx;
-    prevSy = lanSy;
-    lanSx = sx(lan.x);
-    lanSy = sy(lan.y);
     updateCreatures(dt);
     if (phase === "active") {
       activeT += dt;
@@ -571,28 +776,74 @@ export function createRealmScene(
       phaseT = (performance.now() - phaseStart) / 1000;
     }
     runPhase();
+
+    lanSx = sx(lan.x);
+    lanSy = sy(lan.y);
+
+    const motionAllowed = phase === "active" && !reduced;
+    if (!motionAllowed) continuous = false;
+
+    // a teleport is not a stroke; also bounds fluid draw calls.
+    if (
+      continuous &&
+      Math.hypot(lanSx - prevSx, lanSy - prevSy) >
+        WAKE_SPACING * WAKE_SPLAT_CAP
+    ) {
+      invalidateSceneContinuity();
+      continuous = false;
+    }
+
+    if (!continuous) {
+      clearTrail();
+      wakeOn = false;
+      prevSx = lanSx;
+      prevSy = lanSy;
+    }
+    motionPrimed = motionAllowed;
+
+    if (phase !== "active" || elapsed > MOTION_GAP) {
+      pickAnchorValid = false;
+    }
+    if (motionAllowed) recordTrail(continuous ? elapsed : 0);
+
     emitAll();
 
     if (fluid !== null) {
       fluid.globalDrift(0, -camVy);
       fluid.setLantern(lanSx, lanSy, lan.intensity);
-      if (phase === "active" && !reduced && dt > 1e-4) {
-        // screen px/s: the fluid lives in screen space, so camera motion is part of
-        // the drag the water feels. hysteresis stops the on/off stutter at the gate.
-        const wvx = (lanSx - prevSx) / dt;
-        const wvy = (lanSy - prevSy) / dt;
+
+      if (continuous && dt > 1e-4) {
+        const dx = lanSx - prevSx;
+        const dy = lanSy - prevSy;
+        const distance = Math.hypot(dx, dy);
+        const wvx = dx / dt;
+        const wvy = dy / dt;
         const wsp = Math.hypot(wvx, wvy);
         wakeOn = wsp > (wakeOn ? WAKE_OFF : WAKE_ON);
-        if (wakeOn) {
-          fluid.stroke(lanSx, lanSy, wvx, wvy);
+
+        if (wakeOn && distance > 0) {
+          const count = Math.max(1, Math.ceil(distance / WAKE_SPACING));
+          const weight = 60 * dt / count;
+          for (let i = 1; i <= count; i++) {
+            const f = i / count;
+            fluid.stroke(
+              prevSx + dx * f,
+              prevSy + dy * f,
+              wvx,
+              wvy,
+              weight
+            );
+          }
         }
       } else {
         wakeOn = false;
       }
+
       fluid.step(dt);
       fluid.render(emitter);
       drawOverlay(dt, false);
     } else {
+      wakeOn = false;
       drawOverlay(dt, true);
     }
   }
@@ -613,21 +864,73 @@ export function createRealmScene(
       drawNames(g);
       drawHint(g, dt);
     }
+    if (phase === "active") drawPickCue(g);
     if (full) drawDegradedDisc(g);
   }
 
-  // Select-gesture pick: screen-space distance from the tap point to each creature's
-  // screen anchor. Radii are well inside interactR (world px -> screen via cam.zoom).
-  // Same-tick, no rAF dependency. Does not alter nearestIdx/nearestId().
+  function pickRadius(touch: boolean, zoom: number): number {
+    return Math.max(
+      touch ? 24 : 18,
+      interactR * (touch ? 0.65 : 0.45) * zoom
+    );
+  }
+
+  function markPickAnchor(touch?: boolean): void {
+    pickAnchorValid = false;
+    pickTouch = touch ?? small;
+    if (phase !== "active") return;
+
+    for (let i = 0; i < creatures.length; i++) {
+      pickAnchorX[i] = sx(creatures[i].x);
+      pickAnchorY[i] = sy(creatures[i].y);
+    }
+    pickAnchorZoom = cam.zoom;
+    pickAnchorTime = performance.now();
+    pickAnchorValid = true;
+  }
+
   function pickAt(px: number, py: number, touch: boolean): string | null {
-    const r = interactR * (touch ? 0.5 : 0.35) * cam.zoom;
-    let best = -1, bestD = r;
+    pickTouch = touch;
+    const age = performance.now() - pickAnchorTime;
+    const anchored =
+      pickAnchorValid &&
+      age >= 0 &&
+      age <= PICK_ANCHOR_MS;
+    pickAnchorValid = false;
+
+    if (
+      phase !== "active" ||
+      !Number.isFinite(px) ||
+      !Number.isFinite(py)
+    ) return null;
+
+    const r = pickRadius(touch, cam.zoom);
+    const ar = pickRadius(touch, pickAnchorZoom);
+    const r2 = r * r;
+    const ar2 = ar * ar;
+    let best = -1;
+    let bestD2 = Infinity;
+
     for (let i = 0; i < creatures.length; i++) {
       const c = creatures[i];
-      const d = Math.hypot(sx(c.x) - px, sy(c.y) - py);
-      if (d < bestD) { bestD = d; best = i; }
+      const dx = sx(c.x) - px;
+      const dy = sy(c.y) - py;
+      const currentD2 = dx * dx + dy * dy;
+      let d2 = currentD2 <= r2 ? currentD2 : Infinity;
+
+      if (anchored) {
+        const ax = pickAnchorX[i] - px;
+        const ay = pickAnchorY[i] - py;
+        const anchorD2 = ax * ax + ay * ay;
+        if (anchorD2 <= ar2 && anchorD2 < d2) d2 = anchorD2;
+      }
+
+      if (d2 < bestD2) {
+        bestD2 = d2;
+        best = i;
+      }
     }
-    return best < 0 ? null : creatures[best].id; // creature id === door id === project id
+    return best < 0 ? null : creatures[best].id;
   }
 
   function drawNames(g: CanvasRenderingContext2D): void {
@@ -660,6 +963,53 @@ export function createRealmScene(
     g.globalAlpha = 1;
   }
 
+  function drawPickCue(g: CanvasRenderingContext2D): void {
+    if (phase !== "active" || lan.intensity <= 0.01) return;
+
+    const r = pickRadius(pickTouch ?? small, cam.zoom);
+    let best = -1;
+    let bestD2 = r * r;
+
+    for (let i = 0; i < creatures.length; i++) {
+      const dx = sx(creatures[i].x) - lanSx;
+      const dy = sy(creatures[i].y) - lanSy;
+      const d2 = dx * dx + dy * dy;
+      if (d2 <= bestD2) {
+        bestD2 = d2;
+        best = i;
+      }
+    }
+    if (best < 0) return;
+
+    const c = creatures[best];
+    const x = sx(c.x);
+    const y = sy(c.y);
+    const cueR = Math.max(8, Math.min(r * 0.7, c.radius * cam.zoom * 0.8));
+    if (
+      x < -cueR || x > vw + cueR ||
+      y < -cueR || y > vh + cueR
+    ) return;
+
+    // two quiet brackets; no pulse and no pointer-space halo.
+    g.globalCompositeOperation = "lighter";
+    g.globalAlpha = 0.3 * lan.intensity;
+    g.strokeStyle = PICK_CUE_CSS;
+    g.lineWidth = 1;
+    g.lineCap = "round";
+    g.shadowColor = "transparent";
+
+    g.beginPath();
+    g.arc(x, y, cueR, -0.7, 0.7);
+    g.stroke();
+    g.beginPath();
+    g.arc(x, y, cueR, Math.PI - 0.7, Math.PI + 0.7);
+    g.stroke();
+
+    g.globalAlpha = 1;
+    g.globalCompositeOperation = "source-over";
+    g.lineCap = "butt";
+  }
+
   function drawHint(g: CanvasRenderingContext2D, dt: number): void {
     const want = inputAccum < HINT_INPUT_NEEDED && phase === "active" && activeT > 0.4 ? 1 : 0;
     const rate = want > hintAlpha ? 1.6 : 1.0;
@@ -674,43 +1024,11 @@ export function createRealmScene(
 
   // ─── degraded renderer (no webgl) ─────────────────────────────────────────
 
-  function pushWake(): void {
-    if (speed <= 40) return;
-    wake[wakeHead * 2] = lan.x;
-    wake[wakeHead * 2 + 1] = lan.y;
-    wakeHead = (wakeHead + 1) % WAKE_LEN;
-    if (wakeFill < WAKE_LEN) wakeFill++;
-  }
-
   function drawDegraded(g: CanvasRenderingContext2D): void {
     g.globalAlpha = 1;
     g.fillStyle = ABYSS_CSS;
     g.fillRect(0, 0, vw, vh);
     if (phase !== "active" && phase !== "diving") return;
-
-    // wake memory: fading warm strokes through the last positions
-    pushWake();
-    if (wakeFill > 1 && !reduced) {
-      g.lineCap = "round";
-      let prevX = 0;
-      let prevY = 0;
-      for (let k = 0; k < wakeFill; k++) {
-        const idx = (wakeHead - wakeFill + k + WAKE_LEN) % WAKE_LEN;
-        const x = sx(wake[idx * 2]);
-        const y = sy(wake[idx * 2 + 1]);
-        if (k > 0) {
-          const f = k / wakeFill;
-          g.strokeStyle = cssOf(WARM, 0.22 * f * lan.intensity);
-          g.lineWidth = 2 + 10 * f;
-          g.beginPath();
-          g.moveTo(prevX, prevY);
-          g.lineTo(x, y);
-          g.stroke();
-        }
-        prevX = x;
-        prevY = y;
-      }
-    }
 
     // creatures via the same emissive arrays
     g.globalCompositeOperation = "lighter";
@@ -822,8 +1140,10 @@ export function createRealmScene(
     lan.y = vh * 0.1;
     lvx = 0;
     lvy = 0;
+    speed = 0;
     ignite = 0;
     breath = 0.75;
+    breathTarget = 0.75;
     camYState = 0;
     cam.camY = 0;
     cam.zoom = 1;
@@ -832,8 +1152,11 @@ export function createRealmScene(
     lure = 0;
     splashIdx = 0;
     coverDone = false;
-    wakeFill = 0;
-    wakeHead = 0;
+
+    invalidateSceneContinuity();
+    lastTickWall = -1;
+    pickTouch = null;
+
     hintAlpha = 0;
     activeT = 0;
     lastNearestId = null;
@@ -861,6 +1184,7 @@ export function createRealmScene(
       chipY = cy;
       ptrActive = false;
       calling = false;
+      invalidateSceneContinuity();
       if (lastNearestId !== null) {
         lastNearestId = null;
         opts.onNearest(null);
@@ -877,6 +1201,7 @@ export function createRealmScene(
       diveFromZoom = cam.zoom;
       ptrActive = false;
       calling = false;
+      invalidateSceneContinuity();
       finishPhase("diving");
       start();
     },
@@ -906,14 +1231,22 @@ export function createRealmScene(
       if (c) idleT = 0;
     },
 
+    markPickAnchor(touch) {
+      markPickAnchor(touch);
+    },
+
     pickAt(px, py, touch) {
       return pickAt(px, py, touch);
     },
 
+    lightRadius() {
+      return lan.r * cam.zoom;
+    },
+
     breatheLight(dir) {
-      if (phase !== "active") return;
+      if (phase !== "active" || !Number.isFinite(dir) || dir === 0) return;
       const d = dir < 0 ? -1 : 1;
-      breath = clamp(breath + d * 0.08, 0.35, 1.0);
+      breathTarget = clamp(breathTarget + d * 0.08, 0.35, 1.0);
       idleT = 0;
     },
 
@@ -933,7 +1266,7 @@ export function createRealmScene(
       lanSy = sy(lan.y);
       prevSx = lanSx;
       prevSy = lanSy;
-      wakeFill = 0;
+      invalidateSceneContinuity();
       idleT = 0;
     },
 

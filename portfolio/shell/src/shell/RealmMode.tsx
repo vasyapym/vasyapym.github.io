@@ -208,7 +208,10 @@ export default function RealmMode({ projects, onOpenProject, onExit, entry }: Re
       const t = ev.target;
       return t instanceof Element && t.closest(CHROME_SEL) !== null;
     };
-    const lifted = (ev: PointerEvent) => (isTouch(ev) ? ev.clientY - 60 : ev.clientY);
+    const lifted = (ev: PointerEvent) =>
+      (isTouch(ev)
+        ? ev.clientY - Math.min(64, Math.max(24, 1.6 * (sceneRef.current?.lightRadius() ?? 48)))
+        : ev.clientY);
 
     // deliberate-gesture state (plain locals — no React state, no rAF)
     const SELECT_MOVE = 8;      // px of total movement allowed for a select
@@ -254,6 +257,7 @@ export default function RealmMode({ projects, onOpenProject, onExit, entry }: Re
       downX = ev.clientX; downY = ev.clientY; downT = ev.timeStamp;
       moved = false; holding = false;
       clearHold();
+      scene.markPickAnchor(isTouch(ev)); // snapshot geometry for the quick-release pick
       scene.setPointer(ev.clientX, lifted(ev), true);
       // not calling yet: a quick release is a select; a held press becomes a call
       holdTimer = window.setTimeout(promoteToHold, SELECT_MS);
@@ -274,7 +278,10 @@ export default function RealmMode({ projects, onOpenProject, onExit, entry }: Re
           if (id) openPanelRef.current(id);
         }
       }
-      if (isTouch(ev)) scene.setPointer(ev.clientX, ev.clientY - 60, false);
+      if (isTouch(ev)) {
+        const lift = Math.min(64, Math.max(24, 1.6 * (sceneRef.current?.lightRadius() ?? 48)));
+        scene.setPointer(ev.clientX, ev.clientY - lift, false);
+      }
     };
     const onMouseLeave = () => { clearHold(); scene.setCalling(false); downId = -1; holding = false; scene.setPointer(0, 0, false); };
     const onWheel = (ev: WheelEvent) => {
