@@ -241,6 +241,21 @@
       "message": "Committing my probe-hardening auto-record (n179 for 0b9eed1) required staging the shared append-only log wholesale, so the chore commit also carries n178/e167 — the r6 session's auto-record of its own commit c3f2046, which that session had left pre-staged. Pure hook-generated history lines; no work files. Declared in the commit message as well. Action for owner: none.",
       "ackBy": null,
       "ackAt": null
+    },
+    {
+      "id": "2026-09-10T14-05Z-sweep-report-6f17fff-compaction-cp2-graphs",
+      "ts": "2026-09-10T14:05:00Z",
+      "kind": "sweep-report",
+      "agent": "opencode (relay orchestrator, compaction checkpoint 2)",
+      "commit": "6f17fff",
+      "files": [
+        "portfolio/.project-history/graph.jsonl",
+        "portfolio/projects/practice-map/.project-history/graph.jsonl",
+        "portfolio/projects/spine/.project-history/graph.jsonl"
+      ],
+      "message": "Compaction checkpoint 2 rewrote summaries/titles in the shared append-only logs and therefore staged each graph file wholesale, carrying other agents lines: main graph n182/e170 (r8 session auto-record, left pre-staged) and n183 (r9 session live record, appended mid-compaction; left intact and NOT compacted — active work), practice-map n15+e (lesson session auto-record, left staged), spine n14+e (r8-era fix auto-record, unstaged). All carried lines are hook-generated history records or another active session live record; no work files swept. Compaction itself touched only summary/title values of pre-existing nodes (0 structural diffs), plus manual milestone nodes and STATE.md/docs updates declared in the commit message.",
+      "ackBy": null,
+      "ackAt": null
     }
   ]
 }
