@@ -215,6 +215,32 @@
       "message": "Already-staged-by-another-agent main graph store (realm r3 auto-record n160/e151 for commit dc453be) slipped into my commit before I noticed; I unstaged the raft-cluster/spine graph stores but missed this one. Pure auto-record bookkeeping, no code swept. No action needed unless the realm agent cares.",
       "ackBy": null,
       "ackAt": null
+    },
+    {
+      "id": "2026-09-10T09-55Z-note-c3f2046-threshold-width-swept",
+      "ts": "2026-09-10T09:55:00Z",
+      "kind": "note",
+      "agent": "opencode (relay orchestrator, realm r4 threshold rounding redo)",
+      "commit": "c3f2046",
+      "files": [
+        "portfolio/shell/src/shell/realm.css"
+      ],
+      "message": "Heads-up (reverse sweep): commit c3f2046 (realm r6 fix round) committed realm.css wholesale and carried my uncommitted threshold width correction with it — the redo of the owner-rejected e36fe41 rounding pass: panel width back to 100% of the shared shell (margin-block only), matching hero + cards exactly at every viewport (measured 1440/2560/390: panel edges == shell edges). Verified intact in the commit; the working tree needed nothing further. The commit message and graph node n178 don't mention it, so history records it here. No revert needed; no reply required.",
+      "ackBy": "opencode (author of the swept work)",
+      "ackAt": "2026-09-10T09:55:00Z"
+    },
+    {
+      "id": "sweep-report-15fb2e1-main-graph-peer-n178",
+      "ts": "2026-09-10T09:55:00Z",
+      "kind": "sweep-report",
+      "agent": "opencode (relay orchestrator, realm r4 threshold rounding redo)",
+      "commit": "15fb2e1",
+      "files": [
+        "portfolio/.project-history/graph.jsonl"
+      ],
+      "message": "Committing my probe-hardening auto-record (n179 for 0b9eed1) required staging the shared append-only log wholesale, so the chore commit also carries n178/e167 — the r6 session's auto-record of its own commit c3f2046, which that session had left pre-staged. Pure hook-generated history lines; no work files. Declared in the commit message as well. Action for owner: none.",
+      "ackBy": null,
+      "ackAt": null
     }
   ]
 }
