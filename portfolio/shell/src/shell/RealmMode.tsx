@@ -91,6 +91,7 @@ export default function RealmMode({ projects, onOpenProject, onExit, entry }: Re
   // chrome state (changes a handful of times per session — never per frame)
   const [phase, setPhase] = useState<Phase>("entering");
   const [openId, setOpenId] = useState<string | null>(null);
+  const [divingId, setDivingId] = useState<string | null>(null);
   const [muted, setMuted] = useState(false);
   const [degraded, setDegraded] = useState(false);
 
@@ -124,6 +125,8 @@ export default function RealmMode({ projects, onOpenProject, onExit, entry }: Re
     [projects],
   );
 
+  const resetDirectInputRef = useRef<(() => void) | null>(null);
+
   // open a creature's panel from anywhere (pointer, key, or legend) — a11y core
   const openProjectPanel = useCallback((id: string) => {
     if (phaseRef.current !== "active") return;
@@ -136,6 +139,7 @@ export default function RealmMode({ projects, onOpenProject, onExit, entry }: Re
   openPanelRef.current = openProjectPanel;
 
   const closePanel = useCallback(() => {
+    resetDirectInputRef.current?.();
     panelStopRef.current?.(); // cancels entrance frames + delayed focus, hides now
     setOpenId(null);
     layerRef.current?.focus({ preventScroll: true }); // esc-chain step one returns focus to the layer
@@ -165,11 +169,17 @@ export default function RealmMode({ projects, onOpenProject, onExit, entry }: Re
 
   const confirmDive = useCallback((id: string) => {
     if (phaseRef.current !== "active") return;
+    resetDirectInputRef.current?.();
     cancelRealmGestureRef.current?.(); // an in-flight hold must not survive the dive
+    phaseRef.current = "diving";
+    setDivingId(id);
     setPhase("diving");
     sceneRef.current?.startDive(id);
     audioRef.current?.dive();
   }, []);
+
+  const confirmDiveRef = useRef(confirmDive);
+  confirmDiveRef.current = confirmDive;
 
   const toggleMute = useCallback(() => {
     setMuted((m) => {
@@ -345,7 +355,15 @@ export default function RealmMode({ projects, onOpenProject, onExit, entry }: Re
       onNearest: (id) => {
         if (!alive || !ariaRef.current) return;
         // throttle: announce only when the nearest actually changes
-        const msg = id ? `${projectOf(id)?.title ?? id} — press enter to open` : "";
+        const desktopFine = window.matchMedia(
+          "(any-hover: hover) and (any-pointer: fine)",
+        ).matches;
+        const instruction = desktopFine
+          ? "on the scene, press enter to dive in; press e or space for details; double-click a creature to dive in"
+          : "press enter for details";
+        const msg = id
+          ? `${projectOf(id)?.title ?? id} — ${instruction}`
+          : "";
         if (msg !== lastAria.current) {
           lastAria.current = msg;
           ariaRef.current.textContent = msg;
@@ -407,6 +425,45 @@ export default function RealmMode({ projects, onOpenProject, onExit, entry }: Re
     let lastX = 0;
     let lastY = 0;
 
+    const desktopFine = window.matchMedia(
+      "(any-hover: hover) and (any-pointer: fine)",
+    );
+    const DOUBLE_MS = 320;
+    const DOUBLE_MOVE = 8;
+
+    type QuickPick = {
+      id: string;
+      x: number;
+      y: number;
+      releasedAt: number;
+    };
+
+    let lastQuickPick: QuickPick | null = null;
+    let secondQuickPick: QuickPick | null = null;
+    let downMouseFine = false;
+    let consumeSecondClick = false;
+
+    const resetDirectInput = () => {
+      lastQuickPick = null;
+      secondQuickPick = null;
+    };
+
+    const overPanelOnly = (ev: PointerEvent) => {
+      const target = ev.target;
+      return (
+        target instanceof Element &&
+        target.closest(".realm-panel") !== null &&
+        target.closest(".realm-hud, .realm-legend") === null
+      );
+    };
+
+    const onDirectClickCapture = (ev: MouseEvent) => {
+      if (!consumeSecondClick || ev.button !== 0 || ev.detail === 0) return;
+      consumeSecondClick = false;
+      ev.preventDefault();
+      ev.stopImmediatePropagation();
+    };
+
     const clearHold = () => {
       if (holdTimer !== undefined) {
         window.clearTimeout(holdTimer);
@@ -416,8 +473,15 @@ export default function RealmMode({ projects, onOpenProject, onExit, entry }: Re
 
     const cancelGesture = () => {
       clearHold();
+
+      // Opening a panel cancels the idle world gesture after the first release.
+      // Preserve that first release, but never preserve an in-flight pair.
+      if (downId !== -1) lastQuickPick = null;
+      secondQuickPick = null;
+
       downId = -1;
       downPick = null;
+      downMouseFine = false;
       moved = false;
       holding = false;
       scene.setCalling(false);
@@ -442,23 +506,70 @@ export default function RealmMode({ projects, onOpenProject, onExit, entry }: Re
       if (Math.hypot(x - downX, y - downY) > allowance) {
         moved = true; // sticky: moving back does not turn a drag into a tap
         downPick = null;
+        resetDirectInput();
         clearHold();
         promoteToHold();
       }
     };
 
     const onPointerDown = (ev: PointerEvent) => {
-      if (
-        !ev.isPrimary ||
-        downId !== -1 ||
-        overChrome(ev) ||
-        (ev.pointerType === "mouse" && ev.button !== 0)
-      ) {
+      if (!ev.isPrimary || downId !== -1) return;
+
+      // A new primary press owns any following compatibility click.
+      consumeSecondClick = false;
+
+      if (ev.pointerType === "mouse" && ev.button !== 0) {
+        resetDirectInput();
         return;
       }
 
       tryResume();
-      if (phaseRef.current !== "active") return;
+      if (phaseRef.current !== "active") {
+        resetDirectInput();
+        return;
+      }
+
+      const mouseFine =
+        ev.pointerType === "mouse" &&
+        ev.button === 0 &&
+        desktopFine.matches;
+
+      const previous = lastQuickPick;
+      const elapsed = previous
+        ? ev.timeStamp - previous.releasedAt
+        : -1;
+
+      const candidate =
+        mouseFine &&
+        previous !== null &&
+        elapsed >= 0 &&
+        elapsed <= DOUBLE_MS &&
+        Math.hypot(
+          ev.clientX - previous.x,
+          ev.clientY - previous.y,
+        ) <= DOUBLE_MOVE
+          ? previous
+          : null;
+
+      resetDirectInput();
+
+      const chrome = overChrome(ev);
+
+      // Ordinary chrome remains native. Only a spatially and temporally
+      // matching second mouse press may inspect the scene behind the sheet.
+      if (chrome && !(candidate && overPanelOnly(ev))) return;
+
+      const touch = isTouch(ev);
+
+      // Consume exactly one snapshot at pointer-down.
+      scene.markPickAnchor(touch);
+      const picked = scene.pickAt(ev.clientX, ev.clientY, touch);
+      const matchingPair =
+        candidate !== null && picked === candidate.id
+          ? candidate
+          : null;
+
+      if (chrome && matchingPair === null) return;
 
       clearHold();
 
@@ -466,13 +577,20 @@ export default function RealmMode({ projects, onOpenProject, onExit, entry }: Re
       downX = ev.clientX;
       downY = ev.clientY;
       downT = ev.timeStamp;
-      downTouch = isTouch(ev);
+      downTouch = touch;
+      downMouseFine = mouseFine;
+      downPick = picked;
+      secondQuickPick = matchingPair;
       moved = false;
       holding = false;
 
-      // Consume the snapshot once, now. Release uses this ID, never another pick.
-      scene.markPickAnchor(downTouch);
-      downPick = scene.pickAt(downX, downY, downTouch);
+      if (matchingPair) {
+        // Prevent sheet focus on this press. Its subsequent native click is
+        // consumed separately, including when the paired press later expires.
+        consumeSecondClick = true;
+        ev.preventDefault();
+        ev.stopPropagation();
+      }
 
       lastX = ev.clientX;
       lastY = lifted(ev);
@@ -498,7 +616,18 @@ export default function RealmMode({ projects, onOpenProject, onExit, entry }: Re
       lastX = ev.clientX;
       lastY = lifted(ev);
 
-      if (phaseRef.current !== "active" || overChrome(ev)) {
+      if (phaseRef.current !== "active") {
+        resetDirectInput();
+        cancelGesture();
+        return;
+      }
+
+      const pairedPanelMove =
+        downId === ev.pointerId &&
+        secondQuickPick !== null &&
+        overPanelOnly(ev);
+
+      if (overChrome(ev) && !pairedPanelMove) {
         cancelGesture();
         return;
       }
@@ -521,26 +650,51 @@ export default function RealmMode({ projects, onOpenProject, onExit, entry }: Re
       lastX = ev.clientX;
       lastY = lifted(ev);
 
+      const pairedPanelRelease =
+        secondQuickPick !== null && overPanelOnly(ev);
+
       const validRelease =
         ev.type === "pointerup" &&
         phaseRef.current === "active" &&
-        !overChrome(ev);
+        (!overChrome(ev) || pairedPanelRelease);
 
       // Some devices deliver a final displacement only with pointerup.
       if (validRelease) observeMovement(ev.clientX, ev.clientY);
 
-      const quick = !moved && !holding && ev.timeStamp - downT < SELECT_MS;
+      const quick =
+        !moved &&
+        !holding &&
+        ev.timeStamp - downT < SELECT_MS;
 
+      // Preserve the shipped creature-origin selection behavior, including
+      // unmoved reserved presses that last longer than SELECT_MS.
       const id =
         validRelease && !moved && !holding && (downPick !== null || quick)
           ? downPick
           : null;
 
       const releaseTouch = downTouch;
+      const releaseMouseFine = downMouseFine;
+      const releaseX = downX;
+      const releaseY = downY;
+      const paired = secondQuickPick;
+
+      const direct =
+        id !== null &&
+        quick &&
+        releaseMouseFine &&
+        desktopFine.matches &&
+        ev.pointerType === "mouse" &&
+        paired !== null &&
+        paired.id === id &&
+        ev.timeStamp - paired.releasedAt >= 0 &&
+        ev.timeStamp - paired.releasedAt <= DOUBLE_MS;
 
       clearHold();
       downId = -1;
       downPick = null;
+      downMouseFine = false;
+      secondQuickPick = null;
       moved = false;
       holding = false;
       scene.setCalling(false);
@@ -551,28 +705,85 @@ export default function RealmMode({ projects, onOpenProject, onExit, entry }: Re
         !releaseTouch && validRelease,
       );
 
-      if (id) openPanelRef.current(id);
+      lastQuickPick = null;
+
+      if (direct && id !== null) {
+        confirmDiveRef.current(id);
+        return;
+      }
+
+      if (id !== null) {
+        if (
+          quick &&
+          releaseMouseFine &&
+          desktopFine.matches &&
+          ev.pointerType === "mouse"
+        ) {
+          lastQuickPick = {
+            id,
+            x: releaseX,
+            y: releaseY,
+            releasedAt: ev.timeStamp,
+          };
+        }
+
+        openPanelRef.current(id);
+      }
     };
 
     const onPointerLeave = (ev: PointerEvent) => {
+      if (ev.isPrimary) resetDirectInput();
       if (ev.pointerId === downId) cancelGesture();
     };
 
     const onVisibilityChange = () => {
-      if (document.hidden) cancelGesture();
+      if (document.hidden) {
+        resetDirectInput();
+        cancelGesture();
+      }
     };
 
+    const onDirectBlur = () => {
+      resetDirectInput();
+    };
+
+    resetDirectInputRef.current = resetDirectInput;
     cancelRealmGestureRef.current = cancelGesture;
 
-    // No pointer capture: chrome retains native targeting/click/focus.
-    // Window end listeners still finish releases outside the layer's event subtree.
+    const previousLayerTitle = layer.getAttribute("title");
+    layer.setAttribute(
+      "title",
+      "mouse: double-click a creature to dive in; desktop scene: enter to dive in, e or space for details",
+    );
+
+    // No pointer capture: ordinary chrome retains native click and focus.
+    // Only a qualified second mouse press consumes its compatibility click.
     layer.addEventListener("pointerdown", onPointerDown);
     layer.addEventListener("pointerleave", onPointerLeave);
+    layer.addEventListener("click", onDirectClickCapture, true);
     window.addEventListener("pointermove", onPointerMove);
     window.addEventListener("pointerup", endPointer);
     window.addEventListener("pointercancel", endPointer);
     window.addEventListener("blur", cancelGesture);
+    window.addEventListener("blur", onDirectBlur);
     document.addEventListener("visibilitychange", onVisibilityChange);
+
+    const stopDirectInput = () => {
+      layer.removeEventListener("click", onDirectClickCapture, true);
+      window.removeEventListener("blur", onDirectBlur);
+      resetDirectInput();
+      consumeSecondClick = false;
+
+      if (resetDirectInputRef.current === resetDirectInput) {
+        resetDirectInputRef.current = null;
+      }
+
+      if (previousLayerTitle === null) {
+        layer.removeAttribute("title");
+      } else {
+        layer.setAttribute("title", previousLayerTitle);
+      }
+    };
 
     const cleanupGestures = () => {
       layer.removeEventListener("pointerdown", onPointerDown);
@@ -597,6 +808,25 @@ export default function RealmMode({ projects, onOpenProject, onExit, entry }: Re
     const onKeyDown = (ev: KeyboardEvent) => {
       if (ev.ctrlKey || ev.metaKey || ev.altKey) return; // never hijack shortcuts
       const k = ev.key.toLowerCase();
+
+      // Keyboard interaction ends any pending mouse double-click opportunity.
+      resetDirectInput();
+
+      // Exact bare-layer targeting leaves buttons, links, and other focused
+      // controls entirely native, including legend Enter/Space activation.
+      if (
+        k === "enter" &&
+        ev.target === layer &&
+        desktopFine.matches
+      ) {
+        ev.preventDefault();
+        if (ev.repeat || phaseRef.current !== "active") return;
+
+        tryResume();
+        const id = openIdRef.current ?? scene.nearestId();
+        if (id) confirmDiveRef.current(id);
+        return;
+      }
 
       // escape is owned by the layer's onKeyDown (esc-chain with focus order);
       // don't drive the world while a panel is focused, except escape
@@ -625,7 +855,7 @@ export default function RealmMode({ projects, onOpenProject, onExit, entry }: Re
         ev.preventDefault();
         tryResume();
         const id = scene.nearestId();
-        if (id) openProjectPanel(id);
+        if (id) openPanelRef.current(id);
         return;
       }
       if (k === "m") {
@@ -652,6 +882,7 @@ export default function RealmMode({ projects, onOpenProject, onExit, entry }: Re
 
     return () => {
       alive = false;
+      stopDirectInput();
       cleanupLeaveGate();
       cleanupGestures();
       window.removeEventListener("wheel", onWheel);
@@ -928,11 +1159,15 @@ export default function RealmMode({ projects, onOpenProject, onExit, entry }: Re
       />
       <canvas ref={overlayRef} className="realm-overlay" aria-hidden="true" />
 
-      {phase === "diving" && openId ? (
+      {/* the dive iris covers the commit regardless of the path that requested
+          it (panel dive button, double-click pair, bare-layer enter): the hue
+          comes from the dived creature — openId when the panel drove the dive,
+          divingId for the direct paths. */}
+      {phase === "diving" && (openId ?? divingId) ? (
         <div
           className="realm-iris"
           aria-hidden="true"
-          style={{ ["--iris-hue" as string]: hueOf(openId) } as CSSProperties}
+          style={{ ["--iris-hue" as string]: hueOf((openId ?? divingId) as string) } as CSSProperties}
         />
       ) : null}
 
@@ -977,27 +1212,29 @@ export default function RealmMode({ projects, onOpenProject, onExit, entry }: Re
           content is conditional; inert/aria-hidden/is-open are owned by the
           entrance layout effect, never by React state on this wrapper. */}
       <div ref={panelRef} className="realm-panel" role="document">
-        <button
-          ref={panelCloseRef}
-          type="button"
-          className="realm-panel-close"
-          aria-label="close"
-          onClick={closePanel}
-        >
-          <svg
-            width="16"
-            height="16"
-            viewBox="0 0 16 16"
-            fill="none"
-            stroke="currentColor"
-            strokeWidth="1"
-            strokeLinecap="butt"
-            aria-hidden="true"
-            focusable="false"
+        {opened && phase !== "leaving" ? (
+          <button
+            ref={panelCloseRef}
+            type="button"
+            className="realm-panel-close"
+            aria-label="close"
+            onClick={closePanel}
           >
-            <path d="M4 4L12 12M12 4L4 12" />
-          </svg>
-        </button>
+            <svg
+              width="16"
+              height="16"
+              viewBox="0 0 16 16"
+              fill="none"
+              stroke="currentColor"
+              strokeWidth="1"
+              strokeLinecap="butt"
+              aria-hidden="true"
+              focusable="false"
+            >
+              <path d="M4 4L12 12M12 4L4 12" />
+            </svg>
+          </button>
+        ) : null}
         {opened ? (
           <>
             <p className="realm-panel-eyebrow">{opened.eyebrow}</p>

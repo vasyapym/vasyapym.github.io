@@ -156,6 +156,16 @@ try {
   await wait(400);
   const dT = await thresholdBottomOf(desktop);
   check("strip hidden at scroll 0 on desktop", !(await stripVisible(desktop)));
+  // chip arrival law (r8 D1): is-visible must run the finite entrance
+  // animation; reduced motion settles with none. Scroll into the band first.
+  await desktop.evaluate((y) => window.scrollTo({ top: y + 2, behavior: "instant" }), dT);
+  check("chip entrance animates on arrival",
+    await until(desktop, () => {
+      const el = document.querySelector(".realm-enter-chip");
+      return !!el && getComputedStyle(el).animationName === "realm-chip-arrive";
+    }, 2500));
+  await desktop.evaluate(() => window.scrollTo({ top: 0, behavior: "instant" }));
+  await wait(400);
   await desktop.evaluate((y) => window.scrollTo({ top: y - 300, behavior: "instant" }), dT);
   await wait(400);
   check("strip hidden while the threshold bottom is still onscreen",
@@ -263,6 +273,26 @@ try {
   check("caption names the technique",
     await desktop.$eval(".realm-layer .realm-caption", (el) => /the deep/.test(el.textContent)));
 
+  // exit-tone law (r8 D1): the landing's tone variables must not be rewritten
+  // while the realm is open. A resize mid-session (URL-bar collapse on iOS,
+  // window resize on desktop) used to clobber --hero-exit to 0 through the
+  // unguarded scroll effect; the guarded effect must keep the pre-open value.
+  const heroExitBefore = await desktop.$eval(
+    ".signal-index-hero-fluid",
+    (el) => getComputedStyle(el).getPropertyValue("--hero-exit").trim(),
+  );
+  await desktop.setViewport({ width: 1440, height: 820, deviceScaleFactor: 1 });
+  await wait(400);
+  const heroExitAfterResize = await desktop.$eval(
+    ".signal-index-hero-fluid",
+    (el) => getComputedStyle(el).getPropertyValue("--hero-exit").trim(),
+  );
+  check("hero-exit frozen during the session",
+    heroExitBefore !== "" && heroExitBefore === heroExitAfterResize,
+    `${heroExitBefore} → ${heroExitAfterResize}`);
+  await desktop.setViewport({ width: 1440, height: 900, deviceScaleFactor: 1 });
+  await wait(400);
+
   // liveness: two frames ~800ms apart must differ (fluid/snow/creatures move)
   const a = Buffer.from(await desktop.screenshot());
   await wait(800);
@@ -284,6 +314,10 @@ try {
   await wait(300);
   // the panel wrapper is persistent since r5 pass D — closed = no .is-open
   check("esc closes the panel", (await desktop.$(".realm-panel.is-open")) === null);
+  // r8 D2 close-button hygiene: the unconditionally-mounted close glyph must be
+  // gone from the DOM once the panel is closed (the iOS paint bug's structural fix).
+  check("closed panel leaves no close button in the DOM",
+    (await desktop.$(".realm-panel .realm-panel-close")) === null);
   await desktop.keyboard.press("Escape"); // layer → landing
   check("esc exits the realm",
     await until(desktop, () => document.querySelector(".realm-layer") === null, 4000));
@@ -322,6 +356,62 @@ try {
   check("dive hands off to the project page",
     await until(dive, () => window.location.pathname.includes("explosion"), 4000));
 
+  // ── r8 D2: direct dive — qualified mouse pairing + bare-layer Enter ──
+  const direct = await browser.newPage();
+  await direct.setViewport({ width: 1440, height: 900, deviceScaleFactor: 1 });
+  collectErrors(direct);
+  await open(direct);
+  await enterRealm(direct);
+  await direct.mouse.move(360, 468); // creature 0 anchor: (0.25·vw, 0.26·2vh)
+  await wait(600);
+  // single quick click still selects (selection timing unchanged)
+  await direct.mouse.down();
+  await direct.mouse.up();
+  check("r8 d2: single quick click still selects",
+    await until(direct, () => document.querySelector(".realm-panel-title") !== null, 2500));
+  await wait(400); // the entrance settles; focus lands on the close button
+  // the close button keeps its box while open: a real click must close the panel
+  await direct.mouse.click(1408, 32); // close glyph center: right 1rem + 1rem half
+  check("r8 d2: open panel's close button stays native (click closes)",
+    await until(direct, () => {
+      const el = document.querySelector(".realm-panel.is-open");
+      return el === null;
+    }, 2500));
+  await wait(200);
+  // double-click dive: two qualified quick releases on the same creature
+  await direct.mouse.move(360, 468); // back on creature 0
+  await wait(400); // hover settles; pair history reset by the close interaction
+  await direct.mouse.down();
+  await direct.mouse.up();
+  await wait(120);
+  await direct.mouse.down();
+  await direct.mouse.up();
+  check("r8 d2: double-click dives through confirmDive (iris)",
+    await until(direct, () => document.querySelector(".realm-iris") !== null, 2500));
+  check("r8 d2: double-click hands off to a project page",
+    await until(direct, () =>
+      window.location.pathname !== "/" &&
+      window.location.pathname.includes("projects"), 5000));
+  await direct.close();
+
+  const directEnter = await browser.newPage();
+  await directEnter.setViewport({ width: 1440, height: 900, deviceScaleFactor: 1 });
+  collectErrors(directEnter);
+  await open(directEnter);
+  await enterRealm(directEnter);
+  await directEnter.keyboard.press("1"); // warp to creature 0; the lantern lands there
+  check("r8 d2: nearest announced with the dive instruction",
+    await until(directEnter, () => {
+      const el = document.querySelector(".realm-aria");
+      return !!el && /press enter to dive in/.test(el.textContent || "");
+    }, 2500));
+  await directEnter.keyboard.press("Enter"); // bare layer: dive into the nearest
+  check("r8 d2: bare-layer Enter dives (iris)",
+    await until(directEnter, () => document.querySelector(".realm-iris") !== null, 2500));
+  check("r8 d2: bare-layer Enter hands off to a project page",
+    await until(directEnter, () => window.location.pathname.includes("projects"), 5000));
+  await directEnter.close();
+
   // ── mobile: viewport hygiene ──
   const mobile = await browser.newPage();
   await mobile.setViewport({ width: 390, height: 844, deviceScaleFactor: 2, hasTouch: true });
@@ -334,6 +424,18 @@ try {
     document.scrollingElement.scrollWidth - window.innerWidth);
   check("no horizontal overflow at 390px", overflow <= 0, `overflow=${overflow}px`);
   check("mobile legend strip reachable", await mobile.$(".realm-legend-btn") !== null);
+
+  // r8 D2 touch law: a quick double-tap on empty canvas must never dive.
+  await mobile.touchscreen.touchStart(98, 300);
+  await mobile.touchscreen.touchEnd();
+  await wait(120);
+  await mobile.touchscreen.touchStart(98, 300);
+  await mobile.touchscreen.touchEnd();
+  await wait(700);
+  check("r8 d2: touch double-tap never dives",
+    (await mobile.$(".realm-iris")) === null &&
+    (await mobile.evaluate(() => window.location.pathname)) === "/");
+  await wait(200);
 
   // first tap on a creature must open the BOTTOM-SHEET panel (item 8: it used to
   // only surface a mid-screen canvas label; the sheet must come on tap one)
@@ -365,6 +467,17 @@ try {
   await exitViaButton(reduced);
   check("reduced: leave restores the landing",
     await until(reduced, () => document.querySelector(".realm-layer") === null, 4000));
+  // reduced-motion chip law (r8 D1): the entrance animation must be inert.
+  await reduced.evaluate(() => window.scrollTo({ top: 0, behavior: "instant" }));
+  await wait(400);
+  const rT = await thresholdBottomOf(reduced);
+  await reduced.evaluate((y) => window.scrollTo({ top: y + 2, behavior: "instant" }), rT);
+  check("reduced: chip settles without animation",
+    await until(reduced, () => {
+      const el = document.querySelector(".realm-enter-chip");
+      return !!el && el.classList.contains("is-visible") &&
+        getComputedStyle(el).animationName === "none";
+    }, 2500));
 
   for (const p of [desktop, dive, mobile, section, reduced]) {
     check(`console clean (${p.errors.length} errors)`, p.errors.length === 0,

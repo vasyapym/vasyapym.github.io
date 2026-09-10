@@ -406,11 +406,11 @@
   padding: 0 12px;
   appearance: none;
   border: 0;
-  border-top: 1px solid rgba(238, 234, 224, 0.26);
+  border-top: 1px solid var(--ink-line);
   border-radius: 0;
-  background: #0b1317;
+  background: var(--ink-bg);
   box-shadow: none;
-  color: rgb(238, 234, 224);
+  color: var(--ink-text);
   font-family: var(--mono);
   font-size: 12px;
   font-weight: 400;
@@ -424,12 +424,24 @@
   opacity: 0;
   visibility: hidden;
   pointer-events: none;
-  transition: opacity 160ms ease;
+  transition: none;
+  animation: none;
 }
 .realm-enter-chip.is-visible {
   opacity: 1;
   visibility: visible;
   pointer-events: auto;
+  animation: realm-chip-arrive 360ms cubic-bezier(0.22, 0.61, 0.36, 1) 0s 1 normal both;
+}
+@keyframes realm-chip-arrive {
+  from {
+    opacity: 0;
+    transform: translateY(6px);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
 }
 .realm-enter-chip .realm-index,
 .realm-enter-chip .realm-chip-caption,
@@ -449,15 +461,15 @@
   cursor: default;
 }
 .realm-enter-chip:hover {
-  color: #d39b61;
+  color: var(--ink-accent);
 }
 .realm-enter-chip:active {
-  color: #e8b57c;
+  color: var(--ink-accent-bright);
   transform: none;
 }
 .realm-enter-chip:focus-visible {
-  color: #e8b57c;
-  outline: 2px solid #e8b57c;
+  color: var(--ink-accent-bright);
+  outline: 1px solid var(--ink-accent-bright);
   outline-offset: -3px;
 }
 .realm-enter-chip:is(:hover, :focus-visible, :active) .realm-copy {
@@ -482,9 +494,15 @@
 
 @media (prefers-reduced-motion: reduce) {
   .realm-enter-chip,
+  .realm-enter-chip.is-visible,
   .realm-enter-chip .realm-copy {
     transition: none;
     animation: none;
+  }
+
+  .realm-enter-chip,
+  .realm-enter-chip.is-visible {
+    transform: none;
   }
 
   .signal-index.signal-index-reveal-ready .realm-threshold::before {
@@ -721,6 +739,11 @@
   transform: none;
   animation: none;
   transition: none;
+}
+/* Remove the child's own box; do not rely on scroller compositing visibility. */
+.realm-panel:not(.is-open) .realm-panel-close,
+.realm-layer[data-realm-leaving="true"] .realm-panel-close {
+  display: none;
 }
 @media (prefers-reduced-motion: reduce) {
   .realm-panel.is-open {

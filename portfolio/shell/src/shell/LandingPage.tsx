@@ -328,7 +328,7 @@ export default function LandingPage({ projects, onOpenProject }: LandingPageProp
 
     const update = () => {
       frame = 0;
-      if (cancelled) {
+      if (cancelled || realmOpen) {
         return;
       }
       const span = hero.offsetHeight * 0.9;
@@ -341,13 +341,13 @@ export default function LandingPage({ projects, onOpenProject }: LandingPageProp
     };
 
     const schedule = () => {
-      if (frame !== 0 || cancelled) {
+      if (frame !== 0 || cancelled || realmOpen) {
         return;
       }
       frame = window.requestAnimationFrame(update);
     };
 
-    update();
+    schedule();
     window.addEventListener("scroll", schedule, { passive: true });
     window.addEventListener("resize", schedule, { passive: true });
 
@@ -359,7 +359,7 @@ export default function LandingPage({ projects, onOpenProject }: LandingPageProp
       window.removeEventListener("scroll", schedule);
       window.removeEventListener("resize", schedule);
     };
-  }, []);
+  }, [realmOpen]);
 
   useEffect(() => {
     const page = pageRef.current;
@@ -672,7 +672,6 @@ export default function LandingPage({ projects, onOpenProject }: LandingPageProp
       <div
         className="realm-bottom-floor"
         ref={realmFloorRef}
-        style={{ opacity: realmOpen ? 0 : undefined }}
         aria-hidden="true"
       />
       <button
