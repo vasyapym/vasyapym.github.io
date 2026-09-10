@@ -792,6 +792,13 @@
   opacity: 1;
   transition: none;
 }
+/* While leaving, the whole fading layer is out of the pointer tree: clicks
+   cannot reach fading chrome and touch/wheel gestures reach the (already
+   unlocked) document beneath instead of the realm subtree. */
+.realm-layer[data-realm-leaving="true"],
+.realm-layer[data-realm-leaving="true"] * {
+  pointer-events: none !important;
+}
 .realm-exit-layer.realm-reduced,
 .realm-reduced .realm-exit-layer {
   transition: opacity 240ms linear;

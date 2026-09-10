@@ -308,6 +308,12 @@ try {
   await wait(500);
   check("focused legend button Enter opens its own panel",
     await desktop.$eval(".realm-panel-title", (el) => el.textContent.includes("Explosion"), { timeout: 2000 }).catch(() => false));
+  // r10 d1: the selection parks the lantern (scene hold), whatever path opened it
+  check("r10 d1: legend Enter parks the lantern",
+    await desktop.evaluate(() => {
+      const g = window.__realmScene?.getLanternSnapshot?.();
+      return !!g && g.held === true;
+    }));
 
   await desktop.screenshot({ path: join(outDir, "desktop-panel.png") });
   await desktop.keyboard.press("Escape"); // panel → layer
@@ -318,9 +324,28 @@ try {
   // gone from the DOM once the panel is closed (the iOS paint bug's structural fix).
   check("closed panel leaves no close button in the DOM",
     (await desktop.$(".realm-panel .realm-panel-close")) === null);
-  await desktop.keyboard.press("Escape"); // layer → landing
-  // r9 D1 staged teardown: the retirement must begin only at layer opacity 0,
-  // with the canvases hidden while the body is still locked and the shell inert.
+  // r10 d2: wheel ownership. Headless shell delivers WheelEvents but never
+  // runs their default scroll, so a real page.mouse.wheel cannot gate the
+  // scroll here; the handler's contract is asserted with cancelable wheels:
+  // during the active session the handler cancels (breatheLight), during the
+  // fade it must not cancel, leaving the default scroll to the (unlocked)
+  // document. Real scrolling itself stays an owner-device check.
+  const activeWheelCancelled = await desktop.evaluate(() => {
+    const ev = new WheelEvent("wheel", {
+      deltaY: 400, cancelable: true, bubbles: true,
+    });
+    window.dispatchEvent(ev);
+    return ev.defaultPrevented === true;
+  });
+  check("r10 d2: wheel stays cancelled during the active session",
+    activeWheelCancelled);
+  // r10 d2: the tone freeze must hold through the scroll events the exit now
+  // fires at leave start (the early unlock happens beneath the opaque veil).
+  const heroExitAtLeave = await desktop.$eval(
+    ".signal-index-hero-fluid",
+    (el) => getComputedStyle(el).getPropertyValue("--hero-exit").trim(),
+  );
+  // r9 D1 staged teardown: the retirement must begin only at layer opacity 0.
   // The stage windows are shorter than a poll cadence, so a MutationObserver
   // records the invariants AT each stage transition instead.
   await desktop.evaluate(() => {
@@ -343,16 +368,65 @@ try {
     });
     record();
   });
+  await desktop.keyboard.press("Escape"); // layer → landing
+  // r10 d2 unlock-under-veil: the body must restore in the fade's FIRST frame —
+  // the layer still covers the page (opacity > 0) when scrolling is released,
+  // so the scrollbar-gutter reflow (the Edge lateral shift) is never visible.
+  await desktop.evaluate(() => {
+    window.__exitProbe = { scrollWhenUnlocked: null, opacityWhenUnlocked: null };
+  });
+  check("r10 d2: body unlocks at the leave start (unlocked while the exit veil still covers)",
+    await until(desktop, () => {
+      const layer = document.querySelector(".realm-layer");
+      if (layer === null) return false;
+      const locked = getComputedStyle(document.body).position === "fixed";
+      if (!locked) {
+        const probe = window.__exitProbe;
+        if (probe.scrollWhenUnlocked === null) {
+          probe.scrollWhenUnlocked = window.scrollY;
+          probe.opacityWhenUnlocked =
+            Number.parseFloat(getComputedStyle(layer).opacity);
+        }
+        return true;
+      }
+      return false;
+    }, 4000));
+  check("r10 d2: scroll exact at the unlock moment beneath an opaque veil",
+    await desktop.evaluate((entered) => {
+      const probe = window.__exitProbe;
+      return probe.scrollWhenUnlocked !== null &&
+        probe.opacityWhenUnlocked > 0 &&
+        Math.abs(probe.scrollWhenUnlocked - entered) < 30;
+    }, enteredAt));
+  // r10 d2: wheel ownership (mid-fade half).
+  const midFadeWheel = await desktop.evaluate(() => {
+    const layer = document.querySelector(".realm-layer");
+    if (layer === null) return false;
+    const ev = new WheelEvent("wheel", {
+      deltaY: 400, cancelable: true, bubbles: true,
+    });
+    window.dispatchEvent(ev);
+    return ev.defaultPrevented === false;
+  });
+  check("r10 d2: wheel is no longer cancelled during the exit fade",
+    midFadeWheel);
+  check("r10 d2: hero-exit stays frozen through the early-unlock scroll",
+    await desktop.evaluate((expected) =>
+      getComputedStyle(document.querySelector(".signal-index-hero-fluid"))
+        .getPropertyValue("--hero-exit").trim() === expected, heroExitAtLeave));
   check("esc exits the realm",
     await until(desktop, () => document.querySelector(".realm-layer") === null, 4000));
-  check("r9 d1: retirement starts at opacity 0 with canvases hidden, body locked, shell inert",
+  check("r9 d1: retirement starts at opacity 0 with canvases hidden (body already unlocked, shell inert)",
     await desktop.evaluate(() => {
       const stages = window.__stages ?? [];
       const retired = stages.filter((s) => s.stage === "retired");
       return retired.length > 0 && retired.every((s) =>
-        s.canvasesHidden && s.bodyLocked && s.shellInert &&
+        s.canvasesHidden && !s.bodyLocked && s.shellInert &&
         Number.parseFloat(s.opacity) === 0);
     }));
+  check("r10 d2: exit staging has no unlocked stage (one retirement beat)",
+    await desktop.evaluate(() =>
+      (window.__stages ?? []).every((s) => s.stage !== "unlocked")));
   const scrollAfter = await desktop.evaluate(() => window.scrollY);
   check("landing scroll restored", Math.abs(scrollAfter - enteredAt) < 30, `scrollY=${scrollAfter}`);
   check("chip is back", await desktop.evaluate(() =>
@@ -374,17 +448,84 @@ try {
   await dive.evaluate(() => window.scrollTo({ top: 1250, behavior: "instant" }));
   await wait(400);
   await enterRealm(dive);
+  // r10 d1: wrap the hold setter so the park point is captured exactly —
+  // snapshots immediately before and after the real call distinguish
+  // parking from teleporting.
+  await dive.evaluate(() => {
+    const s = window.__realmScene;
+    window.__holdProbe = { before: null, after: null };
+    const orig = s.setLanternHold.bind(s);
+    s.setLanternHold = (hold) => {
+      window.__holdProbe.before = { ...s.getLanternSnapshot() };
+      orig(hold);
+      window.__holdProbe.after = { ...s.getLanternSnapshot() };
+    };
+  });
   await dive.mouse.move(360, 468); // creature 0 anchor: (0.25·vw, 0.26·2vh) at zoom 1, cam 0
   await wait(600); // settle: hover before the tap, past any entering-frame under load
+  // fast out-and-back sweep: the light builds chasing speed without leaving
+  // the pick band; the press itself stays still
+  await dive.mouse.move(430, 560, { steps: 3 });
+  await dive.mouse.move(360, 468, { steps: 3 });
   await dive.mouse.down();
   await dive.mouse.up();
   check("canvas tap-select opens the tapped creature's panel",
     await until(dive, () =>
       document.querySelector(".realm-panel-title")?.textContent.trim().toLowerCase() ===
       document.querySelector(".realm-legend-btn")?.textContent.split("—").pop().trim().toLowerCase()));
+  check("r10 d1: canvas tap parks the lantern at its pre-selection point",
+    await dive.evaluate(() => {
+      const p = window.__holdProbe;
+      return p.before !== null && p.after !== null &&
+        p.before.held === false && p.after.held === true &&
+        p.after.speed === 0 &&
+        Math.abs(p.after.x - p.before.x) < 25 &&
+        Math.abs(p.after.y - p.before.y) < 25;
+    }));
+  // held: pointer sweeps and key input must not move the lantern at all
+  await dive.mouse.move(700, 300, { steps: 4 });
+  await dive.mouse.move(200, 600, { steps: 4 });
+  await dive.keyboard.down("d");
+  await wait(120);
+  await dive.keyboard.up("d");
+  await dive.evaluate(async () => {
+    const s = window.__realmScene;
+    const series = [];
+    const t0 = performance.now();
+    while (performance.now() - t0 < 320) {
+      const g = s.getLanternSnapshot();
+      series.push({ x: g.x, y: g.y, vx: g.vx, speed: g.speed, held: g.held });
+      await new Promise((r) => requestAnimationFrame(r));
+    }
+    window.__holdSeries = series;
+  });
+  check("r10 d1: held lantern keeps exact coordinates and zero velocity across frames",
+    await dive.evaluate(() => {
+      const series = window.__holdSeries ?? [];
+      return series.length > 4 && series.every((g) =>
+        g.held === true && g.speed === 0 &&
+        g.x === series[0].x && g.y === series[0].y);
+    }));
   await dive.keyboard.press("Escape");
   await wait(300);
   check("esc closes the tap-opened panel", (await dive.$(".realm-panel.is-open")) === null);
+  check("r10 d1: panel close disarms following, preserving parked coordinates",
+    await dive.evaluate(() => {
+      const g = window.__realmScene.getLanternSnapshot();
+      return g !== null && g.held === false && g.pointerActive === false &&
+        g.speed === 0 &&
+        Math.abs(g.x - window.__holdProbe.after.x) < 0.5 &&
+        Math.abs(g.y - window.__holdProbe.after.y) < 0.5;
+    }));
+  await dive.mouse.move(420, 500, { steps: 4 });
+  await wait(400);
+  check("r10 d1: fresh pointer movement resumes following from the parked lantern",
+    await dive.evaluate(() => {
+      const g = window.__realmScene.getLanternSnapshot();
+      return g !== null && g.held === false && g.pointerActive === true &&
+        (Math.abs(g.x - window.__holdProbe.after.x) > 5 ||
+          Math.abs(g.y - window.__holdProbe.after.y) > 5);
+    }));
 
   // ── desktop: dive → SPA handoff ──
   await dive.click(".realm-legend-btn:nth-child(3)"); // explosion
@@ -574,6 +715,20 @@ try {
     await reduced.$eval(".realm-layer", (el) => el.className.includes("realm-reduced")));
   check("reduced: legend intact",
     (await reduced.$$(".realm-legend-btn")).length === 7);
+  // r10 d1: reduced motion parks the lantern too — the held branch precedes
+  // the softened-follow branch, so no follow or thrust can move it.
+  await reduced.mouse.click(360, 468); // creature 0 anchor: (0.25·vw, 0.26·2vh)
+  await wait(500);
+  check("reduced: canvas tap opens the panel",
+    await reduced.$eval(".realm-panel-title", (el) => el.textContent.length > 0, { timeout: 2000 }).catch(() => false));
+  check("r10 d1: reduced-motion hold parks the lantern",
+    await reduced.evaluate(() => {
+      const g = window.__realmScene?.getLanternSnapshot?.();
+      return !!g && g.held === true && g.speed === 0;
+    }));
+  await reduced.keyboard.press("Escape");
+  await wait(300);
+  check("reduced: panel closes", (await reduced.$(".realm-panel.is-open")) === null);
   await exitViaButton(reduced);
   check("reduced: leave restores the landing",
     await until(reduced, () => document.querySelector(".realm-layer") === null, 4000));

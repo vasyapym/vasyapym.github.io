@@ -130,6 +130,7 @@ export default function RealmMode({ projects, onOpenProject, onExit, entry }: Re
   // open a creature's panel from anywhere (pointer, key, or legend) — a11y core
   const openProjectPanel = useCallback((id: string) => {
     if (phaseRef.current !== "active") return;
+    sceneRef.current?.setLanternHold(true);
     setOpenId(id);
     sceneRef.current?.startGreeting(id);
     audioRef.current?.greeting(id);
@@ -140,6 +141,7 @@ export default function RealmMode({ projects, onOpenProject, onExit, entry }: Re
 
   const closePanel = useCallback(() => {
     resetDirectInputRef.current?.();
+    sceneRef.current?.setLanternHold(false);
     panelStopRef.current?.(); // cancels entrance frames + delayed focus, hides now
     setOpenId(null);
     layerRef.current?.focus({ preventScroll: true }); // esc-chain step one returns focus to the layer
@@ -208,8 +210,9 @@ export default function RealmMode({ projects, onOpenProject, onExit, entry }: Re
     audioRef.current = audio;
 
     // Normal exit:
-    //   keep the existing 150 ms settlement floor, and use that time to
-    //   retire canvas layers, unlock the body, then release the shell.
+    //   unlock the body at begin(), beneath the fully opaque layer.
+    //   At opacity zero, retire canvas layers, then wait one beat for
+    //   release eligibility alongside the existing 150 ms settlement floor.
     // Watchdog:
     //   explicitly hide at 1,500 ms, then use the same staged handoff.
     const EXIT_SETTLE_MS = 150;
@@ -345,8 +348,9 @@ export default function RealmMode({ projects, onOpenProject, onExit, entry }: Re
         sendExitIfReady();
       }, EXIT_SETTLE_MS);
 
-      // Stage 1: retire render layers while body lock and shell inertness
-      // are unchanged. Keep React ownership of all DOM nodes.
+      // Stage 1: retire render layers only at opacity zero.
+      // The body is already unlocked; shell inertness remains unchanged.
+      // Keep React ownership of all DOM nodes.
       if (leaveLayer) {
         leaveLayer.querySelectorAll("canvas").forEach((node) => {
           hiddenCanvases.push({
@@ -376,23 +380,10 @@ export default function RealmMode({ projects, onOpenProject, onExit, entry }: Re
         cancelExitBeat = null;
         if (!alive || exitSent) return;
 
-        // Stage 2: restore the original page position, once and instantly.
-        // The shell is still inert because realmOpen remains true.
-        restoreLandingScroll();
-
-        if (leaveLayer) {
-          leaveLayer.dataset.realmExitStage = "unlocked";
-        }
-
-        cancelExitBeat = afterExitBeat(() => {
-          cancelExitBeat = null;
-          if (!alive || exitSent) return;
-
-          // Stage 3 is now eligible. Parent release still waits for the
-          // original settlement floor.
-          stagesDone = true;
-          sendExitIfReady();
-        });
+        // Stage 2: release becomes eligible after one retirement beat.
+        // Parent release still waits for the original settlement floor.
+        stagesDone = true;
+        sendExitIfReady();
       });
     };
 
@@ -416,6 +407,12 @@ export default function RealmMode({ projects, onOpenProject, onExit, entry }: Re
       begin(): void {
         if (!alive || leaveStarted) return;
         leaveStarted = true;
+
+        // First rendering-relevant exit action: restore once, instantly,
+        // while the reveal layer is still fully opaque. The scrollbar-gutter
+        // reflow (the Windows-Edge lateral shift) lands in the fade's first
+        // frame, and wheel/touch input works from frame one.
+        restoreLandingScroll();
 
         // Self-contained audio exit; does not depend on the active mixer effect.
         audio.surface();
@@ -549,6 +546,9 @@ export default function RealmMode({ projects, onOpenProject, onExit, entry }: Re
       },
     });
     sceneRef.current = scene;
+    if (import.meta.env.DEV) {
+      (window as Window & { __realmScene?: typeof scene }).__realmScene = scene;
+    }
     setDegraded(scene.qualityLevel() === -1);
 
     const e = entryRef.current;
@@ -979,6 +979,7 @@ export default function RealmMode({ projects, onOpenProject, onExit, entry }: Re
       }
     };
     const onWheel = (ev: WheelEvent) => {
+      if (leaveStarted || phaseRef.current !== "active") return;
       ev.preventDefault();
       scene.breatheLight(ev.deltaY > 0 ? -1 : 1);
     };
@@ -1070,6 +1071,14 @@ export default function RealmMode({ projects, onOpenProject, onExit, entry }: Re
       // Already completed during a normal staged surface exit.
       // Still required for Strict Mode replay and other unmount paths.
       restoreLandingScroll();
+
+      if (import.meta.env.DEV) {
+        const realmWindow = window as Window & { __realmScene?: typeof scene };
+        if (realmWindow.__realmScene === scene) {
+          delete realmWindow.__realmScene;
+        }
+      }
+      scene.setLanternHold(false);
 
       try {
         // Idempotent: normally destroyed during invisible retirement.

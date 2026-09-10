@@ -46,6 +46,16 @@ export interface RealmScene {
   startGreeting(id: string): void;
   setPointer(x: number, y: number, active: boolean): void;
   setThrust(x: number, y: number): void;
+  setLanternHold(hold: boolean): void;
+  getLanternSnapshot(): Readonly<{
+    x: number;
+    y: number;
+    vx: number;
+    vy: number;
+    speed: number;
+    held: boolean;
+    pointerActive: boolean;
+  }> | null;
   setCalling(calling: boolean): void;
   /** snapshot screen pick geometry for the next select gesture. */
   markPickAnchor(touch?: boolean): void;
@@ -238,6 +248,7 @@ export function createRealmScene(
   let idleT = 0;
   let lure = 0;
   let inputAccum = 0;
+  let lanternHeld = false;
 
   // ── phosphor trail + motion continuity ──
   let breathTarget = 0.75;
@@ -568,19 +579,33 @@ export function createRealmScene(
     lure = lureTarget > lure ? lureTarget : Math.max(lureTarget, lure - dt * 3);
   }
 
+  function applyLanternHold(hold: boolean): void {
+    lanternHeld = hold;
+    lvx = 0;
+    lvy = 0;
+    speed = 0;
+    ptrActive = false;
+    thrustX = 0;
+    thrustY = 0;
+  }
+
   function updateLantern(dt: number): void {
     const controllable = phase === "active";
     if (controllable) {
       breath += (breathTarget - breath) * (1 - Math.exp(-12 * dt));
     }
 
-    if (controllable && !reduced) {
+    if (lanternHeld) {
+      // Keep the exact current position; input accounting continues elsewhere.
+      lvx = 0;
+      lvy = 0;
+    } else if (controllable && !reduced) {
       const tx = (ptrX - vw * 0.5) / cam.zoom + cam.camX + vw * 0.5;
       const ty = (ptrY - vh * 0.5) / cam.zoom + cam.camY + vh * 0.5;
-    const k = small ? 121 : 132.25;
-    const c = small ? 22 : 23; // unit mass: c = 2 * sqrt(k).
-    const maxSpeed = small ? 900 : 1200;
-    const steps = Math.max(1, Math.ceil(dt * 120));
+      const k = small ? 121 : 132.25;
+      const c = small ? 22 : 23; // unit mass: c = 2 * sqrt(k).
+      const maxSpeed = small ? 900 : 1200;
+      const steps = Math.max(1, Math.ceil(dt * 120));
       const h = dt / steps;
 
       // critical damping; substeps keep long frames calm.
@@ -620,11 +645,13 @@ export function createRealmScene(
       lvy = 0;
     }
 
-    // soft walls
-    if (lan.x < 0) { lan.x = 0; lvx = Math.abs(lvx) * 0.4; }
-    if (lan.x > world.w) { lan.x = world.w; lvx = -Math.abs(lvx) * 0.4; }
-    if (lan.y < 0) { lan.y = 0; lvy = Math.abs(lvy) * 0.4; }
-    if (lan.y > world.h) { lan.y = world.h; lvy = -Math.abs(lvy) * 0.4; }
+    // A hold must also bypass positional correction at the soft walls.
+    if (!lanternHeld) {
+      if (lan.x < 0) { lan.x = 0; lvx = Math.abs(lvx) * 0.4; }
+      if (lan.x > world.w) { lan.x = world.w; lvx = -Math.abs(lvx) * 0.4; }
+      if (lan.y < 0) { lan.y = 0; lvy = Math.abs(lvy) * 0.4; }
+      if (lan.y > world.h) { lan.y = world.h; lvy = -Math.abs(lvy) * 0.4; }
+    }
     speed = Math.hypot(lvx, lvy);
     lan.r = lanternBaseR * breath;
     lan.intensity = breath * ignite;
@@ -1251,6 +1278,7 @@ export function createRealmScene(
 
     startLeave(cx, cy) {
       if (destroyed || phase !== "active") return;
+      applyLanternHold(false);
       chipX = cx;
       chipY = cy;
       ptrActive = false;
@@ -1268,6 +1296,7 @@ export function createRealmScene(
       if (destroyed || phase !== "active") return;
       const idx = findIdx(id);
       if (idx < 0) return;
+      applyLanternHold(false);
       diveIdx = idx;
       diveFromZoom = cam.zoom;
       ptrActive = false;
@@ -1292,6 +1321,24 @@ export function createRealmScene(
     setThrust(x, y) {
       thrustX = clamp(x, -1, 1);
       thrustY = clamp(y, -1, 1);
+    },
+
+    setLanternHold(hold) {
+      if (destroyed) return;
+      applyLanternHold(hold);
+    },
+
+    getLanternSnapshot() {
+      if (!import.meta.env.DEV) return null;
+      return {
+        x: lan.x,
+        y: lan.y,
+        vx: lvx,
+        vy: lvy,
+        speed,
+        held: lanternHeld,
+        pointerActive: ptrActive,
+      };
     },
 
     setCalling(c) {
