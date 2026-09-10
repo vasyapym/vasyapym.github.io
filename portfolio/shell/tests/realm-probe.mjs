@@ -60,6 +60,18 @@ const waitForServer = async () => {
 
 const wait = (ms) => new Promise((r) => setTimeout(r, ms));
 
+// open the landing: domcontentloaded + wait for the app to mount. networkidle0
+// never settles under heavy machine load (SwiftShader renders starve the
+// 500ms idle window), so navigation is gated on the mounted section instead.
+const open = async (page, url = BASE) => {
+  await page.goto(url, { waitUntil: "domcontentloaded", timeout: 150000 });
+  await page.waitForFunction(
+    () => document.querySelector(".realm-threshold") !== null,
+    { timeout: 60000, polling: 250 },
+  );
+  await wait(800); // settle: reveal callbacks, chip mount
+};
+
 // poll until fn() is truthy (page.evaluate wrapper) — immune to commit/anim timing
 const until = async (page, fn, ms = 2500) => {
   const t0 = Date.now();
@@ -128,7 +140,7 @@ try {
   const desktop = await browser.newPage();
   await desktop.setViewport({ width: 1440, height: 900, deviceScaleFactor: 1 });
   collectErrors(desktop);
-  await desktop.goto(BASE, { waitUntil: "networkidle0", timeout: 60000 });
+  await open(desktop);
   // strip law: one reversible rule on every viewport class. The fixed strip
   // appears when scroll passes the in-flow threshold section's bottom edge and
   // hides again when the visitor returns above it (measured positions — the
@@ -162,7 +174,7 @@ try {
   const regression = await browser.newPage();
   {
     await regression.setViewport({ width: 2560, height: 1440, deviceScaleFactor: 1 });
-    await regression.goto(BASE, { waitUntil: "networkidle0", timeout: 60000 });
+    await open(regression);
     await regression.evaluate(() => window.scrollTo({ top: 0, behavior: "instant" }));
     await wait(400);
     const rT = await thresholdBottomOf(regression);
@@ -198,7 +210,7 @@ try {
     await regression.close();
     const mobileReg = await browser.newPage();
     await mobileReg.setViewport({ width: 390, height: 844, deviceScaleFactor: 2, hasTouch: true });
-    await mobileReg.goto(BASE, { waitUntil: "networkidle0", timeout: 60000 });
+    await open(mobileReg);
     await mobileReg.evaluate(() => window.scrollTo({ top: 0, behavior: "instant" }));
     await wait(400);
     const mT = await thresholdBottomOf(mobileReg);
@@ -218,7 +230,7 @@ try {
   const section = await browser.newPage();
   collectErrors(section);
   await section.setViewport({ width: 1440, height: 900, deviceScaleFactor: 1 });
-  await section.goto(BASE, { waitUntil: "networkidle0", timeout: 60000 });
+  await open(section);
   await section.evaluate(() => {
     document.querySelector(".realm-threshold-enter")
       ?.scrollIntoView({ block: "center", behavior: "instant" });
@@ -284,7 +296,7 @@ try {
   const dive = await browser.newPage();
   await dive.setViewport({ width: 1440, height: 900, deviceScaleFactor: 1 });
   collectErrors(dive);
-  await dive.goto(BASE, { waitUntil: "networkidle0", timeout: 60000 });
+  await open(dive);
   await dive.evaluate(() => window.scrollTo({ top: 1250, behavior: "instant" }));
   await wait(400);
   await enterRealm(dive);
@@ -314,7 +326,7 @@ try {
   const mobile = await browser.newPage();
   await mobile.setViewport({ width: 390, height: 844, deviceScaleFactor: 2, hasTouch: true });
   collectErrors(mobile);
-  await mobile.goto(BASE, { waitUntil: "networkidle0", timeout: 60000 });
+  await open(mobile);
   await mobile.evaluate(() => window.scrollTo({ top: 1100, behavior: "instant" }));
   await wait(400);
   await enterRealm(mobile);
@@ -342,7 +354,7 @@ try {
   await reduced.setViewport({ width: 1440, height: 900, deviceScaleFactor: 1 });
   await reduced.emulateMediaFeatures([{ name: "prefers-reduced-motion", value: "reduce" }]);
   collectErrors(reduced);
-  await reduced.goto(BASE, { waitUntil: "networkidle0", timeout: 60000 });
+  await open(reduced);
   await reduced.evaluate(() => window.scrollTo({ top: 1250, behavior: "instant" }));
   await wait(400);
   await enterRealm(reduced);
