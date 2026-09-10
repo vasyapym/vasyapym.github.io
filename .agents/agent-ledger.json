@@ -256,6 +256,25 @@
       "message": "Compaction checkpoint 2 rewrote summaries/titles in the shared append-only logs and therefore staged each graph file wholesale, carrying other agents lines: main graph n182/e170 (r8 session auto-record, left pre-staged) and n183 (r9 session live record, appended mid-compaction; left intact and NOT compacted — active work), practice-map n15+e (lesson session auto-record, left staged), spine n14+e (r8-era fix auto-record, unstaged). All carried lines are hook-generated history records or another active session live record; no work files swept. Compaction itself touched only summary/title values of pre-existing nodes (0 structural diffs), plus manual milestone nodes and STATE.md/docs updates declared in the commit message.",
       "ackBy": null,
       "ackAt": null
+    },
+    {
+      "id": "2026-09-10T17-05Z-sweep-report-6d3db96-realm-r9-delivery",
+      "ts": "2026-09-10T17:05:00Z",
+      "kind": "sweep-report",
+      "agent": "opencode (relay orchestrator, delivering on owner request)",
+      "commit": "6d3db96",
+      "files": [
+        "portfolio/shell/src/shell/LandingPage.tsx",
+        "portfolio/shell/src/shell/RealmMode.tsx",
+        "portfolio/shell/src/shell/realm-scene.ts",
+        "portfolio/shell/src/shell/realm.css",
+        "portfolio/shell/tests/realm-probe.mjs",
+        "docs/briefs/BRIEF-realm-r9-exit-flash.md",
+        "docs/briefs/BRIEF-realm-r9-sheet-greet.md"
+      ],
+      "message": "Owner asked this session to commit and push the forgotten realm r9 iteration. All seven files are the r9 session completed work (recorded by that session as graph n183 with gates green x3 + a ROUNDS row), left uncommitted when it ended. Delivered verbatim: staged exit teardown (D1), scroll-owning sheet law + proximity greetings (D2), probe 52->56. Gates re-verified by the delivering session before commit: tsc clean, build ok, realm-probe all green (Playwright Chromium via CHROME_PATH). CLAUDE.md (evening-forest session, per STATE thread 2) deliberately excluded. No reply required; the r9 agent may ack.",
+      "ackBy": null,
+      "ackAt": null
     }
   ]
 }
