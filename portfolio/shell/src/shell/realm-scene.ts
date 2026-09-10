@@ -126,6 +126,11 @@ function clamp(v: number, lo: number, hi: number): number {
   return v < lo ? lo : v > hi ? hi : v;
 }
 
+function smooth(t: number): number {
+  const c = Math.min(Math.max(t, 0), 1);
+  return c * c * (3 - 2 * c);
+}
+
 function parseHex(hex: string): [number, number, number] {
   let h = hex.trim();
   if (h.charAt(0) === "#") h = h.slice(1);
@@ -137,6 +142,24 @@ function parseHex(hex: string): [number, number, number] {
 
 function cssOf(rgb: readonly [number, number, number], a: number): string {
   return `rgba(${Math.round(rgb[0] * 255)},${Math.round(rgb[1] * 255)},${Math.round(rgb[2] * 255)},${a})`;
+}
+
+// leave vortex: pulse — rises to full pull at 35%, decays to zero at the end,
+// so the drain settles instead of being cut at maximum force.
+function leaveVortexStrength(
+  normalizedProgress: number,
+  reducedMotion: boolean,
+): number {
+  if (reducedMotion) return 0;
+
+  const t = Math.min(Math.max(normalizedProgress, 0), 1);
+  const peakAt = 0.35;
+
+  if (t <= peakAt) {
+    return 30 + 80 * smooth(t / peakAt);
+  }
+
+  return 110 * (1 - smooth((t - peakAt) / (1 - peakAt)));
 }
 
 // mutable twins of the readonly contract objects so we can reuse one instance per frame
@@ -722,7 +745,7 @@ export function createRealmScene(
       const dur = reduced ? LEAVE_REDUCED : LEAVE_MS;
       if (fluid !== null && !reduced) {
         const t = clamp(phaseT / LEAVE_MS, 0, 1);
-        fluid.vortex(chipX, chipY, vw * 0.7, 30 + 110 * t, INK);
+        fluid.vortex(chipX, chipY, vw * 0.7, leaveVortexStrength(t, reduced), INK);
       }
       if (phaseT >= dur && !fired) {
         fired = true;

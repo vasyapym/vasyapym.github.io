@@ -53,6 +53,10 @@ export default function RealmMode({ projects, onOpenProject, onExit, entry }: Re
   const sceneRef = useRef<RealmScene | null>(null);
   const audioRef = useRef<RealmAudio | null>(null);
   const ariaRef = useRef<HTMLDivElement | null>(null);
+  const leaveGateRef = useRef<{
+    begin(): void;
+    sceneDone(): void;
+  } | null>(null);
 
   // chrome state (changes a handful of times per session — never per frame)
   const [phase, setPhase] = useState<Phase>("entering");
@@ -107,11 +111,24 @@ export default function RealmMode({ projects, onOpenProject, onExit, entry }: Re
   }, []);
 
   const doLeave = useCallback(() => {
-    if (phaseRef.current === "leaving" || phaseRef.current === "diving") return;
+    if (
+      phaseRef.current === "leaving" ||
+      phaseRef.current === "diving"
+    ) return;
+
+    phaseRef.current = "leaving";
     setOpenId(null);
     setPhase("leaving");
-    const e = entryRef.current;
-    sceneRef.current?.startLeave(e.x, e.y); // reuse entry as the chip-equivalent
+
+    leaveGateRef.current?.begin();
+
+    const entry = entryRef.current;
+    const scene = sceneRef.current;
+    if (scene) {
+      scene.startLeave(entry.x, entry.y); // reuse entry as the chip-equivalent
+    } else {
+      leaveGateRef.current?.sceneDone();
+    }
   }, []);
 
   const confirmDive = useCallback((id: string) => {
@@ -146,6 +163,124 @@ export default function RealmMode({ projects, onOpenProject, onExit, entry }: Re
     const audio = createRealmAudio();
     audioRef.current = audio;
 
+    // Normal exit:
+    //   max(scene completion, layer transition completion) + 150 ms.
+    // Watchdog:
+    //   explicitly hide at 1,500 ms, then exit after 150 ms.
+    const EXIT_SETTLE_MS = 150;
+    const EXIT_WATCHDOG_MS = 1500;
+
+    let leaveStarted = false;
+    let leaveSceneDone = false;
+    let leaveVisualDone = false;
+    let exitSent = false;
+
+    let exitTimer: ReturnType<typeof setTimeout> | null = null;
+    let watchdogTimer: ReturnType<typeof setTimeout> | null = null;
+    let leaveLayer: HTMLDivElement | null = null;
+
+    const clearWatchdog = (): void => {
+      if (watchdogTimer !== null) {
+        clearTimeout(watchdogTimer);
+        watchdogTimer = null;
+      }
+    };
+
+    const maybeFinishLeave = (): void => {
+      if (
+        !alive || !leaveStarted || !leaveSceneDone || !leaveVisualDone ||
+        exitSent || exitTimer !== null
+      ) return;
+
+      clearWatchdog();
+      exitTimer = setTimeout(() => {
+        exitTimer = null;
+        if (!alive || exitSent) return;
+        exitSent = true;
+        onExitRef.current();
+      }, EXIT_SETTLE_MS);
+    };
+
+    const onLeaveTransitionEnd = (event: TransitionEvent): void => {
+      if (
+        !alive || !leaveStarted ||
+        event.target !== leaveLayer ||
+        event.propertyName !== "opacity"
+      ) return;
+
+      leaveVisualDone = true;
+      maybeFinishLeave();
+    };
+
+    const leaveGate = {
+      begin(): void {
+        if (!alive || leaveStarted) return;
+        leaveStarted = true;
+
+        // Self-contained audio exit; does not depend on the active mixer effect.
+        audio.surface();
+
+        leaveLayer = layerRef.current;
+        if (leaveLayer) {
+          leaveLayer.addEventListener("transitionend", onLeaveTransitionEnd);
+          leaveLayer.classList.add("realm--surfacing");
+        } else {
+          // No DOM layer exists to animate.
+          leaveVisualDone = true;
+        }
+
+        watchdogTimer = setTimeout(() => {
+          watchdogTimer = null;
+          if (!alive || exitSent) return;
+
+          // Recovery for a cancelled/missing transition event, changed motion
+          // preference, disabled transitions, or a scene that stopped ticking.
+          if (leaveLayer) {
+            leaveLayer.style.transition = "none";
+            leaveLayer.style.opacity = "0";
+            leaveLayer.style.visibility = "hidden";
+          }
+
+          leaveVisualDone = true;
+          leaveSceneDone = true;
+          maybeFinishLeave();
+        }, EXIT_WATCHDOG_MS);
+      },
+
+      sceneDone(): void {
+        if (!alive || !leaveStarted) return;
+        leaveSceneDone = true;
+        maybeFinishLeave();
+      },
+    };
+
+    leaveGateRef.current = leaveGate;
+
+    const cleanupLeaveGate = (): void => {
+      clearWatchdog();
+
+      if (exitTimer !== null) {
+        clearTimeout(exitTimer);
+        exitTimer = null;
+      }
+
+      if (leaveLayer) {
+        leaveLayer.removeEventListener(
+          "transitionend",
+          onLeaveTransitionEnd,
+        );
+        // Also leave a clean DOM node after Strict Mode effect cleanup.
+        leaveLayer.classList.remove("realm--surfacing");
+        leaveLayer.style.removeProperty("transition");
+        leaveLayer.style.removeProperty("opacity");
+        leaveLayer.style.removeProperty("visibility");
+      }
+
+      if (leaveGateRef.current === leaveGate) {
+        leaveGateRef.current = null;
+      }
+    };
+
     // scene callbacks read latest React setters through the stable closures above
     const scene = createRealmScene(gl, overlay, {
       doors,
@@ -154,11 +289,19 @@ export default function RealmMode({ projects, onOpenProject, onExit, entry }: Re
       smallScreen,
       onPhaseDone: (p) => {
         if (!alive) return;
+
         if (p === "entering") {
+          // Ignore a stale entering completion if leave began during entry.
+          if (
+            phaseRef.current === "leaving" ||
+            phaseRef.current === "diving"
+          ) return;
+
           setPhase("active");
+          phaseRef.current = "active";
           layerRef.current?.focus(); // focus the layer once we're swimming
         } else if (p === "leaving") {
-          onExitRef.current();       // unmount + chip refocus is LandingPage's job
+          leaveGate.sceneDone();
         }
       },
       onDiveCommit: (id) => {
@@ -381,6 +524,7 @@ export default function RealmMode({ projects, onOpenProject, onExit, entry }: Re
 
     return () => {
       alive = false;
+      cleanupLeaveGate();
       window.removeEventListener("resize", syncRealmViewport);
       realmViewport?.removeEventListener("resize", syncRealmViewport);
       realmViewport?.removeEventListener("scroll", syncRealmViewport);
@@ -438,7 +582,7 @@ export default function RealmMode({ projects, onOpenProject, onExit, entry }: Re
     <div
       ref={layerRef}
       className={
-        "realm-layer" +
+        "realm-layer realm-exit-layer" +
         (degraded ? " realm-layer--degraded" : "") +
         (typeof window !== "undefined" && window.matchMedia?.("(prefers-reduced-motion: reduce)").matches
           ? " realm-reduced" : "")
