@@ -98,8 +98,13 @@ try {
   await page.goto(`${BASE}/projects/practice-map`, { waitUntil: "networkidle0", timeout: 45000 });
 
   check(await appears(".practice-topic-card"), "map renders");
+
+  // The map opens on the first curriculum area (Go, one deep-lesson card).
+  // Select the Linux area for the long-standing 20-card flow below.
+  await page.click(".practice-area-list button:nth-child(2)");
+  await wait(400);
   const cardCount = await page.$$eval(".practice-topic-card", (cards) => cards.length);
-  check(cardCount === 20, `20 topic cards render (${cardCount})`);
+  check(cardCount === 20, `20 topic cards render in the Linux area (${cardCount})`);
 
   await page.click(".practice-topic-card .practice-lesson-open");
   check(await appears(".practice-reader"), "deep reader opens for lesson 01");
@@ -161,14 +166,36 @@ try {
 
   // --- desktop: fragment fallback -------------------------------------------
 
-  // card 6 (linux-users-groups) is the first remaining fragment card — cards
-  // 1-5 are deep lessons since the long-form md course landed.
+  // card 6 (linux-users-groups) is the first remaining fragment card — Linux
+  // cards 1-5 are deep lessons since the long-form md course landed.
   const cards = await page.$$(".practice-topic-card .practice-lesson-open");
   await cards[5].click();
   check(await appears(".practice-lesson-tabs"), "fragment lesson still uses tabs");
   check((await page.$(".practice-reader")) === null, "fragment lesson renders no reader");
   await page.keyboard.press("Escape");
   await wait(300);
+
+  // --- desktop: the Go area deep lesson --------------------------------------
+
+  // curriculum[0] is the Go area: one flagship card whose deep lesson carries
+  // the full 19-section course.
+  await page.click(".practice-area-list button:nth-child(1)");
+  await wait(400);
+  const goCardCount = await page.$$eval(".practice-topic-card", (cards) => cards.length);
+  check(goCardCount === 1, `Go area renders its single flagship card (${goCardCount})`);
+  await page.click(".practice-topic-card .practice-lesson-open");
+  check(await appears(".practice-reader"), "Go deep reader opens");
+  const goChipCount = await page.$$eval(".practice-reader-nav button", (b) => b.length);
+  check(goChipCount === 19, `Go lesson lists all 19 sections (${goChipCount})`);
+  const goCallouts = await page.$$eval(".practice-callout", (c) => c.length);
+  check(goCallouts >= 1, `Go lesson renders callouts (${goCallouts})`);
+  await page.keyboard.press("Escape");
+  await wait(300);
+  check((await page.$(".practice-lesson-overlay")) === null, "Escape closes the Go lesson");
+
+  // Back to the Linux area for the concept-graph leg.
+  await page.click(".practice-area-list button:nth-child(2)");
+  await wait(400);
 
   // --- desktop: concept graph ------------------------------------------------
 

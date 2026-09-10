@@ -1,0 +1,5 @@
+interface:
+  display_name: "Lesson iteration"
+  short_description: "Draft a full deep lesson for Practice Map"
+policy:
+  allow_implicit_invocation: false

@@ -566,9 +566,26 @@ function ConceptGraph({ onClose }: { onClose: () => void }) {
       }
     }
 
+    // Rank by topic span — how many distinct topics a concept appears in —
+    // so the map shows the ideas that connect the curriculum across topics.
+    // A single lesson's internal vocabulary (many concepts co-occurring in
+    // one card) cannot outrank that; ties: weighted degree, then neighbor
+    // count, then alphabetical.
     const ranked = Array.from(topicsByConcept.keys())
-      .map((name) => ({ name, degree: edges.get(name)?.size ?? 0 }))
-      .sort((a, b) => b.degree - a.degree || a.name.localeCompare(b.name))
+      .map((name) => {
+        const neighborMap = edges.get(name) ?? new Map<string, number>();
+        let weight = 0;
+        for (const w of neighborMap.values()) weight += w;
+        return {
+          name,
+          topics: topicsByConcept.get(name)?.length ?? 0,
+          weight,
+          degree: neighborMap.size,
+        };
+      })
+      .sort((a, b) =>
+        b.topics - a.topics || b.weight - a.weight || a.name.localeCompare(b.name),
+      )
       .map((d) => d.name);
 
     return { topicsByConcept, edges, maxWeight, ranked };

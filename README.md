@@ -156,6 +156,7 @@ The skills below are what the agent and I actually use. User-invoked skills are 
 | [grill-me](./skills/productivity/grill-me/SKILL.md) | Relentless interview about a plan until every branch is resolved. |
 | [handoff](./skills/productivity/handoff/SKILL.md) | Compact a conversation into a handoff document for another agent. |
 | [teach](./skills/productivity/teach/SKILL.md) | Teach a skill across sessions in a stateful workspace. |
+| [lesson-iteration](./skills/productivity/lesson-iteration/SKILL.md) | Draft, deepen, and migrate a full deep lesson for the Practice Map. |
 | [to-questionnaire](./skills/productivity/to-questionnaire/SKILL.md) | Turn an unanswerable decision into a questionnaire. |
 | [wait-what](./skills/productivity/wait-what/SKILL.md) | Re-pitch a message that didn't land, with missing context. |
 

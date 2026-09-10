@@ -1350,6 +1350,9 @@
 
 .practice-lesson-body p {
   margin: 0;
+  /* Same reasoning as the reader sections: long inline `code` tokens must
+     break rather than push the panel past the viewport. */
+  overflow-wrap: anywhere;
 }
 
 .practice-lesson-body ul {
@@ -1378,7 +1381,9 @@
 
 .practice-reader-section h3,
 .practice-reader-section p {
-  overflow-wrap: break-word;
+  /* `anywhere`, not `break-word`: it must affect min-content sizing, so a
+     long unbreakable token cannot push a grid section past the panel. */
+  overflow-wrap: anywhere;
 }
 
 .practice-reader-section h3 {
@@ -1419,7 +1424,10 @@
   font-family: var(--mono);
   font-size: 0.85em;
   font-style: normal;
-  overflow-wrap: break-word;
+  /* `anywhere` (not `break-word`): it must also affect min-content sizing,
+     so a long unbreakable token inside a list item cannot force the li past
+     the panel on narrow viewports. */
+  overflow-wrap: anywhere;
 }
 
 .practice-lesson strong {
@@ -1458,7 +1466,9 @@
   color: var(--ink-muted);
   font-size: 0.95rem;
   line-height: 1.65;
-  overflow-wrap: break-word;
+  /* `anywhere`, not `break-word`: inline `code` inherits it; min-content
+     sizing must allow the break so long tokens cannot overflow the panel. */
+  overflow-wrap: anywhere;
 }
 
 .practice-reader-section li::marker,
