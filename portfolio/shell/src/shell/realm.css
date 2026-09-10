@@ -26,17 +26,20 @@
   position: relative;
   isolation: isolate;
   box-sizing: border-box;
-  width: 100%;
+  width: auto;
   height: auto;
   min-height: 0;
-  margin: 0;
+  /* the panel floats in the page gutter like the hero rail and the cards */
+  margin:
+    clamp(12px, 2vw, 24px)
+    clamp(24px, 5vw, 80px)
+    0;
   padding:
     var(--rt-f-pad-block)
-    clamp(24px, 5vw, 80px);
+    clamp(1rem, 2vw, 1.5rem);
 
-  border: 0;
-  border-top: 1px solid var(--ink-line-soft);
-  border-radius: 0;
+  border: 1px solid var(--ink-line-soft);
+  border-radius: var(--panel-radius);
 
   background: var(--ink-bg);
   box-shadow: none;
@@ -53,7 +56,8 @@
   transition: none;
 }
 
-/* One opaque lower material; no fade or tonal ramp. */
+/* One opaque lower material; no fade or tonal ramp. Its bottom corners
+   follow the panel frame minus the hairline it sits inside. */
 .realm-threshold.rt-f::before {
   content: "";
   display: block;
@@ -64,7 +68,8 @@
 
   border: 0;
   border-top: 1px solid var(--ink-line-soft);
-  border-radius: 0;
+  border-bottom-left-radius: calc(var(--panel-radius) - 1px);
+  border-bottom-right-radius: calc(var(--panel-radius) - 1px);
 
   background: var(--ink-abyss);
   opacity: 1;
@@ -77,8 +82,6 @@
   z-index: 1;
   box-sizing: border-box;
   width: 100%;
-  max-width: 1120px;
-  margin-inline: auto;
 }
 
 .realm-threshold.rt-f h2 {
@@ -279,8 +282,6 @@
     --rt-f-line-height: 26px;
     --rt-f-crossing: 56px;
     --rt-f-half-crossing: 28px;
-
-    padding-inline: 24px;
   }
 
   .realm-threshold.rt-f h2 {
