@@ -352,8 +352,11 @@
   position: fixed;
   inset: 0;
   z-index: 60; /* above the landing grain (z 4) */
-  background: transparent; /* landing shows through the ink flood */
+  background: transparent; /* landing shows through the ink flood; the
+                              panel itself is solid near-black */
   overflow: hidden;
+  isolation: isolate;
+  box-sizing: border-box;
   outline: none;
   cursor: none; /* the on-canvas lantern replaces the pointer */
   font-family: var(--mono);
@@ -505,33 +508,68 @@
   flex: 0 0 auto;
 }
 
-/* ── panel (right sheet, only while a creature is open) ─────── */
+/* ── panel (persistent right sheet; content opens via .is-open) ──
+   The wrapper stays mounted with pinned offsets so no insertion can ever
+   paint a misplaced sheet: the static state is hidden, transparent and
+   unanimated; the entrance is a class-added opacity transition. */
 .realm-panel {
   position: absolute;
   top: 0;
   right: 0;
+  bottom: 0;
+  left: calc(100% - min(30rem, 92%));
   z-index: 70;
+
+  box-sizing: border-box;
   display: flex;
   flex-direction: column;
-  width: min(30rem, 92vw);
+  width: min(30rem, 92%);
   height: 100%;
-  padding: 1.4rem 1.3rem calc(1.4rem + env(safe-area-inset-bottom));
-  background: rgba(4, 8, 11, 0.92);
+  min-height: 0;
+  max-height: 100%;
+
+  padding: 1.4rem 1.3rem calc(1.4rem + env(safe-area-inset-bottom, 0px));
+  background: #04080b;
+  border: 0;
   border-left: 1px solid var(--ink-line);
+
   overflow-y: auto;
+  overscroll-behavior: contain;
   cursor: auto;
   scrollbar-width: thin;
   scrollbar-color: var(--ink-line) transparent;
-  animation: realm-panel-in 0.28s ease both;
+
+  /* independent of animation startup or js scheduling */
+  opacity: 0;
+  visibility: hidden;
+  pointer-events: none;
+  transform: none;
+  animation: none;
+  transition: none;
 }
-@keyframes realm-panel-in {
-  from { transform: translateX(100%); }
-  to   { transform: translateX(0); }
+.realm-panel.is-open {
+  opacity: 1;
+  visibility: visible;
+  pointer-events: auto;
+  transition: opacity 0.28s ease;
 }
-.realm-reduced .realm-panel {
-  animation: realm-panel-fade 0.24s linear both;
+.realm-reduced .realm-panel.is-open {
+  transition: opacity 0.24s linear;
 }
-@keyframes realm-panel-fade { from { opacity: 0; } to { opacity: 1; } }
+/* defense independent of entrance callbacks */
+.realm-layer[data-realm-leaving="true"] .realm-panel {
+  opacity: 0;
+  visibility: hidden;
+  pointer-events: none;
+  transform: none;
+  animation: none;
+  transition: none;
+}
+@media (prefers-reduced-motion: reduce) {
+  .realm-panel.is-open {
+    transition: opacity 0.24s linear;
+  }
+}
 .realm-panel::-webkit-scrollbar { width: 7px; }
 .realm-panel::-webkit-scrollbar-thumb { background: var(--ink-line); }
 .realm-panel::-webkit-scrollbar-track { background: transparent; }
@@ -680,10 +718,20 @@
   }
 
   .realm-layer .realm-panel {
+    top: 52%;
+    right: 0;
+    bottom: 0;
+    left: 0;
+
     box-sizing: border-box;
+    width: 100%;
+    height: 48%;
     min-height: 0;
     max-height: 48%;
-    padding-bottom: calc(1.4rem + env(safe-area-inset-bottom, 0px));
+
+    padding: 1.4rem 1.3rem calc(1.4rem + env(safe-area-inset-bottom, 0px));
+    border: 0;
+    border-top: 1px solid var(--ink-line);
   }
 
   .realm-legend {
@@ -698,25 +746,6 @@
   .realm-legend-btn { flex: 0 0 auto; }
 
   .realm-caption { display: none; } /* avoids colliding with the strip */
-
-  .realm-panel {
-    top: auto;
-    right: 0;
-    left: 0;
-    bottom: 0;
-    width: 100%;
-    height: auto;
-    max-height: 72%;
-    border-left: none;
-    border-top: 1px solid var(--ink-line);
-    padding-bottom: calc(1.4rem + env(safe-area-inset-bottom));
-    animation: realm-panel-in-mobile 0.28s ease both;
-  }
-  @keyframes realm-panel-in-mobile {
-    from { transform: translateY(100%); }
-    to   { transform: translateY(0); }
-  }
-  .realm-reduced .realm-panel { animation: realm-panel-fade 0.24s linear both; }
 }
 
 /* ── surface exit: one opacity envelope for the whole dialog layer ──

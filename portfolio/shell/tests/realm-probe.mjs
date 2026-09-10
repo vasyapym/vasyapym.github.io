@@ -261,7 +261,8 @@ try {
   await desktop.screenshot({ path: join(outDir, "desktop-panel.png") });
   await desktop.keyboard.press("Escape"); // panel → layer
   await wait(300);
-  check("esc closes the panel", (await desktop.$(".realm-panel")) === null);
+  // the panel wrapper is persistent since r5 pass D — closed = no .is-open
+  check("esc closes the panel", (await desktop.$(".realm-panel.is-open")) === null);
   await desktop.keyboard.press("Escape"); // layer → landing
   await wait(1300);
   check("esc exits the realm", (await desktop.$(".realm-layer")) === null);
@@ -288,7 +289,7 @@ try {
       document.querySelector(".realm-legend-btn")?.textContent.split("—").pop().trim().toLowerCase()));
   await dive.keyboard.press("Escape");
   await wait(300);
-  check("esc closes the tap-opened panel", (await dive.$(".realm-panel")) === null);
+  check("esc closes the tap-opened panel", (await dive.$(".realm-panel.is-open")) === null);
 
   // ── desktop: dive → SPA handoff ──
   await dive.click(".realm-legend-btn:nth-child(3)"); // explosion

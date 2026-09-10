@@ -8,7 +8,7 @@
 // never re-runs on prop identity (callbacks read latest via refs); the esc chain,
 // legend keyboard access and full cleanup are non-negotiable.
 
-import { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import { useCallback, useEffect, useLayoutEffect, useMemo, useRef, useState } from "react";
 import type { CSSProperties } from "react";
 import { createRealmScene } from "./realm-scene";
 import type { RealmScene } from "./realm-scene";
@@ -45,6 +45,33 @@ const DIR: Record<string, readonly [number, number]> = {
   arrowup: [0, -1], arrowdown: [0, 1], arrowleft: [-1, 0], arrowright: [1, 0],
 };
 
+// computed opacity-transition duration in ms (transitionend fallback timing)
+function opacityTransitionMs(element: HTMLElement): number {
+  const style = window.getComputedStyle(element);
+  const properties = style.transitionProperty.split(",").map((s) => s.trim());
+  const durations = style.transitionDuration.split(",").map(cssTimeMs);
+  const delays = style.transitionDelay.split(",").map(cssTimeMs);
+
+  let result = 0;
+
+  properties.forEach((property, index) => {
+    if (property !== "opacity" && property !== "all") return;
+
+    const duration = durations[index % durations.length] ?? 0;
+    const delay = delays[index % delays.length] ?? 0;
+    result = Math.max(result, duration + delay);
+  });
+
+  return Math.max(0, result);
+}
+
+function cssTimeMs(value: string): number {
+  const text = value.trim();
+  const number = Number.parseFloat(text);
+  if (!Number.isFinite(number)) return 0;
+  return text.endsWith("ms") ? number : number * 1000;
+}
+
 export default function RealmMode({ projects, onOpenProject, onExit, entry }: RealmModeProps) {
   const layerRef = useRef<HTMLDivElement | null>(null);
   const glRef = useRef<HTMLCanvasElement | null>(null);
@@ -57,6 +84,9 @@ export default function RealmMode({ projects, onOpenProject, onExit, entry }: Re
     begin(): void;
     sceneDone(): void;
   } | null>(null);
+  const panelRef = useRef<HTMLDivElement | null>(null);
+  const panelStopRef = useRef<(() => void) | null>(null);
+  const cancelRealmGestureRef = useRef<(() => void) | null>(null);
 
   // chrome state (changes a handful of times per session — never per frame)
   const [phase, setPhase] = useState<Phase>("entering");
@@ -106,8 +136,9 @@ export default function RealmMode({ projects, onOpenProject, onExit, entry }: Re
   openPanelRef.current = openProjectPanel;
 
   const closePanel = useCallback(() => {
+    panelStopRef.current?.(); // cancels entrance frames + delayed focus, hides now
     setOpenId(null);
-    layerRef.current?.focus(); // esc-chain step one returns focus to the layer
+    layerRef.current?.focus({ preventScroll: true }); // esc-chain step one returns focus to the layer
   }, []);
 
   const doLeave = useCallback(() => {
@@ -117,6 +148,7 @@ export default function RealmMode({ projects, onOpenProject, onExit, entry }: Re
     ) return;
 
     phaseRef.current = "leaving";
+    cancelRealmGestureRef.current?.(); // an in-flight gesture must not survive departure
     setOpenId(null);
     setPhase("leaving");
 
@@ -133,6 +165,7 @@ export default function RealmMode({ projects, onOpenProject, onExit, entry }: Re
 
   const confirmDive = useCallback((id: string) => {
     if (phaseRef.current !== "active") return;
+    cancelRealmGestureRef.current?.(); // an in-flight hold must not survive the dive
     setPhase("diving");
     sceneRef.current?.startDive(id);
     audioRef.current?.dive();
@@ -150,7 +183,8 @@ export default function RealmMode({ projects, onOpenProject, onExit, entry }: Re
   useEffect(() => {
     const gl = glRef.current;
     const overlay = overlayRef.current;
-    if (!gl || !overlay) return;
+    const layer = layerRef.current;
+    if (!gl || !overlay || !layer) return;
 
     let alive = true;
     const reducedMotion = typeof window.matchMedia === "function"
@@ -346,87 +380,215 @@ export default function RealmMode({ projects, onOpenProject, onExit, entry }: Re
 
     const isTouch = (ev: PointerEvent) => ev.pointerType === "touch";
     const CHROME_SEL = ".realm-hud, .realm-legend, .realm-panel";
-    // pointer over HUD / legend / panel (or their children): scene must not be driven
+
     const overChrome = (ev: PointerEvent) => {
-      const t = ev.target;
-      return t instanceof Element && t.closest(CHROME_SEL) !== null;
+      const target = ev.target;
+      return target instanceof Element && target.closest(CHROME_SEL) !== null;
     };
+
     const lifted = (ev: PointerEvent) =>
-      (isTouch(ev)
-        ? ev.clientY - Math.min(64, Math.max(24, 1.6 * (sceneRef.current?.lightRadius() ?? 48)))
-        : ev.clientY);
+      isTouch(ev)
+        ? ev.clientY -
+          Math.min(64, Math.max(24, 1.6 * (sceneRef.current?.lightRadius() ?? 48)))
+        : ev.clientY;
 
     // deliberate-gesture state (plain locals — no React state, no rAF)
     const SELECT_MOVE = 8;      // px of total movement allowed for a select
     const SELECT_MS = 350;      // max press duration for a select
+    const TARGET_TOUCH_MOVE = 18; // creature-origin press: forgiving wobble allowance
+    const TARGET_MOUSE_MOVE = 10;
     let downId = -1;            // active primary pointer id, -1 = none
     let downX = 0, downY = 0, downT = 0;
-    let moved = false;          // exceeded SELECT_MOVE during this press
+    let downTouch = false;
+    let moved = false;          // exceeded the allowance during this press
     let holding = false;        // press promoted to travel+call
+    let downPick: string | null = null; // creature reserved at pointer-down
     let holdTimer: number | undefined;
+    let lastX = 0;
+    let lastY = 0;
+
+    const clearHold = () => {
+      if (holdTimer !== undefined) {
+        window.clearTimeout(holdTimer);
+        holdTimer = undefined;
+      }
+    };
+
+    const cancelGesture = () => {
+      clearHold();
+      downId = -1;
+      downPick = null;
+      moved = false;
+      holding = false;
+      scene.setCalling(false);
+      scene.setPointer(lastX, lastY, false);
+    };
 
     const promoteToHold = () => {
-      if (holding || downId < 0) return;
+      if (holding || downId < 0 || phaseRef.current !== "active") return;
       holding = true;
       scene.setCalling(true);
     };
-    const clearHold = () => {
-      if (holdTimer !== undefined) { window.clearTimeout(holdTimer); holdTimer = undefined; }
+
+    const observeMovement = (x: number, y: number) => {
+      if (downId < 0 || moved) return;
+
+      const allowance = downPick
+        ? downTouch
+          ? TARGET_TOUCH_MOVE
+          : TARGET_MOUSE_MOVE
+        : SELECT_MOVE;
+
+      if (Math.hypot(x - downX, y - downY) > allowance) {
+        moved = true; // sticky: moving back does not turn a drag into a tap
+        downPick = null;
+        clearHold();
+        promoteToHold();
+      }
+    };
+
+    const onPointerDown = (ev: PointerEvent) => {
+      if (
+        !ev.isPrimary ||
+        downId !== -1 ||
+        overChrome(ev) ||
+        (ev.pointerType === "mouse" && ev.button !== 0)
+      ) {
+        return;
+      }
+
+      tryResume();
+      if (phaseRef.current !== "active") return;
+
+      clearHold();
+
+      downId = ev.pointerId;
+      downX = ev.clientX;
+      downY = ev.clientY;
+      downT = ev.timeStamp;
+      downTouch = isTouch(ev);
+      moved = false;
+      holding = false;
+
+      // Consume the snapshot once, now. Release uses this ID, never another pick.
+      scene.markPickAnchor(downTouch);
+      downPick = scene.pickAt(downX, downY, downTouch);
+
+      lastX = ev.clientX;
+      lastY = lifted(ev);
+      scene.setCalling(false);
+      scene.setPointer(lastX, lastY, true);
+
+      // A target-origin press is reserved until release or an intentional drag.
+      // Empty-space holds retain the original calling deadline.
+      if (!downPick) {
+        holdTimer = window.setTimeout(() => {
+          holdTimer = undefined;
+          promoteToHold();
+        }, SELECT_MS);
+      }
     };
 
     const onPointerMove = (ev: PointerEvent) => {
       if (!ev.isPrimary) return;
-      if (overChrome(ev)) {
-        // release: lantern coasts to rest via the existing else-branch drag
-        scene.setPointer(ev.clientX, lifted(ev), false);
-        if (downId === ev.pointerId) { clearHold(); scene.setCalling(false); downId = -1; holding = false; }
+
+      // Do not let another pointer type steer an existing primary gesture.
+      if (downId !== -1 && downId !== ev.pointerId) return;
+
+      lastX = ev.clientX;
+      lastY = lifted(ev);
+
+      if (phaseRef.current !== "active" || overChrome(ev)) {
+        cancelGesture();
         return;
       }
-      if (downId === ev.pointerId && !moved) {
-        if (Math.hypot(ev.clientX - downX, ev.clientY - downY) > SELECT_MOVE) {
-          moved = true;
-          clearHold();
-          promoteToHold(); // dragging = travelling; call engages
-        }
-      }
-      scene.setPointer(ev.clientX, lifted(ev), true);
-    };
 
-    const onPointerDown = (ev: PointerEvent) => {
-      if (!ev.isPrimary || overChrome(ev)) return; // chrome keeps native click/focus
-      tryResume();
-      if (phaseRef.current !== "active") return;
-      downId = ev.pointerId;
-      downX = ev.clientX; downY = ev.clientY; downT = ev.timeStamp;
-      moved = false; holding = false;
-      clearHold();
-      scene.markPickAnchor(isTouch(ev)); // snapshot geometry for the quick-release pick
-      scene.setPointer(ev.clientX, lifted(ev), true);
-      // not calling yet: a quick release is a select; a held press becomes a call
-      holdTimer = window.setTimeout(promoteToHold, SELECT_MS);
+      if (downId === ev.pointerId) {
+        // Preserve excursions reported in coalesced samples where supported.
+        const samples = ev.getCoalescedEvents?.() ?? [];
+        for (const sample of samples) {
+          observeMovement(sample.clientX, sample.clientY);
+        }
+        observeMovement(ev.clientX, ev.clientY);
+      }
+
+      scene.setPointer(lastX, lastY, true);
     };
 
     const endPointer = (ev: PointerEvent) => {
-      if (!ev.isPrimary) return;
-      const wasPress = downId === ev.pointerId;
+      if (!ev.isPrimary || downId !== ev.pointerId) return;
+
+      lastX = ev.clientX;
+      lastY = lifted(ev);
+
+      const validRelease =
+        ev.type === "pointerup" &&
+        phaseRef.current === "active" &&
+        !overChrome(ev);
+
+      // Some devices deliver a final displacement only with pointerup.
+      if (validRelease) observeMovement(ev.clientX, ev.clientY);
+
+      const quick = !moved && !holding && ev.timeStamp - downT < SELECT_MS;
+
+      const id =
+        validRelease && !moved && !holding && (downPick !== null || quick)
+          ? downPick
+          : null;
+
+      const releaseTouch = downTouch;
+
       clearHold();
+      downId = -1;
+      downPick = null;
+      moved = false;
+      holding = false;
       scene.setCalling(false);
-      if (wasPress) {
-        const quick = !moved && !holding && ev.type === "pointerup"
-          && ev.timeStamp - downT < SELECT_MS && !overChrome(ev);
-        downId = -1; holding = false;
-        if (quick && phaseRef.current === "active") {
-          // pick against the TAP POINT (same-tick geometry, no rAF dependency)
-          const id = scene.pickAt(downX, downY, isTouch(ev));
-          if (id) openPanelRef.current(id);
-        }
-      }
-      if (isTouch(ev)) {
-        const lift = Math.min(64, Math.max(24, 1.6 * (sceneRef.current?.lightRadius() ?? 48)));
-        scene.setPointer(ev.clientX, ev.clientY - lift, false);
+
+      scene.setPointer(
+        lastX,
+        lastY,
+        !releaseTouch && validRelease,
+      );
+
+      if (id) openPanelRef.current(id);
+    };
+
+    const onPointerLeave = (ev: PointerEvent) => {
+      if (ev.pointerId === downId) cancelGesture();
+    };
+
+    const onVisibilityChange = () => {
+      if (document.hidden) cancelGesture();
+    };
+
+    cancelRealmGestureRef.current = cancelGesture;
+
+    // No pointer capture: chrome retains native targeting/click/focus.
+    // Window end listeners still finish releases outside the layer's event subtree.
+    layer.addEventListener("pointerdown", onPointerDown);
+    layer.addEventListener("pointerleave", onPointerLeave);
+    window.addEventListener("pointermove", onPointerMove);
+    window.addEventListener("pointerup", endPointer);
+    window.addEventListener("pointercancel", endPointer);
+    window.addEventListener("blur", cancelGesture);
+    document.addEventListener("visibilitychange", onVisibilityChange);
+
+    const cleanupGestures = () => {
+      layer.removeEventListener("pointerdown", onPointerDown);
+      layer.removeEventListener("pointerleave", onPointerLeave);
+      window.removeEventListener("pointermove", onPointerMove);
+      window.removeEventListener("pointerup", endPointer);
+      window.removeEventListener("pointercancel", endPointer);
+      window.removeEventListener("blur", cancelGesture);
+      document.removeEventListener("visibilitychange", onVisibilityChange);
+
+      cancelGesture();
+
+      if (cancelRealmGestureRef.current === cancelGesture) {
+        cancelRealmGestureRef.current = null;
       }
     };
-    const onMouseLeave = () => { clearHold(); scene.setCalling(false); downId = -1; holding = false; scene.setPointer(0, 0, false); };
     const onWheel = (ev: WheelEvent) => {
       ev.preventDefault();
       scene.breatheLight(ev.deltaY > 0 ? -1 : 1);
@@ -436,15 +598,8 @@ export default function RealmMode({ projects, onOpenProject, onExit, entry }: Re
       if (ev.ctrlKey || ev.metaKey || ev.altKey) return; // never hijack shortcuts
       const k = ev.key.toLowerCase();
 
-      if (k === "escape") {
-        ev.preventDefault();
-        if (phaseRef.current === "diving") return; // the dive owns the screen now
-        if (openIdRef.current) closePanel(); // esc-chain: panel first…
-        else doLeave();                      // …then surface
-        return;
-      }
-
-      // don't drive the world while a panel is focused, except esc (handled above)
+      // escape is owned by the layer's onKeyDown (esc-chain with focus order);
+      // don't drive the world while a panel is focused, except escape
       if (openIdRef.current) return;
 
       if (k in DIR) {
@@ -486,64 +641,22 @@ export default function RealmMode({ projects, onOpenProject, onExit, entry }: Re
       if (k in DIR) { ev.preventDefault(); scene.setThrust(0, 0); } // release thrust
     };
 
-    window.addEventListener("pointermove", onPointerMove);
-    window.addEventListener("pointerdown", onPointerDown);
-    window.addEventListener("pointerup", endPointer);
-    window.addEventListener("pointercancel", endPointer);
     window.addEventListener("wheel", onWheel, { passive: false });
     window.addEventListener("keydown", onKeyDown);
     window.addEventListener("keyup", onKeyUp);
-    document.addEventListener("mouseleave", onMouseLeave);
 
-    // visible-viewport tracking: iOS toolbars/keyboard make the fixed layer's
-    // inset:0 taller than what the user can see, so the mobile bottom sheet
-    // anchored to layer-bottom lands behind the chrome (reads "mid-screen").
-    // these custom properties carry the true visible bounds to realm.css.
-    const realmViewportRoot = document.documentElement;
-    const realmViewport = window.visualViewport;
-    const realmViewportProperties = ["--realm-visible-height", "--realm-visible-top"];
-    const realmViewportPrevious = realmViewportProperties.map((name) => ({
-      name,
-      value: realmViewportRoot.style.getPropertyValue(name),
-      priority: realmViewportRoot.style.getPropertyPriority(name),
-    }));
-    const syncRealmViewport = () => {
-      realmViewportRoot.style.setProperty(
-        "--realm-visible-height",
-        `${realmViewport?.height ?? window.innerHeight}px`,
-      );
-      realmViewportRoot.style.setProperty(
-        "--realm-visible-top",
-        `${realmViewport?.offsetTop ?? 0}px`,
-      );
-    };
-    syncRealmViewport();
-    window.addEventListener("resize", syncRealmViewport);
-    realmViewport?.addEventListener("resize", syncRealmViewport);
-    realmViewport?.addEventListener("scroll", syncRealmViewport);
+    // visible-viewport tracking moved to a paint-safe useLayoutEffect below:
+    // the custom properties are scoped to the layer element and must exist
+    // before the first paint so the mobile bottom sheet can never resolve
+    // through the 100vh/100dvh fallback cascade.
 
     return () => {
       alive = false;
       cleanupLeaveGate();
-      window.removeEventListener("resize", syncRealmViewport);
-      realmViewport?.removeEventListener("resize", syncRealmViewport);
-      realmViewport?.removeEventListener("scroll", syncRealmViewport);
-      for (const { name, value, priority } of realmViewportPrevious) {
-        if (value) {
-          realmViewportRoot.style.setProperty(name, value, priority);
-        } else {
-          realmViewportRoot.style.removeProperty(name);
-        }
-      }
-      clearHold();
-      window.removeEventListener("pointermove", onPointerMove);
-      window.removeEventListener("pointerdown", onPointerDown);
-      window.removeEventListener("pointerup", endPointer);
-      window.removeEventListener("pointercancel", endPointer);
+      cleanupGestures();
       window.removeEventListener("wheel", onWheel);
       window.removeEventListener("keydown", onKeyDown);
       window.removeEventListener("keyup", onKeyUp);
-      document.removeEventListener("mouseleave", onMouseLeave);
       // restore scroll + body style; instant — the global smooth scroll-behavior
       // must not animate the visitor back to where they were.
       document.body.style.position = prev.position;
@@ -570,13 +683,168 @@ export default function RealmMode({ projects, onOpenProject, onExit, entry }: Re
     return () => window.clearInterval(id);
   }, [phase]);
 
-  // focus the panel's close button when a creature opens
-  useEffect(() => {
-    if (openId) panelCloseRef.current?.focus();
-  }, [openId]);
-
   const opened = openId ? projectOf(openId) : null;
   const glMode = !degraded; // fade + gpu caption only when GL actually owns pixels
+  const requestedPanelId = opened?.id ?? null;
+  const panelRequested = requestedPanelId !== null && phase !== "leaving";
+
+  // paint-safe visible-viewport tracking: iOS toolbars/keyboard make the fixed
+  // layer's inset:0 taller than what the user can see, so the mobile bottom
+  // sheet anchored to layer-bottom lands behind the chrome (reads "mid-screen").
+  // layout effect: the properties exist BEFORE the first paint, scoped to the
+  // layer element itself (no global-document ownership or restore races).
+  useLayoutEffect(() => {
+    const layer = layerRef.current;
+    if (!layer) return;
+
+    const viewport = window.visualViewport;
+
+    const syncViewport = () => {
+      layer.style.setProperty(
+        "--realm-visible-height",
+        `${viewport?.height ?? window.innerHeight}px`,
+      );
+      layer.style.setProperty(
+        "--realm-visible-top",
+        `${viewport?.offsetTop ?? 0}px`,
+      );
+    };
+
+    syncViewport();
+
+    window.addEventListener("resize", syncViewport);
+    viewport?.addEventListener("resize", syncViewport);
+    viewport?.addEventListener("scroll", syncViewport);
+
+    return () => {
+      window.removeEventListener("resize", syncViewport);
+      viewport?.removeEventListener("resize", syncViewport);
+      viewport?.removeEventListener("scroll", syncViewport);
+
+      layer.style.removeProperty("--realm-visible-height");
+      layer.style.removeProperty("--realm-visible-top");
+    };
+  }, []);
+
+  // persistent-panel entrance: the wrapper is always mounted with final
+  // geometry; the static CSS is hidden/transparent/unanimated, so the first
+  // painted frame can never show a misplaced sheet (the Safari flash bug).
+  // the open class is added after two animation frames, and the close button
+  // is focused only once the opacity transition has finished.
+  useLayoutEffect(() => {
+    const panel = panelRef.current;
+    if (!panel) return;
+
+    let stopped = false;
+    let focused = false;
+    let firstFrame: number | undefined;
+    let secondFrame: number | undefined;
+    let focusTimer: number | undefined;
+
+    const clearFocusTimer = () => {
+      if (focusTimer !== undefined) {
+        window.clearTimeout(focusTimer);
+        focusTimer = undefined;
+      }
+    };
+
+    const focusWhenFinished = () => {
+      clearFocusTimer();
+
+      if (
+        stopped ||
+        focused ||
+        document.hidden ||
+        !panel.isConnected ||
+        !panel.classList.contains("is-open")
+      ) {
+        return;
+      }
+
+      // a delayed/backgrounded transition must not cause premature focus.
+      const opacity = Number.parseFloat(window.getComputedStyle(panel).opacity);
+      if (!Number.isFinite(opacity) || opacity < 0.999) {
+        focusTimer = window.setTimeout(focusWhenFinished, 50);
+        return;
+      }
+
+      const closeButton = panelCloseRef.current;
+      if (!closeButton?.isConnected) return;
+
+      focused = true;
+      closeButton.focus({ preventScroll: true });
+    };
+
+    const onTransitionEnd = (event: TransitionEvent) => {
+      if (event.target === panel && event.propertyName === "opacity") {
+        focusWhenFinished();
+      }
+    };
+
+    const onVisibilityChange = () => {
+      if (!document.hidden) focusWhenFinished();
+    };
+
+    const stop = () => {
+      if (stopped) return;
+      stopped = true;
+
+      if (firstFrame !== undefined) window.cancelAnimationFrame(firstFrame);
+      if (secondFrame !== undefined) window.cancelAnimationFrame(secondFrame);
+      clearFocusTimer();
+
+      panel.removeEventListener("transitionend", onTransitionEnd);
+      document.removeEventListener("visibilitychange", onVisibilityChange);
+
+      // removing is-open also removes the transition: closing is immediate.
+      panel.classList.remove("is-open");
+      panel.setAttribute("inert", "");
+      panel.setAttribute("aria-hidden", "true");
+    };
+
+    panelStopRef.current = stop;
+
+    // reset before this commit can paint, including when changing creature ids.
+    panel.classList.remove("is-open");
+    panel.setAttribute("inert", "");
+    panel.setAttribute("aria-hidden", "true");
+
+    if (panelRequested) {
+      cancelRealmGestureRef.current?.();
+
+      panel.addEventListener("transitionend", onTransitionEnd);
+      document.addEventListener("visibilitychange", onVisibilityChange);
+
+      firstFrame = window.requestAnimationFrame(() => {
+        firstFrame = undefined;
+        if (stopped) return;
+
+        secondFrame = window.requestAnimationFrame(() => {
+          secondFrame = undefined;
+          if (stopped || phaseRef.current !== "active") return;
+
+          panel.removeAttribute("inert");
+          panel.removeAttribute("aria-hidden");
+          panel.classList.add("is-open");
+
+          // reading computed timing also resolves the newly applied transition.
+          const duration = opacityTransitionMs(panel);
+
+          if (duration === 0) {
+            focusWhenFinished();
+          } else {
+            // transitionend is primary; this covers missing/cancelled events.
+            focusTimer = window.setTimeout(focusWhenFinished, duration + 80);
+          }
+        });
+      });
+    }
+
+    return () => {
+      stop();
+      if (panelStopRef.current === stop) panelStopRef.current = null;
+    };
+  }, [panelRequested, requestedPanelId]);
 
   return (
     <div
@@ -591,7 +859,68 @@ export default function RealmMode({ projects, onOpenProject, onExit, entry }: Re
       aria-modal="true"
       aria-label="the deep — immersive project navigator"
       tabIndex={-1}
+      data-realm-leaving={phase === "leaving" ? "true" : "false"}
       style={{ touchAction: "none" }}
+      onKeyDown={(event) => {
+        if (event.key === "Escape") {
+          event.preventDefault();
+          event.stopPropagation(); // the window keydown must not double-fire
+
+          if (phaseRef.current === "diving" || phase === "leaving") return;
+
+          if (openId) {
+            closePanel();
+          } else {
+            doLeave(); // surface
+          }
+          return;
+        }
+
+        if (event.key !== "Tab" || phase === "leaving") return;
+
+        const layer = event.currentTarget;
+        const controls = Array.from(
+          layer.querySelectorAll<HTMLElement>(
+            'a[href], button, input, select, textarea, [tabindex], [contenteditable="true"]',
+          ),
+        ).filter((element) => {
+          if (
+            element.tabIndex < 0 ||
+            element.matches(":disabled") ||
+            element.closest('[inert], [aria-hidden="true"]')
+          ) {
+            return false;
+          }
+
+          const style = window.getComputedStyle(element);
+          return (
+            style.visibility === "visible" &&
+            style.display !== "none" &&
+            element.getClientRects().length > 0
+          );
+        });
+
+        if (controls.length === 0) {
+          event.preventDefault();
+          layer.focus({ preventScroll: true });
+          return;
+        }
+
+        const first = controls[0];
+        const last = controls[controls.length - 1];
+        if (!first || !last) return;
+
+        const active = document.activeElement;
+        const activeIsControl = controls.some((element) => element === active);
+
+        if (event.shiftKey && (active === first || !activeIsControl)) {
+          event.preventDefault();
+          last.focus({ preventScroll: true });
+        } else if (!event.shiftKey && (active === last || !activeIsControl)) {
+          event.preventDefault();
+          first.focus({ preventScroll: true });
+        }
+      }}
     >
       <canvas
         ref={glRef}
@@ -644,47 +973,52 @@ export default function RealmMode({ projects, onOpenProject, onExit, entry }: Re
         ))}
       </nav>
 
-      {opened ? (
-        <div className="realm-panel" role="document">
-          <button
-            ref={panelCloseRef}
-            type="button"
-            className="realm-panel-close"
-            aria-label="close"
-            onClick={closePanel}
-          >
-            ×
-          </button>
-          <p className="realm-panel-eyebrow">{opened.eyebrow}</p>
-          <h2 className="realm-panel-title">{opened.title}</h2>
-          <p className="realm-panel-desc">{opened.description}</p>
-          <ul className="realm-panel-tech">
-            {opened.technologies.map((t) => (
-              <li key={t} className="realm-panel-chip">{t}</li>
-            ))}
-          </ul>
-          {opened.links && opened.links.length > 0 ? (
-            <div className="realm-panel-links">
-              {opened.links.map((l) =>
-                l.external ? (
-                  <a key={l.href} href={l.href} target="_blank" rel="noreferrer" className="realm-panel-link">
-                    {l.label}
-                  </a>
-                ) : (
-                  <a key={l.href} href={l.href} className="realm-panel-link">{l.label}</a>
-                ),
-              )}
-            </div>
-          ) : null}
-          <button
-            type="button"
-            className="realm-panel-dive"
-            onClick={() => confirmDive(opened.id)}
-          >
-            dive in →
-          </button>
-        </div>
-      ) : null}
+      {/* persistent panel: wrapper always mounted with pinned geometry;
+          content is conditional; inert/aria-hidden/is-open are owned by the
+          entrance layout effect, never by React state on this wrapper. */}
+      <div ref={panelRef} className="realm-panel" role="document">
+        <button
+          ref={panelCloseRef}
+          type="button"
+          className="realm-panel-close"
+          aria-label="close"
+          onClick={closePanel}
+        >
+          ×
+        </button>
+        {opened ? (
+          <>
+            <p className="realm-panel-eyebrow">{opened.eyebrow}</p>
+            <h2 className="realm-panel-title">{opened.title}</h2>
+            <p className="realm-panel-desc">{opened.description}</p>
+            <ul className="realm-panel-tech">
+              {opened.technologies.map((t) => (
+                <li key={t} className="realm-panel-chip">{t}</li>
+              ))}
+            </ul>
+            {opened.links && opened.links.length > 0 ? (
+              <div className="realm-panel-links">
+                {opened.links.map((l) =>
+                  l.external ? (
+                    <a key={l.href} href={l.href} target="_blank" rel="noreferrer" className="realm-panel-link">
+                      {l.label}
+                    </a>
+                  ) : (
+                    <a key={l.href} href={l.href} className="realm-panel-link">{l.label}</a>
+                  ),
+                )}
+              </div>
+            ) : null}
+            <button
+              type="button"
+              className="realm-panel-dive"
+              onClick={() => confirmDive(opened.id)}
+            >
+              dive in →
+            </button>
+          </>
+        ) : null}
+      </div>
 
       <div ref={ariaRef} className="realm-aria" aria-live="polite" />
     </div>
