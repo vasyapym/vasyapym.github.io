@@ -651,15 +651,14 @@ class Fluid implements FluidHandle {
     // wake is frame-rate coherent instead of scaling with frame time.
     const speed = Math.sqrt(dx * dx + dy * dy);
     if (speed < 1) return;
-    // the water inherits a fraction of the lantern's momentum: it is dragged along
-    // and left behind by advection rather than punched forward. subdivisions share
-    // one time-weighted deposit: weight scales the deposit, not the velocity used
-    // for the speed ramp.
-    this.splatVel(x, y, 42, dx * 0.16 * weight, dy * 0.16 * weight, 0, 0);
+    // a weak, broad push leaves a wake without feeding a narrow shear jet.
+    // subdivisions share one time-weighted deposit; weight does not alter
+    // the velocity used for the speed ramp.
+    this.splatVel(x, y, 48, dx * 0.02 * weight, dy * 0.02 * weight, 0, 0);
     // smooth speed ramp (fades in ~90 px/s, saturates ~800 px/s) instead of tracking
     // instantaneous speed, which is what made the trail pulse and break into dots.
     const s = Math.min(1, Math.max(0, (speed - 90) / 710));
-    const amount = 0.05 + 0.15 * (s * s * (3 - 2 * s));
+    const amount = 0.02 + 0.06 * (s * s * (3 - 2 * s));
     this.splatDye(x, y, 30, WAKE_DYE, amount * weight);
   }
 vortex(x: number, y: number, radius: number, strength: number,

@@ -26,14 +26,12 @@
   position: relative;
   isolation: isolate;
   box-sizing: border-box;
-  width: auto;
+  width: 100%;
   height: auto;
   min-height: 0;
-  /* the panel floats in the page gutter like the hero rail and the cards */
-  margin:
-    clamp(12px, 2vw, 24px)
-    clamp(24px, 5vw, 80px)
-    0;
+  /* the panel spans the same shell width as the hero and the cards;
+     only the vertical rhythm is its own */
+  margin: clamp(12px, 2vw, 24px) 0 0;
   padding:
     var(--rt-f-pad-block)
     clamp(1rem, 2vw, 1.5rem);
@@ -250,7 +248,15 @@
   color: var(--ink-accent-deep);
 }
 
-/* Keep the seam mask opaque when the entry is unavailable. */
+/* Unavailability is semantic, not a hidden return destination.
+   The realm envelope owns the visual reveal for threshold variants. */
+.realm-threshold .realm-threshold-enter:disabled {
+  visibility: visible;
+  opacity: 1;
+  cursor: default;
+}
+
+/* Keep both the seam mask and its contents at their resting strength. */
 .realm-threshold.rt-f .realm-threshold-enter:disabled {
   opacity: 1;
   cursor: default;
@@ -261,7 +267,7 @@
 .realm-threshold.rt-f
   .realm-threshold-enter:disabled
   .rt-f-entry-copy {
-  opacity: .38;
+  opacity: 1;
 }
 
 @media (hover: hover) and (pointer: fine) {
@@ -435,6 +441,8 @@
   inset: 0;
   z-index: 60; /* above the landing grain (z 4) */
   background: transparent; /* landing shows through the ink flood */
+  isolation: isolate;
+  box-sizing: border-box;
   overflow: hidden;
   outline: none;
   cursor: none; /* the on-canvas lantern replaces the pointer */
@@ -587,36 +595,100 @@
   flex: 0 0 auto;
 }
 
-/* ── panel (right sheet, only while a creature is open) ─────── */
+/* ── panel (persistent right sheet; content opens via .is-open) ──
+   Geometry is final before content insertion. Only the class-added
+   entrance transitions; the persistent wrapper never animates or moves. */
 .realm-panel {
   position: absolute;
   top: 0;
   right: 0;
+  bottom: 0;
+  left: calc(100% - min(30rem, 92%));
   z-index: 70;
+
+  box-sizing: border-box;
   display: flex;
   flex-direction: column;
-  width: min(30rem, 92vw);
+  width: min(30rem, 92%);
   height: 100%;
-  padding: 1.4rem 1.3rem calc(1.4rem + env(safe-area-inset-bottom));
-  background: rgba(4, 8, 11, 0.92);
+  min-height: 0;
+  max-height: 100%;
+
+  padding: 1.4rem 1.3rem calc(1.4rem + env(safe-area-inset-bottom, 0px));
+  background: #04080b;
+  border: 0;
   border-left: 1px solid var(--ink-line);
+
   overflow-y: auto;
+  overscroll-behavior: contain;
   cursor: auto;
   scrollbar-width: thin;
   scrollbar-color: var(--ink-line) transparent;
-  animation: realm-panel-in 0.28s ease both;
+
+  opacity: 0;
+  visibility: hidden;
+  pointer-events: none;
+  transform: none;
+  animation: none;
+  transition: none;
 }
-@keyframes realm-panel-in {
-  from { transform: translateX(100%); }
-  to   { transform: translateX(0); }
+.realm-panel.is-open {
+  opacity: 1;
+  visibility: visible;
+  pointer-events: auto;
+  transition: opacity 0.28s ease;
 }
-.realm-reduced .realm-panel {
-  animation: realm-panel-fade 0.24s linear both;
+.realm-reduced .realm-panel.is-open {
+  transition: opacity 0.24s linear;
 }
-@keyframes realm-panel-fade { from { opacity: 0; } to { opacity: 1; } }
+/* Defense independent of entrance callbacks. */
+.realm-layer[data-realm-leaving="true"] .realm-panel {
+  opacity: 0;
+  visibility: hidden;
+  pointer-events: none;
+  transform: none;
+  animation: none;
+  transition: none;
+}
+@media (prefers-reduced-motion: reduce) {
+  .realm-panel.is-open {
+    transition: opacity 0.24s linear;
+  }
+}
 .realm-panel::-webkit-scrollbar { width: 7px; }
 .realm-panel::-webkit-scrollbar-thumb { background: var(--ink-line); }
 .realm-panel::-webkit-scrollbar-track { background: transparent; }
+
+.realm-panel-close > svg {
+  display: block;
+  width: 16px;
+  height: 16px;
+  pointer-events: none;
+}
+
+/* ── surface exit: one opacity envelope for the whole dialog layer ──
+   Canvas, chrome and scrim fade together. Suppress the canvas-only
+   fade during surfacing; dive retains its own iris choreography. */
+.realm-exit-layer {
+  opacity: 1;
+  transition: opacity 600ms cubic-bezier(0.22, 1, 0.36, 1);
+}
+.realm-exit-layer.realm--surfacing {
+  opacity: 0;
+}
+.realm-exit-layer.realm--surfacing .realm-gl--fade {
+  opacity: 1;
+  transition: none;
+}
+.realm-exit-layer.realm-reduced,
+.realm-reduced .realm-exit-layer {
+  transition: opacity 240ms linear;
+}
+@media (prefers-reduced-motion: reduce) {
+  .realm-exit-layer {
+    transition: opacity 240ms linear;
+  }
+}
 
 .realm-panel-close {
   position: absolute;
@@ -762,10 +834,20 @@
   }
 
   .realm-layer .realm-panel {
+    top: 52%;
+    right: 0;
+    bottom: 0;
+    left: 0;
+
     box-sizing: border-box;
+    width: 100%;
+    height: 48%;
     min-height: 0;
     max-height: 48%;
-    padding-bottom: calc(1.4rem + env(safe-area-inset-bottom, 0px));
+
+    padding: 1.4rem 1.3rem calc(1.4rem + env(safe-area-inset-bottom, 0px));
+    border: 0;
+    border-top: 1px solid var(--ink-line);
   }
 
   .realm-legend {
@@ -781,22 +863,6 @@
 
   .realm-caption { display: none; } /* avoids colliding with the strip */
 
-  .realm-panel {
-    top: auto;
-    right: 0;
-    left: 0;
-    bottom: 0;
-    width: 100%;
-    height: auto;
-    max-height: 72%;
-    border-left: none;
-    border-top: 1px solid var(--ink-line);
-    padding-bottom: calc(1.4rem + env(safe-area-inset-bottom));
-    animation: realm-panel-in-mobile 0.28s ease both;
-  }
-  @keyframes realm-panel-in-mobile {
-    from { transform: translateY(100%); }
-    to   { transform: translateY(0); }
-  }
-  .realm-reduced .realm-panel { animation: realm-panel-fade 0.24s linear both; }
+  /* Panel geometry is pinned above; visibility and entrance timing
+     inherit the shared persistent-wrapper contract. */
 }

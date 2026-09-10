@@ -110,7 +110,8 @@ const WAKE_OFF = 70;
 const TRAIL_CAP = 64;
 const TRAIL_KEEP = 0.55;
 const TRAIL_SAMPLE_DT = 1 / 60;
-const TRAIL_SPACING = 12;
+// short chords overlap with normalized support to hide per-quad joins.
+const TRAIL_SPACING = 5;
 const TRAIL_LINE_CAP = 256;
 
 const WAKE_SPACING = 14;
@@ -454,9 +455,20 @@ export function createRealmScene(
         const dx = x1 - x0;
         const dy = y1 - y0;
         if (a > 1e-5 && dx * dx + dy * dy > 1e-4) {
+          const length = Math.hypot(dx, dy);
+          const support = Math.max(
+            length,
+            3 * TRAIL_SPACING,
+            2 * width
+          );
+          const pad = 0.5 * (support / length - 1);
+          const energy = a * length / support;
+
+          // overlap radial kernels without adding energy per subdivision.
           emitter.line(
-            x0, y0, x1, y1, width,
-            WARM[0] * a, WARM[1] * a, WARM[2] * a
+            x0 - dx * pad, y0 - dy * pad,
+            x1 + dx * pad, y1 + dy * pad, width,
+            WARM[0] * energy, WARM[1] * energy, WARM[2] * energy
           );
         }
         x0 = x1;
@@ -565,9 +577,10 @@ export function createRealmScene(
     if (controllable && !reduced) {
       const tx = (ptrX - vw * 0.5) / cam.zoom + cam.camX + vw * 0.5;
       const ty = (ptrY - vh * 0.5) / cam.zoom + cam.camY + vh * 0.5;
-      const k = small ? 196 : 144;
-      const c = small ? 28 : 24;
-      const steps = Math.max(1, Math.ceil(dt * 120));
+    const k = small ? 121 : 132.25;
+    const c = small ? 22 : 23; // unit mass: c = 2 * sqrt(k).
+    const maxSpeed = small ? 900 : 1200;
+    const steps = Math.max(1, Math.ceil(dt * 120));
       const h = dt / steps;
 
       // critical damping; substeps keep long frames calm.
@@ -586,9 +599,9 @@ export function createRealmScene(
         lvx += ax * h;
         lvy += ay * h;
         const v = Math.hypot(lvx, lvy);
-        if (v > 1500) {
-          lvx *= 1500 / v;
-          lvy *= 1500 / v;
+        if (v > maxSpeed) {
+          lvx *= maxSpeed / v;
+          lvy *= maxSpeed / v;
         }
         lan.x += lvx * h;
         lan.y += lvy * h;
@@ -626,8 +639,10 @@ export function createRealmScene(
       target = creatures[diveIdx].y - vh * 0.5;
       rate = 8 + 16 * clamp(phaseT / DIVE_MS, 0, 1);
     } else {
-      const half = small ? 0 : vh * 0.18; // dead zone = 0.36 × viewport
-      const centre = camYState + vh * 0.5;
+    const calmTouch = small && phase === "active" && !reduced;
+    const half = small ? (calmTouch ? vh * 0.12 : 0) : vh * 0.18;
+    if (calmTouch) rate = 6;
+    const centre = camYState + vh * 0.5;
       if (lan.y < centre - half) target = lan.y + half - vh * 0.5;
       else if (lan.y > centre + half) target = lan.y - half - vh * 0.5;
     }

@@ -984,7 +984,19 @@ export default function RealmMode({ projects, onOpenProject, onExit, entry }: Re
           aria-label="close"
           onClick={closePanel}
         >
-          ×
+          <svg
+            width="16"
+            height="16"
+            viewBox="0 0 16 16"
+            fill="none"
+            stroke="currentColor"
+            strokeWidth="1"
+            strokeLinecap="butt"
+            aria-hidden="true"
+            focusable="false"
+          >
+            <path d="M4 4L12 12M12 4L4 12" />
+          </svg>
         </button>
         {opened ? (
           <>
