@@ -1116,6 +1116,11 @@ export default function RealmMode({ projects, onOpenProject, onExit, onEntered, 
       window.removeEventListener("keyup", onKeyUp);
       sideClearRef.current?.(); // r13: release any pending side-clear teardown
 
+      // chromium/macos: removing cursor:none under a stationary pointer keeps it
+      // hidden — one-frame body cursor override forces compositor re-eval
+      document.body.style.cursor = "default";
+      requestAnimationFrame(() => { document.body.style.cursor = ""; });
+
       // Already completed during a normal staged surface exit.
       // Still required for Strict Mode replay and other unmount paths.
       restoreLandingScroll();
