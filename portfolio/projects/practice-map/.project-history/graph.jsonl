@@ -44,3 +44,5 @@
 {"type":"edge.added","id":"e17","ts":"2026-09-11T08:40:56.986Z","from":"n22","to":"n24","rel":"continues"}
 {"type":"node.added","id":"n25","ts":"2026-09-11T08:42:15.907Z","kind":"iteration","actor":"user","title":"feat(practice-map): Symfony+Laravel deep lesson migrated as php-frameworks area (n24, gates 5-6)","artifacts":[{"kind":"git-commit","ref":"db948d8"}],"meta":{"source":"auto"}}
 {"type":"edge.added","id":"e18","ts":"2026-09-11T08:42:15.924Z","from":"n24","to":"n25","rel":"continues"}
+{"type":"node.added","id":"n26","ts":"2026-09-11T09:04:12.522Z","kind":"iteration","actor":"user","title":"fix(practice-map): lesson close-X misplacement on iOS Safari — stationary panel frame + keyed inner scroll body (realm deep-reader repair)","artifacts":[{"kind":"git-commit","ref":"ed3b155"}],"meta":{"source":"auto"}}
+{"type":"edge.added","id":"e19","ts":"2026-09-11T09:04:12.608Z","from":"n25","to":"n26","rel":"continues"}
