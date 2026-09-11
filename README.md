@@ -1,3 +1,5 @@
+![The deep — a small warm lantern drifting past seven thin doors in a pixel-dithered abyss](docs/assets/readme-banner.png)
+
 # Vasily Argounov — Engineering Portfolio
 
 [![CI](https://github.com/vasyapym/vasyapym.github.io/actions/workflows/deploy-pages.yml/badge.svg)](https://github.com/vasyapym/vasyapym.github.io/actions/workflows/deploy-pages.yml)
