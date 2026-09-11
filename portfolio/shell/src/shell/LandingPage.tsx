@@ -117,6 +117,9 @@ export default function LandingPage({
   const realmSectionEnterRef = useRef<HTMLButtonElement>(null);
   const realmChipRef = useRef<HTMLButtonElement>(null);
   const realmActivatorRef = useRef<HTMLButtonElement | null>(null);
+  // Pre-lock scroll offset at realm entry: the r15 focus fallback must never
+  // yank the viewport back once the user has scrolled after an exit.
+  const realmEntryScrollYRef = useRef(0);
   const realmRestoreFocusRef = useRef(false);
   const realmArtworkRefreshPendingRef = useRef(false);
   const realmFloorRef = useRef<HTMLDivElement>(null);
@@ -305,6 +308,7 @@ export default function LandingPage({
     const rect = control.getBoundingClientRect();
     realmActivatorRef.current = control;
     realmRestoreFocusRef.current = false;
+    realmEntryScrollYRef.current = window.scrollY;
     // Read before React hides/inerts either entry control.
     setRealmEntry({
       x: rect.left + rect.width / 2,
@@ -316,13 +320,32 @@ export default function LandingPage({
   useEffect(() => {
     if (realmOpen || !realmRestoreFocusRef.current) return;
 
+    // r15: the fallback rescue must never yank the viewport back once the
+    // user has scrolled after the exit — wheel/touch input works from the
+    // fade's first frame, so scrolling can happen before this effect runs.
+    const exitScrollY = window.scrollY;
+    let scrolledDuringSettle = false;
+    const onScroll = () => {
+      scrolledDuringSettle = true;
+    };
+    window.addEventListener("scroll", onScroll, { passive: true });
+
     let secondFrame = 0;
     // Wait for RealmMode's cleanup, scroll restoration, and the strip's
     // geometry update before deciding which control can accept focus.
     const firstFrame = window.requestAnimationFrame(() => {
       secondFrame = window.requestAnimationFrame(() => {
+        window.removeEventListener("scroll", onScroll);
         if (!realmRestoreFocusRef.current) return;
         realmRestoreFocusRef.current = false;
+
+        // Any drift from the restored offset — a wheel during the fade
+        // (before this effect attaches) or during the settle frames —
+        // means the user owns the viewport: focus only, never scroll.
+        const userScrolled =
+          scrolledDuringSettle ||
+          Math.abs(window.scrollY - exitScrollY) > 1 ||
+          Math.abs(window.scrollY - realmEntryScrollYRef.current) > 1;
 
         const activated = realmActivatorRef.current;
         const rect = activated?.getBoundingClientRect();
@@ -340,16 +363,20 @@ export default function LandingPage({
         }
 
         // A resize or changed scroll position may have hidden the strip.
-        // The in-flow entry is the stable fallback, never an invisible tab.
+        // The in-flow entry is the stable fallback, never an invisible tab —
+        // but only while the visitor has not already chosen a position.
         const fallback = realmSectionEnterRef.current;
         if (fallback) {
-          fallback.scrollIntoView({ block: "center", behavior: "instant" });
+          if (!userScrolled) {
+            fallback.scrollIntoView({ block: "center", behavior: "instant" });
+          }
           fallback.focus({ preventScroll: true });
         }
       });
     });
 
     return () => {
+      window.removeEventListener("scroll", onScroll);
       window.cancelAnimationFrame(firstFrame);
       if (secondFrame !== 0) window.cancelAnimationFrame(secondFrame);
     };

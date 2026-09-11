@@ -283,6 +283,91 @@ try {
       document.activeElement?.classList.contains("realm-threshold-enter") === true, 2000));
   await section.close();
 
+  // ── r15: post-exit scroll freedom (threshold entry) ──
+  // The r11 focus fallback used to scrollIntoView the threshold button when
+  // it sat outside the viewport at focus time — yanking the visitor back
+  // once the veil cleared. The rescue must fire only while the visitor has
+  // not scrolled; a wheel during the fade owns the viewport afterwards.
+  const r15 = await browser.newPage();
+  collectErrors(r15);
+  await r15.setViewport({ width: 1440, height: 900, deviceScaleFactor: 1 });
+  await open(r15);
+  // position the threshold button mid-viewport (the r15 entry offset), then
+  // arm the scrollIntoView recorder AFTER positioning so the probe's own
+  // scrollIntoView is not counted
+  await r15.evaluate(() => {
+    document.querySelector(".realm-threshold-enter")
+      ?.scrollIntoView({ block: "center", behavior: "instant" });
+  });
+  await wait(400);
+  const entryY = await r15.evaluate(() => {
+    window.__sivCalls = 0;
+    const orig = Element.prototype.scrollIntoView;
+    Element.prototype.scrollIntoView = function (...args) {
+      window.__sivCalls += 1;
+      return orig.apply(this, args);
+    };
+    return window.scrollY;
+  });
+  await r15.evaluate(() => document.querySelector(".realm-threshold-enter")?.click());
+  await wait(1700);
+  check("r15: realm open from the threshold entry", await r15.$(".realm-layer") !== null);
+  await r15.keyboard.press("Escape");
+  // wheel away during the fade — the veil is still up but input is live
+  await r15.mouse.move(720, 450);
+  await r15.mouse.wheel({ deltaY: 700 });
+  await wait(150);
+  await r15.mouse.wheel({ deltaY: 700 });
+  check("r15: unmount completes after the wheel",
+    await until(r15, () => document.querySelector(".realm-layer") === null, 5000));
+  const userY = await r15.evaluate(() => window.scrollY);
+  check("r15: the wheel actually moved the landing", userY > entryY + 300, `entryY=${entryY} userY=${userY}`);
+  await wait(900); // the focus-restore effect + its settle rAFs land here
+  const settledY = await r15.evaluate(() => window.scrollY);
+  check("r15: threshold exit scroll freedom — user offset survives the restore",
+    Math.abs(settledY - userY) < 2, `userY=${userY} settledY=${settledY}`);
+  check("r15: no scrollIntoView yank after a user scroll",
+    await r15.evaluate(() => window.__sivCalls === 0));
+  check("r15: focus still returns to the section control",
+    await until(r15, () =>
+      document.activeElement?.classList.contains("realm-threshold-enter") === true, 2000));
+  await r15.close();
+
+  // ── r15: the r11 rescue survives when the visitor never scrolled ──
+  const r15b = await browser.newPage();
+  collectErrors(r15b);
+  await r15b.setViewport({ width: 1440, height: 900, deviceScaleFactor: 1 });
+  await open(r15b);
+  await r15b.evaluate(() => {
+    document.querySelector(".realm-threshold-enter")
+      ?.scrollIntoView({ block: "center", behavior: "instant" });
+  });
+  await wait(400);
+  await r15b.evaluate(() => {
+    window.__sivCalls = 0;
+    const orig = Element.prototype.scrollIntoView;
+    Element.prototype.scrollIntoView = function (...args) {
+      window.__sivCalls += 1;
+      return orig.apply(this, args);
+    };
+  });
+  await r15b.evaluate(() => document.querySelector(".realm-threshold-enter")?.click());
+  await wait(1700);
+  // shrink the viewport between entry and exit: a mid-session reflow must
+  // not strand focus (the fixed body preserves the visual offset, so this
+  // leg pins the focus-restore a11y law, not the scrollIntoView itself —
+  // the rescue call inside the fallback is r11 code, unchanged)
+  await r15b.setViewport({ width: 1440, height: 520, deviceScaleFactor: 1 });
+  await wait(400);
+  await r15b.keyboard.press("Escape");
+  check("r15: unmount completes (rescue leg)",
+    await until(r15b, () => document.querySelector(".realm-layer") === null, 5000));
+  await wait(900);
+  check("r15: untouched viewport keeps focus on the threshold control after a mid-session resize",
+    await until(r15b, () =>
+      document.activeElement?.classList.contains("realm-threshold-enter") === true, 2000));
+  await r15b.close();
+
   const enteredAt = await enterRealm(desktop);
   check("realm opens over the landing", await desktop.$(".realm-layer") !== null);
   check("gl + overlay canvases present",
