@@ -124,14 +124,33 @@ try {
 
   // render a mid-lesson section via chip click (chunk nav click, not keyboard)
   const beforeScroll = await page.evaluate(
-    () => document.querySelector(".practice-lesson-panel").scrollTop,
+    () => document.querySelector(".practice-lesson-scroll").scrollTop,
   );
   await page.click(".practice-reader-nav button:nth-child(11)");
   await wait(900);
   const afterScroll = await page.evaluate(
-    () => document.querySelector(".practice-lesson-panel").scrollTop,
+    () => document.querySelector(".practice-lesson-scroll").scrollTop,
   );
   check(afterScroll > beforeScroll + 100, "chip click scrolls the panel");
+
+  // iOS close-X repair surface: stationary frame + pinned close button.
+  const closePinned = await page.evaluate(() => {
+    const scroller = document.querySelector(".practice-lesson-scroll");
+    const close = document.querySelector(".practice-lesson-close");
+    const rectBefore = close.getBoundingClientRect();
+    scroller.scrollTop = scroller.scrollHeight;
+    const rectAfter = close.getBoundingClientRect();
+    return {
+      panelOverflow: getComputedStyle(document.querySelector(".practice-lesson-panel")).overflowY,
+      pinned:
+        Math.round(rectBefore.left) === Math.round(rectAfter.left)
+        && Math.round(rectBefore.top) === Math.round(rectAfter.top),
+      insideScroller: scroller.contains(close),
+    };
+  });
+  check(closePinned.panelOverflow === "hidden", `php reader: panel is a stationary frame (${closePinned.panelOverflow})`);
+  check(closePinned.insideScroller === false, "php reader: close button lives outside the scroller");
+  check(closePinned.pinned, "php reader: close button stays pinned while content scrolls");
 
   await page.screenshot({ path: join(SHOTS, "php-reader.png") });
 

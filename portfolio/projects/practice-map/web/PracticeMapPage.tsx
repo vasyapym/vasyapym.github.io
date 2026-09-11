@@ -944,7 +944,7 @@ function LessonOverlay({
   const [tab, setTab] = useState<LessonTabKey>("problem");
   const [sectionIndex, setSectionIndex] = useState(0);
   const closeButtonRef = useRef<HTMLButtonElement>(null);
-  const panelRef = useRef<HTMLElement>(null);
+  const scrollRef = useRef<HTMLDivElement>(null);
   const progressRef = useRef<HTMLSpanElement>(null);
   const sectionIndexRef = useRef(0);
   const spyEnabledRef = useRef(true);
@@ -953,14 +953,14 @@ function LessonOverlay({
   const deep = topic.deepLesson;
 
   const updateProgress = () => {
-    const panel = panelRef.current;
+    const scroller = scrollRef.current;
     const bar = progressRef.current;
-    if (!panel || !bar) {
+    if (!scroller || !bar) {
       return;
     }
-    const max = panel.scrollHeight - panel.clientHeight;
+    const max = scroller.scrollHeight - scroller.clientHeight;
     bar.style.opacity = max <= 4 ? "0" : "1";
-    bar.style.transform = `scaleX(${max <= 4 ? 0 : Math.min(panel.scrollTop / max, 1)})`;
+    bar.style.transform = `scaleX(${max <= 4 ? 0 : Math.min(scroller.scrollTop / max, 1)})`;
   };
 
   const goToSection = (target: number, scroll = true) => {
@@ -968,15 +968,15 @@ function LessonOverlay({
     const next = Math.max(0, Math.min(target, total - 1));
     sectionIndexRef.current = next;
     setSectionIndex(next);
-    const panel = panelRef.current;
-    if (!scroll || !panel) {
+    const scroller = scrollRef.current;
+    if (!scroll || !scroller) {
       return;
     }
     // Suppress the scrollspy while the programmatic flight is in progress:
     // its last event otherwise fires before the smooth scroll settles and
     // names whichever section happened to cross the probe line last.
     spyEnabledRef.current = false;
-    panel
+    scroller
       .querySelector(`[data-section-index="${next}"]`)
       ?.scrollIntoView({
         behavior: window.matchMedia("(prefers-reduced-motion: reduce)").matches
@@ -989,9 +989,9 @@ function LessonOverlay({
       spyEnabledRef.current = true;
       updateActiveFromScroll();
     };
-    panel.addEventListener("scrollend", settle, { once: true });
+    scroller.addEventListener("scrollend", settle, { once: true });
     settleTimerRef.current = window.setTimeout(() => {
-      panel.removeEventListener("scrollend", settle);
+      scroller.removeEventListener("scrollend", settle);
       settle();
     }, 1200);
   };
@@ -1003,15 +1003,15 @@ function LessonOverlay({
   const sectionTargetsRef = useRef<HTMLElement[]>([]);
 
   const updateActiveFromScroll = () => {
-    const panel = panelRef.current;
-    if (!panel || !spyEnabledRef.current) {
+    const scroller = scrollRef.current;
+    if (!scroller || !spyEnabledRef.current) {
       return;
     }
-    const panelRect = panel.getBoundingClientRect();
-    if (panelRect.height === 0) {
+    const scrollerRect = scroller.getBoundingClientRect();
+    if (scrollerRect.height === 0) {
       return;
     }
-    const probeY = panelRect.top + Math.min(panelRect.height * 0.25, 260);
+    const probeY = scrollerRect.top + Math.min(scrollerRect.height * 0.25, 260);
     let current = -1;
     sectionTargetsRef.current.forEach((element, elementId) => {
       const rect = element.getBoundingClientRect();
@@ -1033,16 +1033,16 @@ function LessonOverlay({
   };
 
   useEffect(() => {
-    if (!deep || !panelRef.current || typeof IntersectionObserver === "undefined") {
+    if (!deep || !scrollRef.current || typeof IntersectionObserver === "undefined") {
       return;
     }
-    const panel = panelRef.current;
+    const scroller = scrollRef.current;
     sectionTargetsRef.current = Array.from(
-      panel.querySelectorAll<HTMLElement>("[data-section-index]"),
+      scroller.querySelectorAll<HTMLElement>("[data-section-index]"),
     );
     const observer = new IntersectionObserver(
       () => updateActiveFromScroll(),
-      { root: panel, threshold: [0, 0.25] },
+      { root: scroller, threshold: [0, 0.25] },
     );
     sectionTargetsRef.current.forEach((element) => observer.observe(element));
     return () => {
@@ -1140,17 +1140,15 @@ function LessonOverlay({
   // containing block and displace it out of the viewport.
   return createPortal(
     <div className="practice-lesson-overlay" onClick={handleBackdropClick} role="presentation">
+      {/* Stationary frame + keyed inner scroll body (the realm deep-reader
+          repair): the panel itself never scrolls, so the header close button
+          keeps its geometry on iOS Safari — content cannot run under it and
+          safe-area overflow cannot drag it out of place. */}
       <section
         aria-label={`Lesson: ${topic.title}`}
         className="practice-lesson-panel"
-        onScroll={updateProgress}
-        ref={panelRef}
         role="dialog"
       >
-        <div aria-hidden="true" className="practice-lesson-progress">
-          <span ref={progressRef} />
-        </div>
-
         <header className="practice-lesson-header">
           <div>
             <p className="practice-lesson-kicker">
@@ -1170,108 +1168,119 @@ function LessonOverlay({
           </button>
         </header>
 
-        {topic.objectives && topic.objectives.length > 0 && (
-          <div className="practice-lesson-objectives">
-            <span>objectives</span>
-            <ul>
-              {topic.objectives.map((objective, objectiveId) => (
-                <li key={objectiveId}><InlineText text={objective} /></li>
-              ))}
-            </ul>
+        <div
+          className="practice-lesson-scroll"
+          key={topic.id}
+          onScroll={updateProgress}
+          ref={scrollRef}
+        >
+          <div aria-hidden="true" className="practice-lesson-progress">
+            <span ref={progressRef} />
           </div>
-        )}
 
-        {deep ? (
-          <>
-            <nav aria-label="Lesson sections" className="practice-reader-nav">
-              {deep.sections.map((section, navId) => (
-                <button
-                  aria-current={sectionIndex === navId ? "true" : undefined}
-                  className={sectionIndex === navId ? "is-active" : ""}
-                  key={navId}
-                  type="button"
-                  onClick={() => goToSection(navId)}
-                >
-                  <kbd>{navId + 1}</kbd>
-                  {section.heading ?? "intro"}
-                </button>
-              ))}
-            </nav>
-
-            <div className="practice-reader">
-              {deep.sections.map((section, sectionId) => (
-                <section
-                  className="practice-reader-section"
-                  data-section-index={sectionId}
-                  key={sectionId}
-                >
-                  {section.heading && (
-                    <h3>
-                      <span aria-hidden="true">{String(sectionId + 1).padStart(2, "0")}</span>
-                      {section.heading}
-                    </h3>
-                  )}
-                  {section.blocks ? (
-                    <Blocks blocks={section.blocks} />
-                  ) : (
-                    section.paragraphs?.map((paragraph, paragraphId) => (
-                      <p key={paragraphId}>
-                        <InlineText text={paragraph} />
-                      </p>
-                    ))
-                  )}
-                  {section.examples && section.examples.length > 0 && (
-                    <div className="practice-reader-examples">
-                      {section.examples.map((example) => (
-                        <ExampleFigure example={example} key={example.title} />
-                      ))}
-                    </div>
-                  )}
-                </section>
-              ))}
+          {topic.objectives && topic.objectives.length > 0 && (
+            <div className="practice-lesson-objectives">
+              <span>objectives</span>
+              <ul>
+                {topic.objectives.map((objective, objectiveId) => (
+                  <li key={objectiveId}><InlineText text={objective} /></li>
+                ))}
+              </ul>
             </div>
-          </>
-        ) : lesson ? (
-          <>
-            <div aria-label="Lesson sections" className="practice-lesson-tabs">
-              {LESSON_TABS.map(({ key, label }, tabIndex) => (
-                <button
-                  className={tab === key ? "is-active" : ""}
-                  key={key}
-                  type="button"
-                  onClick={() => setTab(key)}
-                >
-                  <kbd>{tabIndex + 1}</kbd>
-                  {label}
-                </button>
-              ))}
-            </div>
+          )}
 
-            <div className="practice-lesson-body">
-              {tab === "pitfalls"
-                ? <ul>{lesson.pitfalls.map((pitfall, pitfallId) => <li key={pitfallId}><InlineText text={pitfall} /></li>)}</ul>
-                : <p><InlineText text={lesson[tab]} /></p>}
-            </div>
+          {deep ? (
+            <>
+              <nav aria-label="Lesson sections" className="practice-reader-nav">
+                {deep.sections.map((section, navId) => (
+                  <button
+                    aria-current={sectionIndex === navId ? "true" : undefined}
+                    className={sectionIndex === navId ? "is-active" : ""}
+                    key={navId}
+                    type="button"
+                    onClick={() => goToSection(navId)}
+                  >
+                    <kbd>{navId + 1}</kbd>
+                    {section.heading ?? "intro"}
+                  </button>
+                ))}
+              </nav>
 
-            {topic.examples && topic.examples.length > 0 && (
-              <div className="practice-lesson-examples">
-                <h3>examples</h3>
-                {topic.examples.map((example) => (
-                  <ExampleFigure example={example} key={example.title} />
+              <div className="practice-reader">
+                {deep.sections.map((section, sectionId) => (
+                  <section
+                    className="practice-reader-section"
+                    data-section-index={sectionId}
+                    key={sectionId}
+                  >
+                    {section.heading && (
+                      <h3>
+                        <span aria-hidden="true">{String(sectionId + 1).padStart(2, "0")}</span>
+                        {section.heading}
+                      </h3>
+                    )}
+                    {section.blocks ? (
+                      <Blocks blocks={section.blocks} />
+                    ) : (
+                      section.paragraphs?.map((paragraph, paragraphId) => (
+                        <p key={paragraphId}>
+                          <InlineText text={paragraph} />
+                        </p>
+                      ))
+                    )}
+                    {section.examples && section.examples.length > 0 && (
+                      <div className="practice-reader-examples">
+                        {section.examples.map((example) => (
+                          <ExampleFigure example={example} key={example.title} />
+                        ))}
+                      </div>
+                    )}
+      </section>
                 ))}
               </div>
-            )}
-          </>
-        ) : null}
+            </>
+          ) : lesson ? (
+            <>
+              <div aria-label="Lesson sections" className="practice-lesson-tabs">
+                {LESSON_TABS.map(({ key, label }, tabIndex) => (
+                  <button
+                    className={tab === key ? "is-active" : ""}
+                    key={key}
+                    type="button"
+                    onClick={() => setTab(key)}
+                  >
+                    <kbd>{tabIndex + 1}</kbd>
+                    {label}
+                  </button>
+                ))}
+              </div>
 
-        {topic.references && topic.references.length > 0 && (
-          <footer className="practice-lesson-footer">
-            <span>sources: {topic.references.join(" · ")}</span>
-            <span className="practice-lesson-hint">
-              <kbd>←</kbd> <kbd>→</kbd> {deep ? "sections" : "tabs"} · <kbd>esc</kbd> closes
-            </span>
-          </footer>
-        )}
+              <div className="practice-lesson-body">
+                {tab === "pitfalls"
+                  ? <ul>{lesson.pitfalls.map((pitfall, pitfallId) => <li key={pitfallId}><InlineText text={pitfall} /></li>)}</ul>
+                  : <p><InlineText text={lesson[tab]} /></p>}
+              </div>
+
+              {topic.examples && topic.examples.length > 0 && (
+                <div className="practice-lesson-examples">
+                  <h3>examples</h3>
+                  {topic.examples.map((example) => (
+                    <ExampleFigure example={example} key={example.title} />
+                  ))}
+                </div>
+              )}
+            </>
+          ) : null}
+
+          {topic.references && topic.references.length > 0 && (
+            <footer className="practice-lesson-footer">
+              <span>sources: {topic.references.join(" · ")}</span>
+              <span className="practice-lesson-hint">
+                <kbd>←</kbd> <kbd>→</kbd> {deep ? "sections" : "tabs"} · <kbd>esc</kbd> closes
+              </span>
+            </footer>
+          )}
+        </div>
       </section>
     </div>,
     document.body,

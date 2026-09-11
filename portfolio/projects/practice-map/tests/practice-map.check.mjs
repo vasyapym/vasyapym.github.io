@@ -140,10 +140,10 @@ try {
   });
   check(fitsDesktop, "panel fits viewport at 1440px");
 
-  const beforeScroll = await page.evaluate(() => document.querySelector(".practice-lesson-panel").scrollTop);
+  const beforeScroll = await page.evaluate(() => document.querySelector(".practice-lesson-scroll").scrollTop);
   await page.click(".practice-reader-nav button:nth-child(6)");
   await wait(900);
-  const afterScroll = await page.evaluate(() => document.querySelector(".practice-lesson-panel").scrollTop);
+  const afterScroll = await page.evaluate(() => document.querySelector(".practice-lesson-scroll").scrollTop);
   check(afterScroll > beforeScroll + 100, "section chip scrolls the panel");
 
   const activeIndex = await page.$$eval(
@@ -308,16 +308,44 @@ try {
   });
   check(fitsMobile, "panel fits the viewport on both axes at 390px (the reported bug)");
 
-  await page.evaluate(() => {
+  // The iOS close-X repair: the panel is a stationary frame (never scrolls),
+  // the keyed body is the only scroller, and the close button keeps its
+  // viewport geometry no matter how far the content is scrolled.
+  const closeStructure = await page.evaluate(() => {
     const panel = document.querySelector(".practice-lesson-panel");
-    panel.scrollTop = panel.scrollHeight;
+    const scroller = document.querySelector(".practice-lesson-scroll");
+    const close = document.querySelector(".practice-lesson-close");
+    return {
+      panelOverflow: getComputedStyle(panel).overflowY,
+      scrollerOverflow: getComputedStyle(scroller).overflowY,
+      closeInsideScroller: scroller.contains(close),
+      panelScrollable: panel.scrollHeight - panel.clientHeight > 4,
+    };
+  });
+  check(closeStructure.panelOverflow === "hidden", `panel is a stationary frame (${closeStructure.panelOverflow})`);
+  check(closeStructure.scrollerOverflow === "auto", `body is the scroller (${closeStructure.scrollerOverflow})`);
+  check(closeStructure.closeInsideScroller === false, "close button lives outside the scroller");
+
+  const closeBefore = await page.$eval(".practice-lesson-close", (b) => {
+    const r = b.getBoundingClientRect();
+    return `${Math.round(r.left)},${Math.round(r.top)}`;
+  });
+  await page.evaluate(() => {
+    const scroller = document.querySelector(".practice-lesson-scroll");
+    scroller.scrollTop = scroller.scrollHeight;
   });
   await wait(600);
+  const closeAfter = await page.$eval(".practice-lesson-close", (b) => {
+    const r = b.getBoundingClientRect();
+    return `${Math.round(r.left)},${Math.round(r.top)}`;
+  });
+  check(closeBefore === closeAfter, `close button stays pinned while content scrolls (${closeBefore} -> ${closeAfter})`);
+
   const bottomReachable = await page.evaluate(() => {
-    const panel = document.querySelector(".practice-lesson-panel");
+    const scroller = document.querySelector(".practice-lesson-scroll");
     const footer = document.querySelector(".practice-lesson-footer");
     const rect = footer.getBoundingClientRect();
-    return rect.top < window.innerHeight && panel.scrollTop > 0;
+    return rect.top < window.innerHeight && scroller.scrollTop > 0;
   });
   check(bottomReachable, "examples/references reachable by scrolling");
   await shot("mobile-deep-bottom");
@@ -441,8 +469,8 @@ try {
   await shot("narrow-deep-top");
 
   await page.evaluate(() => {
-    const panel = document.querySelector(".practice-lesson-panel");
-    panel.scrollTop = panel.scrollHeight;
+    const scroller = document.querySelector(".practice-lesson-scroll");
+    scroller.scrollTop = scroller.scrollHeight;
   });
   await wait(600);
   const escapesNarrowBottom = await walkHorizontalEscape();

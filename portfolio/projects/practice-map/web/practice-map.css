@@ -1165,8 +1165,12 @@
   width: min(760px, 100%);
   min-width: 0;
   max-height: 100%;
-  overflow-y: auto;
-  overscroll-behavior: contain;
+  /* Stationary frame: the panel itself never scrolls (the realm deep-reader
+     repair for the iOS close-X misplacement). The header close button keeps
+     its geometry; scrolling belongs to .practice-lesson-scroll alone. */
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
   border: 1px solid var(--ink-line);
   border-radius: var(--panel-radius);
   padding: clamp(1.25rem, 3vw, 2.25rem);
@@ -1175,13 +1179,21 @@
   animation: practice-lesson-in 220ms ease;
 }
 
+/* Keyed inner scroll body: the only scrollable element in the reader. */
+.practice-lesson-scroll {
+  flex: 1 1 auto;
+  min-width: 0;
+  min-height: 0;
+  overflow-y: auto;
+  overscroll-behavior: contain;
+}
+
 .practice-lesson-progress {
   position: sticky;
   top: 0;
   z-index: 2;
   height: 2px;
-  margin-block: calc(-1 * clamp(1.25rem, 3vw, 2.25rem)) clamp(1.25rem, 3vw, 2.25rem);
-  margin-inline: calc(-1 * clamp(1.25rem, 3vw, 2.25rem));
+  margin: 0;
   pointer-events: none;
 }
 
@@ -1199,6 +1211,7 @@
   align-items: start;
   justify-content: space-between;
   gap: 1.5rem;
+  flex: 0 0 auto;
   border-bottom: 1px solid var(--ink-line-soft);
   padding-bottom: 1rem;
 }
