@@ -11,10 +11,10 @@
   /* Approved abyss alias, retuned only within this threshold. */
   --ink-abyss: #080f12;
 
-  --rt-f-pad-block: 22px;
-  --rt-f-line-height: 28px;
-  --rt-f-crossing: 28px;
-  --rt-f-half-crossing: 14px;
+  --rt-f-pad-block: 20px;
+  --rt-f-line-height: 26px;
+  --rt-f-crossing: 24px;
+  --rt-f-half-crossing: 12px;
   --rt-f-seam:
     calc(
       var(--rt-f-pad-block) +
@@ -132,10 +132,10 @@
 
   color: var(--ink-text);
   font-family: var(--unbounded, "Unbounded"), sans-serif;
-  font-size: 19px;
+  font-size: 17px;
   font-weight: 400;
   line-height: var(--rt-f-line-height);
-  letter-spacing: -0.025em;
+  letter-spacing: -0.02em;
   text-align: left;
   text-transform: lowercase;
 }
@@ -166,9 +166,9 @@
 
   color: var(--ink-muted);
   font-family: var(--mono, "IBM Plex Mono"), monospace;
-  font-size: 12px;
+  font-size: 11px;
   font-weight: 400;
-  line-height: 18px;
+  line-height: 16px;
   letter-spacing: 0;
   font-variant-numeric: tabular-nums;
   text-transform: lowercase;
@@ -177,7 +177,7 @@
 
 .realm-threshold.rt-f .rt-f-count {
   display: block;
-  color: var(--ink-text);
+  color: var(--ink-muted);
 }
 
 .realm-threshold.rt-f .rt-f-noun {
@@ -341,25 +341,29 @@
 
 @media (max-width: 767px) {
   .realm-threshold.rt-f {
-    --rt-f-pad-block: 18px;
-    --rt-f-line-height: 26px;
-    --rt-f-crossing: 56px;
-    --rt-f-half-crossing: 28px;
+    --rt-f-pad-block: 16px;
+    --rt-f-line-height: 24px;
+    --rt-f-crossing: 44px;
+    --rt-f-half-crossing: 22px;
   }
 
   .realm-threshold.rt-f h2 {
-    font-size: 16px;
-    letter-spacing: -0.02em;
+    font-size: 15px;
+    letter-spacing: -0.015em;
   }
 
   .realm-threshold.rt-f .rt-f-line {
     column-gap: 14px;
   }
 
-  .realm-threshold.rt-f .rt-f-register,
   .realm-threshold.rt-f .realm-threshold-enter {
     font-size: 11px;
     line-height: 18px;
+  }
+
+  .realm-threshold.rt-f .rt-f-register {
+    font-size: 10px;
+    line-height: 16px;
   }
 }
 
