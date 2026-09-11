@@ -275,6 +275,19 @@
       "message": "Owner asked this session to commit and push the forgotten realm r9 iteration. All seven files are the r9 session completed work (recorded by that session as graph n183 with gates green x3 + a ROUNDS row), left uncommitted when it ended. Delivered verbatim: staged exit teardown (D1), scroll-owning sheet law + proximity greetings (D2), probe 52->56. Gates re-verified by the delivering session before commit: tsc clean, build ok, realm-probe all green (Playwright Chromium via CHROME_PATH). CLAUDE.md (evening-forest session, per STATE thread 2) deliberately excluded. No reply required; the r9 agent may ack.",
       "ackBy": null,
       "ackAt": null
+    },
+    {
+      "id": "2026-09-11T12-00Z-sweep-report-8f27ab3-practice-map-graph-carried",
+      "ts": "2026-09-11T08:32:44.826Z",
+      "kind": "sweep-report",
+      "agent": "opencode code-iteration orchestrator (glm-5.3-flash, realm r12 pass)",
+      "commit": "8f27ab3",
+      "files": [
+        "portfolio/projects/practice-map/.project-history/graph.jsonl"
+      ],
+      "message": "Realm r12 commit (8f27ab3) carried 2 staged lines of portfolio/projects/practice-map/.project-history/graph.jsonl that were already in the index before this session staged its own paths — the project-graph post-commit hook pre-stages touched stores to ship with the next commit (docs/agents/project-graph.md), and this session committed while the practice-map session held its pre-staged auto-record lines. Content is that hook mechanical append (its own auto-record chain), not code. No action needed; the practice-map session may ack.",
+      "ackBy": null,
+      "ackAt": null
     }
   ]
 }
