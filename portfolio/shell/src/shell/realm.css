@@ -685,6 +685,11 @@
   flex: 0 0 auto;
 }
 
+/* r13: with the sheet on the left edge, the legend clears to its right. */
+[data-panel-side="left"] .realm-legend {
+  transform: translateX(calc(min(30rem, 92%) + 1rem));
+}
+
 /* ── panel (persistent right sheet; content opens via .is-open) ──
    Geometry is final before content insertion. Only the class-added
    entrance transitions; the persistent wrapper never animates or moves. */
@@ -724,6 +729,16 @@
   visibility: visible;
   pointer-events: auto;
   transition: opacity 0.28s ease;
+}
+/* r13: the sheet mirrors to the left edge when the selected creature sits in
+   the right half of the world — only the anchored edge changes, all r9
+   geometry (width/height/opacity/z) is preserved. No shadow: the hairline
+   carries the edge. */
+.realm-panel[data-side="left"] {
+  left: 0;
+  right: auto;
+  border-left: none;
+  border-right: 1px solid var(--ink-line);
 }
 .realm-reduced .realm-panel.is-open {
   transition: opacity 0.24s linear;
@@ -981,6 +996,21 @@
   }
   .realm-legend::-webkit-scrollbar { display: none; }
   .realm-legend-btn { flex: 0 0 auto; }
+
+  /* r13: mobile ignores the sheet side — the bottom sheet law stands. */
+  .realm-panel[data-side] {
+    left: 0;
+    right: 0;
+    top: 52%;
+    height: 48%;
+    max-height: 48%;
+    width: 100%;
+    border-right: 0;
+  }
+
+  [data-panel-side] .realm-legend {
+    transform: none;
+  }
 
   .realm-caption { display: none; } /* avoids colliding with the strip */
 

@@ -130,6 +130,23 @@ const exitViaButton = async (page) => {
   await wait(1300); // leave script 0.9s + unmount
 };
 
+// r11/r12 law: the restored realm floods over the still-mounted project page.
+// That state is transient (the root swap lands under the opaque cover), so a
+// poll can miss it under load — a MutationObserver latches the sighting.
+const armProjectBacked = (page) => page.evaluate(() => {
+  window.__pbRecorder = { saw: false };
+  const obs = new MutationObserver(() => {
+    if (
+      document.querySelector(".realm-layer") !== null &&
+      document.querySelector(".project-frame") !== null &&
+      document.querySelector(".signal-index") === null
+    ) {
+      window.__pbRecorder.saw = true;
+    }
+  });
+  obs.observe(document.body, { childList: true, subtree: true });
+});
+
 try {
   await waitForServer();
   const browser = await puppeteer.launch({
@@ -539,6 +556,137 @@ try {
   check("dive hands off to the project page",
     await until(dive, () => window.location.pathname.includes("explosion"), 4000));
 
+  // ── r13: deep floor + selection framing ──
+  const r13 = await browser.newPage();
+  await r13.setViewport({ width: 1440, height: 900, deviceScaleFactor: 1 });
+  collectErrors(r13);
+  await open(r13);
+  await enterRealm(r13);
+  const depthOf = (p) => p.evaluate(() => window.__r13?.getDepthSnapshot());
+  const frameOf = (p) => p.evaluate(() => window.__r13?.getFrameSnapshot());
+
+  const ds13 = await depthOf(r13);
+  check("r13: depth model = frozen anchor span + additive deep",
+    !!ds13 && ds13.anchorH === 2 * ds13.vh && ds13.deep === Math.round(ds13.vh * 0.5) &&
+    ds13.h === ds13.anchorH + ds13.deep && ds13.range === ds13.h - ds13.vh,
+    JSON.stringify(ds13));
+  check("r13: frame idle before any selection",
+    await r13.evaluate(() => {
+      const f = window.__r13?.getFrameSnapshot();
+      return !!f && f.active === false && f.settled === false && f.doorId === null;
+    }));
+
+  await r13.evaluate(() => document.querySelectorAll(".realm-legend-btn")[0]?.click());
+  check("r13: legend selection opens the panel and activates the frame",
+    await until(r13, () => {
+      const f = window.__r13?.getFrameSnapshot();
+      return document.querySelector(".realm-panel.is-open") !== null && !!f && f.active === true;
+    }, 2500));
+  check("r13: frame settles; left-half creature keeps the sheet right",
+    await until(r13, () => {
+      const f = window.__r13?.getFrameSnapshot();
+      return !!f && f.settled === true &&
+        document.querySelector(".realm-panel")?.getAttribute("data-side") === "right";
+    }, 3000));
+  check("r13: framed camY puts door 1 at the chrome-free band centre",
+    await r13.evaluate(() => {
+      const d = window.__r13?.getDepthSnapshot();
+      const f = window.__r13?.getFrameSnapshot();
+      if (!d || !f) return false;
+      const sy13 = 0.26 * d.anchorH - d.camYState;
+      return Math.abs(sy13 - (f.bandTop + f.bandBottom) / 2) < 5;
+    }));
+  await r13.evaluate(() => {
+    window.__r13park = { ...window.__realmScene.getLanternSnapshot() };
+  });
+  await wait(400);
+  check("r13: parked lantern world coords exact across the framing tween",
+    await r13.evaluate(() => {
+      const g = window.__realmScene.getLanternSnapshot();
+      const b = window.__r13park;
+      return g.held === true && g.speed === 0 &&
+        Math.abs(g.x - b.x) < 0.5 && Math.abs(g.y - b.y) < 0.5;
+    }));
+
+  await r13.keyboard.press("Escape"); // close door 1
+  check("r13: framed camY held at the close moment (no snap)",
+    await until(r13, () => {
+      if (document.querySelector(".realm-panel.is-open") !== null) return false;
+      const d = window.__r13?.getDepthSnapshot();
+      return !!d && Math.abs(d.camYState - 18) < 30;
+    }, 2500));
+  check("r13: side attributes clear after the close fade",
+    await until(r13, () => {
+      const panel = document.querySelector(".realm-panel");
+      const layer = document.querySelector(".realm-layer");
+      return panel?.getAttribute("data-side") === null &&
+        layer?.getAttribute("data-panel-side") === null;
+    }, 2500));
+
+  await r13.evaluate(() => document.querySelectorAll(".realm-legend-btn")[3]?.click()); // spine fx 0.8
+  check("r13: right-half creature flips the sheet to the left edge",
+    await until(r13, () => {
+      const panel = document.querySelector(".realm-panel");
+      return panel?.getAttribute("data-side") === "left" &&
+        document.querySelector(".realm-layer")?.getAttribute("data-panel-side") === "left";
+    }, 3000));
+  check("r13: flipped panel rect anchors the left edge",
+    await until(r13, () => {
+      const el = document.querySelector(".realm-panel");
+      if (!el || !el.classList.contains("is-open")) return false;
+      const r = el.getBoundingClientRect();
+      return Math.abs(r.left) < 2 && r.right < window.innerWidth - 1;
+    }, 2500));
+  check("r13: legend clears to the right of the left sheet",
+    await r13.evaluate(() => {
+      const l = document.querySelector(".realm-legend")?.getBoundingClientRect();
+      const p = document.querySelector(".realm-panel")?.getBoundingClientRect();
+      return !!l && !!p && l.left >= p.right - 1;
+    }));
+  check("r13: door 4's greeting core sits inside the clear band",
+    await until(r13, () => {
+      const f = window.__r13?.getFrameSnapshot();
+      const d = window.__r13?.getDepthSnapshot();
+      if (!f || !d || !f.settled) return false;
+      const r = Math.min(window.innerWidth, window.innerHeight) * 0.28;
+      const sy13 = 0.55 * d.anchorH - d.camYState;
+      return sy13 - r > f.bandTop && sy13 + r < f.bandBottom;
+    }, 3000));
+
+  await r13.keyboard.press("Escape");
+  await wait(600);
+  await r13.keyboard.press("7"); // warp to door 7 (fy 0.9)
+  await wait(300);
+  check("r13: warp to door 7 reaches the deep floor (camY 1170, was capped at vh)",
+    await r13.evaluate(() => {
+      const d = window.__r13?.getDepthSnapshot();
+      return !!d && Math.abs(d.camYState - 1170) < 3;
+    }));
+  await r13.keyboard.down("s");
+  await wait(1200);
+  await r13.keyboard.up("s");
+  check("r13: light travels below the anchor band (owner's deep-floor ask)",
+    await r13.evaluate(() => {
+      const d = window.__r13?.getDepthSnapshot();
+      const g = window.__realmScene?.getLanternSnapshot();
+      return !!d && !!g && g.y > d.anchorH;
+    }));
+
+  await r13.evaluate(() => document.querySelectorAll(".realm-legend-btn")[2]?.click()); // explosion fx 0.46
+  await wait(600);
+  check("r13: door 3 keeps the sheet on the right edge",
+    await r13.evaluate(() =>
+      document.querySelector(".realm-panel")?.getAttribute("data-side") === "right"));
+  await r13.evaluate(() => document.querySelector(".realm-panel-dive")?.click());
+  check("r13: dive clears the frame state",
+    await r13.evaluate(() => {
+      const f = window.__r13?.getFrameSnapshot();
+      return !!f && f.active === false;
+    }));
+  check("r13: dive hands off to the project page",
+    await until(r13, () => window.location.pathname.includes("projects"), 5000));
+  await r13.close();
+
   // ── r11: returning from a deep-opened project restores the deep ──
   const ret = await browser.newPage();
   await ret.setViewport({ width: 1440, height: 900, deviceScaleFactor: 1 });
@@ -556,12 +704,12 @@ try {
       window.sessionStorage.getItem("portfolio.realm.return.v1") === "deep", 5000));
   check("r11: dive hands off to the project page",
     await until(ret, () => window.location.pathname.includes("projects"), 5000));
+  await armProjectBacked(ret);
   await ret.evaluate(() => document.querySelector(".back-link")?.click());
   check("r11: in-page back restores the deep (no surface detour)",
     await until(ret, () =>
       document.querySelector(".realm-layer") !== null &&
-      document.querySelector(".project-frame") !== null &&
-      document.querySelector(".signal-index") === null, 5000));
+      window.__pbRecorder?.saw === true, 5000));
   check("r12: in-page return keeps the project pathname until opaque settlement",
     await ret.evaluate(() =>
       window.location.pathname.includes("/projects/") &&
@@ -633,12 +781,12 @@ try {
   await wait(500);
   await retBack.evaluate(() => document.querySelector(".realm-panel-dive")?.click());
   await until(retBack, () => window.location.pathname.includes("projects"), 5000);
+  await armProjectBacked(retBack);
   await retBack.goBack();
   check("r11: browser back restores the deep",
     await until(retBack, () =>
       document.querySelector(".realm-layer") !== null &&
-      document.querySelector(".project-frame") !== null &&
-      document.querySelector(".signal-index") === null, 5000));
+      window.__pbRecorder?.saw === true, 5000));
   await wait(1700); // the re-entry flood must reach the active phase before input
   await retBack.evaluate(() => document.querySelectorAll(".realm-legend-btn")[3]?.click());
   await wait(500);
@@ -650,12 +798,12 @@ try {
       window.location.pathname.includes("/projects/") &&
       document.querySelector(".project-frame") !== null &&
       document.querySelector(".realm-layer") === null, 5000));
+  await armProjectBacked(retBack);
   await retBack.goBack();
   check("r11: second deep return still restores the deep (non-consuming intent)",
     await until(retBack, () =>
       document.querySelector(".realm-layer") !== null &&
-      document.querySelector(".project-frame") !== null &&
-      document.querySelector(".signal-index") === null, 5000));
+      window.__pbRecorder?.saw === true, 5000));
   await retBack.close();
 
   // reload legs: session storage must survive a fresh boot on the project page
@@ -673,12 +821,12 @@ try {
     () => document.querySelector(".back-link") !== null,
     { timeout: 30000, polling: 250 },
   );
+  await armProjectBacked(retReload);
   await retReload.evaluate(() => document.querySelector(".back-link")?.click());
   check("r11: project reload then in-page back restores the deep (session storage)",
     await until(retReload, () =>
       document.querySelector(".realm-layer") !== null &&
-      document.querySelector(".project-frame") !== null &&
-      document.querySelector(".signal-index") === null, 5000));
+      window.__pbRecorder?.saw === true, 5000));
   await wait(1700); // the re-entry flood must reach the active phase before input
   await retReload.evaluate(() => document.querySelectorAll(".realm-legend-btn")[2]?.click());
   await wait(500);
@@ -727,13 +875,13 @@ try {
   await wait(500);
   await retReduced.evaluate(() => document.querySelector(".realm-panel-dive")?.click());
   await until(retReduced, () => window.location.pathname.includes("projects"), 5000);
+  await armProjectBacked(retReduced);
   await retReduced.goBack();
   check("r11 reduced: return restores the deep with the settled reduced path",
     await until(retReduced, () => {
       const layer = document.querySelector(".realm-layer");
       return layer !== null && layer.className.includes("realm-reduced") &&
-        document.querySelector(".project-frame") !== null &&
-        document.querySelector(".signal-index") === null;
+        window.__pbRecorder?.saw === true;
     }, 5000));
   check("r12 reduced: route resolves only after the reduced realm has settled",
     await until(retReduced, () =>
@@ -907,6 +1055,30 @@ try {
       const body = document.querySelector(".realm-panel-body");
       return !!body && body.scrollTop === 0;
     }, 2500));
+  // r13 mobile: the bottom-sheet law stands; the frame lifts door 7 above it
+  await mobile.keyboard.press("Escape");
+  await wait(400);
+  await mobile.evaluate(() =>
+    document.querySelectorAll(".realm-legend-btn")[6]?.click()); // practice-map fy 0.9
+  check("r13 mobile: sheet keeps its r9 geometry regardless of side",
+    await until(mobile, () => {
+      const el = document.querySelector(".realm-panel");
+      if (!el || !el.classList.contains("is-open")) return false;
+      const r = el.getBoundingClientRect();
+      return Math.abs(r.left) < 2 && Math.abs(r.right - window.innerWidth) < 2 &&
+        Math.abs(r.top - window.innerHeight * 0.52) < 6 &&
+        el.getAttribute("data-side") === "right";
+    }, 3000));
+  check("r13 mobile: frame lifts door 7's core above the sheet",
+    await until(mobile, () => {
+      const d = window.__r13?.getDepthSnapshot();
+      const f = window.__r13?.getFrameSnapshot();
+      if (!d || !f || !f.settled) return false;
+      const r = Math.min(window.innerWidth, window.innerHeight) * 0.28;
+      const sy13 = 0.9 * d.anchorH - d.camYState;
+      const panel = document.querySelector(".realm-panel")?.getBoundingClientRect();
+      return sy13 - r > f.bandTop && sy13 + r <= (panel?.top ?? 0) + 2;
+    }, 3000));
   await mobile.keyboard.press("Escape"); // close the sheet before the reduced leg
   await wait(300);
 

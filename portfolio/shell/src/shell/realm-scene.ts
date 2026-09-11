@@ -56,6 +56,30 @@ export interface RealmScene {
     held: boolean;
     pointerActive: boolean;
   }> | null;
+  /** r13: retarget the camera so the selected creature's greeting core clears the chrome; null deactivates. */
+  frameSelection(id: string | null): void;
+  /** r13: which side of the screen the sheet must anchor to for this creature. */
+  pickSide(id: string): "left" | "right";
+  /** r13 dev-only: world depth model snapshot; null in production. */
+  getDepthSnapshot(): Readonly<{
+    anchorH: number;
+    deep: number;
+    h: number;
+    vh: number;
+    camY: number;
+    camYState: number;
+    range: number;
+  }> | null;
+  /** r13 dev-only: selection framing snapshot; null in production. */
+  getFrameSnapshot(): Readonly<{
+    active: boolean;
+    target: number;
+    settled: boolean;
+    doorId: string | null;
+    bandTop: number;
+    bandBottom: number;
+    camDelta: number;
+  }> | null;
   setCalling(calling: boolean): void;
   /** snapshot screen pick geometry for the next select gesture. */
   markPickAnchor(touch?: boolean): void;
@@ -105,6 +129,18 @@ const DIVE_MS = 1.0;
 const DIVE_REDUCED = 0.4;
 const DEGRADED_DISC = 0.8;
 const DEGRADED_DIVE_DISC = 0.9;
+
+// r13 deepfloor-frame: the anchor span is frozen at two viewports (geography
+// law); the world grows additively BELOW it so the camera/light can travel
+// past the last creature. Selection framing retargets camY — a view-only move
+// that never touches the r10-parked lantern — so the greeting core clears the
+// panel, legend, hud and caption.
+const ANCHOR_SPAN_K = 2;
+const DEEP_K = 0.5;
+const FRAME_K = 3.2;
+const FRAME_EPS = 0.5;
+const CHROME = { hudD: 64, capD: 64, hudM: 56, sheetTopM: 0.52, padM: 8 } as const;
+const SHEET_MAX = 480;
 
 const SPLASH_GAP = 0.09;
 const SPLASH_COUNT = 8;
@@ -181,7 +217,7 @@ interface MutableLantern { x: number; y: number; r: number; intensity: number }
 interface MutableContext {
   time: number; dt: number;
   lantern: MutableLantern;
-  world: { w: number; h: number };
+  world: { w: number; anchorH: number; deep: number; h: number };
   calling: boolean; lure: number; reduced: boolean; greeting: number;
 }
 interface Voice { id: string; pan: number; gain: number }
@@ -219,11 +255,21 @@ export function createRealmScene(
   let interactR = 1;
   let lanternBaseR = 1;
 
-  const world = { w: 1, h: 2 };
+  const world = { w: 1, anchorH: 2, deep: 0, h: 2 };
   const cam: MutableCamera = { camX: 0, camY: 0, zoom: 1, vw: 1, vh: 1 };
   let camYState = 0;       // spring state without sway
   let camVy = 0;           // px/s, fed to fluid.globalDrift
   let sway = 0;
+  // selection framing state (r13): one active frame target at a time
+  const framing = { active: false, target: 0, settled: false, doorId: null as string | null };
+
+  // dev-only snapshot buffers (mutated in place; prod keeps them null)
+  const depthSnap = import.meta.env.DEV
+    ? { anchorH: 0, deep: 0, h: 0, vh: 0, camY: 0, camYState: 0, range: 0 }
+    : null;
+  const frameSnap = import.meta.env.DEV
+    ? { active: false, target: 0, settled: false, doorId: null as string | null, bandTop: 0, bandBottom: 0, camDelta: 0 }
+    : null;
 
   // ── lantern ──
   const lan: MutableLantern = { x: 0, y: 0, r: 1, intensity: 0 };
@@ -326,6 +372,21 @@ export function createRealmScene(
   }
   function sy(wy: number): number {
     return (wy - cam.camY - vh * 0.5) * cam.zoom + vh * 0.5;
+  }
+
+  // r13 selection framing: the camY that puts the creature's anchor at the
+  // centre of the chrome-free vertical band (hud above, caption/sheet below).
+  function computeFrameTarget(id: string | null): number {
+    if (id === null) return camYState;
+    const idx = findIdx(id);
+    if (idx < 0) return camYState;
+    const fy = ANCHORS[idx].fy;
+    const bandTop = small ? CHROME.hudM : CHROME.hudD;
+    const bandBot = small ? vh * CHROME.sheetTopM - CHROME.padM : vh - CHROME.capD;
+    const bandCy = (bandTop + bandBot) * 0.5;
+    const ay = fy * world.anchorH;
+    const range = Math.max(0, world.h - vh);
+    return clamp(ay - ((bandCy - vh * 0.5) / cam.zoom + vh * 0.5), 0, range);
   }
 
   function clearTrail(): void {
@@ -499,13 +560,16 @@ export function createRealmScene(
     const w = Math.max(1, window.innerWidth);
     const h = Math.max(1, window.innerHeight);
     const d = Math.min(2, window.devicePixelRatio || 1);
-    const worldChanged = w !== vw || Math.abs(h - vh) > vh * 0.2;
+    const newAnchorH = h * ANCHOR_SPAN_K;
+    const worldChanged = w !== vw || newAnchorH !== world.anchorH;
     vw = w;
     vh = h;
     dpr = d;
     diag = Math.hypot(vw, vh);
     world.w = vw;
-    world.h = vh * 2;
+    world.anchorH = vh * ANCHOR_SPAN_K;
+    world.deep = Math.round(vh * DEEP_K);
+    world.h = world.anchorH + world.deep;
     cam.vw = vw;
     cam.vh = vh;
     interactR = Math.min(vw, vh) * 0.28;
@@ -526,7 +590,11 @@ export function createRealmScene(
     }
     lan.x = clamp(lan.x, 0, world.w);
     lan.y = clamp(lan.y, 0, world.h);
-    camYState = clamp(camYState, 0, world.h - vh);
+    camYState = clamp(camYState, 0, Math.max(0, world.h - vh));
+    if (framing.active && framing.doorId !== null) {
+      framing.target = computeFrameTarget(framing.doorId);
+      framing.settled = false;
+    }
     invalidateSceneContinuity();
   }
 
@@ -665,11 +733,16 @@ export function createRealmScene(
       // camera accelerates toward the chosen creature
       target = creatures[diveIdx].y - vh * 0.5;
       rate = 8 + 16 * clamp(phaseT / DIVE_MS, 0, 1);
+    } else if (framing.active) {
+      // selection framing (r13): a view-only retarget; the parked lantern's
+      // world coordinates are untouched — only the view recomposes.
+      target = framing.target;
+      rate = FRAME_K;
     } else {
-    const calmTouch = small && phase === "active" && !reduced;
-    const half = small ? (calmTouch ? vh * 0.12 : 0) : vh * 0.18;
-    if (calmTouch) rate = 6;
-    const centre = camYState + vh * 0.5;
+      const calmTouch = small && phase === "active" && !reduced;
+      const half = small ? (calmTouch ? vh * 0.12 : 0) : vh * 0.18;
+      if (calmTouch) rate = 6;
+      const centre = camYState + vh * 0.5;
       if (lan.y < centre - half) target = lan.y + half - vh * 0.5;
       else if (lan.y > centre + half) target = lan.y - half - vh * 0.5;
     }
@@ -680,6 +753,14 @@ export function createRealmScene(
     } else {
       camYState += (target - camYState) * (1 - Math.exp(-rate * dt));
     }
+    if (framing.active) {
+      // settle latch: snap the residual and mark the frame settled
+      if (Math.abs(camYState - framing.target) < FRAME_EPS) {
+        camYState = framing.target;
+        framing.settled = true;
+      }
+    }
+    camYState = clamp(camYState, 0, range);
     camVy = dt > 0 ? (camYState - before) / dt : 0;
 
     if (!reduced) {
@@ -1234,8 +1315,11 @@ export function createRealmScene(
   }
 
   function resetForEnter(): void {
+    framing.active = false;
+    framing.settled = false;
+    framing.doorId = null;
     lan.x = vw * 0.5;
-    lan.y = vh * 0.1;
+    lan.y = clamp(vh * 0.1, 0, world.h);
     lvx = 0;
     lvy = 0;
     speed = 0;
@@ -1279,6 +1363,7 @@ export function createRealmScene(
     startLeave(cx, cy) {
       if (destroyed || phase !== "active") return;
       applyLanternHold(false);
+      framing.active = false;
       chipX = cx;
       chipY = cy;
       ptrActive = false;
@@ -1293,6 +1378,7 @@ export function createRealmScene(
     },
 
     startDive(id) {
+      framing.active = false;
       if (destroyed || phase !== "active") return;
       const idx = findIdx(id);
       if (idx < 0) return;
@@ -1341,6 +1427,64 @@ export function createRealmScene(
       };
     },
 
+    frameSelection(id: string | null) {
+      if (id === null) {
+        framing.active = false;
+        return;
+      }
+      const idx = findIdx(id);
+      if (idx < 0) {
+        framing.active = false;
+        return;
+      }
+      framing.doorId = id;
+      framing.target = computeFrameTarget(id);
+      if (reduced || degraded) {
+        camYState = framing.target;
+        cam.camY = camYState;
+        framing.settled = true;
+      } else {
+        framing.settled = false;
+      }
+      framing.active = true;
+    },
+
+    pickSide(id: string): "left" | "right" {
+      const idx = findIdx(id);
+      if (idx < 0 || vw <= 520) return "right";
+      const sheetW = Math.min(SHEET_MAX, 0.92 * vw);
+      const ax = ANCHORS[idx].fx * vw;
+      const leftRoom = (ax - interactR) - sheetW;
+      const rightRoom = (vw - sheetW) - (ax + interactR);
+      return (leftRoom > rightRoom && leftRoom > 0) ? "left" : "right";
+    },
+
+    getDepthSnapshot() {
+      if (!import.meta.env.DEV || depthSnap === null) return null;
+      depthSnap.anchorH = world.anchorH;
+      depthSnap.deep = world.deep;
+      depthSnap.h = world.h;
+      depthSnap.vh = vh;
+      depthSnap.camY = cam.camY;
+      depthSnap.camYState = camYState;
+      depthSnap.range = Math.max(0, world.h - vh);
+      return depthSnap;
+    },
+
+    getFrameSnapshot() {
+      if (!import.meta.env.DEV || frameSnap === null) return null;
+      const bandTop = small ? CHROME.hudM : CHROME.hudD;
+      const bandBot = small ? vh * CHROME.sheetTopM - CHROME.padM : vh - CHROME.capD;
+      frameSnap.active = framing.active;
+      frameSnap.target = framing.target;
+      frameSnap.settled = framing.settled;
+      frameSnap.doorId = framing.doorId;
+      frameSnap.bandTop = bandTop;
+      frameSnap.bandBottom = bandBot;
+      frameSnap.camDelta = Math.abs(camYState - framing.target);
+      return frameSnap;
+    },
+
     setCalling(c) {
       calling = c;
       if (c) idleT = 0;
@@ -1374,7 +1518,8 @@ export function createRealmScene(
       lan.y = clamp(c.y - interactR * 0.6, 0, world.h);
       lvx = 0;
       lvy = 0;
-      camYState = clamp(lan.y - vh * 0.5, 0, Math.max(0, world.h - vh));
+      // frame on the creature's anchor, not the parked lantern (r13)
+      camYState = clamp(ANCHORS[i].fy * world.anchorH - vh * 0.5, 0, Math.max(0, world.h - vh));
       cam.camY = camYState;
       camVy = 0;
       lanSx = sx(lan.x);

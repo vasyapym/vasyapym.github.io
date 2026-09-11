@@ -95,6 +95,11 @@ export default function RealmMode({ projects, onOpenProject, onExit, onEntered, 
   const [divingId, setDivingId] = useState<string | null>(null);
   const [muted, setMuted] = useState(false);
   const [degraded, setDegraded] = useState(false);
+  // r13: which edge the sheet anchors to for the open creature (null = closed)
+  const [side, setSide] = useState<"left" | "right" | null>(null);
+  // cancels a pending close-fade side clear so it cannot fire on the NEXT
+  // panel's open transition (stale-listener guard)
+  const sideClearRef = useRef<(() => void) | null>(null);
 
   // latest-value refs so the scene effect can stay empty-deps + strict-safe
   const onOpenRef = useRef(onOpenProject);
@@ -138,6 +143,11 @@ export default function RealmMode({ projects, onOpenProject, onExit, onEntered, 
     setOpenId(id);
     sceneRef.current?.startGreeting(id);
     audioRef.current?.greeting(id);
+    // r13: recompose the view + pick the sheet side before the first paint
+    sideClearRef.current?.();
+    sideClearRef.current = null;
+    setSide(sceneRef.current?.pickSide(id) ?? "right");
+    sceneRef.current?.frameSelection(id);
   }, []);
   // latest-value ref so the empty-deps input effect can select without re-binding
   const openPanelRef = useRef(openProjectPanel);
@@ -146,8 +156,36 @@ export default function RealmMode({ projects, onOpenProject, onExit, onEntered, 
   const closePanel = useCallback(() => {
     resetDirectInputRef.current?.();
     sceneRef.current?.setLanternHold(false);
+    sceneRef.current?.frameSelection(null); // camY stays where the frame left it
     panelStopRef.current?.(); // cancels entrance frames + delayed focus, hides now
     setOpenId(null);
+    // clear the side attribute when the fade finishes (fallback timer covers a
+    // missing transitionend); the wrapper itself is stationary — r9 law. The
+    // whole teardown is cancellable so a rapid re-open cannot inherit it.
+    const el = panelRef.current;
+    if (el) {
+      const cleanup = () => {
+        window.clearTimeout(tid);
+        el.removeEventListener("transitionend", onEnd);
+        if (sideClearRef.current === cancel) sideClearRef.current = null;
+        setSide(null);
+      };
+      const cancel = () => {
+        window.clearTimeout(tid);
+        el.removeEventListener("transitionend", onEnd);
+        if (sideClearRef.current === cancel) sideClearRef.current = null;
+      };
+      const onEnd = (e: TransitionEvent) => {
+        if (e.propertyName === "opacity" && !el.classList.contains("is-open")) {
+          cleanup();
+        }
+      };
+      const tid = setTimeout(cleanup, 300);
+      el.addEventListener("transitionend", onEnd);
+      sideClearRef.current = cancel;
+    } else {
+      setSide(null);
+    }
     layerRef.current?.focus({ preventScroll: true }); // esc-chain step one returns focus to the layer
   }, []);
 
@@ -178,6 +216,7 @@ export default function RealmMode({ projects, onOpenProject, onExit, onEntered, 
     resetDirectInputRef.current?.();
     cancelRealmGestureRef.current?.(); // an in-flight hold must not survive the dive
     phaseRef.current = "diving";
+    setSide(null);
     setDivingId(id);
     setPhase("diving");
     sceneRef.current?.startDive(id);
@@ -552,6 +591,10 @@ export default function RealmMode({ projects, onOpenProject, onExit, onEntered, 
     sceneRef.current = scene;
     if (import.meta.env.DEV) {
       (window as Window & { __realmScene?: typeof scene }).__realmScene = scene;
+      (window as Window & { __r13?: unknown }).__r13 = {
+        getDepthSnapshot: () => scene.getDepthSnapshot(),
+        getFrameSnapshot: () => scene.getFrameSnapshot(),
+      };
     }
     setDegraded(scene.qualityLevel() === -1);
 
@@ -1071,16 +1114,18 @@ export default function RealmMode({ projects, onOpenProject, onExit, onEntered, 
       window.removeEventListener("wheel", onWheel);
       window.removeEventListener("keydown", onKeyDown);
       window.removeEventListener("keyup", onKeyUp);
+      sideClearRef.current?.(); // r13: release any pending side-clear teardown
 
       // Already completed during a normal staged surface exit.
       // Still required for Strict Mode replay and other unmount paths.
       restoreLandingScroll();
 
       if (import.meta.env.DEV) {
-        const realmWindow = window as Window & { __realmScene?: typeof scene };
+        const realmWindow = window as Window & { __realmScene?: typeof scene; __r13?: unknown };
         if (realmWindow.__realmScene === scene) {
           delete realmWindow.__realmScene;
         }
+        delete realmWindow.__r13;
       }
       scene.setLanternHold(false);
 
@@ -1285,6 +1330,7 @@ export default function RealmMode({ projects, onOpenProject, onExit, onEntered, 
   return (
     <div
       ref={layerRef}
+      data-panel-side={side ?? undefined}
       className={
         "realm-layer realm-exit-layer" +
         (degraded ? " realm-layer--degraded" : "") +
@@ -1416,7 +1462,7 @@ export default function RealmMode({ projects, onOpenProject, onExit, onEntered, 
       {/* persistent panel: wrapper always mounted with pinned geometry;
           content is conditional; inert/aria-hidden/is-open are owned by the
           entrance layout effect, never by React state on this wrapper. */}
-      <div ref={panelRef} className="realm-panel" role="document">
+      <div ref={panelRef} className="realm-panel" role="document" data-side={side ?? undefined}>
         {opened && phase !== "leaving" ? (
           <button
             ref={panelCloseRef}

@@ -37,7 +37,7 @@ export interface CameraView { readonly camX: number; readonly camY: number; read
 export interface CreatureContext {
   readonly time: number; readonly dt: number;      // time = seconds since active phase began
   readonly lantern: { readonly x: number; readonly y: number; readonly r: number; readonly intensity: number }; // world px
-  readonly world: { readonly w: number; readonly h: number };
+  readonly world: { readonly w: number; readonly anchorH: number; readonly deep: number; readonly h: number };
   readonly calling: boolean; readonly lure: number;  // lure = 0..1 idle-call ramp
   readonly reduced: boolean; readonly greeting: number;  // 0 = idle; else seconds since greet() started
 }
@@ -93,7 +93,7 @@ abstract class Creature implements RealmCreature {
       || c.dt <= 0 || c.dt > 0.1 || c.time < this.prevSceneTime;
     this.prevSceneTime = c.time;
 
-    const nax = this.fx * c.world.w, nay = this.fy * c.world.h;
+    const nax = this.fx * c.world.w, nay = this.fy * c.world.anchorH;
     if (!this.placed) {
       this.ax = nax; this.ay = nay;
       this.cx = nax; this.cy = nay; this.x = nax; this.y = nay;
