@@ -13,6 +13,8 @@ import "./realm.css";
 type LandingPageProps = {
   projects: readonly ProjectModule[];
   onOpenProject: (id: string) => void;
+  externalRealmOpen?: boolean;
+  registerExternalRealmExitHandler?: (handler: (() => void) | null) => void;
 };
 
 function documentOffsetTop(element: HTMLElement) {
@@ -91,6 +93,8 @@ function scheduleIdleWarm(callback: () => void) {
 export default function LandingPage({
   projects,
   onOpenProject: openProject,
+  externalRealmOpen = false,
+  registerExternalRealmExitHandler,
 }: LandingPageProps) {
   const onOpenProject = useCallback(
     (id: string) => {
@@ -116,10 +120,13 @@ export default function LandingPage({
   const realmRestoreFocusRef = useRef(false);
   const realmArtworkRefreshPendingRef = useRef(false);
   const realmFloorRef = useRef<HTMLDivElement>(null);
-  // The deep-return intent (r11) is restored during the initial render —
-  // a landing that remounts after a deep-opened project boots straight into
-  // the realm; reads are non-destructive, no consumption effect exists.
-  const [realmOpen, setRealmOpen] = useState(readRealmReturnIntent);
+  // A direct root boot restores the landing-owned realm from the r11 intent.
+  // During a project-backed return, App already owns the sole RealmMode
+  // instance; keep the landing lifecycle open for its existing exit staging,
+  // but suppress the landing-owned mount below.
+  const [realmOpen, setRealmOpen] = useState(() =>
+    externalRealmOpen ? true : readRealmReturnIntent(),
+  );
   const [realmChipVisible, setRealmChipVisible] = useState(false);
   const [realmEntry, setRealmEntry] = useState<{ x: number; y: number }>(() => ({
     x: 60,
@@ -149,6 +156,21 @@ export default function LandingPage({
     realmRestoreFocusRef.current = true;
     setRealmOpen(false);
   }, []);
+
+  // The landing mounted beneath App's external restored realm hands its
+  // mature exit choreography (intent clear, artwork refresh, focus fallback)
+  // to App; the external realm's onExit invokes it before the tree swap.
+  useLayoutEffect(() => {
+    if (!registerExternalRealmExitHandler) {
+      return;
+    }
+
+    registerExternalRealmExitHandler(handleRealmExit);
+
+    return () => {
+      registerExternalRealmExitHandler(null);
+    };
+  }, [handleRealmExit, registerExternalRealmExitHandler]);
 
   // Post-exit artwork refresh (r9): after the realm's staged teardown releases
   // the shell, ask the running artwork animations for a fresh sample behind a
@@ -860,7 +882,7 @@ export default function LandingPage({
           </svg>
         </span>
       </button>
-      {realmOpen ? (
+      {realmOpen && !externalRealmOpen ? (
         <RealmMode
           projects={projects}
           onOpenProject={handleRealmOpenProject}

@@ -2,8 +2,9 @@
 // then walks the opt-in layer end to end in headless Chrome — enter flood,
 // canvas presence, animation liveness, legend a11y (including the
 // focused-button Enter rule), esc chain, scroll restoration, dive→SPA
-// handoff, the r11 deep-return intent, mobile viewport hygiene and reduced
-// motion.
+// handoff, the r11 deep-return intent with the r12 project-backed return
+// (flood starts over the project page, root swap under the opaque cover),
+// mobile viewport hygiene and reduced motion.
 //
 //   node portfolio/shell/tests/realm-probe.mjs [outDir]
 //
@@ -559,12 +560,38 @@ try {
   check("r11: in-page back restores the deep (no surface detour)",
     await until(ret, () =>
       document.querySelector(".realm-layer") !== null &&
-      window.location.pathname === "/", 5000));
+      document.querySelector(".project-frame") !== null &&
+      document.querySelector(".signal-index") === null, 5000));
+  check("r12: in-page return keeps the project pathname until opaque settlement",
+    await ret.evaluate(() =>
+      window.location.pathname.includes("/projects/") &&
+      document.querySelector(".realm-layer") !== null &&
+      document.querySelector(".project-frame") !== null));
+  check("r12: project backdrop is inert and aria-hidden during return entry",
+    await ret.evaluate(() => {
+      const frame = document.querySelector(".project-frame");
+      const cover = frame?.parentElement;
+      return cover?.inert === true &&
+        cover?.getAttribute("aria-hidden") === "true";
+    }));
   await wait(1700); // the re-entry flood must reach the active phase before input
-  check("r11: restored realm owns the screen from the first commit",
+  check("r12: opaque settlement resolves root beneath the same realm",
     await until(ret, () =>
+      window.location.pathname === "/" &&
       document.querySelector(".signal-index-shell")?.inert === true &&
-      getComputedStyle(document.body).position === "fixed", 4000));
+      getComputedStyle(document.body).position === "fixed" &&
+      document.querySelectorAll(".realm-layer").length === 1, 5000));
+  check("r12: restored return never mounts two realm layers",
+    await ret.evaluate(() =>
+      document.querySelectorAll(".realm-layer").length === 1));
+  // browser back while immersed in the restored deep: one realm, at root
+  await ret.goBack();
+  check("r12: browser back during restored deep keeps one realm at root",
+    await until(ret, () =>
+      window.location.pathname === "/" &&
+      document.querySelectorAll(".realm-layer").length === 1 &&
+      document.querySelector(".signal-index-shell")?.inert === true &&
+      getComputedStyle(document.body).position === "fixed", 3000));
   await exitViaButton(ret);
   check("r11: normal exit from a restored realm clears the intent",
     await until(ret, () =>
@@ -573,6 +600,11 @@ try {
   check("r11: exit from a restored realm focuses the threshold fallback",
     await until(ret, () =>
       document.activeElement?.classList.contains("realm-threshold-enter") === true, 3000));
+  check("r12: restored exit reveals root surface with no realm replacement",
+    await until(ret, () =>
+      window.location.pathname === "/" &&
+      document.querySelector(".signal-index-shell") !== null &&
+      document.querySelector(".realm-layer") === null, 5000));
   await ret.evaluate(() => {
     document.querySelector(".signal-index-card")
       ?.scrollIntoView({ block: "center", behavior: "instant" });
@@ -605,18 +637,25 @@ try {
   check("r11: browser back restores the deep",
     await until(retBack, () =>
       document.querySelector(".realm-layer") !== null &&
-      window.location.pathname === "/", 5000));
+      document.querySelector(".project-frame") !== null &&
+      document.querySelector(".signal-index") === null, 5000));
   await wait(1700); // the re-entry flood must reach the active phase before input
   await retBack.evaluate(() => document.querySelectorAll(".realm-legend-btn")[3]?.click());
   await wait(500);
   await retBack.evaluate(() => document.querySelector(".realm-panel-dive")?.click());
   check("r11: second deep dive hands off again",
     await until(retBack, () => window.location.pathname.includes("projects"), 5000));
+  check("r12: consecutive restored dive unmounts the external realm at project commit",
+    await until(retBack, () =>
+      window.location.pathname.includes("/projects/") &&
+      document.querySelector(".project-frame") !== null &&
+      document.querySelector(".realm-layer") === null, 5000));
   await retBack.goBack();
   check("r11: second deep return still restores the deep (non-consuming intent)",
     await until(retBack, () =>
       document.querySelector(".realm-layer") !== null &&
-      window.location.pathname === "/", 5000));
+      document.querySelector(".project-frame") !== null &&
+      document.querySelector(".signal-index") === null, 5000));
   await retBack.close();
 
   // reload legs: session storage must survive a fresh boot on the project page
@@ -638,7 +677,8 @@ try {
   check("r11: project reload then in-page back restores the deep (session storage)",
     await until(retReload, () =>
       document.querySelector(".realm-layer") !== null &&
-      window.location.pathname === "/", 5000));
+      document.querySelector(".project-frame") !== null &&
+      document.querySelector(".signal-index") === null, 5000));
   await wait(1700); // the re-entry flood must reach the active phase before input
   await retReload.evaluate(() => document.querySelectorAll(".realm-legend-btn")[2]?.click());
   await wait(500);
@@ -692,8 +732,14 @@ try {
     await until(retReduced, () => {
       const layer = document.querySelector(".realm-layer");
       return layer !== null && layer.className.includes("realm-reduced") &&
-        window.location.pathname === "/";
+        document.querySelector(".project-frame") !== null &&
+        document.querySelector(".signal-index") === null;
     }, 5000));
+  check("r12 reduced: route resolves only after the reduced realm has settled",
+    await until(retReduced, () =>
+      window.location.pathname === "/" &&
+      document.querySelector(".signal-index-shell")?.inert === true &&
+      document.querySelectorAll(".realm-layer").length === 1, 3000));
   await exitViaButton(retReduced);
   check("r11 reduced: exit from a restored realm restores the landing",
     await until(retReduced, () => document.querySelector(".realm-layer") === null, 4000));

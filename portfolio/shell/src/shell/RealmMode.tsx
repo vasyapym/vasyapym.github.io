@@ -31,6 +31,7 @@ interface RealmModeProps {
   readonly projects: readonly ProjectModule[];
   readonly onOpenProject: (id: string) => void;
   readonly onExit: () => void;
+  readonly onEntered?: () => void;
   readonly entry: { readonly x: number; readonly y: number };
 }
 
@@ -72,7 +73,7 @@ function cssTimeMs(value: string): number {
   return text.endsWith("ms") ? number : number * 1000;
 }
 
-export default function RealmMode({ projects, onOpenProject, onExit, entry }: RealmModeProps) {
+export default function RealmMode({ projects, onOpenProject, onExit, onEntered, entry }: RealmModeProps) {
   const layerRef = useRef<HTMLDivElement | null>(null);
   const glRef = useRef<HTMLCanvasElement | null>(null);
   const overlayRef = useRef<HTMLCanvasElement | null>(null);
@@ -100,6 +101,9 @@ export default function RealmMode({ projects, onOpenProject, onExit, entry }: Re
   const onExitRef = useRef(onExit);
   const entryRef = useRef(entry);
   const phaseRef = useRef<Phase>("entering");
+  // one-shot: App's route swap must observe the settled "active" phase exactly
+  // once, immune to Strict Mode effect replays and later phase churn.
+  const enteredNotifiedRef = useRef(false);
   const openIdRef = useRef<string | null>(null);
   const mutedRef = useRef(false);
   const lastAria = useRef<string>("");
@@ -1105,6 +1109,15 @@ export default function RealmMode({ projects, onOpenProject, onExit, entry }: Re
     }, 100);
     return () => window.clearInterval(id);
   }, [phase]);
+
+  // expose the scene's existing settled boundary ("active" = opaque abyss on
+  // screen) without touching scene timing; App uses it to swap the route
+  // beneath the cover.
+  useEffect(() => {
+    if (phase !== "active" || enteredNotifiedRef.current) return;
+    enteredNotifiedRef.current = true;
+    onEntered?.();
+  }, [onEntered, phase]);
 
   const opened = openId ? projectOf(openId) : null;
   const glMode = !degraded; // fade + gpu caption only when GL actually owns pixels
