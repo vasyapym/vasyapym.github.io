@@ -365,6 +365,15 @@ function TopicCard({
   };
 
   const [lessonOpen, setLessonOpen] = useState(false);
+  const [chipsExpanded, setChipsExpanded] = useState(false);
+
+  const CHIP_CAP = 8;
+  const shouldCap = topic.concepts.length > CHIP_CAP + 2;
+  const visibleConcepts =
+    shouldCap && !chipsExpanded
+      ? topic.concepts.slice(0, CHIP_CAP)
+      : topic.concepts;
+  const hiddenCount = topic.concepts.length - CHIP_CAP;
 
   const toggleFeedback = (feedback: FeedbackKind) => {
     onChange(toggleTopicFeedback(state, topic.id, feedback));
@@ -387,7 +396,17 @@ function TopicCard({
       <p className="practice-topic-summary">{topic.summary}</p>
 
       <div className="practice-concepts" aria-label="Concepts">
-        {topic.concepts.map((concept) => <span key={concept}>{concept}</span>)}
+        {visibleConcepts.map((concept) => <span key={concept}>{concept}</span>)}
+        {shouldCap && (
+          <button
+            className="practice-concepts-toggle"
+            type="button"
+            aria-expanded={chipsExpanded}
+            onClick={() => setChipsExpanded((v) => !v)}
+          >
+            {chipsExpanded ? "fewer" : `+${hiddenCount} more`}
+          </button>
+        )}
       </div>
 
       {topic.lesson && (

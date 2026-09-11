@@ -928,6 +928,23 @@
   text-transform: lowercase;
 }
 
+.practice-concepts-toggle {
+  border: 1px solid var(--ink-line-soft);
+  padding: 0.28rem 0.4rem;
+  color: var(--ink-faint);
+  font-family: var(--mono);
+  font-size: 0.68rem;
+  letter-spacing: 0.03em;
+  text-transform: lowercase;
+  background: none;
+  cursor: pointer;
+}
+
+.practice-concepts-toggle:focus-visible {
+  outline: 1px solid var(--ink-faint);
+  outline-offset: 1px;
+}
+
 .practice-lesson-open {
   display: inline-flex;
   align-items: center;
