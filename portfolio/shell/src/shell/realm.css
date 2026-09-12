@@ -940,7 +940,72 @@
 .realm-panel-dive:focus-visible {
   outline: none;
   background: var(--ink-accent);
-  border-color: var(--ink-accent-deep);
+   border-color: var(--ink-accent-deep);
+ }
+
+/* ── r17: the return-to-surface confirmation bar ────────────── */
+/* Non-modal: no scrim, the layer's controls stay live beneath it. Same
+   material as the panel (#04080b) with the ink hairline; amber is the
+   single interactive signal — the confirm button, nothing else. */
+.realm-prompt {
+  position: absolute;
+  top: calc(1rem + env(safe-area-inset-top));
+  left: 50%;
+  transform: translateX(-50%);
+  display: flex;
+  align-items: center;
+  gap: 0.65rem;
+  max-width: min(26rem, calc(100% - 2rem));
+  padding: 0.45rem 0.65rem;
+  background: #04080b;
+  border: 1px solid var(--ink-line);
+  box-sizing: border-box;
+}
+
+.realm-prompt-label {
+  font-family: var(--mono);
+  font-size: 0.72rem;
+  letter-spacing: 0.04em;
+  text-transform: lowercase;
+  color: var(--ink-muted);
+  white-space: nowrap;
+}
+
+.realm-prompt-btn {
+  appearance: none;
+  font-family: var(--mono);
+  font-size: 0.7rem;
+  letter-spacing: 0.04em;
+  text-transform: lowercase;
+  padding: 0.32rem 0.6rem;
+  cursor: pointer;
+  background: transparent;
+  border: 1px solid var(--ink-line);
+  color: var(--ink-muted);
+  flex-shrink: 0;
+  transition: border-color 0.15s linear, color 0.15s linear,
+    background-color 0.15s linear;
+}
+.realm-prompt-btn--confirm {
+  border-color: var(--ink-accent);
+  color: var(--ink-accent-bright);
+}
+.realm-prompt-btn--confirm:hover {
+  background: var(--ink-accent-bright);
+  border-color: var(--ink-accent-bright);
+  color: var(--ink-bg);
+}
+.realm-prompt-btn--confirm:focus-visible {
+  outline: none;
+  background: var(--ink-accent-bright);
+  border-color: var(--ink-accent-bright);
+  color: var(--ink-bg);
+}
+.realm-prompt-btn--dismiss:hover,
+.realm-prompt-btn--dismiss:focus-visible {
+  outline: none;
+  border-color: var(--ink-accent);
+  color: var(--ink-text);
 }
 
 /* ── visually-hidden aria live region ───────────────────────── */
@@ -983,7 +1048,10 @@
     min-height: 0;
     max-height: 48%;
 
-    padding: 4rem 1.3rem calc(1.4rem + env(safe-area-inset-bottom, 0px));
+    /* r17: tighter vertical padding — reclaim ~14 px for CTA headroom
+       (top: 3.5rem = 56 px still clears the 48 px close-button bottom;
+        bottom: 1rem + inset keeps safe-area gap > 30 px for r9 d2) */
+    padding: 3.5rem 1.3rem calc(1rem + env(safe-area-inset-bottom, 0px));
     border: 0;
     border-top: 1px solid var(--ink-line);
   }
@@ -1015,6 +1083,25 @@
   }
 
   .realm-caption { display: none; } /* avoids colliding with the strip */
+
+  /* r17: tighter mobile body spacing — reclaim ~16–23 px for CTA room
+     (base margins: title 0.7rem, desc 1.1rem, tech 1.1rem, links 1.3rem) */
+  .realm-panel-title  { margin-bottom: 0.5rem; }
+  .realm-panel-desc   { margin-bottom: 0.7rem; }
+  .realm-panel-tech   { margin-bottom: 0.7rem; }
+  .realm-panel-links  { margin-bottom: 0.9rem; }
+
+  /* r17: sticky CTA — when the body overflows, the CTA pins to the
+     bottom of the scroll port instead of clipping below the fold;
+     on short-copy doors the body fits and sticky is inert.
+     z-index: 1 keeps the CTA painted above content scrolling behind it.
+     align-self (cross-axis) and flex-shrink: 0 (sizing) are orthogonal —
+     no interaction with sticky (block-axis offset). */
+  .realm-panel-dive {
+    position: sticky;
+    bottom: 0;
+    z-index: 1;
+  }
 
   /* Panel geometry is pinned above; visibility and entrance timing
      inherit the shared persistent-wrapper contract. */

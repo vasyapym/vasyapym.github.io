@@ -274,6 +274,7 @@ try {
     await section.$eval(".realm-enter-chip", (el) =>
       el.disabled || !el.classList.contains("is-visible")));
   await section.keyboard.press("Escape");
+  await section.keyboard.press("Enter"); // r17: confirm the return prompt
   // the leave choreography (0.9s script + unmount) stretches past 1.3s under
   // software-GL load — poll the unmount instead of trusting a fixed wait
   check("esc exits from the section entry",
@@ -313,6 +314,7 @@ try {
   await wait(1700);
   check("r15: realm open from the threshold entry", await r15.$(".realm-layer") !== null);
   await r15.keyboard.press("Escape");
+  await r15.keyboard.press("Enter"); // r17: confirm — the fade starts here
   // wheel away during the fade — the veil is still up but input is live
   await r15.mouse.move(720, 450);
   await r15.mouse.wheel({ deltaY: 700 });
@@ -360,6 +362,7 @@ try {
   await r15b.setViewport({ width: 1440, height: 520, deviceScaleFactor: 1 });
   await wait(400);
   await r15b.keyboard.press("Escape");
+  await r15b.keyboard.press("Enter"); // r17: confirm the return prompt
   check("r15: unmount completes (rescue leg)",
     await until(r15b, () => document.querySelector(".realm-layer") === null, 5000));
   await wait(900);
@@ -367,6 +370,102 @@ try {
     await until(r15b, () =>
       document.activeElement?.classList.contains("realm-threshold-enter") === true, 2000));
   await r15b.close();
+
+  // ── r17: the return-to-surface confirmation ─────────────────────────────
+  // Esc over the active realm parks the lantern (r10 hold) and raises a
+  // non-modal bar; Esc again stays + resumes; Enter on the auto-focused
+  // "return" (or its click) confirms. Clicks outside are ignored — the
+  // doors and the mute stay live beneath it (the owner's rationale).
+  const r17 = await browser.newPage();
+  await r17.setViewport({ width: 1440, height: 900, deviceScaleFactor: 1 });
+  collectErrors(r17);
+  await open(r17);
+  await enterRealm(r17);
+  await wait(1700); // the entry flood must reach the active phase
+  await r17.evaluate(() => {
+    window.__sivCalls = 0;
+    const orig = Element.prototype.scrollIntoView;
+    Element.prototype.scrollIntoView = function (...args) {
+      window.__sivCalls += 1;
+      return orig.apply(this, args);
+    };
+  });
+  await r17.keyboard.press("Escape");
+  check("r17: esc raises the prompt over the active realm",
+    await until(r17, () => document.querySelector(".realm-prompt") !== null, 2000));
+  check("r17: focus lands on the confirm control",
+    await r17.evaluate(() =>
+      document.activeElement?.classList.contains("realm-prompt-btn--confirm") === true));
+  check("r17: the lantern parks while the prompt is up",
+    await r17.evaluate(() =>
+      window.__realmScene?.getLanternSnapshot?.()?.held === true));
+  await r17.keyboard.press("Escape");
+  check("r17: esc again dismisses — the bar yields, the realm stays",
+    await until(r17, () =>
+      document.querySelector(".realm-prompt") === null &&
+      document.querySelector(".realm-layer") !== null, 2000));
+  check("r17: the lantern resumes after the dismissal",
+    await r17.evaluate(() =>
+      window.__realmScene?.getLanternSnapshot?.()?.held === false));
+  await r17.keyboard.press("Escape");
+  await wait(300);
+  await r17.keyboard.press("Enter");
+  check("r17: enter on the focused confirm exits the realm",
+    await until(r17, () => document.querySelector(".realm-layer") === null, 8000));
+  await r17.close();
+
+  // r17: click-confirm and the surface button over an open prompt
+  const r17b = await browser.newPage();
+  await r17b.setViewport({ width: 1440, height: 900, deviceScaleFactor: 1 });
+  collectErrors(r17b);
+  await open(r17b);
+  await enterRealm(r17b);
+  await wait(1700);
+  await r17b.keyboard.press("Escape");
+  await wait(300);
+  await r17b.click(".realm-prompt-btn--confirm");
+  check("r17: clicking return exits the realm immediately",
+    await until(r17b, () => document.querySelector(".realm-layer") === null, 8000));
+  await r17b.close();
+
+  // r17: the bar yields to the panel and the dive; clicking the surface
+  // button while the bar is up stays immediate; esc during the entry aborts
+  // without a prompt (the pre-r17 back-out path).
+  const r17c = await browser.newPage();
+  await r17c.setViewport({ width: 1440, height: 900, deviceScaleFactor: 1 });
+  collectErrors(r17c);
+  await open(r17c);
+  await enterRealm(r17c);
+  await wait(1700);
+  await r17c.keyboard.press("Escape");
+  await wait(300);
+  await r17c.evaluate(() =>
+    document.querySelectorAll(".realm-legend-btn")[2]?.click()); // explosion
+  check("r17: opening a panel yields the bar (no double overlay)",
+    await until(r17c, () =>
+      document.querySelector(".realm-prompt") === null &&
+      document.querySelector(".realm-panel.is-open") !== null, 3000));
+  await r17c.keyboard.press("Escape"); // close the panel (unchanged law)
+  await wait(400);
+  await r17c.keyboard.press("Escape"); // raise the bar again
+  await wait(300);
+  await r17c.click(".realm-btn--leave");
+  check("r17: the surface button stays immediate over the bar",
+    await until(r17c, () => document.querySelector(".realm-layer") === null, 8000));
+  await r17c.close();
+
+  const r17d = await browser.newPage();
+  await r17d.setViewport({ width: 1440, height: 900, deviceScaleFactor: 1 });
+  collectErrors(r17d);
+  await open(r17d);
+  await r17d.evaluate(() =>
+    document.querySelector(".realm-enter-chip")?.click());
+  await r17d.keyboard.press("Escape"); // within the entry flood
+  check("r17: esc during the entry aborts immediately, no prompt",
+    await until(r17d, () =>
+      document.querySelector(".realm-layer") === null &&
+      document.querySelector(".realm-prompt") === null, 5000));
+  await r17d.close();
 
   const enteredAt = await enterRealm(desktop);
   check("realm opens over the landing", await desktop.$(".realm-layer") !== null);
@@ -473,6 +572,7 @@ try {
     record();
   });
   await desktop.keyboard.press("Escape"); // layer → landing
+  await desktop.keyboard.press("Enter"); // r17: confirm the return prompt
   // r10 d2 unlock-under-veil: the body must restore in the fade's FIRST frame —
   // the layer still covers the page (opacity > 0) when scrolling is released,
   // so the scrollbar-gutter reflow (the Edge lateral shift) is never visible.
@@ -1202,9 +1302,12 @@ try {
   // Emulate the real device's 34px safe-area inset (Blink reports 0): shrink
   // the sheet's content box by 34px so the longest copy overflows the body —
   // on iPhone 11 that overflow is what used to scroll the whole sheet.
+  // r17: +100px forced overflow on top — the r17 spacing reclamation (~30px)
+  // must not erode this gate's overflow premise; the LAW (wrapper stationary,
+  // X fixed, body scrolls, dive reachable) is what this gate protects.
   await mobile.evaluate(() => {
     const panel = document.querySelector(".realm-panel");
-    panel.style.paddingBottom = "calc(1.4rem + 34px)";
+    panel.style.paddingBottom = "calc(1.4rem + 134px)";
   });
   await wait(300);
   // The layer's touch-action:none blocks native panning in Blink (WebKit's
@@ -1281,6 +1384,65 @@ try {
   await mobile.keyboard.press("Escape"); // close the sheet before the reduced leg
   await wait(300);
 
+  // ── bug 8 regression: mobile dive CTA must be visible without scrolling ──
+  // Owner report: on mobile the 'dive in' button was sometimes clipped/hidden
+  // in the description sheet — the last element of the scroll flow fell below
+  // the fold on long-copy doors. Device-like geometry: 390×725 visible
+  // viewport (Safari toolbars shrink it) + the real 34px bottom inset.
+  // The r17 fix: tightened sheet spacing + a sticky CTA.
+  const bug8 = await browser.newPage();
+  await bug8.setViewport({ width: 390, height: 725, deviceScaleFactor: 2, hasTouch: true });
+  collectErrors(bug8);
+  await open(bug8);
+  await bug8.evaluate(() => window.scrollTo({ top: 1100, behavior: "instant" }));
+  await wait(400);
+  await enterRealm(bug8);
+  const bug8Doors = await bug8.evaluate(() =>
+    [...document.querySelectorAll(".realm-legend-btn")].length);
+  check("bug 8: legend has 7 doors on the device-like page", bug8Doors === 7);
+  let bug8Overflowing = 0;
+  let bug8Clipped = [];
+  for (let i = 0; i < 7; i++) {
+    await bug8.evaluate((idx) => {
+      document.querySelectorAll(".realm-legend-btn")[idx]?.click();
+    }, i);
+    await wait(700);
+    await bug8.evaluate(() => {
+      // device-like emulation (r9 d2 technique): real iPhone bottom inset
+      const panel = document.querySelector(".realm-panel");
+      if (panel) panel.style.paddingBottom = "calc(1rem + 34px)";
+    });
+    await wait(200);
+    const m = await bug8.evaluate(() => {
+      const body = document.querySelector(".realm-panel-body");
+      const dive = document.querySelector(".realm-panel-dive");
+      if (!body || !dive) return null;
+      const br = body.getBoundingClientRect();
+      const dr = dive.getBoundingClientRect();
+      return {
+        title: document.querySelector(".realm-panel-title")?.textContent ?? "",
+        overflow: body.scrollHeight - body.clientHeight,
+        diveBottom: dr.bottom,
+        bodyBottom: br.bottom,
+        innerH: window.innerHeight,
+      };
+    });
+    if (m === null) { bug8Clipped.push(`door ${i}: no panel`); continue; }
+    if (m.overflow > 0) bug8Overflowing += 1;
+    if (m.diveBottom > m.bodyBottom + 0.5 || m.diveBottom > m.innerH + 0.5) {
+      bug8Clipped.push(`${m.title} (+${Math.max(
+        Math.round(m.diveBottom - m.bodyBottom),
+        Math.round(m.diveBottom - m.innerH))}px)`);
+    }
+    await bug8.evaluate(() => document.querySelector(".realm-panel-close")?.click());
+    await wait(400);
+  }
+  check("bug 8: dive CTA fully visible without scrolling on every door",
+    bug8Clipped.length === 0, `clipped: ${bug8Clipped.join(", ") || "none"}`);
+  check("bug 8: body scroll premise survives (≥1 door overflows at device-like height)",
+    bug8Overflowing > 0, `overflowing doors=${bug8Overflowing}`);
+  await bug8.close();
+
   // ── reduced motion: opens, works, exits ──
   const reduced = await browser.newPage();
   await reduced.setViewport({ width: 1440, height: 900, deviceScaleFactor: 1 });
@@ -1323,7 +1485,7 @@ try {
         getComputedStyle(el).animationName === "none";
     }, 2500));
 
-  for (const p of [desktop, dive, mobile, section, reduced, ret, retBack, retReload, retFresh, retReduced]) {
+  for (const p of [desktop, dive, mobile, section, reduced, ret, retBack, retReload, retFresh, retReduced, bug8]) {
     check(`console clean (${p.errors.length} errors)`, p.errors.length === 0,
       p.errors.slice(0, 2).join(" | "));
   }

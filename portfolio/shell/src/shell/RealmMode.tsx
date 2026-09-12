@@ -132,6 +132,12 @@ export default function RealmMode({ projects, onOpenProject, onExit, onEntered, 
   const [degraded, setDegraded] = useState(false);
   // r13: which edge the sheet anchors to for the open creature (null = closed)
   const [side, setSide] = useState<"left" | "right" | null>(null);
+  // r17: the "return to the surface?" confirmation — a NON-modal bar layered
+  // on the active phase (the phase machine stays clean; leave/dive depend on
+  // active→leaving|diving, never through a prompted state). It parks the
+  // lantern while up and auto-yields to any phase/panel change.
+  const [promptOpen, setPromptOpen] = useState(false);
+  const returnBtnRef = useRef<HTMLButtonElement | null>(null);
   // cancels a pending close-fade side clear so it cannot fire on the NEXT
   // panel's open transition (stale-listener guard)
   const sideClearRef = useRef<(() => void) | null>(null);
@@ -233,6 +239,7 @@ export default function RealmMode({ projects, onOpenProject, onExit, onEntered, 
     phaseRef.current = "leaving";
     cancelRealmGestureRef.current?.(); // an in-flight gesture must not survive departure
     setOpenId(null);
+    setPromptOpen(false); // r17: the bar cannot outlive its phase
     setPhase("leaving");
 
     leaveGateRef.current?.begin();
@@ -245,6 +252,45 @@ export default function RealmMode({ projects, onOpenProject, onExit, onEntered, 
       leaveGateRef.current?.sceneDone();
     }
   }, []);
+
+  // ---- r17: the return-to-surface confirmation ---------------------------
+  // Esc parks the lantern (r10 hold) and raises the non-modal bar; Esc again
+  // dismisses + resumes; Enter on the auto-focused "return" (or its click)
+  // confirms. Clicks outside the bar are IGNORED — the bar yields only on
+  // state change (dive, panel, leave), so the doors and the mute toggle
+  // stay live under it (the owner's rationale for the feature).
+  const showPrompt = useCallback(() => {
+    if (phaseRef.current !== "active") return;
+    setPromptOpen(true);
+    sceneRef.current?.setLanternHold(true); // the light stops chasing
+  }, []);
+
+  const dismissPrompt = useCallback(() => {
+    setPromptOpen(false);
+    sceneRef.current?.setLanternHold(false); // the light resumes
+    layerRef.current?.focus({ preventScroll: true });
+  }, []);
+
+  const confirmExit = useCallback(() => {
+    setPromptOpen(false);
+    sceneRef.current?.setLanternHold(false); // idempotent — startLeave clears internally
+    doLeave();
+  }, [doLeave]);
+
+  // The bar yields to any state change: a dive, a panel, or a phase leave.
+  // The hold is released only when the panel is NOT the trigger — the panel
+  // manages its own r10 hold (openProjectPanel parks it deliberately).
+  useEffect(() => {
+    if (!promptOpen) return;
+    if (phase !== "active" || openId) {
+      setPromptOpen(false);
+      if (!openId) sceneRef.current?.setLanternHold(false);
+    }
+  }, [promptOpen, phase, openId]);
+
+  useEffect(() => {
+    if (promptOpen) returnBtnRef.current?.focus();
+  }, [promptOpen]);
 
   const confirmDive = useCallback((id: string) => {
     if (phaseRef.current !== "active") return;
@@ -1407,10 +1453,19 @@ export default function RealmMode({ projects, onOpenProject, onExit, onEntered, 
 
           if (phaseRef.current === "diving" || phase === "leaving") return;
 
+          // Abort entry immediately — no confirmation for the original
+          // back-out-of-a-mistake path (r17 keeps it as it was).
+          if (phaseRef.current === "entering") {
+            doLeave();
+            return;
+          }
+
           if (openId) {
             closePanel();
+          } else if (promptOpen) {
+            dismissPrompt(); // Esc again = stay, the light resumes
           } else {
-            doLeave(); // surface
+            showPrompt();
           }
           return;
         }
@@ -1577,6 +1632,29 @@ export default function RealmMode({ projects, onOpenProject, onExit, onEntered, 
         ) : null}
       </div>
 
+      {/* r17: the non-modal return confirmation. Top-center — the hud is
+          right-anchored, the legend owns the bottom, the sheet owns the
+          right edge. Controls join the layer's existing Tab trap. */}
+      {promptOpen ? (
+        <div className="realm-prompt" role="group" aria-label="return to the surface?">
+          <span className="realm-prompt-label">return to the surface?</span>
+          <button
+            className="realm-prompt-btn realm-prompt-btn--confirm"
+            onClick={confirmExit}
+            ref={returnBtnRef}
+            type="button"
+          >
+            return
+          </button>
+          <button
+            className="realm-prompt-btn realm-prompt-btn--dismiss"
+            onClick={dismissPrompt}
+            type="button"
+          >
+            stay
+          </button>
+        </div>
+      ) : null}
       <div ref={ariaRef} className="realm-aria" aria-live="polite" />
     </div>
   );
