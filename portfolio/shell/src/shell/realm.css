@@ -922,7 +922,6 @@
 
 .realm-panel-dive {
   align-self: flex-start;
-  margin-top: auto;
   font-family: var(--mono);
   font-size: 0.76rem;
   text-transform: lowercase;

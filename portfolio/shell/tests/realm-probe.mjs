@@ -634,6 +634,19 @@ try {
   // ── desktop: dive → SPA handoff ──
   await dive.click(".realm-legend-btn:nth-child(3)"); // explosion
   await wait(400);
+  // the dive CTA follows the panel content (owner law): no flex auto-margin
+  // may pin it to the bottom of the sheet.
+  check("dive CTA follows the content — not pinned to the panel bottom",
+    await dive.evaluate(() => {
+      const btn = document.querySelector(".realm-panel-dive")?.getBoundingClientRect();
+      const prev = document.querySelector(".realm-panel-dive")
+        ?.previousElementSibling?.getBoundingClientRect();
+      const panel = document.querySelector(".realm-panel")?.getBoundingClientRect();
+      if (!btn || !prev || !panel) return false;
+      const afterContent = btn.top - prev.bottom;      // rides right after the copy
+      const fromBottom = panel.bottom - btn.bottom;    // large when unpinned
+      return afterContent >= 0 && afterContent <= 48 && fromBottom > 120;
+    }));
   await dive.click(".realm-panel-dive");
   check("iris closes during the dive", await until(dive, () =>
     document.querySelector(".realm-iris") !== null, 2500));
