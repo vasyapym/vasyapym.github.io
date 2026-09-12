@@ -146,7 +146,13 @@ Do not include secrets in recorded commands or output.
 
 Where the project keeps a project graph (`.project-history/graph.jsonl`, via
 `scripts/project-graph`), recording is unconditional, never optional: if no
-graph exists, run `project-graph init` first instead of skipping the record.
+graph exists, run `project-graph init` first instead of skipping the record —
+but resolve WHERE the store belongs before creating one. The graph lives with
+the project the work belongs to; when a repo keeps several project stores
+(monorepo subprojects, a main app beside them), follow that repo's agent docs
+for the canonical locations, and never init a store at a repo/workspace root
+the session happened to start from when the work belongs to a project that
+keeps its store elsewhere.
 Start every session with `project-graph head --actor code-iteration`; claim any
 handoff addressed here with `project-graph ack <hid> --actor code-iteration`,
 and close it via `--via-handoff <hid>` on the pass's first appended node. After

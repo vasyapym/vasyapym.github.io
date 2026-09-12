@@ -42,7 +42,7 @@ This is a single-context repo: read root `CONTEXT.md` and `docs/adr/` for domain
 
 ### Project graph
 
-Iterations, decisions, plans, and handoffs append to a per-project history log (`portfolio/.project-history/graph.jsonl` for the main page, `portfolio/projects/<id>/.project-history/graph.jsonl` for each project) via `scripts/project-graph`. Any session that settles something important — a direction, a plan, a verdict, a pass — records one node before wrapping up, skill-invoked or not. Resolve the store from the work's project; never create a store at the repo root. See `docs/agents/project-graph.md`.
+Iterations, decisions, plans, and handoffs append to a per-project history log (`.project-history/graph.jsonl`) via `scripts/project-graph`. Any session that settles something important — a direction, a plan, a verdict, a pass — records one node before wrapping up, skill-invoked or not. See `docs/agents/project-graph.md`.
 
 ### Agent ledger
 
