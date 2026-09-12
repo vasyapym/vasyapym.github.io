@@ -383,3 +383,5 @@
 {"type":"edge.added","id":"e183","ts":"2026-09-11T16:06:21.242Z","from":"n197","to":"n198","rel":"continues"}
 {"type":"node.added","id":"n199","ts":"2026-09-11T16:19:29.551Z","kind":"iteration","actor":"user","title":"fix(shell): realm dive handoff restores the system cursor immediately — one-frame body cursor override in RealmMode unmount cleanup","artifacts":[{"kind":"git-commit","ref":"6950e2e"}],"meta":{"source":"auto"}}
 {"type":"edge.added","id":"e184","ts":"2026-09-11T16:19:29.557Z","from":"n198","to":"n199","rel":"continues"}
+{"type":"node.added","id":"n200","ts":"2026-09-12T10:51:09.760Z","kind":"iteration","actor":"user","title":"fix(shell): realm dive cursor round 2 — synthetic mousemove kicks WebKit's event-driven cursor re-eval (macOS Safari)","artifacts":[{"kind":"git-commit","ref":"c8d8782"}],"meta":{"source":"auto"}}
+{"type":"edge.added","id":"e185","ts":"2026-09-12T10:51:09.764Z","from":"n199","to":"n200","rel":"continues"}
