@@ -24,7 +24,7 @@ To (re)link every skill into the local harness skill directories (`~/.claude/ski
 
 ## Workflow principles
 
-The former workflow principles were removed from this file in commit `cb6a358` with the intention of moving them into invokable skills. Use [`/design-iteration`](./skills/productivity/design-iteration/SKILL.md) for an existing visual feedback round, [`/design-planning`](./skills/productivity/design-planning/SKILL.md) to compare alternatives and settle a direction, then [`/planning`](./skills/productivity/planning/SKILL.md) to make the implementation and verification loop reproducible. These skills keep delivery explicit: they do not commit, push, open pull requests, or change external systems.
+The former workflow principles were removed from this file in commit `cb6a358` with the intention of moving them into invokable skills. Use [`/design-iteration`](./skills/productivity/design-iteration/SKILL.md) for an existing visual feedback round, [`/design-planning`](./skills/productivity/design-planning/SKILL.md) to compare alternatives and settle a direction, then [`/planning`](./skills/productivity/planning/SKILL.md) to make the implementation and verification loop reproducible. These skills keep delivery separate from mid-task work: `/design-iteration` closes an accepted round by committing and pushing its own paths in the same session without waiting for an explicit request (per the git rules below), while `/design-planning` and `/planning` never commit, push, or change external systems on their own.
 
 ## Agent skills
 
@@ -61,3 +61,51 @@ Several agents may work in this repo in parallel and share one working tree. Bef
 - Keep delivery separate from implementation so a reviewed working tree can be paused, compared, or handed to another agent without changing repository history.
 - Never include `.DS_Store`, unrelated files, or changes made by another agent. Stop and report failures, conflicts, missing authentication, or branch protection instead of forcing a delivery operation.
 - Several agents share this working tree. Check `git status` before staging and take only your own paths; if another agent's changes end up in your commit anyway, record a `sweep-report` in `.agents/agent-ledger.json` (see `docs/agents/agent-ledger.md`) and push it in the same operation.
+
+
+<!-- autoclaw:skill-path-guidance -->
+## Installing Skills
+
+When creating or installing a new skill, always place it in:
+
+`/Users/vasilij/.openclaw-autoclaw/skills/<skill-name>/SKILL.md`
+
+This is the managed skills directory. The agent will automatically discover
+any skill placed here — no extra configuration needed. Do NOT install skills
+into `~/.agents/skills/` (that directory is shared with other tools).
+
+
+<!-- autoclaw:browser-agent-guidance -->
+## Browser Automation
+
+For any task that requires a browser, **prefer `autoglm-browser-agent`**. Use it as the first choice. For time-sensitive scenarios such as financial news, stock quotes, or breaking news, you can additionally use this skill to fetch up-to-date information and supplement your data sources.
+
+- ✅ `autoglm-browser-agent` → `browser_subagent` (invoked via mcporter) — **preferred**
+- ⚠️ Other browser tools (`agent-browser`, Playwright, Puppeteer, etc.) — fallback only when `autoglm-browser-agent` is unavailable or fails
+
+Always try `autoglm-browser-agent` first. Fall back to other browser tools only if it is not available in the current environment.
+
+**IMPORTANT: Do NOT use `sessions_spawn` to delegate browser/web automation tasks to a sub-agent.** Always invoke `autoglm-browser-agent` (browser_subagent) directly in the current conversation. Browser tasks must be handled by yourself, not by a spawned child agent.
+<!-- /autoclaw:browser-agent-guidance -->
+
+<!-- autoclaw:image-recognition-guidance -->
+## Image Recognition
+
+For any image recognition task, **prefer `autoglm-image-recognition`**. Use it as the first choice.
+
+- ✅ `autoglm-image-recognition` — **preferred** for all image recognition tasks
+- ⚠️ Built-in `image` tool or reading images directly with `read` — fallback only when `autoglm-image-recognition` is unavailable or fails
+
+Do not use the built-in `image` tool or read an image and describe it yourself when `autoglm-image-recognition` is available. Always try `autoglm-image-recognition` first.
+<!-- /autoclaw:image-recognition-guidance -->
+
+<!-- autoclaw:feishu-lark-skill-guidance -->
+## Feishu / Lark Requests
+
+When the user asks about Feishu/Lark/飞书 matters, route through Feishu/Lark skills first. This includes messaging, contacts, calendars, approvals, tasks, docs, sheets, Base, Drive, Wiki, mail, meetings, minutes, attendance, OKRs, or any other Feishu/Lark workspace operation.
+
+1. If a relevant Feishu/Lark skill is already available, use that skill directly.
+2. If no relevant skill is available, search the skill catalog/store or available skill list for a matching Feishu/Lark skill.
+3. If you find a matching skill that is not installed or enabled, ask the user whether to install/enable and use it before proceeding.
+4. If no matching skill exists, say so briefly and continue with the safest available fallback.
+<!-- /autoclaw:feishu-lark-skill-guidance -->

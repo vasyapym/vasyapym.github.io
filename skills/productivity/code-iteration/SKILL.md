@@ -113,8 +113,11 @@ history into an uninterrupted success story.
 - If execution tools are unavailable, provide proposed code or a patch and
   exact suggested commands labeled NOT RUN. Do not claim files were changed
   or checks executed when they were not.
-- Keep delivery explicit: commit, push, and pull requests happen only when
-  the user explicitly requests that delivery step.
+- Close a finished task by shipping it: once a task ends with accepted,
+  verified changes, stage only your own files and commit and push them in the
+  same session without waiting for an explicit request. Mid-task or
+  speculative commits wait for the user; stop and report failures, conflicts,
+  or missing authentication instead of forcing a delivery operation.
 
 ## Pass record
 

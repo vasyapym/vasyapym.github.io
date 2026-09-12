@@ -21,8 +21,11 @@ observe → change → render → inspect → present → record feedback.
 - Default to one presented round, then wait for feedback. Produce multiple
   alternatives or autonomous rounds only when requested, within a stated limit.
 - Follow project instructions and avoid unrelated redesigns or refactors.
-- Keep delivery explicit: never commit, push, open pull requests, or change
-  external systems unless the user explicitly requests that delivery step.
+- Close a round by shipping it: once the round's changes are accepted, stage
+  only your own files and commit and push them in the same session without
+  waiting for an explicit request. Mid-task or speculative changes wait for
+  the user; stop and report failures, conflicts, or missing authentication
+  instead of forcing a delivery operation.
 
 ## Persistent state
 
