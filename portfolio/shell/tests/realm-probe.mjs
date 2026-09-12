@@ -798,8 +798,18 @@ try {
       window.sessionStorage.getItem("portfolio.realm.return.v1") === null));
   await ret.evaluate(() => document.querySelector(".realm-panel-dive")?.click());
   check("r11: committed dive records the deep-return intent",
-    await until(ret, () =>
-      window.sessionStorage.getItem("portfolio.realm.return.v1") === "deep", 5000));
+    await until(ret, () => {
+      // r16: the intent carries the landing scrollY as JSON; the bare
+      // "deep" string is the legacy pre-r16 shape.
+      const raw = window.sessionStorage.getItem("portfolio.realm.return.v1");
+      if (raw === "deep") return true;
+      try {
+        const parsed = JSON.parse(raw ?? "null");
+        return parsed?.type === "deep" && typeof parsed?.scrollY === "number";
+      } catch {
+        return false;
+      }
+    }, 5000));
   check("r11: dive hands off to the project page",
     await until(ret, () => window.location.pathname.includes("projects"), 5000));
   await armProjectBacked(ret);
@@ -903,6 +913,66 @@ try {
       document.querySelector(".realm-layer") !== null &&
       window.__pbRecorder?.saw === true, 5000));
   await retBack.close();
+
+  // r16: deep-return exit restores the landing's ORIGINAL pre-realm offset.
+  // The old law restored the returned realm's captured project-page scroll
+  // (≈0) — the hero flashed under the clearing veil, then the r11 fallback
+  // (fresh landing, seeded ref 0, no user scroll) scrollIntoView-yanked the
+  // viewport to the threshold section header.
+  const retScroll = await browser.newPage();
+  await retScroll.setViewport({ width: 1440, height: 900, deviceScaleFactor: 1 });
+  collectErrors(retScroll);
+  await open(retScroll);
+  // position past the threshold (enterRealm's own entry offset), arm the
+  // scrollIntoView recorder AFTER positioning so the probe's own call is
+  // not counted, then run the full dive → deep-return → surface-exit chain.
+  await retScroll.evaluate(() => {
+    const t = document.querySelector(".realm-threshold");
+    const bottom = t
+      ? Math.ceil(t.getBoundingClientRect().bottom + window.scrollY)
+      : 0;
+    window.scrollTo({ top: bottom + 80, behavior: "instant" });
+  });
+  await wait(400);
+  const entryScrollS = await retScroll.evaluate(() => {
+    window.__sivCalls = 0;
+    const orig = Element.prototype.scrollIntoView;
+    Element.prototype.scrollIntoView = function (...args) {
+      window.__sivCalls += 1;
+      return orig.apply(this, args);
+    };
+    return window.scrollY;
+  });
+  await enterRealm(retScroll);
+  await retScroll.evaluate(() => document.querySelectorAll(".realm-legend-btn")[2]?.click());
+  await wait(500);
+  await retScroll.evaluate(() => document.querySelector(".realm-panel-dive")?.click());
+  await until(retScroll, () => window.location.pathname.includes("projects"), 5000);
+  await armProjectBacked(retScroll);
+  await retScroll.goBack();
+  check("r16: deep-return restores the realm over the project",
+    await until(retScroll, () =>
+      document.querySelector(".realm-layer") !== null &&
+      window.__pbRecorder?.saw === true, 5000));
+  await wait(1700); // the re-entry flood must reach the active phase
+  // exit to surface — the landing must come back at S, not the hero (≈0)
+  await retScroll.evaluate(() => {
+    document.querySelector(".realm-btn--leave")?.click();
+  });
+  check("r16: surface exit completes the staged teardown",
+    await until(retScroll, () =>
+      document.querySelector(".realm-layer") === null &&
+      window.location.pathname === "/", 8000));
+  await wait(900); // the focus-restore effect + its settle rAFs land here
+  const restoredY = await retScroll.evaluate(() => window.scrollY);
+  check("r16: deep-return exit lands at the original landing offset (no hero flash)",
+    Math.abs(restoredY - entryScrollS) <= 2, `S=${entryScrollS} restoredY=${restoredY}`);
+  check("r16: no scrollIntoView yank on the deep-return exit",
+    await retScroll.evaluate(() => window.__sivCalls === 0));
+  check("r16: focus returns to the threshold control",
+    await until(retScroll, () =>
+      document.activeElement?.classList.contains("realm-threshold-enter") === true, 2000));
+  await retScroll.close();
 
   // reload legs: session storage must survive a fresh boot on the project page
   const retReload = await browser.newPage();

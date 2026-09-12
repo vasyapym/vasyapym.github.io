@@ -6,6 +6,7 @@ import RealmMode from "./RealmMode";
 import {
   clearRealmReturnIntent,
   readRealmReturnIntent,
+  readRealmReturnScrollY,
   rememberRealmReturnIntent,
 } from "./realm-return-intent";
 import "./realm.css";
@@ -106,7 +107,9 @@ export default function LandingPage({
 
   const handleRealmOpenProject = useCallback(
     (id: string) => {
-      rememberRealmReturnIntent();
+      // Persist THIS instance's pre-realm offset so a later deep-return exit
+      // can restore it (r16: the intent carries the landing scrollY).
+      rememberRealmReturnIntent(realmEntryScrollYRef.current);
       openProject(id);
     },
     [openProject],
@@ -120,6 +123,20 @@ export default function LandingPage({
   // Pre-lock scroll offset at realm entry: the r15 focus fallback must never
   // yank the viewport back once the user has scrolled after an exit.
   const realmEntryScrollYRef = useRef(0);
+  // Deep-return seed: the settled-phase landing mounts fresh (its entry ref
+  // is 0 and its activator null), so without this the r15 gate would judge
+  // the viewport "untouched" and the r11 rescue would yank to the threshold.
+  // Seeded during render — the focus-restore effect's rAF×2 reads the ref
+  // before any effect could. The guard survives Strict-Mode double-render;
+  // a fresh Strict mount re-seeds idempotently.
+  const deepReturnScrollSeededRef = useRef(false);
+  if (externalRealmOpen && !deepReturnScrollSeededRef.current) {
+    const intentScrollY = readRealmReturnScrollY();
+    if (intentScrollY != null) {
+      realmEntryScrollYRef.current = intentScrollY;
+      deepReturnScrollSeededRef.current = true;
+    }
+  }
   const realmRestoreFocusRef = useRef(false);
   const realmArtworkRefreshPendingRef = useRef(false);
   const realmFloorRef = useRef<HTMLDivElement>(null);
@@ -347,6 +364,14 @@ export default function LandingPage({
           Math.abs(window.scrollY - exitScrollY) > 1 ||
           Math.abs(window.scrollY - realmEntryScrollYRef.current) > 1;
 
+        // Deep-return: the body-unlock restore already landed the viewport
+        // at the original entry offset — a scrollIntoView here would yank
+        // it to the section header. Consume the seed flag now (the branch
+        // below early-returns on the activator path).
+        const alreadyAtEntry = deepReturnScrollSeededRef.current &&
+          Math.abs(exitScrollY - realmEntryScrollYRef.current) <= 2;
+        deepReturnScrollSeededRef.current = false;
+
         const activated = realmActivatorRef.current;
         const rect = activated?.getBoundingClientRect();
         const usable = activated?.isConnected &&
@@ -367,7 +392,7 @@ export default function LandingPage({
         // but only while the visitor has not already chosen a position.
         const fallback = realmSectionEnterRef.current;
         if (fallback) {
-          if (!userScrolled) {
+          if (!userScrolled && !alreadyAtEntry) {
             fallback.scrollIntoView({ block: "center", behavior: "instant" });
           }
           fallback.focus({ preventScroll: true });

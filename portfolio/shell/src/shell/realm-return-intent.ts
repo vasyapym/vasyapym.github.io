@@ -1,47 +1,68 @@
-const REALM_RETURN_KEY = "portfolio.realm.return.v1";
-const REALM_RETURN_VALUE = "deep";
+const INTENT_KEY = "portfolio.realm.return.v1";
 
-let volatileIntent: boolean | undefined;
+interface RealmReturnData {
+  type: "deep";
+  scrollY?: number;
+}
 
-export function readRealmReturnIntent(): boolean {
-  if (volatileIntent !== undefined) {
-    return volatileIntent;
-  }
+let volatileIntent: RealmReturnData | null = null;
+
+function resolveIntent(): RealmReturnData | null {
+  if (volatileIntent) return volatileIntent;
 
   if (typeof window === "undefined") {
-    return false;
+    return null;
   }
 
   try {
-    return window.sessionStorage.getItem(REALM_RETURN_KEY) === REALM_RETURN_VALUE;
+    const raw = window.sessionStorage.getItem(INTENT_KEY);
+    if (!raw) return null;
+    // Backward compat: the pre-r16 format stored the bare string "deep".
+    if (raw === "deep") return { type: "deep" };
+    const parsed: unknown = JSON.parse(raw);
+    return parsed && typeof parsed === "object" && (parsed as RealmReturnData).type === "deep"
+      ? (parsed as RealmReturnData)
+      : null;
   } catch {
-    return false;
+    return null;
   }
 }
 
-export function rememberRealmReturnIntent(): void {
-  volatileIntent = true;
+export function rememberRealmReturnIntent(scrollY?: number): void {
+  const data: RealmReturnData = {
+    type: "deep",
+    ...(scrollY != null ? { scrollY } : {}),
+  };
+  volatileIntent = data;
 
   if (typeof window === "undefined") {
     return;
   }
 
   try {
-    window.sessionStorage.setItem(REALM_RETURN_KEY, REALM_RETURN_VALUE);
+    window.sessionStorage.setItem(INTENT_KEY, JSON.stringify(data));
   } catch {
     // Preserve SPA returns in memory when session storage is unavailable.
   }
 }
 
+export function readRealmReturnIntent(): boolean {
+  return resolveIntent()?.type === "deep";
+}
+
+export function readRealmReturnScrollY(): number | undefined {
+  return resolveIntent()?.scrollY;
+}
+
 export function clearRealmReturnIntent(): void {
-  volatileIntent = false;
+  volatileIntent = null;
 
   if (typeof window === "undefined") {
     return;
   }
 
   try {
-    window.sessionStorage.removeItem(REALM_RETURN_KEY);
+    window.sessionStorage.removeItem(INTENT_KEY);
   } catch {
     // Preserve surface intent in memory when session storage is unavailable.
   }

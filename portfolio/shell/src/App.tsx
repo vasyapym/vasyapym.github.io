@@ -6,6 +6,7 @@ import RealmMode from "./shell/RealmMode";
 import {
   clearRealmReturnIntent,
   readRealmReturnIntent,
+  readRealmReturnScrollY,
   rememberRealmReturnIntent,
 } from "./shell/realm-return-intent";
 import type { PrototypeVariant } from "./prototype/PortfolioPrototype";
@@ -23,6 +24,12 @@ interface RealmReturnState {
     readonly y: number;
   };
   readonly settled: boolean;
+  // The landing's original pre-realm scroll offset, captured in the r11
+  // intent at the first dive. The deep-return exit must restore it — the
+  // returned realm's own body-lock captures the PROJECT page's scroll (≈0),
+  // which used to flash the hero before the focus rescue yanked to the
+  // threshold section.
+  readonly landingScrollY?: number;
 }
 
 function projectIdFromPath(pathname: string): string | undefined {
@@ -66,6 +73,9 @@ export default function App() {
         y: Math.max(60, window.innerHeight - 60),
       },
       settled: false,
+      // The intent is still live here (set during the previous dive), so the
+      // original landing offset S is available for the exit restore.
+      landingScrollY: readRealmReturnScrollY(),
     };
 
     realmReturnRef.current = nextReturn;
@@ -121,7 +131,9 @@ export default function App() {
 
   const handleRealmReturnOpenProject = useCallback(
     (id: string) => {
-      rememberRealmReturnIntent();
+      // Chained dive: forward the SAME original landing offset into the new
+      // intent (read from the ref — stable identity, no dep churn).
+      rememberRealmReturnIntent(realmReturnRef.current?.landingScrollY);
       realmReturnRef.current = null;
       setRealmReturn(null);
       openProject(id);
@@ -163,6 +175,7 @@ export default function App() {
             onExit={handleRealmReturnExit}
             onEntered={handleRealmReturnEntered}
             entry={realmReturn.entry}
+            restoreScrollY={realmReturn.landingScrollY}
           />
         </>
       );
@@ -182,6 +195,7 @@ export default function App() {
           onExit={handleRealmReturnExit}
           onEntered={handleRealmReturnEntered}
           entry={realmReturn.entry}
+          restoreScrollY={realmReturn.landingScrollY}
         />
       </>
     );

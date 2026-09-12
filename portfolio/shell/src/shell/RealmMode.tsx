@@ -33,6 +33,10 @@ interface RealmModeProps {
   readonly onExit: () => void;
   readonly onEntered?: () => void;
   readonly entry: { readonly x: number; readonly y: number };
+  // Deep-return exit target: the landing's original pre-realm scroll offset,
+  // threaded through the r11 intent. Absent on the normal landing-owned
+  // path — the captured body-lock scrollY is the restore target there.
+  readonly restoreScrollY?: number;
 }
 
 type Phase = "entering" | "active" | "leaving" | "diving";
@@ -96,7 +100,7 @@ function _kickCursor() {
   );
 }
 
-export default function RealmMode({ projects, onOpenProject, onExit, onEntered, entry }: RealmModeProps) {
+export default function RealmMode({ projects, onOpenProject, onExit, onEntered, entry, restoreScrollY }: RealmModeProps) {
   const layerRef = useRef<HTMLDivElement | null>(null);
   const glRef = useRef<HTMLCanvasElement | null>(null);
   const overlayRef = useRef<HTMLCanvasElement | null>(null);
@@ -104,6 +108,14 @@ export default function RealmMode({ projects, onOpenProject, onExit, onEntered, 
   const sceneRef = useRef<RealmScene | null>(null);
   const audioRef = useRef<RealmAudio | null>(null);
   const ariaRef = useRef<HTMLDivElement | null>(null);
+  // Sticky write: only a DEFINED prop updates the target, so an intermediate
+  // render can never clobber the stored offset before the unmount cleanup
+  // reads it. Undefined on the normal landing-owned path → the captured
+  // body-lock scrollY remains the restore target.
+  const restoreScrollYRef = useRef<number | undefined>(restoreScrollY);
+  if (restoreScrollY !== undefined) {
+    restoreScrollYRef.current = restoreScrollY;
+  }
   const leaveGateRef = useRef<{
     begin(): void;
     sceneDone(): void;
@@ -312,12 +324,18 @@ export default function RealmMode({ projects, onOpenProject, onExit, onEntered, 
       if (landingScrollRestored) return;
       landingScrollRestored = true;
 
-      document.body.style.position = prev.position;
-      document.body.style.top = prev.top;
-      document.body.style.width = prev.width;
-      document.body.style.overflow = prev.overflow;
-      window.scrollTo({ top: scrollY, behavior: "instant" });
-    };
+    document.body.style.position = prev.position;
+    document.body.style.top = prev.top;
+    document.body.style.width = prev.width;
+    document.body.style.overflow = prev.overflow;
+    // Deep-return: restore to the landing's ORIGINAL pre-realm offset (the
+    // intent-carried S) — the captured scrollY belongs to the project page
+    // this realm sat over, and restoring it flashes the hero at ≈0.
+    window.scrollTo({
+      top: restoreScrollYRef.current ?? scrollY,
+      behavior: "instant",
+    });
+  };
 
     // A bounded rendering opportunity, not a GPU-commit assertion.
     // Two nested callbacks leave an opportunity to paint between stages.
