@@ -1217,12 +1217,12 @@
   background: transparent;
 }
 .practice-lesson-scroll::-webkit-scrollbar-thumb {
-  background: var(--ink-line);
+  /* literal rgba, not var(): WebKit does not resolve custom properties
+     inside scrollbar pseudo-element rules — an invalid background falls
+     back to the engine's opaque default gray thumb. Value pinned to
+     styles.css --ink-line rgba(238, 234, 224, 0.26), slightly quieter. */
+  background: rgba(238, 234, 224, 0.22);
   border-radius: 999px;
-  /* translucent, like the mobile system bar: present while scrolling,
-     quiet at rest — the lane itself stays (the overlay-over-text look is
-     what the owner's original complaint was about) */
-  opacity: 0.45;
 }
 
 .practice-lesson-progress {

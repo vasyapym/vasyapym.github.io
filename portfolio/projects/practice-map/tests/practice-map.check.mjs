@@ -159,7 +159,7 @@ try {
       panelWidth: panel ? Math.round(panel.width) : -1,
       viewport: window.innerWidth,
       hasBarRule: !!barRule,
-      thumbOpacity: thumbRule ? Number.parseFloat(thumbRule.style.opacity) : -1,
+      thumbBackground: thumbRule ? thumbRule.style.background || thumbRule.style.backgroundColor : "none",
     };
   });
   check(
@@ -167,8 +167,8 @@ try {
     `lesson panel widened to ~950px (${readerLaws.panelWidth}px @ ${readerLaws.viewport})`,
   );
   check(
-    readerLaws.hasBarRule && readerLaws.thumbOpacity > 0 && readerLaws.thumbOpacity < 1,
-    `lesson scroll body ships a styled translucent scrollbar lane (thumb opacity ${readerLaws.thumbOpacity})`,
+    readerLaws.hasBarRule && /rgba\(238, 234, 224,\s*0\.2\d\)/.test(readerLaws.thumbBackground),
+    `lesson scroll body ships a translucent literal-rgba scrollbar thumb (${readerLaws.thumbBackground})`,
   );
 
   const beforeScroll = await page.evaluate(() => document.querySelector(".practice-lesson-scroll").scrollTop);
