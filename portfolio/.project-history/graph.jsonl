@@ -397,3 +397,5 @@
 {"type":"edge.added","id":"e190","ts":"2026-09-12T18:57:27.141Z","from":"n204","to":"n205","rel":"continues"}
 {"type":"node.added","id":"n206","ts":"2026-09-12T20:03:22.478Z","kind":"iteration","actor":"user","title":"fix(shell): r16 — deep-return exit restores the landing's original pre-realm scroll (no hero flash, no threshold yank)","artifacts":[{"kind":"git-commit","ref":"87795e2"}],"meta":{"source":"auto"}}
 {"type":"edge.added","id":"e191","ts":"2026-09-12T20:03:22.482Z","from":"n205","to":"n206","rel":"continues"}
+{"type":"node.added","id":"n207","ts":"2026-09-12T21:18:02.204Z","kind":"iteration","actor":"user","title":"feat(shell): r17 — esc raises the 'return to the surface?' confirmation bar (relayed brief, chat model full autonomy)","artifacts":[{"kind":"git-commit","ref":"edd6b4c"}],"meta":{"source":"auto"}}
+{"type":"edge.added","id":"e192","ts":"2026-09-12T21:18:02.208Z","from":"n206","to":"n207","rel":"continues"}
