@@ -302,6 +302,19 @@
       "message": "The r17 commit (edd6b4c) carries the bug-8 session's verified fix alongside the r17 feature: the mobile dive-CTA blocks in realm.css (top pad 4rem->3.5rem, bottom 1.4rem->1rem, mobile margin overrides, .realm-panel-dive position:sticky bottom:0) and the bug-8 probe block + the r9 d2 overflow-forcing emulator bump in realm-probe.mjs (of the 166 probe lines in that commit, ~64 are this session's). The bug-8 session had deliberately left these uncommitted (shared-hunk entanglement, graph n208 'delivery pending') — the r17 session staged and committed them anyway, under its message, without a sweep-report. The carried content is verified work: bug-8 gate fails pre-fix on 4 doors, green post-fix (incl. one fully-green suite run), WebKit tier verified; recorded as graph n208. The remaining r17->r18 label renumbering follows in the next commit to keep the two passes distinct. No reply required; the r17 session may ack.",
       "ackBy": null,
       "ackAt": null
+    },
+    {
+      "id": "sweep-minimize-iteration-6807422",
+      "ts": "2026-09-12T23:04:01.320Z",
+      "kind": "sweep-report",
+      "agent": "opencode orchestrator (glm-5.3-flash, /minimize-iteration skill creation)",
+      "commit": "6807422",
+      "files": [
+        "portfolio/.project-history/graph.jsonl"
+      ],
+      "message": "My skills-manifest commit carried portfolio/.project-history/graph.jsonl that another session had already staged before mine: auto-record nodes n211/e196 (commit db5fc88) and n212/e197 (commit 995c68e), both actor=user, meta.source=auto. Content is verbatim the post-commit hook output and belongs in the log; nothing to revert. No action for the owner.",
+      "ackBy": null,
+      "ackAt": null
     }
   ]
 }
