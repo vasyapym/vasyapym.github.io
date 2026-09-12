@@ -142,10 +142,10 @@ try {
   });
   check(fitsDesktop, "panel fits viewport at 1440px");
 
-  // Reader geometry laws: the widened panel (~950px) and the hidden
-  // scrollbar chrome on the lesson scroll body (owner Safari reports,
-  // rounds 1-2: styled bars kept rendering as the engine's default white
-  // chrome; round 3 law = zero scrollbar surface).
+  // Reader geometry laws: the widened panel (~950px) and the visible
+  // ink-consistent scrollbar (owner round 4: neither white nor invisible —
+  // the bar must render from the webkit pseudos, which requires the
+  // interop-suppressing standard properties to be ABSENT from the element).
   const readerLaws = await page.evaluate(() => {
     const panel = document.querySelector(".practice-lesson-panel")?.getBoundingClientRect();
     const scroll = document.querySelector(".practice-lesson-scroll");
@@ -154,16 +154,18 @@ try {
       try { return [...sheet.cssRules]; } catch { return []; }
     });
     const bodyRule = rules.find((r) => r.selectorText === ".practice-lesson-scroll");
-    const hidePseudo = rules.find((r) =>
-      r.selectorText?.includes(".practice-lesson-scroll::-webkit-scrollbar") &&
-      !r.selectorText.includes("thumb") && !r.selectorText.includes("track"));
+    const barRule = rules.find((r) =>
+      r.selectorText?.trim() === ".practice-lesson-scroll::-webkit-scrollbar");
+    const thumbRule = rules.find((r) =>
+      r.selectorText?.includes(".practice-lesson-scroll::-webkit-scrollbar-thumb"));
     return {
       panelWidth: panel ? Math.round(panel.width) : -1,
       viewport: window.innerWidth,
       scrollbarWidth: scroll ? getComputedStyle(scroll).scrollbarWidth : "?",
       scrollbarColor: scroll ? getComputedStyle(scroll).scrollbarColor : "?",
       overlayColorScheme: overlay ? getComputedStyle(overlay).colorScheme : "?",
-      hasHidePseudo: !!hidePseudo,
+      barWidth: barRule ? barRule.style.width : "none",
+      thumbBackground: thumbRule ? thumbRule.style.background || thumbRule.style.backgroundColor : "none",
       bodyRuleText: bodyRule ? bodyRule.cssText : "",
     };
   });
@@ -172,11 +174,12 @@ try {
     `lesson panel widened to ~950px (${readerLaws.panelWidth}px @ ${readerLaws.viewport})`,
   );
   check(
-    readerLaws.scrollbarWidth === "none" &&
+    readerLaws.scrollbarWidth === "auto" &&
       readerLaws.scrollbarColor === "auto" &&
-      readerLaws.hasHidePseudo &&
-      !/scrollbar-width:\s*(thin|auto)/.test(readerLaws.bodyRuleText),
-    "lesson scroll body ships zero scrollbar chrome (width none, webkit pseudo display none)",
+      !/scrollbar-(width|color):/.test(readerLaws.bodyRuleText) &&
+      readerLaws.barWidth === "8px" &&
+      /rgba\(238, 234, 224,\s*0\.26\)/.test(readerLaws.thumbBackground),
+    `lesson scroll body renders the ink webkit bar (8px lane, translucent thumb ${readerLaws.thumbBackground})`,
   );
   check(
     readerLaws.overlayColorScheme === "dark",

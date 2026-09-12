@@ -1208,29 +1208,28 @@
   min-height: 0;
   overflow-y: auto;
   overscroll-behavior: contain;
-  /* Hide the scrollbar on every engine. Three-factor bug killed rounds 1-2:
-     1. scrollbar-width: thin (non-auto) triggers CSS Scrollbars interop
-        suppression — Safari 18+/Chrome 121+ silently ignore all
-        ::-webkit-scrollbar pseudos, so the styled 8px translucent thumb
-        from those pseudos never rendered.
-     2. scrollbar-color used var(--ink-line), but --ink-line is scoped to
-        .practice-map-field; the overlay is portaled to <body> (outside
-        that scope), so the var is guaranteed-invalid and scrollbar-color
-        computes to auto — the engine picks colors from color-scheme.
-     3. No color-scheme: dark on <body> or the overlay → light scheme →
-        white thumb on white track.
-   Fix: remove all scrollbar chrome. The sticky progress hairline
-   (.practice-lesson-progress) already communicates scroll position.
-   Matches .practice-reader-nav precedent (scrollbar-width: none). */
-  scrollbar-width: none;
+  /* NO standard scrollbar-width/scrollbar-color here: any non-auto value
+     triggers the CSS Scrollbars interop rule — Safari 18+/Chrome 121+
+     then IGNORE every ::-webkit-scrollbar pseudo below and draw the
+     engine default (which rendered light-scheme white before the overlay
+     declared color-scheme: dark). The webkit pseudos are the styling path
+     for Safari/Chrome; Firefox falls back to its color-scheme-dark default
+     (the overlay declares color-scheme: dark). Owner law round 4: the bar
+     must be VISIBLE and ink-consistent — neither white, nor invisible. */
 }
-/* Safari < 18 does not support scrollbar-width; the interop suppression
-   rule cannot fire (the standard prop is unknown → initial/auto), so this
-   webkit pseudo applies and hides the bar. In Safari 18+ scrollbar-width:
-   none already hides it; this pseudo is harmlessly suppressed. Either
-   path → no bar. */
 .practice-lesson-scroll::-webkit-scrollbar {
-  display: none;
+  width: 8px;
+}
+.practice-lesson-scroll::-webkit-scrollbar-track {
+  background: transparent;
+}
+.practice-lesson-scroll::-webkit-scrollbar-thumb {
+  /* literal rgba, not var(): custom properties do not resolve inside
+     scrollbar pseudo-element rules — an invalid background falls back to
+     the engine's opaque default thumb. Pinned to styles.css
+     --ink-line rgba(238, 234, 224, 0.26). */
+  background: rgba(238, 234, 224, 0.26);
+  border-radius: 999px;
 }
 
 .practice-lesson-progress {
