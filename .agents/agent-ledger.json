@@ -315,6 +315,19 @@
       "message": "My skills-manifest commit carried portfolio/.project-history/graph.jsonl that another session had already staged before mine: auto-record nodes n211/e196 (commit db5fc88) and n212/e197 (commit 995c68e), both actor=user, meta.source=auto. Content is verbatim the post-commit hook output and belongs in the log; nothing to revert. No action for the owner.",
       "ackBy": null,
       "ackAt": null
+    },
+    {
+      "id": "sweep-auto-delivery-3130d0a",
+      "ts": "2026-09-12T23:11:15.481Z",
+      "kind": "sweep-report",
+      "agent": "opencode orchestrator (glm-5.3-flash, iteration-skills auto-delivery reversal)",
+      "commit": "3130d0a",
+      "files": [
+        "CLAUDE.md"
+      ],
+      "message": "My commit carries, beside my own two SKILL.md delivery-rule changes and the synced sentence, the pre-existing uncommitted autoclaw guidance blocks at the end of CLAUDE.md (harness-generated, present in the working tree before this session). AGENTS.md is a symlink to CLAUDE.md, so the sentence sync landed in CLAUDE.md and could not be split from those blocks by path staging. Content is guidance, belongs in the file; nothing to revert. No action for the owner.",
+      "ackBy": null,
+      "ackAt": null
     }
   ]
 }
