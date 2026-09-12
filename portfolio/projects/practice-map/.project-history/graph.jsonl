@@ -60,3 +60,5 @@
 {"type":"edge.added","id":"e25","ts":"2026-09-12T18:26:53.155Z","from":"n31","to":"n32","rel":"continues"}
 {"type":"node.added","id":"n33","ts":"2026-09-12T18:50:24.321Z","kind":"iteration","actor":"user","title":"fix(practice-map): lesson scrollbar hidden entirely — three-factor WebKit chain killed rounds 1-2 (bug-iteration pass, round 3, relayed brief)","artifacts":[{"kind":"git-commit","ref":"94b34fc"}],"meta":{"source":"auto"}}
 {"type":"edge.added","id":"e26","ts":"2026-09-12T18:50:24.335Z","from":"n32","to":"n33","rel":"continues"}
+{"type":"node.added","id":"n34","ts":"2026-09-12T18:58:50.247Z","kind":"iteration","actor":"user","title":"fix(practice-map): lesson scrollbar visible and ink-consistent — webkit pseudos un-suppressed (bug-iteration pass, round 4)","artifacts":[{"kind":"git-commit","ref":"1783430"}],"meta":{"source":"auto"}}
+{"type":"edge.added","id":"e27","ts":"2026-09-12T18:58:50.252Z","from":"n33","to":"n34","rel":"continues"}
