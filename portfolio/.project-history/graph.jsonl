@@ -389,3 +389,5 @@
 {"type":"edge.added","id":"e186","ts":"2026-09-12T11:48:45.601Z","from":"n200","to":"n201","rel":"continues"}
 {"type":"node.added","id":"n202","ts":"2026-09-12T12:06:40.781Z","kind":"iteration","actor":"user","title":"fix(shell): realm safari round — system cursor stays visible across the deep (cursor:none law retired on .realm-layer/.realm-gl); lazy-chunk load failure self-recovery — global vite:preloadError listener reloads once per tab session before the crash page (n2)","artifacts":[{"kind":"git-commit","ref":"c30c7ae"}],"meta":{"source":"auto"}}
 {"type":"edge.added","id":"e187","ts":"2026-09-12T12:06:40.796Z","from":"n201","to":"n202","rel":"continues"}
+{"type":"node.added","id":"n203","ts":"2026-09-12T12:54:41.107Z","kind":"iteration","actor":"user","title":"fix(shell): realm panel dive CTA follows the content — flex auto-margin pin removed (bug-iteration pass)","artifacts":[{"kind":"git-commit","ref":"72d087a"}],"meta":{"source":"auto"}}
+{"type":"edge.added","id":"e188","ts":"2026-09-12T12:54:41.112Z","from":"n202","to":"n203","rel":"continues"}
