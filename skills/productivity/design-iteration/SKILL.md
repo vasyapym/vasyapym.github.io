@@ -139,7 +139,13 @@ Ledger invariants:
 Where the project keeps a project graph (`.project-history/graph.jsonl`, via
 `scripts/project-graph`), keep it in step with the ledger — unconditionally,
 never optionally: if no graph exists, run `project-graph init` first instead of
-skipping the record. Start every session with
+skipping the record — but resolve WHERE the store belongs before creating one.
+The graph lives with the project the work belongs to; when a repo keeps
+several project stores (monorepo subprojects, a main app beside them), follow
+that repo's agent docs for the canonical locations, and never init a store at
+a repo/workspace root the session happened to start from when the work belongs
+to a project that keeps its store elsewhere.
+Start every session with
 `project-graph head --actor design-iteration`; claim any handoff addressed here
 with `project-graph ack <hid> --actor design-iteration` before working, and
 close it via `--via-handoff <hid>` on the round's first appended node. When a
