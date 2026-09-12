@@ -405,3 +405,7 @@
 {"type":"edge.added","id":"e194","ts":"2026-09-12T21:28:29.351Z","from":"n208","to":"n209","rel":"continues"}
 {"type":"node.added","id":"n210","ts":"2026-09-12T21:51:05.859Z","kind":"iteration","actor":"user","title":"style(shell): r17 prompt bar polish (owner round) — rounded corners, breathing room, dropped toward the vertical center","artifacts":[{"kind":"git-commit","ref":"cda5107"}],"meta":{"source":"auto"}}
 {"type":"edge.added","id":"e195","ts":"2026-09-12T21:51:05.863Z","from":"n209","to":"n210","rel":"continues"}
+{"type":"node.added","id":"n211","ts":"2026-09-12T21:53:50.954Z","kind":"iteration","actor":"user","title":"style(shell): r17 prompt bar — between the top edge and the center (owner round 2)","artifacts":[{"kind":"git-commit","ref":"db5fc88"}],"meta":{"source":"auto"}}
+{"type":"edge.added","id":"e196","ts":"2026-09-12T21:53:50.961Z","from":"n210","to":"n211","rel":"continues"}
+{"type":"node.added","id":"n212","ts":"2026-09-12T22:00:18.544Z","kind":"iteration","actor":"user","title":"style(shell): r17 prompt — 32% from the top (owner round 3: 'just slightly to the centre'); confirm button label 'return' -> 'exit'","artifacts":[{"kind":"git-commit","ref":"995c68e"}],"meta":{"source":"auto"}}
+{"type":"edge.added","id":"e197","ts":"2026-09-12T22:00:18.597Z","from":"n211","to":"n212","rel":"continues"}

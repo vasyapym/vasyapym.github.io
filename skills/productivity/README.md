@@ -10,6 +10,7 @@ Reachable only when you type them (Claude Code: `disable-model-invocation: true`
 - **[code-iteration](./code-iteration/SKILL.md)** — Iterate on non-trivial code changes through explicit planning, implementation passes, and verification.
 - **[custom-learning](./custom-learning/SKILL.md)** — Learn technologies one proof-of-skill Subcard at a time through an interactive Practice Map.
 - **[lesson-iteration](./lesson-iteration/SKILL.md)** — Turn a topic into a full Russian deep lesson and migrate it into the Practice Map curriculum, through planning, depth, and consistency gates.
+- **[minimize-iteration](./minimize-iteration/SKILL.md)** — Compress a task into the shortest prompt that still delegates it to a chat model.
 - **[design-iteration](./design-iteration/SKILL.md)** — Recreate visual taste from an append-only decision graph and fixed review evidence.
 - **[design-planning](./design-planning/SKILL.md)** — Compare two design directions and settle the choice before implementation.
 - **[planning](./planning/SKILL.md)** — Turn an approved direction into a repeatable implementation and verification plan.

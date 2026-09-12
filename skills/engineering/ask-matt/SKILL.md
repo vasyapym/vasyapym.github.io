@@ -90,6 +90,7 @@ Off the main flow entirely.
 - **`/wait-what`** — the corrective for a message that didn't land. Use it mid-conversation, inside any other skill, and the agent re-pitches what it just said with the context you were missing, in plain English, using the `CONTEXT.md` vocabulary. It works after the fact; `/grill-with-docs` is the upfront cure, because a shared language agreed early is what stops the jargon arriving at all.
 - **`/teach`** — learn a concept over multiple sessions, using the current directory as a stateful workspace.
 - **`/lesson-iteration`** — author a full deep lesson for the Practice Map from a topic: plan the curriculum, draft, audit for depth and consistency, then migrate it into the map's curriculum data.
+- **`/minimize-iteration`** — compress a task into the shortest prompt that still delegates it to a separate chat model. The chat service routes prompts by token count — length is routing — so the prompt pays only for what the target model cannot infer (non-inferable specifics, the output contract, the reasoning bar), and the pasted reply is integrated against the repo afterwards.
 - **`/writing-for-agents`** — reference for writing documents agents consume: skills, AGENTS.md, pointed-at docs.
 
 ## Precondition

@@ -28,7 +28,7 @@ The word the skill gives you to think with is **flow**: a path *through* the ski
 
 - **The main flow**, idea to ship. Grill, compare alternatives, make an execution plan, then spec/tickets/implement/review, with two branches inside it: a prototype detour when a question needs runnable code to settle, and the spec-and-tickets split, which only earns its cost when the build spans more than one session.
 - **On-ramps**, for a situation that generates work and then merges onto the main flow: incoming bug reports, something broken, or an effort too foggy and too large to hold in one session.
-- **Standalones**, off every flow, reached for on their own terms — the prototype, the questionnaire, the visual design-iteration loop, or the merge conflict you are already sitting in.
+- **Standalones**, off every flow, reached for on their own terms — the prototype, the questionnaire, the visual design-iteration loop, the delegation-prompt compressor, or the merge conflict you are already sitting in.
 - **A vocabulary layer underneath**, the two references the other skills pull in when the words rather than the process are the problem.
 
 ## The phase boundary

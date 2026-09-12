@@ -1,0 +1,5 @@
+interface:
+  display_name: "Minimize Iteration"
+  short_description: "Compress delegation prompts for stronger model routing"
+policy:
+  allow_implicit_invocation: false
