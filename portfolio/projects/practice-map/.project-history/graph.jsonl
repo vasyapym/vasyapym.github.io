@@ -54,3 +54,5 @@
 {"type":"edge.added","id":"e22","ts":"2026-09-12T10:28:09.490Z","from":"n28","to":"n29","rel":"continues"}
 {"type":"node.added","id":"n30","ts":"2026-09-12T18:06:05.459Z","kind":"iteration","actor":"user","title":"fix(practice-map): lesson reader — slim styled scrollbar lane + widened panel (bug-iteration pass)","artifacts":[{"kind":"git-commit","ref":"c6b1c82"}],"meta":{"source":"auto"}}
 {"type":"edge.added","id":"e23","ts":"2026-09-12T18:06:05.466Z","from":"n29","to":"n30","rel":"continues"}
+{"type":"node.added","id":"n31","ts":"2026-09-12T18:12:17.061Z","kind":"iteration","actor":"user","title":"style(practice-map): lesson scrollbar thumb translucent like the mobile system bar (bug-iteration pass)","artifacts":[{"kind":"git-commit","ref":"26e9480"}],"meta":{"source":"auto"}}
+{"type":"edge.added","id":"e24","ts":"2026-09-12T18:12:17.065Z","from":"n30","to":"n31","rel":"continues"}
