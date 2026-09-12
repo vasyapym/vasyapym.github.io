@@ -14,6 +14,8 @@ The file is **append-only**. Never rewrite or delete lines; corrections are new 
 
 Recording is **unconditional**: a missing store is never a reason to skip a record. When either iteration skill starts work in a project without `.project-history/graph.jsonl`, it runs `project-graph init` first, then appends as usual.
 
+**Skill-session routing mirrors the hook.** A session running from the repo root must not create a store there: resolve the store from the work's project first — `portfolio/projects/<id>/.project-history/` for a project pass, else `portfolio/.project-history/` for main-page work. `project-graph init` is only for a project that genuinely has no store at its canonical location. A `.project-history/` appearing at the repo root is a misfile: delete it and re-record at the canonical store.
+
 ## Automatic recording
 
 A `post-commit` hook (`scripts/project-graph/bin/auto-record.mjs`, wired via `git config core.hooksPath .githooks`) appends one minimal `iteration` node per commit automatically — no skill invocation required:

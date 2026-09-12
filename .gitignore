@@ -1,5 +1,7 @@
 node_modules
 .DS_Store
+# a .project-history/ at the repo root is a misfile — graphs live in the tracked per-project stores
+/.project-history/
 /portfolio/projects/planck-to-now/dist/
 /portfolio/projects/explosion/physics/target/
 /portfolio/projects/raft-cluster/core/target/
