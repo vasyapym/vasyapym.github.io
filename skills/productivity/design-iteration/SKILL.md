@@ -1,61 +1,157 @@
 ---
 name: design-iteration
-description: Run a visual feedback round against an existing implementation and its design handoff; maintain an append-only decision graph.
+description: Refine interfaces through visual feedback rounds against an append-only liked/rejected ledger.
+disable-model-invocation: true
 ---
 
-## What it does
+# Design Iteration
 
-`design-iteration` runs a visual feedback round against an existing implementation and its design handoff. It extracts the user's liked and rejected qualities, compares alternatives, implements one coherent pass, reviews fixed evidence, and appends the result to an iteration ledger.
+Work in focused rounds:
+observe → change → render → inspect → present → record feedback.
 
-Its defining constraint is an **append-only decision graph**. When a direction is replaced, the skill keeps a small node with its useful qualities and rejection reason, then adds an edge to the successor. The next session therefore learns from both approval and failure instead of recreating an old design by luck.
+## Operating rules
 
-## When to reach for it
+- Use explicit user feedback as the authority for LIKED and REJECTED decisions.
+  Never turn your own aesthetic judgment into a user preference.
+- Preserve active liked details. Do not reintroduce active rejected treatments
+  in the same scope without explicit reconsideration.
+- Scope preferences narrowly: element, property, viewport, and interaction state.
+  Rejecting one composition does not imply rejecting every technique it uses.
+- Keep visual inspection, functional verification, and user approval separate.
+- Default to one presented round, then wait for feedback. Produce multiple
+  alternatives or autonomous rounds only when requested, within a stated limit.
+- Follow project instructions and avoid unrelated redesigns or refactors.
+- Keep delivery explicit: never commit, push, open pull requests, or change
+  external systems unless the user explicitly requests that delivery step.
 
-You invoke this by typing `/design-iteration` — the agent won't reach for it on its own. Use it when a portfolio, product surface, or other visual implementation already exists and you are giving a new review round.
+## Persistent state
 
-| Situation | Reach for |
-| --- | --- |
-| An existing visual direction needs another feedback pass | `/design-iteration` |
-| The design direction is open before implementation | [design-planning](https://aihero.dev/skills-design-planning) |
-| The chosen direction needs an implementation sequence | [planning](https://aihero.dev/skills-planning) |
-| The question needs a runnable visual comparison | [prototype](https://aihero.dev/skills-prototype) |
+Use the project's existing iteration directory if one exists. Otherwise use:
 
-## The iteration loop
+- `.agent/iterations/design/<task-slug>/ledger.md`
+- `.agent/iterations/design/<task-slug>/artifacts/R<nnn>/`
 
-The skill loads the handoff graph, atomizes feedback into surface, typography, structure, interaction, and content constraints, and protects outgoing decisions before changing them. It compares two independent candidates unless the user has already chosen one, then makes one coherent pass and checks the same routes, viewports, content lengths, focus states, touch fallback, and reduced-motion mode named by the handoff.
+Reuse a stable task slug across sessions. Allocate IDs from existing records;
+never restart numbering or overwrite an earlier round's artifacts.
 
-The output is not just a screenshot. It is a new ledger entry containing **Liked**, **Rejected**, **Changed**, **Quality gate**, **Next review**, and verification results. That record becomes the input to the next pass.
+The ledger is the historical source of truth. Optional summaries are derived
+views and must not replace it.
+
+## Round procedure
+
+1. **Resume and reconcile**
+   Read the brief, relevant implementation, references, and existing ledger.
+   Append any new explicit feedback before planning another round.
+   Reconstruct active preferences, applying explicit supersession events.
+   Ask only about blocking ambiguities or unresolved preference conflicts.
+
+2. **Establish the visual baseline**
+   Inspect the current rendered result at the relevant viewport and state.
+   Preserve the screenshot or supplied reference.
+   For a new design, render the first candidate as the initial baseline.
+   Record concrete observations rather than unsupported judgments.
+
+3. **Choose a focused hypothesis**
+   State the desired improvement and the small set of changes intended to
+   produce it. Identify which liked details must remain unchanged and which
+   rejected details the round addresses.
+   Avoid changing several unrelated design dimensions at once.
+
+4. **Implement and inspect**
+   Render the changed result. Compare before and after using matching viewport,
+   scale, content, and interaction state; disclose unavoidable differences.
+   Inspect the actual image, not merely the source code.
+   Check relevant hierarchy, spacing, typography, contrast, overflow, responsive
+   behavior, and interaction states.
+
+   When code changes, use `code-iteration` if available; otherwise run relevant
+   project checks. Passing code checks does not establish visual approval.
+
+   If rendering or image inspection is unavailable, mark the result
+   `NOT VISUALLY VERIFIED`. Provide provisional work if useful and request the
+   missing screenshot or access. Never invent visual observations.
+
+5. **Present the round**
+   Append the round record, then show or link the actual artifacts.
+   Explain what stayed, what changed, and the main unresolved tradeoff.
+   Ask a focused question inviting liked/rejected feedback.
+   Do not describe the round as approved unless the user approved it.
+
+6. **Record feedback and continue**
+   Split mixed feedback into atomic decisions.
+   Record explicit preferences from the brief or subsequent feedback, including
+   their source and scope. Keep your recommendations outside preference records.
+   Continue from the active ledger, not from memory.
+
+   On explicit approval, stop redesigning and hand off the approved artifact,
+   active constraints, verification status, and remaining implementation work.
+
+## Append-only ledger
+
+Append complete Markdown blocks using append operations. Never rewrite, delete,
+sort, reformat, or silently correct existing records.
+
+Use a round block like:
+
+```markdown
+## Round R001
+- Goal: <specific improvement>
+- Preserved preferences: <feedback IDs or none>
+- Changes: <focused changes>
+- Before: <artifact/reference>
+- After: <artifact/reference>
+- Visual inspection: <performed checks and observations, or NOT RUN>
+- Code verification: <evidence reference, failures, or NOT RUN>
+- Open question: <feedback needed>
+```
+
+Append each preference separately:
+
+```markdown
+## Feedback F001
+- Round: R001
+- Verdict: LIKED | REJECTED
+- Scope: <element/property, viewport, state>
+- Decision: <specific detail to preserve or avoid>
+- User source: <quote or faithful paraphrase tied to the relevant message>
+- Artifact: <artifact/reference being evaluated, if available>
+- Supersedes: <feedback IDs or none>
+```
+
+Ledger invariants:
+
+- Silence, test success, and your own review are not approval.
+- Historical LIKED/REJECTED records remain unchanged after a reversal.
+- Record an explicit reversal or correction as a new event referencing the
+  affected IDs. Apply supersession only within its stated scope.
+- If the user withdraws a preference without adopting its opposite, append a
+  withdrawal event with target IDs and user source; do not invent a new verdict.
+- Do not resolve ambiguous contradictions by silently preferring the latest
+  wording. Clarify the conflict.
+- If an existing ledger cannot be read safely, report the problem rather than
+  recreating it and losing history.
 
 ## Project graph
 
-Keeping the project graph (`.project-history/graph.jsonl`; see `docs/agents/project-graph.md` in the skills repo) in step with the markdown ledger is unconditional, never optional: if no graph exists yet, run `project-graph init` before the round starts instead of skipping the record. Start every session with `project-graph head --actor design-iteration`: acknowledge any handoff addressed here before working, and orient from the current tip. When a pass completes, append an `iteration` node whose artifacts point at the new ledger entry and the relevant commits, chained with `--continues-from` — this append is part of the pass, not an optional extra. A replaced direction becomes a `decision` node plus a `supersedes` edge carrying the rejection reason — this is the machine-readable spine of the same append-only decision graph the handoff keeps in prose. When the next round needs implementation or perf work beyond one visual pass, offer it explicitly: `project-graph handoff --to code-iteration --from-node <node>`, so `code-iteration` can acknowledge and continue from your evidence instead of rediscovering it.
+Where the project keeps a project graph (`.project-history/graph.jsonl`, via
+`scripts/project-graph`), keep it in step with the ledger — unconditionally,
+never optionally: if no graph exists, run `project-graph init` first instead of
+skipping the record. Start every session with
+`project-graph head --actor design-iteration`; claim any handoff addressed here
+with `project-graph ack <hid> --actor design-iteration` before working, and
+close it via `--via-handoff <hid>` on the round's first appended node. When a
+round completes, append an `iteration` node whose artifacts point at the new
+round block and relevant commits, chained with `--continues-from`; a replaced
+direction appends a `decision` node plus a `supersedes` edge carrying the
+rejection reason. When the next round needs implementation-sized code work,
+offer it explicitly: `project-graph handoff --to code-iteration --from-node
+<node>`. Never edit the JSONL by hand — record only through the CLI.
 
-## Common questions
+## Response format
 
-**Does it keep old design decisions?**
-
-Yes. A removed direction is compressed into a graph node with its name, carried-forward qualities, and rejection reason. The full handoff can stay short because the graph preserves the decision rather than repeating the entire visual description.
-
-**Does it always implement immediately?**
-
-No. If the user has not chosen a direction, it stops after presenting independent candidates. It implements only a direction that is already approved or explicitly selected in the invocation.
-
-**How is this different from `design-planning`?**
-
-`design-planning` is the choice gate before implementation. `design-iteration` is the recurring loop around an existing visual surface: it reads prior evidence, protects history, implements one pass, and records the review result.
-
-**Can it guarantee a design I like?**
-
-No tool can guarantee taste. It can make the process reproducible: liked traits become constraints, rejected traits become guardrails, alternatives are compared deliberately, and the same visual evidence is reviewed each time. That removes avoidable luck from the loop.
-
-## It's working if
-
-- The skill can state what the user liked before suggesting a new direction.
-- Rejected directions remain discoverable as compact graph nodes.
-- Each pass changes one coherent visual concern rather than restarting the whole identity.
-- The review uses fixed routes and viewports instead of a single convenient screenshot.
-- The next session can continue without asking the user to repeat settled preferences.
-
-## Where it fits
-
-`design-iteration` is a **reach-for-it-anytime visual maintenance loop**. It can follow a prototype or an approved direction and can hand its recorded decision to [design-planning](https://aihero.dev/skills-design-planning) or [planning](https://aihero.dev/skills-planning) when a larger new choice or execution plan is needed. Its closest neighbour is [brainstorm](https://aihero.dev/skills-brainstorm), which proposes fresh ideas around a diff without maintaining design memory. [ask-matt](https://aihero.dev/skills-ask-matt) routes over the whole set.
+Report:
+- Round ID and visual artifacts.
+- Kept / changed / unresolved.
+- Checks actually performed and limitations.
+- The specific feedback needed, or explicit approval and handoff status.
+- Ledger location when created or updated.

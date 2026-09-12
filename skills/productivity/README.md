@@ -7,11 +7,11 @@ General workflow tools, not code-specific.
 Reachable only when you type them (Claude Code: `disable-model-invocation: true`; Codex: `policy.allow_implicit_invocation: false` in `agents/openai.yaml`).
 
 - **[brainstorm](./brainstorm/SKILL.md)** — Inspect the full diff and surrounding architecture, then propose high-leverage improvements without editing files.
-- **[code-iteration](./code-iteration/SKILL.md)** — Iterate on non-trivial code changes through explicit planning, implementation passes, and verification.
+- **[code-iteration](./code-iteration/SKILL.md)** — Implement and refine code through small, evidence-backed verification passes.
 - **[custom-learning](./custom-learning/SKILL.md)** — Learn technologies one proof-of-skill Subcard at a time through an interactive Practice Map.
 - **[lesson-iteration](./lesson-iteration/SKILL.md)** — Turn a topic into a full Russian deep lesson and migrate it into the Practice Map curriculum, through planning, depth, and consistency gates.
 - **[minimize-iteration](./minimize-iteration/SKILL.md)** — Compress a task into the shortest prompt that still delegates it to a chat model.
-- **[design-iteration](./design-iteration/SKILL.md)** — Recreate visual taste from an append-only decision graph and fixed review evidence.
+- **[design-iteration](./design-iteration/SKILL.md)** — Refine interfaces through visual feedback rounds with an append-only liked/rejected ledger.
 - **[design-planning](./design-planning/SKILL.md)** — Compare two design directions and settle the choice before implementation.
 - **[planning](./planning/SKILL.md)** — Turn an approved direction into a repeatable implementation and verification plan.
 - **[grill-me](./grill-me/SKILL.md)** — Get relentlessly interviewed about a plan or design until every branch of the design tree is resolved.

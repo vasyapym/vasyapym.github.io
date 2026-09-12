@@ -154,6 +154,8 @@ The skills below are what the agent and I actually use. User-invoked skills are 
 | [implement](./skills/engineering/implement/SKILL.md) | Build a spec or tickets, driving TDD at pre-agreed seams. |
 | [wayfinder](./skills/engineering/wayfinder/SKILL.md) | Plan work larger than one session as a map of decision tickets. |
 | [brainstorm](./skills/productivity/brainstorm/SKILL.md) | Inspect the full diff, propose high-leverage improvements without editing. |
+| [code-iteration](./skills/productivity/code-iteration/SKILL.md) | Implement and refine code through small, evidence-backed verification passes. |
+| [design-iteration](./skills/productivity/design-iteration/SKILL.md) | Refine interfaces through visual feedback rounds with an append-only liked/rejected ledger. |
 | [design-planning](./skills/productivity/design-planning/SKILL.md) | Compare two design directions, settle the choice before code. |
 | [grill-me](./skills/productivity/grill-me/SKILL.md) | Relentless interview about a plan until every branch is resolved. |
 | [handoff](./skills/productivity/handoff/SKILL.md) | Compact a conversation into a handoff document for another agent. |
@@ -176,9 +178,7 @@ The skills below are what the agent and I actually use. User-invoked skills are 
 | [code-review](./skills/engineering/code-review/SKILL.md) | Two-axis review (standards + spec) as parallel sub-agents. |
 | [resolving-merge-conflicts](./skills/engineering/resolving-merge-conflicts/SKILL.md) | Resolve merge/rebase conflicts hunk by hunk, by intent. |
 | [wizard](./skills/engineering/wizard/SKILL.md) | Interactive bash wizard for human-only provisioning steps. |
-| [code-iteration](./skills/productivity/code-iteration/SKILL.md) | Iterate non-trivial changes through planning, passes, verification. |
 | [custom-learning](./skills/productivity/custom-learning/SKILL.md) | Learn technologies one proof-of-skill subcard at a time. |
-| [design-iteration](./skills/productivity/design-iteration/SKILL.md) | Recreate visual taste from an append-only decision graph. |
 | [planning](./skills/productivity/planning/SKILL.md) | Turn an approved direction into a repeatable plan. |
 | [grilling](./skills/productivity/grilling/SKILL.md) | Relentless interview about a plan or idea. |
 | [writing-for-agents](./skills/productivity/writing-for-agents/SKILL.md) | Writing docs for agents (skills, AGENTS.md/CLAUDE.md). |

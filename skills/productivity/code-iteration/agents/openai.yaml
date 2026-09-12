@@ -1,5 +1,5 @@
 interface:
   display_name: "Code Iteration"
-  short_description: "Iterate on code through explicit plans and passes"
+  short_description: "Implement code in evidence-backed verification passes"
 policy:
   allow_implicit_invocation: false

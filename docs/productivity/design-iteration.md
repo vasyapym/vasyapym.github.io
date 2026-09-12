@@ -1,56 +1,56 @@
 ## What it does
 
-`design-iteration` runs a visual feedback round against an existing implementation and its design handoff. It extracts the user's liked and rejected qualities, compares alternatives, implements one coherent pass, reviews fixed evidence, and appends the result to an iteration ledger.
+`design-iteration` refines an interface through visual feedback rounds: observe, change, render, inspect, present, record. Each round makes one focused change, inspects the actual rendered image rather than the source, and appends the result to an append-only ledger of explicit user verdicts.
 
-Its defining constraint is an **append-only decision graph**. When a direction is replaced, the skill keeps a small node with its useful qualities and rejection reason, then adds an edge to the successor. The next session therefore learns from both approval and failure instead of recreating an old design by luck.
+Its defining constraint is that **explicit user feedback is the only authority for LIKED and REJECTED**. The agent's own aesthetic judgment never becomes a user preference; liked details are preserved until explicitly superseded, and every reversal is a new event that references the old IDs — the history is never rewritten.
 
 ## When to reach for it
 
-You invoke this by typing `/design-iteration` — the agent won't reach for it on its own. Use it when a portfolio, product surface, or other visual implementation already exists and you are giving a new review round.
+You invoke this by typing `/design-iteration` — the agent won't reach for it on its own. Use it when an existing visual implementation needs another feedback round.
 
 | Situation | Reach for |
 | --- | --- |
-| An existing visual direction needs another feedback pass | `/design-iteration` |
-| The design direction is open before implementation | [design-planning](https://aihero.dev/skills-design-planning) |
-| The chosen direction needs an implementation sequence | [planning](https://aihero.dev/skills-planning) |
-| The question needs a runnable visual comparison | [prototype](https://aihero.dev/skills-prototype) |
+| Layout, typography, styling, component, screenshot, or responsive work needs a round | `/design-iteration` |
+| The design direction itself is still open | [design-planning](https://aihero.dev/skills-design-planning) |
+| The choice needs a runnable visual comparison | [prototype](https://aihero.dev/skills-prototype) |
+| The change is code-sized and needs executed checks | [code-iteration](https://aihero.dev/skills-code-iteration) |
 
-## The iteration loop
+## The round
 
-The skill loads the handoff graph, atomizes feedback into surface, typography, structure, interaction, and content constraints, and protects outgoing decisions before changing them. It compares two independent candidates unless the user has already chosen one, then makes one coherent pass and checks the same routes, viewports, content lengths, focus states, touch fallback, and reduced-motion mode named by the handoff.
+The word the skill runs on is the **round**. A round states one focused hypothesis, names which liked details must survive and which rejected treatments it addresses, and compares before and after under matching viewport, scale, content, and interaction state. Preferences are scoped narrowly — element, property, viewport, interaction state — because rejecting one composition does not reject every technique it used.
 
-The output is not just a screenshot. It is a new ledger entry containing **Liked**, **Rejected**, **Changed**, **Quality gate**, **Next review**, and verification results. That record becomes the input to the next pass.
+When rendering or image inspection is unavailable, the round is reported `NOT VISUALLY VERIFIED` and the missing evidence is requested. The skill never invents visual observations — that is the one unforgivable failure.
 
-## Project graph
+## The ledger
 
-Keeping the project graph (`.project-history/graph.jsonl`) in step with the markdown ledger is unconditional, never optional: if no graph exists yet, run `project-graph init` before the round starts instead of skipping the record. Start every session with `project-graph head --actor design-iteration`: acknowledge any handoff addressed here before working, and orient from the current tip. When a pass completes, append an `iteration` node whose artifacts point at the new ledger entry and the relevant commits, chained with `--continues-from` — this append is part of the pass, not an optional extra. A replaced direction becomes a `decision` node plus a `supersedes` edge carrying the rejection reason — the machine-readable spine of the same append-only decision graph the handoff keeps in prose. When the next round needs implementation or perf work beyond one visual pass, offer it explicitly with `project-graph handoff --to code-iteration`, so `code-iteration` can acknowledge and continue from your evidence instead of rediscovering it.
+State lives in the target project, not the skill: an append-only `ledger.md` plus per-round artifacts under `.agent/iterations/design/<task-slug>/`. Round blocks (`R001`…) and feedback blocks (`F001`…) are appended, never rewritten; a reversal, withdrawal, or supersession is a new event referencing the affected IDs, applied only within its stated scope. Silence, a passing test, and the agent's own review are not approval — only explicit user feedback is. Where the project also keeps a project graph, every completed round appends an `iteration` node, and the two iteration skills exchange typed handoff edges instead of loose notes.
 
 ## Common questions
 
-**Does it keep old design decisions?**
+**Does a green build or the agent's own review count as approval?**
 
-Yes. A removed direction is compressed into a graph node with its name, carried-forward qualities, and rejection reason. The full handoff can stay short because the graph preserves the decision rather than repeating the entire visual description.
+No. Visual inspection, functional verification, and user approval are kept separate. Code checks establish that the code passes; only explicit user feedback produces LIKED or REJECTED records.
 
-**Does it always implement immediately?**
+**Can a liked detail ever change?**
 
-No. If the user has not chosen a direction, it stops after presenting independent candidates. It implements only a direction that is already approved or explicitly selected in the invocation.
+Only through explicit reconsideration. The historical record stays untouched; a reversal, correction, or withdrawal is appended as a new event with its scope and user source, and supersession applies only within its stated scope.
+
+**What if there is no way to render or inspect images?**
+
+The round is marked `NOT VISUALLY VERIFIED`, provisional work may still be useful, and the missing screenshot or access is requested. Provisional is honest; invented observation is not.
 
 **How is this different from `design-planning`?**
 
-`design-planning` is the choice gate before implementation. `design-iteration` is the recurring loop around an existing visual surface: it reads prior evidence, protects history, implements one pass, and records the review result.
-
-**Can it guarantee a design I like?**
-
-No tool can guarantee taste. It can make the process reproducible: liked traits become constraints, rejected traits become guardrails, alternatives are compared deliberately, and the same visual evidence is reviewed each time. That removes avoidable luck from the loop.
+`design-planning` settles which direction to take before implementation. `design-iteration` is the recurring loop around an existing surface: resume from the ledger, baseline, one focused change, fixed-evidence review, recorded verdict.
 
 ## It's working if
 
-- The skill can state what the user liked before suggesting a new direction.
-- Rejected directions remain discoverable as compact graph nodes.
-- Each pass changes one coherent visual concern rather than restarting the whole identity.
-- The review uses fixed routes and viewports instead of a single convenient screenshot.
-- The next session can continue without asking the user to repeat settled preferences.
+- The round can state what the user liked before proposing anything new.
+- Rejected treatments stay rejected in their scope, and every change of heart is a new ledger event.
+- Each round changes one focused design dimension rather than several at once.
+- Before/after comparisons match viewport, scale, content, and interaction state, and inspect the actual image.
+- The next session resumes from the ledger, not from anyone's memory.
 
 ## Where it fits
 
-`design-iteration` is a **reach-for-it-anytime visual maintenance loop**. It can follow a prototype or an approved direction and can hand its recorded decision to [design-planning](https://aihero.dev/skills-design-planning) or [planning](https://aihero.dev/skills-planning) when a larger new choice or execution plan is needed. Its closest neighbour is [brainstorm](https://aihero.dev/skills-brainstorm), which proposes fresh ideas around a diff without maintaining design memory. [ask-matt](https://aihero.dev/skills-ask-matt) routes over the whole set.
+`design-iteration` is a **reach-for-it-anytime visual maintenance loop**. Its closest neighbour is [code-iteration](https://aihero.dev/skills-code-iteration), which handles the code-sized half of the same pass discipline and exchanges handoff edges with it wherever a project graph exists; [design-planning](https://aihero.dev/skills-design-planning) is the choice gate that precedes a new direction. [ask-matt](https://aihero.dev/skills-ask-matt) routes over the whole set.

@@ -1,54 +1,52 @@
 ## What it does
 
-`code-iteration` turns a non-trivial code change into successive, evidence-backed passes. It makes the agent orient from the existing trajectory, simplify the surrounding shape before patching, and write a brainstorm, design plan, and execution plan before changing production files.
+`code-iteration` implements and refines code through small, evidence-backed passes: define, inspect, change, verify, review, record. Every pass runs actual checks and records the exact commands, exit statuses, and output as evidence.
 
-Its defining constraint is **open planning before execution**: the first plausible solution is treated as a candidate, not a verdict, and each pass leaves a clear quality gate for the next one.
+Its defining constraint is a **scope-honest verdict vocabulary**: a pass is VERIFIED only for its declared scope, on the final relevant file state, with all required checks passing — and verification is never a claim that the software is bug-free, visually approved, or production-ready.
 
 ## When to reach for it
 
-You invoke this by typing `/code-iteration` when a code change is substantial enough that the first implementation should not be trusted as the final shape. For a small, obvious fix, use the normal implementation flow instead; for a visual-only feedback round, use [design-iteration](https://aihero.dev/skills-design-iteration).
+You invoke this by typing `/code-iteration` — the agent won't reach for it on its own. Use it for features, bug fixes, refactors, test repairs, and any implementation work that requires executed checks.
 
 | Situation | Reach for |
 | --- | --- |
-| A non-trivial code change needs alternatives and a deliberate implementation pass | `/code-iteration` |
-| The surrounding structure may be simpler before the local fix lands | `/code-iteration` |
-| A visual implementation needs a feedback round and decision history | [design-iteration](https://aihero.dev/skills-design-iteration) |
-| A direction is chosen and only the implementation sequence is needed | [planning](https://aihero.dev/skills-planning) |
-
-## The three-part plan
-
-The skill keeps the reasoning visible in three parts. The brainstorm expands the possibility space and identifies evidence. The design plan selects a coherent direction and records its constraints and tradeoffs. The execution plan names small changes, verification, and the quality gate. That structure prevents a fresh context from silently collapsing to the first familiar answer.
+| Implementation work needs executed, evidenced verification | `/code-iteration` |
+| A design question needs a runnable answer | [prototype](https://aihero.dev/skills-prototype) |
+| A change needs a visual feedback round | [design-iteration](https://aihero.dev/skills-design-iteration) |
+| An approved direction needs a deterministic plan first | [planning](https://aihero.dev/skills-planning) |
 
 ## The pass
 
-After planning, the skill makes one coherent change, runs the relevant checks, and compares the result with the quality gate. It extends the existing trajectory by reading history, handoffs, and prior notes instead of treating the current file as the whole context. Delivery remains explicit: the skill does not automatically commit, push, open a pull request, or handle credentials.
+Each pass is bounded: acceptance criteria stated up front, a baseline captured before editing (for a bug, a regression test that fails for the expected reason first), the smallest coherent change, executed verification with recorded evidence, then a final diff inspection. Any edit after a verification run invalidates the affected results — the checks are rerun, not the claim repeated. Failed and blocked passes stay in the record; history is never rewritten into an uninterrupted success story.
 
-## Project graph
+The verdict words do the heavy lifting: **VERIFIED** (every gate for the scope passed), **FAILED** (a gate ran and failed), **BLOCKED** (a gate could not run — observed failures reported alongside), **NOT RUN** (individual unexecuted checks), **NOT APPLICABLE** (only with a concrete reason).
 
-Recording in the project graph (`.project-history/graph.jsonl`) is unconditional, never optional: if no graph exists yet, run `project-graph init` first instead of skipping the record. Orient from it before reading anything else: `project-graph head --actor code-iteration` shows your current tip and any handoff waiting here. Acknowledge an offered handoff before starting work, and continue from its source node's artifacts rather than re-deriving context. After each coherent pass, append an `iteration` node with a `git-commit` artifact and the checks and quality-gate outcome in `--meta`, chained to the previous tip with `--continues-from` — this append is part of the pass, not an optional extra. When a pass surfaces a visual concern that wants its own feedback round rather than more code changes, hand it back explicitly with `project-graph handoff --to design-iteration`, so `design-iteration` picks up from your evidence instead of a fresh screenshot.
+## Verification honesty
+
+The rules exist to kill the manufacture of green: pre-existing failures stay visible, required gates are never dropped because they fail, tests are never disabled or assertions weakened to pass, and exit zero with no relevant tests discovered proves nothing. When execution tools are unavailable, the deliverable is proposed code plus exact suggested commands labeled NOT RUN — never a claim that files were changed or checks executed.
 
 ## Common questions
 
-**Does it require a long plan for every change?**
+**Does VERIFIED mean the bug is gone for good?**
 
-No. The three-part prose cycle is for non-trivial work. A small, low-risk fix should use proportionate reasoning rather than ceremony.
+No. It means the declared checks passed on the declared scope at a specific file state. It claims nothing about visual approval, production readiness, or behaviour outside the scope.
 
-**Does it always rewrite the surrounding code?**
+**A required check fails and time is short — can it be dropped?**
 
-No. Simplification is a question to ask before patching, not permission for an unrelated refactor. The change still stays within the user's scope and the repository's ownership boundaries.
+Not silently. The failure stays visible, and any agreed scope reduction must be explicit in the pass record and the final report.
 
-**Does it push or open a pull request after editing?**
+**Where does visual acceptance live?**
 
-No. Verification and delivery are separate. Commit, push, or pull-request work happens only after the user explicitly requests it and the relevant diff has been reviewed.
+In [design-iteration](https://aihero.dev/skills-design-iteration). A passing build never establishes visual approval; the two skills exchange typed handoff edges where a project graph exists.
 
 ## It's working if
 
-- The agent starts by identifying the current trajectory rather than treating the task as greenfield.
-- The brainstorm, design plan, and execution plan are visibly different and written before non-trivial edits.
-- The chosen fix simplifies or fits the surrounding shape instead of adding a special case.
-- Each implementation pass has a concrete verification result and a quality gate.
-- No external delivery occurs without an explicit user request.
+- Every pass reports commands, exit statuses, and evidence paths for checks that actually ran.
+- Fixed bugs come with a regression test that failed for the expected reason first.
+- Post-verification edits invalidate and rerun the affected checks.
+- Failed and blocked passes remain readable instead of rewritten into a success story.
+- Task completion is claimed only when acceptance criteria and final checks pass.
 
 ## Where it fits
 
-`code-iteration` is a **reach-for-it-anytime code workflow** for changes that need more thought than a one-shot implementation. It is closest to [planning](https://aihero.dev/skills-planning), which focuses on the execution sequence after a direction is approved, and [brainstorm](https://aihero.dev/skills-brainstorm), which is read-only and deliberately stops before implementation. [ask-matt](https://aihero.dev/skills-ask-matt) routes over the whole set.
+`code-iteration` is a **reach-for-it-anytime implementation loop** for anything that must be verified, not merely written. Its closest neighbour is [design-iteration](https://aihero.dev/skills-design-iteration), the visual half of the same pass discipline, and [planning](https://aihero.dev/skills-planning), which sequences an approved direction before passes begin. [ask-matt](https://aihero.dev/skills-ask-matt) routes over the whole set.
