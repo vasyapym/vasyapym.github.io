@@ -1,0 +1,5 @@
+interface:
+  display_name: "Bug Iteration"
+  short_description: "Regression-proof bugfixing loop"
+policy:
+  allow_implicit_invocation: false
