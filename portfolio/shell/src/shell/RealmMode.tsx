@@ -998,12 +998,6 @@ export default function RealmMode({ projects, onOpenProject, onExit, onEntered, 
     resetDirectInputRef.current = resetDirectInput;
     cancelRealmGestureRef.current = cancelGesture;
 
-    const previousLayerTitle = layer.getAttribute("title");
-    layer.setAttribute(
-      "title",
-      "mouse: double-click a creature to dive in; desktop scene: enter to dive in, e or space for details",
-    );
-
     // No pointer capture: ordinary chrome retains native click and focus.
     // Only a qualified second mouse press consumes its compatibility click.
     layer.addEventListener("pointerdown", onPointerDown);
@@ -1024,12 +1018,6 @@ export default function RealmMode({ projects, onOpenProject, onExit, onEntered, 
 
       if (resetDirectInputRef.current === resetDirectInput) {
         resetDirectInputRef.current = null;
-      }
-
-      if (previousLayerTitle === null) {
-        layer.removeAttribute("title");
-      } else {
-        layer.setAttribute("title", previousLayerTitle);
       }
     };
 
