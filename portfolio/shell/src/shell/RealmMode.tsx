@@ -1644,7 +1644,7 @@ export default function RealmMode({ projects, onOpenProject, onExit, onEntered, 
             ref={returnBtnRef}
             type="button"
           >
-            return
+            exit
           </button>
           <button
             className="realm-prompt-btn realm-prompt-btn--dismiss"
