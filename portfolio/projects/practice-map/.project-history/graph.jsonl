@@ -52,3 +52,5 @@
 {"type":"edge.added","id":"e21","ts":"2026-09-12T10:22:42.994Z","from":"n27","to":"n28","rel":"continues"}
 {"type":"node.added","id":"n29","ts":"2026-09-12T10:28:09.488Z","kind":"iteration","actor":"user","title":"copy(practice-map): hero tagline 'read less. practice more.' -> 'concepts mapped. progress marked.' (relayed brief, chat model full autonomy)","artifacts":[{"kind":"git-commit","ref":"559ddb7"}],"meta":{"source":"auto"}}
 {"type":"edge.added","id":"e22","ts":"2026-09-12T10:28:09.490Z","from":"n28","to":"n29","rel":"continues"}
+{"type":"node.added","id":"n30","ts":"2026-09-12T18:06:05.459Z","kind":"iteration","actor":"user","title":"fix(practice-map): lesson reader — slim styled scrollbar lane + widened panel (bug-iteration pass)","artifacts":[{"kind":"git-commit","ref":"c6b1c82"}],"meta":{"source":"auto"}}
+{"type":"edge.added","id":"e23","ts":"2026-09-12T18:06:05.466Z","from":"n29","to":"n30","rel":"continues"}
