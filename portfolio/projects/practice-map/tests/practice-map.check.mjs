@@ -14,7 +14,7 @@ import { fileURLToPath } from "node:url";
 
 const here = dirname(fileURLToPath(import.meta.url));
 const shellDir = resolve(here, "../../../shell");
-const PORT = 5198;
+const PORT = Number(process.env.PM_CHECK_PORT) || 5198;
 const BASE = `http://127.0.0.1:${PORT}`;
 const SHOTS = join(tmpdir(), "practice-map-check");
 mkdirSync(SHOTS, { recursive: true });
@@ -95,7 +95,9 @@ try {
   let page = await browser.newPage();
   attachConsole(page);
   await page.setViewport({ width: 1440, height: 900 });
-  await page.goto(`${BASE}/projects/practice-map`, { waitUntil: "networkidle0", timeout: 45000 });
+  // domcontentloaded + wait for the app to mount (the realm-probe law):
+  // networkidle0 never settles on this dev app, and 45s of it times out.
+  await page.goto(`${BASE}/projects/practice-map`, { waitUntil: "domcontentloaded", timeout: 150000 });
 
   check(await appears(".practice-topic-card"), "map renders");
 
@@ -139,6 +141,26 @@ try {
     return rect.top >= 0 && rect.bottom <= window.innerHeight;
   });
   check(fitsDesktop, "panel fits viewport at 1440px");
+
+  // Reader geometry laws: the widened panel (~950px) and the slim styled
+  // scrollbar lane on the lesson scroll body (owner Safari report: the
+  // unstyled overlay thumb overlapped the text).
+  const readerLaws = await page.evaluate(() => {
+    const panel = document.querySelector(".practice-lesson-panel")?.getBoundingClientRect();
+    const barRule = [...document.styleSheets].flatMap((sheet) => {
+      try { return [...sheet.cssRules]; } catch { return []; }
+    }).find((r) => r.selectorText?.includes(".practice-lesson-scroll::-webkit-scrollbar"));
+    return {
+      panelWidth: panel ? Math.round(panel.width) : -1,
+      viewport: window.innerWidth,
+      hasBarRule: !!barRule,
+    };
+  });
+  check(
+    readerLaws.panelWidth >= 940 && readerLaws.panelWidth <= Math.min(952, readerLaws.viewport - 24),
+    `lesson panel widened to ~950px (${readerLaws.panelWidth}px @ ${readerLaws.viewport})`,
+  );
+  check(readerLaws.hasBarRule, "lesson scroll body ships a styled thin scrollbar lane");
 
   const beforeScroll = await page.evaluate(() => document.querySelector(".practice-lesson-scroll").scrollTop);
   await page.click(".practice-reader-nav button:nth-child(6)");
@@ -289,13 +311,18 @@ try {
     isMobile: true,
     hasTouch: true,
   });
-  await page.goto(`${BASE}/projects/practice-map`, { waitUntil: "networkidle0", timeout: 45000 });
+  // domcontentloaded + wait for the app to mount (the realm-probe law):
+  // networkidle0 never settles on this dev app, and 45s of it times out.
+  await page.goto(`${BASE}/projects/practice-map`, { waitUntil: "domcontentloaded", timeout: 150000 });
 
   const noOverflowPage = await page.evaluate(
     () => document.scrollingElement.scrollWidth <= window.innerWidth,
   );
   check(noOverflowPage, "no horizontal overflow on the map at 390px");
 
+  // domcontentloaded returns before React mounts — wait for the map first
+  // (networkidle0 used to buy this implicitly).
+  check(await appears(".practice-topic-card"), "map renders at 390px");
   await page.tap(".practice-topic-card .practice-lesson-open");
   check(await appears(".practice-reader"), "deep reader opens on mobile");
 
@@ -443,13 +470,14 @@ try {
     isMobile: true,
     hasTouch: true,
   });
-  await page.reload({ waitUntil: "networkidle0", timeout: 45000 });
+  await page.reload({ waitUntil: "domcontentloaded", timeout: 150000 });
 
   const noOverflowNarrow = await page.evaluate(
     () => document.scrollingElement.scrollWidth <= window.innerWidth,
   );
   check(noOverflowNarrow, "no horizontal overflow on the map at 320px");
 
+  check(await appears(".practice-topic-card"), "map renders at 320px");
   await page.tap(".practice-topic-card .practice-lesson-open");
   check(await appears(".practice-reader"), "deep reader opens at 320px");
 

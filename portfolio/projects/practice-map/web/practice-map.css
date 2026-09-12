@@ -1179,7 +1179,7 @@
 }
 
 .practice-lesson-panel {
-  width: min(760px, 100%);
+  width: min(950px, 100%);
   min-width: 0;
   max-height: 100%;
   /* Stationary frame: the panel itself never scrolls (the realm deep-reader
@@ -1203,6 +1203,22 @@
   min-height: 0;
   overflow-y: auto;
   overscroll-behavior: contain;
+  /* Firefox: the engine's slim bar in the ink palette. */
+  scrollbar-width: thin;
+  scrollbar-color: var(--ink-line) transparent;
+}
+/* Safari/WebKit: styling the bar converts the chunky system overlay thumb
+   (drawn OVER the text edge, ~15px when "always show scrollbars" is on)
+   into a slim classic lane that reserves its own 8px of layout. */
+.practice-lesson-scroll::-webkit-scrollbar {
+  width: 8px;
+}
+.practice-lesson-scroll::-webkit-scrollbar-track {
+  background: transparent;
+}
+.practice-lesson-scroll::-webkit-scrollbar-thumb {
+  background: var(--ink-line);
+  border-radius: 999px;
 }
 
 .practice-lesson-progress {
