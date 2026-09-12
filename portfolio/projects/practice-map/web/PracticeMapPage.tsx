@@ -102,8 +102,8 @@ export default function PracticeMapPage() {
       <section className="practice-map-page section-shell" aria-labelledby="practice-map-title">
         <header className="practice-map-hero">
           <h1 id="practice-map-title">
-            Read less.
-            <span>Practice more.</span>
+            concepts mapped.
+            <span>progress marked.</span>
           </h1>
           <div className="practice-map-hero-note">
             <button className="practice-map-export" type="button" onClick={handleCopyFeedback}>
