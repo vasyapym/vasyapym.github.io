@@ -73,6 +73,29 @@ function cssTimeMs(value: string): number {
   return text.endsWith("ms") ? number : number * 1000;
 }
 
+/* ---- WebKit cursor-kick (round 2) ------------------------------------ */
+let _lastPtrX = 0;
+let _lastPtrY = 0;
+function _trackPtr(e: PointerEvent) {
+  _lastPtrX = e.clientX;
+  _lastPtrY = e.clientY;
+}
+/** Synthetic mousemove forces WebKit to hit-test + re-evaluate cursor. */
+function _kickCursor() {
+  if (!window.matchMedia("(pointer: fine)").matches) return;
+  const target =
+    document.elementFromPoint(_lastPtrX, _lastPtrY) ?? document.documentElement;
+  target.dispatchEvent(
+    new MouseEvent("mousemove", {
+      clientX: _lastPtrX,
+      clientY: _lastPtrY,
+      bubbles: true,
+      cancelable: false,
+      view: window,
+    }),
+  );
+}
+
 export default function RealmMode({ projects, onOpenProject, onExit, onEntered, entry }: RealmModeProps) {
   const layerRef = useRef<HTMLDivElement | null>(null);
   const glRef = useRef<HTMLCanvasElement | null>(null);
@@ -1100,6 +1123,7 @@ export default function RealmMode({ projects, onOpenProject, onExit, onEntered, 
     window.addEventListener("wheel", onWheel, { passive: false });
     window.addEventListener("keydown", onKeyDown);
     window.addEventListener("keyup", onKeyUp);
+    document.addEventListener("pointermove", _trackPtr, { passive: true });
 
     // visible-viewport tracking moved to a paint-safe useLayoutEffect below:
     // the custom properties are scoped to the layer element and must exist
@@ -1118,8 +1142,16 @@ export default function RealmMode({ projects, onOpenProject, onExit, onEntered, 
 
       // chromium/macos: removing cursor:none under a stationary pointer keeps it
       // hidden — one-frame body cursor override forces compositor re-eval
+      document.removeEventListener("pointermove", _trackPtr);
+      // Round 2 — cursor restoration, all engines & all unmount paths:
+      // Body override → Blink (Chromium) compositor re-eval.
+      // Synthetic mousemove in rAF → WebKit (Safari) hit-test + cursor update
+      // once realm layer is gone and project-page DOM is in place.
       document.body.style.cursor = "default";
-      requestAnimationFrame(() => { document.body.style.cursor = ""; });
+      requestAnimationFrame(() => {
+        document.body.style.cursor = "";
+        _kickCursor();
+      });
 
       // Already completed during a normal staged surface exit.
       // Still required for Strict Mode replay and other unmount paths.
