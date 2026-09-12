@@ -812,7 +812,10 @@ function ConceptGraph({ onClose }: { onClose: () => void }) {
             aria-label="Close concept graph"
             onClick={onClose}
           >
-            ✕
+            <svg width="12" height="12" viewBox="0 0 12 12" aria-hidden="true">
+              <line x1="2" y1="2" x2="10" y2="10" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" />
+              <line x1="10" y1="2" x2="2" y2="10" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" />
+            </svg>
           </button>
         </header>
         <p className="practice-graph-intro">
@@ -1183,7 +1186,10 @@ function LessonOverlay({
             type="button"
             onClick={onClose}
           >
-            ✕
+            <svg width="12" height="12" viewBox="0 0 12 12" aria-hidden="true">
+              <line x1="2" y1="2" x2="10" y2="10" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" />
+              <line x1="10" y1="2" x2="2" y2="10" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" />
+            </svg>
           </button>
         </header>
 
