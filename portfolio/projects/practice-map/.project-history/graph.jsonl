@@ -58,3 +58,5 @@
 {"type":"edge.added","id":"e24","ts":"2026-09-12T18:12:17.065Z","from":"n30","to":"n31","rel":"continues"}
 {"type":"node.added","id":"n32","ts":"2026-09-12T18:26:53.145Z","kind":"iteration","actor":"user","title":"fix(practice-map): lesson scrollbar thumb — literal rgba instead of var(): WebKit does not resolve custom properties inside scrollbar pseudo rules (bug-iteration pass, round 2)","artifacts":[{"kind":"git-commit","ref":"a251f07"}],"meta":{"source":"auto"}}
 {"type":"edge.added","id":"e25","ts":"2026-09-12T18:26:53.155Z","from":"n31","to":"n32","rel":"continues"}
+{"type":"node.added","id":"n33","ts":"2026-09-12T18:50:24.321Z","kind":"iteration","actor":"user","title":"fix(practice-map): lesson scrollbar hidden entirely — three-factor WebKit chain killed rounds 1-2 (bug-iteration pass, round 3, relayed brief)","artifacts":[{"kind":"git-commit","ref":"94b34fc"}],"meta":{"source":"auto"}}
+{"type":"edge.added","id":"e26","ts":"2026-09-12T18:50:24.335Z","from":"n32","to":"n33","rel":"continues"}
