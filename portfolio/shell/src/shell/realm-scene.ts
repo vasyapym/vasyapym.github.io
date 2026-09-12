@@ -40,7 +40,7 @@ export interface RealmSceneOptions {
 }
 
 export interface RealmScene {
-  startEnter(chipX: number, chipY: number): void;
+  startEnter(chipX: number, chipY: number, spawnDoorIndex?: number | null): void;
   startLeave(chipX: number, chipY: number): void;
   startDive(id: string): void;
   startGreeting(id: string): void;
@@ -1349,12 +1349,26 @@ export function createRealmScene(
   }
 
   const scene: RealmScene = {
-    startEnter(cx, cy) {
+    startEnter(cx, cy, spawnDoorIndex) {
       if (destroyed || (phase !== "idle" && phase !== "done")) return;
       chipX = cx;
       chipY = cy;
       resize();
       resetForEnter();
+      if (spawnDoorIndex != null && spawnDoorIndex >= 0 && spawnDoorIndex < ANCHORS.length) {
+        // r19 deep-return spawn: park the lantern at the exited door's anchor
+        // and frame the camera on it (the warpTo law), computed from ANCHORS —
+        // the creatures are still unplaced here (first tick hasn't run).
+        const a = ANCHORS[spawnDoorIndex];
+        lan.x = clamp(a.fx * world.w, 0, world.w);
+        lan.y = clamp(a.fy * world.anchorH - interactR * 0.6, 0, world.h);
+        camYState = clamp(a.fy * world.anchorH - vh * 0.5, 0, Math.max(0, world.h - vh));
+        cam.camY = camYState;
+        lanSx = sx(lan.x);
+        lanSy = sy(lan.y);
+        prevSx = lanSx;
+        prevSy = lanSy;
+      }
       if (fluid !== null) fluid.setMode("ink");
       finishPhase("entering");
       start();

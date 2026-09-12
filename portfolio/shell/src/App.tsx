@@ -175,6 +175,7 @@ export default function App() {
             onExit={handleRealmReturnExit}
             onEntered={handleRealmReturnEntered}
             entry={realmReturn.entry}
+            returnDoorId={realmReturn.projectId}
             restoreScrollY={realmReturn.landingScrollY}
           />
         </>
@@ -195,6 +196,7 @@ export default function App() {
           onExit={handleRealmReturnExit}
           onEntered={handleRealmReturnEntered}
           entry={realmReturn.entry}
+          returnDoorId={realmReturn.projectId}
           restoreScrollY={realmReturn.landingScrollY}
         />
       </>

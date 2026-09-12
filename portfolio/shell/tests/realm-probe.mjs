@@ -1074,6 +1074,88 @@ try {
       document.activeElement?.classList.contains("realm-threshold-enter") === true, 2000));
   await retScroll.close();
 
+  // r19: the deep-return spawns the lantern near the EXITED project's door.
+  // Before the fix the fresh realm respawned at the top-centre default
+  // (vw·0.5, vh·0.1, camYState 0) — door 7's creature sat ~1.3 viewports out
+  // of view. Expected values follow the warpTo anchor-framing law at
+  // 1440×900 (anchorH 1800, world.h 2250, range 1350, interactR 252):
+  //   door 7 (idx 6, fx .76, fy .90): lantern (1094.4, 1468.8), camYState 1170
+  //   door 1 (idx 0, fx .25, fy .26): lantern (360, 316.8), camYState 18
+  const retSpawn = await browser.newPage();
+  await retSpawn.setViewport({ width: 1440, height: 900, deviceScaleFactor: 1 });
+  collectErrors(retSpawn);
+  await open(retSpawn);
+  await enterRealm(retSpawn);
+  const normalSpawn = await retSpawn.evaluate(() => {
+    const s = window.__realmScene;
+    return { lan: s?.getLanternSnapshot?.() ?? null, depth: s?.getDepthSnapshot?.() ?? null };
+  });
+  check("r19: normal chip entry keeps the top-centre spawn",
+    normalSpawn.lan !== null &&
+    Math.abs(normalSpawn.lan.x - 720) <= 1 &&
+    Math.abs(normalSpawn.lan.y - 90) <= 1 &&
+    normalSpawn.depth !== null &&
+    normalSpawn.depth.camYState === 0,
+    `lan=(${normalSpawn.lan?.x.toFixed(1)},${normalSpawn.lan?.y.toFixed(1)}) camYState=${normalSpawn.depth?.camYState}`);
+  await retSpawn.evaluate(() => document.querySelectorAll(".realm-legend-btn")[6]?.click()); // practice-map, door 7
+  await wait(500);
+  await retSpawn.evaluate(() => document.querySelector(".realm-panel-dive")?.click());
+  check("r19: door-7 dive hands off to the project page",
+    await until(retSpawn, () => window.location.pathname.includes("projects"), 5000));
+  await armProjectBacked(retSpawn);
+  await retSpawn.goBack();
+  check("r19: deep-return restores the realm over the project (door 7 leg)",
+    await until(retSpawn, () =>
+      document.querySelector(".realm-layer") !== null &&
+      window.__pbRecorder?.saw === true, 5000));
+  await wait(1700); // the re-entry flood must reach the active phase
+  const door7Spawn = await retSpawn.evaluate(() => {
+    const s = window.__realmScene;
+    return { lan: s?.getLanternSnapshot?.() ?? null, depth: s?.getDepthSnapshot?.() ?? null };
+  });
+  check("r19: deep-return spawns the lantern near the exited door (door 7)",
+    door7Spawn.lan !== null &&
+    Math.abs(door7Spawn.lan.x - 1094.4) <= 1 &&
+    Math.abs(door7Spawn.lan.y - 1468.8) <= 1,
+    `lan=(${door7Spawn.lan?.x.toFixed(1)},${door7Spawn.lan?.y.toFixed(1)})`);
+  check("r19: deep-return camera frames the exited anchor (door 7)",
+    door7Spawn.depth !== null &&
+    Math.abs(door7Spawn.depth.camYState - 1170) <= 1,
+    `camYState=${door7Spawn.depth?.camYState}`);
+  check("r19: spawned lantern is parked (zero velocity)",
+    door7Spawn.lan !== null &&
+    door7Spawn.lan.vx === 0 && door7Spawn.lan.vy === 0);
+  await retSpawn.close();
+
+  const retSpawn1 = await browser.newPage();
+  await retSpawn1.setViewport({ width: 1440, height: 900, deviceScaleFactor: 1 });
+  collectErrors(retSpawn1);
+  await open(retSpawn1);
+  await enterRealm(retSpawn1);
+  await retSpawn1.evaluate(() => document.querySelectorAll(".realm-legend-btn")[0]?.click()); // raft-cluster, door 1
+  await wait(500);
+  await retSpawn1.evaluate(() => document.querySelector(".realm-panel-dive")?.click());
+  check("r19: door-1 dive hands off to the project page",
+    await until(retSpawn1, () => window.location.pathname.includes("projects"), 5000));
+  await armProjectBacked(retSpawn1);
+  await retSpawn1.goBack();
+  await until(retSpawn1, () =>
+    document.querySelector(".realm-layer") !== null &&
+    window.__pbRecorder?.saw === true, 5000);
+  await wait(1700); // the re-entry flood must reach the active phase
+  const door1Spawn = await retSpawn1.evaluate(() => {
+    const s = window.__realmScene;
+    return { lan: s?.getLanternSnapshot?.() ?? null, depth: s?.getDepthSnapshot?.() ?? null };
+  });
+  check("r19: door-1 deep-return spawns near the shallow door",
+    door1Spawn.lan !== null &&
+    Math.abs(door1Spawn.lan.x - 360) <= 1 &&
+    Math.abs(door1Spawn.lan.y - 316.8) <= 1 &&
+    door1Spawn.depth !== null &&
+    Math.abs(door1Spawn.depth.camYState - 18) <= 1,
+    `lan=(${door1Spawn.lan?.x.toFixed(1)},${door1Spawn.lan?.y.toFixed(1)}) camYState=${door1Spawn.depth?.camYState}`);
+  await retSpawn1.close();
+
   // reload legs: session storage must survive a fresh boot on the project page
   const retReload = await browser.newPage();
   await retReload.setViewport({ width: 1440, height: 900, deviceScaleFactor: 1 });

@@ -33,6 +33,11 @@ interface RealmModeProps {
   readonly onExit: () => void;
   readonly onEntered?: () => void;
   readonly entry: { readonly x: number; readonly y: number };
+  // Deep-return spawn target: the project ID of the just-exited project.
+  // When set, the scene spawns the lantern near the corresponding door's
+  // creature anchor instead of the default top-centre position.
+  // Absent on the normal landing-owned and r11 landing-restored paths.
+  readonly returnDoorId?: string;
   // Deep-return exit target: the landing's original pre-realm scroll offset,
   // threaded through the r11 intent. Absent on the normal landing-owned
   // path — the captured body-lock scrollY is the restore target there.
@@ -100,7 +105,7 @@ function _kickCursor() {
   );
 }
 
-export default function RealmMode({ projects, onOpenProject, onExit, onEntered, entry, restoreScrollY }: RealmModeProps) {
+export default function RealmMode({ projects, onOpenProject, onExit, onEntered, entry, returnDoorId, restoreScrollY }: RealmModeProps) {
   const layerRef = useRef<HTMLDivElement | null>(null);
   const glRef = useRef<HTMLCanvasElement | null>(null);
   const overlayRef = useRef<HTMLCanvasElement | null>(null);
@@ -146,6 +151,7 @@ export default function RealmMode({ projects, onOpenProject, onExit, onEntered, 
   const onOpenRef = useRef(onOpenProject);
   const onExitRef = useRef(onExit);
   const entryRef = useRef(entry);
+  const returnDoorIdRef = useRef<string | null>(returnDoorId ?? null);
   const phaseRef = useRef<Phase>("entering");
   // one-shot: App's route swap must observe the settled "active" phase exactly
   // once, immune to Strict Mode effect replays and later phase churn.
@@ -156,6 +162,7 @@ export default function RealmMode({ projects, onOpenProject, onExit, onEntered, 
   onOpenRef.current = onOpenProject;
   onExitRef.current = onExit;
   entryRef.current = entry;
+  returnDoorIdRef.current = returnDoorId ?? null;
   phaseRef.current = phase;
   openIdRef.current = openId;
   mutedRef.current = muted;
@@ -686,7 +693,13 @@ export default function RealmMode({ projects, onOpenProject, onExit, onEntered, 
     setDegraded(scene.qualityLevel() === -1);
 
     const e = entryRef.current;
-    scene.startEnter(e.x, e.y);
+    const rid = returnDoorIdRef.current;
+    let spawnDoorIndex: number | null = null;
+    if (rid !== null) {
+      const idx = projects.findIndex((p) => p.id === rid);
+      if (idx >= 0) spawnDoorIndex = idx;
+    }
+    scene.startEnter(e.x, e.y, spawnDoorIndex);
 
     // ---- body scroll lock (preserve landing scroll position) ----
     const scrollY = window.scrollY;
