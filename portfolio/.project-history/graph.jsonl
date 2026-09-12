@@ -385,3 +385,5 @@
 {"type":"edge.added","id":"e184","ts":"2026-09-11T16:19:29.557Z","from":"n198","to":"n199","rel":"continues"}
 {"type":"node.added","id":"n200","ts":"2026-09-12T10:51:09.760Z","kind":"iteration","actor":"user","title":"fix(shell): realm dive cursor round 2 — synthetic mousemove kicks WebKit's event-driven cursor re-eval (macOS Safari)","artifacts":[{"kind":"git-commit","ref":"c8d8782"}],"meta":{"source":"auto"}}
 {"type":"edge.added","id":"e185","ts":"2026-09-12T10:51:09.764Z","from":"n199","to":"n200","rel":"continues"}
+{"type":"node.added","id":"n201","ts":"2026-09-12T11:48:45.598Z","kind":"iteration","actor":"user","title":"ux(shell): remove the desktop hover tooltip 'mouse: double-click a creature to dive in...' from the realm layer","artifacts":[{"kind":"git-commit","ref":"23f6ea1"}],"meta":{"source":"auto"}}
+{"type":"edge.added","id":"e186","ts":"2026-09-12T11:48:45.601Z","from":"n200","to":"n201","rel":"continues"}
