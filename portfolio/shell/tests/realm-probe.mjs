@@ -1047,6 +1047,37 @@ try {
     await until(directEnter, () => window.location.pathname.includes("projects"), 5000));
   await directEnter.close();
 
+  // ── bug 7 regression: Enter after selecting a project must dive it ──
+  // Owner report (macOS Safari): click a project card, press Enter → nothing.
+  // Mechanism (reproduced in every engine): the panel's entrance effect moves
+  // focus to the close button ~300 ms after selection, and Enter natively
+  // activated THAT button — the panel closed instead of diving. The handler
+  // owns the panel-open Enter, so the dive must follow even after focus moved.
+  const bug7 = await browser.newPage();
+  await bug7.setViewport({ width: 1440, height: 900, deviceScaleFactor: 1 });
+  collectErrors(bug7);
+  await open(bug7);
+  await enterRealm(bug7);
+  await bug7.mouse.move(360, 468); // creature 0 anchor: (0.25·vw, 0.26·2vh)
+  await wait(600);
+  await bug7.mouse.down();
+  await bug7.mouse.up(); // single quick click selects; the panel opens
+  check("bug 7: selection opens the panel",
+    await until(bug7, () => document.querySelector(".realm-panel.is-open") !== null, 2500));
+  check("bug 7: the selected creature is raft-cluster",
+    await until(bug7, () =>
+      (document.querySelector(".realm-panel-title")?.textContent ?? "").includes("Raft Cluster"), 2500));
+  // the hijack precondition: the entrance auto-focus has landed on the close button
+  check("bug 7: entrance auto-focus lands on the close button",
+    await until(bug7, () =>
+      document.activeElement?.classList.contains("realm-panel-close") === true, 3000));
+  await bug7.keyboard.press("Enter");
+  check("bug 7: Enter after the auto-focus landed dives (iris)",
+    await until(bug7, () => document.querySelector(".realm-iris") !== null, 2500));
+  check("bug 7: Enter after selection hands off to the selected project",
+    await until(bug7, () => window.location.pathname === "/projects/raft-cluster/", 5000));
+  await bug7.close();
+
   // ── mobile: viewport hygiene ──
   const mobile = await browser.newPage();
   await mobile.setViewport({ width: 390, height: 844, deviceScaleFactor: 2, hasTouch: true });

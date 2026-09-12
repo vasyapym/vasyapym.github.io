@@ -1065,6 +1065,20 @@ export default function RealmMode({ projects, onOpenProject, onExit, onEntered, 
         return;
       }
 
+      // r16: with a panel open, Enter means "dive into this project" regardless
+      // of which element inside the panel holds focus. preventDefault suppresses
+      // native button activation so the close button can't fire instead of
+      // diving (the root cause of bug 7). Links are exempt — their native
+      // Enter activation is preserved.
+      if (k === "enter" && openIdRef.current && desktopFine.matches) {
+        if (ev.target instanceof HTMLAnchorElement) return;
+        ev.preventDefault();
+        if (ev.repeat || phaseRef.current !== "active") return;
+        tryResume();
+        confirmDiveRef.current(openIdRef.current);
+        return;
+      }
+
       // escape is owned by the layer's onKeyDown (esc-chain with focus order);
       // don't drive the world while a panel is focused, except escape
       if (openIdRef.current) return;
