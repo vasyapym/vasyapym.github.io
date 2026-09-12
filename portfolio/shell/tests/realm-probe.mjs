@@ -1302,7 +1302,7 @@ try {
   // Emulate the real device's 34px safe-area inset (Blink reports 0): shrink
   // the sheet's content box by 34px so the longest copy overflows the body —
   // on iPhone 11 that overflow is what used to scroll the whole sheet.
-  // r17: +100px forced overflow on top — the r17 spacing reclamation (~30px)
+  // r18: +100px forced overflow on top — the r18 spacing reclamation (~30px)
   // must not erode this gate's overflow premise; the LAW (wrapper stationary,
   // X fixed, body scrolls, dive reachable) is what this gate protects.
   await mobile.evaluate(() => {
@@ -1389,7 +1389,7 @@ try {
   // in the description sheet — the last element of the scroll flow fell below
   // the fold on long-copy doors. Device-like geometry: 390×725 visible
   // viewport (Safari toolbars shrink it) + the real 34px bottom inset.
-  // The r17 fix: tightened sheet spacing + a sticky CTA.
+  // The r18 fix: tightened sheet spacing + a sticky CTA.
   const bug8 = await browser.newPage();
   await bug8.setViewport({ width: 390, height: 725, deviceScaleFactor: 2, hasTouch: true });
   collectErrors(bug8);

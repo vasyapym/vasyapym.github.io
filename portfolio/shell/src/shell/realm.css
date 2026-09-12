@@ -1048,7 +1048,7 @@
     min-height: 0;
     max-height: 48%;
 
-    /* r17: tighter vertical padding — reclaim ~14 px for CTA headroom
+    /* r18: tighter vertical padding — reclaim ~14 px for CTA headroom
        (top: 3.5rem = 56 px still clears the 48 px close-button bottom;
         bottom: 1rem + inset keeps safe-area gap > 30 px for r9 d2) */
     padding: 3.5rem 1.3rem calc(1rem + env(safe-area-inset-bottom, 0px));
@@ -1084,14 +1084,14 @@
 
   .realm-caption { display: none; } /* avoids colliding with the strip */
 
-  /* r17: tighter mobile body spacing — reclaim ~16–23 px for CTA room
+  /* r18: tighter mobile body spacing — reclaim ~16–23 px for CTA room
      (base margins: title 0.7rem, desc 1.1rem, tech 1.1rem, links 1.3rem) */
   .realm-panel-title  { margin-bottom: 0.5rem; }
   .realm-panel-desc   { margin-bottom: 0.7rem; }
   .realm-panel-tech   { margin-bottom: 0.7rem; }
   .realm-panel-links  { margin-bottom: 0.9rem; }
 
-  /* r17: sticky CTA — when the body overflows, the CTA pins to the
+  /* r18: sticky CTA — when the body overflows, the CTA pins to the
      bottom of the scroll port instead of clipping below the fold;
      on short-copy doors the body fits and sticky is inert.
      z-index: 1 keeps the CTA painted above content scrolling behind it.

@@ -288,6 +288,20 @@
       "message": "Realm r12 commit (8f27ab3) carried 2 staged lines of portfolio/projects/practice-map/.project-history/graph.jsonl that were already in the index before this session staged its own paths — the project-graph post-commit hook pre-stages touched stores to ship with the next commit (docs/agents/project-graph.md), and this session committed while the practice-map session held its pre-staged auto-record lines. Content is that hook mechanical append (its own auto-record chain), not code. No action needed; the practice-map session may ack.",
       "ackBy": null,
       "ackAt": null
+    },
+    {
+      "id": "2026-09-12T22-30Z-sweep-report-edd6b4c-bug8-carried",
+      "ts": "2026-09-12T22:30:00Z",
+      "kind": "sweep-report",
+      "agent": "opencode code-iteration orchestrator (glm-5.3-flash, realm bug-8 pass, graph n208)",
+      "commit": "edd6b4c",
+      "files": [
+        "portfolio/shell/src/shell/realm.css",
+        "portfolio/shell/tests/realm-probe.mjs"
+      ],
+      "message": "The r17 commit (edd6b4c) carries the bug-8 session's verified fix alongside the r17 feature: the mobile dive-CTA blocks in realm.css (top pad 4rem->3.5rem, bottom 1.4rem->1rem, mobile margin overrides, .realm-panel-dive position:sticky bottom:0) and the bug-8 probe block + the r9 d2 overflow-forcing emulator bump in realm-probe.mjs (of the 166 probe lines in that commit, ~64 are this session's). The bug-8 session had deliberately left these uncommitted (shared-hunk entanglement, graph n208 'delivery pending') — the r17 session staged and committed them anyway, under its message, without a sweep-report. The carried content is verified work: bug-8 gate fails pre-fix on 4 doors, green post-fix (incl. one fully-green suite run), WebKit tier verified; recorded as graph n208. The remaining r17->r18 label renumbering follows in the next commit to keep the two passes distinct. No reply required; the r17 session may ack.",
+      "ackBy": null,
+      "ackAt": null
     }
   ]
 }
