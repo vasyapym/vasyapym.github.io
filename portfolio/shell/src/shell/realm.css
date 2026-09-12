@@ -949,9 +949,10 @@
    single interactive signal — the confirm button, nothing else. */
 .realm-prompt {
   position: absolute;
-  /* Owner round: dropped toward the vertical center — it hugged the top
-     edge and read as a hud element instead of a question. */
-  top: 44%;
+  /* Owner round 2: between the top edge and the center — the exact 44%
+     center read as mid-screen; ~1/4 of the viewport height sits clearly
+     below the hud line without drifting into the scene's middle. */
+  top: 26%;
   left: 50%;
   transform: translate(-50%, -50%);
   display: flex;
