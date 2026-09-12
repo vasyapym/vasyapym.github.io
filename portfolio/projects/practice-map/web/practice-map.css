@@ -1219,6 +1219,10 @@
 .practice-lesson-scroll::-webkit-scrollbar-thumb {
   background: var(--ink-line);
   border-radius: 999px;
+  /* translucent, like the mobile system bar: present while scrolling,
+     quiet at rest — the lane itself stays (the overlay-over-text look is
+     what the owner's original complaint was about) */
+  opacity: 0.45;
 }
 
 .practice-lesson-progress {

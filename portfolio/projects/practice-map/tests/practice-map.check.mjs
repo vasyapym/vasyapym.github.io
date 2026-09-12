@@ -147,20 +147,29 @@ try {
   // unstyled overlay thumb overlapped the text).
   const readerLaws = await page.evaluate(() => {
     const panel = document.querySelector(".practice-lesson-panel")?.getBoundingClientRect();
-    const barRule = [...document.styleSheets].flatMap((sheet) => {
+    const rules = [...document.styleSheets].flatMap((sheet) => {
       try { return [...sheet.cssRules]; } catch { return []; }
-    }).find((r) => r.selectorText?.includes(".practice-lesson-scroll::-webkit-scrollbar"));
+    });
+    const barRule = rules.find((r) =>
+      r.selectorText?.includes(".practice-lesson-scroll::-webkit-scrollbar") &&
+      !r.selectorText.includes("thumb"));
+    const thumbRule = rules.find((r) =>
+      r.selectorText?.includes(".practice-lesson-scroll::-webkit-scrollbar-thumb"));
     return {
       panelWidth: panel ? Math.round(panel.width) : -1,
       viewport: window.innerWidth,
       hasBarRule: !!barRule,
+      thumbOpacity: thumbRule ? Number.parseFloat(thumbRule.style.opacity) : -1,
     };
   });
   check(
     readerLaws.panelWidth >= 940 && readerLaws.panelWidth <= Math.min(952, readerLaws.viewport - 24),
     `lesson panel widened to ~950px (${readerLaws.panelWidth}px @ ${readerLaws.viewport})`,
   );
-  check(readerLaws.hasBarRule, "lesson scroll body ships a styled thin scrollbar lane");
+  check(
+    readerLaws.hasBarRule && readerLaws.thumbOpacity > 0 && readerLaws.thumbOpacity < 1,
+    `lesson scroll body ships a styled translucent scrollbar lane (thumb opacity ${readerLaws.thumbOpacity})`,
+  );
 
   const beforeScroll = await page.evaluate(() => document.querySelector(".practice-lesson-scroll").scrollTop);
   await page.click(".practice-reader-nav button:nth-child(6)");
