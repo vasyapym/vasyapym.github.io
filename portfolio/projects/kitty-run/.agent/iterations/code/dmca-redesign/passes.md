@@ -115,4 +115,62 @@ autonomy for the chat model, with a shown deep-reasoning chain
 - Next action: task code-complete; deliver (commit+push), record graph
   node, hand visual round to the owner / design-iteration.
 
+## Pass C003 — VERIFIED (code scope) / visual NOT RUN
+
+- Objective and scope: owner steered from Pop Kitty ("fine but is not it")
+  to variant #2 Pixel Kitty. Re-skin all three surfaces: card mark → 12×10
+  pixel grid with CRT scanlines and a bell; portrait → stepped pixel head,
+  square eyes, pixel bell; rig → bell, pixel mouth, square catchlights,
+  purple/lavender palette.
+- Acceptance criteria: tsc clean; node checks pass; ids and halo hook
+  preserved; palette keys unchanged (values only); souls theme untouched;
+  ghost echo retint keeps working.
+- Changes:
+  - `ProjectArtwork.tsx` — `KittyCenterMark` fully pixel: 6px-cell rect
+    grid (ink/fill/accent/shadow layers), blocky ghost echo, CRT scanlines
+    clipped to the head box, bell pendant below the chin, gold accent.
+    `gem-cat-head-clip` is now a rect (was ellipse).
+  - `CharacterPortraits.tsx` — `KittyPortrait`: stepped H/V-segment head,
+    rect ears with inner accents, pixel bell on the right ear, square eyes
+    + square catchlights, gold square nose, two-bar pixel mouth; lavender
+    shirt + purple pinafore.
+  - `lib/palette.ts` — pastel values → pixel palette (kittyWhite #f7e8ff,
+    ink #2a1b3d, accent #ffd23f + deep #d4a020, cloth #9a6fbf + deep
+    #7b50a0, cheek #d4b8e8). Knight theme overrides every key, unaffected.
+  - `web/kitty/Kitty.tsx` — `starShape`/`mouthWShape` replaced by
+    `bellShape` (rounded-rect body 0.7×0.5 + clapper nub, enlarged per the
+    reply's own risk callout) and `mouthPixelShape` (two 0.8-wide bars,
+    0.4 gap — mitigated size); catchlight geometry → 0.35 square, moved to
+    the eye's upper-right; nose back to `noseYellow` (== accent now); bell
+    hangs in the `bowRef` group (inherits bob+pulse).
+  - `web/scene/Echo.tsx` — ghost retint map fixed for palette collisions:
+    noseYellow == bowRed and eyeInk == outlineInk now share hexes, so the
+    duplicate computed keys were dropped (bowRed/outlineInk lines cover
+    all four roles). tsc caught this (TS1117 ×2) — repair pass included.
+- Delegation note: normal chat model, brief `BRIEF-kitty-dmca-pixel.md`
+  (full self-contained); reply arrived complete despite the timeout — both
+  SVGs integrated verbatim (formatting adapted), rig delta applied
+  mechanically per its spec with the mitigated sizes it recommended.
+- Baseline: tsc clean, node checks pass (C002 state).
+- Verification:
+  - Command: `npm --prefix portfolio run typecheck`
+    Result: PASS after repairs (failed 3× mid-pass: leftover `star` geo
+    entry referencing deleted `starShape`; then Echo duplicate keys from
+    the palette collisions — each fixed, rerun clean).
+  - Command: `node --experimental-strip-types portfolio/projects/kitty-run/tests/kitty-run.check.ts`
+    Result: PASS — "All kitty-run checks passed."
+  - Visual: NOT RUN — no browser binary on this machine.
+- Final diff review: only the five task files + brief; other agents'
+  graph lines excluded from the commit.
+- Design constraints: not applicable.
+- Remaining risks/blockers: visual acceptance pending (owner look); the
+  card's scanline clip rect is static while the breathe bob is CSS-level —
+  per the reply's integrator note, verify the clip tracks the subject
+  (subject is NOT in an animated group — the breathe moves the whole svg,
+  so the clip moves with it; low risk); unused `bowLoop`/`bowKnot` geo
+  entries still retained.
+- Next action: owner visual round on all three surfaces; rollback to Pop
+  Kitty or Hello-Kitty-era states is trivial via git (7b951df / pre-C001).
+
+
 
