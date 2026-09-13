@@ -194,3 +194,5 @@
 {"type":"edge.added","id":"e85","ts":"2026-09-13T20:02:56.470Z","from":"n92","to":"n93","rel":"continues"}
 {"type":"node.added","id":"n94","ts":"2026-09-13T20:06:22.680Z","kind":"iteration","actor":"user","title":"feat(kitty-run): pixel cat v2 — 12×10 ASCII-rig sprite with bell collar on card mark and portrait (salvage-integrated, contract-clean)","artifacts":[{"kind":"git-commit","ref":"7d4899d"}],"meta":{"source":"auto"}}
 {"type":"edge.added","id":"e86","ts":"2026-09-13T20:06:22.687Z","from":"n93","to":"n94","rel":"continues"}
+{"type":"node.added","id":"n95","ts":"2026-09-13T20:06:35.977Z","kind":"iteration","actor":"user","title":"docs(kitty-run): record pass C005 — pixel cat v2 (ASCII rig, bell collar) on card + portrait, rig pending verdict","artifacts":[{"kind":"git-commit","ref":"2390547"}],"meta":{"source":"auto"}}
+{"type":"edge.added","id":"e87","ts":"2026-09-13T20:06:35.984Z","from":"n94","to":"n95","rel":"continues"}

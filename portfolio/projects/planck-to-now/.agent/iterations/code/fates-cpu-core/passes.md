@@ -27,3 +27,9 @@
   - bigCrunchLambda replays history from the Big Bang (E²(0)<0 ⇒ a=1 unreachable) — a defensible resolution of the mode-entry gap, pedagogically coherent ("a universe that never reaches our present"); UX framing decision deferred to the design round.
   - Substep `dt` recorded on the terminal substep overstates the actually-integrated span (one-substep particle drift at the very end; GPU brief should clamp on terminal).
 - Next action: B2 GPU brief (halo state layout, MRT ping-pong substep shader per design §2/§5/§6) once the owner confirms; or design round for the fate-selector UX.
+
+## Addendum (owner correction, post-C001)
+- Attribution correction from the owner: the FIRST chat-model reply (the one integrated and repaired in C001) was itself the partially-timed-out answer; the SECOND reply was a complete, non-timed-out generation.
+- Empirical benchmark of the second reply (scratch dir, same assertions): 10/14 — bigCrunchLambda fully broken (garbage τ₀ = 2.67e29 from quadrature masked through E²<0, state starts outside the solution, NaN after 172 steps), fixed-dt RK4 replaced the spec's two-level adaptive stepping, weakened tolerances, dead code, an unrunnable own test (NaN defeats its break condition).
+- Revised diagnosis: the quality drop is better explained by prompt-length routing (the long B1 brief likely landed on a weaker model) than by timeout — a truncated strong-model answer still beat a complete weak-model answer.
+- Standing rule for future delegation: a complete-but-shallow reply with ≥2 degradation markers (dead code, dropped hardest spec requirement, weakened tolerances, unasserted checks, physically wrong defaults) is not integrated; split the brief or shorten it instead.
