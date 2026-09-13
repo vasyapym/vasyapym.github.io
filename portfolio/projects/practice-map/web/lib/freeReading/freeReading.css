@@ -1,0 +1,140 @@
+/* ── free reading (note-style sections) ─────────────────────────────────────
+   The section body is a real editable surface: delete what you have read,
+   type what you want. Ink language: hairline focus mark, ochre caret,
+   lowercase mono chrome. Portaled inside .practice-lesson-overlay, so the
+   overlay's color-scheme: dark already covers everything here. */
+
+.practice-free-bar {
+  position: sticky;
+  top: 2px;
+  z-index: 1;
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 0.6rem;
+  padding: 0.55rem 0;
+  margin: 0;
+  background: #0e161b;
+  border-bottom: 1px solid var(--ink-line-soft);
+}
+
+.fr-controls {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 0.6rem;
+}
+
+.fr-controls button {
+  border: 1px solid var(--ink-line-soft);
+  padding: 0.28rem 0.6rem;
+  color: var(--ink-muted);
+  background: var(--ink-panel);
+  cursor: pointer;
+  font-family: var(--mono);
+  font-size: 0.68rem;
+  letter-spacing: 0.05em;
+  text-transform: lowercase;
+}
+
+.fr-controls button:hover {
+  border-color: var(--ink-accent);
+}
+
+.fr-controls button[aria-pressed="true"] {
+  border-color: var(--ink-accent);
+  color: var(--ink-accent-bright);
+}
+
+.fr-row {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 0.6rem;
+  min-height: 1.6rem;
+  margin-bottom: 0.4rem;
+}
+
+.fr-count {
+  color: var(--ink-accent);
+  font-family: var(--mono);
+  font-size: 0.72rem;
+  letter-spacing: 0.05em;
+}
+
+.fr-progress {
+  width: 7rem;
+  height: 3px;
+  accent-color: var(--ink-accent);
+}
+
+.fr-mini {
+  border: 1px solid var(--ink-line-soft);
+  padding: 0.2rem 0.5rem;
+  color: var(--ink-muted);
+  background: var(--ink-bg);
+  cursor: pointer;
+  font-family: var(--mono);
+  font-size: 0.64rem;
+  letter-spacing: 0.04em;
+  text-transform: lowercase;
+}
+
+.fr-mini:hover:not(:disabled) {
+  border-color: var(--ink-accent);
+  color: var(--ink-accent-bright);
+}
+
+.fr-mini:disabled {
+  opacity: 0.45;
+  cursor: default;
+}
+
+.fr-area {
+  display: block;
+  width: 100%;
+  min-height: 4rem;
+  overflow: hidden;
+  resize: none;
+  border: 0;
+  margin: 0;
+  padding: 0;
+  color: var(--ink-text);
+  background: transparent;
+  caret-color: var(--ink-accent-bright);
+  font: inherit;
+  font-size: 0.95rem;
+  line-height: 1.72;
+  white-space: pre-wrap;
+  overflow-wrap: anywhere;
+}
+
+.fr-area:focus {
+  outline: none;
+}
+
+/* A quiet "you are editing" mark: hairline accent bar on the left edge. */
+.fr[data-focused] .fr-area {
+  box-shadow: inset 3px 0 0 color-mix(in srgb, var(--ink-accent) 55%, transparent);
+}
+
+.fr-note {
+  margin: 0;
+  color: var(--ink-faint);
+  font-size: 0.78rem;
+  line-height: 1.5;
+}
+
+.fr-done {
+  margin: 0.9rem 0 0;
+  color: var(--ink-accent-bright);
+  font-family: var(--mono);
+  font-size: 0.78rem;
+  letter-spacing: 0.04em;
+}
+
+@media (max-width: 560px) {
+  .fr-progress {
+    width: 4.5rem;
+  }
+}

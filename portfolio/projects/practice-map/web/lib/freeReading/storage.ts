@@ -1,10 +1,10 @@
-import { useCallback, useSyncExternalStore } from "react";
-import type { ShadowTypingProgress, ShadowTypingSettings } from "./types";
+import { useSyncExternalStore } from "react";
+import type { FreeReadingSettings, FreeReadingText } from "./types";
 
-const PREFIX = "practice-map:shadow:v1:";
+const PREFIX = "practice-map:free:v2:";
 
-export const shadowSettingsKey = (topicId: string) => `${PREFIX}${topicId}`;
-export const shadowSectionKey = (topicId: string, sectionIndex: number) =>
+export const freeSettingsKey = (topicId: string) => `${PREFIX}${topicId}`;
+export const freeSectionKey = (topicId: string, sectionIndex: number) =>
   `${PREFIX}${topicId}#s${sectionIndex}`;
 
 const listeners = new Set<() => void>();
@@ -79,25 +79,23 @@ function subscribe(cb: () => void) {
   };
 }
 
-export function isProgressRecord(x: unknown): x is ShadowTypingProgress {
+export function isSettingsRecord(x: unknown): x is FreeReadingSettings {
   if (!x || typeof x !== "object") return false;
   const o = x as Record<string, unknown>;
   return (
-    o.v === 1 &&
-    typeof o.consumed === "number" &&
-    Number.isFinite(o.consumed) &&
-    typeof o.contentHash === "string" &&
+    o.v === 2 &&
+    typeof o.enabled === "boolean" &&
     typeof o.updatedAt === "number"
   );
 }
 
-export function isSettingsRecord(x: unknown): x is ShadowTypingSettings {
+export function isTextRecord(x: unknown): x is FreeReadingText {
   if (!x || typeof x !== "object") return false;
   const o = x as Record<string, unknown>;
   return (
-    o.v === 1 &&
-    typeof o.enabled === "boolean" &&
-    (o.granularity === "word" || o.granularity === "sentence") &&
+    o.v === 2 &&
+    typeof o.contentHash === "string" &&
+    typeof o.text === "string" &&
     typeof o.updatedAt === "number"
   );
 }
@@ -112,30 +110,29 @@ function useStoredRecord<T>(key: string, isValid: (x: unknown) => x is T) {
   return { value, hydrated };
 }
 
-export function useShadowProgress(sectionKey: string) {
-  return useStoredRecord(sectionKey, isProgressRecord);
+export function useFreeText(sectionKey: string) {
+  return useStoredRecord(sectionKey, isTextRecord);
 }
 
-export function useShadowSettings(topicId: string) {
-  return useStoredRecord(shadowSettingsKey(topicId), isSettingsRecord);
+export function useFreeSettings(topicId: string) {
+  return useStoredRecord(freeSettingsKey(topicId), isSettingsRecord);
 }
 
-export function writeShadowSettings(
-  topicId: string,
-  enabled: boolean,
-  granularity: ShadowTypingSettings["granularity"],
-) {
-  writeRecord(shadowSettingsKey(topicId), {
-    v: 1,
+export function writeFreeSettings(topicId: string, enabled: boolean) {
+  writeRecord(freeSettingsKey(topicId), {
+    v: 2,
     enabled,
-    granularity,
     updatedAt: Date.now(),
   });
 }
 
-export function writeShadowProgress(
+export function writeFreeText(
   sectionKey: string,
-  progress: ShadowTypingProgress,
+  record: FreeReadingText,
 ) {
-  writeRecord(sectionKey, progress);
+  writeRecord(sectionKey, record);
+}
+
+export function removeFreeText(sectionKey: string) {
+  removeRecord(sectionKey);
 }

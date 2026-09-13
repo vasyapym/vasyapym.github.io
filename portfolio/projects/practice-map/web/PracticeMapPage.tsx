@@ -33,15 +33,14 @@ import {
 } from "./progress";
 import "./practice-map.css";
 import { Blocks, InlineText } from "./lib/format";
-import { ShadowTypingControls } from "./lib/shadowTyping/ShadowTypingControls";
-import { ShadowTypingText } from "./lib/shadowTyping/ShadowTypingText";
+import { FreeReadingControls } from "./lib/freeReading/FreeReadingControls";
+import { FreeReadingText } from "./lib/freeReading/FreeReadingText";
 import {
-  shadowSectionKey,
-  useShadowSettings,
-  writeShadowSettings,
-} from "./lib/shadowTyping/storage";
-import { useShadowTyping } from "./lib/shadowTyping/useShadowTyping";
-import type { UnitGranularity } from "./lib/shadowTyping/types";
+  freeSectionKey,
+  useFreeSettings,
+  writeFreeSettings,
+} from "./lib/freeReading/storage";
+import { useFreeReading } from "./lib/freeReading/useFreeReading";
 
 const STATUS_LABELS: Readonly<Record<TopicStatus, string>> = {
   queued: "queued",
@@ -983,9 +982,8 @@ function LessonOverlay({
   const settleTimerRef = useRef<number>(undefined);
   const lesson = topic.lesson;
   const deep = topic.deepLesson;
-  const shadow = useShadowSettings(topic.id);
-  const shadowEnabled = shadow.value?.enabled ?? false;
-  const shadowGranularity = shadow.value?.granularity ?? "word";
+  const free = useFreeSettings(topic.id);
+  const freeEnabled = free.value?.enabled ?? false;
 
   const updateProgress = () => {
     const scroller = scrollRef.current;
@@ -1229,14 +1227,12 @@ function LessonOverlay({
             <span ref={progressRef} />
           </div>
 
-          {shadow.hydrated && (
-            <div className="practice-shadow-bar">
-              <ShadowTypingControls
-                enabled={shadowEnabled}
-                granularity={shadowGranularity}
-                hydrated={shadow.hydrated}
-                onToggle={(next) => writeShadowSettings(topic.id, next, shadowGranularity)}
-                onGranularity={(next) => writeShadowSettings(topic.id, shadowEnabled, next)}
+          {free.hydrated && (
+            <div className="practice-free-bar">
+              <FreeReadingControls
+                enabled={freeEnabled}
+                hydrated={free.hydrated}
+                onToggle={(next) => writeFreeSettings(topic.id, next)}
               />
             </div>
           )}
@@ -1272,12 +1268,11 @@ function LessonOverlay({
               <div className="practice-reader">
                 {deep.sections.map((section, sectionId) => (
                   <InteractiveSection
-                    active={sectionIndex === sectionId}
                     key={sectionId}
                     sectionIndex={sectionId}
                     section={section}
                     topicId={topic.id}
-                    settings={{ enabled: shadowEnabled, granularity: shadowGranularity }}
+                    settings={{ enabled: freeEnabled }}
                   />
                 ))}
               </div>
@@ -1362,21 +1357,17 @@ function InteractiveSection({
   section,
   topicId,
   settings,
-  active,
 }: {
   sectionIndex: number;
   section: LessonSection;
   topicId: string;
-  settings: { enabled: boolean; granularity: UnitGranularity };
-  /** Whether the scrollspy names this section — the one being read. */
-  active: boolean;
+  settings: { enabled: boolean };
 }) {
   const prose = sectionProse(section);
-  const st = useShadowTyping({
-    topicId: shadowSectionKey(topicId, sectionIndex),
-    text: prose,
+  const fr = useFreeReading({
+    sectionKey: freeSectionKey(topicId, sectionIndex),
+    original: prose,
     enabled: settings.enabled,
-    granularity: settings.granularity,
   });
 
   return (
@@ -1392,25 +1383,28 @@ function InteractiveSection({
       )}
       {settings.enabled && prose ? (
         <>
-          <div className="st-row">
-            <span className="st-count">
-              {st.index}/{st.total}
+          <div className="fr-row">
+            <span className="fr-count">
+              {fr.consumedWords}/{fr.totalWords}
             </span>
             <progress
-              aria-label={`Consumed units in section ${sectionIndex + 1}`}
-              className="st-progress"
-              max={st.total}
-              value={st.index}
+              aria-label={`Words read in section ${sectionIndex + 1}`}
+              className="fr-progress"
+              max={fr.totalWords}
+              value={fr.consumedWords}
             />
-            <button className="st-mini" disabled={st.index === 0} type="button" onClick={st.reset}>
+            <button className="fr-mini" disabled={fr.pristine} type="button" onClick={fr.reset}>
               reset section
             </button>
           </div>
-          <ShadowTypingText active={active} st={st} />
-          {st.staleProgress && (
-            <p className="st-note" role="note">
-              the text or the unit size changed, so progress was reset
+          <FreeReadingText fr={fr} />
+          {fr.stale && (
+            <p className="fr-note" role="note">
+              the lesson text changed since this note was last edited, so the saved text was reset
             </p>
+          )}
+          {fr.consumedWords >= fr.totalWords && fr.totalWords > 0 && (
+            <p className="fr-done">✓ read through — what you keep here is yours</p>
           )}
         </>
       ) : (

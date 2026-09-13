@@ -211,46 +211,52 @@ try {
   await wait(400);
   check((await page.$(".practice-lesson-overlay")) === null, "Escape closes the lesson");
 
-  // --- desktop: shadow typing (interactive reading) ---------------------------
+  // --- desktop: free reading (note-style sections) ----------------------------
 
-  const shadowCards = await page.$$(".practice-topic-card .practice-lesson-open");
-  await shadowCards[0].click();
-  check(await appears(".practice-reader"), "reader reopens for the shadow leg");
-  check(await appears(".st-controls"), "shadow typing controls render in the bar");
+  const freeCards = await page.$$(".practice-topic-card .practice-lesson-open");
+  await freeCards[0].click();
+  check(await appears(".practice-reader"), "reader reopens for the free-reading leg");
+  check(await appears(".fr-controls"), "free reading controls render in the bar");
 
   const offParagraphs = await page.$$eval(".practice-reader-section p", (els) => els.length);
   check(offParagraphs > 0, `passive mode renders rich prose (${offParagraphs} paragraphs)`);
 
-  await page.click(".st-controls button");
-  check(await appears(".st .st-input"), "interactive mode mounts the hidden input");
-  check(await appears(".st-unit--current"), "current unit highlights");
-  check(await appears(".st-count"), "section progress counter renders");
+  await page.click(".fr-controls button");
+  check(await appears(".fr .fr-area"), "free reading mounts a real textarea");
+  check(await appears(".fr-count"), "section progress counter renders");
 
-  // Type the current unit's exact chars (read from the DOM — content-agnostic).
-  const unitChars = await page.$$eval(
-    ".st-unit--current .st-char",
-    (els) => els.map((e) => e.textContent).join(""),
+  const countBefore = await page.$eval(".fr-count", (el) => el.textContent.trim());
+  check(countBefore.startsWith("0/"), `counter starts at zero (${countBefore})`);
+  const proseWords = await page.$eval(
+    ".fr .fr-area",
+    (el) => el.value.split(/\s+/).filter(Boolean).length,
   );
-  await page.keyboard.type(unitChars, { delay: 6 });
-  await wait(300);
-  const countAfter = await page.$eval(".st-count", (el) => el.textContent.trim());
-  check(countAfter.startsWith("1/"), `typing the unit consumes it (${countAfter})`);
+  check(proseWords > 10, `textarea is prefilled with the section prose (${proseWords} words)`);
 
-  await page.click(".practice-reader .st-mini");
-  await wait(200);
-  const countReset = await page.$eval(".st-count", (el) => el.textContent.trim());
-  check(countReset.startsWith("0/"), `section reset returns to zero (${countReset})`);
+  // Reading = removing the original text: select everything and delete.
+  await page.$eval(".fr .fr-area", (el) => {
+    el.focus();
+    el.setSelectionRange(0, el.value.length);
+  });
+  await page.keyboard.press("Backspace");
+  await wait(500); // past the 300ms persistence debounce
+  const progressAfter = await page.$eval(".fr-progress", (el) => ({
+    value: Number(el.value),
+    max: Number(el.max),
+  }));
+  check(
+    progressAfter.max > 0 && progressAfter.value === progressAfter.max,
+    `deleting the text consumes every word (${progressAfter.value}/${progressAfter.max})`,
+  );
 
-  await page.click(".st-controls button");
-  await wait(300);
-  const offAgain = await page.$$eval(".practice-reader-section p", (els) => els.length);
-  check(offAgain > 0, "passive mode restored after toggling off");
+  // The surface behaves like a note: typed words just land.
+  await page.click(".fr .fr-area");
+  await page.keyboard.type("my own note", { delay: 6 });
+  await wait(400);
+  const noteValue = await page.$eval(".fr .fr-area", (el) => el.value);
+  check(noteValue.includes("my own note"), "typed notes land in the surface");
 
-  // Digits/arrows typed into the input must not drive section navigation.
-  await page.click(".st-controls button");
-  await wait(300);
-  await page.click(".st-text");
-  await wait(200);
+  // Digits/arrows typed into the note must not drive section navigation.
   const activeBeforeType = await page.$$eval(
     ".practice-reader-nav button",
     (buttons) => buttons.findIndex((b) => b.classList.contains("is-active")),
@@ -263,16 +269,25 @@ try {
   );
   check(
     activeBeforeType === activeAfterType,
-    `typing digits in the input never navigates sections (${activeBeforeType} -> ${activeAfterType})`,
+    `typing digits in the note never navigates sections (${activeBeforeType} -> ${activeAfterType})`,
   );
 
-  await page.keyboard.press("Escape");
+  // Reset restores the prose and clears the counter.
+  await page.click(".practice-reader .fr-mini");
   await wait(300);
-  await page.click(".st-controls button");
-  await wait(200);
+  const countReset = await page.$eval(".fr-count", (el) => el.textContent.trim());
+  check(countReset.startsWith("0/"), `section reset returns to zero (${countReset})`);
+  const resetFilled = await page.$eval(".fr .fr-area", (el) => el.value.length > 0);
+  check(resetFilled, "reset restores the prose into the textarea");
+
+  await page.click(".fr-controls button");
+  await wait(300);
+  const offAgain = await page.$$eval(".practice-reader-section p", (els) => els.length);
+  check(offAgain > 0, "passive mode restored after toggling off");
+
   await page.keyboard.press("Escape");
   await wait(400);
-  check((await page.$(".practice-lesson-overlay")) === null, "Escape closes after the shadow leg");
+  check((await page.$(".practice-lesson-overlay")) === null, "Escape closes after the free-reading leg");
 
   // --- desktop: fragment fallback -------------------------------------------
 
@@ -615,27 +630,27 @@ try {
   await wait(300);
   check((await page.$(".practice-graph-overlay")) === null, "Escape closes the graph at 320px");
 
-  // --- narrow phone: shadow typing stays inside the panel --------------------
+  // --- narrow phone: free reading stays inside the panel ---------------------
 
   await page.tap(".practice-topic-card .practice-lesson-open");
-  check(await appears(".practice-reader"), "reader opens at 320px for the shadow leg");
-  await page.tap(".st-controls button");
-  check(await appears(".st-unit--current"), "interactive mode mounts at 320px");
+  check(await appears(".practice-reader"), "reader opens at 320px for the free-reading leg");
+  await page.tap(".fr-controls button");
+  check(await appears(".fr .fr-area"), "free reading mounts at 320px");
 
-  const escapesShadow = await walkHorizontalEscape();
+  const escapesFree = await walkHorizontalEscape();
   check(
-    escapesShadow.length === 0,
-    `no descendant escapes at 320px with shadow typing on${escapesShadow.length ? `: ${escapesShadow.slice(0, 4).join(" | ")}` : ""}`,
+    escapesFree.length === 0,
+    `no descendant escapes at 320px with free reading on${escapesFree.length ? `: ${escapesFree.slice(0, 4).join(" | ")}` : ""}`,
   );
-  await shot("narrow-shadow");
+  await shot("narrow-free");
 
-  await page.tap(".st-controls button");
+  await page.tap(".fr-controls button");
   await wait(300);
   await page.keyboard.press("Escape");
   await wait(400);
   check(
     (await page.$(".practice-lesson-overlay")) === null,
-    "Escape closes after the 320px shadow leg",
+    "Escape closes after the 320px free-reading leg",
   );
 
   await page.close();
