@@ -94,7 +94,10 @@
   display: block;
   width: 100%;
   min-height: 4rem;
-  overflow: hidden;
+  /* Safety net, not the normal state: auto-grow sizes the box to the
+     content, but if a measurement is ever 1px off the scrollbar appears
+     instead of silently clipping the last line. */
+  overflow-y: auto;
   resize: none;
   border: 0;
   margin: 0;
@@ -103,7 +106,10 @@
   background: transparent;
   caret-color: var(--ink-accent-bright);
   font: inherit;
-  font-size: 0.95rem;
+  /* iOS Safari auto-zooms the viewport when focusing a field below 16px
+     (an accessibility behavior, not a bug to defeat with maximum-scale).
+     Keep the reader's scale on any device whose root is 16px. */
+  font-size: max(1rem, 16px);
   line-height: 1.72;
   white-space: pre-wrap;
   overflow-wrap: anywhere;
@@ -131,6 +137,18 @@
   font-family: var(--mono);
   font-size: 0.78rem;
   letter-spacing: 0.04em;
+}
+
+.fr-visually-hidden {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  margin: -1px;
+  padding: 0;
+  overflow: hidden;
+  clip: rect(0 0 0 0);
+  white-space: nowrap;
+  border: 0;
 }
 
 @media (max-width: 560px) {

@@ -54,6 +54,7 @@ export function useFreeReading(opts: FreeReadingOptions) {
       v: 2,
       contentHash,
       text: t,
+      completed: latchedRef.current || undefined,
       updatedAt: Date.now(),
     });
   }, [sectionKey, contentHash, original]);
@@ -90,13 +91,16 @@ export function useFreeReading(opts: FreeReadingOptions) {
     return () => flushRef.current();
   }, []);
   useEffect(() => {
+    // Stable closures: registering flushRef.current directly would capture a
+    // function object that cleanup might no longer match (listener leak).
     const onHidden = () => {
       if (document.visibilityState === "hidden") flushRef.current();
     };
-    window.addEventListener("beforeunload", flushRef.current);
+    const onUnload = () => flushRef.current();
+    window.addEventListener("beforeunload", onUnload);
     document.addEventListener("visibilitychange", onHidden);
     return () => {
-      window.removeEventListener("beforeunload", flushRef.current);
+      window.removeEventListener("beforeunload", onUnload);
       document.removeEventListener("visibilitychange", onHidden);
     };
   }, []);
@@ -108,14 +112,28 @@ export function useFreeReading(opts: FreeReadingOptions) {
       timer.current = null;
     }
     setText(original);
+    setLatched(false);
     removeFreeText(sectionKey);
   }, [original, sectionKey]);
 
+  // Once every original word is gone, the section stays read: notes typed
+  // afterwards share vocabulary with the original and must not regress it.
+  const [latched, setLatched] = useState<boolean>(
+    () => !!saved && saved.contentHash === contentHash && saved.completed === true,
+  );
+  const latchedRef = useRef(latched);
+  latchedRef.current = latched;
+  useEffect(() => {
+    if (latched || totalWords === 0) return;
+    if (remainingTokens(originalTokens, tokenize(text)) === 0) setLatched(true);
+  }, [latched, text, originalTokens, totalWords]);
+
   const consumedWords = useMemo(() => {
+    if (latched) return totalWords;
     if (totalWords === 0) return 0;
     const remaining = remainingTokens(originalTokens, tokenize(text));
     return Math.min(totalWords, totalWords - remaining);
-  }, [originalTokens, text, totalWords]);
+  }, [latched, originalTokens, text, totalWords]);
 
   return {
     enabled,

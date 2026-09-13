@@ -1397,7 +1397,10 @@ function InteractiveSection({
               reset section
             </button>
           </div>
-          <FreeReadingText fr={fr} />
+          <FreeReadingText
+            fr={fr}
+            label={`Section ${sectionIndex + 1} text — delete what you have read, type your notes freely`}
+          />
           {fr.stale && (
             <p className="fr-note" role="note">
               the lesson text changed since this note was last edited, so the saved text was reset

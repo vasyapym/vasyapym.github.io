@@ -9,6 +9,8 @@ export type FreeReadingText = {
   readonly v: 2;
   readonly contentHash: string;
   readonly text: string;
+  /** Latch: once every original word was deleted, typed notes can't regress it. */
+  readonly completed?: boolean;
   readonly updatedAt: number;
 };
 

@@ -218,6 +218,12 @@ try {
   check(await appears(".practice-reader"), "reader reopens for the free-reading leg");
   check(await appears(".fr-controls"), "free reading controls render in the bar");
 
+  const overlayCovers = await page.evaluate(() => {
+    const r = document.querySelector(".practice-lesson-overlay").getBoundingClientRect();
+    return r.top <= 0 && r.bottom >= window.innerHeight && r.left <= 0 && r.right >= window.innerWidth;
+  });
+  check(overlayCovers, "lesson overlay covers the viewport (bug-4 guard)");
+
   const offParagraphs = await page.$$eval(".practice-reader-section p", (els) => els.length);
   check(offParagraphs > 0, `passive mode renders rich prose (${offParagraphs} paragraphs)`);
 
@@ -232,6 +238,13 @@ try {
     (el) => el.value.split(/\s+/).filter(Boolean).length,
   );
   check(proseWords > 10, `textarea is prefilled with the section prose (${proseWords} words)`);
+
+  const areaLaws = await page.$eval(".fr .fr-area", (el) => ({
+    grows: el.scrollHeight <= el.clientHeight + 1,
+    font: parseFloat(getComputedStyle(el).fontSize),
+  }));
+  check(areaLaws.grows, "textarea auto-grow leaves nothing clipped");
+  check(areaLaws.font >= 16, `textarea font >= 16px so iOS never auto-zooms (${areaLaws.font})`);
 
   // Reading = removing the original text: select everything and delete.
   await page.$eval(".fr .fr-area", (el) => {
@@ -272,6 +285,27 @@ try {
     `typing digits in the note never navigates sections (${activeBeforeType} -> ${activeAfterType})`,
   );
 
+  const progressLatched = await page.$eval(".fr-progress", (el) => ({
+    value: Number(el.value),
+    max: Number(el.max),
+  }));
+  check(
+    progressLatched.value === progressLatched.max,
+    `typing notes never regresses a finished section (${progressLatched.value}/${progressLatched.max})`,
+  );
+
+  const savedOk = await page.evaluate(() => {
+    const key = Object.keys(localStorage).find((k) => k.includes("free:v2") && k.includes("#s0"));
+    if (!key) return false;
+    try {
+      const rec = JSON.parse(localStorage.getItem(key));
+      return rec?.v === 2 && typeof rec.text === "string" && rec.text.includes("my own note");
+    } catch {
+      return false;
+    }
+  });
+  check(savedOk, "debounced flush persisted the note to localStorage");
+
   // Reset restores the prose and clears the counter.
   await page.click(".practice-reader .fr-mini");
   await wait(300);
@@ -279,6 +313,11 @@ try {
   check(countReset.startsWith("0/"), `section reset returns to zero (${countReset})`);
   const resetFilled = await page.$eval(".fr .fr-area", (el) => el.value.length > 0);
   check(resetFilled, "reset restores the prose into the textarea");
+  const recordGone = await page.evaluate(() => {
+    const key = Object.keys(localStorage).find((k) => k.includes("free:v2") && k.includes("#s0"));
+    return key == null;
+  });
+  check(recordGone, "resetting to pristine removes the section record");
 
   await page.click(".fr-controls button");
   await wait(300);
@@ -310,6 +349,11 @@ try {
   check(goCardCount === 1, `Go area renders its single flagship card (${goCardCount})`);
   await page.click(".practice-topic-card .practice-lesson-open");
   check(await appears(".practice-reader"), "Go deep reader opens");
+  const goOverlayCovers = await page.evaluate(() => {
+    const r = document.querySelector(".practice-lesson-overlay").getBoundingClientRect();
+    return r.top <= 0 && r.bottom >= window.innerHeight && r.left <= 0 && r.right >= window.innerWidth;
+  });
+  check(goOverlayCovers, "Go lesson overlay covers the viewport (19-section bug-4 guard)");
   const goChipCount = await page.$$eval(".practice-reader-nav button", (b) => b.length);
   check(goChipCount === 19, `Go lesson lists all 19 sections (${goChipCount})`);
   const goCallouts = await page.$$eval(".practice-callout", (c) => c.length);
@@ -636,6 +680,9 @@ try {
   check(await appears(".practice-reader"), "reader opens at 320px for the free-reading leg");
   await page.tap(".fr-controls button");
   check(await appears(".fr .fr-area"), "free reading mounts at 320px");
+
+  const narrowGrow = await page.$eval(".fr .fr-area", (el) => el.scrollHeight <= el.clientHeight + 1);
+  check(narrowGrow, "auto-grow leaves nothing clipped at 320px");
 
   const escapesFree = await walkHorizontalEscape();
   check(

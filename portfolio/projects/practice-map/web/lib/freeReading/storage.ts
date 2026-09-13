@@ -79,6 +79,10 @@ function subscribe(cb: () => void) {
   };
 }
 
+// A module-level wrapper keeps the reference stable across renders, so
+// useSyncExternalStore doesn't unsubscribe/resubscribe on every render.
+const stableSubscribe = (cb: () => void) => subscribe(cb);
+
 export function isSettingsRecord(x: unknown): x is FreeReadingSettings {
   if (!x || typeof x !== "object") return false;
   const o = x as Record<string, unknown>;
@@ -96,17 +100,18 @@ export function isTextRecord(x: unknown): x is FreeReadingText {
     o.v === 2 &&
     typeof o.contentHash === "string" &&
     typeof o.text === "string" &&
+    (o.completed === undefined || typeof o.completed === "boolean") &&
     typeof o.updatedAt === "number"
   );
 }
 
 function useStoredRecord<T>(key: string, isValid: (x: unknown) => x is T) {
   const value = useSyncExternalStore(
-    (cb) => subscribe(cb),
+    stableSubscribe,
     () => readRecord(key, isValid),
     () => null, // server snapshot — renders as absent until hydrated
   );
-  const hydrated = useSyncExternalStore(subscribe, () => true, () => false);
+  const hydrated = useSyncExternalStore(stableSubscribe, () => true, () => false);
   return { value, hydrated };
 }
 

@@ -23,3 +23,21 @@
   - Safari behaviors (the 4 reported bugs) are now structurally addressed by removing the hidden-input/beforeinput machinery, but NOT verified on Safari — no Safari automation in this environment. Bug triage round planned against a longer-context chat model.
   - The word-multiset progress measure tolerates free typing anywhere but counts duplicates coarsely (a removed word re-typed as a note reads as not-yet-consumed) — accepted trade-off for O(n) per keystroke.
 - Next action: bug-triage + design-polish round with the longer-context chat model (brief prepared), then real-browser verification when Chrome/Safari tooling is available.
+
+## Pass C002 — VERIFIED (typecheck scope)
+- Objective and scope: integrate the long-context chat model's triage verdicts + polish review into the free-reading surface — the fixes that are correct by construction and verifiable here; record the deferred/decisive-experiment items.
+- Acceptance criteria (this pass): iOS never auto-zooms a section note (font ≥ 16px); no silently clipped last line (overflow-y safety net); finishing a section latches (typed notes never regress progress); the beforeunload listener can't leak; the sticky bar's z-order is provably above textareas; a11y: per-section label + live progress region; check gains structural guards (overlay coverage incl. the 19-section Go lesson, auto-grow integrity, font threshold, persistence round-trip, pristine-cleanup, latch).
+- Changes: freeReading css (`font-size: max(1rem, 16px)`, `overflow-y: auto` safety net, `.fr-visually-hidden`), FreeReadingText (visualViewport reveal-on-resize for the keyboard case, per-section label prop, unique-id live region described-by), useFreeReading (completed latch stored in the record; stable beforeunload/visibilitychange closures), storage (optional completed in validator; module-level stableSubscribe — no per-render resubscribe), PracticeMapPage (label wiring), check legs (6 new assertions).
+- Baseline: typecheck PASS; browser check NOT RUN (no Chrome in this environment — unchanged limitation).
+- Verification:
+  - Command: `npm run typecheck` (portfolio/shell)
+    Result: PASS, exit 0.
+  - Browser check: NOT RUN (environmental; assertions added for the next Chrome-capable run).
+- Final diff review: performed — no debug scaffolding; the §B.3 regression scenario is now covered by the latch + a check assertion; §B.9 (stale-record removal) REJECTED with reason: removing the record would remove the note's trigger (stale derives from the record's presence), so the note could never be shown — the note stays until the next edit overwrites the record.
+- Design constraints: owner's pivot intact; salvage rules (fittable fragments only; no blind swaps of the proven scroll-lock).
+- Remaining risks/blockers:
+  - Bug 4 (Safari overlay void): shell untouched — decisive experiment (pre-scroll to bottom → open Go lesson; correlate with scrollY) documented; the check now asserts overlay coverage in Chrome as a regression guard. Real-Safari verification pending.
+  - Bugs 1–2: structurally moot (machinery deleted); decisive experiments documented for a real-Safari session.
+  - Toggle-cost measurement (§A.3): pending real profiling; mitigation paths (startTransition / virtualization) noted, not applied.
+  - Word-multiset coarse duplicate counting: mitigated by the latch for the finish case; mid-reading duplicate notes can still shift the count slightly — accepted.
+- Next action: real-browser verification round (Chrome for the check, Safari for the decisive experiments) when tooling is available; otherwise task-level close with the checks above as NOT RUN items.
