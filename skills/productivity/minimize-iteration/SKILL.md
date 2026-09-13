@@ -22,16 +22,22 @@ The owner reserves one opener for the **randomized routing chat model** (never f
 
 The randomized routing model may answer in a different direction than the one asked — at good or great quality. Integrating its reply is therefore salvage, not compliance: read for fragments of code that are fittable in the repo, lift those fragments (repaired to repo conventions, typechecked), wire them in, and leave the rest of the reply on the floor. Never paste the reply wholesale.
 
+## Deepening rounds
+
+Some asks cannot stay one sentence: settling a design, triaging reported bugs, diagnosing causes — their non-inferable part is evidence (the current code verbatim, symptoms, screenshot facts), and evidence doesn't compress. The proven shape is two tiers. First the randomized routing round: cheap, fast, direction-bent — its fittable fragments get salvaged into the repo. Then a **deepening round** against a longer-context chat model: a full, self-contained brief carrying the salvaged state (the code as it now stands, verbatim — that model must reason about what is really there), the symptoms verbatim, the reasoning bar, and the output contract. Spend length freely there — that model accepts it — but inference accounting still rules the brief: only what THAT model cannot reconstruct. Its reply integrates like any other: salvage, repair to conventions, run the checks.
+
 ## The loop
 
 1. Extract the task to its core and write the minimal prompt.
 2. Hand it to the user to paste; the reply comes back pasted into this session.
 3. Integrate by salvage: the reply may arrive in a different direction than asked, at good or great quality — mine it for the fragments that fit the repo, repair them to its conventions (frontmatter, manifests, shared field names), leave the rest behind, run the relevant checks.
-4. If the reply comes back thin or generic, shorten less next round — move one level of detail (a contract, an example, a constraint) back into the prompt and resend.
+4. If the ask outgrows one sentence (a design to settle, bugs to triage, causes to diagnose), escalate to the deepening round instead of padding the short prompt.
+5. If the reply comes back thin or generic, shorten less next round — move one level of detail (a contract, an example, a constraint) back into the prompt and resend.
 
 ## It's working if
 
 - The prompt fits in one or two lines and contains no fact a strong model could reconstruct.
 - The prompt names no project and narrates no current state — unless diagnosing or changing that state is the task itself.
 - The reply is usable without a follow-up question — or direction-bent but fittable: its best fragments land, the rest is discarded without regret.
+- A deepening brief carries the salvaged state verbatim — the evidence, not the narration.
 - Integration restores everything routing variance dropped, and the checks pass.

@@ -23,7 +23,11 @@ Identity and history are the first candidates for the cut: the project's name, h
 
 The owner reserves one opener for the **randomized routing chat model** (never for usual chat models): the prompt starts `comprehensive code - ` and the ask follows. That model may answer in a different direction than the one asked — at good or great quality. Integrating its reply is therefore salvage, not compliance: read for fragments of code that are fittable in the repo, lift those fragments (repaired to repo conventions, typechecked), wire them in, and leave the rest of the reply on the floor. Never paste the reply wholesale.
 
-The loop is short: write the minimal prompt, let the user paste it, salvage the pasted reply against the current repo state (mine the fitting fragments, repair frontmatter, restore fixed contracts the short prompt omitted, run the relevant checks), and if the reply comes back thin, move one level of detail back into the next prompt rather than rewriting the whole thing.
+## Deepening rounds
+
+Some asks cannot stay one sentence: settling a design, triaging reported bugs, diagnosing causes — their non-inferable part is evidence (the current code verbatim, symptoms, screenshot facts), and evidence doesn't compress. The proven shape is two tiers. First the randomized routing round: cheap, fast, direction-bent — its fittable fragments get salvaged into the repo. Then a **deepening round** against a longer-context chat model: a full, self-contained brief carrying the salvaged state (the code as it now stands, verbatim — that model must reason about what is really there), the symptoms verbatim, the reasoning bar, and the output contract. Spend length freely there — that model accepts it — but inference accounting still rules the brief: only what THAT model cannot reconstruct. Its reply integrates like any other: salvage, repair to conventions, run the checks.
+
+The loop is short: write the minimal prompt, let the user paste it, salvage the pasted reply against the current repo state (mine the fitting fragments, repair frontmatter, restore fixed contracts the short prompt omitted, run the relevant checks), and if the reply comes back thin, move one level of detail back into the next prompt rather than rewriting the whole thing — escalating to a deepening round when the ask needs evidence, not more words.
 
 ## Common questions
 
@@ -47,11 +51,16 @@ Not for design and build asks. The name, the current state, and "own your choice
 
 Nothing is wasted. The randomized routing model trades direction for quality: what comes back is good or great, just possibly not what was ordered. Salvage it — lift the code fragments that fit the repo, repair them to its conventions, integrate, and leave the rest on the floor.
 
+**When does the prompt get to be long?**
+
+In a deepening round. Tasks that need the real evidence — a design to settle, bugs to triage, causes to diagnose — go first through the randomized routing tier (salvage its best fragments into the repo), then to a longer-context chat model as a full self-contained brief: the salvaged code verbatim, the symptoms, the reasoning bar, the output contract. Length is spent freely there, but only on what that model cannot reconstruct.
+
 ## It's working if
 
 - The prompt fits in one or two lines and contains no fact a strong model could reconstruct.
 - The prompt names no project and narrates no current state — unless diagnosing or changing that state is the task itself.
 - The reply is usable without a follow-up question — or direction-bent but fittable: its best fragments land, the rest is discarded without regret.
+- A deepening brief carries the salvaged state verbatim — the evidence, not the narration.
 - Integration restores everything routing variance dropped, and the checks pass.
 
 ## Where it fits
