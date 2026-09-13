@@ -7,7 +7,7 @@ const OUTLINE_SOULS = "#17130f";
 
 export function KittyPortrait() {
   const ink = OUTLINE_PASTEL;
-  const paper = "#efe5ce";
+  const paper = "#ffffff";
   const sun = "#d4ad67";
   const leather = "#806650";
 
@@ -23,8 +23,16 @@ export function KittyPortrait() {
       strokeLinejoin="round"
       strokeLinecap="round"
     >
-      {/* shirt under the leather travel scarf; head overlaps (no neck) */}
+      {/* white shirt with a leather collar band; head overlaps (no neck) */}
       <path d="M24 84 C24 71 36 64 50 64 C64 64 76 71 76 84 L78 100 L22 100 Z" fill={paper} />
+      {/* shirt placket + two buttons — the clothing read */}
+      <path d="M50 66 L50 100" strokeWidth={1.6} opacity={0.7} />
+      <circle cx="46.5" cy="76" r="1.3" fill={ink} stroke="none" />
+      <circle cx="53.5" cy="82" r="1.3" fill={ink} stroke="none" />
+      {/* collar band — leather, sun pin */}
+      <path d="M36 65 Q50 71 64 65" stroke={leather} strokeWidth={3.4} />
+      <ellipse cx="50" cy="68.5" rx="3.6" ry="2.1" fill={leather} stroke="none" />
+      <ellipse cx="50" cy="68.5" rx="1.3" ry="0.8" fill={sun} stroke="none" />
 
       {/* stubby arms, outward-down from shoulder level */}
       <ellipse cx="23" cy="78" rx="9" ry="4.8" transform="rotate(38 23 78)" fill={paper} />
@@ -37,22 +45,19 @@ export function KittyPortrait() {
       <path d="M21.5 27.5 L25 14 Q26.5 11 29 13.5 L37.5 20.5" fill={paper} />
       <path d="M78.5 27.5 L75 14 Q73.5 11 71 13.5 L62.5 20.5" fill={paper} />
 
-      {/* narrow level eyes — sun-gold lines */}
-      <path d="M30 47 H38" stroke={sun} strokeWidth={2.4} />
-      <path d="M62 47 H70" stroke={sun} strokeWidth={2.4} />
+      {/* upright oval eyes with a flat gold lid line across the top —
+          alert but level: neither Pop's round sparkle nor a slit squint */}
+      <ellipse cx="34" cy="48" rx="2.4" ry="3.6" fill={ink} stroke="none" />
+      <ellipse cx="66" cy="48" rx="2.4" ry="3.6" fill={ink} stroke="none" />
+      <path d="M31 45.4 H37" stroke={sun} strokeWidth={1.6} />
+      <path d="M63 45.4 H69" stroke={sun} strokeWidth={1.6} />
 
-      {/* angular ink nose + neutral mouth line */}
-      <path d="M47 50 L53 50 L50 53.5 Z" fill={ink} stroke="none" />
-      <path d="M50 56 H55" strokeWidth={1.6} opacity={0.7} />
+      {/* angular ink nose; NO mouth line (the beard culprit) */}
+      <path d="M47 51 L53 51 L50 54.5 Z" fill={ink} stroke="none" />
 
-      {/* whiskers — one clean pair per side, well above the mouth */}
-      <path d="M27 44 L3 40" strokeWidth={2} />
-      <path d="M73 44 L97 40" strokeWidth={2} />
-
-      {/* leather travel scarf at the neck */}
-      <path d="M34 62 Q50 68 66 62" stroke={leather} strokeWidth={4} />
-      <ellipse cx="50" cy="66" rx="4.5" ry="2.6" fill={leather} stroke="none" />
-      <ellipse cx="50" cy="66" rx="1.6" ry="1" fill={sun} stroke="none" />
+      {/* whiskers — two thin pairs per side, high, clearly feline */}
+      <path d="M27 42 L6 38 M26 48 L4 49" strokeWidth={1.8} />
+      <path d="M73 42 L94 38 M74 48 L96 49" strokeWidth={1.8} />
     </svg>
   );
 }
