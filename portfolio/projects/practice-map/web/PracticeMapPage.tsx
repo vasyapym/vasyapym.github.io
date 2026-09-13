@@ -686,10 +686,6 @@ function ConceptGraph({ onClose }: { onClose: () => void }) {
             </svg>
           </button>
         </header>
-        <p className="practice-graph-intro">
-          A live map of the ideas behind the route. Drag a node to inspect how the
-          curriculum connects.
-        </p>
         <div
           ref={canvasRef}
           className="practice-graph-canvas"

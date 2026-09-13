@@ -562,13 +562,18 @@ try {
     const canvas = document.querySelector(".practice-graph-canvas").getBoundingClientRect();
     return {
       panelFits: panel.top >= -1 && panel.bottom <= window.innerHeight + 1 && panel.left >= -1 && panel.right <= window.innerWidth + 1,
-      panelTall: panel.height >= window.innerHeight * 0.8,
-      canvasBig: canvas.height >= window.innerHeight * 0.55,
+      // R006 owner shape: a proportioned floating card (capped at 37rem)
+      // instead of the old full-height sheet, and a near-square canvas.
+      panelBounded: panel.height <= Math.min(window.innerHeight - 19.2, window.innerWidth + 7 * 16) + 2,
+      canvasRatio: canvas.height / canvas.width,
     };
   });
   check(sheetFit.panelFits, "graph sheet fits the viewport at 390px");
-  check(sheetFit.panelTall, `graph sheet is near full height (${Math.round(sheetFit.panelTall)})`);
-  check(sheetFit.canvasBig, `graph canvas fills ≥55vh on mobile (${Math.round(sheetFit.canvasBig)})`);
+  check(sheetFit.panelBounded, `graph sheet width-bounded cap (${Math.round(sheetFit.panelBounded)})`);
+  check(
+    sheetFit.canvasRatio >= 0.85 && sheetFit.canvasRatio <= 1.2,
+    `graph canvas near-square on mobile (h/w ${Math.round(sheetFit.canvasRatio * 100) / 100})`,
+  );
 
   const noOverflowGraph = await page.evaluate(
     () => document.querySelector(".practice-graph-overlay").scrollWidth <= window.innerWidth,
@@ -662,17 +667,22 @@ try {
   await wait(300);
   await page.tap(".practice-graph-open");
   check(await appears(".practice-graph-overlay"), "graph opens at 320px");
-  const narrowGraph = await page.evaluate(() => ({
-    noOverflow: document.querySelector(".practice-graph-overlay").scrollWidth <= window.innerWidth,
-    fits: (() => {
-      const r = document.querySelector(".practice-graph-panel").getBoundingClientRect();
-      return r.top >= -1 && r.bottom <= window.innerHeight + 1 && r.left >= -1 && r.right <= window.innerWidth + 1;
-    })(),
-    canvasBig: document.querySelector(".practice-graph-canvas").getBoundingClientRect().height >= window.innerHeight * 0.5,
-  }));
+  const narrowGraph = await page.evaluate(() => {
+    const panel = document.querySelector(".practice-graph-panel").getBoundingClientRect();
+    const canvas = document.querySelector(".practice-graph-canvas").getBoundingClientRect();
+    return {
+      noOverflow: document.querySelector(".practice-graph-overlay").scrollWidth <= window.innerWidth,
+      fits: (() => {
+        const r = panel;
+        return r.top >= -1 && r.bottom <= window.innerHeight + 1 && r.left >= -1 && r.right <= window.innerWidth + 1;
+      })(),
+      // R006 owner shape: the canvas is near-square, not a half-viewport tube.
+      canvasSquare: canvas.height >= canvas.width * 0.85,
+    };
+  });
   check(narrowGraph.noOverflow, "no horizontal overflow in the graph at 320px");
   check(narrowGraph.fits, "graph sheet fits the viewport at 320px");
-  check(narrowGraph.canvasBig, "graph canvas still fills the sheet at 320px");
+  check(narrowGraph.canvasSquare, "graph canvas near-square at 320px");
   await shot("narrow-graph");
   await page.keyboard.press("Escape");
   await wait(300);

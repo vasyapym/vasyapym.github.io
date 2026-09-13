@@ -197,3 +197,55 @@ e.g. lowercase mono chrome and the ink panel language, remain active constraints
 - Code verification: typecheck PASS, build PASS; R005 probe 7/7 (heights ±3 at 320/390, desktop unchanged, canvas 20px at 1440/390, zero clipped nodes); full `practice-map.check.mjs` 93 ok / 1 documented pre-existing environment fail (ArrowRight, chromium-1134).
 - Open question: none. (Model's forward-looking note: if a future constellation layout places chips hard into a corner, fix the JS placement bounds, not the CSS radius.)
 - Shipped: commit at round close per the owner's always-current-repo setting.
+
+## Feedback F015
+- Round: R005
+- Verdict: REJECTED
+- Scope: hero copy card headline size, desktop band (the card grew to 840×182 in R004)
+- Decision: the two-line headline reads too small for the enlarged card — raise it so the text feels proportionate to the section.
+- User source: "'deep lessons. local notes' section — Increase the font size so the text feels proportionate to the section. Right now, it looks too small for such a large area."
+- Artifact: artifacts/R005/hero-narrow-390.png
+- Supersedes: none
+
+## Feedback F016
+- Round: R005
+- Verdict: REJECTED
+- Scope: concept-graph overlay copy — the intro paragraph
+- Decision: remove "A live map of the ideas behind the route. Drag a node to inspect how the curriculum connects." from the overlay (JSX + its CSS, including media-query rules).
+- User source: "Concept Constellation — Remove this text: 'A live map of the ideas behind the route. Drag a node to inspect how the curriculum connects.'"
+- Artifact: artifacts/R005/graph-1440.png
+- Supersedes: none
+
+## Feedback F017
+- Round: R005
+- Verdict: REJECTED
+- Scope: concept-graph overlay layout on mobile (iOS Safari)
+- Decision: the overlay reads as squeezed into a small elongated container on mobile — improve the mobile layout (owner explicitly names iOS Safari).
+- User source: "Concept Constellation on mobile (iOS Safari) — The window looks squeezed into a small, elongated container. Please improve the mobile layout so it displays better on mobile."
+- Artifact: artifacts/R005/graph-390.png
+- Supersedes: none
+
+## Feedback F018
+- Round: R005
+- Verdict: REJECTED
+- Scope: areas-nav order — the Linux area's position (owner clarified via a targeted question: the AREA moves last, not a specific card)
+- Decision: the Linux area (20-card practical course) always sorts last in the areas list — Go's flagship stays first; future areas must not push Linux out of last place without reconsideration.
+- User source: "linux lesson card should always go the last" (clarified: "Область Linux — последняя в списке областей")
+- Artifact: artifacts/R004/hero-desktop.png
+- Supersedes: none
+- Shipped: F018 implemented directly by the orchestrator (owner's instruction: the chat model already holds the R006 brief, so this mechanical data change was not delegated) — commit 37e3727: curriculum order [Go, Rust, Symfony и Laravel, Linux]; check's Linux selector retargeted to `:nth-last-child(1)` (area-agnostic); typecheck/build PASS, check 93 ok / 1 pre-existing ArrowRight env fail.
+
+## Round R006
+- Goal: address F015–F017 — hero headline proportionate to the widened card, intro text removed, mobile graph no longer a squeezed tube. Delegated to the chat model (brief: docs/briefs/BRIEF-practice-map-hero-scale-graph-mobile.md; F018's Linux-area reorder was implemented directly by the orchestrator in the same window — commit 37e3727).
+- Preserved preferences: R004/R005 as shipped — band geometry, part-chip pills, canvas radius, stacked-height floor, Linux-last order.
+- Changes (chat-model decisions, integrated):
+  - F015: headline clamp divisor 31→22 with ceiling 2.3→3.2rem — 51.2px at 1440 (type-to-width ~6%), 43.3px at 1024, 31.6px at 768; the owner's earlier deliberate shrink respected (51.2, not the old 59). The ≤560 mobile override untouched; the 560→561 boundary step narrows (~10px → ~6px, documented in the model's notes).
+  - F016: `.practice-graph-intro` deleted (JSX line + base rule + ≤700 line-clamp rule, no orphans); the freed space absorbed by the canvas (base margin-top 1.5→1.2rem, mobile 0.7→0.5rem).
+  - F017: mobile panel capped so the canvas lands near-square. Integration delta: the model's fixed 37rem cap rested on a fixed-chrome estimate (~237px) that the live page disproved (~134px real — canvas measured 428×345, ratio 1.24); repaired to the model's own stated goal with a width-derived cap `min(calc(100dvh - 1.2rem), calc(100vw + 7rem))` — the canvas lands ~square at any width (probe: 336×345 = 0.98 at 390; 502px panel floats as a centered card, not a full-screen sheet). No JS change (the model's R4 declined; the ellipse radii map to near-circular on a square canvas automatically).
+- Check sync (requested-behavior retargets, documented): `panelTall ≥0.8vh` and `canvasBig ≥0.55vh` (both written for the old full-height sheet) and the 320px `canvas ≥50vh` leg were rewritten to the new shape's invariants — panel bounded by the width-derived cap, canvas h/w in [0.85, 1.2] at 390 and ≥0.85 at 320. Gates follow the requested geometry; none were removed.
+- Before: artifacts/R005/*
+- After: artifacts/R006/hero-desktop.png, artifacts/R006/graph-390.png, artifacts/R006/graph-1440.png
+- Visual inspection: performed — hero headline proportionate (51.2px, two lines, no third-line wrap at 1024); overlay on 390 reads as a proportioned floating card (502px panel, near-square canvas, page visible around it); intro gone; desktop graph structure unchanged.
+- Code verification: typecheck PASS, build PASS; full `practice-map.check.mjs` 93 ok / 1 documented pre-existing environment fail (ArrowRight, chromium-1134).
+- Open question: none. (Model's forward-looking note: `layoutParams` small-screen `marginX: 44 / marginY: 24` compresses the node area even on a square canvas — a future pass could equalize to 34/34 for a tighter circular distribution.)
+- Shipped: commit at round close per the owner's always-current-repo setting.
