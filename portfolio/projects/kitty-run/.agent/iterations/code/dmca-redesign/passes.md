@@ -433,3 +433,42 @@ autonomy for the chat model, with a shown deep-reasoning chain
   leather-scarf combo is untested against the "childish"/"scruffy" traps
   (it sits deliberately between dry-ink v1 and highland squint).
 - Next action: owner look at card + portrait; rig follows the verdict.
+
+## Pass C013 — VERIFIED (code scope) / visual NOT RUN
+
+- Objective and scope: owner verdict on the wanderer — **"the character
+  is good, let's choose this"** — with two follow-ups: (1) the in-game
+  character was still Pop Kitty, (2) the select portrait read as having
+  a beard. Direction ADOPTED; this pass completes all three surfaces.
+- Changes:
+  - `CharacterPortraits.tsx` — beard fix: the two lower whisker strokes
+    (running down to the chin) read as stubble; replaced with one clean
+    whisker pair per side, well above the mouth line, strokeWidth 2.
+  - `web/lib/palette.ts` — wanderer palette: kittyWhite #efe5ce (paper),
+    outlineInk #1f2e2d (ink), bowRed #d4ad67 (sun gold), bowDeep #b08a45,
+    suitPink #806650 (leather), suitDeep #5c4838, noseYellow #1f2e2d
+    (ink nose), cheek #d8c9ac, eyeInk #d4ad67 (gold gaze).
+  - `web/kitty/Kitty.tsx` — pastel face: round eyes + catchlights →
+    `eyeBar` (rounded rect 0.36×0.05, flat gold, no catchlight — the
+    level-gaze read), nose → noseYellow (ink), w-mouth → a short neutral
+    whisker-bar line offset right (asymmetric-free, subtle), star clip
+    removed (bowRef stays, null-safe). Scarf intentionally NOT rigged —
+    the leather scarf reads on the card/portrait; in-game the dress
+    silhouette already carries the cloth read, and a second trailing
+    element would collide with the best-run ghost echo.
+  - `web/scene/Echo.tsx` — FADED map fixed for the new palette
+    collisions (noseYellow == outlineInk, eyeInk == bowRed): duplicate
+    computed keys removed, bowRed/outlineInk lines cover all roles.
+    tsc caught it (TS1117) — same failure class as C003.
+- Verification:
+  - Command: `npm --prefix portfolio run typecheck`
+    Result: PASS (0 errors).
+  - Command: `node --experimental-strip-types portfolio/projects/kitty-run/tests/kitty-run.check.ts`
+    Result: PASS — "All kitty-run checks passed."
+  - Visual: NOT RUN — no browser binary on this machine.
+- Final diff review: four files, all task-scoped; souls branch untouched.
+- Design constraints: not applicable.
+- Remaining risks/blockers: owner visual check of the in-game cat (eye
+  bars at 55px, mouth line position) and the de-bearded portrait.
+- Next action: owner look; if accepted, the DMCA task is complete —
+  record a task-closing node.

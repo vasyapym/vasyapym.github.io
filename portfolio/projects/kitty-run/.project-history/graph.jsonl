@@ -226,3 +226,5 @@
 {"type":"edge.added","id":"e101","ts":"2026-09-13T21:59:14.728Z","from":"n108","to":"n109","rel":"continues"}
 {"type":"node.added","id":"n110","ts":"2026-09-13T21:59:32.456Z","kind":"iteration","actor":"user","title":"docs(kitty-run): record pass C012 — SPEC-9K4 wanderer salvaged onto card family, rig pending verdict","artifacts":[{"kind":"git-commit","ref":"2664282"}],"meta":{"source":"auto"}}
 {"type":"edge.added","id":"e102","ts":"2026-09-13T21:59:32.459Z","from":"n109","to":"n110","rel":"continues"}
+{"type":"node.added","id":"n111","ts":"2026-09-13T22:10:57.493Z","kind":"iteration","actor":"user","title":"feat(kitty-run): wanderer in-game — paper coat, sun-gold eye bars, ink nose, neutral mouth; portrait beard-fix (single whisker pair); echo collision map fixed","artifacts":[{"kind":"git-commit","ref":"6885522"}],"meta":{"source":"auto"}}
+{"type":"edge.added","id":"e103","ts":"2026-09-13T22:10:57.532Z","from":"n110","to":"n111","rel":"continues"}
