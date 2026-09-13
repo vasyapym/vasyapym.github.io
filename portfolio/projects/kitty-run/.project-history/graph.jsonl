@@ -216,3 +216,7 @@
 {"type":"edge.added","id":"e96","ts":"2026-09-13T21:07:49.480Z","from":"n103","to":"n104","rel":"continues"}
 {"type":"node.added","id":"n105","ts":"2026-09-13T21:23:00.085Z","kind":"iteration","actor":"user","title":"feat(kitty-run): highland squint — silver-blue coat, amber almond squint eyes, trailing wanderer scarf; all three surfaces + rig palette","artifacts":[{"kind":"git-commit","ref":"13d39bd"}],"meta":{"source":"auto"}}
 {"type":"edge.added","id":"e97","ts":"2026-09-13T21:23:00.089Z","from":"n104","to":"n105","rel":"continues"}
+{"type":"node.added","id":"n106","ts":"2026-09-13T21:30:17.667Z","kind":"iteration","actor":"user","title":"Revert \"feat(kitty-run): highland squint — silver-blue coat, amber almond squint eyes, trailing wanderer scarf; all three surfaces + rig palette\"","artifacts":[{"kind":"git-commit","ref":"f6db012"}],"meta":{"source":"auto"}}
+{"type":"edge.added","id":"e98","ts":"2026-09-13T21:30:17.690Z","from":"n105","to":"n106","rel":"continues"}
+{"type":"node.added","id":"n107","ts":"2026-09-13T21:33:48.636Z","kind":"iteration","actor":"user","title":"revert(kitty-run): restore full pop-kitty state (7b951df) — highland squint rejected ('dead cat, low effort'), tiger-bright remnants cleared","artifacts":[{"kind":"git-commit","ref":"f70adf2"}],"meta":{"source":"auto"}}
+{"type":"edge.added","id":"e99","ts":"2026-09-13T21:33:48.649Z","from":"n106","to":"n107","rel":"continues"}

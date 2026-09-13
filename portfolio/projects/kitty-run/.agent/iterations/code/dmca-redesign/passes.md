@@ -367,3 +367,32 @@ autonomy for the chat model, with a shown deep-reasoning chain
   scarf is new geometry (unviewed) — its pivot [-0.3, 0.86] and z -0.06
   were reasoned, not seen.
 - Next action: owner look at card + portrait + in-game run.
+
+## Pass C011 — VERIFIED (rollback)
+
+- Objective and scope: owner verdict on highland squint — **"dead cat
+  game, visuals look very low effort"**. Direction rejected; owner also
+  withdrew design trust from that relay model. Rolled ALL surfaces back
+  to the full Pop Kitty state (`7b951df` files restored verbatim: card
+  mark, portrait, rig, palette) — the last state the owner called
+  "fine".
+- Changes: reverts `f6db012`/`a8bd945`(highland) + file restore from
+  `7b951df` (cleared tiger-bright remnants the partial reverts had left
+  in the rig: stripes, singing mouth, ember palette).
+- Verification:
+  - Command: `npm --prefix portfolio run typecheck`
+    Result: PASS (0 errors).
+  - Command: `node --experimental-strip-types portfolio/projects/kitty-run/tests/kitty-run.check.ts`
+    Result: PASS — "All kitty-run checks passed."
+  - Spot checks: `pop-ink cat` card comment, `star clip`, `bowRed
+    #e94f64` all present.
+- Delivery: pushed `f70adf2`.
+- Verdict history now (for the next brief): HK-clone ✗(DMCA) → Pop Kitty
+  ◐"fine but not it" → Pixel ✗"too ugly" → Pixel v2 ✗"bad too" → dry-ink
+  v1 ◐"good but not quite, lacks character" → tom ✗"homeless alcoholic"
+  → tiger-bright ✗"childish" → highland squint ✗"dead cat, low effort".
+  The accepted core so far: Pop Kitty's soft warm geometry + dry-ink's
+  minimal confidence. Eight directions tried; the owner is now steering
+  to the randomized-routing tier with an obfuscated task framing.
+- Next action: randomized-model round (owner-led prompt design).
+
