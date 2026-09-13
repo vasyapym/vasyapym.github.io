@@ -53,6 +53,35 @@ function earShape(): THREE.Shape {
   return shape;
 }
 
+function starShape(outerR = 0.2, innerR = 0.09, points = 5): THREE.Shape {
+  const s = new THREE.Shape();
+  for (let i = 0; i < points * 2; i++) {
+    const r = i % 2 === 0 ? outerR : innerR;
+    const angle = (i * Math.PI) / points - Math.PI / 2;
+    const x = Math.cos(angle) * r;
+    const y = Math.sin(angle) * r;
+    if (i === 0) s.moveTo(x, y);
+    else s.lineTo(x, y);
+  }
+  s.closePath();
+  return s;
+}
+
+function mouthWShape(): THREE.Shape {
+  const s = new THREE.Shape();
+  const hw = 0.18;
+  const dip = 0.11;
+  const t = 0.05;
+  s.moveTo(-hw, 0);
+  s.quadraticCurveTo(-hw / 2, -dip, 0, 0);
+  s.quadraticCurveTo(hw / 2, -dip, hw, 0);
+  s.lineTo(hw, t);
+  s.quadraticCurveTo(hw / 2, -dip + t, 0, t);
+  s.quadraticCurveTo(-hw / 2, -dip + t, -hw, t);
+  s.closePath();
+  return s;
+}
+
 function dressShape(): THREE.Shape {
   const shape = new THREE.Shape();
   shape.moveTo(-0.5, 1.06);
@@ -395,6 +424,9 @@ export function Kitty({
       whisker: new THREE.PlaneGeometry(0.36, 0.032),
       bowLoop: new THREE.ShapeGeometry(ellipseShape(0.34, 0.24), seg),
       bowKnot: new THREE.ShapeGeometry(ellipseShape(0.16, 0.16), seg),
+      star: new THREE.ShapeGeometry(starShape(), seg),
+      mouth: new THREE.ShapeGeometry(mouthWShape(), seg),
+      catchlight: new THREE.ShapeGeometry(ellipseShape(0.035, 0.035), seg),
       dress: new THREE.ShapeGeometry(dressShape(), seg),
       foot: new THREE.ShapeGeometry(ellipseShape(0.11, 0.085), seg),
       arm: new THREE.ShapeGeometry(ellipseShape(0.12, 0.2), seg),
@@ -811,6 +843,9 @@ export function Kitty({
                   position={[-0.4, 0.06, 0.27]}
                 >
                   <meshBasicMaterial color={palette.eyeInk} />
+                  <mesh geometry={geo.catchlight} position={[0.03, 0.04, 0.01]}>
+                    <meshBasicMaterial color="#ffffff" />
+                  </mesh>
                 </mesh>
                 <mesh
                   ref={eyeRRef}
@@ -818,9 +853,16 @@ export function Kitty({
                   position={[0.4, 0.06, 0.27]}
                 >
                   <meshBasicMaterial color={palette.eyeInk} />
+                  <mesh geometry={geo.catchlight} position={[0.03, 0.04, 0.01]}>
+                    <meshBasicMaterial color="#ffffff" />
+                  </mesh>
                 </mesh>
                 <mesh geometry={geo.nose} position={[0, -0.16, 0.27]}>
-                  <meshBasicMaterial color={palette.noseYellow} />
+                  <meshBasicMaterial color={palette.bowRed} />
+                </mesh>
+                {/* "w" mouth */}
+                <mesh geometry={geo.mouth} position={[0, -0.32, 0.255]}>
+                  <meshBasicMaterial color={palette.outlineInk} />
                 </mesh>
                 <mesh geometry={geo.cheek} position={[-0.68, -0.22, 0.26]}>
                   <meshBasicMaterial color={palette.cheek} />
@@ -956,31 +998,13 @@ export function Kitty({
                 />
               </group>
             ) : (
-              /* bow */
+              /* star hairclip */
               <group ref={bowRef} position={[0.52, 0.66, 0.32]}>
                 <Part
-                  geometry={geo.bowLoop}
+                  geometry={geo.star}
                   color={palette.bowRed}
-                  z={0.004}
-                  position={[-0.3, 0]}
-                  rotation={0.45}
-                  outline={1.12}
-                  outlineColor={palette.outlineInk}
-                />
-                <Part
-                  geometry={geo.bowLoop}
-                  color={palette.bowRed}
-                  z={0.004}
-                  position={[0.3, 0]}
-                  rotation={-0.45}
-                  outline={1.12}
-                  outlineColor={palette.outlineInk}
-                />
-                <Part
-                  geometry={geo.bowKnot}
-                  color={palette.bowDeep}
-                  z={0.016}
-                  outline={1.18}
+                  z={0}
+                  outline={1.2}
                   outlineColor={palette.outlineInk}
                 />
               </group>

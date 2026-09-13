@@ -130,13 +130,13 @@ function RaftCenterMark() {
   );
 }
 
-/* ── 2 · Cat Runner — pink spot ink, Hello-Kitty head mark in motion ── */
+/* ── 2 · Cat Runner — pop-ink cat: star clip, w-mouth, catchlight eyes ── */
 function KittyCenterMark() {
   return (
     <svg viewBox="0 0 260 160" aria-hidden="true">
       <defs>
         <pattern id="gem-cat-dense" patternUnits="userSpaceOnUse" width="7" height="7">
-          <circle cx="3.5" cy="3.5" r="1.9" fill="#ff8fbf" />
+          <circle cx="3.5" cy="3.5" r="1.9" fill="#e94f64" />
         </pattern>
         <pattern id="gem-cat-sparse" patternUnits="userSpaceOnUse" width="11" height="11">
           <circle cx="5.5" cy="5.5" r="1.6" fill="#7d7669" />
@@ -160,34 +160,38 @@ function KittyCenterMark() {
       <path d="M 46 120 Q 140 112 236 118" stroke="#465059" strokeWidth="5" strokeLinecap="round" fill="none" opacity="0.5" />
       {/* bullet-time dash trail on the ground */}
       <rect x="100" y="114" width="60" height="5" rx="2.5" fill="url(#gem-cat-dense)" opacity="0.45" />
-      {/* pink halftone ghost echo — head-only, close behind-left */}
+      {/* pop halftone ghost echo — head-only, close behind-left */}
       <g transform="translate(-40 4) scale(0.94)" opacity="0.14">
         <ellipse cx="136" cy="76" rx="40" ry="30" fill="url(#gem-cat-dense)" />
         <polygon points="106,62 94,38 122,54" fill="url(#gem-cat-dense)" />
         <polygon points="166,62 178,38 150,54" fill="url(#gem-cat-dense)" />
       </g>
       {/* ears (bases buried, painted before head) */}
-      <polygon points="106,62 94,38 122,54" fill="#f4efe4" />
-      <polygon points="166,62 178,38 150,54" fill="#f4efe4" />
-      {/* head dominates — the whole mark */}
-      <ellipse cx="136" cy="76" rx="40" ry="30" fill="#eeeae0" />
+      <polygon points="106,62 94,38 122,54" fill="#fff6ee" />
+      <polygon points="166,62 178,38 150,54" fill="#fff6ee" />
+      {/* head dominates — warm cream, flat comic fill */}
+      <ellipse cx="136" cy="76" rx="40" ry="30" fill="#fff6ee" />
       <g clipPath="url(#gem-cat-head-clip)">
-        <ellipse cx="136" cy="90" rx="40" ry="30" fill="#b6ac95" />
+        <ellipse cx="136" cy="90" rx="40" ry="30" fill="#f1b9c5" />
       </g>
       {/* whisker spikes — paper, punching past the head edge */}
-      <path d="M 100 68 L 78 64" stroke="#eeeae0" strokeWidth="2.2" strokeLinecap="round" />
-      <path d="M 100 76 L 76 76" stroke="#eeeae0" strokeWidth="2.2" strokeLinecap="round" />
-      <path d="M 100 84 L 78 88" stroke="#eeeae0" strokeWidth="2.2" strokeLinecap="round" />
-      <path d="M 172 68 L 194 64" stroke="#eeeae0" strokeWidth="2.2" strokeLinecap="round" />
-      <path d="M 172 76 L 196 76" stroke="#eeeae0" strokeWidth="2.2" strokeLinecap="round" />
-      <path d="M 172 84 L 194 88" stroke="#eeeae0" strokeWidth="2.2" strokeLinecap="round" />
-      {/* negative-space eyes, wide-set on one line */}
+      <path d="M 100 68 L 78 64" stroke="#f4efe4" strokeWidth="2.2" strokeLinecap="round" />
+      <path d="M 100 76 L 76 76" stroke="#f4efe4" strokeWidth="2.2" strokeLinecap="round" />
+      <path d="M 100 84 L 78 88" stroke="#f4efe4" strokeWidth="2.2" strokeLinecap="round" />
+      <path d="M 172 68 L 194 64" stroke="#f4efe4" strokeWidth="2.2" strokeLinecap="round" />
+      <path d="M 172 76 L 196 76" stroke="#f4efe4" strokeWidth="2.2" strokeLinecap="round" />
+      <path d="M 172 84 L 194 88" stroke="#f4efe4" strokeWidth="2.2" strokeLinecap="round" />
+      {/* ink eyes, low and wide, each with a white catchlight speck */}
       <ellipse cx="118" cy="78" rx="2.8" ry="4.2" fill="#0b1317" />
       <ellipse cx="154" cy="78" rx="2.8" ry="4.2" fill="#0b1317" />
-      {/* bow — the single pink signifier, overlapping right ear base */}
-      <ellipse cx="164" cy="54" rx="6" ry="5" fill="#ff8fbf" />
-      <ellipse cx="176" cy="54" rx="6" ry="5" fill="#ff8fbf" />
-      <circle cx="170" cy="55" r="3.2" fill="#a33a72" />
+      <circle cx="119" cy="76.4" r="1" fill="#ffffff" />
+      <circle cx="155" cy="76.4" r="1" fill="#ffffff" />
+      {/* accent nose (was unmarked) */}
+      <ellipse cx="136" cy="86" rx="3.4" ry="2.4" fill="#e94f64" />
+      {/* the w mouth — the loudest differentiator */}
+      <path d="M 130 92 Q 133 96 136 92.5 Q 139 96 142 92" fill="none" stroke="#3a3142" strokeWidth="2" strokeLinecap="round" />
+      {/* star clip on the right ear — the bow is gone */}
+      <polygon points="176,31 178.9,38 186.5,38.6 180.8,43.5 182.5,50.9 176,47 169.5,50.9 171.2,43.5 165.5,38.6 173.1,38" fill="#e94f64" />
       {/* single tiny glint */}
       <rect x="122" y="58" width="2.6" height="2.6" fill="#ffffff" opacity="0.55" />
     </svg>
