@@ -21,6 +21,15 @@ import type { GpgpuParticles, Poke } from "./gpgpu";
 import { createCmbShell, createCoreGlow } from "./backdrop";
 import { buildTicks, grabUi, attachTimelineScrub, updateUi } from "./ui";
 import type { UiRefs } from "./ui";
+import { FateParticles } from "./fatesParticles";
+import {
+  FATE_PARAMS,
+  fateProgress,
+  tauFromProgress,
+  type FateMode,
+} from "./fates";
+import { mountFatesUi } from "./fatesUi";
+import type { FatesUiHandle } from "./fatesUi";
 
 const isCoarse = window.matchMedia("(pointer: coarse)").matches;
 const PARTICLES = isCoarse || window.innerWidth < 800 ? 90_000 : 220_000;
@@ -130,6 +139,86 @@ const grade = createGradePass();
 composer.addPass(grade.pass);
 grade.uniforms.uRes.value.set(window.innerWidth, window.innerHeight);
 
+// ---- fate mode (off by default; the past timeline is untouched) -----------
+
+const FATE_MODES = Object.keys(FATE_PARAMS) as FateMode[];
+const fatesAvailable = gpgpuSys !== null;
+let fate: FateParticles | null = null;
+let fateMode: FateMode = "heatDeath";
+let fatePaused = false;
+let fateSpeed = 0.25;
+let fatesUi: FatesUiHandle | null = null;
+
+function setPastVisibility(visible: boolean): void {
+  sys.points.visible = visible;
+  cmb.mesh.visible = visible;
+  glow.sprite.visible = visible;
+}
+
+function enterFate(m: FateMode): void {
+  if (!fatesAvailable) return;
+  if (fate) {
+    scene.remove(fate.points);
+    fate.dispose();
+  }
+  fateMode = m;
+  fatePaused = false;
+  fate = new FateParticles(renderer, m, { particleCount: renderCount });
+  scene.add(fate.points);
+  setPastVisibility(false);
+  fatesUi?.setActive(m);
+}
+
+function leaveFate(): void {
+  if (!fate) return;
+  scene.remove(fate.points);
+  fate.dispose();
+  fate = null;
+  setPastVisibility(true);
+  fatesUi?.setActive(null);
+}
+
+function pushFateHud(): void {
+  if (!fate || !fatesUi) return;
+  fatesUi.setHud({
+    tau: fate.tau,
+    a: fate.a,
+    progress: fateProgress(fateMode, fate.tau),
+    mode: fateMode,
+  });
+}
+
+// Deterministic seek: reset to the seed state, then advance one
+// halo-core-stable substep at a time to the target τ.
+function seekFate(progress: number): void {
+  if (!fate) return;
+  fate.resetTo(fateMode);
+  fate.seek(tauFromProgress(fateMode, progress));
+  pushFateHud();
+}
+
+if (fatesAvailable) {
+  fatesUi = mountFatesUi({
+    onEnter: enterFate,
+    onLeave: leaveFate,
+    onScrub: () => {}, // drag preview only; the seek happens on release
+    onScrubEnd: seekFate,
+    onEngineCommand: (cmd) => {
+      if (cmd.type === "pause") fatePaused = true;
+      else if (cmd.type === "play") fatePaused = false;
+      else if (cmd.type === "restart") {
+        fate?.resetTo(fateMode);
+        pushFateHud();
+      }
+    },
+  });
+
+  const fateParam = new URLSearchParams(window.location.search).get("fate");
+  if (fateParam && (FATE_MODES as string[]).includes(fateParam)) {
+    enterFate(fateParam as FateMode);
+  }
+}
+
 const ui: UiRefs = grabUi();
 buildTicks(ui);
 ui.techline.textContent = gpgpuSys
@@ -226,6 +315,24 @@ syncBufferHeight();
 
 window.addEventListener("keydown", (e) => {
   if (e.metaKey || e.ctrlKey || e.altKey) return;
+  if (fate) {
+    // Fate mode owns the keys: pause/restart/speed drive the fate clock.
+    if (e.code === "Space") {
+      e.preventDefault();
+      fatePaused = !fatePaused;
+    } else if (e.code === "KeyR") {
+      e.preventDefault();
+      fate.resetTo(fateMode);
+      pushFateHud();
+    } else if (e.code === "ArrowUp") {
+      e.preventDefault();
+      fateSpeed = Math.min(5, fateSpeed * 1.35);
+    } else if (e.code === "ArrowDown") {
+      e.preventDefault();
+      fateSpeed = Math.max(0.05, fateSpeed / 1.35);
+    }
+    return;
+  }
   if (e.code === "Space") {
     e.preventDefault();
     playing = !playing;
@@ -306,6 +413,18 @@ function frame(): void {
   glow.material.opacity = Math.min(1, Math.min(0.5, 0.5 * st.earlyBoost) + 0.7 * flash);
 
   bloom.strength = 0.5 + 0.3 * st.earlyBoost + 1.4 * flash;
+
+  // Fate engine advances on its own Hubble-time clock; when paused the
+  // step call is skipped entirely so a terminal ∎ marker never flickers.
+  if (fate && fatesUi && !fatePaused) {
+    const r = fate.step(fateSpeed * dt);
+    fatesUi.setTerminal(r.terminal);
+    pushFateHud();
+    if (r.terminal && (fateMode === "bigCrunchClosed" || fateMode === "bigCrunchLambda")) {
+      fatesUi.flashRebirth();
+      fate.resetTo(fateMode);
+    }
+  }
 
   controls.update();
   composer.render();

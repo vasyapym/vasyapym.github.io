@@ -492,7 +492,7 @@ export class FateParticles {
     this.renderer = renderer;
     this.particleCount = p.particleCount ?? 220_000;
     this.eps = p.eps ?? 0.004;
-    this.omegaMax = p.omegaMax ?? 4400;
+    this.omegaMax = p.omegaMax ?? 440;
     this.omegaDtTarget = p.omegaDtTarget ?? 0.15;
     this.maxPasses = p.maxPassesPerFrame ?? 32;
     const box = p.box ?? 1;
@@ -661,6 +661,34 @@ export class FateParticles {
     this.integrator = new FateIntegrator(mode);
     this.read = { pos: this.initPos, vel: this.initVel };
     this.writeIndex = 0;
+    this.syncRenderUniforms();
+  }
+
+  // Deterministic seek for the fate scrub: advance from the current state
+  // one halo-core-stable substep at a time, running a GPU pass per substep.
+  // The pass budget bounds the cost; near a terminal the warped clock's own
+  // slowdown may leave the last sliver uncovered — the HUD reports the τ
+  // actually reached.
+  seek(targetTau: number, passBudget = 24000): void {
+    const gl = this.renderer;
+    const prevTarget = gl.getRenderTarget();
+    const prevAutoClear = gl.autoClear;
+    gl.autoClear = false;
+
+    let budget = passBudget;
+    const dtFloor = this.omegaDtTarget / this.omegaMax;
+    while (this.integrator.tau < targetTau && budget > 0) {
+      const r = this.integrator.advance(dtFloor);
+      for (const sub of r.substeps) {
+        if (budget <= 0) break;
+        budget--;
+        this.runSubstep(sub);
+      }
+      if (r.terminal || r.substeps.length === 0) break;
+    }
+
+    gl.setRenderTarget(prevTarget);
+    gl.autoClear = prevAutoClear;
     this.syncRenderUniforms();
   }
 

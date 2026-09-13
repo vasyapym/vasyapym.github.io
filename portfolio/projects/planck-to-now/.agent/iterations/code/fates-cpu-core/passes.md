@@ -57,3 +57,30 @@
   - GPU paths unverified at runtime (first render may surface shader-compile or MRT-binding issues) — expected to surface in the B3 integration smoke.
   - crunchLambda visual at a≈2e-9: all halos collapse to origin (physically correct, visually needs the B2b draw path / UX framing).
 - Next action: B3 brief — main.ts integration (fate selector UI, timeline extension, engine lifecycle) + smoke legs; then B2b draw-path brief (log-radial projection, per-fate grading).
+
+## Pass C003 — VERIFIED (typecheck + unit tests + build scope; browser NOT RUN)
+- Objective and scope: salvage-integrate the randomized-routing reply for B3 — fate-mode UI + main.ts wiring: `src/fatesUi.ts` (DOM-only overlay) + main.ts patch (imports, fate state machine, frame-loop stepping, key ownership), per the B3 contract (R1 off-by-default bit-identity, R4 rebirth epilogue with explicit HUD line, deterministic scrub).
+- Salvage decisions:
+  - KEPT: the reply's fatesUi architecture (callbacks + handle, mode buttons, HUD, flash/msg rebirth overlay, dragging guard against slider↔HUD feedback), its deterministic scrub invariant (reset-then-advance), its main.ts structure (null `fate` guard around every added statement).
+  - REPAIRED during integration:
+    1. Import paths: reply assumed `./fateParticles` exporting everything; actual layout is `FateParticles` in `./fatesParticles`, `fateProgress`/`tauFromProgress`/`FateMode` in `./fates`. Type drift eliminated by importing FateMode from fates.ts.
+    2. Patch anchors: reply's anchors (`const renderer = new THREE.WebGLRenderer({antialias:true})`, bare `clock.getDelta()`) do not exist in main.ts — spliced by real anchors (after grade setup, after bloom.strength, into the keydown handler).
+    3. Paused-terminal flicker: reply called `fate.step(fatePaused ? 0 : ...)` — engine.step(0) returns terminal:false, which would clear the ∎ marker every paused frame. Fixed: the step block is skipped entirely while paused.
+    4. Scrub throughput: the reply's `resetTo + single step(tauFromProgress)` cannot reach its target — engine.step's per-frame pass budget (32) covers ~1e-3 τ per call. Added `FateParticles.seek(targetTau, passBudget)` advancing one halo-core-stable substep per pass with a 24k-pass budget (~0.5–1.5 s one-time GPU cost per release).
+    5. ω_max default 4400 → 440: at 4400 the halo-core floor (dt = 0.15/4400 ≈ 3.4e-5) caps timeline throughput at ~0.07 τ/s and makes any scrub traverse cost ~10⁶ passes. At 440 halos stay bound against the Λ tide (binding margin at 3ε ≈ 6·10³ ≫ 0.69), rip unbinding now spans the last ~0.09 τ (a visible progressive dissolution arc instead of a final-frame flash), and the timeline traverses at ~2.6 τ/s. Documented deviation from the design's galaxy-interior realism number — visual traversability wins for a portfolio piece.
+    6. Panel placement/visibility: reply's always-visible 230px panel at right:12px/bottom:12px would cover the timeline scrub (#timeline bottom:64px center) and violate R1's zero-DOM-noise-when-off. Panel moved top-right (free corner: #panel is top-left, #hints bottom-right), collapsed behind a "fates ▾" toggle, auto-opens on enter.
+    7. Scrub UX split: `input` during drag fires the cheap onScrub (noop in main.ts), `change` on release fires the deterministic seek — live per-pixel seeking at 20k+ passes per event would stall the drag.
+    8. Engine lifecycle: leave now disposes the engine (reply parked it — re-entering leaked both MRT target sets per enter); past scene objects (points/CMB/glow) hidden during fate mode and restored on leave (both systems rendering simultaneously would double-draw the field).
+    9. `?fate=<mode>` URL param auto-enters (deep-linking + future smoke legs); fates UI only mounts when the GPGPU path is active (static fallback devices never see a broken engine).
+- Baseline: verify PASS before edits (C002 state).
+- Verification:
+  - Command: `npm run verify` (typecheck + cosmology.check + fates.check 35/35 + fatesParticles.check 50/50 + esbuild build)
+    Result: PASS, exit 0, first run after the final edit.
+  - Browser smoke (R1 bit-identity, enter/leave, scrub determinism, rebirth flash): NOT RUN — no Chrome in this environment. The `?fate=` param is the ready-made smoke entry point.
+- Final diff review: performed — two new files (fatesUi.ts, seek addition), four anchored edits in main.ts, ω_max default change; no debug scaffolding; past-history code paths untouched except the keydown branch (guarded by `if (fate)`).
+- Design constraints: B3 contract R1–R5; R2 deviation noted — the reply (and this integration) allow entering fate mode anytime via the panel, not only from the timeline's end; flagged for the owner's design round.
+- Remaining risks/blockers:
+  - All visual/GPU behavior unverified at runtime (first render may surface shader-compile or MRT issues).
+  - Panel styling is placeholder generic (not the app's ink palette) — design-iteration round pending.
+  - R2 entry-gating deviation awaits owner verdict.
+- Next action: design round (screenshots when Chrome available) + owner verdict on entry gating; then B2b draw-path brief (log-radial projection, per-fate grading) remains open.
