@@ -11,10 +11,10 @@ Delegate work to a separate chat model with the shortest prompt that still carri
 
 The chat model has no repo access, no tools, and no memory of this conversation. It also arrives preloaded with conventions: a term that names a known format, spec, or genre unpacks a whole instruction set inside it for free (`SKILL.md` implies frontmatter plus imperative markdown; a well-named skill implies its own loop). Write the prompt from that side:
 
-- **Keep** the three things it cannot guess: the non-inferable specifics (names, contracts, constraints unique to this task), the output contract (exactly what to reply with and in what shape), and the reasoning bar in two or three words ("think hard, own all choices").
-- **Drop** everything else: politeness, background the names already carry, step-by-step method, anything you will reconcile yourself when integrating.
+- **Keep** the three things it cannot guess: the non-inferable specifics (contracts, constraints unique to this task), the output contract (exactly what to reply with and in what shape), and, only when depth is the known risk, a reasoning nudge of two or three words ("think hard").
+- **Drop** everything else: politeness, step-by-step method, anything you will reconcile yourself when integrating. Identity and history go first: the project's name, how it currently works, and autonomy reminders — a strong model owns its choices by default.
 
-Aim for one sentence, no markdown inside, delivered in a copy-pastable block.
+Aim for one sentence, no markdown inside, delivered in a copy-pastable block. A redesign ask can shrink to its tech stack plus the wanted behaviour: `react 19 + vite + typescript — free note-app editing: manually delete read text, type freely`.
 
 ## The loop
 
@@ -26,5 +26,6 @@ Aim for one sentence, no markdown inside, delivered in a copy-pastable block.
 ## It's working if
 
 - The prompt fits in one or two lines and contains no fact a strong model could reconstruct.
+- The prompt names no project and narrates no current state — unless diagnosing or changing that state is the task itself.
 - The reply is usable without a follow-up question.
 - Integration restores everything routing variance dropped, and the checks pass.
