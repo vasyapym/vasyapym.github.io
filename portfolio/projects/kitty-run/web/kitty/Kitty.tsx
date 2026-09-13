@@ -53,40 +53,31 @@ function earShape(): THREE.Shape {
   return shape;
 }
 
-// Pixel Kitty bell: rounded-rect body with an ink clapper nub, hanging from
-// the bowRef group so it inherits the bob+pulse animation (a bobbing bell
-// reads more naturally than a bobbing star). Enlarged past the spec's
-// 1.2×0.8 toward 1.4×1.0 so the silhouette carries the read at ~55px head
-// height (the spec's own risk callout: drop the clapper if it aliases).
-function bellShape(): THREE.Shape {
-  const w = 0.7;
-  const h = 0.5;
-  const r = 0.12;
-  const shape = new THREE.Shape();
-  shape.moveTo(-w / 2, -h / 2 - 0.18);
-  shape.lineTo(-w / 2, h / 2 - 0.18);
-  shape.quadraticCurveTo(-w / 2, h / 2, -w / 2 + r, h / 2);
-  shape.lineTo(w / 2 - r, h / 2);
-  shape.quadraticCurveTo(w / 2, h / 2, w / 2, h / 2 - 0.18);
-  shape.lineTo(w / 2, -h / 2 - 0.18);
-  shape.quadraticCurveTo(w / 2, -h / 2, w / 2 - r, -h / 2);
-  shape.lineTo(-w / 2 + r, -h / 2);
-  shape.quadraticCurveTo(-w / 2, -h / 2, -w / 2, -h / 2 - 0.18);
-  shape.closePath();
-  return shape;
+function starShape(outerR = 0.2, innerR = 0.09, points = 5): THREE.Shape {
+  const s = new THREE.Shape();
+  for (let i = 0; i < points * 2; i++) {
+    const r = i % 2 === 0 ? outerR : innerR;
+    const angle = (i * Math.PI) / points - Math.PI / 2;
+    const x = Math.cos(angle) * r;
+    const y = Math.sin(angle) * r;
+    if (i === 0) s.moveTo(x, y);
+    else s.lineTo(x, y);
+  }
+  s.closePath();
+  return s;
 }
 
-function mouthPixelShape(): THREE.Shape {
+function mouthWShape(): THREE.Shape {
   const s = new THREE.Shape();
-  // two short bars, 0.8 wide × 0.05 tall, 0.4 gap (the spec's mitigated size)
-  s.moveTo(-0.8, 0);
-  s.lineTo(-0.4, 0);
-  s.lineTo(-0.4, 0.05);
-  s.lineTo(-0.8, 0.05);
-  s.moveTo(0.4, 0);
-  s.lineTo(0.8, 0);
-  s.lineTo(0.8, 0.05);
-  s.lineTo(0.4, 0.05);
+  const hw = 0.18;
+  const dip = 0.11;
+  const t = 0.05;
+  s.moveTo(-hw, 0);
+  s.quadraticCurveTo(-hw / 2, -dip, 0, 0);
+  s.quadraticCurveTo(hw / 2, -dip, hw, 0);
+  s.lineTo(hw, t);
+  s.quadraticCurveTo(hw / 2, -dip + t, 0, t);
+  s.quadraticCurveTo(-hw / 2, -dip + t, -hw, t);
   s.closePath();
   return s;
 }
@@ -433,9 +424,9 @@ export function Kitty({
       whisker: new THREE.PlaneGeometry(0.36, 0.032),
       bowLoop: new THREE.ShapeGeometry(ellipseShape(0.34, 0.24), seg),
       bowKnot: new THREE.ShapeGeometry(ellipseShape(0.16, 0.16), seg),
-      mouth: new THREE.ShapeGeometry(mouthPixelShape(), seg),
-      bell: new THREE.ShapeGeometry(bellShape(), seg),
-      catchlight: new THREE.ShapeGeometry(rectShape(0.35, 0.35), seg),
+      star: new THREE.ShapeGeometry(starShape(), seg),
+      mouth: new THREE.ShapeGeometry(mouthWShape(), seg),
+      catchlight: new THREE.ShapeGeometry(ellipseShape(0.035, 0.035), seg),
       dress: new THREE.ShapeGeometry(dressShape(), seg),
       foot: new THREE.ShapeGeometry(ellipseShape(0.11, 0.085), seg),
       arm: new THREE.ShapeGeometry(ellipseShape(0.12, 0.2), seg),
@@ -852,7 +843,7 @@ export function Kitty({
                   position={[-0.4, 0.06, 0.27]}
                 >
                   <meshBasicMaterial color={palette.eyeInk} />
-                  <mesh geometry={geo.catchlight} position={[0.1, 0.1, 0.01]}>
+                  <mesh geometry={geo.catchlight} position={[0.03, 0.04, 0.01]}>
                     <meshBasicMaterial color="#ffffff" />
                   </mesh>
                 </mesh>
@@ -862,14 +853,14 @@ export function Kitty({
                   position={[0.4, 0.06, 0.27]}
                 >
                   <meshBasicMaterial color={palette.eyeInk} />
-                  <mesh geometry={geo.catchlight} position={[0.1, 0.1, 0.01]}>
+                  <mesh geometry={geo.catchlight} position={[0.03, 0.04, 0.01]}>
                     <meshBasicMaterial color="#ffffff" />
                   </mesh>
                 </mesh>
                 <mesh geometry={geo.nose} position={[0, -0.16, 0.27]}>
-                  <meshBasicMaterial color={palette.noseYellow} />
+                  <meshBasicMaterial color={palette.bowRed} />
                 </mesh>
-                {/* pixel mouth: two flat bars */}
+                {/* "w" mouth */}
                 <mesh geometry={geo.mouth} position={[0, -0.32, 0.255]}>
                   <meshBasicMaterial color={palette.outlineInk} />
                 </mesh>
@@ -1007,19 +998,15 @@ export function Kitty({
                 />
               </group>
             ) : (
-              /* pixel bell — hangs from the bowRef group, inherits bob+pulse */
+              /* star hairclip */
               <group ref={bowRef} position={[0.52, 0.66, 0.32]}>
                 <Part
-                  geometry={geo.bell}
+                  geometry={geo.star}
                   color={palette.bowRed}
                   z={0}
                   outline={1.2}
                   outlineColor={palette.outlineInk}
                 />
-                {/* clapper nub below the bell body */}
-                <mesh geometry={geo.catchlight} position={[0, -0.62, 0.004]}>
-                  <meshBasicMaterial color={palette.outlineInk} />
-                </mesh>
               </group>
             )}
           </group>
