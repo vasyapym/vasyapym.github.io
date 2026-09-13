@@ -1,5 +1,6 @@
 // Browser check for Practice Map: deep-lesson reader, mobile overlay fit,
-// fragment-tab fallback, keyboard nav, touch-visible copy buttons.
+// fragment-tab fallback, keyboard nav, touch-visible copy buttons,
+// shadow typing (interactive reading).
 //
 //   node projects/practice-map/tests/practice-map.check.mjs   (from portfolio/)
 //
@@ -209,6 +210,69 @@ try {
   await page.keyboard.press("Escape");
   await wait(400);
   check((await page.$(".practice-lesson-overlay")) === null, "Escape closes the lesson");
+
+  // --- desktop: shadow typing (interactive reading) ---------------------------
+
+  const shadowCards = await page.$$(".practice-topic-card .practice-lesson-open");
+  await shadowCards[0].click();
+  check(await appears(".practice-reader"), "reader reopens for the shadow leg");
+  check(await appears(".st-controls"), "shadow typing controls render in the bar");
+
+  const offParagraphs = await page.$$eval(".practice-reader-section p", (els) => els.length);
+  check(offParagraphs > 0, `passive mode renders rich prose (${offParagraphs} paragraphs)`);
+
+  await page.click(".st-controls button");
+  check(await appears(".st .st-input"), "interactive mode mounts the hidden input");
+  check(await appears(".st-unit--current"), "current unit highlights");
+  check(await appears(".st-count"), "section progress counter renders");
+
+  // Type the current unit's exact chars (read from the DOM — content-agnostic).
+  const unitChars = await page.$$eval(
+    ".st-unit--current .st-char",
+    (els) => els.map((e) => e.textContent).join(""),
+  );
+  await page.keyboard.type(unitChars, { delay: 6 });
+  await wait(300);
+  const countAfter = await page.$eval(".st-count", (el) => el.textContent.trim());
+  check(countAfter.startsWith("1/"), `typing the unit consumes it (${countAfter})`);
+
+  await page.click(".practice-reader .st-mini");
+  await wait(200);
+  const countReset = await page.$eval(".st-count", (el) => el.textContent.trim());
+  check(countReset.startsWith("0/"), `section reset returns to zero (${countReset})`);
+
+  await page.click(".st-controls button");
+  await wait(300);
+  const offAgain = await page.$$eval(".practice-reader-section p", (els) => els.length);
+  check(offAgain > 0, "passive mode restored after toggling off");
+
+  // Digits/arrows typed into the input must not drive section navigation.
+  await page.click(".st-controls button");
+  await wait(300);
+  await page.click(".st-text");
+  await wait(200);
+  const activeBeforeType = await page.$$eval(
+    ".practice-reader-nav button",
+    (buttons) => buttons.findIndex((b) => b.classList.contains("is-active")),
+  );
+  await page.keyboard.type("12345", { delay: 6 });
+  await wait(300);
+  const activeAfterType = await page.$$eval(
+    ".practice-reader-nav button",
+    (buttons) => buttons.findIndex((b) => b.classList.contains("is-active")),
+  );
+  check(
+    activeBeforeType === activeAfterType,
+    `typing digits in the input never navigates sections (${activeBeforeType} -> ${activeAfterType})`,
+  );
+
+  await page.keyboard.press("Escape");
+  await wait(300);
+  await page.click(".st-controls button");
+  await wait(200);
+  await page.keyboard.press("Escape");
+  await wait(400);
+  check((await page.$(".practice-lesson-overlay")) === null, "Escape closes after the shadow leg");
 
   // --- desktop: fragment fallback -------------------------------------------
 
@@ -550,6 +614,29 @@ try {
   await page.keyboard.press("Escape");
   await wait(300);
   check((await page.$(".practice-graph-overlay")) === null, "Escape closes the graph at 320px");
+
+  // --- narrow phone: shadow typing stays inside the panel --------------------
+
+  await page.tap(".practice-topic-card .practice-lesson-open");
+  check(await appears(".practice-reader"), "reader opens at 320px for the shadow leg");
+  await page.tap(".st-controls button");
+  check(await appears(".st-unit--current"), "interactive mode mounts at 320px");
+
+  const escapesShadow = await walkHorizontalEscape();
+  check(
+    escapesShadow.length === 0,
+    `no descendant escapes at 320px with shadow typing on${escapesShadow.length ? `: ${escapesShadow.slice(0, 4).join(" | ")}` : ""}`,
+  );
+  await shot("narrow-shadow");
+
+  await page.tap(".st-controls button");
+  await wait(300);
+  await page.keyboard.press("Escape");
+  await wait(400);
+  check(
+    (await page.$(".practice-lesson-overlay")) === null,
+    "Escape closes after the 320px shadow leg",
+  );
 
   await page.close();
   await browser.close();

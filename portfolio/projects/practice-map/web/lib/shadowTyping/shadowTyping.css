@@ -1,0 +1,246 @@
+/* ── shadow typing (interactive reading) ────────────────────────────────────
+   Ink language: ochre accent, hairline borders, lowercase mono chrome.
+   Portaled inside .practice-lesson-overlay, so the overlay's reduced-motion
+   clamp and color-scheme: dark already cover everything here. */
+
+.st {
+  position: relative;
+  cursor: text;
+}
+
+.st-text {
+  margin: 0;
+  color: var(--ink-muted);
+  font-size: 0.95rem;
+  line-height: 1.72;
+  white-space: pre-wrap;
+  overflow-wrap: anywhere;
+}
+
+/* Off-screen but focusable input (keeps virtual keyboards working) */
+.st-input {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  opacity: 0;
+  border: 0;
+  padding: 0;
+  margin: 0;
+  caret-color: transparent;
+  background: transparent;
+}
+
+.st:not([data-focused]) .st-unit--current {
+  outline: 2px dashed var(--ink-accent);
+  outline-offset: 2px;
+}
+
+.st-unit {
+  overflow-wrap: anywhere;
+}
+
+.st-unit--pending {
+  color: var(--ink-faint);
+}
+
+.st-unit--current {
+  background: color-mix(in srgb, var(--ink-accent) 14%, transparent);
+  border-radius: 3px;
+  box-decoration-break: clone;
+}
+
+.st-char[data-state="correct"] {
+  color: var(--ink-accent-bright);
+}
+
+.st-char[data-state="incorrect"] {
+  color: #e39b87;
+  text-decoration: underline wavy #cf7f6b;
+  text-decoration-thickness: 1px;
+  text-underline-offset: 3px;
+}
+
+.st-char[data-state="pending"] {
+  color: var(--ink-text);
+}
+
+.st-char[data-caret] {
+  box-shadow: inset 2px 0 0 var(--ink-accent-bright);
+  animation: st-blink 1s steps(1) infinite;
+}
+
+@keyframes st-blink {
+  50% {
+    box-shadow: none;
+  }
+}
+
+.st-ghost {
+  display: inline-block;
+  max-width: 14rem;
+  overflow: hidden;
+  color: var(--ink-accent-bright);
+  animation: st-vanish 280ms ease-out forwards;
+}
+
+@keyframes st-vanish {
+  to {
+    opacity: 0;
+    max-width: 0;
+    transform: translateY(-0.3em);
+  }
+}
+
+.st-done {
+  display: block;
+  margin-top: 0.9rem;
+  color: var(--ink-accent-bright);
+  font-family: var(--mono);
+  font-size: 0.78rem;
+  letter-spacing: 0.04em;
+}
+
+.st-row {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 0.6rem;
+  min-height: 1.6rem;
+  margin-bottom: 0.4rem;
+}
+
+.st-count {
+  color: var(--ink-accent);
+  font-family: var(--mono);
+  font-size: 0.72rem;
+  letter-spacing: 0.05em;
+}
+
+.st-progress {
+  width: 7rem;
+  height: 3px;
+  accent-color: var(--ink-accent);
+}
+
+.st-mini {
+  border: 1px solid var(--ink-line-soft);
+  padding: 0.2rem 0.5rem;
+  color: var(--ink-muted);
+  background: var(--ink-bg);
+  cursor: pointer;
+  font-family: var(--mono);
+  font-size: 0.64rem;
+  letter-spacing: 0.04em;
+  text-transform: lowercase;
+}
+
+.st-mini:hover:not(:disabled) {
+  border-color: var(--ink-accent);
+  color: var(--ink-accent-bright);
+}
+
+.st-mini:disabled {
+  opacity: 0.45;
+  cursor: default;
+}
+
+.st-note {
+  margin: 0;
+  color: var(--ink-faint);
+  font-size: 0.78rem;
+  line-height: 1.5;
+}
+
+/* Sticky inside the scroller: the bar scrolls with the body but stays
+   reachable, and the scroller's viewport geometry (the scrollspy probe,
+   panel fit laws) is untouched. */
+.practice-shadow-bar {
+  position: sticky;
+  top: 2px;
+  z-index: 1;
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 0.6rem;
+  padding: 0.55rem 0;
+  margin: 0;
+  background: #0e161b;
+  border-bottom: 1px solid var(--ink-line-soft);
+}
+
+.st-controls {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 0.6rem;
+}
+
+.st-controls button {
+  border: 1px solid var(--ink-line-soft);
+  padding: 0.28rem 0.6rem;
+  color: var(--ink-muted);
+  background: var(--ink-panel);
+  cursor: pointer;
+  font-family: var(--mono);
+  font-size: 0.68rem;
+  letter-spacing: 0.05em;
+  text-transform: lowercase;
+}
+
+.st-controls button:hover {
+  border-color: var(--ink-accent);
+}
+
+.st-controls button[aria-pressed="true"] {
+  border-color: var(--ink-accent);
+  color: var(--ink-accent-bright);
+}
+
+.st-unit-size {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+  color: var(--ink-faint);
+  font-family: var(--mono);
+  font-size: 0.68rem;
+  letter-spacing: 0.05em;
+  text-transform: lowercase;
+}
+
+.st-unit-size select {
+  border: 1px solid var(--ink-line-soft);
+  padding: 0.22rem 0.35rem;
+  color: var(--ink-text);
+  background: var(--ink-panel);
+  font-family: var(--mono);
+  font-size: 0.68rem;
+}
+
+.st-visually-hidden {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  margin: -1px;
+  padding: 0;
+  overflow: hidden;
+  clip: rect(0 0 0 0);
+  white-space: nowrap;
+  border: 0;
+}
+
+@media (max-width: 560px) {
+  .st-progress {
+    width: 4.5rem;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .st-ghost {
+    display: none;
+  }
+
+  .st-char[data-caret] {
+    animation: none;
+  }
+}

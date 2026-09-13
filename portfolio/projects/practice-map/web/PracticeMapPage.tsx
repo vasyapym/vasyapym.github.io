@@ -15,6 +15,7 @@ import {
   FEEDBACK_LABELS,
   type FeedbackKind,
   type LessonExample,
+  type LessonSection,
   type PracticeArea,
   type TopicCard as TopicCardDefinition,
   type TopicStatus,
@@ -32,6 +33,15 @@ import {
 } from "./progress";
 import "./practice-map.css";
 import { Blocks, InlineText } from "./lib/format";
+import { ShadowTypingControls } from "./lib/shadowTyping/ShadowTypingControls";
+import { ShadowTypingText } from "./lib/shadowTyping/ShadowTypingText";
+import {
+  shadowSectionKey,
+  useShadowSettings,
+  writeShadowSettings,
+} from "./lib/shadowTyping/storage";
+import { useShadowTyping } from "./lib/shadowTyping/useShadowTyping";
+import type { UnitGranularity } from "./lib/shadowTyping/types";
 
 const STATUS_LABELS: Readonly<Record<TopicStatus, string>> = {
   queued: "queued",
@@ -973,6 +983,9 @@ function LessonOverlay({
   const settleTimerRef = useRef<number>(undefined);
   const lesson = topic.lesson;
   const deep = topic.deepLesson;
+  const shadow = useShadowSettings(topic.id);
+  const shadowEnabled = shadow.value?.enabled ?? false;
+  const shadowGranularity = shadow.value?.granularity ?? "word";
 
   const updateProgress = () => {
     const scroller = scrollRef.current;
@@ -1080,6 +1093,19 @@ function LessonOverlay({
     }
 
     const handleKeyDown = (event: KeyboardEvent) => {
+      // Editable targets own their keys: the shadow-typing input types digits
+      // and uses Escape/Backspace, the search field filters — none of that
+      // may drive section navigation.
+      const target = event.target;
+      if (
+        target instanceof HTMLElement &&
+        (target.tagName === "INPUT" ||
+          target.tagName === "TEXTAREA" ||
+          target.tagName === "SELECT" ||
+          target.isContentEditable)
+      ) {
+        return;
+      }
       if (event.key === "Escape") {
         onClose();
         return;
@@ -1203,6 +1229,18 @@ function LessonOverlay({
             <span ref={progressRef} />
           </div>
 
+          {shadow.hydrated && (
+            <div className="practice-shadow-bar">
+              <ShadowTypingControls
+                enabled={shadowEnabled}
+                granularity={shadowGranularity}
+                hydrated={shadow.hydrated}
+                onToggle={(next) => writeShadowSettings(topic.id, next, shadowGranularity)}
+                onGranularity={(next) => writeShadowSettings(topic.id, shadowEnabled, next)}
+              />
+            </div>
+          )}
+
           {topic.objectives && topic.objectives.length > 0 && (
             <div className="practice-lesson-objectives">
               <span>objectives</span>
@@ -1233,34 +1271,14 @@ function LessonOverlay({
 
               <div className="practice-reader">
                 {deep.sections.map((section, sectionId) => (
-                  <section
-                    className="practice-reader-section"
-                    data-section-index={sectionId}
+                  <InteractiveSection
+                    active={sectionIndex === sectionId}
                     key={sectionId}
-                  >
-                    {section.heading && (
-                      <h3>
-                        <span aria-hidden="true">{String(sectionId + 1).padStart(2, "0")}</span>
-                        {section.heading}
-                      </h3>
-                    )}
-                    {section.blocks ? (
-                      <Blocks blocks={section.blocks} />
-                    ) : (
-                      section.paragraphs?.map((paragraph, paragraphId) => (
-                        <p key={paragraphId}>
-                          <InlineText text={paragraph} />
-                        </p>
-                      ))
-                    )}
-                    {section.examples && section.examples.length > 0 && (
-                      <div className="practice-reader-examples">
-                        {section.examples.map((example) => (
-                          <ExampleFigure example={example} key={example.title} />
-                        ))}
-                      </div>
-                    )}
-      </section>
+                    sectionIndex={sectionId}
+                    section={section}
+                    topicId={topic.id}
+                    settings={{ enabled: shadowEnabled, granularity: shadowGranularity }}
+                  />
                 ))}
               </div>
             </>
@@ -1309,6 +1327,113 @@ function LessonOverlay({
       </section>
     </div>,
     document.body,
+  );
+}
+
+// A section's typeable stream: every prose block flattened to plain text
+// (inline markup stripped, list items joined, blocks separated by blank
+// lines). Headings stay chrome; examples stay rendered below the stream.
+const INLINE_MARKUP = /(\*\*[^*]+\*\*|\*[^*\n]+\*|`[^`]+`)/g;
+
+const plainText = (text: string) =>
+  text.replace(INLINE_MARKUP, (mark) =>
+    mark.startsWith("**") ? mark.slice(2, -2) : mark.slice(1, -1),
+  );
+
+function sectionProse(section: LessonSection): string {
+  const blocks =
+    section.blocks ??
+    (section.paragraphs ?? []).map((text) => ({ kind: "p" as const, text }));
+  const parts = blocks.map((block) => {
+    switch (block.kind) {
+      case "list":
+        return plainText(block.items.join("; "));
+      case "callout":
+        return plainText(block.text);
+      default:
+        return plainText(block.text);
+    }
+  });
+  return parts.filter(Boolean).join("\n\n");
+}
+
+function InteractiveSection({
+  sectionIndex,
+  section,
+  topicId,
+  settings,
+  active,
+}: {
+  sectionIndex: number;
+  section: LessonSection;
+  topicId: string;
+  settings: { enabled: boolean; granularity: UnitGranularity };
+  /** Whether the scrollspy names this section — the one being read. */
+  active: boolean;
+}) {
+  const prose = sectionProse(section);
+  const st = useShadowTyping({
+    topicId: shadowSectionKey(topicId, sectionIndex),
+    text: prose,
+    enabled: settings.enabled,
+    granularity: settings.granularity,
+  });
+
+  return (
+    <section
+      className="practice-reader-section"
+      data-section-index={sectionIndex}
+    >
+      {section.heading && (
+        <h3>
+          <span aria-hidden="true">{String(sectionIndex + 1).padStart(2, "0")}</span>
+          {section.heading}
+        </h3>
+      )}
+      {settings.enabled && prose ? (
+        <>
+          <div className="st-row">
+            <span className="st-count">
+              {st.index}/{st.total}
+            </span>
+            <progress
+              aria-label={`Consumed units in section ${sectionIndex + 1}`}
+              className="st-progress"
+              max={st.total}
+              value={st.index}
+            />
+            <button className="st-mini" disabled={st.index === 0} type="button" onClick={st.reset}>
+              reset section
+            </button>
+          </div>
+          <ShadowTypingText active={active} st={st} />
+          {st.staleProgress && (
+            <p className="st-note" role="note">
+              the text or the unit size changed, so progress was reset
+            </p>
+          )}
+        </>
+      ) : (
+        <>
+          {section.blocks ? (
+            <Blocks blocks={section.blocks} />
+          ) : (
+            section.paragraphs?.map((paragraph, paragraphId) => (
+              <p key={paragraphId}>
+                <InlineText text={paragraph} />
+              </p>
+            ))
+          )}
+        </>
+      )}
+      {section.examples && section.examples.length > 0 && (
+        <div className="practice-reader-examples">
+          {section.examples.map((example) => (
+            <ExampleFigure example={example} key={example.title} />
+          ))}
+        </div>
+      )}
+    </section>
   );
 }
 
