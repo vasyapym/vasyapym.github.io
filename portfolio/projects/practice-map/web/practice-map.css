@@ -53,13 +53,13 @@
 }
 
 .practice-map-hero {
-  display: grid;
-  grid-template-columns: minmax(0, 1.1fr) minmax(230px, 0.45fr);
-  /* Each panel hugs its own content (start, not stretch): with the compact
-     headline the stretched shared height left a dead void inside the copy
-     panel; two tight siblings read organic, top edges aligned. */
-  align-items: start;
-  gap: clamp(2rem, 6vw, 5rem);
+  /* Flex row, centered: each card hugs its own content and the PAIR sits in
+     the middle of the band — no stretched copy plate, no dead run of field
+     to its right; the two cards read as one balanced hero unit. */
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: clamp(1.25rem, 3vw, 2.5rem);
 }
 
 /* Copy panel — the .signal-index-hero-copy language (Reference 3): flat scrim,
@@ -1050,6 +1050,15 @@
   padding-bottom: 0.6rem;
 }
 
+/* Header tools: the free-reading toggle lives beside the close button —
+   no dedicated layout row of its own. */
+.practice-lesson-tools {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  flex: 0 0 auto;
+}
+
 .practice-lesson-kicker {
   margin: 0;
   color: var(--ink-accent);
@@ -1222,14 +1231,14 @@
   margin-top: 1.5rem;
 }
 
-/* Wider window, same reading measure: cap the content column and center
-   it inside the frame; chrome (free bar, progress hairline, footer) stays
-   full-bleed. */
+/* Wider window, same centered column: the reading measure stays capped
+   (97ch ≈ the old 72ch + 35%) so Russian lines keep their length; chrome
+   (free bar, progress hairline, footer) stays full-bleed. */
 .practice-lesson-objectives,
 .practice-reader-nav,
 .practice-reader,
 .practice-lesson-body {
-  max-width: 72ch;
+  max-width: 97ch;
   margin-inline: auto;
 }
 
@@ -1544,7 +1553,8 @@
 
 @media (max-width: 700px) {
   .practice-map-hero {
-    grid-template-columns: 1fr;
+    flex-direction: column;
+    align-items: stretch;
     gap: 2.5rem;
   }
 
@@ -1611,5 +1621,15 @@
 
   .practice-lesson-header {
     gap: 0.9rem;
+  }
+
+  /* Narrow phones: one row cannot hold title + pill + close button without
+     starving the title — wrap the tools under the full-width heading. */
+  .practice-lesson-header {
+    flex-wrap: wrap;
+  }
+
+  .practice-lesson-tools {
+    margin-left: auto;
   }
 }

@@ -4,20 +4,6 @@
    lowercase mono chrome. Portaled inside .practice-lesson-overlay, so the
    overlay's color-scheme: dark already covers everything here. */
 
-.practice-free-bar {
-  position: sticky;
-  top: 2px;
-  z-index: 1;
-  display: flex;
-  align-items: center;
-  flex-wrap: wrap;
-  gap: 0.6rem;
-  padding: 0.55rem 0;
-  margin: 0;
-  background: #0e161b;
-  border-bottom: 1px solid var(--ink-line-soft);
-}
-
 .fr-controls {
   display: flex;
   align-items: center;
@@ -27,15 +13,15 @@
 
 .fr-controls button {
   border: 1px solid var(--ink-line-soft);
-  /* ~2× the original control: taller hit target, pill shape so the mode
-     toggle reads as its own control, not as sheet chrome. */
-  padding: 0.6rem 1.2rem;
+  /* Chrome-scale mono like every other overlay control; the wide sides and
+     tracking give the label room instead of hugging the pill walls. */
+  padding: 0.5rem 1.3rem;
   color: var(--ink-muted);
   background: var(--ink-panel);
   cursor: pointer;
   font-family: var(--mono);
-  font-size: 0.95rem;
-  letter-spacing: 0.05em;
+  font-size: 0.72rem;
+  letter-spacing: 0.08em;
   text-transform: lowercase;
   border-radius: 999px;
 }
@@ -160,5 +146,12 @@
 @media (max-width: 560px) {
   .fr-progress {
     width: 4.5rem;
+  }
+
+  /* Narrow phones: the pill shares the header row with the close button —
+     trim its footprint so the lesson title keeps its reading width. */
+  .fr-controls button {
+    padding: 0.45rem 0.85rem;
+    font-size: 0.62rem;
   }
 }

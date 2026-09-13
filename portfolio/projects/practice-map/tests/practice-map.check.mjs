@@ -143,7 +143,8 @@ try {
   });
   check(fitsDesktop, "panel fits viewport at 1440px");
 
-  // Reader geometry laws: the widened panel (~950px) and the visible
+  // Reader geometry laws: the widened panel (~1190px — the owner's +25%
+  // window ask; was ~950px before that round) and the visible
   // ink-consistent scrollbar (owner round 4: neither white nor invisible —
   // the bar must render from the webkit pseudos, which requires the
   // interop-suppressing standard properties to be ABSENT from the element).
@@ -171,8 +172,8 @@ try {
     };
   });
   check(
-    readerLaws.panelWidth >= 940 && readerLaws.panelWidth <= Math.min(952, readerLaws.viewport - 24),
-    `lesson panel widened to ~950px (${readerLaws.panelWidth}px @ ${readerLaws.viewport})`,
+    readerLaws.panelWidth >= 1150 && readerLaws.panelWidth <= Math.min(1200, readerLaws.viewport - 24),
+    `lesson panel widened to ~1190px (${readerLaws.panelWidth}px @ ${readerLaws.viewport})`,
   );
   check(
     readerLaws.scrollbarWidth === "auto" &&

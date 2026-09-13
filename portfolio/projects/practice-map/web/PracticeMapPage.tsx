@@ -1066,18 +1066,27 @@ function LessonOverlay({
             </p>
             <h2>{topic.title}</h2>
           </div>
-          <button
-            aria-label="Close lesson"
-            className="practice-lesson-close"
-            ref={closeButtonRef}
-            type="button"
-            onClick={onClose}
-          >
-            <svg width="12" height="12" viewBox="0 0 12 12" aria-hidden="true">
-              <line x1="2" y1="2" x2="10" y2="10" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" />
-              <line x1="10" y1="2" x2="2" y2="10" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" />
-            </svg>
-          </button>
+          <div className="practice-lesson-tools">
+            {free.hydrated && (
+              <FreeReadingControls
+                enabled={freeEnabled}
+                hydrated={free.hydrated}
+                onToggle={(next) => writeFreeSettings(topic.id, next)}
+              />
+            )}
+            <button
+              aria-label="Close lesson"
+              className="practice-lesson-close"
+              ref={closeButtonRef}
+              type="button"
+              onClick={onClose}
+            >
+              <svg width="12" height="12" viewBox="0 0 12 12" aria-hidden="true">
+                <line x1="2" y1="2" x2="10" y2="10" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" />
+                <line x1="10" y1="2" x2="2" y2="10" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" />
+              </svg>
+            </button>
+          </div>
         </header>
 
         <div
@@ -1089,16 +1098,6 @@ function LessonOverlay({
           <div aria-hidden="true" className="practice-lesson-progress">
             <span ref={progressRef} />
           </div>
-
-          {free.hydrated && (
-            <div className="practice-free-bar">
-              <FreeReadingControls
-                enabled={freeEnabled}
-                hydrated={free.hydrated}
-                onToggle={(next) => writeFreeSettings(topic.id, next)}
-              />
-            </div>
-          )}
 
           {topic.objectives && topic.objectives.length > 0 && (
             <div className="practice-lesson-objectives">
