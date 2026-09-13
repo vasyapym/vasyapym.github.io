@@ -441,3 +441,5 @@
 {"type":"edge.added","id":"e209","ts":"2026-09-13T20:49:46.563Z","from":"n229","to":"n230","rel":"continues"}
 {"type":"node.added","id":"n231","ts":"2026-09-13T20:54:22.489Z","kind":"iteration","actor":"user","title":"Revert \"feat(kitty-run): dry-ink tom — nicked ear, scarred squint, gem collar tag; one FACE table shared across card mark and portrait\"","artifacts":[{"kind":"git-commit","ref":"a8bd945"}],"meta":{"source":"auto"}}
 {"type":"edge.added","id":"e210","ts":"2026-09-13T20:54:22.499Z","from":"n230","to":"n231","rel":"continues"}
+{"type":"node.added","id":"n232","ts":"2026-09-13T21:03:24.975Z","kind":"iteration","actor":"user","title":"feat(kitty-run): tiger-bright cat — forehead stripes as identity, open singing mouth (the soundtrack plays along), alive round eyes; all three surfaces in one pass","artifacts":[{"kind":"git-commit","ref":"5557b55"}],"meta":{"source":"auto"}}
+{"type":"edge.added","id":"e211","ts":"2026-09-13T21:03:24.978Z","from":"n231","to":"n232","rel":"continues"}
