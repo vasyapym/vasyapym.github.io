@@ -38,3 +38,22 @@
 - Routing clarification: both B1 replies came from the SAME normal chat model (Opus 4.6), not the randomized strongest-model tier. The first reply was truncated by timeout mid-generation; the second was complete.
 - Revised attribution: the quality gap is a TIMEOUT effect within one model — truncation hit mid-reasoning, and the model's second full generation still underperformed the repaired truncated one (10/14 vs 35/35), likely because the retry regenerated from a compressed internal state rather than resuming.
 - Delegation rule update: for long-brief tasks against the normal chat model, prefer (a) splitting the brief into smaller sequential deliverables over one long ask, and (b) when a reply times out, ask for a resumption/continuation of the truncated answer rather than a fresh full regeneration.
+
+## Pass C002 — VERIFIED (typecheck + unit tests + build scope; GPU runtime NOT RUN)
+- Objective and scope: salvage-integrate the randomized-routing model's (Fable 5.1-low) fate GPU particle engine into `src/fatesParticles.ts` — halo state, MRT ping-pong substep passes, CPU seeding, pure helpers — per the B2a contract; drive it from the B1 integrator, not the reply's own cosmology.
+- Acceptance criteria: deterministic seeded halo assignment; pack/unpack exact in float32; GM ∝ membership with ω_max = 4400; initial |d| < 3ε; unbind rule exact at the critical tide with physical-position continuity; Verlet energy drift < 1e-3 over 50 stiffest-halo orbits; strict TS clean; node-runnable tests.
+- Salvage decisions:
+  - KEPT (equal or better than the design): mulberry32 PRNG; sign-encoded packState (bound=+(id+1), free=−(id+1), dead=0) with float32-exactness proof-by-test; largest-remainder apportionment (exact totals); Plummer seeding capped at 2.5ε (no spurious unbind at t=0); free particles stored COMOVING with the Hubble stretch applied at render — strictly simpler than the design's per-substep d-stretch and mathematically identical; unbind absorbing the halo offset into the comoving position (resolves salvage open item #4 more cleanly than the design's x_h_eff=0 flag mechanism).
+  - REJECTED: the reply's own Friedmann class + COSMOLOGIES registry — duplicates the verified B1 u=ln a integrator and fate registry; the design mandates one shared CPU ODE core.
+  - REPAIRED during integration: KDK now consumes the B1 substep's A0/A1 pair (reply froze A at the substep midpoint — weaker than the design's two-endpoint kick); Points geometry gained a zero dummy position attribute (three derives draw count from it; the reply's ref-only geometry would not draw); dead double-assignment in seedParticles removed; halo-core stiffness enforced engine-side via an advance(dtFloor) loop with a per-frame pass budget (B1's warped clock is blind to ω_max by design; near singularities B1's own warp slows substeps inside the same budget); resetTo(mode) rewinds integrator + read pointers (state is mode-independent by construction).
+- Baseline: verify PASS before edits (cosmology + fates 35/35 + build).
+- Verification:
+  - Command: `npm run verify` (typecheck + cosmology.check + fates.check 35/35 + fatesParticles.check 50/50 + esbuild build)
+    Result: PASS, exit 0.
+  - GPU runtime (actual MRT ping-pong, rendering): NOT RUN — no Chrome/WebGL in this environment; the engine class is typechecked only. Smoke legs deferred to the integration brief (B3) when Chrome tooling is available.
+- Final diff review: performed — two new files + one-line test-chain change; no debug scaffolding; the placeholder render path is explicitly marked for the B2b draw-path brief.
+- Design constraints: strongest-model design §2/§5/§6 as amended by salvage; open item #4 (release bookkeeping) RESOLVED (comoving absorption); open item #2 (mode-entry conversion from the past field) still open — engine seeds its own halos for now.
+- Remaining risks/blockers:
+  - GPU paths unverified at runtime (first render may surface shader-compile or MRT-binding issues) — expected to surface in the B3 integration smoke.
+  - crunchLambda visual at a≈2e-9: all halos collapse to origin (physically correct, visually needs the B2b draw path / UX framing).
+- Next action: B3 brief — main.ts integration (fate selector UI, timeline extension, engine lifecycle) + smoke legs; then B2b draw-path brief (log-radial projection, per-fate grading).
