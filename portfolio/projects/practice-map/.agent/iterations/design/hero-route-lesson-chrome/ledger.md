@@ -166,3 +166,34 @@ e.g. lowercase mono chrome and the ink panel language, remain active constraints
 - Code verification: typecheck PASS, build PASS; R004 probe 14/14 (band geometry incl. rail-flush 0px, 17.6px parity, 910px two-column hold + stacked below 900); full `practice-map.check.mjs` 93 ok / 1 documented pre-existing environment fail (ArrowRight, chromium-1134).
 - Open question: none.
 - Shipped: commit at round close per the owner's always-current-repo setting.
+
+## Feedback F013
+- Round: R004
+- Verdict: REJECTED
+- Scope: hero card heights, stacked (mobile) layout — desktop is already equal (182/182 at 1440, measured)
+- Decision: the stacked hero's copy card ("deep lessons. / local notes.") must match the concept-graph rail card's height; on 390px the copy renders 79px against the rail's 169px.
+- User source: "Make the 'Deep Lessons. Local Notes' section the same height as the 'Concept Graph' section."
+- Artifact: artifacts/R004/hero-narrow.png
+- Supersedes: none
+
+## Feedback F014
+- Round: R004
+- Verdict: REJECTED
+- Scope: concept-graph overlay — the interactive canvas window's corners (panel is already 20px; the canvas measures 0px radius, 345×596 at 390px)
+- Decision: round the "Concept Constellation" interactive window — most visible on mobile where the square canvas corners read off.
+- User source: "Give the 'Concept Constellation' interactive window rounded corners as well. This is especially noticeable on mobile, where the square corners look off."
+- Artifact: artifacts/R004/* (graph overlay not yet screenshotted; baseline probe recorded panel 20px / canvas 0px)
+- Supersedes: none
+
+## Round R005
+- Goal: address F013–F014 — equal stacked hero heights and a rounded concept-graph canvas. Delegated to the chat model (brief: docs/briefs/BRIEF-practice-map-hero-heights-graph-corners.md, with the rendered baseline facts in evidence).
+- Preserved preferences: R004 as shipped — full-width band geometry, reading type scale, part-chip pills, scope-trim removals.
+- Changes (chat-model decisions, integrated):
+  - F013: inside the ≤900 stacked block, `min-height: 10.5rem` — the model's analysis rejected `fr`-row equalization (no container height) and padding growth (conflates spacing with sizing) in favor of a floor; the h1's flex `justify-content: center` keeps the text vertically centered. Integration delta (salvage repair): the first pass pinned only the copy card and the mismatch flipped at 320px (copy 168 vs rail 163 — the rail's height breathes with the route meter's width); the floor was extended to BOTH cards in the stacked block, so the shared 168px floor absorbs the drift (probe: 168/168 at 320, 168/169 at 390, desktop 182/182 untouched). The model's box-sizing assumption was verified first (global `* { box-sizing: border-box }`, shell styles.css:38).
+  - F014: `.practice-graph-canvas` → `border-radius: var(--panel-radius)` (base rule only; `--panel-radius` resolves from the overlay ancestor at every breakpoint; the media overrides don't touch radius). The model's concentric-radius and top-corners alternatives rejected in its reasoning; clipping analysis verified live — 0/12 node chips sit outside the rounded clip at 390.
+- Before: artifacts/R004/* (+ baseline probe numbers recorded in F013/F014)
+- After: artifacts/R005/graph-390.png, artifacts/R005/graph-1440.png, artifacts/R005/hero-narrow-390.png
+- Visual inspection: performed — canvas corners rounded on mobile and desktop with the panel in one family; no chips or medallion clipped; stacked hero cards read as matched-height siblings.
+- Code verification: typecheck PASS, build PASS; R005 probe 7/7 (heights ±3 at 320/390, desktop unchanged, canvas 20px at 1440/390, zero clipped nodes); full `practice-map.check.mjs` 93 ok / 1 documented pre-existing environment fail (ArrowRight, chromium-1134).
+- Open question: none. (Model's forward-looking note: if a future constellation layout places chips hard into a corner, fix the JS placement bounds, not the CSS radius.)
+- Shipped: commit at round close per the owner's always-current-repo setting.

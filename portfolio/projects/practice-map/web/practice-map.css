@@ -176,6 +176,7 @@
   margin-top: 1.5rem;
   overflow: hidden;
   border: 1px solid var(--ink-line-soft);
+  border-radius: var(--panel-radius);
   background: radial-gradient(circle at center, rgba(211, 155, 97, 0.12), transparent 38%), #0b1317;
 }
 
@@ -1572,6 +1573,16 @@
   .practice-map-hero {
     grid-template-columns: minmax(0, 1fr);
     gap: 2.5rem;
+  }
+
+  /* Stacked rows are independent tracks, so the rail's height cannot
+     propagate to the copy card. One shared floor (border-box) pins BOTH
+     cards to it — the rail's natural height breathes a few px with the
+     route meter's width, and the floor absorbs that drift. Text stays
+     vertically centered in both cards. */
+  .practice-map-hero h1,
+  .practice-map-hero-note {
+    min-height: 10.5rem;
   }
 }
 
