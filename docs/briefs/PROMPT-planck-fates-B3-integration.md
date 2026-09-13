@@ -1,7 +1,24 @@
-# Prompt — randomized routing round, B3 fate-mode integration (paste verbatim)
+# Prompt — randomized routing round, B3 fate-mode integration, spec-framed (paste verbatim)
 
-comprehensive code - TypeScript + three.js WebGL app: a 329-line main.ts plays a GPGPU cosmology sim driven by one global `logt` (log10 seconds) advanced each frame (`logt += dps*dt` clamped to LOG_END), with `evaluateState(logt)` feeding per-frame uniforms, a bottom timeline scrub (`attachTimelineScrub(cb)`), and an existing engine object with `points`/`step(...)`/`resetTo(...)`; a NEW standalone fate engine already exists with constructor `(renderer, mode, {particleCount})`, `points`, `step(requestDeltaTau) → {actualDeltaTau, terminal}`, `resetTo(mode)`, `a`/`tau` getters, where mode ∈ {heatDeath, bigRip, bigCrunchClosed, bigCrunchLambda, vacuumDecay} and its own clock is Hubble-times (NOT logt). Design the integration: a fate-mode UI (how the user enters/leaves fate mode — e.g. reaching LOG_END arms a "choose the fate" selector; leaving rewinds to the past timeline), how the fate timeline (its own scrub, progress mapping `fateProgress(mode,τ)`/`tauFromProgress(mode,frac)` already exported) coexists with the past one, what happens on fate terminal (bigCrunch → rebirth epilogue: flash + reset to heatDeath or back to the past timeline, with an explicit HUD line "the universe is born again"), keyboard shortcuts, pause/speed interplay, and a minimal DOM overlay (no framework, styled by a new fate.css or inline styles). Deliver: one complete `fatesUi.ts` module (all fate-mode UI state machine + DOM, zero three.js scene changes) exposing `mountFatesUi({onEnter, onLeave, onScrub, onEngineCommand})` plus a ≤40-line main.ts patch spec (exact anchor lines, replacement text) wiring it in; strict TS; the patch must not alter existing past-history behavior when fate mode is off.
+comprehensive code - spec below, fill every RULE, deliver every DELIVER item.
+
+FACTS:
+- app: TypeScript strict + three.js, no framework.
+- main.ts (329 lines): global `logt` (log10 s) advanced per frame; `evaluateState(logt)` → per-frame uniforms; bottom timeline scrub via `attachTimelineScrub(cb)`; engine object has `points`/`step(...)`/`resetTo(...)`.
+- new fate engine exists: `new FateParticles(renderer, mode, {particleCount})`, `.points`, `.step(requestDeltaTau) → {actualDeltaTau, terminal}`, `.resetTo(mode)`, getters `.a`/`.tau`; mode ∈ {heatDeath, bigRip, bigCrunchClosed, bigCrunchLambda, vacuumDecay}; its clock is Hubble-times, NOT logt.
+- exported from src/fates.ts: `fateProgress(mode, τ)`, `tauFromProgress(mode, frac)`.
+
+RULES:
+- R1 fate mode is OFF by default; past-history behavior bit-identical when off.
+- R2 enter: user gesture from the past timeline's end; leave: returns to the past timeline, engine disposed or parked.
+- R3 fate timeline: own scrub mapped through fateProgress/tauFromProgress; drives engine.step via the progress delta; pause/speed keys shared with the past mode.
+- R4 bigCrunch terminal → rebirth epilogue: flash, HUD line "the universe is born again", then restart the fate clock (ring semantics: end = new beginning); other terminals → terminal overlay with a restart/leave choice.
+- R5 all fate DOM in one overlay; zero three.js scene changes from the UI module.
+
+DELIVER:
+- D1 complete `src/fatesUi.ts`: fate-mode UI state machine + DOM, exposing `mountFatesUi({onEnter, onLeave, onScrub, onEngineCommand})`.
+- D2 main.ts patch spec ≤40 lines: exact anchor lines (quote them), replacement text, no prose.
+- D3 strict TS, no new deps, no other files.
 
 ## Notes for the user (not part of the prompt)
 - The block above is the paste; the reply comes back here for salvage integration.
-- If the reply arrives thin: the next round moves one constraint back into the prompt.

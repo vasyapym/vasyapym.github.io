@@ -220,3 +220,5 @@
 {"type":"edge.added","id":"e98","ts":"2026-09-13T21:30:17.690Z","from":"n105","to":"n106","rel":"continues"}
 {"type":"node.added","id":"n107","ts":"2026-09-13T21:33:48.636Z","kind":"iteration","actor":"user","title":"revert(kitty-run): restore full pop-kitty state (7b951df) — highland squint rejected ('dead cat, low effort'), tiger-bright remnants cleared","artifacts":[{"kind":"git-commit","ref":"f70adf2"}],"meta":{"source":"auto"}}
 {"type":"edge.added","id":"e99","ts":"2026-09-13T21:33:48.649Z","from":"n106","to":"n107","rel":"continues"}
+{"type":"node.added","id":"n108","ts":"2026-09-13T21:34:06.898Z","kind":"iteration","actor":"user","title":"docs(kitty-run): record pass C011 — highland squint rejected, full pop-kitty restore, verdict history compiled","artifacts":[{"kind":"git-commit","ref":"8772b27"}],"meta":{"source":"auto"}}
+{"type":"edge.added","id":"e100","ts":"2026-09-13T21:34:06.961Z","from":"n107","to":"n108","rel":"continues"}
