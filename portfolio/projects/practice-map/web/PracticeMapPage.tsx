@@ -285,10 +285,6 @@ function TopicCard({
   topic: TopicCardDefinition;
   onChange: (state: PracticeState) => void;
 }) {
-  const handleStatusChange = (event: ChangeEvent<HTMLSelectElement>) => {
-    onChange(setTopicStatus(state, topic.id, event.target.value as TopicStatus));
-  };
-
   const [lessonOpen, setLessonOpen] = useState(false);
   const [chipsExpanded, setChipsExpanded] = useState(false);
 
@@ -333,21 +329,12 @@ function TopicCard({
         </button>
       )}
 
-      <div className="practice-topic-controls">
-        <label>
-          <span>status</span>
-          <select aria-label={`Status for ${topic.title}`} value={progress.status} onChange={handleStatusChange}>
-            {Object.entries(STATUS_LABELS).map(([value, label]) => (
-              <option key={value} value={value}>{label}</option>
-            ))}
-          </select>
-        </label>
-      </div>
-
       {lessonOpen && topic.lesson && (
         <LessonOverlay
           index={index}
           topic={topic}
+          status={progress.status}
+          onStatusChange={(status) => onChange(setTopicStatus(state, topic.id, status))}
           onClose={() => setLessonOpen(false)}
         />
       )}
@@ -829,10 +816,14 @@ function ConceptGraph({ onClose }: { onClose: () => void }) {
 function LessonOverlay({
   index,
   topic,
+  status,
+  onStatusChange,
   onClose,
 }: {
   index: number;
   topic: TopicCardDefinition;
+  status: TopicStatus;
+  onStatusChange: (status: TopicStatus) => void;
   onClose: () => void;
 }) {
   const [tab, setTab] = useState<LessonTabKey>("problem");
@@ -847,6 +838,10 @@ function LessonOverlay({
   const deep = topic.deepLesson;
   const free = useFreeSettings(topic.id);
   const freeEnabled = free.value?.enabled ?? false;
+
+  const handleStatusChange = (event: ChangeEvent<HTMLSelectElement>) => {
+    onStatusChange(event.target.value as TopicStatus);
+  };
 
   const updateProgress = () => {
     const scroller = scrollRef.current;
@@ -1097,6 +1092,20 @@ function LessonOverlay({
         >
           <div aria-hidden="true" className="practice-lesson-progress">
             <span ref={progressRef} />
+          </div>
+
+          <div className="practice-lesson-statusrow">
+            <span>status</span>
+            <select
+              aria-label={`Status for ${topic.title}`}
+              className="practice-lesson-status"
+              value={status}
+              onChange={handleStatusChange}
+            >
+              {Object.entries(STATUS_LABELS).map(([value, label]) => (
+                <option key={value} value={value}>{label}</option>
+              ))}
+            </select>
           </div>
 
           {topic.objectives && topic.objectives.length > 0 && (

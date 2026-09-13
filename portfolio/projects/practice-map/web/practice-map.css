@@ -37,12 +37,6 @@
   font-family: var(--sans);
 }
 
-.practice-map-page button,
-.practice-map-page select,
-.practice-map-page textarea {
-  font: inherit;
-}
-
 .practice-map-notation {
   color: var(--ink-faint);
   font-family: var(--mono);
@@ -53,12 +47,12 @@
 }
 
 .practice-map-hero {
-  /* Flex row, centered: each card hugs its own content and the PAIR sits in
-     the middle of the band — no stretched copy plate, no dead run of field
-     to its right; the two cards read as one balanced hero unit. */
-  display: flex;
-  justify-content: center;
-  align-items: center;
+  /* Two EQUAL cards in one left-packed unit (owner round: not centered) —
+     the copy card stretches to the rail's height with its text centered,
+     so the pair reads as one matched unit anchored to the left edge. */
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 320px));
+  justify-content: start;
   gap: clamp(1.25rem, 3vw, 2.5rem);
 }
 
@@ -67,7 +61,9 @@
 .practice-map-hero h1 {
   display: flex;
   flex-direction: column;
-  max-width: 760px;
+  /* Centered inside the shared card height: the rail governs the row's
+     height, so the copy card fills it without a dead void above or below. */
+  justify-content: center;
   margin: 0;
   padding: clamp(1.05rem, 2vw, 1.55rem) clamp(1.05rem, 2vw, 1.55rem)
     clamp(1.2rem, 2.2vw, 1.7rem);
@@ -95,9 +91,9 @@
   display: grid;
   justify-items: start;
   gap: 1rem;
-  /* Compact stack: route block and chip sit tight instead of being pinned
-     apart by space-between across a stretched height. */
-  align-content: start;
+  /* Route block top, explore chip pinned to the bottom line: the rail fills
+     its equal-height track without interior slack. */
+  align-content: space-between;
   padding: clamp(1.05rem, 2vw, 1.55rem) 1.25rem clamp(1.2rem, 2.2vw, 1.7rem);
   background: rgba(9, 15, 18, 0.78);
   border: 1px solid var(--ink-line-soft);
@@ -655,6 +651,7 @@
 .practice-search input {
   width: 100%;
   border: 1px solid var(--ink-line);
+  border-radius: 999px;
   padding: 0.55rem 2rem 0.55rem 2rem;
   color: var(--ink-text);
   caret-color: var(--ink-accent-bright);
@@ -829,8 +826,18 @@
   font-size: 0.68rem;
   letter-spacing: 0.03em;
   text-transform: lowercase;
+  /* Same scale as the chips; the quiet underline is the click affordance. */
+  text-decoration: underline;
+  text-decoration-color: color-mix(in srgb, var(--ink-faint) 60%, transparent);
+  text-underline-offset: 2px;
   background: none;
   cursor: pointer;
+}
+
+.practice-concepts-toggle:hover,
+.practice-concepts-toggle:focus-visible {
+  color: var(--ink-accent-bright);
+  text-decoration-color: color-mix(in srgb, var(--ink-accent-bright) 70%, transparent);
 }
 
 .practice-concepts-toggle:focus-visible {
@@ -844,6 +851,7 @@
   gap: 0.5rem;
   justify-self: start;
   border: 1px solid var(--ink-line-soft);
+  border-radius: 999px;
   padding: 0.45rem 0.7rem;
   color: var(--ink-accent);
   background: transparent;
@@ -862,36 +870,42 @@
   background: var(--ink-panel);
 }
 
-.practice-topic-controls {
+/* Lesson status lives inside the lesson window as a quiet top row of the
+   scroll body (owner round: de-emphasized on the listing) — it fits every
+   viewport, keeps the header minimal, and leaves the close button pinned. */
+.practice-lesson-statusrow {
   display: flex;
   align-items: center;
-  justify-content: flex-end;
-  margin-top: auto;
-  padding-top: 0.3rem;
+  gap: 0.7rem;
+  margin-top: 1rem;
 }
 
-.practice-topic-controls label {
-  display: inline-flex;
-  align-items: center;
-  gap: 0.6rem;
-}
-
-.practice-topic-controls label > span {
+.practice-lesson-statusrow > span {
   color: var(--ink-faint);
   font-family: var(--mono);
-  font-size: 0.68rem;
+  font-size: 0.66rem;
   letter-spacing: 0.05em;
   text-transform: lowercase;
 }
 
-.practice-topic-controls select {
-  border: 1px solid var(--ink-line);
-  border-radius: 0;
-  padding: 0.45rem 0.5rem;
-  color: var(--ink-text);
+.practice-lesson-status {
+  border: 1px solid var(--ink-line-soft);
+  border-radius: 999px;
+  padding: 0.35rem 0.7rem;
+  color: var(--ink-muted);
   background: transparent;
   cursor: pointer;
-  font-size: 0.76rem;
+  font-family: var(--mono);
+  font-size: 0.66rem;
+  letter-spacing: 0.05em;
+  text-transform: lowercase;
+  transition: border-color 180ms ease, color 180ms ease;
+}
+
+.practice-lesson-status:hover,
+.practice-lesson-status:focus-visible {
+  border-color: var(--ink-accent);
+  color: var(--ink-text);
 }
 
 .practice-map-footer {
@@ -1087,6 +1101,7 @@
   width: 2.2rem;
   height: 2.2rem;
   border: 1px solid var(--ink-line);
+  border-radius: 999px;
   color: var(--ink-muted);
   background: transparent;
   cursor: pointer;
@@ -1553,8 +1568,7 @@
 
 @media (max-width: 700px) {
   .practice-map-hero {
-    flex-direction: column;
-    align-items: stretch;
+    grid-template-columns: minmax(0, 1fr);
     gap: 2.5rem;
   }
 
