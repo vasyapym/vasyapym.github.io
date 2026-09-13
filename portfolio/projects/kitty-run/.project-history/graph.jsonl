@@ -208,5 +208,3 @@
 {"type":"edge.added","id":"e92","ts":"2026-09-13T20:54:22.460Z","from":"n99","to":"n100","rel":"continues"}
 {"type":"node.added","id":"n101","ts":"2026-09-13T20:56:18.698Z","kind":"iteration","actor":"user","title":"docs(kitty-run): record pass C008 — dry-ink tom rejected ('homeless alcoholic cat'), rolled back to dry-ink v1","artifacts":[{"kind":"git-commit","ref":"ec2feb9"}],"meta":{"source":"auto"}}
 {"type":"edge.added","id":"e93","ts":"2026-09-13T20:56:18.712Z","from":"n100","to":"n101","rel":"continues"}
-{"type":"node.added","id":"n102","ts":"2026-09-13T21:03:24.942Z","kind":"iteration","actor":"user","title":"feat(kitty-run): tiger-bright cat — forehead stripes as identity, open singing mouth (the soundtrack plays along), alive round eyes; all three surfaces in one pass","artifacts":[{"kind":"git-commit","ref":"5557b55"}],"meta":{"source":"auto"}}
-{"type":"edge.added","id":"e94","ts":"2026-09-13T21:03:24.950Z","from":"n101","to":"n102","rel":"continues"}

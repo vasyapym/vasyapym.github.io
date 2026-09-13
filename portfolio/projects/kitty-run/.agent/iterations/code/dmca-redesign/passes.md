@@ -312,59 +312,6 @@ autonomy for the chat model, with a shown deep-reasoning chain
 - Next action: owner steers — new round on top of dry-ink v1, or accept
   it as the resting state.
 
-## Pass C009 — VERIFIED (code scope) / visual NOT RUN
-
-- Objective and scope: owner handed design to this agent. Synthesis of all
-  round verdicts: love the HK character itself (clean, minimal, warm) —
-  the problem is only the legal combination; "tiger bright" energy but of
-  a senior developer; non-generic through structure, not accessories,
-  not damage, not colour. First pass applied to ALL THREE surfaces at
-  once (card, portrait, rig) — no more verdict-gating the rig.
-- Design language "tiger bright" (own work, no delegation):
-  - **Forehead stripes** — three short ember strokes, symmetric, calm.
-    The structural identity: tiger-ness without colour dependency, no
-    accessory needed, clean head (the loved HK balance survives).
-  - **Open singing mouth** — small ink oval below the nose. The game's
-    own copy says "a soundtrack that plays along"; the cat sings. The
-    character is tied to the project's meaning, not decorated.
-  - **Alive round eyes** with one white catchlight each (reverts the
-    dry-ink slit read that killed warmth; breaks HK's vertical ovals).
-  - **Ember accent** replaces rose: bowRed #e8813c, bowDeep #c96a28
-    (palette values only; keys frozen; knight theme unaffected; Echo
-    FADED map keys are computed from PALETTE so they follow).
-  - Ember triangle nose (breaks the yellow-oval tell), 2 whiskers/side
-    (breaks the 3-whisker tell), no bow/clip/collar at all.
-  - Silhouette untouched everywhere: wide head, buried ear bases, poster
-    bust, rig proportions.
-- Changes:
-  - `ProjectArtwork.tsx` — `KittyCenterMark`: back to the loved soft head
-    geometry (ellipse + buried ears), cream #fff6ee + peach shadow step
-    #ffe3cf, ember dots (dense/halo/trail/echo), stripes, round eyes +
-    catchlights, triangle nose, singing mouth, 2+2 whiskers. Family
-    composition unchanged.
-  - `CharacterPortraits.tsx` — `KittyPortrait`: soft head path restored,
-    peach pinafore #f6d9c0, same features in outline-poster style.
-  - `web/kitty/Kitty.tsx` — `stripeShape()` added (rounded bar, 3
-    instances fanned on the crown, z 0.24); star group removed (bowRef
-    stays, null-safe); mouth = reused eye geometry scaled (open oval);
-    whiskers 2/side; comment documents the singing-runner idea.
-  - `web/lib/palette.ts` — bowRed/bowDeep → ember pair.
-- Verification:
-  - Command: `npm --prefix portfolio run typecheck`
-    Result: PASS (0 errors).
-  - Command: `node --experimental-strip-types portfolio/projects/kitty-run/tests/kitty-run.check.ts`
-    Result: PASS — "All kitty-run checks passed."
-  - Visual: NOT RUN — no browser binary on this machine.
-- Final diff review: four files, all task-scoped; Echo untouched (map
-  keys follow the palette automatically); souls branch untouched.
-- Design constraints: not applicable.
-- Remaining risks/blockers: owner visual verdict — this is the first
-  owner-independent design move; if the stripes read "try-hard" or the
-  open mouth reads "shocked", both are one-line edits (mouth → smile arc,
-  stripes thinner). Rollback point: dry-ink v1 = ec2feb9.
-- Next action: owner look at all three surfaces.
-
-
 
 
 
