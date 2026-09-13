@@ -53,9 +53,10 @@ const FADED: Record<CharacterId, Record<string, string>> = {
     [PALETTE.suitPink]: "#f0d3e0",
     [PALETTE.bowRed]: "#e3b3c7",
     [PALETTE.bowDeep]: "#dca6bd",
-    [PALETTE.noseYellow]: "#f1e4d4",
+    // Wanderer palette collisions: noseYellow == outlineInk (#1f2e2d) and
+    // eyeInk == bowRed (#d4ad67). Each computed key below is unique — the
+    // bowRed line covers the eyes, the outlineInk line covers the nose.
     [PALETTE.cheek]: "#eed3de",
-    // outlineInk and eyeInk share one ink hex; both map here together.
     [PALETTE.outlineInk]: "#c49cb2",
   },
   souls: {

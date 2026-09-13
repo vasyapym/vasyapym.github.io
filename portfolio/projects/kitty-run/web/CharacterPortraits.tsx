@@ -45,9 +45,9 @@ export function KittyPortrait() {
       <path d="M47 50 L53 50 L50 53.5 Z" fill={ink} stroke="none" />
       <path d="M50 56 H55" strokeWidth={1.6} opacity={0.7} />
 
-      {/* whiskers — thick, even, ink */}
-      <path d="M27 45 L3 41 M26 51 L2 53" strokeWidth={1.8} opacity={0.8} />
-      <path d="M73 45 L97 41 M74 51 L98 53" strokeWidth={1.8} opacity={0.8} />
+      {/* whiskers — one clean pair per side, well above the mouth */}
+      <path d="M27 44 L3 40" strokeWidth={2} />
+      <path d="M73 44 L97 40" strokeWidth={2} />
 
       {/* leather travel scarf at the neck */}
       <path d="M34 62 Q50 68 66 62" stroke={leather} strokeWidth={4} />

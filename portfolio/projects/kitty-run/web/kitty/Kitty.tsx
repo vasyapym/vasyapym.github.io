@@ -424,8 +424,7 @@ export function Kitty({
       whisker: new THREE.PlaneGeometry(0.36, 0.032),
       bowLoop: new THREE.ShapeGeometry(ellipseShape(0.34, 0.24), seg),
       bowKnot: new THREE.ShapeGeometry(ellipseShape(0.16, 0.16), seg),
-      star: new THREE.ShapeGeometry(starShape(), seg),
-      mouth: new THREE.ShapeGeometry(mouthWShape(), seg),
+      eyeBar: new THREE.ShapeGeometry(roundedRectShape(0.36, 0.05, 0.025), seg),
       catchlight: new THREE.ShapeGeometry(ellipseShape(0.035, 0.035), seg),
       dress: new THREE.ShapeGeometry(dressShape(), seg),
       foot: new THREE.ShapeGeometry(ellipseShape(0.11, 0.085), seg),
@@ -834,34 +833,35 @@ export function Kitty({
               outlineColor={palette.outlineInk}
             />
 
-            {/* face — pastel only; the visor replaces it in souls mode */}
+            {/* face — pastel only; the visor replaces it in souls mode.
+                Wanderer: narrow level sun-gold eye bars (the calm read),
+                angular ink nose, short neutral mouth, no catchlights —
+                the gaze is flat by design. */}
             {!isSouls && (
               <>
                 <mesh
                   ref={eyeLRef}
-                  geometry={geo.eye}
+                  geometry={geo.eyeBar}
                   position={[-0.4, 0.06, 0.27]}
                 >
                   <meshBasicMaterial color={palette.eyeInk} />
-                  <mesh geometry={geo.catchlight} position={[0.03, 0.04, 0.01]}>
-                    <meshBasicMaterial color="#ffffff" />
-                  </mesh>
                 </mesh>
                 <mesh
                   ref={eyeRRef}
-                  geometry={geo.eye}
+                  geometry={geo.eyeBar}
                   position={[0.4, 0.06, 0.27]}
                 >
                   <meshBasicMaterial color={palette.eyeInk} />
-                  <mesh geometry={geo.catchlight} position={[0.03, 0.04, 0.01]}>
-                    <meshBasicMaterial color="#ffffff" />
-                  </mesh>
                 </mesh>
                 <mesh geometry={geo.nose} position={[0, -0.16, 0.27]}>
-                  <meshBasicMaterial color={palette.bowRed} />
+                  <meshBasicMaterial color={palette.noseYellow} />
                 </mesh>
-                {/* "w" mouth */}
-                <mesh geometry={geo.mouth} position={[0, -0.32, 0.255]}>
+                {/* neutral short mouth line */}
+                <mesh
+                  geometry={geo.whisker}
+                  scale={[0.55, 1.4, 1]}
+                  position={[0.06, -0.32, 0.255]}
+                >
                   <meshBasicMaterial color={palette.outlineInk} />
                 </mesh>
                 <mesh geometry={geo.cheek} position={[-0.68, -0.22, 0.26]}>
@@ -997,18 +997,7 @@ export function Kitty({
                   outlineColor={palette.outlineInk}
                 />
               </group>
-            ) : (
-              /* star hairclip */
-              <group ref={bowRef} position={[0.52, 0.66, 0.32]}>
-                <Part
-                  geometry={geo.star}
-                  color={palette.bowRed}
-                  z={0}
-                  outline={1.2}
-                  outlineColor={palette.outlineInk}
-                />
-              </group>
-            )}
+            ) : null}
           </group>
         </group>
       </group>
