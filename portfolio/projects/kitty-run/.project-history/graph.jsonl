@@ -206,3 +206,5 @@
 {"type":"edge.added","id":"e91","ts":"2026-09-13T20:50:02.900Z","from":"n98","to":"n99","rel":"continues"}
 {"type":"node.added","id":"n100","ts":"2026-09-13T20:54:22.372Z","kind":"iteration","actor":"user","title":"Revert \"feat(kitty-run): dry-ink tom — nicked ear, scarred squint, gem collar tag; one FACE table shared across card mark and portrait\"","artifacts":[{"kind":"git-commit","ref":"a8bd945"}],"meta":{"source":"auto"}}
 {"type":"edge.added","id":"e92","ts":"2026-09-13T20:54:22.460Z","from":"n99","to":"n100","rel":"continues"}
+{"type":"node.added","id":"n101","ts":"2026-09-13T20:56:18.698Z","kind":"iteration","actor":"user","title":"docs(kitty-run): record pass C008 — dry-ink tom rejected ('homeless alcoholic cat'), rolled back to dry-ink v1","artifacts":[{"kind":"git-commit","ref":"ec2feb9"}],"meta":{"source":"auto"}}
+{"type":"edge.added","id":"e93","ts":"2026-09-13T20:56:18.712Z","from":"n100","to":"n101","rel":"continues"}

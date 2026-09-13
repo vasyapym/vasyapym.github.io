@@ -130,70 +130,74 @@ function RaftCenterMark() {
   );
 }
 
-/* ── 2 · Cat Runner — dry-ink cat: slit eyes, brass star, squared jaw ── */
+/* ── 2 · Cat Runner — tiger-bright: forehead stripes, singing mouth ── */
 function KittyCenterMark() {
-  const ink = "#3a3142";
-  const shell = "#efe6d7";
-  const dot = "#cbbda9";
-  const brass = "#b9994f";
-  const head =
-    "M76 46 L68 19 L101 34 C113 29 147 29 159 34 L192 19 L184 46 C201 63 201 107 178 123 C159 137 101 137 82 123 C59 107 59 63 76 46 Z";
-  const star =
-    "M0 -5 L1.45 -1.6 L5 -1.5 L2.2 0.85 L3.1 4.4 L0 2.35 L-3.1 4.4 L-2.2 0.85 L-5 -1.5 L-1.45 -1.6 Z";
-
   return (
     <svg viewBox="0 0 260 160" aria-hidden="true">
       <defs>
-        <pattern id="gem-cat-dense" patternUnits="userSpaceOnUse" width="3.4" height="3.4" patternTransform="rotate(-18)">
-          <circle cx="1.7" cy="1.7" r="0.95" fill={dot} />
+        <pattern id="gem-cat-dense" patternUnits="userSpaceOnUse" width="7" height="7">
+          <circle cx="3.5" cy="3.5" r="1.9" fill="#e8813c" />
         </pattern>
-        <pattern id="gem-cat-sparse" patternUnits="userSpaceOnUse" width="6.6" height="6.6" patternTransform="rotate(-18)">
-          <circle cx="3.3" cy="3.3" r="0.8" fill={dot} opacity="0.8" />
+        <pattern id="gem-cat-sparse" patternUnits="userSpaceOnUse" width="11" height="11">
+          <circle cx="5.5" cy="5.5" r="1.6" fill="#7d7669" />
         </pattern>
         <pattern id="gem-cat-halo" patternUnits="userSpaceOnUse" width="7" height="7">
-          <circle cx="3.5" cy="3.5" r="1.9" fill="#cbbda9" />
+          <circle cx="3.5" cy="3.5" r="1.9" fill="#e8813c" />
         </pattern>
         <clipPath id="gem-cat-head-clip">
-          <path d={head} />
+          <ellipse cx="136" cy="76" rx="40" ry="30" />
         </clipPath>
       </defs>
-
-      {/* the single halo — dot-pattern fill, CSS-var breathe via style hook */}
-      <ellipse className="gem-halo" style={haloVar(0.12)} cx="130" cy="82" rx="94" ry="62" fill="url(#gem-cat-halo)" opacity="0.12" />
-
-      {/* wide sparse field */}
-      <ellipse cx="130" cy="82" rx="104" ry="62" fill="url(#gem-cat-sparse)" opacity="0.09" />
-
-      {/* head shell with two-density halftone shading inside */}
-      <path d={head} fill={shell} />
+      {/* wide sparse neutral backdrop field */}
+      <ellipse cx="136" cy="78" rx="104" ry="62" fill="url(#gem-cat-sparse)" opacity="0.09" />
+      {/* single ember halo */}
+      <ellipse className="gem-halo" style={haloVar(0.12)} cx="136" cy="78" rx="62" ry="40" fill="url(#gem-cat-halo)" opacity="0.12" />
+      {/* ordered horizontal speed dashes */}
+      <rect x="26" y="72" width="40" height="6" rx="3" fill="#7d7669" opacity="0.4" />
+      <rect x="26" y="84" width="30" height="6" rx="3" fill="#7d7669" opacity="0.4" />
+      <rect x="26" y="96" width="20" height="6" rx="3" fill="#7d7669" opacity="0.4" />
+      {/* one clean ground curve */}
+      <path d="M 46 120 Q 140 112 236 118" stroke="#465059" strokeWidth="5" strokeLinecap="round" fill="none" opacity="0.5" />
+      {/* bullet-time dash trail on the ground */}
+      <rect x="100" y="114" width="60" height="5" rx="2.5" fill="url(#gem-cat-dense)" opacity="0.45" />
+      {/* ember ghost echo — head-only, close behind-left */}
+      <g transform="translate(-40 4) scale(0.94)" opacity="0.14">
+        <ellipse cx="136" cy="76" rx="40" ry="30" fill="url(#gem-cat-dense)" />
+        <polygon points="106,62 94,38 122,54" fill="url(#gem-cat-dense)" />
+        <polygon points="166,62 178,38 150,54" fill="url(#gem-cat-dense)" />
+      </g>
+      {/* ears (bases buried, painted before head) */}
+      <polygon points="106,62 94,38 122,54" fill="#fff6ee" />
+      <polygon points="166,62 178,38 150,54" fill="#fff6ee" />
+      {/* head — warm cream, the loved wide silhouette */}
+      <ellipse cx="136" cy="76" rx="40" ry="30" fill="#fff6ee" />
       <g clipPath="url(#gem-cat-head-clip)">
-        <ellipse cx="132" cy="134" rx="74" ry="42" fill="url(#gem-cat-dense)" />
-        <ellipse cx="196" cy="86" rx="30" ry="56" fill="url(#gem-cat-dense)" opacity="0.75" />
+        <ellipse cx="136" cy="90" rx="40" ry="30" fill="#ffe3cf" />
       </g>
-      <path d={head} fill="none" stroke={ink} strokeWidth="3.2" strokeLinejoin="round" />
-
-      {/* slit eyes — flat bars, unimpressed squint */}
-      <g stroke={ink} strokeWidth="4.4" strokeLinecap="round">
-        <path d="M97 88 H116" />
-        <path d="M144 88 H163" />
+      {/* forehead stripes — the identity, three short ember strokes */}
+      <g stroke="#e8813c" strokeWidth="3" strokeLinecap="round" fill="none">
+        <path d="M 128 55 Q 127 60 128 64" />
+        <path d="M 136 53 Q 136 59 136 64" />
+        <path d="M 144 55 Q 145 60 144 64" />
       </g>
-
-      {/* bar nose + w mouth */}
-      <g stroke={ink} strokeLinecap="round" fill="none">
-        <path d="M124 101 H136" strokeWidth="4" />
-        <path d="M116 110 Q123 119 130 110 Q137 119 144 110" strokeWidth="3.2" strokeLinejoin="round" />
-        {/* whiskers — two per side, dry */}
-        <g strokeWidth="2.4" opacity="0.9">
-          <path d="M58 84 L23 79" />
-          <path d="M56 96 L20 96" />
-          <path d="M58 108 L23 113" />
-          <path d="M202 84 L237 79" />
-          <path d="M204 96 L240 96" />
-        </g>
+      {/* round eyes, alive, one catchlight each */}
+      <ellipse cx="118" cy="78" rx="3" ry="4.4" fill="#0b1317" />
+      <ellipse cx="154" cy="78" rx="3" ry="4.4" fill="#0b1317" />
+      <circle cx="119.2" cy="76.2" r="1.1" fill="#ffffff" />
+      <circle cx="155.2" cy="76.2" r="1.1" fill="#ffffff" />
+      {/* ember triangle nose */}
+      <path d="M 132.5 86 L 139.5 86 L 136 90 Z" fill="#e8813c" />
+      {/* open singing mouth — the soundtrack plays along */}
+      <ellipse cx="136" cy="94.5" rx="2.6" ry="3.1" fill="#0b1317" />
+      {/* whiskers — two per side, relaxed */}
+      <g stroke="#f4efe4" strokeWidth="2.2" strokeLinecap="round">
+        <path d="M 100 74 L 78 70" />
+        <path d="M 100 82 L 76 84" />
+        <path d="M 172 74 L 194 70" />
+        <path d="M 172 82 L 196 84" />
       </g>
-
-      {/* brass star clip on the left ear */}
-      <path d={star} transform="translate(80 33) rotate(-14) scale(1.7)" fill={brass} stroke={ink} strokeWidth="1.2" strokeLinejoin="round" />
+      {/* single tiny glint */}
+      <rect x="122" y="58" width="2.6" height="2.6" fill="#ffffff" opacity="0.55" />
     </svg>
   );
 }
