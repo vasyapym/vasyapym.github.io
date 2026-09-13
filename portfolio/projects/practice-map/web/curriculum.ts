@@ -4830,14 +4830,6 @@ export const curriculum: readonly PracticeArea[] = [
     topics: goTopics,
   },
   {
-    id: "linux",
-    title: "Linux",
-    description: "Практический курс командной строки: от терминала и файловой системы до скриптов, пакетов и модели процессов.",
-    tier: 1,
-    dependencies: [],
-    topics: linuxTopics,
-  },
-  {
     id: "rust",
     title: "Rust",
     description: "Глубокий урок языка: от первого проверяемого запуска до владения, заимствования, конкурентности и границ unsafe, с воспроизводимыми измерениями.",
@@ -4852,5 +4844,13 @@ export const curriculum: readonly PracticeArea[] = [
     tier: 1,
     dependencies: [],
     topics: phpTopics,
+  },
+  {
+    id: "linux",
+    title: "Linux",
+    description: "Практический курс командной строки: от терминала и файловой системы до скриптов, пакетов и модели процессов.",
+    tier: 1,
+    dependencies: [],
+    topics: linuxTopics,
   },
 ];

@@ -104,7 +104,10 @@ try {
 
   // The map opens on the first curriculum area (Go, one deep-lesson card).
   // Select the Linux area for the long-standing 20-card flow below.
-  await page.click(".practice-area-list button:nth-child(2)");
+  // Linux sorts LAST in the areas nav (owner's order: flagship deep lessons
+  // first, the practical course last) — target it from the end so future
+  // area additions cannot renumber the selector.
+  await page.click(".practice-area-list button:nth-last-child(1)");
   await wait(400);
   const cardCount = await page.$$eval(".practice-topic-card", (cards) => cards.length);
   check(cardCount === 20, `20 topic cards render in the Linux area (${cardCount})`);
@@ -363,8 +366,8 @@ try {
   await wait(300);
   check((await page.$(".practice-lesson-overlay")) === null, "Escape closes the Go lesson");
 
-  // Back to the Linux area for the concept-graph leg.
-  await page.click(".practice-area-list button:nth-child(2)");
+  // Back to the Linux area (last in the nav) for the concept-graph leg.
+  await page.click(".practice-area-list button:nth-last-child(1)");
   await wait(400);
 
   // --- desktop: concept graph ------------------------------------------------
