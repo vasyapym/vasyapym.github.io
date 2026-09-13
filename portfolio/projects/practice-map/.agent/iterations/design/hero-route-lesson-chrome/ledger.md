@@ -249,3 +249,14 @@ e.g. lowercase mono chrome and the ink panel language, remain active constraints
 - Code verification: typecheck PASS, build PASS; full `practice-map.check.mjs` 93 ok / 1 documented pre-existing environment fail (ArrowRight, chromium-1134).
 - Open question: none. (Model's forward-looking note: `layoutParams` small-screen `marginX: 44 / marginY: 24` compresses the node area even on a square canvas — a future pass could equalize to 34/34 for a tighter circular distribution.)
 - Shipped: commit at round close per the owner's always-current-repo setting.
+
+## Round R006b — VERIFIED (stacked headline proportionality completion)
+- Goal: close the gap the owner spotted inside F015 — R006 raised the headline only via the two-column clamp (divisor 22 / 3.2rem ceiling); the stacked range (≤900) kept the old small scale (≤560 override 5.3vw ≈ 20.7px at 390; the 561–900 formula gave 22–31px on a full-width card). Live-site check first: the deployed `PracticeMapPage-CiTyIqIT.css` already served `/ 22, 3.2rem` (the 37rem-era 404 diagnosis was stale — the CI hash simply differs from the local one), so the desktop increase was live and the miss was the stacked range.
+- Preserved preferences: R006 decisions (two-column clamp untouched; ≤560 override now tuned in the same direction).
+- Changes: inside the ≤900 stacked block, `h1 { font-size: clamp(1.4rem, 7.2vw, 2.6rem) }` (561–900 = full-width card → proportionate type); the ≤560 override raised to `clamp(1.4rem, 7.2vw, 2rem)`. Boundary at 900/901: 41.6px → 37.7px (layout breakpoint, documented).
+- Before: artifacts/R006/hero-narrow.png-equivalent state (mobile 20.7px)
+- After: artifacts/R006b/hero-390.png, artifacts/R006b/hero-1440.png
+- Visual inspection: performed — stacked headline now 28.1px at 390 / 41.6px at 700 / 23px at 320, two lines everywhere, no overflow; desktop 1440 unchanged (51.2px).
+- Code verification: typecheck PASS, build PASS; probe 7/7 (1440/700/390/320 sizes + line counts); full `practice-map.check.mjs` 93 ok / 1 documented pre-existing environment fail (ArrowRight, chromium-1134).
+- Open question: none.
+- Shipped: commit at round close per the owner's always-current-repo setting.

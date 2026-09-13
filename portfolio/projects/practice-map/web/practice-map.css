@@ -1569,6 +1569,13 @@
   .practice-map-hero-note {
     min-height: 10.5rem;
   }
+
+  /* Stacked = full-width card: keep the headline proportionate to the
+     card, not to the viewport formula above (which undersizes it between
+     561 and 900). */
+  .practice-map-hero h1 {
+    font-size: clamp(1.4rem, 7.2vw, 2.6rem);
+  }
 }
 
 @media (max-width: 700px) {
@@ -1588,7 +1595,7 @@
     padding-bottom: 4rem;
   }
 
-  .practice-map-hero h1 { font-size: clamp(1.25rem, 5.3vw, 1.75rem); }
+  .practice-map-hero h1 { font-size: clamp(1.4rem, 7.2vw, 2rem); }
 
   .practice-area-list {
     grid-template-columns: 1fr;
