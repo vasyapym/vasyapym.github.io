@@ -130,70 +130,137 @@ function RaftCenterMark() {
   );
 }
 
-/* ── 2 · Cat Runner — dry-ink cat: slit eyes, brass star, squared jaw ── */
-function KittyCenterMark() {
-  const ink = "#3a3142";
-  const shell = "#efe6d7";
-  const dot = "#cbbda9";
-  const brass = "#b9994f";
-  const head =
-    "M76 46 L68 19 L101 34 C113 29 147 29 159 34 L192 19 L184 46 C201 63 201 107 178 123 C159 137 101 137 82 123 C59 107 59 63 76 46 Z";
-  const star =
-    "M0 -5 L1.45 -1.6 L5 -1.5 L2.2 0.85 L3.1 4.4 L0 2.35 L-3.1 4.4 L-2.2 0.85 L-5 -1.5 L-1.45 -1.6 Z";
+/* ── 2 · Cat Runner — dry-ink tom: nicked ear, scarred squint, gem tag ── */
 
+// The face table is duplicated in kitty-run's CharacterPortraits.tsx (the
+// shell package cannot import across project packages) — keep them in sync.
+const CAT_FACE = {
+  // nicked right ear, uneven skull, heavy jowl — the "character"
+  head:
+    "M96 63L99 31L117 51C125 47 137 47 146 51L162 30L160 41L165 44L166 53" +
+    "C173 65 173 95 158 107C147 116 113 117 102 108C88 96 88 74 96 63Z",
+  earL: "M102 38L114 50L104 49Z",
+  earR: "M159 37L149 51L160 50Z",
+  tuftL: "M99 44l-6-3M101 50l-7-1",
+  eyeL: "M105 80C110 70 123 70 127 80C122 89 110 89 105 80Z",
+  eyeR: "M139 82C143 76 155 76 159 82C154 87 143 87 139 82Z",
+  lidR: "M137 80C143 73 155 73 161 79",
+  browL: "M104 66C109 61 118 61 123 64",
+  scar: "M151 62l6-6M153 67l5-4",
+  nose: "M124 90L136 90L130 97Z",
+  mouth: "M130 97v3M130 100c-4 5-10 4-12 0M130 100c4 6 13 5 15-2",
+  whisk: [
+    "M103 94C91 92 81 88 73 83",
+    "M103 99C91 100 81 100 71 98",
+    "M104 104C94 108 86 112 79 115",
+    "M157 94C169 91 179 87 187 82",
+    "M157 99C170 100 181 101 189 100",
+    "M156 104C164 108 172 110 178 112",
+  ],
+  collar: "M107 109C118 118 143 118 155 107",
+  tag: "M131 117l5 5-5 5-5-5z",
+  body: "M103 113C95 121 91 129 90 137M159 111C167 118 172 128 173 137",
+  chest: "M89 137C112 143 151 143 175 137",
+  tail: "M174 134C199 136 211 119 203 105C199 97 188 97 186 106",
+};
+
+function KittyCenterMark() {
+  const ink = "#1b1713";
+  const paper = "#f3eada";
+  const rust = "#c2502e";
+  const gold = "#e3ae3c";
   return (
     <svg viewBox="0 0 260 160" aria-hidden="true">
       <defs>
-        <pattern id="gem-cat-dense" patternUnits="userSpaceOnUse" width="3.4" height="3.4" patternTransform="rotate(-18)">
-          <circle cx="1.7" cy="1.7" r="0.95" fill={dot} />
+        <pattern id="gem-cat-dense" patternUnits="userSpaceOnUse" width="7" height="7">
+          <circle cx="3.5" cy="3.5" r="1.9" fill={gold} />
         </pattern>
-        <pattern id="gem-cat-sparse" patternUnits="userSpaceOnUse" width="6.6" height="6.6" patternTransform="rotate(-18)">
-          <circle cx="3.3" cy="3.3" r="0.8" fill={dot} opacity="0.8" />
+        <pattern id="gem-cat-sparse" patternUnits="userSpaceOnUse" width="11" height="11">
+          <circle cx="5.5" cy="5.5" r="1.6" fill="#7d7669" />
         </pattern>
         <pattern id="gem-cat-halo" patternUnits="userSpaceOnUse" width="7" height="7">
-          <circle cx="3.5" cy="3.5" r="1.9" fill="#cbbda9" />
+          <circle cx="3.5" cy="3.5" r="1.9" fill={gold} />
         </pattern>
         <clipPath id="gem-cat-head-clip">
-          <path d={head} />
+          <path d={CAT_FACE.head} />
         </clipPath>
       </defs>
 
-      {/* the single halo — dot-pattern fill, CSS-var breathe via style hook */}
-      <ellipse className="gem-halo" style={haloVar(0.12)} cx="130" cy="82" rx="94" ry="62" fill="url(#gem-cat-halo)" opacity="0.12" />
+      {/* wide sparse backdrop field */}
+      <ellipse cx="131" cy="82" rx="104" ry="62" fill="url(#gem-cat-sparse)" opacity="0.09" />
 
-      {/* wide sparse field */}
-      <ellipse cx="130" cy="82" rx="104" ry="62" fill="url(#gem-cat-sparse)" opacity="0.09" />
+      {/* single gold halo */}
+      <ellipse className="gem-halo" style={haloVar(0.12)} cx="131" cy="78" rx="62" ry="40" fill="url(#gem-cat-halo)" opacity="0.12" />
 
-      {/* head shell with two-density halftone shading inside */}
-      <path d={head} fill={shell} />
+      {/* ordered horizontal speed dashes */}
+      <rect x="26" y="72" width="40" height="6" rx="3" fill="#7d7669" opacity="0.4" />
+      <rect x="26" y="84" width="30" height="6" rx="3" fill="#7d7669" opacity="0.4" />
+      <rect x="26" y="96" width="20" height="6" rx="3" fill="#7d7669" opacity="0.4" />
+
+      {/* one clean ground curve */}
+      <path d="M 46 132 Q 140 124 236 130" stroke="#465059" strokeWidth="5" strokeLinecap="round" fill="none" opacity="0.5" />
+
+      {/* bullet-time dash trail on the ground */}
+      <rect x="60" y="138" width="54" height="5" rx="2.5" fill="url(#gem-cat-dense)" opacity="0.45" />
+
+      {/* ghost echo — head-only, close behind-left */}
+      <g transform="translate(-46 0) scale(0.94)" opacity="0.14">
+        <path d={CAT_FACE.head} fill="url(#gem-cat-dense)" />
+        <path d={CAT_FACE.earL} fill="url(#gem-cat-dense)" />
+        <path d={CAT_FACE.earR} fill="url(#gem-cat-dense)" />
+      </g>
+
+      {/* shoulders, chest, tail — dry warm-grey strokes on the dark plate */}
+      <g fill="none" stroke="#cbbda9" strokeWidth="3" strokeLinecap="round" opacity="0.75">
+        <path d={CAT_FACE.tail} />
+        <path d={CAT_FACE.body} />
+        <path d={CAT_FACE.chest} />
+      </g>
+
+      {/* head shell + clipped lower-left halftone shading */}
+      <path d={CAT_FACE.head} fill={paper} />
       <g clipPath="url(#gem-cat-head-clip)">
-        <ellipse cx="132" cy="134" rx="74" ry="42" fill="url(#gem-cat-dense)" />
-        <ellipse cx="196" cy="86" rx="30" ry="56" fill="url(#gem-cat-dense)" opacity="0.75" />
+        <ellipse cx="118" cy="128" rx="70" ry="40" fill="url(#gem-cat-dense)" opacity="0.35" />
       </g>
-      <path d={head} fill="none" stroke={ink} strokeWidth="3.2" strokeLinejoin="round" />
+      <path d={CAT_FACE.head} fill="none" stroke={ink} strokeWidth="3" strokeLinejoin="round" />
 
-      {/* slit eyes — flat bars, unimpressed squint */}
-      <g stroke={ink} strokeWidth="4.4" strokeLinecap="round">
-        <path d="M97 88 H116" />
-        <path d="M144 88 H163" />
+      {/* inner ears — rust */}
+      <path d={CAT_FACE.earL} fill={rust} opacity="0.85" />
+      <path d={CAT_FACE.earR} fill={rust} opacity="0.85" />
+
+      {/* eyes: one wide, one squinting — gold lenses, ink pupils */}
+      <path d={CAT_FACE.eyeL} fill={gold} stroke={ink} strokeWidth="2.2" />
+      <path d={CAT_FACE.eyeR} fill={gold} stroke={ink} strokeWidth="2.2" />
+      <ellipse cx="116" cy="80" rx="3.2" ry="4.8" fill={ink} />
+      <ellipse cx="149" cy="82" rx="2.6" ry="2.8" fill={ink} />
+      <circle cx="118" cy="77.6" r="1.2" fill={paper} />
+      <circle cx="150.4" cy="80.4" r="0.9" fill={paper} />
+
+      {/* squint lid, brow, scar */}
+      <g fill="none" stroke={ink} strokeLinecap="round" strokeLinejoin="round">
+        <path d={CAT_FACE.lidR} strokeWidth="2.6" />
+        <path d={CAT_FACE.browL} strokeWidth="2" opacity="0.8" />
+        <path d={CAT_FACE.scar} strokeWidth="1.6" opacity="0.75" />
+        <path d={CAT_FACE.tuftL} strokeWidth="1.6" opacity="0.8" />
+        <path d={CAT_FACE.mouth} strokeWidth="2.2" />
       </g>
 
-      {/* bar nose + w mouth */}
-      <g stroke={ink} strokeLinecap="round" fill="none">
-        <path d="M124 101 H136" strokeWidth="4" />
-        <path d="M116 110 Q123 119 130 110 Q137 119 144 110" strokeWidth="3.2" strokeLinejoin="round" />
-        {/* whiskers — two per side, dry */}
-        <g strokeWidth="2.4" opacity="0.9">
-          <path d="M58 84 L23 79" />
-          <path d="M56 96 L20 96" />
-          <path d="M58 108 L23 113" />
-          <path d="M202 84 L237 79" />
-          <path d="M204 96 L240 96" />
-        </g>
+      {/* rust triangle nose */}
+      <path d={CAT_FACE.nose} fill={rust} stroke={ink} strokeWidth="1.4" strokeLinejoin="round" />
+
+      {/* whiskers — paper, punching past the head edge */}
+      <g fill="none" stroke={paper} strokeLinecap="round" strokeWidth="1.7" opacity="0.9">
+        {CAT_FACE.whisk.map((d) => (
+          <path key={d} d={d} />
+        ))}
       </g>
 
-      {/* brass star clip on the left ear */}
-      <path d={star} transform="translate(80 33) rotate(-14) scale(1.7)" fill={brass} stroke={ink} strokeWidth="1.2" strokeLinejoin="round" />
+      {/* collar + gem tag */}
+      <path d={CAT_FACE.collar} fill="none" stroke={rust} strokeWidth="3" strokeLinecap="round" />
+      <path d={CAT_FACE.tag} fill={gold} stroke={ink} strokeWidth="1.4" strokeLinejoin="round" />
+
+      {/* single tiny glint */}
+      <rect x="104" y="52" width="2.6" height="2.6" fill="#ffffff" opacity="0.55" />
     </svg>
   );
 }

@@ -5,13 +5,36 @@
 const OUTLINE_PASTEL = "#3a3142";
 const OUTLINE_SOULS = "#17130f";
 
-export function KittyPortrait() {
-  const ink = OUTLINE_PASTEL;
-  const head =
-    "M25 30 L21 12 L38 22 C44 19 57 19 63 22 L80 12 L76 30 C86 41 86 68 71 78 C60 86 41 86 30 78 C15 68 15 41 25 30 Z";
-  const star =
-    "M0 -5 L1.45 -1.6 L5 -1.5 L2.2 0.85 L3.1 4.4 L0 2.35 L-3.1 4.4 L-2.2 0.85 L-5 -1.5 L-1.45 -1.6 Z";
+// The face table is duplicated in the shell's ProjectArtwork.tsx (packages
+// cannot import across) — keep them in sync. Same cat as the landing card:
+// nicked ear, scarred squint, gold lenses, collar tag.
+const CAT_FACE = {
+  head:
+    "M96 63L99 31L117 51C125 47 137 47 146 51L162 30L160 41L165 44L166 53" +
+    "C173 65 173 95 158 107C147 116 113 117 102 108C88 96 88 74 96 63Z",
+  earL: "M102 38L114 50L104 49Z",
+  earR: "M159 37L149 51L160 50Z",
+  tuftL: "M99 44l-6-3M101 50l-7-1",
+  eyeL: "M105 80C110 70 123 70 127 80C122 89 110 89 105 80Z",
+  eyeR: "M139 82C143 76 155 76 159 82C154 87 143 87 139 82Z",
+  lidR: "M137 80C143 73 155 73 161 79",
+  browL: "M104 66C109 61 118 61 123 64",
+  scar: "M151 62l6-6M153 67l5-4",
+  nose: "M124 90L136 90L130 97Z",
+  mouth: "M130 97v3M130 100c-4 5-10 4-12 0M130 100c4 6 13 5 15-2",
+  whisk: [
+    "M103 94C91 92 81 88 73 83",
+    "M103 99C91 100 81 100 71 98",
+    "M104 104C94 108 86 112 79 115",
+    "M157 94C169 91 179 87 187 82",
+    "M157 99C170 100 181 101 189 100",
+    "M156 104C164 108 172 110 178 112",
+  ],
+  collar: "M107 109C118 118 143 118 155 107",
+  tag: "M131 117l5 5-5 5-5-5z",
+};
 
+export function KittyPortrait() {
   return (
     <svg
       viewBox="0 0 100 100"
@@ -19,34 +42,39 @@ export function KittyPortrait() {
       aria-hidden="true"
       focusable="false"
       fill="none"
-      stroke={ink}
+      stroke={OUTLINE_PASTEL}
       strokeWidth={3}
-      strokeLinecap="round"
       strokeLinejoin="round"
+      strokeLinecap="round"
     >
-      {/* squared-jaw head, angled ear tips */}
-      <path d={head} />
+      {/* the same face table as the card mark, scaled into the poster frame */}
+      <g transform="translate(50 47) scale(0.52) translate(-131 -80)">
+        <path d={CAT_FACE.head} strokeWidth={6} />
+        <path d={CAT_FACE.earL} strokeWidth={4} opacity={0.85} />
+        <path d={CAT_FACE.earR} strokeWidth={4} opacity={0.85} />
+        <path d={CAT_FACE.tuftL} strokeWidth={4} opacity={0.8} />
 
-      {/* slit eyes — flat bars */}
-      <path d="M33 47 H43" />
-      <path d="M58 47 H68" />
+        {/* gold lenses + ink pupils (wide left, squint right) */}
+        <path d={CAT_FACE.eyeL} strokeWidth={5} fill="#e3ae3c" />
+        <path d={CAT_FACE.eyeR} strokeWidth={5} fill="#e3ae3c" />
+        <ellipse cx="116" cy="80" rx="3.2" ry="4.8" fill={OUTLINE_PASTEL} stroke="none" />
+        <ellipse cx="149" cy="82" rx="2.6" ry="2.8" fill={OUTLINE_PASTEL} stroke="none" />
+        <circle cx="118" cy="77.6" r="1.2" fill="#f3eada" stroke="none" />
+        <circle cx="150.4" cy="80.4" r="0.9" fill="#f3eada" stroke="none" />
 
-      {/* bar nose + w mouth */}
-      <path d="M47 55 H54" />
-      <path d="M43 60 Q46.8 65 50.5 60 Q54.2 65 58 60" />
+        <path d={CAT_FACE.lidR} strokeWidth={5} />
+        <path d={CAT_FACE.browL} strokeWidth={4} opacity={0.8} />
+        <path d={CAT_FACE.scar} strokeWidth={3.4} opacity={0.7} />
+        <path d={CAT_FACE.nose} strokeWidth={4} fill="#c2502e" />
+        <path d={CAT_FACE.mouth} strokeWidth={4.4} />
+        {CAT_FACE.whisk.map((d) => (
+          <path key={d} d={d} strokeWidth={3.4} opacity={0.75} />
+        ))}
 
-      {/* whiskers — two per side, dry */}
-      <path d="M16 44 L4 41" />
-      <path d="M15 52 L3 53" />
-      <path d="M85 44 L97 41" />
-      <path d="M86 52 L98 53" />
-
-      {/* brass star clip on the left ear */}
-      <path
-        d={star}
-        transform="translate(28 21) rotate(-14) scale(0.95)"
-        fill="#b9994f"
-      />
+        {/* collar + tag — the bust cut line */}
+        <path d={CAT_FACE.collar} strokeWidth={5} stroke="#c2502e" />
+        <path d={CAT_FACE.tag} strokeWidth={4} fill="#e3ae3c" />
+      </g>
     </svg>
   );
 }
