@@ -23,16 +23,13 @@ export function KittyPortrait() {
       strokeLinejoin="round"
       strokeLinecap="round"
     >
-      {/* white shirt with a leather collar band; head overlaps (no neck) */}
+      {/* wanderer tunic — warm parchment with a leather yoke; head overlaps */}
       <path d="M24 84 C24 71 36 64 50 64 C64 64 76 71 76 84 L78 100 L22 100 Z" fill={paper} />
-      {/* shirt placket + two buttons — the clothing read */}
-      <path d="M50 66 L50 100" strokeWidth={1.6} opacity={0.7} />
-      <circle cx="46.5" cy="76" r="1.3" fill={ink} stroke="none" />
-      <circle cx="53.5" cy="82" r="1.3" fill={ink} stroke="none" />
-      {/* collar band — leather, sun pin */}
-      <path d="M36 65 Q50 71 64 65" stroke={leather} strokeWidth={3.4} />
-      <ellipse cx="50" cy="68.5" rx="3.6" ry="2.1" fill={leather} stroke="none" />
-      <ellipse cx="50" cy="68.5" rx="1.3" ry="0.8" fill={sun} stroke="none" />
+      {/* yoke: leather shoulder band across the chest — travel gear, not a collar */}
+      <path d="M30 68 Q50 76 70 68 L72 74 Q50 82 28 74 Z" fill={leather} stroke="none" />
+      {/* center strap with a sun buckle */}
+      <path d="M50 74 L50 100" stroke={leather} strokeWidth={2.6} />
+      <rect x="47.2" y="80" width="5.6" height="5" rx="1" fill={sun} stroke="none" />
 
       {/* stubby arms, outward-down from shoulder level */}
       <ellipse cx="23" cy="78" rx="9" ry="4.8" transform="rotate(38 23 78)" fill={paper} />
@@ -45,12 +42,12 @@ export function KittyPortrait() {
       <path d="M21.5 27.5 L25 14 Q26.5 11 29 13.5 L37.5 20.5" fill={paper} />
       <path d="M78.5 27.5 L75 14 Q73.5 11 71 13.5 L62.5 20.5" fill={paper} />
 
-      {/* upright oval eyes with a flat gold lid line across the top —
-          alert but level: neither Pop's round sparkle nor a slit squint */}
-      <ellipse cx="34" cy="48" rx="2.4" ry="3.6" fill={ink} stroke="none" />
-      <ellipse cx="66" cy="48" rx="2.4" ry="3.6" fill={ink} stroke="none" />
-      <path d="M31 45.4 H37" stroke={sun} strokeWidth={1.6} />
-      <path d="M63 45.4 H69" stroke={sun} strokeWidth={1.6} />
+      {/* level gold eyes: short confident strokes with a soft ink lower
+          lid — the card's gaze, warmed; no slit-line stereotype read */}
+      <path d="M30 47.5 H38" stroke={sun} strokeWidth={2.4} />
+      <path d="M62 47.5 H70" stroke={sun} strokeWidth={2.4} />
+      <path d="M31 50 Q34 51.6 37 50" strokeWidth={1.4} opacity={0.85} />
+      <path d="M63 50 Q66 51.6 69 50" strokeWidth={1.4} opacity={0.85} />
 
       {/* angular ink nose; NO mouth line (the beard culprit) */}
       <path d="M47 51 L53 51 L50 54.5 Z" fill={ink} stroke="none" />
