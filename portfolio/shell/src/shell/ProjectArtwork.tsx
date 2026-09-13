@@ -130,68 +130,95 @@ function RaftCenterMark() {
   );
 }
 
-/* ── 2 · Cat Runner — pop-ink cat: star clip, w-mouth, catchlight eyes ── */
+/* ── 2 · Cat Runner — wanderer: leather, pine cloak, sun-gold gaze ── */
+// From GPT-6-Astra's SPEC-9K4 payload: paper/ink/mist/rock/pine/sun/leather.
+// Salvaged onto the repo's card family: dark plate, no text/gradients,
+// running cat (the reply's standing figure would break the runner read).
 function KittyCenterMark() {
+  const ink = "#1f2e2d";
+  const paper = "#efe5ce";
+  const rock = "#80958c";
+  const pine = "#435c53";
+  const sun = "#d4ad67";
+  const leather = "#806650";
+
   return (
     <svg viewBox="0 0 260 160" aria-hidden="true">
       <defs>
         <pattern id="gem-cat-dense" patternUnits="userSpaceOnUse" width="7" height="7">
-          <circle cx="3.5" cy="3.5" r="1.9" fill="#e94f64" />
+          <circle cx="3.5" cy="3.5" r="1.9" fill={sun} />
         </pattern>
         <pattern id="gem-cat-sparse" patternUnits="userSpaceOnUse" width="11" height="11">
-          <circle cx="5.5" cy="5.5" r="1.6" fill="#7d7669" />
+          <circle cx="5.5" cy="5.5" r="1.6" fill={rock} />
         </pattern>
         <pattern id="gem-cat-halo" patternUnits="userSpaceOnUse" width="7" height="7">
-          <circle cx="3.5" cy="3.5" r="1.9" fill="#7d7669" />
+          <circle cx="3.5" cy="3.5" r="1.9" fill={sun} />
         </pattern>
         <clipPath id="gem-cat-head-clip">
           <ellipse cx="136" cy="76" rx="40" ry="30" />
         </clipPath>
       </defs>
-      {/* wide sparse neutral backdrop field */}
+
+      {/* wide sparse mist backdrop */}
       <ellipse cx="136" cy="78" rx="104" ry="62" fill="url(#gem-cat-sparse)" opacity="0.09" />
-      {/* single neutral halo */}
+      {/* single sun-gold halo */}
       <ellipse className="gem-halo" style={haloVar(0.12)} cx="136" cy="78" rx="62" ry="40" fill="url(#gem-cat-halo)" opacity="0.12" />
+
       {/* ordered horizontal speed dashes */}
-      <rect x="26" y="72" width="40" height="6" rx="3" fill="#7d7669" opacity="0.4" />
-      <rect x="26" y="84" width="30" height="6" rx="3" fill="#7d7669" opacity="0.4" />
-      <rect x="26" y="96" width="20" height="6" rx="3" fill="#7d7669" opacity="0.4" />
+      <rect x="26" y="72" width="40" height="6" rx="3" fill={rock} opacity="0.4" />
+      <rect x="26" y="84" width="30" height="6" rx="3" fill={rock} opacity="0.4" />
+      <rect x="26" y="96" width="20" height="6" rx="3" fill={rock} opacity="0.4" />
+
       {/* one clean ground curve */}
       <path d="M 46 120 Q 140 112 236 118" stroke="#465059" strokeWidth="5" strokeLinecap="round" fill="none" opacity="0.5" />
+
       {/* bullet-time dash trail on the ground */}
       <rect x="100" y="114" width="60" height="5" rx="2.5" fill="url(#gem-cat-dense)" opacity="0.45" />
-      {/* pop halftone ghost echo — head-only, close behind-left */}
+
+      {/* ghost echo — head-only, close behind-left */}
       <g transform="translate(-40 4) scale(0.94)" opacity="0.14">
         <ellipse cx="136" cy="76" rx="40" ry="30" fill="url(#gem-cat-dense)" />
         <polygon points="106,62 94,38 122,54" fill="url(#gem-cat-dense)" />
         <polygon points="166,62 178,38 150,54" fill="url(#gem-cat-dense)" />
       </g>
-      {/* ears (bases buried, painted before head) */}
-      <polygon points="106,62 94,38 122,54" fill="#fff6ee" />
-      <polygon points="166,62 178,38 150,54" fill="#fff6ee" />
-      {/* head dominates — warm cream, flat comic fill */}
-      <ellipse cx="136" cy="76" rx="40" ry="30" fill="#fff6ee" />
+
+      {/* ears — angular, wind-set (bases buried, painted before head) */}
+      <polygon points="106,62 94,38 122,54" fill={paper} />
+      <polygon points="166,62 178,38 150,54" fill={paper} />
+      {/* head — paper shell, the loved wide silhouette */}
+      <ellipse cx="136" cy="76" rx="40" ry="30" fill={paper} />
+      {/* lower-jaw halftone shading, dense */}
       <g clipPath="url(#gem-cat-head-clip)">
-        <ellipse cx="136" cy="90" rx="40" ry="30" fill="#f1b9c5" />
+        <ellipse cx="136" cy="94" rx="40" ry="30" fill="url(#gem-cat-dense)" opacity="0.5" />
       </g>
-      {/* whisker spikes — paper, punching past the head edge */}
-      <path d="M 100 68 L 78 64" stroke="#f4efe4" strokeWidth="2.2" strokeLinecap="round" />
-      <path d="M 100 76 L 76 76" stroke="#f4efe4" strokeWidth="2.2" strokeLinecap="round" />
-      <path d="M 100 84 L 78 88" stroke="#f4efe4" strokeWidth="2.2" strokeLinecap="round" />
-      <path d="M 172 68 L 194 64" stroke="#f4efe4" strokeWidth="2.2" strokeLinecap="round" />
-      <path d="M 172 76 L 196 76" stroke="#f4efe4" strokeWidth="2.2" strokeLinecap="round" />
-      <path d="M 172 84 L 194 88" stroke="#f4efe4" strokeWidth="2.2" strokeLinecap="round" />
-      {/* ink eyes, low and wide, each with a white catchlight speck */}
-      <ellipse cx="118" cy="78" rx="2.8" ry="4.2" fill="#0b1317" />
-      <ellipse cx="154" cy="78" rx="2.8" ry="4.2" fill="#0b1317" />
-      <circle cx="119" cy="76.4" r="1" fill="#ffffff" />
-      <circle cx="155" cy="76.4" r="1" fill="#ffffff" />
-      {/* accent nose (was unmarked) */}
-      <ellipse cx="136" cy="86" rx="3.4" ry="2.4" fill="#e94f64" />
-      {/* the w mouth — the loudest differentiator */}
-      <path d="M 130 92 Q 133 96 136 92.5 Q 139 96 142 92" fill="none" stroke="#3a3142" strokeWidth="2" strokeLinecap="round" />
-      {/* star clip on the right ear — the bow is gone */}
-      <polygon points="176,31 178.9,38 186.5,38.6 180.8,43.5 182.5,50.9 176,47 169.5,50.9 171.2,43.5 165.5,38.6 173.1,38" fill="#e94f64" />
+
+      {/* narrow level eyes — sun-gold lines, the calm read */}
+      <g stroke={sun} strokeWidth="2.4" strokeLinecap="round">
+        <path d="M 112 78 H 124" />
+        <path d="M 148 78 H 160" />
+      </g>
+      {/* angular ink nose */}
+      <path d="M 133 85 L 139 85 L 136 89 Z" fill={ink} />
+      {/* neutral short mouth line */}
+      <path d="M 136 92 H 141" stroke={ink} strokeWidth="1.6" strokeLinecap="round" opacity="0.7" />
+
+      {/* whiskers — three per side but thick and even, ink not paper */}
+      <g stroke={ink} strokeWidth="1.6" strokeLinecap="round" opacity="0.8">
+        <path d="M 100 74 L 80 70" />
+        <path d="M 100 80 L 78 80" />
+        <path d="M 100 86 L 80 90" />
+        <path d="M 172 74 L 192 70" />
+        <path d="M 172 80 L 194 80" />
+        <path d="M 172 86 L 192 90" />
+      </g>
+
+      {/* leather travel scarf — the wanderer's one accessory, trailing left */}
+      <path d="M 112 104 Q 96 112 84 110" stroke={leather} strokeWidth="4" fill="none" strokeLinecap="round" />
+      <path d="M 112 108 Q 100 116 90 116" stroke={leather} strokeWidth="2.4" fill="none" strokeLinecap="round" opacity="0.7" />
+      {/* scarf knot at the neck */}
+      <ellipse cx="118" cy="105" rx="6" ry="3.4" fill={leather} />
+      <ellipse cx="118" cy="105" rx="2.2" ry="1.4" fill={sun} opacity="0.85" />
+
       {/* single tiny glint */}
       <rect x="122" y="58" width="2.6" height="2.6" fill="#ffffff" opacity="0.55" />
     </svg>
