@@ -33,3 +33,5 @@
 {"type":"edge.added","id":"e14","ts":"2026-09-13T19:19:32.834Z","from":"n16","to":"n17","rel":"continues"}
 {"type":"node.added","id":"n18","ts":"2026-09-13T20:18:07.165Z","kind":"iteration","actor":"user","title":"docs(planck-to-now): fates-cpu-core addendum — owner correction: first reply was the truncated one; second (complete) reply benchmarked 10/14 and rejected; drop attributed to length-routing, standing rule recorded","artifacts":[{"kind":"git-commit","ref":"d16d6cd"}],"meta":{"source":"auto"}}
 {"type":"edge.added","id":"e15","ts":"2026-09-13T20:18:07.177Z","from":"n17","to":"n18","rel":"continues"}
+{"type":"node.added","id":"n19","ts":"2026-09-13T20:19:04.705Z","kind":"iteration","actor":"user","title":"docs(planck-to-now): fates-cpu-core correction 2 — both B1 replies were Opus 4.6 (normal tier); timeout-truncated first reply outperformed the complete regeneration; delegation rule updated (split briefs, resume-not-regenerate on timeout)","artifacts":[{"kind":"git-commit","ref":"2428695"}],"meta":{"source":"auto"}}
+{"type":"edge.added","id":"e16","ts":"2026-09-13T20:19:04.813Z","from":"n18","to":"n19","rel":"continues"}

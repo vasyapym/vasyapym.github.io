@@ -130,109 +130,70 @@ function RaftCenterMark() {
   );
 }
 
-/* ── 2 · Cat Runner — pixel cat: 12×10 ASCII rig, chunky ink, bell collar ── */
-
-// The whole design language in one grid: O ink outline · I fill ·
-// S shadow · E eye · M mouth · N accent (bell collar). Front-facing
-// sprite — motion lives in the dashes and the ghost echo, not the pose.
-const PIXEL_CAT_GRID: readonly string[] = [
-  "..O......O..",
-  ".OIO....OIO.",
-  ".OIIOOOOIIO.",
-  "OIIIIIIIIIIO",
-  "OIEIIIIEIIIO",
-  "OIIIIMMIIIIO",
-  ".OIIIIIIIISO",
-  "..OONNNNOO..",
-  ".OISIIIISSO.",
-  "..OOOOOOOO..",
-];
-
-const PIXEL_CAT_SWATCH: { [ch: string]: string | undefined } = {
-  O: "#2a1b3d",
-  I: "#f7e8ff",
-  S: "#9a6fbf",
-  E: "#2a1b3d",
-  M: "#2a1b3d",
-  N: "#ffd23f",
-};
-
-function rasterizePixelCat(cell: number, ox: number, oy: number) {
-  const cells: { key: string; x: number; y: number; fill: string }[] = [];
-  PIXEL_CAT_GRID.forEach((row, y) => {
-    for (let x = 0; x < row.length; x += 1) {
-      const fill = PIXEL_CAT_SWATCH[row[x]];
-      if (fill) {
-        cells.push({ key: `${x}-${y}`, x: ox + x * cell, y: oy + y * cell, fill });
-      }
-    }
-  });
-  return cells;
-}
-
+/* ── 2 · Cat Runner — dry-ink cat: slit eyes, brass star, squared jaw ── */
 function KittyCenterMark() {
-  const cell = 11;
-  const ox = 64;
-  const oy = 25;
-  const cells = rasterizePixelCat(cell, ox, oy);
+  const ink = "#3a3142";
+  const shell = "#efe6d7";
+  const dot = "#cbbda9";
+  const brass = "#b9994f";
+  const head =
+    "M76 46 L68 19 L101 34 C113 29 147 29 159 34 L192 19 L184 46 C201 63 201 107 178 123 C159 137 101 137 82 123 C59 107 59 63 76 46 Z";
+  const star =
+    "M0 -5 L1.45 -1.6 L5 -1.5 L2.2 0.85 L3.1 4.4 L0 2.35 L-3.1 4.4 L-2.2 0.85 L-5 -1.5 L-1.45 -1.6 Z";
+
   return (
     <svg viewBox="0 0 260 160" aria-hidden="true">
       <defs>
-        <pattern id="gem-cat-dense" patternUnits="userSpaceOnUse" width="7" height="7">
-          <circle cx="3.5" cy="3.5" r="1.9" fill="#ffd23f" />
+        <pattern id="gem-cat-dense" patternUnits="userSpaceOnUse" width="3.4" height="3.4" patternTransform="rotate(-18)">
+          <circle cx="1.7" cy="1.7" r="0.95" fill={dot} />
         </pattern>
-        <pattern id="gem-cat-sparse" patternUnits="userSpaceOnUse" width="11" height="11">
-          <circle cx="5.5" cy="5.5" r="1.6" fill="#9a6fbf" />
+        <pattern id="gem-cat-sparse" patternUnits="userSpaceOnUse" width="6.6" height="6.6" patternTransform="rotate(-18)">
+          <circle cx="3.3" cy="3.3" r="0.8" fill={dot} opacity="0.8" />
         </pattern>
         <pattern id="gem-cat-halo" patternUnits="userSpaceOnUse" width="7" height="7">
-          <circle cx="3.5" cy="3.5" r="1.9" fill="#ffd23f" />
+          <circle cx="3.5" cy="3.5" r="1.9" fill="#cbbda9" />
         </pattern>
         <clipPath id="gem-cat-head-clip">
-          <rect x="64" y="25" width="132" height="77" />
+          <path d={head} />
         </clipPath>
       </defs>
 
-      {/* wide sparse purple backdrop field */}
-      <ellipse cx="136" cy="78" rx="104" ry="62" fill="url(#gem-cat-sparse)" opacity="0.09" />
+      {/* the single halo — dot-pattern fill, CSS-var breathe via style hook */}
+      <ellipse className="gem-halo" style={haloVar(0.12)} cx="130" cy="82" rx="94" ry="62" fill="url(#gem-cat-halo)" opacity="0.12" />
 
-      {/* single gold halo */}
-      <ellipse className="gem-halo" style={haloVar(0.12)} cx="136" cy="78" rx="62" ry="40" fill="url(#gem-cat-halo)" opacity="0.12" />
+      {/* wide sparse field */}
+      <ellipse cx="130" cy="82" rx="104" ry="62" fill="url(#gem-cat-sparse)" opacity="0.09" />
 
-      {/* ordered horizontal speed dashes */}
-      <rect x="26" y="72" width="36" height="6" rx="3" fill="#9a6fbf" opacity="0.4" />
-      <rect x="26" y="84" width="26" height="6" rx="3" fill="#9a6fbf" opacity="0.4" />
-      <rect x="26" y="96" width="18" height="6" rx="3" fill="#9a6fbf" opacity="0.4" />
+      {/* head shell with two-density halftone shading inside */}
+      <path d={head} fill={shell} />
+      <g clipPath="url(#gem-cat-head-clip)">
+        <ellipse cx="132" cy="134" rx="74" ry="42" fill="url(#gem-cat-dense)" />
+        <ellipse cx="196" cy="86" rx="30" ry="56" fill="url(#gem-cat-dense)" opacity="0.75" />
+      </g>
+      <path d={head} fill="none" stroke={ink} strokeWidth="3.2" strokeLinejoin="round" />
 
-      {/* one clean ground curve */}
-      <path d="M 46 120 Q 140 112 236 118" stroke="#465059" strokeWidth="5" strokeLinecap="round" fill="none" opacity="0.5" />
-
-      {/* bullet-time dash trail, left of the sitting cat */}
-      <rect x="40" y="126" width="44" height="5" rx="2.5" fill="url(#gem-cat-dense)" opacity="0.45" />
-
-      {/* pixel ghost echo — blocky silhouette, close behind-left */}
-      <g transform="translate(-50 6) scale(0.92)" opacity="0.14">
-        <rect x="86" y="25" width="11" height="11" fill="url(#gem-cat-dense)" />
-        <rect x="163" y="25" width="11" height="11" fill="url(#gem-cat-dense)" />
-        <rect x="64" y="47" width="132" height="55" fill="url(#gem-cat-dense)" />
+      {/* slit eyes — flat bars, unimpressed squint */}
+      <g stroke={ink} strokeWidth="4.4" strokeLinecap="round">
+        <path d="M97 88 H116" />
+        <path d="M144 88 H163" />
       </g>
 
-      {/* the pixel rig */}
-      <g shapeRendering="crispEdges">
-        {cells.map((c) => (
-          <rect key={c.key} x={c.x} y={c.y} width={cell} height={cell} fill={c.fill} />
-        ))}
+      {/* bar nose + w mouth */}
+      <g stroke={ink} strokeLinecap="round" fill="none">
+        <path d="M124 101 H136" strokeWidth="4" />
+        <path d="M116 110 Q123 119 130 110 Q137 119 144 110" strokeWidth="3.2" strokeLinejoin="round" />
+        {/* whiskers — two per side, dry */}
+        <g strokeWidth="2.4" opacity="0.9">
+          <path d="M58 84 L23 79" />
+          <path d="M56 96 L20 96" />
+          <path d="M58 108 L23 113" />
+          <path d="M202 84 L237 79" />
+          <path d="M204 96 L240 96" />
+        </g>
       </g>
 
-      {/* eye catchlights — one white pixel each */}
-      <rect x="92" y="72" width="3" height="3" fill="#ffffff" />
-      <rect x="147" y="72" width="3" height="3" fill="#ffffff" />
-
-      {/* bell highlight + clapper */}
-      <rect x="110" y="104" width="3" height="3" fill="#f7e8ff" />
-      <rect x="119" y="109" width="22" height="3" fill="#2a1b3d" />
-
-      {/* single tiny glint on crown */}
-      <rect x="122" y="50" width="2.6" height="2.6" fill="#ffffff" opacity="0.55" />
+      {/* brass star clip on the left ear */}
+      <path d={star} transform="translate(80 33) rotate(-14) scale(1.7)" fill={brass} stroke={ink} strokeWidth="1.2" strokeLinejoin="round" />
     </svg>
   );
 }

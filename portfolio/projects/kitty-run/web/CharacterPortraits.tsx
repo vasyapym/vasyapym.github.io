@@ -5,49 +5,13 @@
 const OUTLINE_PASTEL = "#3a3142";
 const OUTLINE_SOULS = "#17130f";
 
-// Pixel Kitty rig (12×10) — same ASCII grid as the landing-card mark;
-// cell size is set per surface. O ink · I fill · S shadow · E eye ·
-// M mouth · N accent (bell collar).
-const PIXEL_CAT_GRID: readonly string[] = [
-  "..O......O..",
-  ".OIO....OIO.",
-  ".OIIOOOOIIO.",
-  "OIIIIIIIIIIO",
-  "OIEIIIIEIIIO",
-  "OIIIIMMIIIIO",
-  ".OIIIIIIIISO",
-  "..OONNNNOO..",
-  ".OISIIIISSO.",
-  "..OOOOOOOO..",
-];
-
-const PIXEL_CAT_SWATCH: { [ch: string]: string | undefined } = {
-  O: "#2a1b3d",
-  I: "#f7e8ff",
-  S: "#9a6fbf",
-  E: "#2a1b3d",
-  M: "#2a1b3d",
-  N: "#ffd23f",
-};
-
-function rasterizePixelCat(cell: number, ox: number, oy: number) {
-  const cells: { key: string; x: number; y: number; fill: string }[] = [];
-  PIXEL_CAT_GRID.forEach((row, y) => {
-    for (let x = 0; x < row.length; x += 1) {
-      const fill = PIXEL_CAT_SWATCH[row[x]];
-      if (fill) {
-        cells.push({ key: `${x}-${y}`, x: ox + x * cell, y: oy + y * cell, fill });
-      }
-    }
-  });
-  return cells;
-}
-
 export function KittyPortrait() {
-  const cell = 8;
-  const ox = 2;
-  const oy = 10;
-  const cells = rasterizePixelCat(cell, ox, oy);
+  const ink = OUTLINE_PASTEL;
+  const head =
+    "M25 30 L21 12 L38 22 C44 19 57 19 63 22 L80 12 L76 30 C86 41 86 68 71 78 C60 86 41 86 30 78 C15 68 15 41 25 30 Z";
+  const star =
+    "M0 -5 L1.45 -1.6 L5 -1.5 L2.2 0.85 L3.1 4.4 L0 2.35 L-3.1 4.4 L-2.2 0.85 L-5 -1.5 L-1.45 -1.6 Z";
+
   return (
     <svg
       viewBox="0 0 100 100"
@@ -55,25 +19,34 @@ export function KittyPortrait() {
       aria-hidden="true"
       focusable="false"
       fill="none"
-      stroke={OUTLINE_PASTEL}
+      stroke={ink}
       strokeWidth={3}
-      strokeLinejoin="round"
       strokeLinecap="round"
+      strokeLinejoin="round"
     >
-      {/* the pixel rig — fills carry the read; svg-level stroke is overridden */}
-      <g stroke="none" shapeRendering="crispEdges">
-        {cells.map((c) => (
-          <rect key={c.key} x={c.x} y={c.y} width={cell} height={cell} fill={c.fill} />
-        ))}
-      </g>
+      {/* squared-jaw head, angled ear tips */}
+      <path d={head} />
 
-      {/* eye catchlights — one white pixel each */}
-      <rect x="22" y="44" width="2.5" height="2.5" fill="#ffffff" stroke="none" />
-      <rect x="62" y="44" width="2.5" height="2.5" fill="#ffffff" stroke="none" />
+      {/* slit eyes — flat bars */}
+      <path d="M33 47 H43" />
+      <path d="M58 47 H68" />
 
-      {/* bell highlight + clapper */}
-      <rect x="36" y="67" width="2" height="2" fill="#f7e8ff" stroke="none" />
-      <rect x="43" y="71" width="10" height="2.5" fill="#2a1b3d" stroke="none" />
+      {/* bar nose + w mouth */}
+      <path d="M47 55 H54" />
+      <path d="M43 60 Q46.8 65 50.5 60 Q54.2 65 58 60" />
+
+      {/* whiskers — two per side, dry */}
+      <path d="M16 44 L4 41" />
+      <path d="M15 52 L3 53" />
+      <path d="M85 44 L97 41" />
+      <path d="M86 52 L98 53" />
+
+      {/* brass star clip on the left ear */}
+      <path
+        d={star}
+        transform="translate(28 21) rotate(-14) scale(0.95)"
+        fill="#b9994f"
+      />
     </svg>
   );
 }
