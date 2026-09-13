@@ -79,8 +79,8 @@ export default function PracticeMapPage() {
       <section className="practice-map-page section-shell" aria-labelledby="practice-map-title">
         <header className="practice-map-hero">
           <h1 id="practice-map-title">
-            structured practice.
-            <span>deep lessons and local notes.</span>
+            deep lessons.
+            <span>local notes.</span>
           </h1>
           <div className="practice-map-hero-note">
             <RouteProgress done={summary.applied} total={summary.total} />

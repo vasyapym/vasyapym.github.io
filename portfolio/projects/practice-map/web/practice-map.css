@@ -55,10 +55,10 @@
 .practice-map-hero {
   display: grid;
   grid-template-columns: minmax(0, 1.1fr) minmax(230px, 0.45fr);
-  /* stretch, not end: the two panels must share one height — a taller rail
-     with a shorter copy panel reads as misaligned, whatever the bottom line
-     is doing. */
-  align-items: stretch;
+  /* Each panel hugs its own content (start, not stretch): with the compact
+     headline the stretched shared height left a dead void inside the copy
+     panel; two tight siblings read organic, top edges aligned. */
+  align-items: start;
   gap: clamp(2rem, 6vw, 5rem);
 }
 
@@ -67,19 +67,16 @@
 .practice-map-hero h1 {
   display: flex;
   flex-direction: column;
-  /* Bottom-anchor the headline so its last line sits on exactly the same
-     line as the rail's explore chip (both panels share the bottom padding). */
-  justify-content: flex-end;
   max-width: 760px;
   margin: 0;
-  padding: clamp(1.25rem, 2.4vw, 1.9rem) clamp(1.25rem, 2.4vw, 1.9rem)
-    clamp(1.4rem, 2.6vw, 2rem);
+  padding: clamp(1.05rem, 2vw, 1.55rem) clamp(1.05rem, 2vw, 1.55rem)
+    clamp(1.2rem, 2.2vw, 1.7rem);
   background: rgba(9, 15, 18, 0.62);
   border: 1px solid var(--ink-line-soft);
   border-left: 2px solid var(--ink-accent-deep);
   border-radius: var(--panel-radius);
   font-family: var(--display);
-  font-size: clamp(1.76rem, calc((100vw - 72px) / 19.4), 3.68rem);
+  font-size: clamp(1.15rem, calc((100vw - 72px) / 31), 2.3rem);
   font-weight: 600;
   letter-spacing: -0.02em;
   line-height: 0.98;
@@ -97,14 +94,11 @@
 .practice-map-hero-note {
   display: grid;
   justify-items: start;
-  gap: 1.2rem;
-  /* Top padding mirrors the copy panel's so both panels' first content sits
-     at the same distance from their shared top edge; space-between pins the
-     explore chip to the bottom line when the stretched copy panel adds
-     height; bottom padding mirrors the copy panel's so the chip's bottom
-     edge sits on the same line as the headline's last line. */
-  align-content: space-between;
-  padding: clamp(1.25rem, 2.4vw, 1.9rem) 1.25rem clamp(1.4rem, 2.6vw, 2rem);
+  gap: 1rem;
+  /* Compact stack: route block and chip sit tight instead of being pinned
+     apart by space-between across a stretched height. */
+  align-content: start;
+  padding: clamp(1.05rem, 2vw, 1.55rem) 1.25rem clamp(1.2rem, 2.2vw, 1.7rem);
   background: rgba(9, 15, 18, 0.78);
   border: 1px solid var(--ink-line-soft);
   border-radius: var(--panel-radius);
@@ -975,7 +969,10 @@
 }
 
 .practice-lesson-panel {
-  width: min(950px, 100%);
+  /* +25% over the old 950px frame. The window grows; the text measure
+     does not — the reading column is capped and centered below so longer
+     Russian lines stay readable inside the wider frame. */
+  width: min(1190px, 100%);
   min-width: 0;
   max-height: 100%;
   /* Stationary frame: the panel itself never scrolls (the realm deep-reader
@@ -1045,30 +1042,31 @@
   display: flex;
   align-items: start;
   justify-content: space-between;
-  gap: 1.5rem;
+  gap: 1rem;
   flex: 0 0 auto;
   border-bottom: 1px solid var(--ink-line-soft);
-  padding-bottom: 1rem;
+  /* Minimal frame: the header is chrome, not reading matter — keep its
+     vertical footprint small so the scroll body owns the panel. */
+  padding-bottom: 0.6rem;
 }
 
 .practice-lesson-kicker {
   margin: 0;
   color: var(--ink-accent);
   font-family: var(--mono);
-  font-size: 0.72rem;
+  font-size: 0.64rem;
   letter-spacing: 0.05em;
   text-transform: lowercase;
 }
 
 .practice-lesson-header h2 {
-  max-width: 560px;
-  margin: 0.5rem 0 0;
-  color: var(--ink-text);
+  margin: 0.1rem 0 0;
+  color: var(--ink-muted);
   font-family: var(--display);
-  font-size: clamp(1.4rem, 2.6vw, 1.9rem);
-  font-weight: 600;
-  letter-spacing: -0.01em;
-  line-height: 1.08;
+  font-size: clamp(1rem, 1.8vw, 1.3rem);
+  font-weight: 550;
+  letter-spacing: 0;
+  line-height: 1.15;
 }
 
 .practice-lesson-close {
@@ -1222,6 +1220,17 @@
   display: grid;
   gap: 2.25rem;
   margin-top: 1.5rem;
+}
+
+/* Wider window, same reading measure: cap the content column and center
+   it inside the frame; chrome (free bar, progress hairline, footer) stays
+   full-bleed. */
+.practice-lesson-objectives,
+.practice-reader-nav,
+.practice-reader,
+.practice-lesson-body {
+  max-width: 72ch;
+  margin-inline: auto;
 }
 
 .practice-reader-section {
@@ -1555,7 +1564,7 @@
     padding-bottom: 4rem;
   }
 
-  .practice-map-hero h1 { font-size: clamp(2rem, 8.5vw, 2.75rem); }
+  .practice-map-hero h1 { font-size: clamp(1.25rem, 5.3vw, 1.75rem); }
 
   .practice-area-list {
     grid-template-columns: 1fr;

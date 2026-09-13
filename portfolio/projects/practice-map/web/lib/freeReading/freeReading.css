@@ -27,14 +27,17 @@
 
 .fr-controls button {
   border: 1px solid var(--ink-line-soft);
-  padding: 0.28rem 0.6rem;
+  /* ~2× the original control: taller hit target, pill shape so the mode
+     toggle reads as its own control, not as sheet chrome. */
+  padding: 0.6rem 1.2rem;
   color: var(--ink-muted);
   background: var(--ink-panel);
   cursor: pointer;
   font-family: var(--mono);
-  font-size: 0.68rem;
+  font-size: 0.95rem;
   letter-spacing: 0.05em;
   text-transform: lowercase;
+  border-radius: 999px;
 }
 
 .fr-controls button:hover {
