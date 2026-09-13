@@ -222,3 +222,5 @@
 {"type":"edge.added","id":"e99","ts":"2026-09-13T21:33:48.649Z","from":"n106","to":"n107","rel":"continues"}
 {"type":"node.added","id":"n108","ts":"2026-09-13T21:34:06.898Z","kind":"iteration","actor":"user","title":"docs(kitty-run): record pass C011 — highland squint rejected, full pop-kitty restore, verdict history compiled","artifacts":[{"kind":"git-commit","ref":"8772b27"}],"meta":{"source":"auto"}}
 {"type":"edge.added","id":"e100","ts":"2026-09-13T21:34:06.961Z","from":"n107","to":"n108","rel":"continues"}
+{"type":"node.added","id":"n109","ts":"2026-09-13T21:59:14.725Z","kind":"iteration","actor":"user","title":"feat(kitty-run): wanderer — paper shell, sun-gold level gaze, leather travel scarf (SPEC-9K4 palette salvaged onto card family)","artifacts":[{"kind":"git-commit","ref":"6b34cb5"}],"meta":{"source":"auto"}}
+{"type":"edge.added","id":"e101","ts":"2026-09-13T21:59:14.728Z","from":"n108","to":"n109","rel":"continues"}

@@ -396,3 +396,40 @@ autonomy for the chat model, with a shown deep-reasoning chain
   to the randomized-routing tier with an obfuscated task framing.
 - Next action: randomized-model round (owner-led prompt design).
 
+## Pass C012 — VERIFIED (code scope) / visual NOT RUN
+
+- Objective and scope: randomized-tier round via the spec-framing prompt
+  (SPEC-9K4). Reply came from GPT-6-Astra: a full skeleton-rig wanderer
+  (joints, limbs, cloak, lowered blade, pack, bedroll) on a light paper
+  card with serif/mono typography. Owner framing: "must be the best".
+- Salvage decisions: the reply's STANDING figure with a sword breaks the
+  runner read and its paper card breaks the dark-plate family; its
+  <text> marginalia, linearGradient sky, props/exports, and local
+  haloVar are hard-forbidden. Salvaged the PAYLOAD: palette (paper
+  #efe5ce, ink #1f2e2d, mist/rock #80958c, pine #435c53, sun #d4ad67,
+  leather #806650) and the adult attitude (narrow level eyes, neutral
+  mouth, functional leather accessory, no cuteness devices).
+- Changes:
+  - `ProjectArtwork.tsx` — `KittyCenterMark`: paper-shell head on the
+    loved silhouette, dense-jaw halftone, sun-gold level eye lines,
+    angular ink nose + neutral mouth line, thick even ink whiskers,
+    leather travel scarf trailing left with a sun-gold pin. Family kept:
+    dark plate, sparse mist backdrop, sun-gold halo hook, dashes, ground,
+    trail, head-only echo.
+  - `CharacterPortraits.tsx` — `KittyPortrait`: same language in the
+    outline-poster bust — paper shirt, leather scarf band + gold pin,
+    gold eye lines, angular nose, neutral mouth, 2 thick whiskers/side.
+- Rig: NOT changed this pass — awaiting owner verdict on the direction
+  (the reply's rig hexes recorded: base #efe5ce, ink #1f2e2d, accent
+  #d4ad67, cloth #806650, nose #1f2e2d, eye #d4ad67).
+- Verification:
+  - Command: `npm --prefix portfolio run typecheck`
+    Result: PASS (0 errors).
+  - Command: `node --experimental-strip-types portfolio/projects/kitty-run/tests/kitty-run.check.ts`
+    Result: PASS — "All kitty-run checks passed."
+  - Visual: NOT RUN — no browser binary on this machine.
+- Final diff review: two surface files only.
+- Remaining risks/blockers: owner visual verdict; the level-gaze +
+  leather-scarf combo is untested against the "childish"/"scruffy" traps
+  (it sits deliberately between dry-ink v1 and highland squint).
+- Next action: owner look at card + portrait; rig follows the verdict.
