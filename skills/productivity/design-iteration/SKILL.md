@@ -43,6 +43,20 @@ never restart numbering or overwrite an earlier round's artifacts.
 The ledger is the historical source of truth. Optional summaries are derived
 views and must not replace it.
 
+## Visual baseline is mandatory — screenshots are usually possible
+
+Before claiming NOT VISUALLY VERIFIED, actually hunt for a browser: check
+Playwright's cache (`~/Library/Caches/ms-playwright/chromium-*/chrome-mac/
+Chromium.app/Contents/MacOS/Chromium` on macOS), puppeteer-core candidates,
+`CHROME_PATH`. A headless Chromium there + `puppeteer-core` is enough: boot
+the dev server (`npm --prefix <app> run dev -- --port <port> --strictPort`,
+run from the app package, not the workspace root — wrong cwd = 404), wait
+for `networkidle2` + a settle delay, `page.$(selector).screenshot(...)`,
+then READ the PNG with the Read tool and inspect the actual image. Record
+the shot path as the round's artifact. "No browser" is a last-resort
+finding, not a default excuse — an unverified round the owner cannot see
+is a wasted round.
+
 ## Round procedure
 
 1. **Resume and reconcile**

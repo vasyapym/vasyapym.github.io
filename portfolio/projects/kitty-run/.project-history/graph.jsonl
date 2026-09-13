@@ -234,3 +234,5 @@
 {"type":"edge.added","id":"e105","ts":"2026-09-13T22:21:05.226Z","from":"n112","to":"n113","rel":"continues"}
 {"type":"node.added","id":"n114","ts":"2026-09-13T22:26:55.750Z","kind":"iteration","actor":"user","title":"feat(kitty-run): portrait round D001 — leather yoke + sun buckle (travel gear, not medical whites), soft lower-lid gold gaze, beard stays gone","artifacts":[{"kind":"git-commit","ref":"625cfe5"}],"meta":{"source":"auto"}}
 {"type":"edge.added","id":"e106","ts":"2026-09-13T22:26:55.758Z","from":"n113","to":"n114","rel":"continues"}
+{"type":"node.added","id":"n115","ts":"2026-09-13T22:27:17.266Z","kind":"iteration","actor":"user","title":"docs(kitty-run): ledger D001 + F001 — portrait rework round recorded, awaiting verdict","artifacts":[{"kind":"git-commit","ref":"fbb5a54"}],"meta":{"source":"auto"}}
+{"type":"edge.added","id":"e107","ts":"2026-09-13T22:27:17.278Z","from":"n114","to":"n115","rel":"continues"}
