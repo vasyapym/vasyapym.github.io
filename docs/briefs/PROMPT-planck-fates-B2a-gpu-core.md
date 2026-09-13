@@ -1,0 +1,7 @@
+# Prompt — randomized routing round, B2a GPU core (paste verbatim)
+
+comprehensive code - WebGL2 ping-pong FBO particle sim (TypeScript + three.js, 220k particles, RGBA32F state textures, fullscreen-quad passes only, no CPU readback): build a halo-based particle engine for fate-of-universe modes — particle proper position = a·x_halo + d where d is a bounded physical offset integrated by kick-drift-kick under the cosmological tide d̈ = A·d − GM·d/(|d|²+ε²)^{3/2} (A per substep comes from a CPU Friedmann integrator as uniform pairs a0/a1/H0/H1/A0/A1), while free particles skip integration and take the exact Hubble stretch d←d·a1/a0, ḋ←ḋ·a0/a1; ~1500 halos assigned once on the CPU by a seeded PRNG (deterministic; GM ∝ membership, tuned so the max halo-core orbital frequency ≈ 4400); a bound particle unbinds when the tide beats its Plummer gravity and |d| exceeds 3 halo scale radii, absorbing the halo offset into d. Deliver one complete .ts module — MRT substep shader (one draw updates offset+velocity+local textures), seeding, and exported pure helpers (assignHalos, unbind rule, pack/unpack state) — plus one node-runnable test file with plain check() asserts over the pure helpers; strict TypeScript, no other files, no build tooling.
+
+## Notes for the user (not part of the prompt)
+- The block above is the paste; the reply comes back here for salvage integration.
+- If the reply arrives thin or direction-bent: salvage what fits, and the next round moves one constraint back into the prompt.

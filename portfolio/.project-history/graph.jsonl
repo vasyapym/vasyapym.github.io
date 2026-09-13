@@ -437,3 +437,5 @@
 {"type":"edge.added","id":"e207","ts":"2026-09-13T20:06:22.759Z","from":"n227","to":"n228","rel":"continues"}
 {"type":"node.added","id":"n229","ts":"2026-09-13T20:28:43.948Z","kind":"iteration","actor":"user","title":"feat(kitty-run): dry-ink cat — slit eyes, bar nose, squared jaw, brass star on card mark and portrait (pop-kitty evolution toward senior minimalism)","artifacts":[{"kind":"git-commit","ref":"30ebe55"}],"meta":{"source":"auto"}}
 {"type":"edge.added","id":"e208","ts":"2026-09-13T20:28:43.952Z","from":"n228","to":"n229","rel":"continues"}
+{"type":"node.added","id":"n230","ts":"2026-09-13T20:49:46.560Z","kind":"iteration","actor":"user","title":"feat(kitty-run): dry-ink tom — nicked ear, scarred squint, gem collar tag; one FACE table shared across card mark and portrait","artifacts":[{"kind":"git-commit","ref":"5327966"}],"meta":{"source":"auto"}}
+{"type":"edge.added","id":"e209","ts":"2026-09-13T20:49:46.563Z","from":"n229","to":"n230","rel":"continues"}
