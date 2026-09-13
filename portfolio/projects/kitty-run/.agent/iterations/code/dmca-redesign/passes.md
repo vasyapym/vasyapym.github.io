@@ -312,9 +312,58 @@ autonomy for the chat model, with a shown deep-reasoning chain
 - Next action: owner steers — new round on top of dry-ink v1, or accept
   it as the resting state.
 
+## Pass C010 — VERIFIED (code scope) / visual NOT RUN
 
-
-
-
-
-
+- Objective and scope: owner verdict on tiger-bright — "childish, don't
+  like open mouth; tiger bright was metaphorical". New target: "badass
+  like ashen but of a lighter world" (calm-confident wanderer, not
+  grimdark, not cute). Delegated to the normal chat model with the full
+  7-verdict history; reply chose "Highland Squint + Ronin": silver-blue
+  mist coat, narrow amber almond squint eyes (the whole attitude), amber
+  trailing scarf (the one accessory). Applied to all three surfaces.
+- Acceptance criteria: tsc clean; node checks pass; ids + halo hook
+  preserved; card family (dark plate, dashes, ground, trail, echo)
+  retained; portrait stroke convention kept; palette keys unchanged.
+- Changes:
+  - `ProjectArtwork.tsx` — `KittyCenterMark` rewritten: silver-blue
+    dot-filled subject (dense pattern as the fill itself), amber slit
+    eyes, angular amber nose, scarf trail + knot, angled-back ears,
+    running legs, amber halo, sparse silver backdrop. Note: the card's
+    subject is now pattern-filled (not solid) — a deliberate read change
+    from the reply, kept.
+  - `CharacterPortraits.tsx` — `KittyPortrait`: silver-blue head/body,
+    amber almond eyes, rose angular nose, minimal mouth dash, scarf knot
+    + wind trail, inner ears.
+  - `web/kitty/Kitty.tsx` — `squintEyeShape()` (narrow horizontal almond,
+    flat amber, no pupil, no catchlight — the brief's "avoid at 55px"
+    honoured); `scarfShape()` pennant trailing to -x with ink outline;
+    `scarfRef` + wind model in useFrame (same sway/lift/dash family as
+    the souls cape, softer); scarf hung at [-0.3, 0.86] z -0.06 behind
+    the dress; stripes/mouth/catchlights removed from the pastel face.
+  - `web/lib/palette.ts` — full pastel re-skin per the reply's table:
+    kittyWhite #c0cdda, outlineInk #2c3240, bowRed #c89850 (amber),
+    bowDeep #a07830, suitPink #8b9e94 (sage), suitDeep #60766c,
+    noseYellow #c49898 (dusty rose), cheek #b8a8a8, eyeInk #c89850.
+- Delegation note: reply arrived contract-clean for both SVGs (kept the
+  dark plate, ids, halo hook, aria-hidden, no props/imports/text/
+  gradients). Integrated near-verbatim; the rig delta was applied
+  mechanically per its spec (almond eye geometry + amber eyeInk), with
+  the scarf promoted from spec-note to a rigged, wind-animated part
+  (the reply asked for "one geometry note" — a static scarf would have
+  read as a decal).
+- Baseline: dry-ink v1 (post-C009 revert), checks green.
+- Verification:
+  - Command: `npm --prefix portfolio run typecheck`
+    Result: PASS after one repair (leftover `geo.stripe` entry referencing
+    the deleted `stripeShape` — removed, rerun clean).
+  - Command: `node --experimental-strip-types portfolio/projects/kitty-run/tests/kitty-run.check.ts`
+    Result: PASS — "All kitty-run checks passed."
+  - Visual: NOT RUN — no browser binary on this machine.
+- Final diff review: four task files + brief; other agents' work excluded.
+- Design constraints: not applicable.
+- Remaining risks/blockers: owner visual verdict. Known surface tension:
+  the card subject is dot-pattern-filled while the portrait/rig are solid
+  fills — deliberate (halftone family) but worth an owner look; the rig
+  scarf is new geometry (unviewed) — its pivot [-0.3, 0.86] and z -0.06
+  were reasoned, not seen.
+- Next action: owner look at card + portrait + in-game run.

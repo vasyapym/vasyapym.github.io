@@ -441,3 +441,5 @@
 {"type":"edge.added","id":"e209","ts":"2026-09-13T20:49:46.563Z","from":"n229","to":"n230","rel":"continues"}
 {"type":"node.added","id":"n231","ts":"2026-09-13T20:54:22.489Z","kind":"iteration","actor":"user","title":"Revert \"feat(kitty-run): dry-ink tom — nicked ear, scarred squint, gem collar tag; one FACE table shared across card mark and portrait\"","artifacts":[{"kind":"git-commit","ref":"a8bd945"}],"meta":{"source":"auto"}}
 {"type":"edge.added","id":"e210","ts":"2026-09-13T20:54:22.499Z","from":"n230","to":"n231","rel":"continues"}
+{"type":"node.added","id":"n232","ts":"2026-09-13T21:23:00.133Z","kind":"iteration","actor":"user","title":"feat(kitty-run): highland squint — silver-blue coat, amber almond squint eyes, trailing wanderer scarf; all three surfaces + rig palette","artifacts":[{"kind":"git-commit","ref":"13d39bd"}],"meta":{"source":"auto"}}
+{"type":"edge.added","id":"e211","ts":"2026-09-13T21:23:00.155Z","from":"n231","to":"n232","rel":"continues"}

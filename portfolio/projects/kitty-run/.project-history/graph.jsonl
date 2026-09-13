@@ -214,3 +214,5 @@
 {"type":"edge.added","id":"e95","ts":"2026-09-13T21:03:39.232Z","from":"n102","to":"n103","rel":"continues"}
 {"type":"node.added","id":"n104","ts":"2026-09-13T21:07:49.457Z","kind":"iteration","actor":"user","title":"Revert \"docs(kitty-run): record pass C009 — tiger-bright design (stripes + singing mouth), owner-independent first pass, all three surfaces\"","artifacts":[{"kind":"git-commit","ref":"7d2bbfd"}],"meta":{"source":"auto"}}
 {"type":"edge.added","id":"e96","ts":"2026-09-13T21:07:49.480Z","from":"n103","to":"n104","rel":"continues"}
+{"type":"node.added","id":"n105","ts":"2026-09-13T21:23:00.085Z","kind":"iteration","actor":"user","title":"feat(kitty-run): highland squint — silver-blue coat, amber almond squint eyes, trailing wanderer scarf; all three surfaces + rig palette","artifacts":[{"kind":"git-commit","ref":"13d39bd"}],"meta":{"source":"auto"}}
+{"type":"edge.added","id":"e97","ts":"2026-09-13T21:23:00.089Z","from":"n104","to":"n105","rel":"continues"}
