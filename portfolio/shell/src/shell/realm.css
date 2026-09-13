@@ -543,6 +543,13 @@
   font-family: var(--mono);
   color: var(--ink-text);
   -webkit-font-smoothing: antialiased;
+  /* The returned realm (r12) mounts as a SIBLING of the landing — outside
+     main.signal-index — so this var does not inherit there and every
+     var(--panel-radius) consumer (hud/legend chrome, panel, dive CTA)
+     computed 0: square buttons on desktop AND mobile in the returned
+     realm only. Define it realm-locally so every mount shares the accepted
+     rounded look (the landing-owned realm already resolves the same 20px). */
+  --panel-radius: 20px;
 }
 .realm-layer:focus,
 .realm-layer:focus-visible { outline: none; } /* takes programmatic focus */
