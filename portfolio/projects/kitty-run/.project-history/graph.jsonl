@@ -224,3 +224,5 @@
 {"type":"edge.added","id":"e100","ts":"2026-09-13T21:34:06.961Z","from":"n107","to":"n108","rel":"continues"}
 {"type":"node.added","id":"n109","ts":"2026-09-13T21:59:14.725Z","kind":"iteration","actor":"user","title":"feat(kitty-run): wanderer — paper shell, sun-gold level gaze, leather travel scarf (SPEC-9K4 palette salvaged onto card family)","artifacts":[{"kind":"git-commit","ref":"6b34cb5"}],"meta":{"source":"auto"}}
 {"type":"edge.added","id":"e101","ts":"2026-09-13T21:59:14.728Z","from":"n108","to":"n109","rel":"continues"}
+{"type":"node.added","id":"n110","ts":"2026-09-13T21:59:32.456Z","kind":"iteration","actor":"user","title":"docs(kitty-run): record pass C012 — SPEC-9K4 wanderer salvaged onto card family, rig pending verdict","artifacts":[{"kind":"git-commit","ref":"2664282"}],"meta":{"source":"auto"}}
+{"type":"edge.added","id":"e102","ts":"2026-09-13T21:59:32.459Z","from":"n109","to":"n110","rel":"continues"}
