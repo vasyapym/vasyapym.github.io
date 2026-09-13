@@ -431,3 +431,7 @@
 {"type":"edge.added","id":"e204","ts":"2026-09-13T17:27:17.316Z","from":"n224","to":"n225","rel":"continues"}
 {"type":"node.added","id":"n226","ts":"2026-09-13T19:58:18.737Z","kind":"iteration","actor":"user","title":"feat(kitty-run): pixel-kitty redesign — 12×10 grid card mark with CRT scanlines and bell, stepped pixel portrait, rig re-skin (bell, pixel mouth, square catchlights), echo collision fix (passes C003)","artifacts":[{"kind":"git-commit","ref":"dcd8c0f"}],"meta":{"source":"auto"}}
 {"type":"edge.added","id":"e205","ts":"2026-09-13T19:58:18.739Z","from":"n225","to":"n226","rel":"continues"}
+{"type":"node.added","id":"n227","ts":"2026-09-13T20:01:19.301Z","kind":"iteration","actor":"user","title":"Revert \"feat(kitty-run): pixel-kitty redesign — 12×10 grid card mark with CRT scanlines and bell, stepped pixel portrait, rig re-skin (bell, pixel mouth, square catchlights), echo collision fix (passes C003)\"","artifacts":[{"kind":"git-commit","ref":"26f896b"}],"meta":{"source":"auto"}}
+{"type":"edge.added","id":"e206","ts":"2026-09-13T20:01:19.304Z","from":"n226","to":"n227","rel":"continues"}
+{"type":"node.added","id":"n228","ts":"2026-09-13T20:06:22.738Z","kind":"iteration","actor":"user","title":"feat(kitty-run): pixel cat v2 — 12×10 ASCII-rig sprite with bell collar on card mark and portrait (salvage-integrated, contract-clean)","artifacts":[{"kind":"git-commit","ref":"7d4899d"}],"meta":{"source":"auto"}}
+{"type":"edge.added","id":"e207","ts":"2026-09-13T20:06:22.759Z","from":"n227","to":"n228","rel":"continues"}

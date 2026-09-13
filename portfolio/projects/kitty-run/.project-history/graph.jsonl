@@ -192,3 +192,5 @@
 {"type":"edge.added","id":"e84","ts":"2026-09-13T20:01:19.270Z","from":"n91","to":"n92","rel":"continues"}
 {"type":"node.added","id":"n93","ts":"2026-09-13T20:02:56.463Z","kind":"iteration","actor":"user","title":"docs(kitty-run): record pass C004 — pixel-kitty rejected ('too ugly'), rolled back to pop-kitty (26f896b)","artifacts":[{"kind":"git-commit","ref":"2eed37b"}],"meta":{"source":"auto"}}
 {"type":"edge.added","id":"e85","ts":"2026-09-13T20:02:56.470Z","from":"n92","to":"n93","rel":"continues"}
+{"type":"node.added","id":"n94","ts":"2026-09-13T20:06:22.680Z","kind":"iteration","actor":"user","title":"feat(kitty-run): pixel cat v2 — 12×10 ASCII-rig sprite with bell collar on card mark and portrait (salvage-integrated, contract-clean)","artifacts":[{"kind":"git-commit","ref":"7d4899d"}],"meta":{"source":"auto"}}
+{"type":"edge.added","id":"e86","ts":"2026-09-13T20:06:22.687Z","from":"n93","to":"n94","rel":"continues"}

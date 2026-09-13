@@ -200,6 +200,49 @@ autonomy for the chat model, with a shown deep-reasoning chain
 - Next action: owner picks the next direction (another variant, a new
   round, or accept Pop Kitty as the resting state).
 
+## Pass C005 — VERIFIED (code scope) / visual NOT RUN
+
+- Objective and scope: second pixel attempt from a stronger relay model —
+  an ASCII-authored 12×10 sprite rig (chunky ink outline, lavender fill,
+  bell collar replacing the bow, single-cell eyes/mouth, no whiskers).
+  Apply to the card mark and the portrait only; the in-game rig stays
+  Pop Kitty pending owner approval of this direction.
+- Acceptance criteria: tsc clean; node checks pass; ids + halo hook
+  preserved; no props/imports; aria-hidden kept; family composition
+  (backdrop, halo, dashes, ground, trail, ghost echo) retained.
+- Changes:
+  - `ProjectArtwork.tsx` — module-scope `PIXEL_CAT_GRID`/`PIXEL_CAT_SWATCH`
+    + `rasterizePixelCat()`; `KittyCenterMark` renders the sprite at cell
+    11 (ox 64, oy 25) with crispEdges on the cells group only; gold dense
+    dots (trail/echo/halo), purple sparse field; blocky 3-rect ghost echo;
+    white pixel catchlights in the eyes; bell highlight + clapper; crown
+    glint. Halo stays a dot-pattern ellipse with `style={haloVar(0.12)}`
+    (the reply's radialGradient dropped — outside the flat family).
+  - `CharacterPortraits.tsx` — same grid at cell 8 (ox 2, oy 10); svg
+    stroke attrs kept but overridden to `stroke="none"` on the pixel group
+    (stroking every cell would outline each pixel); catchlights + bell
+    details as small rects.
+- Delegation note: reply arrived as a props/exports component with local
+  haloVar redefinition, svg title/aria-label, and a hex-grid rig delta
+  (contradicts pixel identity — discarded). Salvaged: the ASCII rig, the
+  bell collar, the palette, crispEdges discipline.
+- Baseline: Pop Kitty state (post-revert C004), checks green.
+- Verification:
+  - Command: `npm --prefix portfolio run typecheck`
+    Result: PASS (exit 0).
+  - Command: `node --experimental-strip-types portfolio/projects/kitty-run/tests/kitty-run.check.ts`
+    Result: PASS — "All kitty-run checks passed."
+  - Visual: NOT RUN — no browser binary on this machine.
+- Final diff review: only the two surface files; rig and palette untouched.
+- Design constraints: not applicable.
+- Remaining risks/blockers: owner visual verdict pending — this is the
+  direction test; if approved, a follow-up pass re-skins the in-game rig
+  (bell on bowRef, pixel mouth, square catchlights — the C003 rig work is
+  recoverable from git dcd8c0f as reference). Known surface mismatch:
+  card/portrait are pixel, the playable cat is still Pop Kitty until then.
+- Next action: owner look at the landing card + select portrait.
+
+
 
 
 
