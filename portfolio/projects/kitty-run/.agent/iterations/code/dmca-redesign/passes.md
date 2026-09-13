@@ -286,6 +286,53 @@ autonomy for the chat model, with a shown deep-reasoning chain
   dot #cbbda9, brass #b9994f).
 - Next action: owner look at card + portrait.
 
+## Pass C007 — VERIFIED (code scope) / visual NOT RUN
+
+- Objective and scope: owner verdict on dry-ink v1 — "good but maybe still
+  not quite it", "lacks character", portrait inconsistent. Relay model
+  (Claude Opus 5-high) delivered a "rubber-stamped tom": nicked right ear,
+  asymmetric eyes (wide left + scarred squint right), brow, cheek scar,
+  smirk pulled right, rust collar + gold gem tag, tail/shoulders. Applied
+  to card mark + portrait; rig still pending verdict.
+- Acceptance criteria: tsc clean; node checks pass; ids + halo hook
+  preserved; no props/imports/text/filters/gradients; aria-hidden kept;
+  card family composition retained (backdrop, halo, dashes, ground, trail,
+  ghost echo, dark plate).
+- Changes:
+  - `ProjectArtwork.tsx` — module-scope `CAT_FACE` path table (head with
+    nicked ear + heavy jowl, ears, tuft, asymmetric lens-shaped eyes,
+    lid/brow/scar, triangle nose, smirk mouth, 6 whiskers, collar, tag,
+    body/chest/tail); `KittyCenterMark` renders the tom on the dark plate:
+    paper shell + clipped halftone shading, rust inner ears, gold eye
+    lenses with ink pupils + paper catchlights, rust nose, collar arc +
+    gold tag, warm-grey body strokes on the plate, head-only ghost echo.
+  - `CharacterPortraits.tsx` — same `CAT_FACE` table (duplicated with a
+    keep-in-sync comment; packages cannot import across), scaled
+    translate(50 47) scale(0.52) into the 100×100 poster as a pure
+    outline bust with the same fills (gold lenses, rust nose/collar, gold
+    tag) — portrait and mark can no longer drift apart.
+- Delegation note: reply arrived heavily contract-dirty (props, imports,
+  role="img", <text> marginalia, feTurbulence/grain filters, 4 radial
+  gradients, local haloVar redefinition, renamed ids, light paper plate).
+  All dropped or repaired; salvaged the character design and the shared
+  FACE-table idea. Filters/text are hard-forbidden in this card family.
+- Baseline: dry-ink v1 state (C006), checks green.
+- Verification:
+  - Command: `npm --prefix portfolio run typecheck`
+    Result: PASS (exit 0).
+  - Command: `node --experimental-strip-types portfolio/projects/kitty-run/tests/kitty-run.check.ts`
+    Result: PASS — "All kitty-run checks passed."
+  - Visual: NOT RUN — no browser binary on this machine.
+- Final diff review: two surface files; rig + palette untouched.
+- Design constraints: not applicable.
+- Remaining risks/blockers: owner visual verdict on the tom; rig re-skin
+  (asymmetric eyes are NOT rig-ready as-is — the rig's two eyes share one
+  geometry + symmetric pose math; a follow-up pass must decide between
+  symmetric "squint lids" overlay vs. rig geometry fork) from the reply's
+  hex set (ink #1b1713, paper #f3eada, rust #c2502e, gold #e3ae3c).
+- Next action: owner look at card + portrait.
+
+
 
 
 
