@@ -53,18 +53,33 @@ function earShape(): THREE.Shape {
   return shape;
 }
 
-// Tiger-bright forehead stripe: one rounded bar; three instances fan
-// slightly across the crown. The stripes (not an accessory) carry the
-// character's identity.
-function stripeShape(): THREE.Shape {
-  const shape = new THREE.Shape();
-  shape.moveTo(-0.045, -0.16);
-  shape.quadraticCurveTo(-0.065, 0, -0.045, 0.16);
-  shape.quadraticCurveTo(0, 0.2, 0.045, 0.16);
-  shape.quadraticCurveTo(0.065, 0, 0.045, -0.16);
-  shape.quadraticCurveTo(0, -0.2, -0.045, -0.16);
-  shape.closePath();
-  return shape;
+function starShape(outerR = 0.2, innerR = 0.09, points = 5): THREE.Shape {
+  const s = new THREE.Shape();
+  for (let i = 0; i < points * 2; i++) {
+    const r = i % 2 === 0 ? outerR : innerR;
+    const angle = (i * Math.PI) / points - Math.PI / 2;
+    const x = Math.cos(angle) * r;
+    const y = Math.sin(angle) * r;
+    if (i === 0) s.moveTo(x, y);
+    else s.lineTo(x, y);
+  }
+  s.closePath();
+  return s;
+}
+
+function mouthWShape(): THREE.Shape {
+  const s = new THREE.Shape();
+  const hw = 0.18;
+  const dip = 0.11;
+  const t = 0.05;
+  s.moveTo(-hw, 0);
+  s.quadraticCurveTo(-hw / 2, -dip, 0, 0);
+  s.quadraticCurveTo(hw / 2, -dip, hw, 0);
+  s.lineTo(hw, t);
+  s.quadraticCurveTo(hw / 2, -dip + t, 0, t);
+  s.quadraticCurveTo(-hw / 2, -dip + t, -hw, t);
+  s.closePath();
+  return s;
 }
 
 function dressShape(): THREE.Shape {
@@ -409,7 +424,8 @@ export function Kitty({
       whisker: new THREE.PlaneGeometry(0.36, 0.032),
       bowLoop: new THREE.ShapeGeometry(ellipseShape(0.34, 0.24), seg),
       bowKnot: new THREE.ShapeGeometry(ellipseShape(0.16, 0.16), seg),
-      stripe: new THREE.ShapeGeometry(stripeShape(), seg),
+      star: new THREE.ShapeGeometry(starShape(), seg),
+      mouth: new THREE.ShapeGeometry(mouthWShape(), seg),
       catchlight: new THREE.ShapeGeometry(ellipseShape(0.035, 0.035), seg),
       dress: new THREE.ShapeGeometry(dressShape(), seg),
       foot: new THREE.ShapeGeometry(ellipseShape(0.11, 0.085), seg),
@@ -818,23 +834,9 @@ export function Kitty({
               outlineColor={palette.outlineInk}
             />
 
-            {/* face — pastel only; the visor replaces it in souls mode.
-                Tiger-bright: forehead stripes carry the identity, the small
-                open mouth is the singing runner (the soundtrack plays
-                along), eyes stay round and alive with a catchlight. */}
+            {/* face — pastel only; the visor replaces it in souls mode */}
             {!isSouls && (
               <>
-                {/* forehead stripes — ember, fanned slightly outward */}
-                {[-1, 0, 1].map((i) => (
-                  <mesh
-                    key={`stripe:${i}`}
-                    geometry={geo.stripe}
-                    position={[i * 0.22, 0.62 - Math.abs(i) * 0.03, 0.24]}
-                    rotation={[0, 0, i * 0.16]}
-                  >
-                    <meshBasicMaterial color={palette.bowRed} />
-                  </mesh>
-                ))}
                 <mesh
                   ref={eyeLRef}
                   geometry={geo.eye}
@@ -858,12 +860,8 @@ export function Kitty({
                 <mesh geometry={geo.nose} position={[0, -0.16, 0.27]}>
                   <meshBasicMaterial color={palette.bowRed} />
                 </mesh>
-                {/* open singing mouth — ink, small, below the nose */}
-                <mesh
-                  geometry={geo.eye}
-                  scale={[1.05, 0.85, 1]}
-                  position={[0, -0.32, 0.255]}
-                >
+                {/* "w" mouth */}
+                <mesh geometry={geo.mouth} position={[0, -0.32, 0.255]}>
                   <meshBasicMaterial color={palette.outlineInk} />
                 </mesh>
                 <mesh geometry={geo.cheek} position={[-0.68, -0.22, 0.26]}>
@@ -873,12 +871,12 @@ export function Kitty({
                   <meshBasicMaterial color={palette.cheek} />
                 </mesh>
                 {[-1, 1].map((side) =>
-                  [0.14, -0.06].map((y, i) => (
+                  [0.18, 0.02, -0.14].map((y, i) => (
                     <mesh
                       key={`${side}:${i}`}
                       geometry={geo.whisker}
                       position={[side * 0.88, y, 0.27]}
-                      rotation={[0, 0, side * (0.08 - i * 0.1)]}
+                      rotation={[0, 0, side * (0.08 - i * 0.08)]}
                     >
                       <meshBasicMaterial color={palette.outlineInk} />
                     </mesh>
@@ -999,7 +997,18 @@ export function Kitty({
                   outlineColor={palette.outlineInk}
                 />
               </group>
-            ) : null}
+            ) : (
+              /* star hairclip */
+              <group ref={bowRef} position={[0.52, 0.66, 0.32]}>
+                <Part
+                  geometry={geo.star}
+                  color={palette.bowRed}
+                  z={0}
+                  outline={1.2}
+                  outlineColor={palette.outlineInk}
+                />
+              </group>
+            )}
           </group>
         </group>
       </group>

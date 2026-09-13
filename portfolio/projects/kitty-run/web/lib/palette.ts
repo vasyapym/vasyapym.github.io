@@ -4,8 +4,8 @@
 export const PALETTE = {
   kittyWhite: "#fff6ee",
   outlineInk: "#3a3142",
-  bowRed: "#e8813c",
-  bowDeep: "#c96a28",
+  bowRed: "#e94f64",
+  bowDeep: "#d13a50",
   suitPink: "#f6a9c0",
   suitDeep: "#e88bab",
   noseYellow: "#ffd44d",

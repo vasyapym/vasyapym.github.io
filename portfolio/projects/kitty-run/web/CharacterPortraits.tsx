@@ -18,9 +18,9 @@ export function KittyPortrait() {
       strokeLinejoin="round"
       strokeLinecap="round"
     >
-      {/* white shirt under the peach pinafore; the head overlaps it (no neck) */}
+      {/* white shirt under the pink pinafore; the head overlaps it (no neck) */}
       <path d="M24 84 C24 71 36 64 50 64 C64 64 76 71 76 84 L78 100 L22 100 Z" fill="#ffffff" />
-      <path d="M36 64 L41 64 L41 74 L59 74 L59 64 L64 64 L64 74 L70 74 L76 100 L24 100 L30 74 L36 74 Z" fill="#f6d9c0" />
+      <path d="M36 64 L41 64 L41 74 L59 74 L59 64 L64 64 L64 74 L70 74 L76 100 L24 100 L30 74 L36 74 Z" fill="#f6a9c0" />
 
       {/* stubby arms, outward-down from shoulder level */}
       <ellipse cx="23" cy="78" rx="9" ry="4.8" transform="rotate(38 23 78)" fill="#ffffff" />
@@ -33,24 +33,24 @@ export function KittyPortrait() {
       <path d="M21.5 27.5 L25 14 Q26.5 11 29 13.5 L37.5 20.5" fill="#ffffff" />
       <path d="M78.5 27.5 L75 14 Q73.5 11 71 13.5 L62.5 20.5" fill="#ffffff" />
 
-      {/* forehead stripes — the identity, three short ember strokes */}
-      <path d="M42 22 Q41.5 26 42 30 M50 21 Q50 26 50 31 M58 22 Q58.5 26 58 30" stroke="#e8813c" strokeWidth={2.6} />
+      {/* the star clip: upper-right ear, where the bow used to sit */}
+      <polygon
+        points="71,11.5 72.5,14.9 76.2,15.3 73.5,17.8 74.2,21.4 71,19.6 67.8,21.4 68.5,17.8 65.8,15.3 69.5,14.9"
+        fill="#e94f64"
+        stroke="none"
+      />
 
-      {/* round eyes with catchlights, alive */}
-      <ellipse cx="34" cy="49" rx="2.4" ry="3.6" fill={OUTLINE_PASTEL} stroke="none" />
-      <ellipse cx="66" cy="49" rx="2.4" ry="3.6" fill={OUTLINE_PASTEL} stroke="none" />
-      <circle cx="35" cy="47.6" r="1" fill="#ffffff" stroke="none" />
-      <circle cx="67" cy="47.6" r="1" fill="#ffffff" stroke="none" />
+      {/* face in the lower half: catchlight eyes, red nose, small w mouth */}
+      <ellipse cx="34" cy="49" rx="2.2" ry="3.4" fill={OUTLINE_PASTEL} stroke="none" />
+      <ellipse cx="66" cy="49" rx="2.2" ry="3.4" fill={OUTLINE_PASTEL} stroke="none" />
+      <circle cx="34.9" cy="47.6" r="0.9" fill="#ffffff" stroke="none" />
+      <circle cx="66.9" cy="47.6" r="0.9" fill="#ffffff" stroke="none" />
+      <ellipse cx="50" cy="50.5" rx="2.6" ry="1.9" fill="#e94f64" stroke="none" />
+      <path d="M46 55 Q48 58 50 55.8 Q52 58 54 55" strokeWidth={2} />
 
-      {/* ember triangle nose */}
-      <path d="M47 50.5 L53 50.5 L50 54 Z" fill="#e8813c" stroke="none" />
-
-      {/* open singing mouth — the soundtrack plays along */}
-      <ellipse cx="50" cy="57.5" rx="2" ry="2.4" fill={OUTLINE_PASTEL} stroke="none" />
-
-      {/* whiskers: two per side, relaxed */}
-      <path d="M25 45 L3 41 M24 51 L2 53" strokeWidth={2} />
-      <path d="M75 45 L97 41 M76 51 L98 53" strokeWidth={2} />
+      {/* whiskers: three per side, eye level, slightly fanned */}
+      <path d="M27 45 L3 40.5 M27 49 L2 49 M27 53 L3 57.5" strokeWidth={2} />
+      <path d="M73 45 L97 40.5 M73 49 L98 49 M73 53 L97 57.5" strokeWidth={2} />
     </svg>
   );
 }

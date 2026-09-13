@@ -130,19 +130,19 @@ function RaftCenterMark() {
   );
 }
 
-/* ── 2 · Cat Runner — tiger-bright: forehead stripes, singing mouth ── */
+/* ── 2 · Cat Runner — pop-ink cat: star clip, w-mouth, catchlight eyes ── */
 function KittyCenterMark() {
   return (
     <svg viewBox="0 0 260 160" aria-hidden="true">
       <defs>
         <pattern id="gem-cat-dense" patternUnits="userSpaceOnUse" width="7" height="7">
-          <circle cx="3.5" cy="3.5" r="1.9" fill="#e8813c" />
+          <circle cx="3.5" cy="3.5" r="1.9" fill="#e94f64" />
         </pattern>
         <pattern id="gem-cat-sparse" patternUnits="userSpaceOnUse" width="11" height="11">
           <circle cx="5.5" cy="5.5" r="1.6" fill="#7d7669" />
         </pattern>
         <pattern id="gem-cat-halo" patternUnits="userSpaceOnUse" width="7" height="7">
-          <circle cx="3.5" cy="3.5" r="1.9" fill="#e8813c" />
+          <circle cx="3.5" cy="3.5" r="1.9" fill="#7d7669" />
         </pattern>
         <clipPath id="gem-cat-head-clip">
           <ellipse cx="136" cy="76" rx="40" ry="30" />
@@ -150,7 +150,7 @@ function KittyCenterMark() {
       </defs>
       {/* wide sparse neutral backdrop field */}
       <ellipse cx="136" cy="78" rx="104" ry="62" fill="url(#gem-cat-sparse)" opacity="0.09" />
-      {/* single ember halo */}
+      {/* single neutral halo */}
       <ellipse className="gem-halo" style={haloVar(0.12)} cx="136" cy="78" rx="62" ry="40" fill="url(#gem-cat-halo)" opacity="0.12" />
       {/* ordered horizontal speed dashes */}
       <rect x="26" y="72" width="40" height="6" rx="3" fill="#7d7669" opacity="0.4" />
@@ -160,7 +160,7 @@ function KittyCenterMark() {
       <path d="M 46 120 Q 140 112 236 118" stroke="#465059" strokeWidth="5" strokeLinecap="round" fill="none" opacity="0.5" />
       {/* bullet-time dash trail on the ground */}
       <rect x="100" y="114" width="60" height="5" rx="2.5" fill="url(#gem-cat-dense)" opacity="0.45" />
-      {/* ember ghost echo — head-only, close behind-left */}
+      {/* pop halftone ghost echo — head-only, close behind-left */}
       <g transform="translate(-40 4) scale(0.94)" opacity="0.14">
         <ellipse cx="136" cy="76" rx="40" ry="30" fill="url(#gem-cat-dense)" />
         <polygon points="106,62 94,38 122,54" fill="url(#gem-cat-dense)" />
@@ -169,33 +169,29 @@ function KittyCenterMark() {
       {/* ears (bases buried, painted before head) */}
       <polygon points="106,62 94,38 122,54" fill="#fff6ee" />
       <polygon points="166,62 178,38 150,54" fill="#fff6ee" />
-      {/* head — warm cream, the loved wide silhouette */}
+      {/* head dominates — warm cream, flat comic fill */}
       <ellipse cx="136" cy="76" rx="40" ry="30" fill="#fff6ee" />
       <g clipPath="url(#gem-cat-head-clip)">
-        <ellipse cx="136" cy="90" rx="40" ry="30" fill="#ffe3cf" />
+        <ellipse cx="136" cy="90" rx="40" ry="30" fill="#f1b9c5" />
       </g>
-      {/* forehead stripes — the identity, three short ember strokes */}
-      <g stroke="#e8813c" strokeWidth="3" strokeLinecap="round" fill="none">
-        <path d="M 128 55 Q 127 60 128 64" />
-        <path d="M 136 53 Q 136 59 136 64" />
-        <path d="M 144 55 Q 145 60 144 64" />
-      </g>
-      {/* round eyes, alive, one catchlight each */}
-      <ellipse cx="118" cy="78" rx="3" ry="4.4" fill="#0b1317" />
-      <ellipse cx="154" cy="78" rx="3" ry="4.4" fill="#0b1317" />
-      <circle cx="119.2" cy="76.2" r="1.1" fill="#ffffff" />
-      <circle cx="155.2" cy="76.2" r="1.1" fill="#ffffff" />
-      {/* ember triangle nose */}
-      <path d="M 132.5 86 L 139.5 86 L 136 90 Z" fill="#e8813c" />
-      {/* open singing mouth — the soundtrack plays along */}
-      <ellipse cx="136" cy="94.5" rx="2.6" ry="3.1" fill="#0b1317" />
-      {/* whiskers — two per side, relaxed */}
-      <g stroke="#f4efe4" strokeWidth="2.2" strokeLinecap="round">
-        <path d="M 100 74 L 78 70" />
-        <path d="M 100 82 L 76 84" />
-        <path d="M 172 74 L 194 70" />
-        <path d="M 172 82 L 196 84" />
-      </g>
+      {/* whisker spikes — paper, punching past the head edge */}
+      <path d="M 100 68 L 78 64" stroke="#f4efe4" strokeWidth="2.2" strokeLinecap="round" />
+      <path d="M 100 76 L 76 76" stroke="#f4efe4" strokeWidth="2.2" strokeLinecap="round" />
+      <path d="M 100 84 L 78 88" stroke="#f4efe4" strokeWidth="2.2" strokeLinecap="round" />
+      <path d="M 172 68 L 194 64" stroke="#f4efe4" strokeWidth="2.2" strokeLinecap="round" />
+      <path d="M 172 76 L 196 76" stroke="#f4efe4" strokeWidth="2.2" strokeLinecap="round" />
+      <path d="M 172 84 L 194 88" stroke="#f4efe4" strokeWidth="2.2" strokeLinecap="round" />
+      {/* ink eyes, low and wide, each with a white catchlight speck */}
+      <ellipse cx="118" cy="78" rx="2.8" ry="4.2" fill="#0b1317" />
+      <ellipse cx="154" cy="78" rx="2.8" ry="4.2" fill="#0b1317" />
+      <circle cx="119" cy="76.4" r="1" fill="#ffffff" />
+      <circle cx="155" cy="76.4" r="1" fill="#ffffff" />
+      {/* accent nose (was unmarked) */}
+      <ellipse cx="136" cy="86" rx="3.4" ry="2.4" fill="#e94f64" />
+      {/* the w mouth — the loudest differentiator */}
+      <path d="M 130 92 Q 133 96 136 92.5 Q 139 96 142 92" fill="none" stroke="#3a3142" strokeWidth="2" strokeLinecap="round" />
+      {/* star clip on the right ear — the bow is gone */}
+      <polygon points="176,31 178.9,38 186.5,38.6 180.8,43.5 182.5,50.9 176,47 169.5,50.9 171.2,43.5 165.5,38.6 173.1,38" fill="#e94f64" />
       {/* single tiny glint */}
       <rect x="122" y="58" width="2.6" height="2.6" fill="#ffffff" opacity="0.55" />
     </svg>
