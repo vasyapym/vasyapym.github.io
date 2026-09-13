@@ -5,7 +5,8 @@ const practiceMap: ProjectModule = {
   title: "Practice Map",
   tag: "map",
   eyebrow: "A working map for technical practice",
-  description: "Keep concepts, small exercises, and useful things to revisit in one quiet place.",
+  description:
+    "Deep lessons on engineering patterns with a persistent note surface and local progress tracking.",
   technologies: ["React", "TypeScript", "Local state"],
   status: "available",
   accent: "blue",

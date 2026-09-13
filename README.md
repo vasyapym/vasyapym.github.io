@@ -42,7 +42,7 @@ Development is agent-assisted (Claude Code plus an open-source skills plugin), a
 | [Evening Forest](#evening-forest) | 8-bit first-person walk at dusk with procedural terrain and a custom postprocessing pass | React Three Fiber, Three.js, custom shaders, procedural animation, WebAudio | [Demo](https://vasyapym.github.io/projects/evening-forest/) · [Source](https://github.com/vasyapym/vasyapym.github.io/tree/main/portfolio/projects/evening-forest) |
 | [Explosion](#explosion) | Paper-lantern moon that detonates into 600 shards; physics runs on the GPU | React 19, three.js, GPGPU, Rust, WebAudio | [Demo](https://vasyapym.github.io/projects/explosion/) · [Source](https://github.com/vasyapym/vasyapym.github.io/tree/main/portfolio/projects/explosion) |
 | [Planck to Now](#planck-to-now) | Scrub cosmic history from the Planck epoch to now on a logarithmic time scale | TypeScript, Three.js, WebGL | [Demo](https://vasyapym.github.io/projects/planck-to-now/) · [Source](https://github.com/vasyapym/vasyapym.github.io/tree/main/portfolio/projects/planck-to-now) |
-| [Practice Map](#practice-map) | Working map for technical practice: concept routes, exercises, deep lessons, review-note export | React, TypeScript, local state | [Demo](https://vasyapym.github.io/projects/practice-map/) · [Source](https://github.com/vasyapym/vasyapym.github.io/tree/main/portfolio/projects/practice-map) |
+| [Practice Map](#practice-map) | Deep lessons on engineering patterns: sectioned reader, persistent note surface, concept graph, local progress | React, TypeScript, local state | [Demo](https://vasyapym.github.io/projects/practice-map/) · [Source](https://github.com/vasyapym/vasyapym.github.io/tree/main/portfolio/projects/practice-map) |
 
 ### Raft Cluster
 
@@ -76,7 +76,7 @@ Scrub cosmic history — from the Planck epoch to now — on a logarithmic time 
 
 ### Practice Map
 
-A quiet working map for technical practice: concept routes, small exercises, deep lessons (authored essays of roughly 5,000 words each), and review-note export. Progress lives in localStorage; there is no account. It demonstrates product thinking and content engineering — structuring a large body of authored material so it stays navigable and useful.
+Deep lessons on engineering patterns — long-form authored essays read in a sectioned reader with a persistent note surface (delete what you have read, type your own). Progress and notes live in localStorage; there is no account. A concept graph maps the curriculum's vocabulary across topics. It demonstrates product thinking and content engineering — structuring a large body of authored material so it stays navigable and useful.
 
 [Demo](https://vasyapym.github.io/projects/practice-map/) · [Source](https://github.com/vasyapym/vasyapym.github.io/tree/main/portfolio/projects/practice-map)
 

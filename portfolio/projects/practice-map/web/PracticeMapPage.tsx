@@ -12,8 +12,6 @@ import {
 import { createPortal } from "react-dom";
 import {
   curriculum,
-  FEEDBACK_LABELS,
-  type FeedbackKind,
   type LessonExample,
   type LessonSection,
   type PracticeArea,
@@ -22,13 +20,10 @@ import {
 } from "./curriculum";
 import {
   createInitialState,
-  formatFeedback,
   loadPracticeState,
   savePracticeState,
-  setTopicNote,
   setTopicStatus,
   summarizePractice,
-  toggleTopicFeedback,
   type PracticeState,
 } from "./progress";
 import "./practice-map.css";
@@ -59,22 +54,10 @@ const LESSON_TABS = [
 
 type LessonTabKey = (typeof LESSON_TABS)[number]["key"];
 
-type StatusFilter = TopicStatus | "all";
-
-const STATUS_FILTERS: readonly { key: StatusFilter; label: string }[] = [
-  { key: "all", label: "all" },
-  { key: "queued", label: STATUS_LABELS.queued },
-  { key: "in-progress", label: STATUS_LABELS["in-progress"] },
-  { key: "revisit", label: STATUS_LABELS.revisit },
-  { key: "applied", label: STATUS_LABELS.applied },
-];
-
 export default function PracticeMapPage() {
   const [activeAreaId, setActiveAreaId] = useState(curriculum[0]?.id ?? "");
   const [state, setState] = useState<PracticeState>(() => loadPracticeState(curriculum));
-  const [copied, setCopied] = useState(false);
   const [query, setQuery] = useState("");
-  const [statusFilter, setStatusFilter] = useState<StatusFilter>("all");
   const [graphOpen, setGraphOpen] = useState(false);
 
   const activeArea = useMemo(
@@ -82,7 +65,6 @@ export default function PracticeMapPage() {
     [activeAreaId],
   );
   const summary = summarizePractice(curriculum, state);
-  const reviewNotes = formatFeedback(curriculum, state, FEEDBACK_LABELS);
 
   useEffect(() => {
     savePracticeState(state);
@@ -90,20 +72,6 @@ export default function PracticeMapPage() {
 
   const updateState = (nextState: PracticeState) => {
     setState(nextState);
-    setCopied(false);
-  };
-
-  const handleCopyFeedback = async () => {
-    if (!navigator.clipboard) {
-      return;
-    }
-
-    try {
-      await navigator.clipboard.writeText(reviewNotes);
-      setCopied(true);
-    } catch {
-      setCopied(false);
-    }
   };
 
   return (
@@ -111,27 +79,16 @@ export default function PracticeMapPage() {
       <section className="practice-map-page section-shell" aria-labelledby="practice-map-title">
         <header className="practice-map-hero">
           <h1 id="practice-map-title">
-            concepts mapped.
-            <span>progress marked.</span>
+            structured practice.
+            <span>deep lessons and local notes.</span>
           </h1>
           <div className="practice-map-hero-note">
-            <button className="practice-map-export" type="button" onClick={handleCopyFeedback}>
-              {copied ? "copied" : "copy review notes"}
-              <span aria-hidden="true">↗</span>
-            </button>
             <RouteProgress done={summary.applied} total={summary.total} />
             <button className="practice-graph-open" type="button" onClick={() => setGraphOpen(true)}>
               explore concept graph <span aria-hidden="true">↗</span>
             </button>
           </div>
         </header>
-
-        <section className="practice-summary" aria-label="Practice summary">
-          <SummaryMetric label="cards" value={summary.total} />
-          <SummaryMetric label="in progress" value={summary.inProgress} />
-          <SummaryMetric label="applied" value={summary.applied} />
-          <SummaryMetric label="revisit" value={summary.revisit} />
-        </section>
 
         <div className="practice-map-layout">
           <aside className="practice-area-nav" aria-label="Practice areas">
@@ -164,9 +121,7 @@ export default function PracticeMapPage() {
             state={state}
             onChange={updateState}
             query={query}
-            statusFilter={statusFilter}
             onQueryChange={setQuery}
-            onStatusFilterChange={setStatusFilter}
           />
         )}
       </div>
@@ -183,7 +138,6 @@ export default function PracticeMapPage() {
             onClick={() => {
               if (window.confirm("Reset all statuses, feedback, and notes?")) {
                 setState(createInitialState(curriculum));
-                setCopied(false);
               }
             }}
           >
@@ -245,52 +199,31 @@ function PracticeAreaView({
   state,
   onChange,
   query,
-  statusFilter,
   onQueryChange,
-  onStatusFilterChange,
 }: {
   area: PracticeArea;
   state: PracticeState;
   onChange: (state: PracticeState) => void;
   query: string;
-  statusFilter: StatusFilter;
   onQueryChange: (query: string) => void;
-  onStatusFilterChange: (filter: StatusFilter) => void;
 }) {
-  const summary = summarizePractice([area], state);
-
-  const statusCounts = useMemo(() => {
-    const counts = new Map<StatusFilter, number>([["all", area.topics.length]]);
-    for (const topic of area.topics) {
-      const status = state.topics[topic.id]?.status ?? "queued";
-      counts.set(status, (counts.get(status) ?? 0) + 1);
-    }
-    return counts;
-  }, [area, state]);
-
   const visibleTopics = useMemo(() => {
     const needle = query.trim().toLowerCase();
-    return area.topics.filter((topic) => {
-      if (statusFilter !== "all" && (state.topics[topic.id]?.status ?? "queued") !== statusFilter) {
-        return false;
-      }
-      if (!needle) {
-        return true;
-      }
-      return [topic.title, topic.summary, ...topic.concepts]
+    if (!needle) {
+      return area.topics;
+    }
+    return area.topics.filter((topic) =>
+      [topic.title, topic.summary, ...topic.concepts]
         .join(" ")
         .toLowerCase()
-        .includes(needle);
-    });
-  }, [area, query, statusFilter, state]);
+        .includes(needle),
+    );
+  }, [area, query]);
 
   return (
     <section className="practice-area-view" aria-labelledby="practice-area-title">
       <div className="practice-area-heading">
         <h2 id="practice-area-title">{area.title}</h2>
-        <span className="practice-area-count practice-map-notation">
-          {summary.applied} applied · {summary.revisit} revisit
-        </span>
       </div>
 
       <div className="practice-toolbar">
@@ -309,20 +242,6 @@ function PracticeAreaView({
             </button>
           )}
         </label>
-        <div aria-label="Filter by status" className="practice-filter-chips" role="group">
-          {STATUS_FILTERS.map(({ key, label }) => (
-            <button
-              aria-pressed={statusFilter === key}
-              className={statusFilter === key ? "is-active" : ""}
-              key={key}
-              type="button"
-              onClick={() => onStatusFilterChange(key)}
-            >
-              {label}
-              <em>{statusCounts.get(key) ?? 0}</em>
-            </button>
-          ))}
-        </div>
       </div>
 
       {visibleTopics.length > 0 ? (
@@ -343,12 +262,9 @@ function PracticeAreaView({
           <strong>nothing here</strong>
           <button
             type="button"
-            onClick={() => {
-              onQueryChange("");
-              onStatusFilterChange("all");
-            }}
+            onClick={() => onQueryChange("")}
           >
-            clear filters
+            clear search
           </button>
         </div>
       )}
@@ -384,14 +300,6 @@ function TopicCard({
       : topic.concepts;
   const hiddenCount = topic.concepts.length - CHIP_CAP;
 
-  const toggleFeedback = (feedback: FeedbackKind) => {
-    onChange(toggleTopicFeedback(state, topic.id, feedback));
-  };
-
-  const updateNote = (note: string) => {
-    onChange(setTopicNote(state, topic.id, note));
-  };
-
   return (
     <article className="practice-topic-card">
       <div className="practice-topic-topline">
@@ -425,14 +333,6 @@ function TopicCard({
         </button>
       )}
 
-      <details className="practice-topic-details">
-        <summary>practice path</summary>
-        <div>
-          <p><strong>try</strong>{topic.practicePrompt}</p>
-          <p><strong>check</strong>{topic.checkPrompt}</p>
-        </div>
-      </details>
-
       <div className="practice-topic-controls">
         <label>
           <span>status</span>
@@ -443,34 +343,6 @@ function TopicCard({
           </select>
         </label>
       </div>
-
-      <details className="practice-topic-feedback">
-        <summary>feedback</summary>
-        <div className="practice-feedback-editor">
-          <div className="practice-feedback-options">
-            {(Object.keys(FEEDBACK_LABELS) as FeedbackKind[]).map((feedback) => (
-              <button
-                aria-pressed={progress.feedback.includes(feedback)}
-                className={progress.feedback.includes(feedback) ? "is-active" : ""}
-                key={feedback}
-                type="button"
-                onClick={() => toggleFeedback(feedback)}
-              >
-                {FEEDBACK_LABELS[feedback]}
-              </button>
-            ))}
-          </div>
-          <label className="practice-note-label">
-            <span>note</span>
-            <textarea
-              value={progress.note}
-              onChange={(event) => updateNote(event.target.value)}
-              placeholder="what to clarify next…"
-              rows={3}
-            />
-          </label>
-        </div>
-      </details>
 
       {lessonOpen && topic.lesson && (
         <LessonOverlay
@@ -951,15 +823,6 @@ function ConceptGraph({ onClose }: { onClose: () => void }) {
       </section>
     </div>,
     document.body,
-  );
-}
-
-function SummaryMetric({ label, value }: { label: string; value: number }) {
-  return (
-    <div className="practice-summary-metric">
-      <span>{label}</span>
-      <strong>{value}</strong>
-    </div>
   );
 }
 

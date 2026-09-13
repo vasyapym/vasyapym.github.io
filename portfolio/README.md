@@ -27,7 +27,7 @@ portfolio/
 │   ├── explosion/     click-to-detonate specimen room
 │   ├── kitty-run/     procedural vector-animation runner game
 │   ├── planck-to-now/ GPU-accelerated cosmology simulation
-│   ├── practice-map/  local-first technical practice dashboard
+│   ├── practice-map/  deep lessons and local progress for engineering patterns
 │   ├── raft-cluster/  Raft consensus core (Rust → WASM) with a live browser demo
 │   └── spine/         draggable Flexbox/Grid layout engine (Go → WASM)
 └── shell/           React/Vite landing page and project host

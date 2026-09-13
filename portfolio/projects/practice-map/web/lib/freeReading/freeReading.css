@@ -101,8 +101,11 @@
   resize: none;
   border: 0;
   margin: 0;
-  padding: 0;
-  color: var(--ink-text);
+  /* Constant left gutter: text sits at 0.75rem whether focused or not, so
+     focus/blur never shifts it. The 3px accent bar (inset box-shadow on
+     focus) occupies 0–3px; the rest is clear space before the first glyph. */
+  padding: 0 0 0 0.75rem;
+  color: var(--ink-muted);
   background: transparent;
   caret-color: var(--ink-accent-bright);
   font: inherit;

@@ -110,23 +110,6 @@
   border-radius: var(--panel-radius);
 }
 
-.practice-map-export {
-  display: inline-flex;
-  align-items: center;
-  gap: 0.6rem;
-  border: 0;
-  padding: 0;
-  color: var(--ink-muted);
-  background: transparent;
-  cursor: pointer;
-  transition: color 180ms ease, gap 180ms ease;
-}
-
-.practice-map-export:hover {
-  gap: 0.85rem;
-  color: var(--ink-accent-bright);
-}
-
 .practice-graph-open {
   border: 1px solid var(--ink-line-soft);
   padding: 0.5rem 0.7rem;
@@ -551,43 +534,6 @@
   text-transform: lowercase;
 }
 
-/* Summary strip — rounded tiles in the card language: no hairline-gap grid,
-   each metric is its own bordered panel. */
-.practice-summary {
-  display: grid;
-  grid-template-columns: repeat(4, minmax(0, 1fr));
-  gap: 24px;
-  margin-top: clamp(1.5rem, 3vw, 2.25rem);
-}
-
-.practice-summary-metric {
-  display: grid;
-  min-height: 84px;
-  align-content: space-between;
-  gap: 1rem;
-  border: 1px solid var(--ink-line-soft);
-  border-radius: var(--panel-radius);
-  padding: 0.9rem;
-  background: #0b1317;
-}
-
-.practice-summary-metric > span {
-  color: var(--ink-faint);
-  font-family: var(--mono);
-  font-size: 0.72rem;
-  letter-spacing: 0.05em;
-  text-transform: lowercase;
-}
-
-.practice-summary-metric strong {
-  color: var(--ink-accent);
-  font-family: var(--display);
-  font-size: 2rem;
-  font-weight: 600;
-  letter-spacing: -0.01em;
-  line-height: 1;
-}
-
 .practice-map-layout {
   display: grid;
   grid-template-columns: minmax(190px, 0.28fr) minmax(0, 1fr);
@@ -688,18 +634,10 @@
   line-height: 1.02;
 }
 
-.practice-area-count {
-  flex: 0 0 auto;
-  padding-bottom: 0.2rem;
-  text-align: right;
-  white-space: nowrap;
-}
-
 .practice-toolbar {
   display: flex;
   flex-wrap: wrap;
   align-items: center;
-  justify-content: space-between;
   gap: 0.9rem;
   margin-top: 1.5rem;
 }
@@ -756,45 +694,6 @@
 }
 
 .practice-search-clear:hover {
-  color: var(--ink-accent-bright);
-}
-
-.practice-filter-chips {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 0.35rem;
-}
-
-.practice-filter-chips button {
-  display: inline-flex;
-  align-items: center;
-  gap: 0.45rem;
-  border: 1px solid var(--ink-line-soft);
-  padding: 0.42rem 0.6rem;
-  color: var(--ink-muted);
-  background: transparent;
-  cursor: pointer;
-  font-family: var(--mono);
-  font-size: 0.7rem;
-  letter-spacing: 0.04em;
-  text-transform: lowercase;
-  transition: border-color 180ms ease, color 180ms ease, background 180ms ease;
-}
-
-.practice-filter-chips button em {
-  color: var(--ink-faint);
-  font-size: 0.66rem;
-  font-style: normal;
-}
-
-.practice-filter-chips button:hover,
-.practice-filter-chips button.is-active {
-  border-color: var(--ink-accent);
-  color: var(--ink-text);
-  background: var(--ink-panel);
-}
-
-.practice-filter-chips button.is-active em {
   color: var(--ink-accent-bright);
 }
 
@@ -969,53 +868,6 @@
   background: var(--ink-panel);
 }
 
-.practice-topic-details,
-.practice-topic-feedback {
-  border-top: 1px solid var(--ink-line-soft);
-  padding-top: 0.75rem;
-}
-
-.practice-topic-details summary,
-.practice-topic-feedback summary {
-  color: var(--ink-faint);
-  cursor: pointer;
-  font-family: var(--mono);
-  font-size: 0.72rem;
-  letter-spacing: 0.04em;
-  list-style-position: inside;
-  text-transform: lowercase;
-  transition: color 180ms ease;
-}
-
-.practice-topic-details summary:hover,
-.practice-topic-feedback summary:hover {
-  color: var(--ink-accent-bright);
-}
-
-.practice-topic-details > div {
-  display: grid;
-  gap: 0.7rem;
-  margin-top: 0.8rem;
-  color: var(--ink-muted);
-  font-size: 0.78rem;
-  line-height: 1.5;
-}
-
-.practice-topic-details p {
-  margin: 0;
-}
-
-.practice-topic-details strong {
-  display: block;
-  margin-bottom: 0.2rem;
-  color: var(--ink-accent);
-  font-family: var(--mono);
-  font-size: 0.68rem;
-  font-weight: 500;
-  letter-spacing: 0.05em;
-  text-transform: lowercase;
-}
-
 .practice-topic-controls {
   display: flex;
   align-items: center;
@@ -1046,67 +898,6 @@
   background: transparent;
   cursor: pointer;
   font-size: 0.76rem;
-}
-
-.practice-feedback-editor {
-  display: grid;
-  gap: 1rem;
-  margin-top: 0.9rem;
-}
-
-.practice-feedback-options {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 0.4rem;
-}
-
-.practice-feedback-options button {
-  border: 1px solid var(--ink-line-soft);
-  padding: 0.4rem 0.5rem;
-  color: var(--ink-muted);
-  background: transparent;
-  cursor: pointer;
-  font-family: var(--mono);
-  font-size: 0.64rem;
-  letter-spacing: 0.03em;
-  text-transform: lowercase;
-  transition: border-color 180ms ease, color 180ms ease, background 180ms ease;
-}
-
-.practice-feedback-options button:hover,
-.practice-feedback-options button.is-active {
-  border-color: var(--ink-accent);
-  color: var(--ink-text);
-  background: var(--ink-panel);
-}
-
-.practice-note-label {
-  display: grid;
-  gap: 0.45rem;
-}
-
-.practice-note-label > span {
-  color: var(--ink-faint);
-  font-family: var(--mono);
-  font-size: 0.68rem;
-  letter-spacing: 0.05em;
-  text-transform: lowercase;
-}
-
-.practice-note-label textarea {
-  width: 100%;
-  resize: vertical;
-  border: 1px solid var(--ink-line);
-  padding: 0.65rem;
-  color: var(--ink-text);
-  caret-color: var(--ink-accent-bright);
-  background: var(--ink-panel);
-  font-size: 0.78rem;
-  line-height: 1.5;
-}
-
-.practice-note-label textarea::placeholder {
-  color: var(--ink-faint);
 }
 
 .practice-map-footer {
@@ -1468,10 +1259,14 @@
   letter-spacing: 0.05em;
 }
 
-.practice-reader-section p {
+.practice-reader-section > p {
+  /* Same left gutter as the free-reading surface, so toggling the mode
+     never shifts the text's left edge. Direct children only: callout and
+     example paragraphs keep their own padding geometry. */
+  padding-left: 0.75rem;
   margin: 0;
   color: var(--ink-muted);
-  font-size: 0.95rem;
+  font-size: max(1rem, 16px);
   line-height: 1.72;
 }
 
@@ -1525,8 +1320,8 @@
 .practice-reader-section li,
 .practice-lesson-body li {
   color: var(--ink-muted);
-  font-size: 0.95rem;
-  line-height: 1.65;
+  font-size: max(1rem, 16px);
+  line-height: 1.72;
   /* `anywhere`, not `break-word`: inline `code` inherits it; min-content
      sizing must allow the break so long tokens cannot overflow the panel. */
   overflow-wrap: anywhere;
@@ -1762,15 +1557,6 @@
 
   .practice-map-hero h1 { font-size: clamp(2rem, 8.5vw, 2.75rem); }
 
-  .practice-summary {
-    grid-template-columns: repeat(2, minmax(0, 1fr));
-    gap: 16px;
-  }
-
-  .practice-summary-metric {
-    min-height: 76px;
-  }
-
   .practice-area-list {
     grid-template-columns: 1fr;
   }
@@ -1779,10 +1565,6 @@
   .practice-map-footer {
     align-items: flex-start;
     flex-direction: column;
-  }
-
-  .practice-area-count {
-    text-align: left;
   }
 }
 
