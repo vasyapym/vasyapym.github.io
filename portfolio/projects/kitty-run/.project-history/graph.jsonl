@@ -230,3 +230,5 @@
 {"type":"edge.added","id":"e103","ts":"2026-09-13T22:10:57.532Z","from":"n110","to":"n111","rel":"continues"}
 {"type":"node.added","id":"n112","ts":"2026-09-13T22:11:11.768Z","kind":"iteration","actor":"user","title":"docs(kitty-run): record pass C013 — wanderer adopted, in-game re-skinned, portrait de-bearded","artifacts":[{"kind":"git-commit","ref":"ef2644c"}],"meta":{"source":"auto"}}
 {"type":"edge.added","id":"e104","ts":"2026-09-13T22:11:11.801Z","from":"n111","to":"n112","rel":"continues"}
+{"type":"node.added","id":"n113","ts":"2026-09-13T22:21:05.222Z","kind":"iteration","actor":"user","title":"feat(kitty-run): portrait rework — white coat, shirt with placket/buttons + leather collar, upright oval eyes with gold lid line (neither pop-round nor slit), no mouth line (beard gone), two feline whisker pairs","artifacts":[{"kind":"git-commit","ref":"927d4c0"}],"meta":{"source":"auto"}}
+{"type":"edge.added","id":"e105","ts":"2026-09-13T22:21:05.226Z","from":"n112","to":"n113","rel":"continues"}

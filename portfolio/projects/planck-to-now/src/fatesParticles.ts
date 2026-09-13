@@ -378,68 +378,171 @@ void main() {
 }
 `;
 
-// Placeholder draw path (euclidean, no fate grading) — replaced by the
-// log-radial projection and per-fate grading in the draw-path brief.
+// Fate draw path: log-radial projection + per-fate grading. Never forms
+// proper positions: comoving offsets from the camera are rescaled by their
+// max component (float32-safe at a=10²⁶), and the proper distance lives in
+// log space (lna + ln m + ln|u|) until the mapping compresses it.
 const RENDER_VS = /* glsl */ `
 precision highp float;
 precision highp int;
 precision highp sampler2D;
 
-in float ref;
-uniform mat4 projectionMatrix;
-uniform mat4 modelViewMatrix;
 uniform sampler2D uPos;
 uniform sampler2D uHalo;
 uniform ivec2 uTexSize;
 uniform ivec2 uHaloSize;
-uniform float uScale;
+uniform float uLnA;
+uniform float uRho0;
+uniform float uH;
 uniform float uPointSize;
-out vec3 vColor;
+uniform float uViewportH;
+uniform int uFate;
+uniform float uDecay;
+uniform float uRipA;
+uniform vec3 uVacTint;
+uniform float uVacMix;
+
+out vec3 vCol;
 out float vAlpha;
 
+const vec3 AMBER = vec3(1.00, 0.72, 0.35);
+const vec3 CREAM = vec3(1.00, 0.93, 0.80);
+const vec3 EMBER = vec3(0.85, 0.28, 0.08);
+const float LN10 = 2.302585093;
+
+float hash11(float n) { return fract(sin(n) * 43758.5453123); }
+vec3 hash31(float n) {
+  return vec3(hash11(n), hash11(n + 17.1), hash11(n + 61.7)) * 2.0 - 1.0;
+}
+
+// Crude Planckian ramp on log10(T): dark ember → amber-white.
+vec3 blackbody(float T) {
+  float l = log(max(T, 1.0)) / LN10;
+  vec3 c = mix(EMBER, AMBER, smoothstep(2.9, 3.25, l));
+  return mix(c, vec3(1.0), smoothstep(3.25, 3.6, l));
+}
+
 void main() {
-  int i = int(ref + 0.5);
-  ivec2 ij = ivec2(i % uTexSize.x, i / uTexSize.x);
-  vec4 p = texelFetch(uPos, ij, 0);
+  int id = gl_VertexID;
+  vec4 p = texelFetch(uPos, ivec2(id % uTexSize.x, id / uTexSize.x), 0);
   if (p.w == 0.0) {
     gl_Position = vec4(2.0, 2.0, 2.0, 1.0);
     gl_PointSize = 0.0;
-    vColor = vec3(0.0);
+    vCol = vec3(0.0);
     vAlpha = 0.0;
     return;
   }
 
-  vec3 X;
-  if (p.w > 0.0) {
-    int id = int(p.w + 0.5) - 1;
-    vec4 h = texelFetch(uHalo, ivec2(id % uHaloSize.x, id / uHaloSize.x), 0);
-    X = uScale * h.xyz + p.xyz;
-    float m = texelFetch(uVel, ij, 0).w;
-    vColor = mix(vec3(1.0, 0.75, 0.35), vec3(1.0, 0.35, 0.15), sqrt(m));
-    vAlpha = 0.9;
-  } else {
-    X = uScale * p.xyz;
-    vColor = vec3(0.35, 0.6, 1.0);
-    vAlpha = 0.55;
+  bool bound = p.w > 0.0;
+  vec3 d = p.xyz;
+  vec3 rc = bound
+    ? (texelFetch(uHalo, ivec2((int(abs(p.w) + 0.5) - 1) % uHaloSize.x,
+                               (int(abs(p.w) + 0.5) - 1) / uHaloSize.x), 0).xyz - uCamC)
+      + d * exp(-uLnA)
+    : p.xyz - uCamC;
+
+  // Big-rip fragmentation: bound offsets inflate and jitter as the tide wins.
+  if (uFate == 2 && bound) {
+    float frag = smoothstep(0.30, 0.70, uRipA);
+    vec3 jit = hash31(float(id)) * frag;
+    rc += (d * (8.0 * frag) + jit * length(d)) * exp(-uLnA);
   }
-  vec4 mv = modelViewMatrix * vec4(X, 1.0);
-  gl_Position = projectionMatrix * mv;
-  gl_PointSize = clamp(uPointSize / max(-mv.z, 1e-3), 1.0, 8.0);
+
+  float m = max(max(abs(rc.x), abs(rc.y)), abs(rc.z));
+  m = max(m, 1e-30);
+  vec3 u = rc / m;
+  float lu = length(u);
+  vec3 dir = u / lu;
+  float lnRho = uLnA + log(m) + log(lu);
+
+  float t = lnRho - log(uRho0);
+  float s = uRho0 * (t <= 0.0 ? exp(t) : 1.0 + t);
+
+  float DH = exp(min(lnRho + log(uH), 20.0));
+
+  vec4 mv = uView * vec4(uCamC + dir * s, 1.0);
+  gl_Position = uProj * mv;
+
+  vec3 col = bound ? AMBER : CREAM;
+  float bright = bound ? 1.0 : 0.6;
+  float size = uPointSize;
+
+  if (uFate == 1) {
+    // Heat death: horizon fade, redshifted size, ember cooling.
+    float x = max(1.0 - DH, 0.0);
+    bright *= x * x * x * x * uDecay;
+    size *= 1.0 / (1.0 + DH);
+    col = mix(col, EMBER, 0.5 * (1.0 - uDecay));
+  } else if (uFate == 2) {
+    // Big rip: fragmentation brightening, whiteout at the end.
+    float frag = smoothstep(0.30, 0.70, uRipA);
+    float white = smoothstep(0.70, 1.00, uRipA);
+    bright *= 1.0 + 2.0 * frag + 6.0 * white;
+    col = mix(col, vec3(1.0), white);
+    size *= 1.0 + 2.0 * white;
+  } else if (uFate == 3) {
+    // Big crunch: blackbody heating, whiteout below a = 1e-3.
+    float T = 2.7 * exp(-uLnA);
+    float glow = smoothstep(2.9, 3.6, log(max(T, 1.0)) / LN10);
+    float white = smoothstep(-6.5, -7.0, uLnA);
+    col = mix(col, blackbody(T), glow);
+    col = mix(col, vec3(1.0), white);
+    bright *= 1.0 + 4.0 * glow + 8.0 * white;
+  } else if (uFate == 4) {
+    // Vacuum decay placeholder: interior tint only (wall = later brief).
+    col = mix(col, uVacTint, uVacMix);
+  }
+
+  float persp = uProj[1][1] * uViewportH * 0.5 / max(-mv.z, 1e-3);
+  gl_PointSize = clamp(size * persp * 0.02, 1.0, 48.0);
+
+  vCol = col;
+  vAlpha = clamp(bright, 0.0, 12.0);
 }
 `;
 
 const RENDER_FS = /* glsl */ `
 precision highp float;
-in vec3 vColor;
+in vec3 vCol;
 in float vAlpha;
 layout(location = 0) out vec4 fragColor;
 void main() {
-  vec2 c = gl_PointCoord - 0.5;
-  float r2 = dot(c, c);
-  if (r2 > 0.25) discard;
-  fragColor = vec4(vColor, vAlpha * (1.0 - 4.0 * r2));
+  vec2 q = gl_PointCoord * 2.0 - 1.0;
+  float r2 = dot(q, q);
+  if (r2 > 1.0) discard;
+  float fall = exp(-4.0 * r2) * (1.0 - r2);
+  fragColor = vec4(vCol * vAlpha * fall, 1.0);
 }
 `;
+
+// TS mirrors of the draw-path math for node tests (float32-exact parity
+// with the GLSL above).
+export function logRadial(rho: number, lna: number, rho0 = 50): number {
+  const f = Math.fround;
+  const lnRho = f(f(lna) + f(Math.log(f(rho))));
+  const t = f(lnRho - f(Math.log(f(rho0))));
+  return f(f(rho0) * (t <= 0 ? f(Math.exp(t)) : f(1 + t)));
+}
+
+export function stableDir(rc: [number, number, number], lna: number): {
+  dir: [number, number, number];
+  lnRho: number;
+} {
+  const f = Math.fround;
+  const m = Math.max(Math.abs(rc[0]), Math.abs(rc[1]), Math.abs(rc[2]), 1e-30);
+  const u = rc.map((v) => f(v / m)) as [number, number, number];
+  const lu = f(Math.hypot(u[0], u[1], u[2]));
+  return {
+    dir: u.map((v) => f(v / lu)) as [number, number, number],
+    lnRho: f(f(lna) + f(Math.log(m)) + f(Math.log(lu))),
+  };
+}
+
+export function horizonBrightness(D: number, H: number, decay = 1): number {
+  const f = Math.fround;
+  const x = Math.max(f(1 - f(D * H)), 0);
+  return f(f(f(x * x) * f(x * x)) * f(decay));
+}
 
 /* ── engine ──────────────────────────────────────────────────────────── */
 
@@ -470,6 +573,7 @@ export class FateParticles {
 
   private readonly renderer: THREE.WebGLRenderer;
   private integrator: FateIntegrator;
+  private integratorMode: FateMode;
   private readonly halos: Halo[];
   private readonly layout: TexLayout;
   private readonly omegaDtTarget: number;
@@ -490,6 +594,7 @@ export class FateParticles {
       throw new Error("FateParticles requires WebGL2");
     }
     this.renderer = renderer;
+    this.integratorMode = mode;
     this.particleCount = p.particleCount ?? 220_000;
     this.eps = p.eps ?? 0.004;
     this.omegaMax = p.omegaMax ?? 440;
@@ -566,13 +671,10 @@ export class FateParticles {
     tri.setAttribute("position", new THREE.BufferAttribute(new Float32Array([-1, -1, 3, -1, -1, 3]), 2));
     this.simScene.add(new THREE.Mesh(tri, this.simMaterial));
 
-    const refs = new Float32Array(this.particleCount);
-    for (let i = 0; i < this.particleCount; i++) refs[i] = i;
+    // gl_VertexID indexes the state textures; no per-particle attribute
+    // needed beyond the position dummy three requires for the draw count.
     const geo = new THREE.BufferGeometry();
-    // three derives the draw count from the position attribute; the shader
-    // reads particle indices from `ref`, so position is a zero dummy.
     geo.setAttribute("position", new THREE.BufferAttribute(new Float32Array(this.particleCount * 3), 3));
-    geo.setAttribute("ref", new THREE.BufferAttribute(refs, 1));
     geo.boundingSphere = new THREE.Sphere(new THREE.Vector3(), 1e6);
     this.renderMaterial = new THREE.RawShaderMaterial({
       glslVersion: THREE.GLSL3,
@@ -583,8 +685,19 @@ export class FateParticles {
         uHalo: { value: this.haloTex },
         uTexSize: { value: new THREE.Vector2(this.layout.width, this.layout.height) },
         uHaloSize: { value: new THREE.Vector2(ht.layout.width, ht.layout.height) },
-        uScale: { value: 1 },
+        uProj: { value: new THREE.Matrix4() },
+        uView: { value: new THREE.Matrix4() },
+        uCamC: { value: new THREE.Vector3() },
+        uLnA: { value: 0 },
+        uRho0: { value: 50 },
+        uH: { value: 1e-4 },
         uPointSize: { value: p.pointSize ?? 6 },
+        uViewportH: { value: 1 },
+        uFate: { value: 0 },
+        uDecay: { value: 1 },
+        uRipA: { value: 0 },
+        uVacTint: { value: new THREE.Color(0.55, 0.95, 0.75) },
+        uVacMix: { value: 0 },
       },
       transparent: true,
       depthWrite: false,
@@ -659,6 +772,7 @@ export class FateParticles {
   // rewinds the integrator and rewinds rendering to the seed textures.
   resetTo(mode: FateMode): void {
     this.integrator = new FateIntegrator(mode);
+    this.integratorMode = mode;
     this.read = { pos: this.initPos, vel: this.initVel };
     this.writeIndex = 0;
     this.syncRenderUniforms();
@@ -692,10 +806,49 @@ export class FateParticles {
     this.syncRenderUniforms();
   }
 
+  // Per-frame draw uniform sync: camera matrices + fate grading derived
+  // from the integrator state. The camera lives in proper units around the
+  // box scale; the shader works in comoving offsets, so uCamC is the
+  // camera position divided by a.
+  syncCamera(camera: THREE.PerspectiveCamera, viewportHeightPx: number): void {
+    const ru = this.renderMaterial.uniforms;
+    const a = this.a;
+    (ru.uProj as THREE.IUniform<THREE.Matrix4>).value.copy(camera.projectionMatrix);
+    (ru.uView as THREE.IUniform<THREE.Matrix4>).value.copy(camera.matrixWorldInverse);
+    (ru.uCamC as THREE.IUniform<THREE.Vector3>).value.copy(camera.position).divideScalar(a);
+    (ru.uLnA as THREE.IUniform<number>).value = Math.log(a);
+    (ru.uViewportH as THREE.IUniform<number>).value = viewportHeightPx;
+    const mode = this.integratorMode;
+    (ru.uFate as THREE.IUniform<number>).value =
+      mode === "heatDeath" ? 1 :
+      mode === "bigRip" ? 2 :
+      mode === "bigCrunchClosed" || mode === "bigCrunchLambda" ? 3 :
+      mode === "vacuumDecay" ? 4 : 0;
+    // Heat-death stellar decay: exponential on the fate clock, normalized
+    // so the fade completes over ~5 Hubble times past the present.
+    (ru.uDecay as THREE.IUniform<number>).value =
+      mode === "heatDeath" ? Math.exp(-Math.max(0, this.integrator.tau - this.integrator.params.tauPresent) / 5) : 1;
+    // Big-rip progress: normalized against the analytic terminal time.
+    (ru.uRipA as THREE.IUniform<number>).value =
+      mode === "bigRip"
+        ? THREE.MathUtils.clamp(
+            (this.integrator.tau - this.integrator.params.tauPresent) /
+              (2 / (3 * Math.abs(1 + this.integrator.params.w) * Math.sqrt(this.integrator.params.Ode))),
+            0,
+            1,
+          )
+        : 0;
+    // Vacuum decay tint ramps in from the start (placeholder until the
+    // bubble-wall brief): interior regions will be overdrawn by the wall pass.
+    (ru.uVacMix as THREE.IUniform<number>).value = mode === "vacuumDecay" ? 0.35 : 0;
+    // Proper Hubble rate in 1/length: H/H0 with lengths in Hubble lengths
+    // keeps D·H dimensionless (v/c for Hubble-flow receding).
+    (ru.uH as THREE.IUniform<number>).value = this.integrator.getH();
+  }
+
   private syncRenderUniforms(): void {
     const ru = this.renderMaterial.uniforms;
     (ru.uPos as THREE.IUniform<THREE.Texture>).value = this.read.pos;
-    (ru.uScale as THREE.IUniform<number>).value = this.a;
   }
 
   dispose(): void {

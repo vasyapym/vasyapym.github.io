@@ -186,9 +186,9 @@ function integrateSpan(
 export class FateIntegrator {
   tau: number;
   u: number;
+  readonly params: FateParams;
+  readonly mode: FateMode;
   private p: number;
-  private mode: FateMode;
-  private params: FateParams;
   private frozen: boolean;
 
   constructor(mode: FateMode, params?: FateParams) {

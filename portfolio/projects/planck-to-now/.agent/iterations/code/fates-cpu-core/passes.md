@@ -84,3 +84,27 @@
   - Panel styling is placeholder generic (not the app's ink palette) — design-iteration round pending.
   - R2 entry-gating deviation awaits owner verdict.
 - Next action: design round (screenshots when Chrome available) + owner verdict on entry gating; then B2b draw-path brief (log-radial projection, per-fate grading) remains open.
+
+## Pass C004 — VERIFIED (typecheck + unit tests + build scope; GPU runtime NOT RUN)
+- Objective and scope: salvage-integrate the randomized-routing reply for B2b — the fate draw path replacing the placeholder: log-radial projection (float32-safe to a=10²⁶) + per-fate grading (heatDeath horizon fade / bigRip fragmentation→whiteout / bigCrunch blackbody→whiteout / vacuumDecay tint placeholder) + pure TS mirrors for node tests.
+- Salvage decisions:
+  - KEPT: the reply's R1 stable formulation in full — comoving offset from camera, max-component rescale (every intermediate in [1e-30, 1e2]), proper distance carried additively in log space (lna + ln m + ln|u|), C¹ knee s(ρ) = ρ₀·(e^t below, 1+t above), D·H computed as exp(min(lnρ + ln H, 20)); the four grading branches verbatim; the amber/cream/ember palette (matches R3); the soft-core fragment shader; the D3 mirrors (logRadial, stableDir, horizonBrightness with Math.fround parity).
+  - REPAIRED during integration:
+    1. Indexing: reply used a per-particle `aId` attribute; ours now uses `gl_VertexID` directly — removes the 220k-float index buffer entirely (the placeholder's `ref` attribute is gone).
+    2. Matrices: reply fed uProj/uView as manual uniforms; three's RawShaderMaterial injects projectionMatrix/modelViewMatrix, but the draw call is a Points inside the scene graph — kept explicit uProj/uView uniforms (the reply's choice) since modelViewMatrix would double-apply the points object's (identity) transform against the camera; uView = camera.matrixWorldInverse, synced per frame.
+    3. Camera comoving frame: the design's camera-at-home-halo is NOT yet implemented (OrbitControls stays free); uCamC = camera.position/a (proper→comoving) keeps the projection consistent for both branches. Home-halo camera attachment remains an open design item.
+    4. Fate grading sources: reply invented `fate.kind`/`fate.lna0`/`fate.tRip` fields; wired to the real integrator — uFate from mode string, uDecay = exp(−(τ−τ₀)/5) for heatDeath, uRipA = (τ−τ₀)/(analytic rip span) clamped [0,1], uH = integrator H (Hubble lengths keep D·H dimensionless).
+    5. `FateIntegrator.params`/`mode` made readonly public (were private) — the grading math legitimately needs τ₀, w, Ω_DE per frame.
+  - Test-authoring note: my first draft of the mirror tests asserted monotonicity across a nested loop with lna outer (wrong — s legitimately grows with a) and a knee tolerance tighter than float32 grain; corrected to per-lna monotonicity and 1e-5 knee tolerance. The mirrors themselves were correct on direct probe (25→25, quartic 0.0625 exact, 1e-29@lna=60 survives).
+- Baseline: verify PASS before edits (C003 state).
+- Verification:
+  - Command: `npm run verify` (typecheck + cosmology.check + fates.check 35/35 + fatesParticles.check 50/50 incl. 8 new mirror asserts + esbuild build)
+    Result: PASS, exit 0.
+  - GPU runtime: NOT RUN — no Chrome/WebGL here; shader compile, MRT binding, and the visual character of all four fates await the owner's browser check (`?fate=` deep links live on the site after this push).
+- Final diff review: performed — one file rewritten in place (fatesParticles.ts draw section + uniforms + syncCamera), one-line main.ts addition (syncCamera call), fates.ts visibility widening; no debug scaffolding; no new files.
+- Design constraints: strongest-model design §3.1/§4 as delivered by the B2b reply; open item #1 (stable log-radial) RESOLVED — the max-component rescale is the formulation the design lacked.
+- Remaining risks/blockers:
+  - Visual verdict on all four fates pending (owner browser round / design-iteration when Chrome available).
+  - Home-halo camera attachment not implemented — the rip's "neighbors slide through 10²⁶ orders" reads best from a fixed vantage; current free orbit still works but the drama is weaker.
+  - VacuumDecay is a tint placeholder; the bubble wall (design §5) is unbuilt.
+- Next action: owner browser check of the live site (`?fate=bigRip` etc.); then the vacuum-bubble brief (B5) or design round per owner's verdict.

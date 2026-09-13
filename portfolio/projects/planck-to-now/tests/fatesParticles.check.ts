@@ -192,3 +192,49 @@ check("layoutFor rounds up", layoutFor(1000, 512).height === 2 && layoutFor(1000
 
 console.log("\n" + passes + " passed, " + failures + " failed");
 if (failures > 0) process.exit(1);
+
+// ── draw-path mirrors (logRadial / stableDir / horizonBrightness) ──
+{
+  const { logRadial, stableDir, horizonBrightness } = await import("../src/fatesParticles.ts");
+
+  // logRadial: finite everywhere; monotone in rho at fixed lna
+  let allFinite = true;
+  for (let lna = -7; lna <= 60; lna += 1) {
+    for (const rho of [1e-3, 0.1, 1, 10, 1e6, 1e20]) {
+      if (!Number.isFinite(logRadial(rho, lna))) allFinite = false;
+    }
+  }
+  check("logRadial finite across lna∈[-7,60]", allFinite);
+  let mono = true;
+  for (let lna = -7; lna <= 60; lna += 1) {
+    let prev = -Infinity;
+    for (const rho of [1e-3, 0.1, 1, 10, 1e6, 1e20]) {
+      const s = logRadial(rho, lna);
+      if (s < prev) mono = false;
+      prev = s;
+    }
+  }
+  check("logRadial monotone in rho at fixed lna", mono);
+
+  // identity: rho = rho0·e^{-lna} maps to rho0 for any lna (proper knee);
+  // tolerance is float32-grain (~1e-6 relative), not double-grain.
+  let kneeOK = true;
+  for (let lna = -7; lna <= 60; lna += 6) {
+    if (rel(logRadial(50 * Math.exp(-lna), lna), 50) > 1e-5) kneeOK = false;
+  }
+  check("logRadial knee invariant (proper rho0)", kneeOK);
+
+  // linear branch near camera
+  check("logRadial linear below knee", rel(logRadial(25, 0), 25) < 1e-6);
+
+  // stableDir: no underflow at 1e-29 offset with lna=60
+  const sd = stableDir([1e-29, 0, 0], 60);
+  check("stableDir survives 1e-29 at lna=60", near(sd.dir[0], 1, 1e-6) && Number.isFinite(sd.lnRho));
+  const sd2 = stableDir([3, 4, 0], 2);
+  check("stableDir direction normalised", near(Math.hypot(sd2.dir[0], sd2.dir[1], sd2.dir[2]), 1, 1e-6));
+
+  // horizonBrightness: 1 at D=0, 0 at D·H ≥ 1
+  check("horizonBrightness = 1 at D=0", horizonBrightness(0, 0.5) === 1);
+  check("horizonBrightness = 0 at horizon", horizonBrightness(2, 0.5) === 0);
+  check("horizonBrightness quartic mid", rel(horizonBrightness(0.5, 1), Math.pow(0.5, 4)) < 1e-6);
+}

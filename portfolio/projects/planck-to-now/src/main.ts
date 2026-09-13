@@ -425,6 +425,7 @@ function frame(): void {
       fate.resetTo(fateMode);
     }
   }
+  fate?.syncCamera(camera, renderer.domElement.height);
 
   controls.update();
   composer.render();
