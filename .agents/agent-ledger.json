@@ -342,6 +342,19 @@
       "message": "My docs(skills) commit staged only the minimize-iteration SKILL.md and its docs page, but the index already held pre-staged graph.jsonl appends from another session (main store +2 lines, practice-map store +2 lines — hook-generated auto-record chain lines, meta.source=auto). They shipped with 965086f; content is verbatim append-only log records that belong in the log, no work files swept. No revert needed; no action for the owner.",
       "ackBy": null,
       "ackAt": null
+    },
+    {
+      "id": "sweep-report-a78b8d8-explosion-graph-carried",
+      "ts": "2026-09-13T13:05:00Z",
+      "kind": "sweep-report",
+      "agent": "opencode orchestrator (glm-5.3-flash, free-reading salvage pass)",
+      "commit": "a78b8d8",
+      "files": [
+        "portfolio/projects/explosion/.project-history/graph.jsonl"
+      ],
+      "message": "The free-reading commit staged only its own practice-map paths, but the project-graph auto-record hook had pre-staged the explosion store's +2 lines (auto-record chain for an earlier explosion commit — designed one-commit lag). They ship with a78b8d8 as hook-generated history; no work files swept. Action for owner: none.",
+      "ackBy": null,
+      "ackAt": null
     }
   ]
 }
