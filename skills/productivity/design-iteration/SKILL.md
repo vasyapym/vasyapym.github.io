@@ -21,11 +21,14 @@ observe → change → render → inspect → present → record feedback.
 - Default to one presented round, then wait for feedback. Produce multiple
   alternatives or autonomous rounds only when requested, within a stated limit.
 - Follow project instructions and avoid unrelated redesigns or refactors.
-- Close a round by shipping it: once the round's changes are accepted, stage
-  only your own files and commit and push them in the same session without
-  waiting for an explicit request. Mid-task or speculative changes wait for
-  the user; stop and report failures, conflicts, or missing authentication
-  instead of forcing a delivery operation.
+- Close every round by shipping it: when the round's changes are presented,
+  stage only your own files and commit and push them in the same session
+  without waiting for an explicit request — the repo stays current with
+  every presented round, and feedback that follows (including a rejection)
+  opens the next round and its own commit. Pushing is not approval: keep
+  presenting for liked/rejected verdicts, and stop and report failures,
+  conflicts, or missing authentication instead of forcing a delivery
+  operation.
 
 ## Persistent state
 
