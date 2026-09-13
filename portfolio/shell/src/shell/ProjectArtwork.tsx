@@ -130,74 +130,82 @@ function RaftCenterMark() {
   );
 }
 
-/* ── 2 · Cat Runner — tiger-bright: forehead stripes, singing mouth ── */
+/* ── 2 · Cat Runner — highland squint: amber slits, trailing scarf ── */
 function KittyCenterMark() {
   return (
     <svg viewBox="0 0 260 160" aria-hidden="true">
       <defs>
-        <pattern id="gem-cat-dense" patternUnits="userSpaceOnUse" width="7" height="7">
-          <circle cx="3.5" cy="3.5" r="1.9" fill="#e8813c" />
+        <pattern id="gem-cat-dense" width="4" height="4" patternUnits="userSpaceOnUse">
+          <circle cx="2" cy="2" r="1.2" fill="#9aacbc" />
         </pattern>
-        <pattern id="gem-cat-sparse" patternUnits="userSpaceOnUse" width="11" height="11">
-          <circle cx="5.5" cy="5.5" r="1.6" fill="#7d7669" />
+        <pattern id="gem-cat-sparse" width="8" height="8" patternUnits="userSpaceOnUse">
+          <circle cx="4" cy="4" r="0.8" fill="#9aacbc" />
         </pattern>
-        <pattern id="gem-cat-halo" patternUnits="userSpaceOnUse" width="7" height="7">
-          <circle cx="3.5" cy="3.5" r="1.9" fill="#e8813c" />
+        <pattern id="gem-cat-halo" width="6" height="6" patternUnits="userSpaceOnUse">
+          <circle cx="3" cy="3" r="1.1" fill="#c89850" />
         </pattern>
         <clipPath id="gem-cat-head-clip">
-          <ellipse cx="136" cy="76" rx="40" ry="30" />
+          <ellipse cx="165" cy="58" rx="30" ry="25" />
         </clipPath>
       </defs>
-      {/* wide sparse neutral backdrop field */}
-      <ellipse cx="136" cy="78" rx="104" ry="62" fill="url(#gem-cat-sparse)" opacity="0.09" />
-      {/* single ember halo */}
-      <ellipse className="gem-halo" style={haloVar(0.12)} cx="136" cy="78" rx="62" ry="40" fill="url(#gem-cat-halo)" opacity="0.12" />
-      {/* ordered horizontal speed dashes */}
-      <rect x="26" y="72" width="40" height="6" rx="3" fill="#7d7669" opacity="0.4" />
-      <rect x="26" y="84" width="30" height="6" rx="3" fill="#7d7669" opacity="0.4" />
-      <rect x="26" y="96" width="20" height="6" rx="3" fill="#7d7669" opacity="0.4" />
-      {/* one clean ground curve */}
-      <path d="M 46 120 Q 140 112 236 118" stroke="#465059" strokeWidth="5" strokeLinecap="round" fill="none" opacity="0.5" />
-      {/* bullet-time dash trail on the ground */}
-      <rect x="100" y="114" width="60" height="5" rx="2.5" fill="url(#gem-cat-dense)" opacity="0.45" />
-      {/* ember ghost echo — head-only, close behind-left */}
-      <g transform="translate(-40 4) scale(0.94)" opacity="0.14">
-        <ellipse cx="136" cy="76" rx="40" ry="30" fill="url(#gem-cat-dense)" />
-        <polygon points="106,62 94,38 122,54" fill="url(#gem-cat-dense)" />
-        <polygon points="166,62 178,38 150,54" fill="url(#gem-cat-dense)" />
+
+      <rect width="260" height="160" fill="#0b1317" />
+
+      {/* wide sparse backdrop */}
+      <ellipse cx="142" cy="86" rx="118" ry="54" fill="url(#gem-cat-sparse)" opacity={0.18} />
+
+      {/* halo */}
+      <ellipse className="gem-halo" style={haloVar(0.12)} cx="165" cy="68" rx="48" ry="44" fill="url(#gem-cat-halo)" opacity={0.1} />
+
+      {/* 3 speed dashes left */}
+      <line x1="16" y1="58" x2="56" y2="58" stroke="#9aacbc" strokeWidth="1.5" opacity={0.32} strokeLinecap="round" />
+      <line x1="10" y1="72" x2="64" y2="72" stroke="#9aacbc" strokeWidth="2" opacity={0.22} strokeLinecap="round" />
+      <line x1="22" y1="86" x2="50" y2="86" stroke="#9aacbc" strokeWidth="1.5" opacity={0.14} strokeLinecap="round" />
+
+      {/* dash trail */}
+      <line x1="78" y1="94" x2="120" y2="90" stroke="#9aacbc" strokeWidth="1" opacity={0.12} strokeDasharray="5 4" strokeLinecap="round" />
+
+      {/* ground curve */}
+      <path d="M20 134 Q135 118 248 132" stroke="#9aacbc" strokeWidth="1.5" fill="none" opacity={0.16} />
+
+      {/* ghost echo behind-left */}
+      <g opacity={0.06}>
+        <ellipse cx="118" cy="62" rx="22" ry="18" fill="url(#gem-cat-dense)" />
+        <ellipse cx="116" cy="94" rx="12" ry="16" fill="url(#gem-cat-dense)" />
+        <path d="M98 78 Q84 84 76 92" stroke="#c89850" strokeWidth="2" fill="none" />
       </g>
-      {/* ears (bases buried, painted before head) */}
-      <polygon points="106,62 94,38 122,54" fill="#fff6ee" />
-      <polygon points="166,62 178,38 150,54" fill="#fff6ee" />
-      {/* head — warm cream, the loved wide silhouette */}
-      <ellipse cx="136" cy="76" rx="40" ry="30" fill="#fff6ee" />
-      <g clipPath="url(#gem-cat-head-clip)">
-        <ellipse cx="136" cy="90" rx="40" ry="30" fill="#ffe3cf" />
+
+      {/* === SUBJECT === */}
+      <g>
+        {/* scarf trail */}
+        <path d="M146 76 Q128 84 110 92 Q98 98 92 92" stroke="#c89850" strokeWidth="2.5" fill="none" opacity={0.6} strokeLinecap="round" />
+        <path d="M146 79 Q130 88 114 97 Q104 103 100 98" stroke="#c89850" strokeWidth="1.5" fill="none" opacity={0.35} strokeLinecap="round" />
+
+        {/* body */}
+        <ellipse cx="162" cy="100" rx="15" ry="20" fill="url(#gem-cat-dense)" />
+
+        {/* legs */}
+        <line x1="153" y1="114" x2="148" y2="130" stroke="#9aacbc" strokeWidth="2" opacity={0.4} strokeLinecap="round" />
+        <line x1="170" y1="112" x2="178" y2="126" stroke="#9aacbc" strokeWidth="2" opacity={0.4} strokeLinecap="round" />
+        <line x1="158" y1="116" x2="155" y2="128" stroke="#9aacbc" strokeWidth="1.5" opacity={0.25} strokeLinecap="round" />
+
+        {/* head — big wide */}
+        <ellipse cx="165" cy="58" rx="28" ry="22" fill="url(#gem-cat-dense)" />
+
+        {/* ears — small, angled back */}
+        <polygon points="142,42 138,28 149,38" fill="url(#gem-cat-dense)" />
+        <polygon points="188,42 192,28 181,38" fill="url(#gem-cat-dense)" />
+
+        {/* squint eyes — signature amber slits */}
+        <line x1="152" y1="56" x2="161" y2="56" stroke="#c89850" strokeWidth="2.5" strokeLinecap="round" />
+        <line x1="169" y1="56" x2="178" y2="56" stroke="#c89850" strokeWidth="2.5" strokeLinecap="round" />
+
+        {/* nose — angular */}
+        <path d="M165 62 L162 66 L168 66 Z" fill="#c89850" opacity={0.6} />
+
+        {/* scarf knot at neck */}
+        <ellipse cx="154" cy="78" rx="5" ry="3" fill="#c89850" opacity={0.6} />
       </g>
-      {/* forehead stripes — the identity, three short ember strokes */}
-      <g stroke="#e8813c" strokeWidth="3" strokeLinecap="round" fill="none">
-        <path d="M 128 55 Q 127 60 128 64" />
-        <path d="M 136 53 Q 136 59 136 64" />
-        <path d="M 144 55 Q 145 60 144 64" />
-      </g>
-      {/* round eyes, alive, one catchlight each */}
-      <ellipse cx="118" cy="78" rx="3" ry="4.4" fill="#0b1317" />
-      <ellipse cx="154" cy="78" rx="3" ry="4.4" fill="#0b1317" />
-      <circle cx="119.2" cy="76.2" r="1.1" fill="#ffffff" />
-      <circle cx="155.2" cy="76.2" r="1.1" fill="#ffffff" />
-      {/* ember triangle nose */}
-      <path d="M 132.5 86 L 139.5 86 L 136 90 Z" fill="#e8813c" />
-      {/* open singing mouth — the soundtrack plays along */}
-      <ellipse cx="136" cy="94.5" rx="2.6" ry="3.1" fill="#0b1317" />
-      {/* whiskers — two per side, relaxed */}
-      <g stroke="#f4efe4" strokeWidth="2.2" strokeLinecap="round">
-        <path d="M 100 74 L 78 70" />
-        <path d="M 100 82 L 76 84" />
-        <path d="M 172 74 L 194 70" />
-        <path d="M 172 82 L 196 84" />
-      </g>
-      {/* single tiny glint */}
-      <rect x="122" y="58" width="2.6" height="2.6" fill="#ffffff" opacity="0.55" />
     </svg>
   );
 }
