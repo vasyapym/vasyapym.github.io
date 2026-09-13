@@ -286,6 +286,33 @@ autonomy for the chat model, with a shown deep-reasoning chain
   dot #cbbda9, brass #b9994f).
 - Next action: owner look at card + portrait.
 
+## Pass C008 — VERIFIED (rollback)
+
+- Objective and scope: owner verdict on the dry-ink tom — **"ugly, looks
+  like a homeless alcoholic cat"**. Direction rejected; revert both the
+  feature commit (`5327966`) and its pass record (`c5b8dc7`).
+- Changes: revert commits `a8bd945` + `12689ef`. Working tree back to the
+  dry-ink v1 state (C006: slit eyes, bar nose, squared jaw, brass star).
+  Graph conflict from a parallel stash resolved by keeping the full
+  append-only chain (n96–n100) — rejected directions stay in history.
+- Verification:
+  - Command: `npm --prefix portfolio run typecheck`
+    Result: PASS (exit 0).
+  - Command: `node --experimental-strip-types portfolio/projects/kitty-run/tests/kitty-run.check.ts`
+    Result: PASS — "All kitty-run checks passed."
+  - Spot checks: slit/brass/dry-ink v1 markers present in ProjectArtwork;
+    `kittyWhite: "#fff6ee"` unchanged.
+- Delivery: pushed `0e2294f` to origin/main.
+- Lessons for the next round: "character" via damage/asymmetry (nicked
+  ear, scar, squint) reads as scruffy, not charming — the owner wants
+  personality without dishevelment. Slit eyes + squared jaw (C006) were
+  the accepted core. Next attempts should add character through
+  *confidence* (posture, gaze direction, one crisp signature detail) not
+  through wear/damage.
+- Next action: owner steers — new round on top of dry-ink v1, or accept
+  it as the resting state.
+
+
 
 
 
