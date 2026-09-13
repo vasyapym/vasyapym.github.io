@@ -531,8 +531,7 @@ export default function RaftPage() {
         <div className="raft-head-text">
           <h1>Raft — a live cluster in your browser</h1>
           <p className="raft-thesis">
-            Every node runs the same Rust consensus core, compiled to WebAssembly. The network
-            between them is simulated — the consensus is not.
+            Every node runs the same Rust consensus core, compiled to WebAssembly.
           </p>
         </div>
         <div className="raft-head-controls">
