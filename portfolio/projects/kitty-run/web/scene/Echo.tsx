@@ -53,9 +53,10 @@ const FADED: Record<CharacterId, Record<string, string>> = {
     [PALETTE.suitPink]: "#f0d3e0",
     [PALETTE.bowRed]: "#e3b3c7",
     [PALETTE.bowDeep]: "#dca6bd",
-    [PALETTE.noseYellow]: "#f1e4d4",
+    // Pixel palette collisions: noseYellow == bowRed (#ffd23f) and eyeInk ==
+    // outlineInk (#2a1b3d). Each computed key below is therefore unique —
+    // the bowRed line covers the nose, the outlineInk line covers the eyes.
     [PALETTE.cheek]: "#eed3de",
-    // outlineInk and eyeInk share one ink hex; both map here together.
     [PALETTE.outlineInk]: "#c49cb2",
   },
   souls: {
