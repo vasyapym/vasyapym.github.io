@@ -6,7 +6,7 @@ Its defining constraint is inference accounting — the prompt pays only for wha
 
 ## When to reach for it
 
-You invoke this by typing `/minimize-iteration` — the agent won't reach for it on its own. Use it whenever work is about to cross into a chat model that has no tools and no repo: the prompt that gets pasted there is the skill's product.
+You can invoke it by typing `/minimize-iteration`, and it is model-invoked — the agent reaches for it on its own whenever a task is about to cross into a chat model that has no tools and no repo: the prompt that gets pasted there is the skill's product.
 
 | Situation | Reach for |
 | --- | --- |

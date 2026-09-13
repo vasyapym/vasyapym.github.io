@@ -10,7 +10,6 @@ Reachable only when you type them (Claude Code: `disable-model-invocation: true`
 - **[code-iteration](./code-iteration/SKILL.md)** — Implement and refine code through small, evidence-backed verification passes.
 - **[custom-learning](./custom-learning/SKILL.md)** — Learn technologies one proof-of-skill Subcard at a time through an interactive Practice Map.
 - **[lesson-iteration](./lesson-iteration/SKILL.md)** — Turn a topic into a full Russian deep lesson and migrate it into the Practice Map curriculum, through planning, depth, and consistency gates.
-- **[minimize-iteration](./minimize-iteration/SKILL.md)** — Compress a task into the shortest prompt that still delegates it to a chat model.
 - **[design-iteration](./design-iteration/SKILL.md)** — Refine interfaces through visual feedback rounds with an append-only liked/rejected ledger.
 - **[design-planning](./design-planning/SKILL.md)** — Compare two design directions and settle the choice before implementation.
 - **[planning](./planning/SKILL.md)** — Turn an approved direction into a repeatable implementation and verification plan.
@@ -25,4 +24,5 @@ Reachable only when you type them (Claude Code: `disable-model-invocation: true`
 Model- or user-reachable (rich trigger phrasing so the model can reach for them).
 
 - **[grilling](./grilling/SKILL.md)** — Interview the user relentlessly about a plan, decision, or idea until every branch of the design tree is resolved.
+- **[minimize-iteration](./minimize-iteration/SKILL.md)** — Compress a task into the shortest prompt that still delegates it to a chat model.
 - **[writing-for-agents](./writing-for-agents/SKILL.md)** — Writing documents for agents: skills, AGENTS.md/CLAUDE.md, and any doc an agent reaches by a pointer.

@@ -161,7 +161,6 @@ The skills below are what the agent and I actually use. User-invoked skills are 
 | [handoff](./skills/productivity/handoff/SKILL.md) | Compact a conversation into a handoff document for another agent. |
 | [teach](./skills/productivity/teach/SKILL.md) | Teach a skill across sessions in a stateful workspace. |
 | [lesson-iteration](./skills/productivity/lesson-iteration/SKILL.md) | Draft, deepen, and migrate a full deep lesson for the Practice Map. |
-| [minimize-iteration](./skills/productivity/minimize-iteration/SKILL.md) | Compress a task into the shortest prompt that still delegates it to a chat model. |
 | [to-questionnaire](./skills/productivity/to-questionnaire/SKILL.md) | Turn an unanswerable decision into a questionnaire. |
 | [wait-what](./skills/productivity/wait-what/SKILL.md) | Re-pitch a message that didn't land, with missing context. |
 
@@ -182,6 +181,7 @@ The skills below are what the agent and I actually use. User-invoked skills are 
 | [planning](./skills/productivity/planning/SKILL.md) | Turn an approved direction into a repeatable plan. |
 | [grilling](./skills/productivity/grilling/SKILL.md) | Relentless interview about a plan or idea. |
 | [writing-for-agents](./skills/productivity/writing-for-agents/SKILL.md) | Writing docs for agents (skills, AGENTS.md/CLAUDE.md). |
+| [minimize-iteration](./skills/productivity/minimize-iteration/SKILL.md) | Compress a task into the shortest prompt that still delegates it to a chat model. |
 
 ## Run locally
 
