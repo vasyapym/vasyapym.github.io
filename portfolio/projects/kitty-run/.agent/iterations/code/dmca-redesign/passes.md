@@ -172,5 +172,34 @@ autonomy for the chat model, with a shown deep-reasoning chain
 - Next action: owner visual round on all three surfaces; rollback to Pop
   Kitty or Hello-Kitty-era states is trivial via git (7b951df / pre-C001).
 
+## Pass C004 — VERIFIED (rollback)
+
+- Objective and scope: owner verdict on Pixel Kitty — **"this is too
+  ugly"**. Direction rejected; roll all three surfaces back to the Pop
+  Kitty state (commit `7b951df`) via git revert of the pixel commit.
+- Changes: revert commit `26f896b` (reverts `dcd8c0f` — card mark,
+  portrait, rig, palette, Echo fix all restored to Pop Kitty). The C003
+  pass record and the pixel brief stay in history deliberately: the
+  iteration ledger is append-only and the rejected direction's evidence
+  must survive.
+- Verification:
+  - Command: `npm --prefix portfolio run typecheck`
+    Result: PASS (exit 0).
+  - Command: `node --experimental-strip-types portfolio/projects/kitty-run/tests/kitty-run.check.ts`
+    Result: PASS — "All kitty-run checks passed."
+  - Working-tree spot checks: `star hairclip`/`starShape` present,
+    `kittyWhite: "#fff6ee"`, `pop-ink` card comment present — Pop Kitty
+    state confirmed on all three surfaces.
+- Delivery: pushed `26f896b` to origin/main. Other agents' graph lines
+  (explosion/planck/raft-cluster) were stashed during the revert and
+  restored after — not committed by this task.
+- Remaining risks/blockers: none for the rollback. Design task remains
+  open: owner has now rejected Pixel (too ugly) and parked Pop ("fine
+  but is not it"); remaining unexplored variants from the five-way round:
+  Void Kitty #1, Wire Kitty #4, Fold Kitty #5.
+- Next action: owner picks the next direction (another variant, a new
+  round, or accept Pop Kitty as the resting state).
+
+
 
 
