@@ -201,7 +201,13 @@ textarea:focus-visible {
   padding: clamp(3rem, 5vw, 4.5rem) 0 var(--hero-bottom-pad, clamp(2.5rem, 4vw, 3.5rem));
   isolation: isolate;
   color: #eeeae0;
-  opacity: calc(1 - var(--hero-exit, 0));}
+  opacity: calc(1 - var(--hero-exit, 0));
+  /* --hero-exit is written per-frame from JS. On WebKit, main-thread scroll
+     starves rAF and coalesces scroll events, so during a fast scroll one
+     late write would otherwise snap the hero from invisible to visible (and
+     back). A short linear transition turns every write — however late it
+     lands — into a continuous ramp. */
+  transition: opacity 0.25s linear;}
 
 
 .signal-index-hero-fluid .signal-index-header {
