@@ -36,6 +36,11 @@ import {
   writeFreeSettings,
 } from "./lib/freeReading/storage";
 import { useFreeReading } from "./lib/freeReading/useFreeReading";
+import {
+  readScrollProgress,
+  removeScrollProgress,
+  writeScrollProgress,
+} from "./lib/scrollProgress/storage";
 
 const STATUS_LABELS: Readonly<Record<TopicStatus, string>> = {
   queued: "queued",
@@ -830,6 +835,8 @@ function LessonOverlay({
   const sectionIndexRef = useRef(0);
   const spyEnabledRef = useRef(true);
   const settleTimerRef = useRef<number>(undefined);
+  const saveTimerRef = useRef<number>(undefined);
+  const pendingScrollTopRef = useRef<number | null>(null);
   const lesson = topic.lesson;
   const deep = topic.deepLesson;
   const free = useFreeSettings(topic.id);
@@ -848,6 +855,34 @@ function LessonOverlay({
     const max = scroller.scrollHeight - scroller.clientHeight;
     bar.style.opacity = max <= 4 ? "0" : "1";
     bar.style.transform = `scaleX(${max <= 4 ? 0 : Math.min(scroller.scrollTop / max, 1)})`;
+  };
+
+  const flushScrollSave = () => {
+    window.clearTimeout(saveTimerRef.current);
+    saveTimerRef.current = undefined;
+    const pending = pendingScrollTopRef.current;
+    if (pending === null) return;
+    pendingScrollTopRef.current = null;
+    if (pending < 1) {
+      removeScrollProgress(topic.id);
+    } else {
+      writeScrollProgress(topic.id, pending);
+    }
+  };
+
+  const scheduleScrollSave = () => {
+    const scroller = scrollRef.current;
+    if (!scroller) return;
+    const max = scroller.scrollHeight - scroller.clientHeight;
+    if (max <= 4) return;
+    pendingScrollTopRef.current = scroller.scrollTop;
+    window.clearTimeout(saveTimerRef.current);
+    saveTimerRef.current = window.setTimeout(flushScrollSave, 300);
+  };
+
+  const handleScroll = () => {
+    updateProgress();
+    scheduleScrollSave();
   };
 
   const goToSection = (target: number, scroll = true) => {
@@ -1025,6 +1060,57 @@ function LessonOverlay({
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
+  // Restore saved scroll position before the browser's first paint.
+  useLayoutEffect(() => {
+    const saved = readScrollProgress(topic.id);
+    if (!saved) return;
+    const scroller = scrollRef.current;
+    if (!scroller) return;
+    const max = scroller.scrollHeight - scroller.clientHeight;
+    if (max <= 4) return;
+    const pos = Math.min(saved.scrollTop, max);
+    if (pos < 1) return;
+    scroller.scrollTop = pos;
+    const bar = progressRef.current;
+    if (bar) {
+      bar.style.opacity = "1";
+      bar.style.transform = `scaleX(${Math.min(pos / max, 1)})`;
+    }
+    // The IntersectionObserver effect hasn't populated sectionTargetsRef
+    // yet, so query section elements directly to sync the active chip.
+    if (deep) {
+      const scrollerRect = scroller.getBoundingClientRect();
+      const probeY = scrollerRect.top + Math.min(scrollerRect.height * 0.25, 260);
+      let active = -1;
+      scroller.querySelectorAll<HTMLElement>("[data-section-index]").forEach((el) => {
+        const rect = el.getBoundingClientRect();
+        const idx = Number(el.dataset.sectionIndex);
+        if (rect.top <= probeY && rect.bottom > probeY && idx >= 0) {
+          active = idx;
+        }
+      });
+      if (active >= 0) {
+        sectionIndexRef.current = active;
+        setSectionIndex(active);
+      }
+    }
+  }, []);
+
+  useEffect(() => {
+    const onHidden = () => {
+      if (document.visibilityState === "hidden") flushScrollSave();
+    };
+    const onUnload = () => flushScrollSave();
+    document.addEventListener("visibilitychange", onHidden);
+    window.addEventListener("beforeunload", onUnload);
+    return () => {
+      flushScrollSave();
+      window.clearTimeout(saveTimerRef.current);
+      document.removeEventListener("visibilitychange", onHidden);
+      window.removeEventListener("beforeunload", onUnload);
+    };
+  }, []);
+
   if (!lesson && !deep) {
     return null;
   }
@@ -1083,7 +1169,7 @@ function LessonOverlay({
         <div
           className="practice-lesson-scroll"
           key={topic.id}
-          onScroll={updateProgress}
+          onScroll={handleScroll}
           ref={scrollRef}
         >
           <div aria-hidden="true" className="practice-lesson-progress">
