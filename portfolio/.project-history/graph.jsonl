@@ -435,3 +435,5 @@
 {"type":"edge.added","id":"e206","ts":"2026-09-13T20:01:19.304Z","from":"n226","to":"n227","rel":"continues"}
 {"type":"node.added","id":"n228","ts":"2026-09-13T20:06:22.738Z","kind":"iteration","actor":"user","title":"feat(kitty-run): pixel cat v2 — 12×10 ASCII-rig sprite with bell collar on card mark and portrait (salvage-integrated, contract-clean)","artifacts":[{"kind":"git-commit","ref":"7d4899d"}],"meta":{"source":"auto"}}
 {"type":"edge.added","id":"e207","ts":"2026-09-13T20:06:22.759Z","from":"n227","to":"n228","rel":"continues"}
+{"type":"node.added","id":"n229","ts":"2026-09-13T20:28:43.948Z","kind":"iteration","actor":"user","title":"feat(kitty-run): dry-ink cat — slit eyes, bar nose, squared jaw, brass star on card mark and portrait (pop-kitty evolution toward senior minimalism)","artifacts":[{"kind":"git-commit","ref":"30ebe55"}],"meta":{"source":"auto"}}
+{"type":"edge.added","id":"e208","ts":"2026-09-13T20:28:43.952Z","from":"n228","to":"n229","rel":"continues"}

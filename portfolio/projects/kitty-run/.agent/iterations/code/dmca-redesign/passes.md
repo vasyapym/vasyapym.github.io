@@ -242,6 +242,51 @@ autonomy for the chat model, with a shown deep-reasoning chain
   card/portrait are pixel, the playable cat is still Pop Kitty until then.
 - Next action: owner look at the landing card + select portrait.
 
+## Pass C006 — VERIFIED (code scope) / visual NOT RUN
+
+- Objective and scope: owner verdicts — pixel v2 "bad too"; direction is
+  now "improve on Pop Kitty": less girly, kill the cutesy eyes,
+  senior-developer minimalism. Relay model (Claude Opus) delivered a
+  "dry-ink" evolution: slit eyes (flat 4.4w bars), bar nose, squared jaw
+  with angled ear tips, brass star clip, whiskers cut to two per side,
+  blush/lashes deleted, two-density halftone shading.
+- Acceptance criteria: tsc clean; node checks pass; ids + halo hook
+  preserved; no props; aria-hidden kept; silhouette familiarity retained
+  (big head, star clip, w-mouth survive).
+- Changes:
+  - `ProjectArtwork.tsx` — `KittyCenterMark` rewritten to the dry-ink
+    language: single-path head (squared jaw, angled ears), two-density
+    dot shading clipped inside the head (dense jaw + right-cheek shadow
+    instead of even wash), slit eyes, bar nose, w-mouth kept, 2+2
+    whiskers, brass `#b9994f` star on the left ear. Halo restored to the
+    dot-pattern ellipse with `style={haloVar(0.12)}` (reply used a
+    radialGradient + scaled rx/ry by haloVar — both contract violations
+    repaired; the halo hook must stay a CSS-var breathe, not geometry).
+  - `CharacterPortraits.tsx` — `KittyPortrait` same language in pure
+    outline-poster form (head path, slit eyes, bar nose, w-mouth, dry
+    whiskers, star filled brass, stroke none on fill).
+- Delegation note: minimal brief v2 (752 chars) to the randomized-routing
+  tier; reply came contract-dirty (props, role="img", gradient halo,
+  haloVar-as-multiplier) but design-strong — salvaged the character,
+  repaired the contracts.
+- Baseline: Pop Kitty (post-C004 revert), checks green.
+- Verification:
+  - Command: `npm --prefix portfolio run typecheck`
+    Result: PASS (exit 0).
+  - Command: `node --experimental-strip-types portfolio/projects/kitty-run/tests/kitty-run.check.ts`
+    Result: PASS — "All kitty-run checks passed."
+  - Visual: NOT RUN — no browser binary on this machine.
+- Final diff review: two surface files only; rig + palette untouched —
+  in-game cat still wears the Pop Kitty star until the direction is
+  approved.
+- Design constraints: not applicable.
+- Remaining risks/blockers: owner visual verdict on the dry-ink read;
+  if approved, next pass re-skins the rig (slit eyes, bar nose, brass
+  star, squared proportions) from the reply's hex set (shell #efe6d7,
+  dot #cbbda9, brass #b9994f).
+- Next action: owner look at card + portrait.
+
+
 
 
 
