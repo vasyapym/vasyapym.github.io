@@ -53,28 +53,16 @@ function earShape(): THREE.Shape {
   return shape;
 }
 
-// Highland squint eye: a narrow horizontal almond — the whole badass read
-// lives in this one swap. Flat amber fill, no pupil cutout.
-function squintEyeShape(): THREE.Shape {
+// Tiger-bright forehead stripe: one rounded bar; three instances fan
+// slightly across the crown. The stripes (not an accessory) carry the
+// character's identity.
+function stripeShape(): THREE.Shape {
   const shape = new THREE.Shape();
-  shape.moveTo(-0.18, 0);
-  shape.quadraticCurveTo(0, 0.045, 0.18, 0);
-  shape.quadraticCurveTo(0, -0.045, -0.18, 0);
-  shape.closePath();
-  return shape;
-}
-
-// Wanderer scarf: a pennant trailing behind (she runs right, so it trails
-// to -x). Hung from the neck, flutters with the cape-style sway the rig
-// already knows how to write.
-function scarfShape(): THREE.Shape {
-  const shape = new THREE.Shape();
-  shape.moveTo(0, 0.12);
-  shape.quadraticCurveTo(-0.5, 0.16, -0.9, 0.02);
-  shape.quadraticCurveTo(-1.15, -0.06, -1.3, 0.04);
-  shape.lineTo(-1.28, 0.12);
-  shape.quadraticCurveTo(-1.1, 0.05, -0.88, 0.12);
-  shape.quadraticCurveTo(-0.5, 0.26, 0, 0.22);
+  shape.moveTo(-0.045, -0.16);
+  shape.quadraticCurveTo(-0.065, 0, -0.045, 0.16);
+  shape.quadraticCurveTo(0, 0.2, 0.045, 0.16);
+  shape.quadraticCurveTo(0.065, 0, 0.045, -0.16);
+  shape.quadraticCurveTo(0, -0.2, -0.045, -0.16);
   shape.closePath();
   return shape;
 }
@@ -409,7 +397,6 @@ export function Kitty({
   const pauldronRRef = useRef<THREE.Group>(null);
   const capeBackRef = useRef<THREE.Group>(null);
   const capeFrontRef = useRef<THREE.Group>(null);
-  const scarfRef = useRef<THREE.Group>(null);
 
   const geo = useMemo(() => {
     const seg = 20;
@@ -422,8 +409,7 @@ export function Kitty({
       whisker: new THREE.PlaneGeometry(0.36, 0.032),
       bowLoop: new THREE.ShapeGeometry(ellipseShape(0.34, 0.24), seg),
       bowKnot: new THREE.ShapeGeometry(ellipseShape(0.16, 0.16), seg),
-      squintEye: new THREE.ShapeGeometry(squintEyeShape(), seg),
-      scarf: new THREE.ShapeGeometry(scarfShape(), seg),
+      stripe: new THREE.ShapeGeometry(stripeShape(), seg),
       catchlight: new THREE.ShapeGeometry(ellipseShape(0.035, 0.035), seg),
       dress: new THREE.ShapeGeometry(dressShape(), seg),
       foot: new THREE.ShapeGeometry(ellipseShape(0.11, 0.085), seg),
@@ -537,18 +523,6 @@ export function Kitty({
         0.75,
       );
     }
-    // Wanderer scarf (pastel only; ref null in souls). Same wind model as
-    // the cape, softer: it flutters behind her, kicks flat on a dash.
-    if (scarfRef.current) {
-      const sway = Math.sin(k.runPhase) * 0.09;
-      const lift = k.grounded ? 0 : 0.12;
-      const dash = k.dashT > 0 ? Math.min(1, k.dashT * 8) * 0.5 : 0;
-      scarfRef.current.rotation.z = -THREE.MathUtils.clamp(
-        lift + dash + sway,
-        -0.05,
-        0.6,
-      );
-    }
   });
 
   return (
@@ -588,21 +562,6 @@ export function Kitty({
                 </mesh>
               </group>
             </>
-          )}
-
-          {/* pastel: wanderer scarf trailing behind the neck — the one
-              accessory. Same wind model as the souls cape (softer). z -0.06
-              puts it behind the dress (0.12) and the body. */}
-          {!isSouls && (
-            <group ref={scarfRef} position={[-0.3, 0.86, 0]}>
-              <Part
-                geometry={geo.scarf}
-                color={palette.bowRed}
-                z={-0.06}
-                outline={1.06}
-                outlineColor={palette.outlineInk}
-              />
-            </group>
           )}
 
           {/* feet peek below the dress hem */}
@@ -860,28 +819,52 @@ export function Kitty({
             />
 
             {/* face — pastel only; the visor replaces it in souls mode.
-                Highland squint: the narrow amber almonds carry the entire
-                attitude ("I've seen it all"); no mouth at 55px head height
-                (sub-pixel noise per the brief), no catchlights (the squint
-                is flat by design). */}
+                Tiger-bright: forehead stripes carry the identity, the small
+                open mouth is the singing runner (the soundtrack plays
+                along), eyes stay round and alive with a catchlight. */}
             {!isSouls && (
               <>
+                {/* forehead stripes — ember, fanned slightly outward */}
+                {[-1, 0, 1].map((i) => (
+                  <mesh
+                    key={`stripe:${i}`}
+                    geometry={geo.stripe}
+                    position={[i * 0.22, 0.62 - Math.abs(i) * 0.03, 0.24]}
+                    rotation={[0, 0, i * 0.16]}
+                  >
+                    <meshBasicMaterial color={palette.bowRed} />
+                  </mesh>
+                ))}
                 <mesh
                   ref={eyeLRef}
-                  geometry={geo.squintEye}
+                  geometry={geo.eye}
                   position={[-0.4, 0.06, 0.27]}
                 >
                   <meshBasicMaterial color={palette.eyeInk} />
+                  <mesh geometry={geo.catchlight} position={[0.03, 0.04, 0.01]}>
+                    <meshBasicMaterial color="#ffffff" />
+                  </mesh>
                 </mesh>
                 <mesh
                   ref={eyeRRef}
-                  geometry={geo.squintEye}
+                  geometry={geo.eye}
                   position={[0.4, 0.06, 0.27]}
                 >
                   <meshBasicMaterial color={palette.eyeInk} />
+                  <mesh geometry={geo.catchlight} position={[0.03, 0.04, 0.01]}>
+                    <meshBasicMaterial color="#ffffff" />
+                  </mesh>
                 </mesh>
                 <mesh geometry={geo.nose} position={[0, -0.16, 0.27]}>
-                  <meshBasicMaterial color={palette.noseYellow} />
+                  <meshBasicMaterial color={palette.bowRed} />
+                </mesh>
+                {/* open singing mouth — ink, small, below the nose */}
+                <mesh
+                  geometry={geo.eye}
+                  scale={[1.05, 0.85, 1]}
+                  position={[0, -0.32, 0.255]}
+                >
+                  <meshBasicMaterial color={palette.outlineInk} />
                 </mesh>
                 <mesh geometry={geo.cheek} position={[-0.68, -0.22, 0.26]}>
                   <meshBasicMaterial color={palette.cheek} />
