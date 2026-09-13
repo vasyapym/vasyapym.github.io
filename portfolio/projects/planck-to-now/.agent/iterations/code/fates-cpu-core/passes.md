@@ -33,3 +33,8 @@
 - Empirical benchmark of the second reply (scratch dir, same assertions): 10/14 — bigCrunchLambda fully broken (garbage τ₀ = 2.67e29 from quadrature masked through E²<0, state starts outside the solution, NaN after 172 steps), fixed-dt RK4 replaced the spec's two-level adaptive stepping, weakened tolerances, dead code, an unrunnable own test (NaN defeats its break condition).
 - Revised diagnosis: the quality drop is better explained by prompt-length routing (the long B1 brief likely landed on a weaker model) than by timeout — a truncated strong-model answer still beat a complete weak-model answer.
 - Standing rule for future delegation: a complete-but-shallow reply with ≥2 degradation markers (dead code, dropped hardest spec requirement, weakened tolerances, unasserted checks, physically wrong defaults) is not integrated; split the brief or shorten it instead.
+
+## Correction 2 (owner)
+- Routing clarification: both B1 replies came from the SAME normal chat model (Opus 4.6), not the randomized strongest-model tier. The first reply was truncated by timeout mid-generation; the second was complete.
+- Revised attribution: the quality gap is a TIMEOUT effect within one model — truncation hit mid-reasoning, and the model's second full generation still underperformed the repaired truncated one (10/14 vs 35/35), likely because the retry regenerated from a compressed internal state rather than resuming.
+- Delegation rule update: for long-brief tasks against the normal chat model, prefer (a) splitting the brief into smaller sequential deliverables over one long ask, and (b) when a reply times out, ask for a resumption/continuation of the truncated answer rather than a fresh full regeneration.
