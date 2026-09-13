@@ -198,7 +198,3 @@
 {"type":"edge.added","id":"e87","ts":"2026-09-13T20:06:35.984Z","from":"n94","to":"n95","rel":"continues"}
 {"type":"node.added","id":"n96","ts":"2026-09-13T20:28:43.925Z","kind":"iteration","actor":"user","title":"feat(kitty-run): dry-ink cat — slit eyes, bar nose, squared jaw, brass star on card mark and portrait (pop-kitty evolution toward senior minimalism)","artifacts":[{"kind":"git-commit","ref":"30ebe55"}],"meta":{"source":"auto"}}
 {"type":"edge.added","id":"e88","ts":"2026-09-13T20:28:43.930Z","from":"n95","to":"n96","rel":"continues"}
-{"type":"node.added","id":"n97","ts":"2026-09-13T20:28:57.793Z","kind":"iteration","actor":"user","title":"docs(kitty-run): record pass C006 — dry-ink cat (slit eyes, brass star) on card + portrait, rig pending verdict","artifacts":[{"kind":"git-commit","ref":"f6a515d"}],"meta":{"source":"auto"}}
-{"type":"edge.added","id":"e89","ts":"2026-09-13T20:28:57.799Z","from":"n96","to":"n97","rel":"continues"}
-{"type":"node.added","id":"n98","ts":"2026-09-13T20:49:46.545Z","kind":"iteration","actor":"user","title":"feat(kitty-run): dry-ink tom — nicked ear, scarred squint, gem collar tag; one FACE table shared across card mark and portrait","artifacts":[{"kind":"git-commit","ref":"5327966"}],"meta":{"source":"auto"}}
-{"type":"edge.added","id":"e90","ts":"2026-09-13T20:49:46.550Z","from":"n97","to":"n98","rel":"continues"}
