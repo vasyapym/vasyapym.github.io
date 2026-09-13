@@ -130,70 +130,109 @@ function RaftCenterMark() {
   );
 }
 
-/* ── 2 · Cat Runner — pop-ink cat: star clip, w-mouth, catchlight eyes ── */
+/* ── 2 · Cat Runner — pixel cat: 12×10 ASCII rig, chunky ink, bell collar ── */
+
+// The whole design language in one grid: O ink outline · I fill ·
+// S shadow · E eye · M mouth · N accent (bell collar). Front-facing
+// sprite — motion lives in the dashes and the ghost echo, not the pose.
+const PIXEL_CAT_GRID: readonly string[] = [
+  "..O......O..",
+  ".OIO....OIO.",
+  ".OIIOOOOIIO.",
+  "OIIIIIIIIIIO",
+  "OIEIIIIEIIIO",
+  "OIIIIMMIIIIO",
+  ".OIIIIIIIISO",
+  "..OONNNNOO..",
+  ".OISIIIISSO.",
+  "..OOOOOOOO..",
+];
+
+const PIXEL_CAT_SWATCH: { [ch: string]: string | undefined } = {
+  O: "#2a1b3d",
+  I: "#f7e8ff",
+  S: "#9a6fbf",
+  E: "#2a1b3d",
+  M: "#2a1b3d",
+  N: "#ffd23f",
+};
+
+function rasterizePixelCat(cell: number, ox: number, oy: number) {
+  const cells: { key: string; x: number; y: number; fill: string }[] = [];
+  PIXEL_CAT_GRID.forEach((row, y) => {
+    for (let x = 0; x < row.length; x += 1) {
+      const fill = PIXEL_CAT_SWATCH[row[x]];
+      if (fill) {
+        cells.push({ key: `${x}-${y}`, x: ox + x * cell, y: oy + y * cell, fill });
+      }
+    }
+  });
+  return cells;
+}
+
 function KittyCenterMark() {
+  const cell = 11;
+  const ox = 64;
+  const oy = 25;
+  const cells = rasterizePixelCat(cell, ox, oy);
   return (
     <svg viewBox="0 0 260 160" aria-hidden="true">
       <defs>
         <pattern id="gem-cat-dense" patternUnits="userSpaceOnUse" width="7" height="7">
-          <circle cx="3.5" cy="3.5" r="1.9" fill="#e94f64" />
+          <circle cx="3.5" cy="3.5" r="1.9" fill="#ffd23f" />
         </pattern>
         <pattern id="gem-cat-sparse" patternUnits="userSpaceOnUse" width="11" height="11">
-          <circle cx="5.5" cy="5.5" r="1.6" fill="#7d7669" />
+          <circle cx="5.5" cy="5.5" r="1.6" fill="#9a6fbf" />
         </pattern>
         <pattern id="gem-cat-halo" patternUnits="userSpaceOnUse" width="7" height="7">
-          <circle cx="3.5" cy="3.5" r="1.9" fill="#7d7669" />
+          <circle cx="3.5" cy="3.5" r="1.9" fill="#ffd23f" />
         </pattern>
         <clipPath id="gem-cat-head-clip">
-          <ellipse cx="136" cy="76" rx="40" ry="30" />
+          <rect x="64" y="25" width="132" height="77" />
         </clipPath>
       </defs>
-      {/* wide sparse neutral backdrop field */}
+
+      {/* wide sparse purple backdrop field */}
       <ellipse cx="136" cy="78" rx="104" ry="62" fill="url(#gem-cat-sparse)" opacity="0.09" />
-      {/* single neutral halo */}
+
+      {/* single gold halo */}
       <ellipse className="gem-halo" style={haloVar(0.12)} cx="136" cy="78" rx="62" ry="40" fill="url(#gem-cat-halo)" opacity="0.12" />
+
       {/* ordered horizontal speed dashes */}
-      <rect x="26" y="72" width="40" height="6" rx="3" fill="#7d7669" opacity="0.4" />
-      <rect x="26" y="84" width="30" height="6" rx="3" fill="#7d7669" opacity="0.4" />
-      <rect x="26" y="96" width="20" height="6" rx="3" fill="#7d7669" opacity="0.4" />
+      <rect x="26" y="72" width="36" height="6" rx="3" fill="#9a6fbf" opacity="0.4" />
+      <rect x="26" y="84" width="26" height="6" rx="3" fill="#9a6fbf" opacity="0.4" />
+      <rect x="26" y="96" width="18" height="6" rx="3" fill="#9a6fbf" opacity="0.4" />
+
       {/* one clean ground curve */}
       <path d="M 46 120 Q 140 112 236 118" stroke="#465059" strokeWidth="5" strokeLinecap="round" fill="none" opacity="0.5" />
-      {/* bullet-time dash trail on the ground */}
-      <rect x="100" y="114" width="60" height="5" rx="2.5" fill="url(#gem-cat-dense)" opacity="0.45" />
-      {/* pop halftone ghost echo — head-only, close behind-left */}
-      <g transform="translate(-40 4) scale(0.94)" opacity="0.14">
-        <ellipse cx="136" cy="76" rx="40" ry="30" fill="url(#gem-cat-dense)" />
-        <polygon points="106,62 94,38 122,54" fill="url(#gem-cat-dense)" />
-        <polygon points="166,62 178,38 150,54" fill="url(#gem-cat-dense)" />
+
+      {/* bullet-time dash trail, left of the sitting cat */}
+      <rect x="40" y="126" width="44" height="5" rx="2.5" fill="url(#gem-cat-dense)" opacity="0.45" />
+
+      {/* pixel ghost echo — blocky silhouette, close behind-left */}
+      <g transform="translate(-50 6) scale(0.92)" opacity="0.14">
+        <rect x="86" y="25" width="11" height="11" fill="url(#gem-cat-dense)" />
+        <rect x="163" y="25" width="11" height="11" fill="url(#gem-cat-dense)" />
+        <rect x="64" y="47" width="132" height="55" fill="url(#gem-cat-dense)" />
       </g>
-      {/* ears (bases buried, painted before head) */}
-      <polygon points="106,62 94,38 122,54" fill="#fff6ee" />
-      <polygon points="166,62 178,38 150,54" fill="#fff6ee" />
-      {/* head dominates — warm cream, flat comic fill */}
-      <ellipse cx="136" cy="76" rx="40" ry="30" fill="#fff6ee" />
-      <g clipPath="url(#gem-cat-head-clip)">
-        <ellipse cx="136" cy="90" rx="40" ry="30" fill="#f1b9c5" />
+
+      {/* the pixel rig */}
+      <g shapeRendering="crispEdges">
+        {cells.map((c) => (
+          <rect key={c.key} x={c.x} y={c.y} width={cell} height={cell} fill={c.fill} />
+        ))}
       </g>
-      {/* whisker spikes — paper, punching past the head edge */}
-      <path d="M 100 68 L 78 64" stroke="#f4efe4" strokeWidth="2.2" strokeLinecap="round" />
-      <path d="M 100 76 L 76 76" stroke="#f4efe4" strokeWidth="2.2" strokeLinecap="round" />
-      <path d="M 100 84 L 78 88" stroke="#f4efe4" strokeWidth="2.2" strokeLinecap="round" />
-      <path d="M 172 68 L 194 64" stroke="#f4efe4" strokeWidth="2.2" strokeLinecap="round" />
-      <path d="M 172 76 L 196 76" stroke="#f4efe4" strokeWidth="2.2" strokeLinecap="round" />
-      <path d="M 172 84 L 194 88" stroke="#f4efe4" strokeWidth="2.2" strokeLinecap="round" />
-      {/* ink eyes, low and wide, each with a white catchlight speck */}
-      <ellipse cx="118" cy="78" rx="2.8" ry="4.2" fill="#0b1317" />
-      <ellipse cx="154" cy="78" rx="2.8" ry="4.2" fill="#0b1317" />
-      <circle cx="119" cy="76.4" r="1" fill="#ffffff" />
-      <circle cx="155" cy="76.4" r="1" fill="#ffffff" />
-      {/* accent nose (was unmarked) */}
-      <ellipse cx="136" cy="86" rx="3.4" ry="2.4" fill="#e94f64" />
-      {/* the w mouth — the loudest differentiator */}
-      <path d="M 130 92 Q 133 96 136 92.5 Q 139 96 142 92" fill="none" stroke="#3a3142" strokeWidth="2" strokeLinecap="round" />
-      {/* star clip on the right ear — the bow is gone */}
-      <polygon points="176,31 178.9,38 186.5,38.6 180.8,43.5 182.5,50.9 176,47 169.5,50.9 171.2,43.5 165.5,38.6 173.1,38" fill="#e94f64" />
-      {/* single tiny glint */}
-      <rect x="122" y="58" width="2.6" height="2.6" fill="#ffffff" opacity="0.55" />
+
+      {/* eye catchlights — one white pixel each */}
+      <rect x="92" y="72" width="3" height="3" fill="#ffffff" />
+      <rect x="147" y="72" width="3" height="3" fill="#ffffff" />
+
+      {/* bell highlight + clapper */}
+      <rect x="110" y="104" width="3" height="3" fill="#f7e8ff" />
+      <rect x="119" y="109" width="22" height="3" fill="#2a1b3d" />
+
+      {/* single tiny glint on crown */}
+      <rect x="122" y="50" width="2.6" height="2.6" fill="#ffffff" opacity="0.55" />
     </svg>
   );
 }

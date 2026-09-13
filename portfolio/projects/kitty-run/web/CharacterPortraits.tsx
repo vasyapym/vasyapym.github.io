@@ -5,7 +5,49 @@
 const OUTLINE_PASTEL = "#3a3142";
 const OUTLINE_SOULS = "#17130f";
 
+// Pixel Kitty rig (12×10) — same ASCII grid as the landing-card mark;
+// cell size is set per surface. O ink · I fill · S shadow · E eye ·
+// M mouth · N accent (bell collar).
+const PIXEL_CAT_GRID: readonly string[] = [
+  "..O......O..",
+  ".OIO....OIO.",
+  ".OIIOOOOIIO.",
+  "OIIIIIIIIIIO",
+  "OIEIIIIEIIIO",
+  "OIIIIMMIIIIO",
+  ".OIIIIIIIISO",
+  "..OONNNNOO..",
+  ".OISIIIISSO.",
+  "..OOOOOOOO..",
+];
+
+const PIXEL_CAT_SWATCH: { [ch: string]: string | undefined } = {
+  O: "#2a1b3d",
+  I: "#f7e8ff",
+  S: "#9a6fbf",
+  E: "#2a1b3d",
+  M: "#2a1b3d",
+  N: "#ffd23f",
+};
+
+function rasterizePixelCat(cell: number, ox: number, oy: number) {
+  const cells: { key: string; x: number; y: number; fill: string }[] = [];
+  PIXEL_CAT_GRID.forEach((row, y) => {
+    for (let x = 0; x < row.length; x += 1) {
+      const fill = PIXEL_CAT_SWATCH[row[x]];
+      if (fill) {
+        cells.push({ key: `${x}-${y}`, x: ox + x * cell, y: oy + y * cell, fill });
+      }
+    }
+  });
+  return cells;
+}
+
 export function KittyPortrait() {
+  const cell = 8;
+  const ox = 2;
+  const oy = 10;
+  const cells = rasterizePixelCat(cell, ox, oy);
   return (
     <svg
       viewBox="0 0 100 100"
@@ -18,39 +60,20 @@ export function KittyPortrait() {
       strokeLinejoin="round"
       strokeLinecap="round"
     >
-      {/* white shirt under the pink pinafore; the head overlaps it (no neck) */}
-      <path d="M24 84 C24 71 36 64 50 64 C64 64 76 71 76 84 L78 100 L22 100 Z" fill="#ffffff" />
-      <path d="M36 64 L41 64 L41 74 L59 74 L59 64 L64 64 L64 74 L70 74 L76 100 L24 100 L30 74 L36 74 Z" fill="#f6a9c0" />
+      {/* the pixel rig — fills carry the read; svg-level stroke is overridden */}
+      <g stroke="none" shapeRendering="crispEdges">
+        {cells.map((c) => (
+          <rect key={c.key} x={c.x} y={c.y} width={cell} height={cell} fill={c.fill} />
+        ))}
+      </g>
 
-      {/* stubby arms, outward-down from shoulder level */}
-      <ellipse cx="23" cy="78" rx="9" ry="4.8" transform="rotate(38 23 78)" fill="#ffffff" />
-      <ellipse cx="77" cy="78" rx="9" ry="4.8" transform="rotate(-38 77 78)" fill="#ffffff" />
+      {/* eye catchlights — one white pixel each */}
+      <rect x="22" y="44" width="2.5" height="2.5" fill="#ffffff" stroke="none" />
+      <rect x="62" y="44" width="2.5" height="2.5" fill="#ffffff" stroke="none" />
 
-      {/* head 75×50 (1.5:1), fullest at the cheeks, flat crown, soft flat chin */}
-      <path d="M12.5 46 C12.5 30 26 18 50 18 C74 18 87.5 30 87.5 46 C87.5 60 70 68 50 68 C30 68 12.5 60 12.5 46 Z" fill="#ffffff" />
-
-      {/* ears: open paths (no base line) drawn over the crown so the head stroke hides under them */}
-      <path d="M21.5 27.5 L25 14 Q26.5 11 29 13.5 L37.5 20.5" fill="#ffffff" />
-      <path d="M78.5 27.5 L75 14 Q73.5 11 71 13.5 L62.5 20.5" fill="#ffffff" />
-
-      {/* the star clip: upper-right ear, where the bow used to sit */}
-      <polygon
-        points="71,11.5 72.5,14.9 76.2,15.3 73.5,17.8 74.2,21.4 71,19.6 67.8,21.4 68.5,17.8 65.8,15.3 69.5,14.9"
-        fill="#e94f64"
-        stroke="none"
-      />
-
-      {/* face in the lower half: catchlight eyes, red nose, small w mouth */}
-      <ellipse cx="34" cy="49" rx="2.2" ry="3.4" fill={OUTLINE_PASTEL} stroke="none" />
-      <ellipse cx="66" cy="49" rx="2.2" ry="3.4" fill={OUTLINE_PASTEL} stroke="none" />
-      <circle cx="34.9" cy="47.6" r="0.9" fill="#ffffff" stroke="none" />
-      <circle cx="66.9" cy="47.6" r="0.9" fill="#ffffff" stroke="none" />
-      <ellipse cx="50" cy="50.5" rx="2.6" ry="1.9" fill="#e94f64" stroke="none" />
-      <path d="M46 55 Q48 58 50 55.8 Q52 58 54 55" strokeWidth={2} />
-
-      {/* whiskers: three per side, eye level, slightly fanned */}
-      <path d="M27 45 L3 40.5 M27 49 L2 49 M27 53 L3 57.5" strokeWidth={2} />
-      <path d="M73 45 L97 40.5 M73 49 L98 49 M73 53 L97 57.5" strokeWidth={2} />
+      {/* bell highlight + clapper */}
+      <rect x="36" y="67" width="2" height="2" fill="#f7e8ff" stroke="none" />
+      <rect x="43" y="71" width="10" height="2.5" fill="#2a1b3d" stroke="none" />
     </svg>
   );
 }

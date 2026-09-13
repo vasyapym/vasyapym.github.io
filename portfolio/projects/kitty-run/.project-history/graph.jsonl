@@ -186,3 +186,9 @@
 {"type":"edge.added","id":"e81","ts":"2026-09-13T17:27:17.289Z","from":"n88","to":"n89","rel":"continues"}
 {"type":"node.added","id":"n90","ts":"2026-09-13T19:58:18.722Z","kind":"iteration","actor":"user","title":"feat(kitty-run): pixel-kitty redesign — 12×10 grid card mark with CRT scanlines and bell, stepped pixel portrait, rig re-skin (bell, pixel mouth, square catchlights), echo collision fix (passes C003)","artifacts":[{"kind":"git-commit","ref":"dcd8c0f"}],"meta":{"source":"auto"}}
 {"type":"edge.added","id":"e82","ts":"2026-09-13T19:58:18.726Z","from":"n89","to":"n90","rel":"continues"}
+{"type":"node.added","id":"n91","ts":"2026-09-13T19:58:33.039Z","kind":"iteration","actor":"user","title":"docs(kitty-run): record pass C003 — pixel-kitty re-skin integrated, verified, shipped","artifacts":[{"kind":"git-commit","ref":"2bb001e"}],"meta":{"source":"auto"}}
+{"type":"edge.added","id":"e83","ts":"2026-09-13T19:58:33.052Z","from":"n90","to":"n91","rel":"continues"}
+{"type":"node.added","id":"n92","ts":"2026-09-13T20:01:19.210Z","kind":"iteration","actor":"user","title":"Revert \"feat(kitty-run): pixel-kitty redesign — 12×10 grid card mark with CRT scanlines and bell, stepped pixel portrait, rig re-skin (bell, pixel mouth, square catchlights), echo collision fix (passes C003)\"","artifacts":[{"kind":"git-commit","ref":"26f896b"}],"meta":{"source":"auto"}}
+{"type":"edge.added","id":"e84","ts":"2026-09-13T20:01:19.270Z","from":"n91","to":"n92","rel":"continues"}
+{"type":"node.added","id":"n93","ts":"2026-09-13T20:02:56.463Z","kind":"iteration","actor":"user","title":"docs(kitty-run): record pass C004 — pixel-kitty rejected ('too ugly'), rolled back to pop-kitty (26f896b)","artifacts":[{"kind":"git-commit","ref":"2eed37b"}],"meta":{"source":"auto"}}
+{"type":"edge.added","id":"e85","ts":"2026-09-13T20:02:56.470Z","from":"n92","to":"n93","rel":"continues"}
