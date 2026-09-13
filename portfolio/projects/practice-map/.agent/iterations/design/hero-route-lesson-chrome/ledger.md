@@ -115,3 +115,54 @@ e.g. lowercase mono chrome and the ink panel language, remain active constraints
 - Code verification: typecheck PASS, build PASS; ad-hoc probe 17/17 (baseline recorded first: the same probe fails 13 assertions against the R002 state — before/after evidence); full `practice-map.check.mjs` 93 ok / 1 documented pre-existing environment fail (ArrowRight, chromium-1134).
 - Open question: none blocking. Observation recorded (not this round's defect): the Go lesson's dash-prefixed paragraphs ("–Огромные кодовые базы…") carry glued dashes from the authored curriculum data — a content-level cleanup if the owner wants it.
 - Shipped: commit at round close per the owner's always-current-repo setting (design-iteration operating rule as amended 2026-09-13).
+
+## Feedback F009
+- Round: R003
+- Verdict: LIKED
+- Scope: round R003 as presented (toggle/chip parity, status relocation, pill rounding, equal left-packed hero pair)
+- Decision: the round is accepted overall; follow-up modifications follow as F010/F011.
+- User source: "it is ok. good. i like the changes. small modifications -"
+- Artifact: artifacts/R003/*
+- Supersedes: none
+
+## Feedback F010
+- Round: R003
+- Verdict: REJECTED
+- Scope: hero band composition — copy card width + rail position, desktop
+- Decision: the "deep lessons. / local notes." card must grow longer in width (the text itself stays where it is), and the concept-graph rail must sit proportionally at the other (right) corner — no large free run of field on the right side of the band.
+- User source: "make this section longer in width - 'deep lessons. local notes.'. i.e. text stays where it is. what i want is 'concept graph' section would be proportionally at the other conrner. without a lot of free space in the right side."
+- Artifact: artifacts/R003/hero-desktop.png
+- Supersedes: none
+
+## Feedback F011
+- Round: R003
+- Verdict: REJECTED
+- Scope: reading text size, lesson windows (deep reader + free reading)
+- Decision: lesson body text renders ~10% too small — raise it ~10% while keeping the prose/textarea parity and the iOS >=16px guard.
+- User source: "make font size of lesson texts in lesson windows (when reading) bigger around 10%."
+- Artifact: artifacts/R003/lesson-wide.png
+- Supersedes: none
+
+## Feedback F012
+- Round: R003
+- Verdict: REJECTED
+- Scope: lesson part chips (reader section nav "часть 0. зачем вообще существует go" and the fragment-lesson tab family), corner geometry, lesson overlay
+- Decision: the part-label controls render with sharp corners — give them rounded (pill) corners like the rest of the lesson-window controls; folded into the same R004 round.
+- User source: "make parts of the lessons in lesson window with rounded corners too. i.e. for example this - 'часть 0. зачем вообще существует go'. give it as one brief"
+- Artifact: artifacts/R003/lesson-wide.png
+- Supersedes: none
+
+## Round R004
+- Goal: address F010–F012 — full-width hero band (copy card fills the left run, rail flush at the right corner), reading type +10% with strict parity, pill-rounded lesson-part chips. Delegated to the chat model per the owner's standing instruction (brief: docs/briefs/BRIEF-practice-map-hero-band-reading-type.md, one brief covering all three asks; the model owned the design choices with a mandatory reasoning section).
+- Preserved preferences: R003 as accepted (F009) — toggle placement, status row, rounding family, scope-trim removals; hero copy "deep lessons. / local notes.".
+- Changes (chat-model decisions, integrated):
+  - F010: hero grid `minmax(0, 1fr) minmax(0, 320px)` — the copy card fills the left run (measured 840px of 1200 at 1440, text left-aligned, vertically centered), the rail caps at 320px flush to the right corner (probe: rail right offset 0px); `justify-content: start` dropped (no-op under 1fr). Collapse moves 700→900px (the pair needs copy ≥~300px; at 850 the model's math shows ≈254px — breakage), hero-only media block; other 700px rules stay.
+  - F011: prose (`.practice-reader-section > p`, reader li + fragment li) and the free-reading textarea → `max(1.1rem, 17.6px)` (exact +10%, iOS ≥16px floor held). The 97ch column self-adjusts: `ch` resolves against the untouched container font, so the pixel cap holds and prose wraps ~1 char/line fewer.
+  - F012: part chips (`.practice-lesson-tabs button`, `.practice-reader-nav button`) → pill radius + 0.75rem side padding; inner `kbd` softened to 4px (a 9999px blob would over-round a ~16px badge); active/hover states inherit the radius.
+- Integration deltas (salvage repair to file conventions): the model's `9999px` normalized to the file's existing `999px` pill value; its h1 block omitted the old `max-width: 760px` cap — ratified (the cap would have stopped the copy card at 760px and contradicted the band fill).
+- Before: artifacts/R003/*
+- After: artifacts/R004/hero-desktop.png, artifacts/R004/hero-narrow.png, artifacts/R004/lesson-wide.png
+- Visual inspection: performed — band filled edge to edge with no right-side dead run; part chips render as pills with the ochre active state; prose density visibly up (~17.6px); mobile 390 clean.
+- Code verification: typecheck PASS, build PASS; R004 probe 14/14 (band geometry incl. rail-flush 0px, 17.6px parity, 910px two-column hold + stacked below 900); full `practice-map.check.mjs` 93 ok / 1 documented pre-existing environment fail (ArrowRight, chromium-1134).
+- Open question: none.
+- Shipped: commit at round close per the owner's always-current-repo setting.
