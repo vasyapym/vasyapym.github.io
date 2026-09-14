@@ -1,0 +1,23 @@
+{
+  "name": "planck-to-now",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "description": "GPU-accelerated WebGL playback of cosmic history on a logarithmic time axis, from the Planck epoch to the present day.",
+  "scripts": {
+    "build": "esbuild src/main.ts --bundle --minify --outfile=dist/main.js",
+    "watch": "esbuild src/main.ts --bundle --outfile=dist/main.js --watch",
+    "typecheck": "tsc --noEmit",
+    "test": "node --experimental-strip-types tests/cosmology.check.ts && node --experimental-strip-types tests/fates.check.ts && node --experimental-strip-types tests/fatesParticles.check.ts",
+    "test:smoke": "node tests/browser-smoke.mjs",
+    "verify": "npm run typecheck && npm test && npm run build"
+  },
+  "dependencies": {
+    "three": "^0.170.0"
+  },
+  "devDependencies": {
+    "@types/three": "^0.170.0",
+    "esbuild": "^0.24.0",
+    "typescript": "^5.6.0"
+  }
+}
