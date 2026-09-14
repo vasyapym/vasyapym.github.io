@@ -3,12 +3,12 @@
 // every frame from the pure rig. React renders the parts once; useFrame
 // writes transforms directly.
 //
-// Two bodies share the one rig. The pastel kitty wears an asymmetric
-// ribbon tied at the right ear; the ashen knight wears a great helm
-// (visor + ember eyes), pauldrons, a two-layer cape and a greatsword
-// over the shoulder, all built from the same palette keys (bowRed/bowDeep
-// are steel in her palette), so the best-run ghost can still retint her
-// by hex lookup.
+// Two bodies share the one rig. The pastel kitty wears a hoodie — a
+// hood ring wrapped around the head with a pull toggle on the chest;
+// the ashen knight wears a great helm (visor + ember eyes), pauldrons,
+// a two-layer cape and a greatsword over the shoulder, all built from
+// the same palette keys (bowRed/bowDeep are steel in her palette), so
+// the best-run ghost can still retint her by hex lookup.
 
 import { useMemo, useRef } from "react";
 import * as THREE from "three";
@@ -54,25 +54,30 @@ function earShape(): THREE.Shape {
   return shape;
 }
 
-// Ribbon tails: cloth bands flowing from the ear knot. The long tail
-// streams down-right hugging the head's edge; the short tail flicks
-// down-left. Both taper toward rounded tips.
-function ribbonTailLong(): THREE.Shape {
+// Hoodie: the hood is a ring wrapped around the whole head (outer blob
+// minus inner blob via a Shape hole), authored head-local (y up). The
+// band clears the eye line (inner hole edge x 0.95, eyes at x 0.4) and
+// tucks the ear tips under its crown band. Toggle rides the jiggle.
+function hoodOuterShape(): THREE.Shape {
   const shape = new THREE.Shape();
-  shape.moveTo(0.1, -0.02);
-  shape.quadraticCurveTo(0.3, -0.26, 0.4, -0.55);
-  shape.quadraticCurveTo(0.24, -0.34, 0.02, -0.18);
+  shape.moveTo(-1.16, 0.03);
+  shape.quadraticCurveTo(-1.16, 1.06, 0, 1.22);
+  shape.quadraticCurveTo(1.16, 1.06, 1.16, 0.03);
+  shape.quadraticCurveTo(1.16, -0.7, 0, -0.84);
+  shape.quadraticCurveTo(-1.16, -0.7, -1.16, 0.03);
   shape.closePath();
   return shape;
 }
 
-function ribbonTailShort(): THREE.Shape {
-  const shape = new THREE.Shape();
-  shape.moveTo(-0.04, -0.06);
-  shape.quadraticCurveTo(-0.18, -0.2, -0.3, -0.42);
-  shape.quadraticCurveTo(-0.16, -0.18, -0.0, -0.12);
-  shape.closePath();
-  return shape;
+function hoodInnerShape(): THREE.Path {
+  const path = new THREE.Path();
+  path.moveTo(-0.95, 0.03);
+  path.quadraticCurveTo(-0.95, 0.86, 0, 1.02);
+  path.quadraticCurveTo(0.95, 0.86, 0.95, 0.03);
+  path.quadraticCurveTo(0.95, -0.56, 0, -0.67);
+  path.quadraticCurveTo(-0.95, -0.56, -0.95, 0.03);
+  path.closePath();
+  return path;
 }
 
 function dressShape(): THREE.Shape {
@@ -417,8 +422,12 @@ export function Kitty({
       whisker: new THREE.PlaneGeometry(0.36, 0.032),
       bowLoop: new THREE.ShapeGeometry(ellipseShape(0.37, 0.26), seg),
       bowKnot: new THREE.ShapeGeometry(ellipseShape(0.15, 0.15), seg),
-      ribbonTailLong: new THREE.ShapeGeometry(ribbonTailLong(), seg),
-      ribbonTailShort: new THREE.ShapeGeometry(ribbonTailShort(), seg),
+      hood: (() => {
+        const shape = hoodOuterShape();
+        shape.holes.push(hoodInnerShape());
+        return new THREE.ShapeGeometry(shape, seg);
+      })(),
+      hoodTab: new THREE.ShapeGeometry(roundedRectShape(0.18, 0.13, 0.04), seg),
       dress: new THREE.ShapeGeometry(dressShape(), seg),
       foot: new THREE.ShapeGeometry(ellipseShape(0.11, 0.085), seg),
       arm: new THREE.ShapeGeometry(ellipseShape(0.12, 0.2), seg),
@@ -486,11 +495,10 @@ export function Kitty({
     if (earLRef.current) earLRef.current.rotation.z = -0.35 + pose.earL;
     if (earRRef.current) earRRef.current.rotation.z = 0.35 + pose.earR;
     if (bowRef.current) {
-      // The ribbon is cloth: the FULL bow jiggle returns — the floating
-      // energy this design is known for (F006), restored with the
-      // bow-family accessory at its old anchor.
-      bowRef.current.rotation.z = pose.bowRot;
-      bowRef.current.scale.setScalar(pose.bowScale);
+      // The pull toggle is the hoodie's one moving piece: a damped cloth
+      // jiggle (a toggle swings less than the old ribbon loops did).
+      bowRef.current.rotation.z = pose.bowRot * 0.45;
+      bowRef.current.scale.setScalar(1 + (pose.bowScale - 1) * 0.4);
     }
     if (eyeLRef.current) eyeLRef.current.scale.y = pose.eyeScaleY;
     if (eyeRRef.current) eyeRRef.current.scale.y = pose.eyeScaleY;
@@ -983,46 +991,30 @@ export function Kitty({
                 />
               </group>
             ) : (
-              /* asymmetric ribbon: the bow's anchor and mass, new
-                  geometry — ONE big loop standing up-left from the knot
-                  (not the symmetric two-loop pair), a long cloth tail
-                  streaming down-right hugging the head's edge and a
-                  short tail flicking down-left. Painted back-to-front:
-                  short tail, long tail, loop, knot. Full jiggle (see
-                  useFrame). Group at the original bow anchor
-                  (0.52, 0.66) head-local, z 0.32. */
-              <group ref={bowRef} position={[0.52, 0.66, 0.32]}>
+              /* hoodie (owner pick, batch-5 #05): the hood ring wraps
+                  the whole head (z 0.30 ink / 0.33 fill — above the face
+                  0.27, band covers the head rim and tucks the ear tips
+                  under its crown); the pull toggle hangs on the chest
+                  line via bowRef (re-anchored from the ear to (0, -0.55)),
+                  damped jiggle. */
+              <>
                 <Part
-                  geometry={geo.ribbonTailShort}
-                  color={palette.bowDeep}
-                  z={0.002}
-                  outline={1.12}
-                  outlineColor={palette.outlineInk}
-                />
-                <Part
-                  geometry={geo.ribbonTailLong}
+                  geometry={geo.hood}
                   color={palette.bowRed}
-                  z={0.006}
-                  outline={1.12}
+                  z={0.33}
+                  outline={1.045}
                   outlineColor={palette.outlineInk}
                 />
-                <Part
-                  geometry={geo.bowLoop}
-                  color={palette.bowRed}
-                  z={0.01}
-                  position={[-0.24, 0.12]}
-                  rotation={-0.75}
-                  outline={1.12}
-                  outlineColor={palette.outlineInk}
-                />
-                <Part
-                  geometry={geo.bowKnot}
-                  color={palette.bowDeep}
-                  z={0.016}
-                  outline={1.18}
-                  outlineColor={palette.outlineInk}
-                />
-              </group>
+                <group ref={bowRef} position={[0, -0.55, 0.34]}>
+                  <Part
+                    geometry={geo.hoodTab}
+                    color={palette.bowDeep}
+                    z={0}
+                    outline={1.18}
+                    outlineColor={palette.outlineInk}
+                  />
+                </group>
+              </>
             )}
           </group>
         </group>

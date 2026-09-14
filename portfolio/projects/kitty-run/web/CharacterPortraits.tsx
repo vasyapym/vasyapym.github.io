@@ -33,20 +33,6 @@ export function KittyPortrait() {
       <path d="M21.5 27.5 L25 14 Q26.5 11 29 13.5 L37.5 20.5" fill="#ffffff" />
       <path d="M78.5 27.5 L75 14 Q73.5 11 71 13.5 L62.5 20.5" fill="#ffffff" />
 
-      {/* asymmetric ribbon: one big loop leaning up-left from the knot,
-          long tail streaming down-right along the head's edge, short
-          tail flicking down-left; back-to-front: tails, loop, knot */}
-      <path
-        d="M66 25.5 Q61 29.5 58.8 35.2 Q61.5 28.5 65.5 24.8 Z"
-        fill="#d13a50"
-      />
-      <path
-        d="M70.5 25 Q77 30 82.5 38.3 Q79 32.5 69.5 26.8 Z"
-        fill="#e94f64"
-      />
-      <ellipse cx="60.5" cy="19.6" rx="13.9" ry="7.8" transform="rotate(-43 60.5 19.6)" fill="#e94f64" />
-      <ellipse cx="68" cy="22" rx="3.6" ry="4.4" fill="#d13a50" />
-
       {/* face in the lower half: small vertical eyes, small ochre nose, NO mouth */}
       <ellipse cx="34" cy="49" rx="2.2" ry="3.4" fill={OUTLINE_PASTEL} stroke="none" />
       <ellipse cx="66" cy="49" rx="2.2" ry="3.4" fill={OUTLINE_PASTEL} stroke="none" />
@@ -55,6 +41,18 @@ export function KittyPortrait() {
       {/* whiskers: three per side, eye level, slightly fanned */}
       <path d="M27 45 L3 40.5 M27 49 L2 49 M27 53 L3 57.5" strokeWidth={2} />
       <path d="M73 45 L97 40.5 M73 49 L98 49 M73 53 L97 57.5" strokeWidth={2} />
+
+      {/* hoodie (owner pick, batch-5 #05): drawn last so the hood wraps
+          OVER the face edges — hood ring around the head (ears tucked
+          under), hoodie body replacing the pinafore read, pull toggle
+          pocket on the chest */}
+      <path
+        d="M4 46 Q4 4 50 2 Q96 4 96 46 Q96 72 50 74 Q4 72 4 46Z M14 46 Q14 14 50 12 Q86 14 86 46 Q86 64 50 66 Q14 64 14 46Z"
+        fill="#e94f64"
+        fillRule="evenodd"
+      />
+      <rect x="22" y="64" width="56" height="40" rx="10" fill="#e94f64" />
+      <rect x="40" y="72" width="20" height="14" rx="3" fill="#d13a50" />
     </svg>
   );
 }

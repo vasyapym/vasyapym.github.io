@@ -992,3 +992,63 @@ beard/stubble read · one-whisker-per-side read · naked/torso-less read.
   rain hood is the owner's stated lean; R017-09 rain hat is its
   sibling), or reject all; the pick is salvaged onto the three real
   surfaces (R018).
+
+## Feedback F017
+- Round: R017 (verdict across the preview series)
+- Verdict: LIKED
+- Scope: the hoodie design (batch 5 #05), all three surfaces
+- Decision: the owner picked the hoodie for salvage implementation. The
+  pick resolves to the batch-5 hoodie (the most recently presented one:
+  hood ring + chest pull toggle), not batch 3's arch variant.
+- User source: "let's do hoodie. salvage pleaase" (2026-09-14)
+- Artifact: R017/sheet.png (05 cell) + R016 sheet (owner's earlier rain
+  hood lean was set aside for the hoodie).
+- Supersedes: none (the rain hood lean was never a formal pick).
+
+## Round R018
+- Goal: salvage the owner-picked hoodie (F017, batch-5 #05) onto the
+  three real surfaces: card mark, character-select portrait, in-game
+  rig — hood ring around the head + pull toggle, per-surface palette.
+- Preserved preferences: F002 (keep the design, outfit-only — the
+  hoodie replaces ONLY the ribbon; face/dress/palette keys untouched),
+  F004 (mass — the ring wraps the whole head), F006 (floating energy —
+  the toggle keeps a damped cloth jiggle), F008 (senior-minimal: ring +
+  toggle, two shapes), F011 (mass at the head zone — the ring IS the
+  head zone).
+- Changes: card mark — the ribbon block replaced by the batch-5 S1
+  geometry verbatim (head dims match ours exactly): evenodd hood ring
+  (#ff8fbf, outer 88..184/22..104, inner 96..176/36..98) + pull toggle
+  circle (136,102 r4 #a33a72); ears tuck under the ring's flanks. 
+  Portrait — hood ring (evenodd, #e94f64, outer 4..96/2..74, inner
+  14..86/12..66 scaled up to our bigger head) + hoodie body
+  (rect 22..78/64..104 r10) + toggle pocket (#d13a50), all drawn LAST
+  (after whiskers); a first pass drew the hoodie at the ribbon's old
+  slot (before the face) and the whiskers rendered OVER the hood —
+  caught in-round, re-ordered, re-rendered. Rig — ribbonTailLong/
+  Short/bowLoop/bowKnot geometries removed; hoodOuterShape() +
+  hoodInnerShape() (hole) build the ring around the head (head-local:
+  outer x +-1.16, crown 1.22, chin -0.84; inner x +-0.95, crown 1.02,
+  chin -0.67 — band ~0.2, hole clears the eye line), painted z 0.30
+  ink / 0.33 fill above the face; the pull toggle
+  (roundedRect 0.18x0.13) hangs on bowRef re-anchored from the ear
+  (0.52,0.66) to the chest (0,-0.55), jiggle damped (bowRot x0.45,
+  scale x0.4 — cloth toggle, not ribbon loops). Souls helm branch
+  untouched; palette keys unchanged (bowRed hood, bowDeep toggle).
+- Before: R010/R011-era ribbon state (card-mark.png from the R018
+  pre-pass shows the ribbon baseline; git history holds every state).
+- After: R018/card-mark.png, R018/portrait.png, R018/menu.png,
+  R018/running.png, R018/running-head.png (static build, chromium 1134,
+  dsf 2-3; same scratch-probe route as every round).
+- Visual inspection: performed — card mark close-up (ring + ear tips
+  poking through the crown band, toggle at the chin), portrait
+  close-up pre- and post-z-order-fix (post: hood wraps over the face
+  edges, whiskers tuck under the band, ears' base halves visible
+  through the opening — declared tradeoff), menu rig + mid-run frame
+  (hood reads as a wrapped ring, ear tips poke at the crown, toggle
+  visible at the chin, no z-order or overflow artifacts).
+- Code verification: `npm --prefix portfolio run typecheck` PASS;
+  kitty-run.check.ts PASS; kitty-run.sim.ts PASS; shell build PASS
+  (23.2s).
+- Open question: LIKED/REJECTED on the salvaged hoodie; the declared
+  tuning knobs are the ring's band thickness, the toggle size and the
+  portrait's visible ear-base read.

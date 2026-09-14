@@ -184,19 +184,15 @@ function KittyCenterMark() {
       {/* negative-space eyes, wide-set on one line */}
       <ellipse cx="118" cy="78" rx="2.8" ry="4.2" fill="#0b1317" />
       <ellipse cx="154" cy="78" rx="2.8" ry="4.2" fill="#0b1317" />
-      {/* asymmetric ribbon — the pink signifier: one loop leaning
-          up-left from the knot, long tail streaming down-right, short
-          tail flicking down-left; back-to-front: tails, loop, knot */}
+      {/* hoodie — the pink signifier (owner pick, batch-5 #05 of R017):
+          a hood ring wrapped around the whole head (ears tucked under),
+          pull toggle at the chin */}
       <path
-        d="M166.5 55.5 Q161.5 59.5 159 64.5 Q164.5 58.5 168 54.8 Z"
-        fill="#a33a72"
-      />
-      <path
-        d="M171 55 Q178.5 59.5 181.5 67.5 Q176.5 59.5 168.5 55.8 Z"
+        d="M88 76 Q88 26 136 22 Q184 26 184 76 Q184 100 136 104 Q88 100 88 76Z M96 76 Q96 40 136 36 Q176 40 176 76 Q176 96 136 98 Q96 96 96 76Z"
         fill="#ff8fbf"
+        fillRule="evenodd"
       />
-      <ellipse cx="158" cy="48.5" rx="9.5" ry="5.5" transform="rotate(-43 158 48.5)" fill="#ff8fbf" />
-      <circle cx="168.5" cy="55.5" r="3.4" fill="#a33a72" />
+      <circle cx="136" cy="102" r="4" fill="#a33a72" />
       {/* single tiny glint */}
       <rect x="122" y="58" width="2.6" height="2.6" fill="#ffffff" opacity="0.55" />
     </svg>
