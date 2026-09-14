@@ -184,22 +184,21 @@ function KittyCenterMark() {
       {/* negative-space eyes, wide-set on one line */}
       <ellipse cx="118" cy="78" rx="2.8" ry="4.2" fill="#0b1317" />
       <ellipse cx="154" cy="78" rx="2.8" ry="4.2" fill="#0b1317" />
-      {/* goggles — the pink signifier: two glass lenses pushed up on the
-          forehead above the eyes, strap running through their backs
-          (visible in the bridge gap, ends dipping toward the head's
-          edge); ink rim + white glint sell the glass */}
+      {/* asymmetric ribbon — the pink signifier: one loop leaning
+          up-left from the knot, long tail streaming down-right, short
+          tail flicking down-left; back-to-front: tails, loop, knot */}
       <path
-        d="M102.4 61.7 Q116 56.5 136 56.5 Q156 56.5 169.6 61.7 L169.6 65.6 Q156 60.9 136 60.9 Q116 60.9 102.4 65.6 Z"
+        d="M166.5 55.5 Q161.5 59.5 159 64.5 Q164.5 58.5 168 54.8 Z"
         fill="#a33a72"
       />
-      <circle cx="120" cy="60.5" r="10" fill="none" stroke="#0b1317" strokeWidth="2" />
-      <circle cx="120" cy="60.5" r="9" fill="#c4d9eb" />
-      <circle cx="120" cy="60.5" r="9" fill="none" stroke="#ff8fbf" strokeWidth="2.4" />
-      <rect x="114.8" y="55.3" width="2.6" height="2.6" fill="#ffffff" opacity="0.55" />
-      <circle cx="152" cy="60.5" r="10" fill="none" stroke="#0b1317" strokeWidth="2" />
-      <circle cx="152" cy="60.5" r="9" fill="#c4d9eb" />
-      <circle cx="152" cy="60.5" r="9" fill="none" stroke="#ff8fbf" strokeWidth="2.4" />
-      <rect x="146.8" y="55.3" width="2.6" height="2.6" fill="#ffffff" opacity="0.55" />
+      <path
+        d="M171 55 Q178.5 59.5 181.5 67.5 Q176.5 59.5 168.5 55.8 Z"
+        fill="#ff8fbf"
+      />
+      <ellipse cx="158" cy="48.5" rx="9.5" ry="5.5" transform="rotate(-43 158 48.5)" fill="#ff8fbf" />
+      <circle cx="168.5" cy="55.5" r="3.4" fill="#a33a72" />
+      {/* single tiny glint */}
+      <rect x="122" y="58" width="2.6" height="2.6" fill="#ffffff" opacity="0.55" />
     </svg>
   );
 }

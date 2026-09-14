@@ -33,23 +33,19 @@ export function KittyPortrait() {
       <path d="M21.5 27.5 L25 14 Q26.5 11 29 13.5 L37.5 20.5" fill="#ffffff" />
       <path d="M78.5 27.5 L75 14 Q73.5 11 71 13.5 L62.5 20.5" fill="#ffffff" />
 
-      {/* goggles pushed up on the forehead: the strap runs through both
-          lenses' backs — visible in the bridge gap and angling down at the
-          outer stubs toward the head's edge; per lens a glass disc under a
-          red frame with an ink rim, plus one white glint */}
+      {/* asymmetric ribbon: one big loop leaning up-left from the knot,
+          long tail streaming down-right along the head's edge, short
+          tail flicking down-left; back-to-front: tails, loop, knot */}
       <path
-        d="M18 31 Q32 26.8 50 26.8 Q68 26.8 82 31 L82 34.4 Q68 30.6 50 30.6 Q32 30.6 18 34.4 Z"
+        d="M66 25.5 Q61 29.5 58.8 35.2 Q61.5 28.5 65.5 24.8 Z"
         fill="#d13a50"
-        stroke="none"
       />
-      <circle cx="38" cy="31" r="9.4" fill="none" strokeWidth="2.4" />
-      <circle cx="38" cy="31" r="8" fill="#c4d9eb" stroke="none" />
-      <circle cx="38" cy="31" r="8" fill="none" stroke="#e94f64" strokeWidth="2.2" />
-      <rect x="32.8" y="25.8" width="2.6" height="2.6" fill="#ffffff" opacity="0.8" stroke="none" />
-      <circle cx="62" cy="31" r="9.4" fill="none" strokeWidth="2.4" />
-      <circle cx="62" cy="31" r="8" fill="#c4d9eb" stroke="none" />
-      <circle cx="62" cy="31" r="8" fill="none" stroke="#e94f64" strokeWidth="2.2" />
-      <rect x="56.8" y="25.8" width="2.6" height="2.6" fill="#ffffff" opacity="0.8" stroke="none" />
+      <path
+        d="M70.5 25 Q77 30 82.5 38.3 Q79 32.5 69.5 26.8 Z"
+        fill="#e94f64"
+      />
+      <ellipse cx="60.5" cy="19.6" rx="13.9" ry="7.8" transform="rotate(-43 60.5 19.6)" fill="#e94f64" />
+      <ellipse cx="68" cy="22" rx="3.6" ry="4.4" fill="#d13a50" />
 
       {/* face in the lower half: small vertical eyes, small ochre nose, NO mouth */}
       <ellipse cx="34" cy="49" rx="2.2" ry="3.4" fill={OUTLINE_PASTEL} stroke="none" />

@@ -3,12 +3,12 @@
 // every frame from the pure rig. React renders the parts once; useFrame
 // writes transforms directly.
 //
-// Two bodies share the one rig. The pastel kitty wears goggles pushed up
-// on the forehead; the
-// ashen knight wears a great helm (visor + ember eyes), pauldrons, a
-// two-layer cape and a greatsword over the shoulder, all built from the
-// same palette keys (bowRed/bowDeep are steel in her palette), so the
-// best-run ghost can still retint her by hex lookup.
+// Two bodies share the one rig. The pastel kitty wears an asymmetric
+// ribbon tied at the right ear; the ashen knight wears a great helm
+// (visor + ember eyes), pauldrons, a two-layer cape and a greatsword
+// over the shoulder, all built from the same palette keys (bowRed/bowDeep
+// are steel in her palette), so the best-run ghost can still retint her
+// by hex lookup.
 
 import { useMemo, useRef } from "react";
 import * as THREE from "three";
@@ -54,31 +54,24 @@ function earShape(): THREE.Shape {
   return shape;
 }
 
-// Goggle strap: a band that runs through the lenses' back at forehead
-// height, arcing gently over the brow and angling down at the ends to
-// read as wrapping around the head. Ends stop just inside the head's
-// silhouette so the face outline stays clean.
-function goggleStrapShape(): THREE.Shape {
+// Ribbon tails: cloth bands flowing from the ear knot. The long tail
+// streams down-right hugging the head's edge; the short tail flicks
+// down-left. Both taper toward rounded tips.
+function ribbonTailLong(): THREE.Shape {
   const shape = new THREE.Shape();
-  shape.moveTo(-0.84, 0.4);
-  shape.quadraticCurveTo(-0.5, 0.545, 0, 0.545);
-  shape.quadraticCurveTo(0.5, 0.545, 0.84, 0.4);
-  shape.lineTo(0.84, 0.29);
-  shape.quadraticCurveTo(0.5, 0.425, 0, 0.425);
-  shape.quadraticCurveTo(-0.5, 0.425, -0.84, 0.29);
+  shape.moveTo(0.1, -0.02);
+  shape.quadraticCurveTo(0.3, -0.26, 0.4, -0.55);
+  shape.quadraticCurveTo(0.24, -0.34, 0.02, -0.18);
   shape.closePath();
   return shape;
 }
 
-// Ring with a hole: the goggle frame and its padded ink copy share one
-// authoring so the rim thickness stays even all the way round (a uniform
-// scale would starve the hole and fatten the ring's short axis).
-function annulusShape(ro: number, ri: number): THREE.Shape {
+function ribbonTailShort(): THREE.Shape {
   const shape = new THREE.Shape();
-  shape.absellipse(0, 0, ro, ro, 0, Math.PI * 2, false, 0);
-  const hole = new THREE.Path();
-  hole.absellipse(0, 0, ri, ri, 0, Math.PI * 2, true, 0);
-  shape.holes.push(hole);
+  shape.moveTo(-0.04, -0.06);
+  shape.quadraticCurveTo(-0.18, -0.2, -0.3, -0.42);
+  shape.quadraticCurveTo(-0.16, -0.18, -0.0, -0.12);
+  shape.closePath();
   return shape;
 }
 
@@ -422,11 +415,10 @@ export function Kitty({
       nose: new THREE.ShapeGeometry(ellipseShape(0.13, 0.1), seg),
       cheek: new THREE.ShapeGeometry(ellipseShape(0.14, 0.09), seg),
       whisker: new THREE.PlaneGeometry(0.36, 0.032),
-      goggleStrap: new THREE.ShapeGeometry(goggleStrapShape(), seg),
-      goggleGlass: new THREE.ShapeGeometry(ellipseShape(0.185, 0.185), seg),
-      goggleInk: new THREE.ShapeGeometry(annulusShape(0.275, 0.185), seg),
-      goggleFrame: new THREE.ShapeGeometry(annulusShape(0.24, 0.185), seg),
-      goggleGlint: new THREE.ShapeGeometry(rectShape(0.07, 0.07), seg),
+      bowLoop: new THREE.ShapeGeometry(ellipseShape(0.37, 0.26), seg),
+      bowKnot: new THREE.ShapeGeometry(ellipseShape(0.15, 0.15), seg),
+      ribbonTailLong: new THREE.ShapeGeometry(ribbonTailLong(), seg),
+      ribbonTailShort: new THREE.ShapeGeometry(ribbonTailShort(), seg),
       dress: new THREE.ShapeGeometry(dressShape(), seg),
       foot: new THREE.ShapeGeometry(ellipseShape(0.11, 0.085), seg),
       arm: new THREE.ShapeGeometry(ellipseShape(0.12, 0.2), seg),
@@ -494,11 +486,11 @@ export function Kitty({
     if (earLRef.current) earLRef.current.rotation.z = -0.35 + pose.earL;
     if (earRRef.current) earRRef.current.rotation.z = 0.35 + pose.earR;
     if (bowRef.current) {
-      // Goggles are rigid on the head: the jiggle is nearly damped — a
-      // whisper of sway so the lenses don't read dead-still, and the
-      // happy squash only puffs them a little.
-      bowRef.current.rotation.z = pose.bowRot * 0.15;
-      bowRef.current.scale.setScalar(1 + (pose.bowScale - 1) * 0.25);
+      // The ribbon is cloth: the FULL bow jiggle returns — the floating
+      // energy this design is known for (F006), restored with the
+      // bow-family accessory at its old anchor.
+      bowRef.current.rotation.z = pose.bowRot;
+      bowRef.current.scale.setScalar(pose.bowScale);
     }
     if (eyeLRef.current) eyeLRef.current.scale.y = pose.eyeScaleY;
     if (eyeRRef.current) eyeRRef.current.scale.y = pose.eyeScaleY;
@@ -991,36 +983,45 @@ export function Kitty({
                 />
               </group>
             ) : (
-              /* goggles pushed up on the forehead: two glass lenses above
-                  the eyes, joined by the strap running behind them — it
-                  shows in the bridge gap between the lenses and angles
-                  down at the outer stubs, terminating just inside the
-                  head's silhouette. Senior-minimal: per lens a glass disc
-                  under an ink-rimmed red frame plus one white glint, one
-                  deep strap. Rigid on the head (nearly damped jiggle, see
-                  useFrame). Lenses at (±0.40, 0.46) head-local, group z
-                  0.30 clears the eyes (0.27). */
-              <group ref={bowRef} position={[0, 0, 0.3]}>
+              /* asymmetric ribbon: the bow's anchor and mass, new
+                  geometry — ONE big loop standing up-left from the knot
+                  (not the symmetric two-loop pair), a long cloth tail
+                  streaming down-right hugging the head's edge and a
+                  short tail flicking down-left. Painted back-to-front:
+                  short tail, long tail, loop, knot. Full jiggle (see
+                  useFrame). Group at the original bow anchor
+                  (0.52, 0.66) head-local, z 0.32. */
+              <group ref={bowRef} position={[0.52, 0.66, 0.32]}>
                 <Part
-                  geometry={geo.goggleStrap}
+                  geometry={geo.ribbonTailShort}
                   color={palette.bowDeep}
-                  z={0}
+                  z={0.002}
+                  outline={1.12}
+                  outlineColor={palette.outlineInk}
                 />
-                {[-1, 1].map((side) => (
-                  <group key={side} position={[side * 0.4, 0.46, 0]}>
-                    <mesh geometry={geo.goggleGlass} position={[0, 0, 0.01]}>
-                      <meshBasicMaterial color={palette.cloud} />
-                    </mesh>
-                    <Part geometry={geo.goggleInk} color={palette.outlineInk} z={0.02} />
-                    <Part geometry={geo.goggleFrame} color={palette.bowRed} z={0.03} />
-                    <mesh
-                      geometry={geo.goggleGlint}
-                      position={[-0.05, 0.05, 0.04]}
-                    >
-                      <meshBasicMaterial color={palette.kittyWhite} />
-                    </mesh>
-                  </group>
-                ))}
+                <Part
+                  geometry={geo.ribbonTailLong}
+                  color={palette.bowRed}
+                  z={0.006}
+                  outline={1.12}
+                  outlineColor={palette.outlineInk}
+                />
+                <Part
+                  geometry={geo.bowLoop}
+                  color={palette.bowRed}
+                  z={0.01}
+                  position={[-0.24, 0.12]}
+                  rotation={-0.75}
+                  outline={1.12}
+                  outlineColor={palette.outlineInk}
+                />
+                <Part
+                  geometry={geo.bowKnot}
+                  color={palette.bowDeep}
+                  z={0.016}
+                  outline={1.18}
+                  outlineColor={palette.outlineInk}
+                />
               </group>
             )}
           </group>

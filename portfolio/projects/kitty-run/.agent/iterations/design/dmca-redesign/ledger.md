@@ -555,3 +555,88 @@ beard/stubble read · one-whisker-per-side read · naked/torso-less read.
 - Open question: LIKED/REJECTED on the forehead goggles; lens size,
   lens height, and strap thickness are the declared tuning knobs if
   the verdict is mixed.
+
+## Feedback F011
+- Round: R009 (verdict on the presented round)
+- Verdict: REJECTED
+- Scope: the forehead goggles, all three surfaces
+- Decision: the goggles' craft is acknowledged ("the implementation is
+  good") but the accessory is rejected — the head reads too bold /
+  missing something without the bow. NEW INSIGHT recorded: the bow's
+  role is visual anchoring at the ear/upper-head zone; it softens the
+  head's read. An accessory on the face plane (below the ear line)
+  leaves that zone empty, so the whole design feels off regardless of
+  the accessory's own quality. The bow remains the owner's benchmark;
+  the next attempts must anchor mass at the bow's ground (the
+  ear/upper-head zone).
+- User source: "The implementation is good, but I don't like it. The
+  bow is still the best option. It visually hooks to the bow, and the
+  bow keeps the cat's head from looking too bold—without the bow, the
+  head looks bold, which it shouldn't. Right now, it either feels like
+  something is missing or looks visually awkward." (2026-09-14)
+- Artifact: R009 after-shots.
+- Supersedes: none (goggles never liked). Refines F004: mass must sit
+  AT the bow's anchor zone (ear/upper head), not merely somewhere on
+  the character.
+
+## Session open (2026-09-14, fifth)
+- Owner asked what else can be tried after F011. Agent reframed the
+  search per F011's insight (anchor mass at the ear) and offered a
+  four-option menu (asymmetric ribbon bow / paper rosette / feather
+  plume / pinwheel); owner picked the ASYMMETRIC RIBBON BOW — the
+  bow's anchor and energy kept, its geometry redrawn away from the
+  symmetric Sanrio pair.
+
+## Round R010
+- Goal: keep the bow's anchor and mass but redraw its geometry so it
+  no longer reads as the symmetric two-loop Sanrio trade dress: ONE
+  big loop standing up-left from the knot + two pointed cloth tails
+  (long streaming down-right hugging the head's edge, short flicking
+  down-left) — a tied ribbon, asymmetric by construction.
+- Preserved preferences: F002 (keep the design, outfit-only), F003
+  (direction liked), F004 as refined by F011 (mass at the bow's
+  anchor zone — the ribbon sits at the original anchor (0.52, 0.66)
+  with comparable spread), F006 (the FULL jiggle restored — cloth
+  energy), F008 (senior-minimal: four shapes), F011 (anchor at the
+  ear/upper-head zone).
+- Changes: all three surfaces first restored to the e21dc33 baseline
+  (the owner-loved state) and then only the bow redrawn. Rig:
+  goggle shapes/geometries removed; ribbonTailLong()/ribbonTailShort()
+  pointed-taper shapes added; bowLoop resized to ellipseShape(0.37,
+  0.26) at group (−0.24, 0.12) rotation −0.75 (standing up-left);
+  knot kept ellipseShape(0.15, 0.15); paint order short tail (bowDeep,
+  z 0.002) → long tail (bowRed, 0.006) → loop (bowRed, 0.01) → knot
+  (bowDeep, 0.016), each ink-outlined as before; the full bowRot/
+  bowScale jiggle restored in useFrame. Portrait: the two loop paths
+  replaced by short tail (#d13a50) + long tail (#e94f64) + one loop
+  ellipse (rx 13.9 ry 7.8, rotate −43°) + the original knot ellipse.
+  Card mark: the two bow ellipses replaced by short tail (#a33a72) +
+  long tail (#ff8fbf) + one loop ellipse (rx 9.5 ry 5.5, rotate
+  −43°) + knot circle r 3.4; the original head glint restored at
+  (122, 58). In-round self-review gate (agent's own inspection, no
+  user verdict): first pass had a flat-leaning loop (−0.55) that read
+  slightly beanie-ish across the crown and a hooked tail tip; reworked
+  in-place to the steeper standing loop (−0.75) and pointed tails
+  (no hook-back) before presentation; the card mark's first ribbon
+  was half the original bow's mass and was enlarged to match.
+- Before: R009 after-shots (the goggles); the mass baseline is the
+  original card bow (e21dc33).
+- After: R010-card-mark-after.png, R010-portrait-after.png,
+  R010-menu-rig-after.png, R010-running-rig-after.png,
+  R010-running-head-zoom.png, R010-running-head-zoom2.png.
+- Visual inspection: performed — Chromium 1134 against a static
+  production build; card-mark close-up, portrait close-up, menu rig
+  full frame, two mid-run head crops (grounded + mid-jump). The
+  ribbon reads as a bow tied at the right ear on all three surfaces:
+  the loop stands up-left with the original's mass, the knot sits at
+  its base, both tails flick clear of the face, both ear tips read,
+  eyes/whiskers/cheeks untouched; the asymmetry (one loop + two
+  tails vs the symmetric pair) is clearly distinct from the Sanrio
+  trade dress. The jiggle animates the ribbon in both crops.
+- Code verification: `npm --prefix portfolio run typecheck` PASS;
+  kitty-run.check.ts PASS; kitty-run.sim.ts PASS; shell build PASS
+  (24.0s). Same render route as previous rounds (scratch probe on
+  built dist).
+- Open question: LIKED/REJECTED on the asymmetric ribbon; loop size,
+  lean, and tail length are the declared tuning knobs if the verdict
+  is mixed.
