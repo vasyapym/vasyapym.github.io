@@ -383,3 +383,32 @@ beard/stubble read · one-whisker-per-side read · naked/torso-less read.
   (31.6s). Same render route (scratch probe on built dist).
 - Open question: LIKED/REJECTED on the minimal cap; brim length/tilt and
   dome size are the declared tuning knobs if the verdict is mixed.
+
+## Feedback F009
+- Round: R007 (verdict on the presented round)
+- Verdict: REJECTED
+- Scope: the cap, all three surfaces
+- Decision: the cap reads as a mess. The accessory redesign starts
+  anew in a new session.
+- User source: "it looks like a mess. we will start in new session
+  anew" (2026-09-14).
+- Artifact: R007 after-shots.
+- Supersedes: none (the cap was never liked; the bow's original state
+  remains in git history as does every round).
+
+## Session close (2026-09-14, second)
+- Owner verdict: the cap rejected ("it looks like a mess"); the
+  accessory redesign restarts in a new session. No revert requested
+  this time — the shipped state keeps the cap (outfit-only, DMCA-
+  distanced from the bow) live on the site; the original bow state and
+  every intermediate round remain reachable in git history
+  (6fa0736 star clip, 211c01b thin band, 0ce62cf wedge, 4b84558 kerchief
+  quadrant, 79bad0f cap).
+- Standing constraints for the next session: owner loves the current
+  design (F002); changes are outfit/accessory-only; the accessory must
+  carry mass (F004), cover the crown without white slivers (F006),
+  keep the floating energy of the original bow (F006), and read
+  senior-developer minimalist (F008). Rejected so far: star ear-clip
+  (bald), thin band (headband), kerchief wedge (emo bangs), full-crown
+  tent (beanie), quadrant kerchief (swoosh/bang residue), cap (mess).
+- No pending handoffs; design-iteration owns the next round.
