@@ -1052,3 +1052,16 @@ beard/stubble read · one-whisker-per-side read · naked/torso-less read.
 - Open question: LIKED/REJECTED on the salvaged hoodie; the declared
   tuning knobs are the ring's band thickness, the toggle size and the
   portrait's visible ear-base read.
+
+## Session note (2026-09-14, thirteenth)
+- Owner verdict on R018: "this looks nothing like my intention" — the
+  face-wrapping hood ring read as a helmet on our head-dominant
+  anatomy. Agent diagnosed the preview-scale trap (the pick was made on
+  a 190px tile of the model's own cat) and offered three paths: (A)
+  hoodie with the hood DOWN (head untouched, outfit on the body,
+  collar behind the neck, ears showing), (B) the never-tried original
+  bow + tails (minimal distance from the loved benchmark), (C) pause.
+- Owner direction: A — "let's do hoodie with ears showing" — delegated
+  to the normal chat model (deepening tier: autonomy on design/code
+  choices, deeper reasoning before output). R018's face-ring state
+  stays live until the next round lands.
