@@ -882,3 +882,38 @@ beard/stubble read · one-whisker-per-side read · naked/torso-less read.
 - Open question: choose or approve one design (1-10) — or reject all;
   the pick is then salvaged onto the three real surfaces (R015) using
   the model's rig defaults as the starting jiggle.
+
+## Session note (2026-09-14, tenth)
+- Owner supplied batch 3 from the routing model: 10 persona outfits
+  (chef, astronaut, scuba, wizard, ninja, racer, pirate, medic,
+  gardener, winter) with a shared unit-space HEAD_D (ears included),
+  ink #43222f, and a deliberate anti-trade-dress move: mouths PRESENT
+  everywhere ("bow + mouthless white cat = Sanrio zone"). S3 blocks are
+  HEAD_D + one outfit path each (much bigger mass than batch 2's
+  dangles). Owner directives: render these, DON'T remove the previous
+  batch (R014 — owner is leaning 05 headset), screenshots first,
+  choose/approve, no polish.
+
+## Round R015
+- Goal: show batch 3 rendered verbatim on all three surfaces next to
+  the still-standing batch 2 (R014), for a choose-or-approve verdict.
+- Preserved preferences: F002 (keep the design, outfit-only), F008
+  (senior-minimal), F015 (delegate -> create on three surfaces).
+- Changes: NO app code changed — preview round. Scratch sheet renders
+  each persona three-up: S1 verbatim, S2 verbatim, S3 = HEAD_D (ink
+  behind w0.16 #43222f + white fill, ears included) + the outfit path
+  inked + filled from the S2 palette, head centre (50,60) scale 24.
+- Before: R014 sheet (batch 2, kept live per owner).
+- After: R015/sheet.png (10x3 grid).
+- Visual inspection: performed, NO POLISHING. Facts flagged: batch 3
+  is persona-themed (occupation costume), a bigger move than single
+  accessories; S3-02 astronaut bubble fills opaque and hides the face
+  (S1/S2 use a translucent glass — at salvage the bubble needs opacity,
+  not a fill); mouths present in the model's art — ours stays mouthless
+  (baseline face untouched; only the outfit ports); 05 racer/06 pirate
+  helmets cover the ears entirely; R014-05 headset stays in play per
+  the owner's lean.
+- Code verification: NOT RUN (no app code touched).
+- Open question: choose or approve a design from EITHER batch (R014
+  1-10 or R015 1-10, incl. R014-05 headset), or reject all; the pick
+  is salvaged onto the three real surfaces (R016).
