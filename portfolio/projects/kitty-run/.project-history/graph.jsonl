@@ -236,3 +236,5 @@
 {"type":"edge.added","id":"e106","ts":"2026-09-13T22:26:55.758Z","from":"n113","to":"n114","rel":"continues"}
 {"type":"node.added","id":"n115","ts":"2026-09-13T22:27:17.266Z","kind":"iteration","actor":"user","title":"docs(kitty-run): ledger D001 + F001 — portrait rework round recorded, awaiting verdict","artifacts":[{"kind":"git-commit","ref":"fbb5a54"}],"meta":{"source":"auto"}}
 {"type":"edge.added","id":"e107","ts":"2026-09-13T22:27:17.278Z","from":"n114","to":"n115","rel":"continues"}
+{"type":"node.added","id":"n116","ts":"2026-09-14T03:49:09.196Z","kind":"iteration","actor":"user","title":"revert(kitty-run): restore the original Hello-Kitty-era character (ac2f6e0 state) — full redesign round parked for a new session","artifacts":[{"kind":"git-commit","ref":"e21dc33"}],"meta":{"source":"auto"}}
+{"type":"edge.added","id":"e108","ts":"2026-09-14T03:49:09.199Z","from":"n115","to":"n116","rel":"continues"}

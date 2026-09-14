@@ -62,3 +62,16 @@ beard/stubble read · one-whisker-per-side read · naked/torso-less read.
   like a medical worker".
 - Artifact: 927d4c0 portrait.
 - Supersedes: none.
+
+## Session close (2026-09-14)
+
+- Owner verdict: park the whole redesign direction; restore the original
+  Hello-Kitty-era character (commit `ac2f6e0` state) — "let's revert to
+  hello kitty version for now. we will do it in a new session."
+- Restored: card mark, portrait, rig, palette from `7b951df^` (= the
+  pre-C001 state). Commit `e21dc33`. Checks green.
+- The DMCA risk therefore RETURNS to the live site until the next session
+  resolves it — owner accepted this trade-off knowingly.
+- All nine redesign attempts remain in history for salvage:
+  Pop Kitty (7b951df) was the closest; dry-ink v1 (30ebe55) its
+  minimalist evolution; the rest rejected outright.

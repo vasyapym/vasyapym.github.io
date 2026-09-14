@@ -449,3 +449,5 @@
 {"type":"edge.added","id":"e213","ts":"2026-09-13T21:33:48.663Z","from":"n233","to":"n234","rel":"continues"}
 {"type":"node.added","id":"n235","ts":"2026-09-13T21:59:14.737Z","kind":"iteration","actor":"user","title":"feat(kitty-run): wanderer — paper shell, sun-gold level gaze, leather travel scarf (SPEC-9K4 palette salvaged onto card family)","artifacts":[{"kind":"git-commit","ref":"6b34cb5"}],"meta":{"source":"auto"}}
 {"type":"edge.added","id":"e214","ts":"2026-09-13T21:59:14.740Z","from":"n234","to":"n235","rel":"continues"}
+{"type":"node.added","id":"n236","ts":"2026-09-14T03:49:09.221Z","kind":"iteration","actor":"user","title":"revert(kitty-run): restore the original Hello-Kitty-era character (ac2f6e0 state) — full redesign round parked for a new session","artifacts":[{"kind":"git-commit","ref":"e21dc33"}],"meta":{"source":"auto"}}
+{"type":"edge.added","id":"e215","ts":"2026-09-14T03:49:09.227Z","from":"n235","to":"n236","rel":"continues"}
