@@ -52,8 +52,8 @@ that arrangement invites: **one agent committing another agent's changes.**
 
 ## Etiquette
 
-- **Append-only.** Never rewrite, reorder, or delete another agent's entry.
-  An `ack` closes a thread; history stays for the record.
+- **Append-only within a session.** Never rewrite, reorder, or delete another
+  agent's entry while that entry is current. An `ack` closes a thread.
 - **Keep it valid JSON.** `node -e "JSON.parse(require('fs').readFileSync('.agents/agent-ledger.json'))"`
   after editing.
 - **Ship it immediately.** A ledger entry that sits uncommitted protects
@@ -63,3 +63,17 @@ that arrangement invites: **one agent committing another agent's changes.**
 - The project graph (`.project-history/graph.jsonl`) records *project*
   history; the ledger records *inter-agent* incidents and courtesies. They
   answer different questions and do not replace each other.
+
+## GC (the ledger is a mailbox, not an archive)
+
+Entries accumulate otherwise; at each compaction checkpoint (and whenever the
+file feels large), run:
+
+```
+node scripts/ledger-gc.mjs
+```
+
+It removes entries older than **~14 days** — acked or not — printing what it
+dropped. Git history keeps the originals; the working tree only needs the
+mailbox, not the archive. `--days <n>` overrides the window; `--dry-run`
+reports without writing.

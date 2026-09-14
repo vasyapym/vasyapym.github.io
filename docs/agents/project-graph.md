@@ -14,17 +14,16 @@ The file is **append-only**. Never rewrite or delete lines; corrections are new 
 
 Recording is **unconditional**: a missing store is never a reason to skip a record. When either iteration skill starts work in a project without `.project-history/graph.jsonl`, it runs `project-graph init` first, then appends as usual.
 
-## Automatic recording
+## Session recording (no per-commit hook)
 
-A `post-commit` hook (`scripts/project-graph/bin/auto-record.mjs`, wired via `git config core.hooksPath .githooks`) appends one minimal `iteration` node per commit automatically — no skill invocation required:
+There is **no auto-record hook**: commits do not append nodes by themselves, and no commit exists purely to carry graph bookkeeping. The recording unit is the **session**, not the commit:
 
-- **Routing** follows the files touched: `portfolio/projects/<id>/…` goes to that project's graph; any other `portfolio/…` goes to the main-page graph at `portfolio/.project-history/`; everything else (skills, docs, scripts) records nowhere.
-- **Minimal by design**: title = commit subject, one `git-commit` artifact, `meta.source=auto`, chained to the current tip with a `continues` edge. That is enough for a future session to run `project-graph log`, see what changed and check out the diff.
-- **Skipped**: merge commits, subjects containing `[skip graph]`, commits whose sha already appears as a `git-commit` artifact (idempotent), and paths inside `.project-history/`.
-- **One-commit lag, handled**: a record is written after its commit exists, so the hook pre-stages the touched stores — they ship with the next commit without anyone remembering.
-- **Fresh clones** need one command to re-arm the hook: `git config core.hooksPath .githooks`.
+- A session that completes a pass (or settles a direction/plan/verdict) appends **one** node before wrapping up, with a `git-range` artifact (`git-range=base..head`) covering all of its commits — not one node per commit.
+- **Routing** follows the work's target area, same rule the hook used to apply: `portfolio/projects/<id>/…` goes to that project's graph; any other `portfolio/…` goes to the main-page graph at `portfolio/.project-history/`; everything else (skills, docs, scripts, repo tooling) records nowhere.
+- Keep it minimal: title states what was settled, one `git-range` (or `git-commit` for single-commit sessions) artifact, `--meta` only for what a future session would otherwise re-derive.
+- `core.hooksPath .githooks` still arms the `commit-msg` hook (commit-message hygiene); that is all it does now.
 
-Skills append richer nodes (quality gates, handoffs, supersessions) on top of this baseline when they run; the hook guarantees history exists even when they don't.
+Skills append richer nodes (quality gates, handoffs, supersessions) on top of this baseline when they run. A session with no settled outcome and no meaningful pass appends nothing — the git log is the record for that.
 
 ## Schema
 
@@ -134,17 +133,26 @@ project-graph add-node --actor design-iteration --kind iteration --title "Mobile
 
 `portfolio/.project-history/graph.jsonl` holds the backfilled main-page redesign history (nine superseded directions + active one). Each portfolio project keeps its **own** graph at `portfolio/projects/<id>/.project-history/graph.jsonl`, so no single file grows unbounded — resolution walks up from cwd, so work inside a project finds the project's graph first and the shell's only from the shell. `project-graph log` reconstructs an evolution chain; `project-graph mermaid` reproduces the decision graph from `docs/portfolio-redesign-handoff.md`.
 
+## Compaction checkpoints
+
+Append-only growth is bounded by periodic **compaction checkpoints** — at most one per month, and only when orientation cost becomes real (STATE.md drifting past one screen, `head` summaries hard to fold). A checkpoint is two actions, not a project:
+
+1. Tag the pre-compaction state: `git tag compaction-YYYYMMDD` (raw history stays fully retrievable — no archive files, no relay briefs).
+2. Rewrite summaries/titles in place (compact the verbose, keep every decision, verdict, open thread, and lesson), then append one `milestone` node per compacted graph naming the tag.
+
+Rules: never delete nodes or edges (0 structural diffs — only summary/title/meta prose shrinks); active sessions' freshly appended nodes are left intact, not compacted. Compaction briefs are NOT written as repo files; the policy lives in this section.
+
 ## What records, where
 
 Recording does not depend on which skill (if any) is invoked. **Any session** — a `/code-iteration` run, another skill, or a plain conversation — that settles something important appends one node to the graph of the area it concerns before wrapping up:
 
 | Settled outcome | Node kind | Typical source |
 | --- | --- | --- |
-| Implementation pass completed | `iteration` | `code-iteration`, post-commit hook |
+| Implementation pass completed | `iteration` | `code-iteration` |
 | Visual review round completed | `iteration` | `design-iteration` |
 | Direction chosen or replaced | `decision` (+ `supersedes` edge) | `design-planning`, `brainstorm`, `prototype`, conversation |
 | Execution plan approved | `milestone` | `planning`, conversation |
-| Commit landed | `iteration` (minimal, auto) | post-commit hook |
+| Session pass wrapped up | `iteration` (minimal, one node, `git-range`) | any session that settled something |
 
 Routing follows the work's target area (same rule as the hook): portfolio project → its own graph; other portfolio work → the main-page graph; repo-level tooling and docs → no graph. Keep nodes minimal — title states what was settled, `--meta` carries only what a future session would otherwise have to re-derive (quality gate results, rejection reasons, verified viewports).
 

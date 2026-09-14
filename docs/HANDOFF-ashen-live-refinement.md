@@ -96,7 +96,8 @@ The owner picked all six slate moves but then ordered A/B/C first, D/F/E
   ops — the local build can't). Other agents share the tree — stage only
   your own paths; untracked BRIEF/HANDOFF-kitty-run-* files at root belong
   to another agent.
-- One commit per pick; commit-msg hook auto-records graph nodes.
+- One commit per pick. There is no auto-record hook: the session records ONE
+  graph node (with a `git-range` artifact) at close.
 - Checks: `cd portfolio/shell && npm run typecheck`; kitty-run gates in
   `tests/` (check/sim).
 - Screenshot probe pattern: boot Vite on a scratch port (see

@@ -10,6 +10,12 @@ export function runAddNode({ flags, storePath }) {
   if (flags.status !== undefined && !NODE_STATUSES.includes(flags.status)) {
     throw new CliError(`--status must be one of ${NODE_STATUSES.join(", ")}`);
   }
+  if (flags.title.length > 120) {
+    throw new CliError(`--title must be ≤ 120 chars (got ${flags.title.length}) — state what was settled, not how`);
+  }
+  if (flags.summary !== undefined && flags.summary.length > 200) {
+    throw new CliError(`--summary must be ≤ 200 chars (got ${flags.summary.length}) — detail belongs in --meta, the design handoff, or a brief`);
+  }
 
   const events = readEvents(storePath);
   const state = fold(events);

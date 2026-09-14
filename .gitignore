@@ -3,3 +3,13 @@ node_modules
 /portfolio/projects/planck-to-now/dist/
 /portfolio/projects/explosion/physics/target/
 /portfolio/projects/raft-cluster/core/target/
+
+# reproducible build outputs
+*.wasm
+
+# local-only scratch (probes, screenshots, relay attachments)
+/portfolio/probes/
+/reference-images/
+/images for bugs/
+.openclaw-attachments/
+.opencode/node_modules/

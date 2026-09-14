@@ -42,11 +42,19 @@ This is a single-context repo: read root `CONTEXT.md` and `docs/adr/` for domain
 
 ### Project graph
 
-Iterations, decisions, plans, and handoffs append to a per-project history log (`.project-history/graph.jsonl`) via `scripts/project-graph`. Any session that settles something important — a direction, a plan, a verdict, a pass — records one node before wrapping up, skill-invoked or not. See `docs/agents/project-graph.md`.
+Iterations, decisions, plans, and handoffs append to a per-project history log (`.project-history/graph.jsonl`) via `scripts/project-graph`. Any session that settles something important — a direction, a plan, a verdict, a pass — records **one** node before wrapping up (never one per commit; a multi-commit pass is one `git-range` artifact). There is no auto-record hook: no commit exists purely to carry graph bookkeeping. Recording is unconditional but bounded: node `summary` ≤ 200 chars at write time — detail belongs in `--meta`, the design handoff, or a brief, not in the log. See `docs/agents/project-graph.md`.
 
 ### Agent ledger
 
-Several agents may work in this repo in parallel and share one working tree. Before every commit, stage only your own files by name; if another agent's changes end up in your commit anyway, append a `sweep-report` entry to `.agents/agent-ledger.json` and push it immediately — that report is how the owner finds out without archaeology. If your work was committed by someone else, read the ledger and `ack` it; never unilaterally revert another agent's commit. Schema and etiquette: `docs/agents/agent-ledger.md`.
+Several agents may work in this repo in parallel and share one working tree. Before every commit, stage only your own files by name; if another agent's changes end up in your commit anyway, append a `sweep-report` entry to `.agents/agent-ledger.json` and push it immediately — that report is how the owner finds out without archaeology. If your work was committed by someone else, read the ledger and `ack` it; never unilaterally revert another agent's commit. Schema and etiquette: `docs/agents/agent-ledger.md`. The ledger is a mailbox, not an archive: entries older than ~14 days (acked or not) are removed by `node scripts/ledger-gc.mjs` at each compaction checkpoint — git history keeps the originals.
+
+### Artifact hygiene
+
+- **Briefs** (`BRIEF-*.md`, relay handoffs): the working tree holds only **open** ones. Once the outcome is recorded (graph node + `docs/briefs/ROUNDS.md` row), delete the file — text stays in git history. New briefs are written to `docs/briefs/`, never to the repo root (the root keeps only the open kitty-run direction round inputs, per `STATE.md`).
+- **Binaries**: build outputs (`*.wasm`, dist trees) are never committed — they are reproducible. Per-round PNG artifacts under `.agent/iterations/` are kept for the **last 2 rounds per project**, older rounds are deleted (git remembers).
+- **Scratch** (probes, screenshots, `reference-images/`, debug scripts): local-only, never staged. One-off probe scripts live in `portfolio/probes/` (gitignored).
+- `node scripts/janitor.mjs` reports violations of the above (orphans, stale probes, oversized `.agent` artifact trees) — run it at session close when unsure.
+- `STATE.md` is a one-screen index (~40 lines max): per-project detail lives in each graph's `head`, not in the central file.
 
 ## Response preferences
 
