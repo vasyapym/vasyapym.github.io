@@ -2,15 +2,15 @@
 // pure modules stay free of three.js. The scene wraps these in THREE.Color.
 
 export const PALETTE = {
-  kittyWhite: "#efe5ce",
-  outlineInk: "#1f2e2d",
-  bowRed: "#d4ad67",
-  bowDeep: "#b08a45",
-  suitPink: "#806650",
-  suitDeep: "#5c4838",
-  noseYellow: "#1f2e2d",
-  cheek: "#d8c9ac",
-  eyeInk: "#d4ad67",
+  kittyWhite: "#ffffff",
+  outlineInk: "#3a3142",
+  bowRed: "#e94f64",
+  bowDeep: "#d13a50",
+  suitPink: "#f6a9c0",
+  suitDeep: "#e88bab",
+  noseYellow: "#ffd44d",
+  cheek: "#ffc9d8",
+  eyeInk: "#3a3142",
 
   skyTop: "#9fd9f6",
   skyMid: "#d8ecf8",

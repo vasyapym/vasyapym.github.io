@@ -53,35 +53,6 @@ function earShape(): THREE.Shape {
   return shape;
 }
 
-function starShape(outerR = 0.2, innerR = 0.09, points = 5): THREE.Shape {
-  const s = new THREE.Shape();
-  for (let i = 0; i < points * 2; i++) {
-    const r = i % 2 === 0 ? outerR : innerR;
-    const angle = (i * Math.PI) / points - Math.PI / 2;
-    const x = Math.cos(angle) * r;
-    const y = Math.sin(angle) * r;
-    if (i === 0) s.moveTo(x, y);
-    else s.lineTo(x, y);
-  }
-  s.closePath();
-  return s;
-}
-
-function mouthWShape(): THREE.Shape {
-  const s = new THREE.Shape();
-  const hw = 0.18;
-  const dip = 0.11;
-  const t = 0.05;
-  s.moveTo(-hw, 0);
-  s.quadraticCurveTo(-hw / 2, -dip, 0, 0);
-  s.quadraticCurveTo(hw / 2, -dip, hw, 0);
-  s.lineTo(hw, t);
-  s.quadraticCurveTo(hw / 2, -dip + t, 0, t);
-  s.quadraticCurveTo(-hw / 2, -dip + t, -hw, t);
-  s.closePath();
-  return s;
-}
-
 function dressShape(): THREE.Shape {
   const shape = new THREE.Shape();
   shape.moveTo(-0.5, 1.06);
@@ -424,8 +395,6 @@ export function Kitty({
       whisker: new THREE.PlaneGeometry(0.36, 0.032),
       bowLoop: new THREE.ShapeGeometry(ellipseShape(0.34, 0.24), seg),
       bowKnot: new THREE.ShapeGeometry(ellipseShape(0.16, 0.16), seg),
-      eyeBar: new THREE.ShapeGeometry(roundedRectShape(0.36, 0.05, 0.025), seg),
-      catchlight: new THREE.ShapeGeometry(ellipseShape(0.035, 0.035), seg),
       dress: new THREE.ShapeGeometry(dressShape(), seg),
       foot: new THREE.ShapeGeometry(ellipseShape(0.11, 0.085), seg),
       arm: new THREE.ShapeGeometry(ellipseShape(0.12, 0.2), seg),
@@ -833,36 +802,25 @@ export function Kitty({
               outlineColor={palette.outlineInk}
             />
 
-            {/* face — pastel only; the visor replaces it in souls mode.
-                Wanderer: narrow level sun-gold eye bars (the calm read),
-                angular ink nose, short neutral mouth, no catchlights —
-                the gaze is flat by design. */}
+            {/* face — pastel only; the visor replaces it in souls mode */}
             {!isSouls && (
               <>
                 <mesh
                   ref={eyeLRef}
-                  geometry={geo.eyeBar}
+                  geometry={geo.eye}
                   position={[-0.4, 0.06, 0.27]}
                 >
                   <meshBasicMaterial color={palette.eyeInk} />
                 </mesh>
                 <mesh
                   ref={eyeRRef}
-                  geometry={geo.eyeBar}
+                  geometry={geo.eye}
                   position={[0.4, 0.06, 0.27]}
                 >
                   <meshBasicMaterial color={palette.eyeInk} />
                 </mesh>
                 <mesh geometry={geo.nose} position={[0, -0.16, 0.27]}>
                   <meshBasicMaterial color={palette.noseYellow} />
-                </mesh>
-                {/* neutral short mouth line */}
-                <mesh
-                  geometry={geo.whisker}
-                  scale={[0.55, 1.4, 1]}
-                  position={[0.06, -0.32, 0.255]}
-                >
-                  <meshBasicMaterial color={palette.outlineInk} />
                 </mesh>
                 <mesh geometry={geo.cheek} position={[-0.68, -0.22, 0.26]}>
                   <meshBasicMaterial color={palette.cheek} />
@@ -997,7 +955,36 @@ export function Kitty({
                   outlineColor={palette.outlineInk}
                 />
               </group>
-            ) : null}
+            ) : (
+              /* bow */
+              <group ref={bowRef} position={[0.52, 0.66, 0.32]}>
+                <Part
+                  geometry={geo.bowLoop}
+                  color={palette.bowRed}
+                  z={0.004}
+                  position={[-0.3, 0]}
+                  rotation={0.45}
+                  outline={1.12}
+                  outlineColor={palette.outlineInk}
+                />
+                <Part
+                  geometry={geo.bowLoop}
+                  color={palette.bowRed}
+                  z={0.004}
+                  position={[0.3, 0]}
+                  rotation={-0.45}
+                  outline={1.12}
+                  outlineColor={palette.outlineInk}
+                />
+                <Part
+                  geometry={geo.bowKnot}
+                  color={palette.bowDeep}
+                  z={0.016}
+                  outline={1.18}
+                  outlineColor={palette.outlineInk}
+                />
+              </group>
+            )}
           </group>
         </group>
       </group>
