@@ -3,8 +3,8 @@
 // every frame from the pure rig. React renders the parts once; useFrame
 // writes transforms directly.
 //
-// Two bodies share the one rig. The pastel kitty wears a star ear-clip;
-// the ashen knight wears a great helm (visor + ember eyes), pauldrons, a
+// Two bodies share the one rig. The pastel kitty wears a cap; the
+// ashen knight wears a great helm (visor + ember eyes), pauldrons, a
 // two-layer cape and a greatsword over the shoulder, all built from the
 // same palette keys (bowRed/bowDeep are steel in her palette), so the
 // best-run ghost can still retint her by hex lookup.
@@ -53,39 +53,25 @@ function earShape(): THREE.Shape {
   return shape;
 }
 
-// Bandana cloth: a kerchief over the crown's top-right quadrant. Upper
-// edge starts at the crown's peak and rides the head's contour right,
-// puffing slightly above it over the flank (no white sliver along its
-// span — the cloth's ink merges with the head's outline); the hem
-// scallops back with two pronounced cloth lobes to a rounded front
-// fold at the crown (a fold, not a taper — no bangs read). Authored in
-// a local frame anchored at (0.45, 0.40) head-local, so the jiggle
-// pivot sits under the cloth's mass.
-function bandanaClothShape(): THREE.Shape {
+// Cap dome: a half-ellipse nestled between the ears, covering the
+// crown's top. Flat base, arched top — the whole cap is this dome plus
+// a brim and a button dot (senior-minimal: three shapes). Authored in a
+// local frame anchored at (0.15, 0.82) head-local.
+function capDomeShape(): THREE.Shape {
   const shape = new THREE.Shape();
-  shape.moveTo(-0.45, 0.42);
-  shape.quadraticCurveTo(-0.15, 0.405, 0.07, 0.31);
-  shape.quadraticCurveTo(0.27, 0.2, 0.41, 0.05);
-  shape.quadraticCurveTo(0.51, -0.1, 0.54, -0.18);
-  shape.quadraticCurveTo(0.4, -0.23, 0.23, 0.0);
-  shape.quadraticCurveTo(-0.05, 0.1, -0.15, 0.2);
-  shape.quadraticCurveTo(-0.36, 0.15, -0.57, 0.31);
-  shape.quadraticCurveTo(-0.54, 0.36, -0.45, 0.42);
+  shape.absellipse(-0.15, -0.1, 0.44, 0.3, Math.PI, 0, true);
   shape.closePath();
   return shape;
 }
 
-// Bandana tail: a fluttering cloth ribbon — curved edges (not straight),
-// base at the local origin (the knot), tip flicking to (tipX, -len).
-function bandanaTailShape(
-  len: number,
-  tipX: number,
-  baseHalf: number,
-): THREE.Shape {
+// Cap brim: a thin curved band tucked under the dome's right base,
+// sweeping out past the head's right edge so the cap floats over the
+// silhouette like the bow did.
+function capBrimShape(): THREE.Shape {
   const shape = new THREE.Shape();
-  shape.moveTo(-baseHalf, 0);
-  shape.quadraticCurveTo(tipX * 0.2, -len * 0.55, tipX, -len);
-  shape.quadraticCurveTo(tipX * 0.05, -len * 0.35, baseHalf, 0);
+  shape.moveTo(0.0, -0.12);
+  shape.quadraticCurveTo(0.45, -0.26, 0.91, -0.32);
+  shape.quadraticCurveTo(0.45, -0.36, 0.0, -0.22);
   shape.closePath();
   return shape;
 }
@@ -430,10 +416,9 @@ export function Kitty({
       nose: new THREE.ShapeGeometry(ellipseShape(0.13, 0.1), seg),
       cheek: new THREE.ShapeGeometry(ellipseShape(0.14, 0.09), seg),
       whisker: new THREE.PlaneGeometry(0.36, 0.032),
-      bandanaCloth: new THREE.ShapeGeometry(bandanaClothShape(), seg),
-      bandanaBackTail: new THREE.ShapeGeometry(bandanaTailShape(0.5, -0.22, 0.06), seg),
-      bandanaFrontTail: new THREE.ShapeGeometry(bandanaTailShape(0.3, 0.16, 0.055), seg),
-      bandanaKnot: new THREE.ShapeGeometry(ellipseShape(0.105, 0.105), seg),
+      capDome: new THREE.ShapeGeometry(capDomeShape(), seg),
+      capBrim: new THREE.ShapeGeometry(capBrimShape(), seg),
+      capButton: new THREE.ShapeGeometry(ellipseShape(0.055, 0.055), seg),
       dress: new THREE.ShapeGeometry(dressShape(), seg),
       foot: new THREE.ShapeGeometry(ellipseShape(0.11, 0.085), seg),
       arm: new THREE.ShapeGeometry(ellipseShape(0.12, 0.2), seg),
@@ -501,8 +486,11 @@ export function Kitty({
     if (earLRef.current) earLRef.current.rotation.z = -0.35 + pose.earL;
     if (earRRef.current) earRRef.current.rotation.z = 0.35 + pose.earR;
     if (bowRef.current) {
-      bowRef.current.rotation.z = pose.bowRot;
-      bowRef.current.scale.setScalar(pose.bowScale);
+      // A cap is stiffer than the bow was: the jiggle is damped so the
+      // cap bobs subtly instead of wagging, and the happy squash only
+      // puffs it a little.
+      bowRef.current.rotation.z = pose.bowRot * 0.45;
+      bowRef.current.scale.setScalar(1 + (pose.bowScale - 1) * 0.4);
     }
     if (eyeLRef.current) eyeLRef.current.scale.y = pose.eyeScaleY;
     if (eyeRRef.current) eyeRRef.current.scale.y = pose.eyeScaleY;
@@ -995,47 +983,31 @@ export function Kitty({
                 />
               </group>
             ) : (
-              /* bandana: kerchief over the crown's top-right quadrant
-                  (upper edge rides the contour from the peak, no white
-                  sliver; hem scallops back to a rounded front fold),
-                  knot half off the head's right edge, curved fluttering
-                  tails (back onto the cheek, front flicked past the
-                  edge). Same bowRef jiggle pose the bow had. Group
-                  anchor (0.45, 0.40) head-local. Local z ladder over the
-                  group's z 0.32: back tail 0.004/0.02, cloth 0.05/0.07,
-                  knot 0.10/0.12, front tail 0.145/0.165. */
-              <group ref={bowRef} position={[0.45, 0.4, 0.32]}>
+              /* cap: half-ellipse dome nestled between the ears (covers
+                  the crown's top), thin darker brim floating past the
+                  head's right edge, button dot on the peak. Senior-
+                  minimal: three shapes. Damped jiggle (see useFrame).
+                  Group anchor (0.15, 0.82) head-local. Local z ladder
+                  over the group's z 0.32: brim ink 0.004 / fill 0.02,
+                  dome ink 0.05 / fill 0.07, button 0.10. */
+              <group ref={bowRef} position={[0.15, 0.82, 0.32]}>
                 <Part
-                  geometry={geo.bandanaBackTail}
+                  geometry={geo.capBrim}
                   color={palette.bowDeep}
                   z={0.02}
-                  position={[0.51, -0.22]}
-                  outline={1.14}
+                  outline={1.15}
                   outlineColor={palette.outlineInk}
                 />
                 <Part
-                  geometry={geo.bandanaCloth}
+                  geometry={geo.capDome}
                   color={palette.bowRed}
                   z={0.07}
                   outline={1.1}
                   outlineColor={palette.outlineInk}
                 />
-                <Part
-                  geometry={geo.bandanaKnot}
-                  color={palette.bowDeep}
-                  z={0.12}
-                  position={[0.51, -0.24]}
-                  outline={1.2}
-                  outlineColor={palette.outlineInk}
-                />
-                <Part
-                  geometry={geo.bandanaFrontTail}
-                  color={palette.bowRed}
-                  z={0.165}
-                  position={[0.52, -0.26]}
-                  outline={1.14}
-                  outlineColor={palette.outlineInk}
-                />
+                <mesh geometry={geo.capButton} position={[-0.15, 0.17, 0.1]}>
+                  <meshBasicMaterial color={palette.bowDeep} />
+                </mesh>
               </group>
             )}
           </group>

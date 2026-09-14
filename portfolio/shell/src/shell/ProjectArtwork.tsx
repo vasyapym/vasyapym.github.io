@@ -184,17 +184,12 @@ function KittyCenterMark() {
       {/* negative-space eyes, wide-set on one line */}
       <ellipse cx="118" cy="78" rx="2.8" ry="4.2" fill="#0b1317" />
       <ellipse cx="154" cy="78" rx="2.8" ry="4.2" fill="#0b1317" />
-      {/* bandana — the single pink signifier: kerchief over the crown's
-          top-right quadrant (upper edge rides the contour from the
-          crown's peak, hem scallops back to a rounded front fold), knot
-          half off the head's right edge, two curved tails */}
-      <path
-        d="M133 45.6 Q147 43.8 156 46.5 Q165 51 170.5 55.5 Q173 59.5 172.5 62 Q163 66.5 150 61 Q132 58.2 116 53.5 Q120 47.5 133 45.6 Z"
-        fill="#ff8fbf"
-      />
-      <path d="M171.5 63.5 Q166.5 70 165 78.5 Q171 71 173.5 65.4 Z" fill="#a33a72" />
-      <path d="M172.8 62.6 Q178.6 64 178.6 71 Q174.6 67.8 172 63.8 Z" fill="#ff8fbf" />
-      <circle cx="174.5" cy="64.5" r="3" fill="#a33a72" />
+      {/* cap — the single pink signifier: half-ellipse dome nestled
+          between the ears (covers the crown's top), thin darker brim
+          floating past the head's right edge, button dot on the peak */}
+      <path d="M124 54 A12 13 0 0 1 148 54 Z" fill="#ff8fbf" />
+      <path d="M146 53.6 Q160 52.6 171 55.6 Q173.4 56.6 172 56.9 Q158.5 55.6 146 55.4 Z" fill="#a33a72" />
+      <circle cx="136" cy="42" r="1.7" fill="#a33a72" />
       {/* single tiny glint */}
       <rect x="122" y="58" width="2.6" height="2.6" fill="#ffffff" opacity="0.55" />
     </svg>

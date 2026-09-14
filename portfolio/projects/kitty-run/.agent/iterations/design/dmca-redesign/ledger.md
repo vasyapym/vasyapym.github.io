@@ -330,3 +330,56 @@ beard/stubble read · one-whisker-per-side read · naked/torso-less read.
 - Open question: LIKED/REJECTED on the quadrant kerchief with the
   floating tie; residual "swoosh" flavour at portrait scale is the
   round's declared tradeoff.
+
+## Feedback F008
+- Round: R006 (verdict on the presented round)
+- Verdict: REJECTED
+- Scope: whole kerchief/bandana approach, all three surfaces
+- Decision: the kerchief is rejected outright. New direction: a cap,
+  in a senior-developer minimalist design language (few clean shapes,
+  no frills — the repo's established minimalism bar).
+- User source: "i don't like it. let's do cap. i want senior developer
+  minimalist design" (2026-09-14).
+- Artifact: R006 after-shots.
+- Supersedes: the kerchief line of development (F005/F006 specs) — the
+  accessory is now a cap.
+
+## Round R007
+- Goal: a minimal two-tone cap that reads instantly as a cap (not a
+  beanie, not hair): a half-ellipse dome nestled between the ears
+  (covering the crown's top), a thin darker brim floating past the
+  head's right edge, and one button dot on the dome's peak. Senior-
+  minimal: three shapes, flat fills, ink outlines, nothing else.
+- Preserved preferences: F002 (keep the design, outfit-only), F003
+  (direction liked), F004 (accessory carries mass — the dome covers the
+  crown's top), F006 (no white sliver; floating feel lives in the
+  brim's overhang), F008 (cap, senior-minimal).
+- Changes: rig — bandana shapes/geometries replaced by capDomeShape()
+  (half-ellipse dome, center (0, 0.72) head-local, rx 0.44, ry 0.30),
+  capBrimShape() (curved band from the dome's right base to a tip at
+  (1.06, 0.50) — ~0.26 past the head's edge), and a button dot (r
+  0.055) on the dome's peak; group anchor (0.15, 0.82). useFrame damps
+  the jiggle for the cap: bowRot × 0.45, bowScale → 1 + (scale−1) ×
+  0.4 (a cap is stiffer than a bow). Portrait and card mark: same
+  three-shape cap in each surface's accent (red/deep on the portrait,
+  pink/deep on the card mark). No rig.ts/palette changes; souls branch
+  untouched.
+- Before: R006 after-shots.
+- After: R007 after-shots.
+- Visual inspection: NOT YET PERFORMED.
+- Code verification: NOT YET RUN.
+- Open question: does the minimal two-tone cap read as a cap (dome +
+  brim + button) with the crown covered and both ear tips flanking it?
+- Visual inspection: performed — Chromium 1134 against a static
+  production build; card-mark close-up, portrait close-up, menu rig
+  close-up, mid-run rig. The three-shape cap (dome + floating brim +
+  button) reads as a cap on all three surfaces; the dome covers the
+  crown's top between the ear tips; the brim overhangs the head's right
+  edge; senior-minimal read (no frills). Face, dress, whiskers,
+  palette, composition untouched; souls branch untouched; the damped
+  jiggle keeps the cap stiffer than the bow was.
+- Code verification: `npm --prefix portfolio run typecheck` PASS;
+  kitty-run.check.ts PASS; kitty-run.sim.ts PASS; shell build PASS
+  (31.6s). Same render route (scratch probe on built dist).
+- Open question: LIKED/REJECTED on the minimal cap; brim length/tilt and
+  dome size are the declared tuning knobs if the verdict is mixed.

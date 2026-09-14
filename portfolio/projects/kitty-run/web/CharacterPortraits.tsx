@@ -33,18 +33,12 @@ export function KittyPortrait() {
       <path d="M21.5 27.5 L25 14 Q26.5 11 29 13.5 L37.5 20.5" fill="#ffffff" />
       <path d="M78.5 27.5 L75 14 Q73.5 11 71 13.5 L62.5 20.5" fill="#ffffff" />
 
-      {/* the bandana: kerchief over the crown's top-right quadrant —
-          upper edge rides the contour from the crown's peak (no white
-          sliver), hem scallops back to a rounded front fold; knot half
-          off the head's right edge, two curved tails (back onto the
-          cheek, front flicked past the edge) */}
-      <path
-        d="M52 17.6 Q63 16.8 72 18.2 Q79 20.5 83.5 26 Q86.5 32 87 40.5 Q76 45.5 62 42 Q44 41 34 36.5 Q38 24 46 18.4 Q49.5 17 52 17.6 Z"
-        fill="#e94f64"
-      />
-      <path d="M85 44.8 Q80 50.5 79.5 58.5 Q84.5 52.5 86.8 46.5 Z" fill="#d13a50" />
-      <path d="M85.5 43.8 Q91 44.6 92.5 50.2 Q88 48.4 86.8 45.6 Z" fill="#e94f64" />
-      <circle cx="88.5" cy="43.5" r="3.2" fill="#d13a50" />
+      {/* the cap: half-ellipse dome nestled between the ears (covers
+          the crown's top), thin darker brim floating past the head's
+          right edge, button dot on the peak */}
+      <path d="M37.5 24 A12.5 12 0 0 1 62.5 24 Z" fill="#e94f64" />
+      <path d="M61 23.6 Q75 22.6 88 25.2 Q89.8 25.9 88.4 27.2 Q75 25.4 61 25.4 Z" fill="#d13a50" />
+      <circle cx="50" cy="13.4" r="1.7" fill="#d13a50" />
 
       {/* face in the lower half: small vertical eyes, small ochre nose, NO mouth */}
       <ellipse cx="34" cy="49" rx="2.2" ry="3.4" fill={OUTLINE_PASTEL} stroke="none" />
