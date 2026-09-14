@@ -676,3 +676,49 @@ beard/stubble read · one-whisker-per-side read · naked/torso-less read.
   read), goggles (bold head), asymmetric ribbon (looks like nothing).
 - No pending handoffs; design-iteration owns the next round when the
   owner resumes.
+
+## Session open (2026-09-14, sixth)
+- Owner resumed with a new approach: instead of one focused round, render a
+  menu of 10 customization variants for the character — each distinct enough
+  to avoid DMCA/IP concerns while staying consistent with the core design —
+  and choose one. Standing constraints from the previous closes remain
+  active (F002 outfit-only; F004 as refined by F011 — mass at the ear/
+  upper-head anchor; F006 floating energy; F008 senior-minimal). The bow
+  remains the benchmark; the menu honours the failure history (no star
+  ear-clip repeat, no bandana/kerchief family, no cap, no headphones, no
+  goggles, no more freeform ribbon geometry).
+
+## Round R011
+- Goal: give the owner a visual menu of 10 DMCA-distinct accessory
+  candidates (owner request: "give me 10 customization variants... I'll
+  choose one"), all anchored at the bow's ground (the right-ear zone),
+  so the pick is made on rendered evidence rather than names.
+- Preserved preferences: F002 (keep the design, outfit-only), F003
+  (direction liked), F004 as refined by F011 (mass at the ear/upper-head
+  anchor), F006 (floating energy), F008 (senior-minimal).
+- Changes: NO app code changed — menu round. A scratch sheet renders the
+  shipped KittyCenterMark SVG ten times (head/ears/whiskers/speed dashes/
+  ground byte-identical to the live card), replacing only the ribbon
+  block with one candidate accessory per variant, in the card surface's
+  pink/deep accents. Candidates: 01 pennant flag on a mast · 02 balloon
+  on a string · 03 five-petal flower · 04 four-point sparkle star (the
+  game's pickup language, enlarged) · 05 clover sprig · 06 heart clip ·
+  07 pinwheel · 08 feather plume (two quills) · 09 paper plane with a
+  dotted trail · 10 crescent-moon pin with a sparkle. In-round self-review
+  gates (agent inspection, no user verdicts): first pass reworked the
+  too-small flag (enlarged + two-tone), an ambiguous cloth tuft (replaced
+  by the balloon), a face-dangling tag charm (replaced by the pinwheel —
+  F011: mass must stay out of the face plane), an abstract origami crane
+  (replaced by the paper plane), and a heart that floated above the
+  crown (re-seated with its tip on the ear base like the bow's knot).
+- Before: R010 after-shots (the live ribbon).
+- After: R011/sheet.png (10-variant grid) + R011/close-01..10.png
+  (per-variant crops at dsf 2).
+- Visual inspection: performed — full grid plus per-variant crops; all
+  ten read as their intended object at card-mark scale; the four weak
+  first-pass reads were caught and reworked in-place before this record.
+- Code verification: NOT RUN (no app code touched; menu round).
+- Open question: which variant does the owner pick? The pick is
+  implemented across all three surfaces (card mark, portrait, in-game
+  rig) as R012; per-surface accent colours follow each surface's
+  convention (pink/deep card mark, red/deep portrait and rig).
