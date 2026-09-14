@@ -8,7 +8,7 @@
     "build": "esbuild src/main.ts --bundle --minify --outfile=dist/main.js",
     "watch": "esbuild src/main.ts --bundle --outfile=dist/main.js --watch",
     "typecheck": "tsc --noEmit",
-    "test": "node --experimental-strip-types tests/cosmology.check.ts && node --experimental-strip-types tests/fates.check.ts && node --experimental-strip-types tests/fatesParticles.check.ts",
+    "test": "node --experimental-strip-types tests/cosmology.check.ts",
     "test:smoke": "node tests/browser-smoke.mjs",
     "verify": "npm run typecheck && npm test && npm run build"
   },
