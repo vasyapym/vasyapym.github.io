@@ -640,3 +640,39 @@ beard/stubble read · one-whisker-per-side read · naked/torso-less read.
 - Open question: LIKED/REJECTED on the asymmetric ribbon; loop size,
   lean, and tail length are the declared tuning knobs if the verdict
   is mixed.
+
+## Feedback F012
+- Round: R010 (verdict on the presented round)
+- Verdict: REJECTED
+- Scope: the asymmetric ribbon bow, all three surfaces
+- Decision: the ribbon "doesn't look like anything" — it fails the
+  read entirely (the weakest verdict of the series). The owner ends
+  the accessory work for now and will resume it later.
+- User source: "this doesnt look like anything.. let's finish. i will
+  do that later" (2026-09-14).
+- Artifact: R010 after-shots.
+- Supersedes: none (the ribbon was never liked).
+
+## Session close (2026-09-14, fourth)
+- Owner verdict: the asymmetric ribbon rejected ("this doesnt look
+  like anything") — the accessory redesign is PAUSED by the owner
+  ("let's finish. i will do that later"), to resume in a later
+  session. No revert requested: the shipped state keeps the ribbon
+  live on the site (outfit-only, DMCA-distanced from the bow); the
+  original bow state and every round stay reachable in git history
+  (6fa0736 star clip, 211c01b thin band, 0ce62cf wedge, 4b84558
+  kerchief quadrant, 79bad0f cap, a354dc2 headphones, 04fe36d
+  goggles, 7e913e1 ribbon).
+- Standing constraints for the resume: owner loves the design (F002);
+  changes are outfit/accessory-only; the accessory must anchor mass
+  at the bow's ground — the ear/upper-head zone (F004 as refined by
+  F011); keep the bow's floating energy (F006); read senior-developer
+  minimalist (F008). The bow remains the owner's benchmark: an
+  evolution OF the bow (same anchor, same softness) is the proven
+  direction; every departure from the bow's silhouette has failed the
+  read so far. Rejected so far: star ear-clip (bald), thin band
+  (headband), kerchief wedge (emo bangs), full-crown tent (beanie),
+  quadrant kerchief (swoosh), cap (mess), headphones (not a headset
+  read), goggles (bold head), asymmetric ribbon (looks like nothing).
+- No pending handoffs; design-iteration owns the next round when the
+  owner resumes.
