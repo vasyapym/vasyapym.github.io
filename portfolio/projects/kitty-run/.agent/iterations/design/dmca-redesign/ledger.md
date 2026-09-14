@@ -766,3 +766,44 @@ beard/stubble read · one-whisker-per-side read · naked/torso-less read.
 - Artifact: none (no render presented).
 - Supersedes: F013's implement-V5 decision (the pick remains the quality
   benchmark; F014's chin observation stays recorded, unresolved).
+
+## Session note (2026-09-14, seventh)
+- The minimized prompt (−30% tier, per the owner's chosen compression)
+  went to the randomized-routing chat model; the reply came back as a
+  ten-piece outfit menu (toggle collar, bib, button, beanie, cowl ring,
+  suspenders, pocket, bucket hat, earmuff band, lone mitten) — flat SVG
+  snippets, no bow, each with a one-line IP rationale. Recorded here as
+  the round's input.
+
+## Round R012
+- Goal: show the owner rendered screenshots of the delegated model's
+  ten outfit pieces BEFORE any implementation (owner directive), raw
+  and composited on the real character.
+- Preserved preferences: F002 (keep the design, outfit-only), F008
+  (senior-minimal), F015 (delegate, then create on all three surfaces).
+- Changes: NO app code changed — preview round. A scratch sheet renders
+  each piece twice: the model's SVG verbatim on a dark tile, and the
+  same paths composited onto the real KittyPortrait (ribbon stripped —
+  the outfit replaces the accessory; pieces keep the model's hexes;
+  per-piece translate/scale places them on the portrait's anatomy:
+  head y18-68, ears y11-35, body y64-100). Placement fixes during
+  in-round self-review (agent inspection, no user verdicts): toggle
+  band off the chin, button and pocket down onto the chest, cowl ring
+  rescaled twice (final: cat-in-a-donut scale, the model's "head pops
+  out" composition fights our all-head anatomy — flagged), mitten cord
+  re-anchored at the right ear (preview-only alignment, the snippet's
+  cord starts off-canvas).
+- Before: R011 close-ups (ribbon menu state).
+- After: R012/sheet.png (10×2 grid: raw + on-the-cat) plus
+  R012/fix-05-cowl.png and R012/fix-07-pocket.png detail crops.
+- Visual inspection: performed — full grid twice plus dsf-3 crops of
+  the two reworked pieces; nine of ten read cleanly; the cowl ring's
+  composition is the declared weak one on our anatomy.
+- Code verification: NOT RUN (no app code touched).
+- Open question: which piece does the owner pick for the full
+  three-surface implementation (R013)? Two integration facts to weigh:
+  (a) pieces are flat fills — implementation adds ink outlines per
+  character law; (b) body pieces (collar/bib/button/suspenders/pocket/
+  mitten/cowl) barely exist on the head-only card mark, while head-wear
+  (beanie, bucket hat, earmuffs) carries all three surfaces. The
+  earmuff band is also the closest to the rejected R008 headphones.
