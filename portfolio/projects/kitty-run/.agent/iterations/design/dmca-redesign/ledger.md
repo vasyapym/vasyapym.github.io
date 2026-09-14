@@ -954,3 +954,41 @@ beard/stubble read · one-whisker-per-side read · naked/torso-less read.
 - Open question: choose or approve a design from ANY batch (R014-05
   headset still on the table, R015 personas, R016 1-10), or reject
   all; the pick is salvaged onto the three real surfaces (R017).
+
+## Session note (2026-09-14, twelfth)
+- Owner: "rain hood looks interesting, maybe i will choose it" (R016-03
+  is now the leading candidate) — and supplied batch 5 from the routing
+  model: shared BASE1/BASE2 declared once + 10 tiny outfit shape lists
+  (beanie, crown, scarf, round glasses, hoodie, sailor collar, flower
+  crown, headphones, rain hat, overalls + star pin). Rect whiskers +
+  yellow oval nose + pointed ears as their trade-dress dodge; palettes
+  are ours. Standing directives: render, don't remove previous batches,
+  no polish.
+
+## Round R017
+- Goal: show batch 5 rendered verbatim on all three surfaces beside the
+  still-standing batches 2-4, for a choose-or-approve verdict.
+- Preserved preferences: F002 (keep the design, outfit-only), F008
+  (senior-minimal), F015 (delegate -> create on three surfaces).
+- Changes: NO app code changed — preview round. Scratch sheet renders
+  each outfit three-up: S1 = BASE1 + shapes, S2 = BASE2 + shapes (both
+  verbatim per the shared bases), S3 = head+ears + pivot@(0.52,0.66)
+  pieces with ink copies (w0.08 local units, #222) behind fills, scale
+  30px/unit (evenodd respected for the hoodie ring).
+- Before: R016 sheet (batch 4, kept live; rain hood = owner's lean).
+- After: R017/sheet.png (10x3 grid).
+- Visual inspection: performed, NO POLISHING. Facts flagged: batch 5's
+  S1/S2 renderings are the cleanest so far (shared bases, rect
+  whiskers, yellow nose kept — deliberately off-Sanrio); BUT batch 5's
+  S3 layer parented ALL head-wear at the ear pivot, so the beanie,
+  hoodie ring, flower crown, rain hat and star pin render as small
+  hooks/blobs at the ear instead of on the head — at salvage the
+  mapping must split (head-wear -> head-local, body-wear -> body,
+  only true dangles at the pivot); 05 hoodie ring reads as a thick
+  donut around the head even in S1; 04 glasses need the fill-opacity
+  trick (used here) or they hide the eyes.
+- Code verification: NOT RUN (no app code touched).
+- Open question: choose or approve a design from ANY batch (R016-03
+  rain hood is the owner's stated lean; R017-09 rain hat is its
+  sibling), or reject all; the pick is salvaged onto the three real
+  surfaces (R018).
