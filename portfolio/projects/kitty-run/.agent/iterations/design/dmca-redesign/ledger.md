@@ -722,3 +722,47 @@ beard/stubble read · one-whisker-per-side read · naked/torso-less read.
   implemented across all three surfaces (card mark, portrait, in-game
   rig) as R012; per-surface accent colours follow each surface's
   convention (pink/deep card mark, red/deep portrait and rig).
+
+## Feedback F013
+- Round: R011 (verdict on the presented menu)
+- Verdict: LIKED
+- Scope: V5 clover sprig, all three surfaces (to be implemented)
+- Decision: the owner picked V5 (clover sprig) from the ten-variant menu
+  for full implementation as the character's accessory.
+- User source: "i choose v5." (2026-09-14)
+- Artifact: R011/sheet.png (V5 cell) + R011/close-05.png.
+- Supersedes: none (the ribbon R010 was never liked; V5 replaces it).
+
+## Feedback F014
+- Round: R011 (issue seen on the presented sheet, independent of the pick)
+- Verdict: REJECTED
+- Scope: the card mark's two-tone head shading (paper head + darker
+  clipped jaw ellipse), card-mark surface
+- Decision: the head reads as a doubled face — a white skull sitting on
+  a tan chin/muzzle. The jaw shading must go so the head reads as one
+  face. Explicit user feedback; supersedes the outfit-only scope for
+  this one shading element.
+- User source: "currently their faces look doubled. like with a chin.
+  you should fix that" (2026-09-14)
+- Artifact: R011 close-ups (the two-tone head visible in every crop).
+- Supersedes: none (new element scope; F002's outfit-only rule narrows
+  to everything except this shading fix).
+
+## Feedback F015
+- Round: R012 (aborted mid-implementation, before presentation)
+- Verdict: REJECTED
+- Scope: the in-session V5 implementation course itself
+- Decision: stop the in-session work — V5 is "good but not good enough".
+  New directive: delegate the outfit design to a stronger model via the
+  minimize-iteration chat flow, then create the result on all three
+  surfaces (main menu card mark, character selection portrait, in-game
+  rig). The working-tree card-mark edits (clover + jaw-ellipse removal)
+  were reverted; the live state stays the R010 ribbon. The V5 pick
+  (F013) is downgraded to "benchmark to beat", not adopted as-is.
+- User source: "stop. lets not do that. it is good but not good enough"
+  + "lets do this - /minimize-iteration. delegate to a smartest model to
+  come with an outfit and create for main menu, character selection and
+  in-game" (2026-09-14)
+- Artifact: none (no render presented).
+- Supersedes: F013's implement-V5 decision (the pick remains the quality
+  benchmark; F014's chin observation stays recorded, unresolved).
