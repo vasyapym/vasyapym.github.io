@@ -1065,3 +1065,20 @@ beard/stubble read · one-whisker-per-side read · naked/torso-less read.
   to the normal chat model (deepening tier: autonomy on design/code
   choices, deeper reasoning before output). R018's face-ring state
   stays live until the next round lands.
+
+## Feedback F018
+- Round: R019 (brief stage, pre-render)
+- Verdict: REJECTED (refinement of the direction, not of the hood-up idea)
+- Scope: the hoodie's hood placement
+- Decision: the owner's actual intent is the hood worn ON the head
+  (up), but WITHOUT blocking the ears and the whiskers — R018's ring
+  failed because it wrapped the whole face (down to the chin) and
+  buried the ears, not because the hood was up. The hood-down
+  "collar behind the neck" plan (previous brief) is superseded: the
+  design is a crown dome with pass-through notches for the ears and a
+  lower edge that stays clear of the eye line and the whiskers.
+- User source: "i want hoodie to be worn on head but without it
+  blocking years and cat's whiskers" (2026-09-14)
+- Artifact: R018 renders.
+- Supersedes: the hood-down clause of the previous session note (the
+  delegation + autonomy + depth directives stay in force).
