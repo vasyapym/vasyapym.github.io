@@ -807,3 +807,40 @@ beard/stubble read · one-whisker-per-side read · naked/torso-less read.
   mitten/cowl) barely exist on the head-only card mark, while head-wear
   (beanie, bucket hat, earmuffs) carries all three surfaces. The
   earmuff band is also the closest to the rejected R008 headphones.
+
+## Session note (2026-09-14, eighth)
+- The three-surface spec prompt (S1 card mark / S2 portrait / S3 rig
+  convention with ink copies) went to the routing chat model; the reply
+  came back as 10 outfit designs, each with three surface-ready
+  renderings (S1 complete card SVG with the model's own cat, S2
+  full-body portrait SVG, S3 head-local d-string paths + the ink-copy
+  convention). Designs: 1 crescent capelet, 2 berry beret pinafore,
+  3 cloud cowl, 4 star tabard, 5 heart-pocket smock, 6 tulip raincoat,
+  7 sun cape, 8 acorn beanie pullover, 9 shell collar vest, 10 comet
+  scarf tunic. Owner directive: render screenshots first, choose or
+  approve, NO polish — salvage after the choice.
+
+## Round R013
+- Goal: show the owner the delegated model's 10 three-surface outfit
+  designs rendered verbatim, for a choose-or-approve verdict before any
+  salvage implementation.
+- Preserved preferences: F002 (keep the design, outfit-only), F008
+  (senior-minimal), F015 (delegate → create on three surfaces).
+- Changes: NO app code changed — preview round. A scratch sheet renders
+  each design three-up: the model's S1 SVG verbatim, its S2 SVG
+  verbatim, and its S3 paths built per the model's own convention
+  (head rx1 ry0.84 + ear triangles, piece parented at (0.52,0.66),
+  ink copy fill+stroke #4a2d3b w0.055 first, listed fill second, y
+  flipped for SVG).
+- Before: R012 sheet (first outfit menu, single-surface preview).
+- After: R013/sheet.png (10×3 grid).
+- Visual inspection: performed, NO POLISHING per owner directive. Facts
+  flagged for the choice: the S1/S2 tiles draw the model's own cat
+  (rounder proportions, mouths, curled tail) — at implementation the
+  outfit lands on OUR artwork, not this cat; S3 pieces are all small
+  (~0.4 unit spread vs the bow's ~0.74) — mass will likely need
+  enlarging during salvage (F004); 2/8 hats and 3/6 cowls overlap the
+  ears; every S3 piece hangs at the ear anchor with the jiggle.
+- Code verification: NOT RUN (no app code touched).
+- Open question: choose or approve one design (1-10) — or reject all;
+  the pick is then salvaged onto the three real surfaces (R014).
