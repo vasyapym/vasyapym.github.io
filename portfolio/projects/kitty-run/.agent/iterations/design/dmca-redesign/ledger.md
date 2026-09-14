@@ -182,3 +182,54 @@ beard/stubble read · one-whisker-per-side read · naked/torso-less read.
   kitty-run.shots.mjs dev-server flow still hangs on this machine).
 - Open question: LIKED/REJECTED on the bandana; and should the card
   mark's tails get more dangle mass if the verdict is mixed?
+
+## Feedback F005
+- Round: R003 (verdict on the presented round)
+- Verdict: REJECTED
+- Scope: bandana geometry/coverage, all three surfaces
+- Decision: the R003 bandana reads as a thin band/headband, not a
+  bandana. Wanted: cloth covering roughly a quarter of the head, mass
+  positioned toward one side (the knot side).
+- User source: "I was aiming for the bandana to cover roughly a quarter
+  of its head, positioned more toward one side. Right now it reads as a
+  thin band/headband rather than a bandana."
+- Artifact: R003 after-shots.
+- Supersedes: none (coverage spec refines the F004 accessory directive).
+
+## Round R004
+- Goal: turn the thin band into a true kerchief — a cloth wedge that
+  covers ~a quarter of the head, biased to the right side, knot at the
+  head's right edge, tails still dangling from the knot on the bow's
+  jiggle pose.
+- Preserved preferences: F002 (keep the design, outfit-only), F003
+  (direction liked), F004 (accessory must carry mass, not bald).
+- Changes: rig — the thin band shape replaced by bandanaClothShape(): a
+  kerchief wedge whose upper edge hugs the head's crown contour (inset
+  ~0.025, so both ear tips keep poking out above it and the shared ink
+  outline stays clean) and whose lower edge sags diagonally from a
+  point on the crown left-of-centre down to the knot at the head's
+  upper-right edge. Knot moved to (0.94, 0.18) on the head's edge;
+  tails re-anchored under it (back tail longer onto the cheek, front
+  tail shorter angled past the head's edge). Cloth/knot/tails stay in
+  the bowRef group (jiggle unchanged). Portrait: thin band path replaced
+  by the same kerchief wedge (crown-hugging upper edge, sagging diagonal
+  lower edge, knot on the contour at the right, two tails). Card mark:
+  same wedge in pink/deep.
+- Before: R003 after-shots.
+- After: R004 after-shots.
+- Visual inspection: NOT YET PERFORMED.
+- Code verification: NOT YET RUN.
+- Open question: does the wedge read as a bandana covering ~quarter of
+  the head (not a headband), with the ear tips still reading?
+- Visual inspection: performed — Chromium 1134 against a static
+  production build; card-mark close-up, portrait close-up, menu rig
+  close-up, mid-run rig. The wedge reads as a tied kerchief covering
+  roughly a quarter of the head, mass biased right; both ear tips poke
+  above its crown-hugging edge; knot sits on the head's right edge with
+  two tails (back onto the cheek, front past the edge). No headband
+  read. Face, dress, whiskers, palette, composition untouched.
+- Code verification: `npm --prefix portfolio run typecheck` PASS;
+  kitty-run.check.ts PASS; kitty-run.sim.ts PASS; shell build PASS
+  (19.1s). Same render route as R002/R003 (scratch probe on built dist).
+- Open question: LIKED/REJECTED on the kerchief wedge; is the coverage
+  and one-sided massing now right?

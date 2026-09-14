@@ -33,13 +33,16 @@ export function KittyPortrait() {
       <path d="M21.5 27.5 L25 14 Q26.5 11 29 13.5 L37.5 20.5" fill="#ffffff" />
       <path d="M78.5 27.5 L75 14 Q73.5 11 71 13.5 L62.5 20.5" fill="#ffffff" />
 
-      {/* the bandana: cloth band across the right ear base, knot at the
-          outer end, two tails hanging (back darker/longer, front
-          lighter/shorter) */}
-      <path d="M60.5 19.5 Q70 22 79 25.5 L78 30.5 Q69.5 27.5 60.5 24 Z" fill="#e94f64" />
-      <polygon points="78.6,29.8 82,30.6 76.8,43" fill="#d13a50" />
-      <polygon points="79.6,27.6 83.4,29.4 81.5,42" fill="#e94f64" />
-      <circle cx="81" cy="28" r="2.7" fill="#d13a50" />
+      {/* the bandana: kerchief wedge over the crown toward the right
+          (upper edge hugs the crown, lower edge sags diagonally to the
+          knot on the head's right edge), two tails hanging from it */}
+      <path
+        d="M39 18.8 Q52 18.2 70 19.6 Q79.5 25 85.5 37.5 Q57 32.5 39 18.8 Z"
+        fill="#e94f64"
+      />
+      <polygon points="84.8,42.6 88,43.6 81.5,56.5" fill="#d13a50" />
+      <polygon points="85.8,41.8 89.2,43.8 87.5,54.8" fill="#e94f64" />
+      <circle cx="87.5" cy="41" r="3" fill="#d13a50" />
 
       {/* face in the lower half: small vertical eyes, small ochre nose, NO mouth */}
       <ellipse cx="34" cy="49" rx="2.2" ry="3.4" fill={OUTLINE_PASTEL} stroke="none" />
