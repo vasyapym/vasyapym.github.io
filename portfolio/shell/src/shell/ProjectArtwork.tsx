@@ -184,17 +184,19 @@ function KittyCenterMark() {
       {/* negative-space eyes, wide-set on one line */}
       <ellipse cx="118" cy="78" rx="2.8" ry="4.2" fill="#0b1317" />
       <ellipse cx="154" cy="78" rx="2.8" ry="4.2" fill="#0b1317" />
-      {/* hoodie — the pink signifier (owner pick, batch-5 #05 of R017):
-          a hood ring wrapped around the whole head (ears tucked under),
-          pull toggle at the chin */}
-      <path
-        d="M88 76 Q88 26 136 22 Q184 26 184 76 Q184 100 136 104 Q88 100 88 76Z M96 76 Q96 40 136 36 Q176 40 176 76 Q176 96 136 98 Q96 96 96 76Z"
-        fill="#ff8fbf"
-        fillRule="evenodd"
-      />
-      <circle cx="136" cy="102" r="4" fill="#a33a72" />
-      {/* single tiny glint */}
-      <rect x="122" y="58" width="2.6" height="2.6" fill="#ffffff" opacity="0.55" />
+      {/* hood dome (owner intent, R019): hood worn ON the head — dome
+          over the crown with the ear tips poking through, lining sliver
+          along the hem, toggles at the hood ends; nothing below the
+          brow line (whiskers/eyes untouched) */}
+      <path d="M100 60 Q93 56 94 50 Q112 38 136 39 Q160 38 178 50 Q179 56 172 60 Q136 68 100 60 Z" fill="#ff8fbf" />
+      <path d="M100 60 Q136 68 172 60 Q136 72.5 100 60 Z" fill="#a33a72" />
+      <ellipse cx="102" cy="63" rx="3.4" ry="2.6" fill="#a33a72" />
+      <ellipse cx="170" cy="63" rx="3.4" ry="2.6" fill="#a33a72" />
+      <polygon points="98,47 94,38 105,44" fill="#f4efe4" />
+      <polygon points="174,47 178,38 167,44" fill="#f4efe4" />
+      {/* single tiny glint — moved onto the dome (122,58 was buried
+          under the hood fill) */}
+      <rect x="128" y="47" width="2.6" height="2.6" fill="#ffffff" opacity="0.55" />
     </svg>
   );
 }

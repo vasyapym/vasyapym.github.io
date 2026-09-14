@@ -42,17 +42,30 @@ export function KittyPortrait() {
       <path d="M27 45 L3 40.5 M27 49 L2 49 M27 53 L3 57.5" strokeWidth={2} />
       <path d="M73 45 L97 40.5 M73 49 L98 49 M73 53 L97 57.5" strokeWidth={2} />
 
-      {/* hoodie (owner pick, batch-5 #05): drawn last so the hood wraps
-          OVER the face edges — hood ring around the head (ears tucked
-          under), hoodie body replacing the pinafore read, pull toggle
-          pocket on the chest */}
+      {/* hood dome (owner intent, R019): hood ON the head — dome with
+          the ear tips poking through, lining sag along the hem, body
+          over the shirt/pinafore, kangaroo pocket, toggle at the collar;
+          drawn last so the hood overlaps the face edges, whiskers stay
+          clear below the hem */}
       <path
-        d="M4 46 Q4 4 50 2 Q96 4 96 46 Q96 72 50 74 Q4 72 4 46Z M14 46 Q14 14 50 12 Q86 14 86 46 Q86 64 50 66 Q14 64 14 46Z"
-        fill="#e94f64"
-        fillRule="evenodd"
+        d="M24 84 C24 70 36 63 50 63 C64 63 76 70 76 84 L78 100 L22 100 Z"
+        fill="#e94f64" stroke="#3a3142" strokeWidth={2.2} strokeLinejoin="round"
       />
-      <rect x="22" y="64" width="56" height="40" rx="10" fill="#e94f64" />
-      <rect x="40" y="72" width="20" height="14" rx="3" fill="#d13a50" />
+      <path d="M33 86 L67 86 L65 96 L35 96 Z" fill="#d13a50" stroke="#3a3142" strokeWidth={2.2} strokeLinejoin="round" />
+      <rect x="47.4" y="70" width="5.2" height="4" rx="1.6" fill="#d13a50" stroke="#3a3142" strokeWidth={2.2} />
+      <path
+        d="M22 32 Q20 26 25 20 Q35 9 50 10 Q65 9 75 20 Q80 26 78 32 Q50 38 22 32 Z"
+        fill="#e94f64" stroke="#3a3142" strokeWidth={2.2} strokeLinejoin="round"
+      />
+      <path d="M22 32 Q50 38 78 32 Q50 41.5 22 32 Z" fill="#d13a50" />
+      <path
+        d="M22.3 20.5 L25 14 Q26.5 11 29 13.5 L33 17"
+        fill="#ffffff" stroke="#3a3142" strokeWidth={3} strokeLinecap="round" strokeLinejoin="round"
+      />
+      <path
+        d="M77.7 20.5 L75 14 Q73.5 11 71 13.5 L67 17"
+        fill="#ffffff" stroke="#3a3142" strokeWidth={3} strokeLinecap="round" strokeLinejoin="round"
+      />
     </svg>
   );
 }

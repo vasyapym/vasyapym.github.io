@@ -1082,3 +1082,54 @@ beard/stubble read · one-whisker-per-side read · naked/torso-less read.
 - Artifact: R018 renders.
 - Supersedes: the hood-down clause of the previous session note (the
   delegation + autonomy + depth directives stay in force).
+
+## Round R019
+- Goal: re-salvage the hoodie per F018 — hood worn ON the head as a
+  crown dome (no face wrap), the animated ear tips poking through edge
+  dips, eye line + whiskers fully clear; three real surfaces.
+- Preserved preferences: F002 (outfit-only, face untouched — NO mouth),
+  F004 (mass at the upper-head zone — the dome IS the crown), F006
+  (floating energy — toggle keeps the damped cloth jiggle), F008
+  (senior-minimal: dome + lining + toggle, three flat shapes), F017
+  (owner picked the hoodie), F018 (hood ON head, ears + whiskers clear).
+- Changes: card mark — the R018 face ring replaced by a hood dome path
+  M100 60 Q93 56 94 50 Q112 38 136 39 Q160 38 178 50 Q179 56 172 60
+  Q136 68 100 60 Z (#ff8fbf) + lining sliver M100 60 Q136 68 172 60
+  Q136 72.5 100 60 Z (#a33a72) + two toggles (102,63)/(170,63) at the
+  dome hem; ear tip polygons RE-LAID to poke above the dome dips
+  ("98,47 94,38 105,44" + mirror); glint moved (122,58) -> (128,47)
+  onto the dome. Portrait — hoodie group drawn LAST (over whiskers):
+  dome + lining mirroring the card's dome, body hoodie + kangaroo
+  pocket + toggle rect 47.4,70 (below the head, chest zone); ear tips
+  re-drawn (w3) over the dome so they poke through. Rig — R018's
+  hoodOuter/hoodInner ring geometries replaced by hoodDomeShape
+  (head-local: peak 1.20, edge dips 0.78 at x +-0.60 so the animated
+  ear tips poke through, sides end (+-0.92, 0.32) above the eye line)
+  + hoodLiningShape sliver; bodyHoodieShape + hoodPocketShape
+  (body-local) added after the dress behind the arms (ink 0.125 /
+  fill 0.14, pocket 0.165 — under the arm ink 0.13 / fill 0.16);
+  souls knight branch untouched. In-round fix: the pull toggle was
+  salvaged at head-local (0,-0.55) which lands on the CHIN and read
+  as a mouth dot (F002 hazard) — moved to the body frame
+  (0, 0.45, 0.175), between the chin ink (~0.62) and the pocket top
+  (0.3), fill 0.175 over the pocket 0.165. Model's static S3 ear
+  re-lay skipped (misaligned with the animated ears); toggle body
+  frame used (the earlier "would hide under head fill" worry was
+  wrong — the head's ink bottom at body ~0.62 never reaches y 0.45).
+- Before: R018 renders (face ring / helmet read).
+- After: R019/card-mark.png, R019/portrait.png, R019/menu.png,
+  R019/running.png, R019/running-head.png (static build, chromium
+  1134, same scratch-probe route as every round).
+- Visual inspection: performed — card-mark close-up and portrait
+  close-up (dome with ear tips poking through, whiskers clear, toggle
+  present) were already inspected in the salvage pass; menu rig +
+  two mid-run frames inspected after the chin-toggle fix: face clean
+  (eyes + nose + whiskers, no chin dot), toggle reads on the red
+  chest strip between chin and pocket, ear tips visible at the dome's
+  top corners, lining sliver along the hem, no z-order artifacts.
+- Code verification: `npm --prefix portfolio run typecheck` PASS;
+  kitty-run.check.ts PASS; kitty-run.sim.ts PASS; shell build PASS
+  (~33s).
+- Open question: LIKED/REJECTED on the crown dome; declared tuning
+  knobs: dip width (~0.4 per ear), dome peak height, toggle size,
+  portrait ear-base read.

@@ -54,30 +54,56 @@ function earShape(): THREE.Shape {
   return shape;
 }
 
-// Hoodie: the hood is a ring wrapped around the whole head (outer blob
-// minus inner blob via a Shape hole), authored head-local (y up). The
-// band clears the eye line (inner hole edge x 0.95, eyes at x 0.4) and
-// tucks the ear tips under its crown band. Toggle rides the jiggle.
-function hoodOuterShape(): THREE.Shape {
+// Hood dome: cloth over the CROWN only — peak tents above the head's
+// crown (1.20), the edge dips at the ear positions (0.78) so the
+// animated ear tips keep poking through, and terminates at the head's
+// upper sides (±0.92, 0.32), above the eye line and every whisker row.
+// Lining sliver sags along the hem.
+function hoodDomeShape(): THREE.Shape {
   const shape = new THREE.Shape();
-  shape.moveTo(-1.16, 0.03);
-  shape.quadraticCurveTo(-1.16, 1.06, 0, 1.22);
-  shape.quadraticCurveTo(1.16, 1.06, 1.16, 0.03);
-  shape.quadraticCurveTo(1.16, -0.7, 0, -0.84);
-  shape.quadraticCurveTo(-1.16, -0.7, -1.16, 0.03);
+  shape.moveTo(-0.92, 0.32);
+  shape.quadraticCurveTo(-0.95, 0.7, -0.84, 0.86);
+  shape.quadraticCurveTo(-0.72, 0.92, -0.6, 0.78);
+  shape.quadraticCurveTo(-0.34, 1.14, 0, 1.2);
+  shape.quadraticCurveTo(0.34, 1.14, 0.6, 0.78);
+  shape.quadraticCurveTo(0.72, 0.92, 0.84, 0.86);
+  shape.quadraticCurveTo(0.95, 0.7, 0.92, 0.32);
+  shape.quadraticCurveTo(0, 0.46, -0.92, 0.32);
   shape.closePath();
   return shape;
 }
 
-function hoodInnerShape(): THREE.Path {
-  const path = new THREE.Path();
-  path.moveTo(-0.95, 0.03);
-  path.quadraticCurveTo(-0.95, 0.86, 0, 1.02);
-  path.quadraticCurveTo(0.95, 0.86, 0.95, 0.03);
-  path.quadraticCurveTo(0.95, -0.56, 0, -0.67);
-  path.quadraticCurveTo(-0.95, -0.56, -0.95, 0.03);
-  path.closePath();
-  return path;
+function hoodLiningShape(): THREE.Shape {
+  const shape = new THREE.Shape();
+  shape.moveTo(-0.92, 0.32);
+  shape.quadraticCurveTo(0, 0.46, 0.92, 0.32);
+  shape.quadraticCurveTo(0, 0.56, -0.92, 0.32);
+  shape.closePath();
+  return shape;
+}
+
+// Body hoodie + kangaroo pocket (body-local, y up; covers the dress's
+// torso, shoulders tucked behind the head, hem straight at 0.06).
+function bodyHoodieShape(): THREE.Shape {
+  const shape = new THREE.Shape();
+  shape.moveTo(-0.66, 0.06);
+  shape.lineTo(0.66, 0.06);
+  shape.quadraticCurveTo(0.72, 0.6, 0.62, 1.02);
+  shape.quadraticCurveTo(0, 1.12, -0.62, 1.02);
+  shape.quadraticCurveTo(-0.72, 0.6, -0.66, 0.06);
+  shape.closePath();
+  return shape;
+}
+
+function hoodPocketShape(): THREE.Shape {
+  const shape = new THREE.Shape();
+  shape.moveTo(-0.34, 0.3);
+  shape.lineTo(0.34, 0.3);
+  shape.quadraticCurveTo(0.3, 0.14, 0.26, 0.12);
+  shape.lineTo(-0.26, 0.12);
+  shape.quadraticCurveTo(-0.3, 0.14, -0.34, 0.3);
+  shape.closePath();
+  return shape;
 }
 
 function dressShape(): THREE.Shape {
@@ -422,11 +448,10 @@ export function Kitty({
       whisker: new THREE.PlaneGeometry(0.36, 0.032),
       bowLoop: new THREE.ShapeGeometry(ellipseShape(0.37, 0.26), seg),
       bowKnot: new THREE.ShapeGeometry(ellipseShape(0.15, 0.15), seg),
-      hood: (() => {
-        const shape = hoodOuterShape();
-        shape.holes.push(hoodInnerShape());
-        return new THREE.ShapeGeometry(shape, seg);
-      })(),
+      hood: new THREE.ShapeGeometry(hoodDomeShape(), seg),
+      hoodLining: new THREE.ShapeGeometry(hoodLiningShape(), seg),
+      bodyHoodie: new THREE.ShapeGeometry(bodyHoodieShape(), seg),
+      hoodPocket: new THREE.ShapeGeometry(hoodPocketShape(), seg),
       hoodTab: new THREE.ShapeGeometry(roundedRectShape(0.18, 0.13, 0.04), seg),
       dress: new THREE.ShapeGeometry(dressShape(), seg),
       foot: new THREE.ShapeGeometry(ellipseShape(0.11, 0.085), seg),
@@ -687,6 +712,38 @@ export function Kitty({
             outline={1.05}
             outlineColor={palette.outlineInk}
           />
+          {/* pastel: hoodie body over the dress with a kangaroo pocket —
+              ink 0.125 sits under the arm ink (0.13), fill 0.14 under the
+              arm fills (0.16) so the arms stay in front of the chest */}
+          {!isSouls && (
+            <>
+              <Part
+                geometry={geo.bodyHoodie}
+                color={palette.bowRed}
+                z={0.14}
+                outline={1.04}
+                outlineColor={palette.outlineInk}
+              />
+              <mesh geometry={geo.hoodPocket} position={[0, 0, 0.165]}>
+                <meshBasicMaterial color={palette.bowDeep} />
+              </mesh>
+              {/* Pull toggle on the red chest strip — body frame, not head
+                  frame: head-local -0.55 landed on the chin and read as a
+                  mouth dot. Strip runs chin ink (body y ~0.62) down to the
+                  pocket top (0.3); tab center 0.45 keeps ~0.09 to the chin
+                  ink and ~0.06 above the pocket. Fill 0.175 clears the
+                  pocket (0.165); ink at 0.145 rides the hoodie fill (0.14). */}
+              <group ref={bowRef} position={[0, 0.45, 0.175]}>
+                <Part
+                  geometry={geo.hoodTab}
+                  color={palette.bowDeep}
+                  z={0}
+                  outline={1.18}
+                  outlineColor={palette.outlineInk}
+                />
+              </group>
+            </>
+          )}
           {/* souls: tunic hem occlusion — a suitDeep band tucked along the
               bottom hem (cloth weight), inside the dress silhouette, clear of
               the belt (y 0.52) and the feet. z 0.14 (dress fill 0.12, gap
@@ -991,12 +1048,12 @@ export function Kitty({
                 />
               </group>
             ) : (
-              /* hoodie (owner pick, batch-5 #05): the hood ring wraps
-                  the whole head (z 0.30 ink / 0.33 fill — above the face
-                  0.27, band covers the head rim and tucks the ear tips
-                  under its crown); the pull toggle hangs on the chest
-                  line via bowRef (re-anchored from the ear to (0, -0.55)),
-                  damped jiggle. */
+              /* hood dome (owner intent): hood ON the head — crown
+                  coverage with the animated ear tips poking through the
+                  edge dips (z 0.30 ink / 0.33 fill above the face),
+                  lining sliver along the hem; the pull toggle lives on
+                  the chest via bowRef in the body frame (see the body
+                  hoodie block), damped jiggle. */
               <>
                 <Part
                   geometry={geo.hood}
@@ -1005,15 +1062,9 @@ export function Kitty({
                   outline={1.045}
                   outlineColor={palette.outlineInk}
                 />
-                <group ref={bowRef} position={[0, -0.55, 0.34]}>
-                  <Part
-                    geometry={geo.hoodTab}
-                    color={palette.bowDeep}
-                    z={0}
-                    outline={1.18}
-                    outlineColor={palette.outlineInk}
-                  />
-                </group>
+                <mesh geometry={geo.hoodLining} position={[0, 0, 0.335]}>
+                  <meshBasicMaterial color={palette.bowDeep} />
+                </mesh>
               </>
             )}
           </group>
