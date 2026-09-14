@@ -33,16 +33,18 @@ export function KittyPortrait() {
       <path d="M21.5 27.5 L25 14 Q26.5 11 29 13.5 L37.5 20.5" fill="#ffffff" />
       <path d="M78.5 27.5 L75 14 Q73.5 11 71 13.5 L62.5 20.5" fill="#ffffff" />
 
-      {/* the bandana: kerchief wedge over the crown toward the right
-          (upper edge hugs the crown, lower edge sags diagonally to the
-          knot on the head's right edge), two tails hanging from it */}
+      {/* the bandana: kerchief over the crown's top-right quadrant —
+          upper edge rides the contour from the crown's peak (no white
+          sliver), hem scallops back to a rounded front fold; knot half
+          off the head's right edge, two curved tails (back onto the
+          cheek, front flicked past the edge) */}
       <path
-        d="M39 18.8 Q52 18.2 70 19.6 Q79.5 25 85.5 37.5 Q57 32.5 39 18.8 Z"
+        d="M52 17.6 Q63 16.8 72 18.2 Q79 20.5 83.5 26 Q86.5 32 87 40.5 Q76 45.5 62 42 Q44 41 34 36.5 Q38 24 46 18.4 Q49.5 17 52 17.6 Z"
         fill="#e94f64"
       />
-      <polygon points="84.8,42.6 88,43.6 81.5,56.5" fill="#d13a50" />
-      <polygon points="85.8,41.8 89.2,43.8 87.5,54.8" fill="#e94f64" />
-      <circle cx="87.5" cy="41" r="3" fill="#d13a50" />
+      <path d="M85 44.8 Q80 50.5 79.5 58.5 Q84.5 52.5 86.8 46.5 Z" fill="#d13a50" />
+      <path d="M85.5 43.8 Q91 44.6 92.5 50.2 Q88 48.4 86.8 45.6 Z" fill="#e94f64" />
+      <circle cx="88.5" cy="43.5" r="3.2" fill="#d13a50" />
 
       {/* face in the lower half: small vertical eyes, small ochre nose, NO mouth */}
       <ellipse cx="34" cy="49" rx="2.2" ry="3.4" fill={OUTLINE_PASTEL} stroke="none" />

@@ -53,34 +53,39 @@ function earShape(): THREE.Shape {
   return shape;
 }
 
-// Bandana cloth: a kerchief wedge draped over the crown toward the right
-// side. Upper edge hugs the head's crown contour (inset ~0.025, so the
-// shared ink outline stays visible and the ear tips keep poking out
-// above it); lower edge sags diagonally from a point on the crown
-// left-of-centre down to the knot end at the head's upper-right edge.
-// Authored in a local frame anchored at the cluster's centre (0.35, 0.35
-// head-local), so the jiggle pivot sits under the cloth's mass.
+// Bandana cloth: a kerchief over the crown's top-right quadrant. Upper
+// edge starts at the crown's peak and rides the head's contour right,
+// puffing slightly above it over the flank (no white sliver along its
+// span — the cloth's ink merges with the head's outline); the hem
+// scallops back with two pronounced cloth lobes to a rounded front
+// fold at the crown (a fold, not a taper — no bangs read). Authored in
+// a local frame anchored at (0.45, 0.40) head-local, so the jiggle
+// pivot sits under the cloth's mass.
 function bandanaClothShape(): THREE.Shape {
   const shape = new THREE.Shape();
-  shape.moveTo(-0.85, 0.35);
-  shape.quadraticCurveTo(-0.4, 0.475, 0.1, 0.35);
-  shape.quadraticCurveTo(0.45, 0.2, 0.62, -0.09);
-  shape.quadraticCurveTo(-0.1, -0.09, -0.85, 0.35);
+  shape.moveTo(-0.45, 0.42);
+  shape.quadraticCurveTo(-0.15, 0.405, 0.07, 0.31);
+  shape.quadraticCurveTo(0.27, 0.2, 0.41, 0.05);
+  shape.quadraticCurveTo(0.51, -0.1, 0.54, -0.18);
+  shape.quadraticCurveTo(0.4, -0.23, 0.23, 0.0);
+  shape.quadraticCurveTo(-0.05, 0.1, -0.15, 0.2);
+  shape.quadraticCurveTo(-0.36, 0.15, -0.57, 0.31);
+  shape.quadraticCurveTo(-0.54, 0.36, -0.45, 0.42);
   shape.closePath();
   return shape;
 }
 
-// Bandana tail: a slim pointed cloth triangle hanging down (-y) from the
-// knot, tip leaning by tipX. Authored with its base at the local origin.
+// Bandana tail: a fluttering cloth ribbon — curved edges (not straight),
+// base at the local origin (the knot), tip flicking to (tipX, -len).
 function bandanaTailShape(
   len: number,
   tipX: number,
   baseHalf: number,
 ): THREE.Shape {
   const shape = new THREE.Shape();
-  shape.moveTo(-baseHalf, 0.02);
-  shape.lineTo(tipX, -len);
-  shape.lineTo(baseHalf, 0.02);
+  shape.moveTo(-baseHalf, 0);
+  shape.quadraticCurveTo(tipX * 0.2, -len * 0.55, tipX, -len);
+  shape.quadraticCurveTo(tipX * 0.05, -len * 0.35, baseHalf, 0);
   shape.closePath();
   return shape;
 }
@@ -426,9 +431,9 @@ export function Kitty({
       cheek: new THREE.ShapeGeometry(ellipseShape(0.14, 0.09), seg),
       whisker: new THREE.PlaneGeometry(0.36, 0.032),
       bandanaCloth: new THREE.ShapeGeometry(bandanaClothShape(), seg),
-      bandanaBackTail: new THREE.ShapeGeometry(bandanaTailShape(0.44, -0.13, 0.055), seg),
-      bandanaFrontTail: new THREE.ShapeGeometry(bandanaTailShape(0.32, 0.09, 0.05), seg),
-      bandanaKnot: new THREE.ShapeGeometry(ellipseShape(0.09, 0.09), seg),
+      bandanaBackTail: new THREE.ShapeGeometry(bandanaTailShape(0.5, -0.22, 0.06), seg),
+      bandanaFrontTail: new THREE.ShapeGeometry(bandanaTailShape(0.3, 0.16, 0.055), seg),
+      bandanaKnot: new THREE.ShapeGeometry(ellipseShape(0.105, 0.105), seg),
       dress: new THREE.ShapeGeometry(dressShape(), seg),
       foot: new THREE.ShapeGeometry(ellipseShape(0.11, 0.085), seg),
       arm: new THREE.ShapeGeometry(ellipseShape(0.12, 0.2), seg),
@@ -990,20 +995,21 @@ export function Kitty({
                 />
               </group>
             ) : (
-              /* bandana: kerchief wedge over the crown toward the right
-                  (~a quarter of the head), knot at the head's upper-right
-                  edge, two tails hanging (back longer onto the cheek,
-                  front shorter past the edge). Same bowRef jiggle pose
-                  the bow had (bowRot/bowScale). Group anchor (0.35, 0.35)
-                  head-local = the shapes' frame origin. Local z ladder
-                  over the group's z 0.32: back tail 0.004/0.02, cloth
-                  0.05/0.07, knot 0.10/0.12, front tail 0.145/0.165. */
-              <group ref={bowRef} position={[0.35, 0.35, 0.32]}>
+              /* bandana: kerchief over the crown's top-right quadrant
+                  (upper edge rides the contour from the peak, no white
+                  sliver; hem scallops back to a rounded front fold),
+                  knot half off the head's right edge, curved fluttering
+                  tails (back onto the cheek, front flicked past the
+                  edge). Same bowRef jiggle pose the bow had. Group
+                  anchor (0.45, 0.40) head-local. Local z ladder over the
+                  group's z 0.32: back tail 0.004/0.02, cloth 0.05/0.07,
+                  knot 0.10/0.12, front tail 0.145/0.165. */
+              <group ref={bowRef} position={[0.45, 0.4, 0.32]}>
                 <Part
                   geometry={geo.bandanaBackTail}
                   color={palette.bowDeep}
                   z={0.02}
-                  position={[0.59, -0.19]}
+                  position={[0.51, -0.22]}
                   outline={1.14}
                   outlineColor={palette.outlineInk}
                 />
@@ -1018,7 +1024,7 @@ export function Kitty({
                   geometry={geo.bandanaKnot}
                   color={palette.bowDeep}
                   z={0.12}
-                  position={[0.59, -0.17]}
+                  position={[0.51, -0.24]}
                   outline={1.2}
                   outlineColor={palette.outlineInk}
                 />
@@ -1026,7 +1032,7 @@ export function Kitty({
                   geometry={geo.bandanaFrontTail}
                   color={palette.bowRed}
                   z={0.165}
-                  position={[0.6, -0.21]}
+                  position={[0.52, -0.26]}
                   outline={1.14}
                   outlineColor={palette.outlineInk}
                 />

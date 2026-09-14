@@ -233,3 +233,100 @@ beard/stubble read · one-whisker-per-side read · naked/torso-less read.
   (19.1s). Same render route as R002/R003 (scratch probe on built dist).
 - Open question: LIKED/REJECTED on the kerchief wedge; is the coverage
   and one-sided massing now right?
+
+## Feedback F006
+- Round: R004 (verdict on the presented round)
+- Verdict: REJECTED
+- Scope: kerchief wedge shape/coverage, all three surfaces
+- Decision: (a) the wedge reads as emo bangs, not a bandana; (b) the top
+  of the head is still visible where it should be covered; (c) wanted:
+  more of the original bow's floating feel, and a cooler/more stylish
+  bandana element.
+- User source: "Right now it reads more like emo bangs than a bandana…
+  The top of the character's head is also visible when [it should be
+  covered]. I want more of an initial bow feel—like it's floating—and
+  the bandana element should look cooler/more stylish."
+- Artifact: R004 after-shots.
+- Supersedes: none (coverage spec of F005 refined: cover the crown
+  fully; add floating/stylish treatment).
+
+## Round R005
+- Goal: kerchief that fully covers the crown (its upper edge becomes the
+  head's top silhouette, tenting slightly above the contour), reads as
+  tied cloth (scalloped hem) rather than hair, with a floating stylish
+  tie at the right edge (knot + curved fluttering tails).
+- Preserved preferences: F002 (keep the design, outfit-only), F003
+  (direction liked), F004 (accessory carries mass), F005 (quarter-head
+  coverage, one-side bias — bias now lives in the deeper right drape,
+  knot and tails).
+- Changes: rig — bandanaClothShape redrawn as a crown-tenting cap: upper
+  edge rides ~0.04-0.06 ABOVE the head contour over the whole crown (no
+  white sliver; the cloth's ink merges with the head's outline), edge
+  crosses both ears' base zones so the tips still poke above; hem is a
+  three-scallop kerchief edge sagging deeper toward the right. Knot
+  (r 0.10) sits on the head's upper-right edge. Tails redrawn as curved
+  fluttering ribbons: back tail long onto the cheek, front tail flicked
+  out past the head's edge. Portrait and card mark: same tenting cap
+  with scalloped hem, knot on the contour, two tails. bowRef jiggle
+  unchanged; no rig.ts/palette changes; souls branch untouched.
+- Before: R004 after-shots.
+- After: R005 after-shots.
+- Visual inspection: NOT YET PERFORMED.
+- Code verification: NOT YET RUN.
+- Open question: does the tenting scalloped cap read as a stylish tied
+  bandana (not bangs), with the crown fully covered and the floating
+  feel present?
+
+## Feedback F007
+- Round: R005 (self-review before presenting; NOT a user verdict)
+- Verdict: REJECTED (by agent inspection, superseded before user review)
+- Scope: kerchief cap coverage span, all three surfaces
+- Decision: the full-crown tent reads as a beanie/hat — a smooth dome —
+  not a tied kerchief; the scallops do not read at any size. R005 is
+  reworked in-place into R006 before presentation; no user verdict was
+  recorded on R005.
+- User source: none (agent's own round-quality gate; ledger records it
+  to keep the round chain honest).
+- Artifact: R005 after-shots (kept for history).
+- Supersedes: none.
+
+## Round R006
+- Goal: kerchief read without the beanie read — cloth covers the
+  crown's top-right quadrant only (from the crown's peak to the head's
+  right edge), riding ON the contour (no white sliver anywhere along
+  its span), with a rounded front fold (kills the bangs taper), two
+  pronounced hem scallops, and a floating tie: knot half off the head's
+  edge plus two curved tails (back onto the cheek, front flicked past
+  the edge).
+- Preserved preferences: F002/F003/F004/F005 (outfit-only; mass; ~
+  quarter coverage; one-side bias; crown covered along the cloth's
+  span; bow's floating energy; stylish).
+- Changes: rig — bandanaClothShape redrawn: upper edge from the crown's
+  peak arcing right along/above the contour, puffing over the right
+  flank; hem = two scallops + rounded lobe back to the peak; group
+  anchor moved to (0.45, 0.40). Knot/tails re-anchored (knot (0.96,
+  0.16), back tail tip (0.74, -0.34), front tail tip (1.12, -0.06)).
+  Portrait and card mark: same right-quadrant kerchief with rounded
+  lobe, two hem scallops, floating knot + tails. Jiggle unchanged; no
+  rig.ts/palette changes; souls branch untouched.
+- Before: R004 after-shots (last presented round).
+- After: R006 after-shots.
+- Visual inspection: NOT YET PERFORMED.
+- Code verification: NOT YET RUN.
+- Open question: does the right-quadrant kerchief read as a stylish tied
+  bandana (crown covered along its span, no beanie, no bangs, floating
+  tie)?
+- Visual inspection: performed — Chromium 1134 against a static
+  production build; card-mark close-up, portrait close-up, menu rig
+  close-up, mid-run rig. The kerchief covers the crown's top-right
+  quadrant riding the contour (no white sliver along its span), rounded
+  front fold at the crown, knot half off the head's right edge with two
+  curved tails (back onto the cheek, front flicked past the edge); no
+  beanie dome, no bangs taper. Face, dress, whiskers, palette,
+  composition untouched; souls branch untouched.
+- Code verification: `npm --prefix portfolio run typecheck` PASS;
+  kitty-run.check.ts PASS; kitty-run.sim.ts PASS; shell build PASS
+  (21.2s). Same render route (scratch probe on built dist).
+- Open question: LIKED/REJECTED on the quadrant kerchief with the
+  floating tie; residual "swoosh" flavour at portrait scale is the
+  round's declared tradeoff.
