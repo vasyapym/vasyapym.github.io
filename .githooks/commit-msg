@@ -1,0 +1,14 @@
+#!/bin/sh
+# Strip Codebuff attribution (footer + trailers) from commit messages.
+msg="$1"
+tmp="$msg.codebuff-clean.$$"
+
+grep -ivE 'generated with codebuff|co-authored-by:.*codebuff|codebuff-team|^[[:space:]]*(and|committed)[[:space:]]*$' "$msg" > "$tmp" || true
+
+# Drop trailing blank lines left behind by the removals.
+awk '
+  /^[[:space:]]*$/ { blanks++; next }
+  { while (blanks > 0) { print ""; blanks-- } print }
+' "$tmp" > "$msg"
+
+rm -f "$tmp"
