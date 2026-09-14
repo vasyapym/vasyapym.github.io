@@ -3,7 +3,8 @@
 // every frame from the pure rig. React renders the parts once; useFrame
 // writes transforms directly.
 //
-// Two bodies share the one rig. The pastel kitty wears headphones; the
+// Two bodies share the one rig. The pastel kitty wears goggles pushed up
+// on the forehead; the
 // ashen knight wears a great helm (visor + ember eyes), pauldrons, a
 // two-layer cape and a greatsword over the shoulder, all built from the
 // same palette keys (bowRed/bowDeep are steel in her palette), so the
@@ -53,18 +54,31 @@ function earShape(): THREE.Shape {
   return shape;
 }
 
-// Headphone band: a thin crescent arcing over the crown between the
-// cups, ends diving into them. Authored around its own centroid so the
-// ink copy (uniform scale) grows evenly.
-function headBandShape(pad = 0): THREE.Shape {
+// Goggle strap: a band that runs through the lenses' back at forehead
+// height, arcing gently over the brow and angling down at the ends to
+// read as wrapping around the head. Ends stop just inside the head's
+// silhouette so the face outline stays clean.
+function goggleStrapShape(): THREE.Shape {
   const shape = new THREE.Shape();
-  shape.moveTo(-0.58, 0.16 - pad);
-  shape.quadraticCurveTo(-0.30, 0.42 + pad, 0, 0.40 + pad);
-  shape.quadraticCurveTo(0.30, 0.42 + pad, 0.58, 0.16 - pad);
-  shape.lineTo(0.56, 0.02 - pad);
-  shape.quadraticCurveTo(0.28, 0.26 - pad * 0.6, 0, 0.26 - pad);
-  shape.quadraticCurveTo(-0.28, 0.26 - pad * 0.6, -0.56, 0.02 - pad);
+  shape.moveTo(-0.84, 0.4);
+  shape.quadraticCurveTo(-0.5, 0.545, 0, 0.545);
+  shape.quadraticCurveTo(0.5, 0.545, 0.84, 0.4);
+  shape.lineTo(0.84, 0.29);
+  shape.quadraticCurveTo(0.5, 0.425, 0, 0.425);
+  shape.quadraticCurveTo(-0.5, 0.425, -0.84, 0.29);
   shape.closePath();
+  return shape;
+}
+
+// Ring with a hole: the goggle frame and its padded ink copy share one
+// authoring so the rim thickness stays even all the way round (a uniform
+// scale would starve the hole and fatten the ring's short axis).
+function annulusShape(ro: number, ri: number): THREE.Shape {
+  const shape = new THREE.Shape();
+  shape.absellipse(0, 0, ro, ro, 0, Math.PI * 2, false, 0);
+  const hole = new THREE.Path();
+  hole.absellipse(0, 0, ri, ri, 0, Math.PI * 2, true, 0);
+  shape.holes.push(hole);
   return shape;
 }
 
@@ -408,9 +422,11 @@ export function Kitty({
       nose: new THREE.ShapeGeometry(ellipseShape(0.13, 0.1), seg),
       cheek: new THREE.ShapeGeometry(ellipseShape(0.14, 0.09), seg),
       whisker: new THREE.PlaneGeometry(0.36, 0.032),
-      headBand: new THREE.ShapeGeometry(headBandShape(0), seg),
-      headBandInk: new THREE.ShapeGeometry(headBandShape(0.04), seg),
-      headPhoneCup: new THREE.ShapeGeometry(ellipseShape(0.26, 0.27), seg),
+      goggleStrap: new THREE.ShapeGeometry(goggleStrapShape(), seg),
+      goggleGlass: new THREE.ShapeGeometry(ellipseShape(0.185, 0.185), seg),
+      goggleInk: new THREE.ShapeGeometry(annulusShape(0.275, 0.185), seg),
+      goggleFrame: new THREE.ShapeGeometry(annulusShape(0.24, 0.185), seg),
+      goggleGlint: new THREE.ShapeGeometry(rectShape(0.07, 0.07), seg),
       dress: new THREE.ShapeGeometry(dressShape(), seg),
       foot: new THREE.ShapeGeometry(ellipseShape(0.11, 0.085), seg),
       arm: new THREE.ShapeGeometry(ellipseShape(0.12, 0.2), seg),
@@ -478,9 +494,9 @@ export function Kitty({
     if (earLRef.current) earLRef.current.rotation.z = -0.35 + pose.earL;
     if (earRRef.current) earRRef.current.rotation.z = 0.35 + pose.earR;
     if (bowRef.current) {
-      // A headset is rigid on the head: the jiggle is nearly damped — a
-      // whisper of sway so the cups don't read dead-still, and the happy
-      // squash only puffs them a little.
+      // Goggles are rigid on the head: the jiggle is nearly damped — a
+      // whisper of sway so the lenses don't read dead-still, and the
+      // happy squash only puffs them a little.
       bowRef.current.rotation.z = pose.bowRot * 0.15;
       bowRef.current.scale.setScalar(1 + (pose.bowScale - 1) * 0.25);
     }
@@ -795,20 +811,6 @@ export function Kitty({
 
           {/* head */}
           <group ref={headRef} position={[0, 1.5, 0]}>
-            {/* headphone band: static, painted behind the head+ears (z
-                0.08 base vs ear ink 0.12) so the ear tips draw over the
-                arc; its underside tucks behind the crown. The cups (in
-                bowRef, z 0.32) clamp the band's ends at the flanks. */}
-            <group position={[0, 0, 0.08]}>
-              <Part
-                geometry={geo.headBand}
-                inkGeometry={geo.headBandInk}
-                color={palette.bowDeep}
-                z={0.02}
-                position={[0, 0.72]}
-                outlineColor={palette.outlineInk}
-              />
-            </group>
             <group ref={earLRef} position={[-0.58, 0.52, 0.15]}>
               <Part
                 geometry={geo.ear}
@@ -989,30 +991,36 @@ export function Kitty({
                 />
               </group>
             ) : (
-              /* headphones: two round cups clamped over the ear bases
-                  (the ear tips still poke above them), joined by the band
-                  arc that rides just over the crown between the tips.
-                  Senior-minimal: three shapes, the band static behind
-                  head+ears so the tips draw over it. Nearly damped jiggle
-                  (see useFrame). Cups at the ear anchors (±0.58, 0.55)
-                  head-local, group z 0.32. */
-              <group ref={bowRef} position={[0, 0, 0.32]}>
+              /* goggles pushed up on the forehead: two glass lenses above
+                  the eyes, joined by the strap running behind them — it
+                  shows in the bridge gap between the lenses and angles
+                  down at the outer stubs, terminating just inside the
+                  head's silhouette. Senior-minimal: per lens a glass disc
+                  under an ink-rimmed red frame plus one white glint, one
+                  deep strap. Rigid on the head (nearly damped jiggle, see
+                  useFrame). Lenses at (±0.40, 0.46) head-local, group z
+                  0.30 clears the eyes (0.27). */
+              <group ref={bowRef} position={[0, 0, 0.3]}>
                 <Part
-                  geometry={geo.headPhoneCup}
-                  color={palette.bowRed}
-                  z={0.02}
-                  position={[-0.58, 0.55]}
-                  outline={1.13}
-                  outlineColor={palette.outlineInk}
+                  geometry={geo.goggleStrap}
+                  color={palette.bowDeep}
+                  z={0}
                 />
-                <Part
-                  geometry={geo.headPhoneCup}
-                  color={palette.bowRed}
-                  z={0.02}
-                  position={[0.58, 0.55]}
-                  outline={1.13}
-                  outlineColor={palette.outlineInk}
-                />
+                {[-1, 1].map((side) => (
+                  <group key={side} position={[side * 0.4, 0.46, 0]}>
+                    <mesh geometry={geo.goggleGlass} position={[0, 0, 0.01]}>
+                      <meshBasicMaterial color={palette.cloud} />
+                    </mesh>
+                    <Part geometry={geo.goggleInk} color={palette.outlineInk} z={0.02} />
+                    <Part geometry={geo.goggleFrame} color={palette.bowRed} z={0.03} />
+                    <mesh
+                      geometry={geo.goggleGlint}
+                      position={[-0.05, 0.05, 0.04]}
+                    >
+                      <meshBasicMaterial color={palette.kittyWhite} />
+                    </mesh>
+                  </group>
+                ))}
               </group>
             )}
           </group>

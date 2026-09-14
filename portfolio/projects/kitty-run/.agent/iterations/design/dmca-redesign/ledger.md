@@ -490,10 +490,68 @@ beard/stubble read · one-whisker-per-side read · naked/torso-less read.
   first settle WHAT silhouette reads "headset" at card-mark scale
   (possibly cups at the head's flanks with a clearly visible over-crown
   band, or a different accessory class entirely) before pixel tuning.
-- Standing constraints: owner loves the design (F002); changes are
-  outfit/accessory-only; the accessory must carry mass (F004), keep the
-  bow's floating energy (F006), and read senior-developer minimalist
   (F008). Rejected so far: star ear-clip (bald), thin band (headband),
   kerchief wedge (emo bangs), full-crown tent (beanie), quadrant
   kerchief (swoosh), cap (mess), headphones (not a headset read).
 - No pending handoffs; design-iteration owns the next round.
+
+## Session open (2026-09-14, fourth)
+- Owner resumed: "continue changing cat runner character. what can we
+  replace the headset with? i want something bold and creative while
+  keeping senior developer quality minimalism." Agent offered a four-
+  option menu grounded in the failure history (gold ear hoop / streaming
+  scarf / forehead goggles / mini backpack); owner picked FOREHEAD
+  GOGGLES — recorded here as the round's directive. Standing constraints
+  remain active (F002/F003/F004/F006/F008).
+
+## Round R009
+- Goal: replace the rejected headphones with forehead goggles (owner
+  pick): two glass lenses pushed up on the forehead above the eyes, the
+  strap running through their backs — a bold eyewear silhouette that
+  avoids the failed cups-on-ear-bases layout entirely. Senior-minimal:
+  per lens a glass disc under an ink-rimmed accent frame plus one white
+  glint, one deep strap behind both lenses.
+- Preserved preferences: F002 (keep the design, outfit-only), F003
+  (direction liked), F004 (accessory carries mass — the lens pair +
+  full-width strap carry comparable mass to the bow), F006 (floating
+  energy — the bowRef jiggle stays, nearly damped for a rigid eyewear),
+  F008 (senior-developer minimalist).
+- Changes: three surfaces get the same goggles. Rig: headBandShape/
+  headBandInk/headPhoneCup geometries and the static band group removed;
+  goggleStrapShape() (band arcing over the brow, ends angling down to
+  x ±0.84, stopping inside the head silhouette), annulusShape() helper,
+  goggleGlass (r 0.185, palette.cloud), goggleInk (annulus 0.275/0.185),
+  goggleFrame (annulus 0.24/0.185, palette.bowRed), goggleGlint
+  (0.07 rect, palette.kittyWhite) added; lenses at (±0.40, 0.46)
+  head-local in bowRef at group z 0.30 (clears eyes 0.27 / whiskers
+  0.27); strap painted first (behind lenses), visible in the bridge
+  gap and at the outer stubs. Jiggle unchanged (bowRot ×0.15, scale
+  ×0.25). Portrait: band path + cup ellipses replaced by a strap path
+  (deep #d13a50) + per lens ink ring r 9.4 (w 2.4) / glass r 8
+  (#c4d9eb) / red frame r 8 (w 2.2, #e94f64) / white glint 2.6² at
+  cx 38/62, cy 31. Card mark: band path + cups + single glint replaced
+  by strap path (#a33a72) + per lens ink ring r 10 (w 2, #0b1317) /
+  glass r 9 (#c4d9eb) / pink frame r 9 (w 2.4, #ff8fbf) / white glint
+  2.6² at cx 120/152, cy 60.5. No rig.ts/palette changes; souls helm
+  branch untouched (the removed static band was invisible behind the
+  helm dome).
+- Before: R008 after-shots (the headphones).
+- After: R009-card-mark-after.png, R009-portrait-after.png,
+  R009-menu-rig-after.png, R009-running-rig-after.png,
+  R009-running-head-zoom.png, R009-running-head-zoom2.png.
+- Visual inspection: performed — Chromium 1134 against a static
+  production build; card-mark close-up, portrait close-up, menu rig
+  full frame, mid-run full frame + two head crops (mid-jump and
+  grounded). The goggles read as pushed-up aviator goggles on all
+  three surfaces: glass + glints sell the lens material, the strap
+  shows in the bridge gap and wraps toward the head edges, both ear
+  tips poke above it, eyes/whiskers/cheeks untouched, no z-order or
+  overflow artifacts observed. Face, dress, palette, composition
+  unchanged; souls branch untouched.
+- Code verification: `npm --prefix portfolio run typecheck` PASS;
+  kitty-run.check.ts PASS; kitty-run.sim.ts PASS; shell build PASS
+  (14.3s). Same render route as previous rounds (scratch probe on
+  built dist).
+- Open question: LIKED/REJECTED on the forehead goggles; lens size,
+  lens height, and strap thickness are the declared tuning knobs if
+  the verdict is mixed.

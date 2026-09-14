@@ -166,10 +166,6 @@ function KittyCenterMark() {
         <polygon points="106,62 94,38 122,54" fill="url(#gem-cat-dense)" />
         <polygon points="166,62 178,38 150,54" fill="url(#gem-cat-dense)" />
       </g>
-      {/* headphones band — the pink line: rises over the crown between
-          the cups, painted before the ears+head so its underside tucks
-          behind the head's silhouette */}
-      <path d="M116 52 Q126 39.5 136 41 Q146 39.5 156 52 L154 47.5 Q145 41.5 136 47 Q127 41.5 118 47.5 Z" fill="#a33a72" />
       {/* ears (bases buried, painted before head) */}
       <polygon points="106,62 94,38 122,54" fill="#f4efe4" />
       <polygon points="166,62 178,38 150,54" fill="#f4efe4" />
@@ -188,12 +184,22 @@ function KittyCenterMark() {
       {/* negative-space eyes, wide-set on one line */}
       <ellipse cx="118" cy="78" rx="2.8" ry="4.2" fill="#0b1317" />
       <ellipse cx="154" cy="78" rx="2.8" ry="4.2" fill="#0b1317" />
-      {/* headphones — the pink signifier: round cups clamped over the
-          ear bases, tips poking above them; they clamp the band's ends */}
-      <ellipse cx="114" cy="59" rx="9" ry="9.5" fill="#ff8fbf" />
-      <ellipse cx="158" cy="59" rx="9" ry="9.5" fill="#ff8fbf" />
-      {/* single tiny glint */}
-      <rect x="110" y="54" width="2.6" height="2.6" fill="#ffffff" opacity="0.55" />
+      {/* goggles — the pink signifier: two glass lenses pushed up on the
+          forehead above the eyes, strap running through their backs
+          (visible in the bridge gap, ends dipping toward the head's
+          edge); ink rim + white glint sell the glass */}
+      <path
+        d="M102.4 61.7 Q116 56.5 136 56.5 Q156 56.5 169.6 61.7 L169.6 65.6 Q156 60.9 136 60.9 Q116 60.9 102.4 65.6 Z"
+        fill="#a33a72"
+      />
+      <circle cx="120" cy="60.5" r="10" fill="none" stroke="#0b1317" strokeWidth="2" />
+      <circle cx="120" cy="60.5" r="9" fill="#c4d9eb" />
+      <circle cx="120" cy="60.5" r="9" fill="none" stroke="#ff8fbf" strokeWidth="2.4" />
+      <rect x="114.8" y="55.3" width="2.6" height="2.6" fill="#ffffff" opacity="0.55" />
+      <circle cx="152" cy="60.5" r="10" fill="none" stroke="#0b1317" strokeWidth="2" />
+      <circle cx="152" cy="60.5" r="9" fill="#c4d9eb" />
+      <circle cx="152" cy="60.5" r="9" fill="none" stroke="#ff8fbf" strokeWidth="2.4" />
+      <rect x="146.8" y="55.3" width="2.6" height="2.6" fill="#ffffff" opacity="0.55" />
     </svg>
   );
 }
