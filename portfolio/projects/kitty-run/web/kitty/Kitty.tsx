@@ -3,7 +3,7 @@
 // every frame from the pure rig. React renders the parts once; useFrame
 // writes transforms directly.
 //
-// Two bodies share the one rig. The pastel kitty wears a cap; the
+// Two bodies share the one rig. The pastel kitty wears headphones; the
 // ashen knight wears a great helm (visor + ember eyes), pauldrons, a
 // two-layer cape and a greatsword over the shoulder, all built from the
 // same palette keys (bowRed/bowDeep are steel in her palette), so the
@@ -53,25 +53,17 @@ function earShape(): THREE.Shape {
   return shape;
 }
 
-// Cap dome: a half-ellipse nestled between the ears, covering the
-// crown's top. Flat base, arched top — the whole cap is this dome plus
-// a brim and a button dot (senior-minimal: three shapes). Authored in a
-// local frame anchored at (0.15, 0.82) head-local.
-function capDomeShape(): THREE.Shape {
+// Headphone band: a thin crescent arcing over the crown between the
+// cups, ends diving into them. Authored around its own centroid so the
+// ink copy (uniform scale) grows evenly.
+function headBandShape(pad = 0): THREE.Shape {
   const shape = new THREE.Shape();
-  shape.absellipse(-0.15, -0.1, 0.44, 0.3, Math.PI, 0, true);
-  shape.closePath();
-  return shape;
-}
-
-// Cap brim: a thin curved band tucked under the dome's right base,
-// sweeping out past the head's right edge so the cap floats over the
-// silhouette like the bow did.
-function capBrimShape(): THREE.Shape {
-  const shape = new THREE.Shape();
-  shape.moveTo(0.0, -0.12);
-  shape.quadraticCurveTo(0.45, -0.26, 0.91, -0.32);
-  shape.quadraticCurveTo(0.45, -0.36, 0.0, -0.22);
+  shape.moveTo(-0.58, 0.16 - pad);
+  shape.quadraticCurveTo(-0.30, 0.42 + pad, 0, 0.40 + pad);
+  shape.quadraticCurveTo(0.30, 0.42 + pad, 0.58, 0.16 - pad);
+  shape.lineTo(0.56, 0.02 - pad);
+  shape.quadraticCurveTo(0.28, 0.26 - pad * 0.6, 0, 0.26 - pad);
+  shape.quadraticCurveTo(-0.28, 0.26 - pad * 0.6, -0.56, 0.02 - pad);
   shape.closePath();
   return shape;
 }
@@ -416,9 +408,9 @@ export function Kitty({
       nose: new THREE.ShapeGeometry(ellipseShape(0.13, 0.1), seg),
       cheek: new THREE.ShapeGeometry(ellipseShape(0.14, 0.09), seg),
       whisker: new THREE.PlaneGeometry(0.36, 0.032),
-      capDome: new THREE.ShapeGeometry(capDomeShape(), seg),
-      capBrim: new THREE.ShapeGeometry(capBrimShape(), seg),
-      capButton: new THREE.ShapeGeometry(ellipseShape(0.055, 0.055), seg),
+      headBand: new THREE.ShapeGeometry(headBandShape(0), seg),
+      headBandInk: new THREE.ShapeGeometry(headBandShape(0.04), seg),
+      headPhoneCup: new THREE.ShapeGeometry(ellipseShape(0.26, 0.27), seg),
       dress: new THREE.ShapeGeometry(dressShape(), seg),
       foot: new THREE.ShapeGeometry(ellipseShape(0.11, 0.085), seg),
       arm: new THREE.ShapeGeometry(ellipseShape(0.12, 0.2), seg),
@@ -486,11 +478,11 @@ export function Kitty({
     if (earLRef.current) earLRef.current.rotation.z = -0.35 + pose.earL;
     if (earRRef.current) earRRef.current.rotation.z = 0.35 + pose.earR;
     if (bowRef.current) {
-      // A cap is stiffer than the bow was: the jiggle is damped so the
-      // cap bobs subtly instead of wagging, and the happy squash only
-      // puffs it a little.
-      bowRef.current.rotation.z = pose.bowRot * 0.45;
-      bowRef.current.scale.setScalar(1 + (pose.bowScale - 1) * 0.4);
+      // A headset is rigid on the head: the jiggle is nearly damped — a
+      // whisper of sway so the cups don't read dead-still, and the happy
+      // squash only puffs them a little.
+      bowRef.current.rotation.z = pose.bowRot * 0.15;
+      bowRef.current.scale.setScalar(1 + (pose.bowScale - 1) * 0.25);
     }
     if (eyeLRef.current) eyeLRef.current.scale.y = pose.eyeScaleY;
     if (eyeRRef.current) eyeRRef.current.scale.y = pose.eyeScaleY;
@@ -803,6 +795,20 @@ export function Kitty({
 
           {/* head */}
           <group ref={headRef} position={[0, 1.5, 0]}>
+            {/* headphone band: static, painted behind the head+ears (z
+                0.08 base vs ear ink 0.12) so the ear tips draw over the
+                arc; its underside tucks behind the crown. The cups (in
+                bowRef, z 0.32) clamp the band's ends at the flanks. */}
+            <group position={[0, 0, 0.08]}>
+              <Part
+                geometry={geo.headBand}
+                inkGeometry={geo.headBandInk}
+                color={palette.bowDeep}
+                z={0.02}
+                position={[0, 0.72]}
+                outlineColor={palette.outlineInk}
+              />
+            </group>
             <group ref={earLRef} position={[-0.58, 0.52, 0.15]}>
               <Part
                 geometry={geo.ear}
@@ -983,31 +989,30 @@ export function Kitty({
                 />
               </group>
             ) : (
-              /* cap: half-ellipse dome nestled between the ears (covers
-                  the crown's top), thin darker brim floating past the
-                  head's right edge, button dot on the peak. Senior-
-                  minimal: three shapes. Damped jiggle (see useFrame).
-                  Group anchor (0.15, 0.82) head-local. Local z ladder
-                  over the group's z 0.32: brim ink 0.004 / fill 0.02,
-                  dome ink 0.05 / fill 0.07, button 0.10. */
-              <group ref={bowRef} position={[0.15, 0.82, 0.32]}>
+              /* headphones: two round cups clamped over the ear bases
+                  (the ear tips still poke above them), joined by the band
+                  arc that rides just over the crown between the tips.
+                  Senior-minimal: three shapes, the band static behind
+                  head+ears so the tips draw over it. Nearly damped jiggle
+                  (see useFrame). Cups at the ear anchors (±0.58, 0.55)
+                  head-local, group z 0.32. */
+              <group ref={bowRef} position={[0, 0, 0.32]}>
                 <Part
-                  geometry={geo.capBrim}
-                  color={palette.bowDeep}
-                  z={0.02}
-                  outline={1.15}
-                  outlineColor={palette.outlineInk}
-                />
-                <Part
-                  geometry={geo.capDome}
+                  geometry={geo.headPhoneCup}
                   color={palette.bowRed}
-                  z={0.07}
-                  outline={1.1}
+                  z={0.02}
+                  position={[-0.58, 0.55]}
+                  outline={1.13}
                   outlineColor={palette.outlineInk}
                 />
-                <mesh geometry={geo.capButton} position={[-0.15, 0.17, 0.1]}>
-                  <meshBasicMaterial color={palette.bowDeep} />
-                </mesh>
+                <Part
+                  geometry={geo.headPhoneCup}
+                  color={palette.bowRed}
+                  z={0.02}
+                  position={[0.58, 0.55]}
+                  outline={1.13}
+                  outlineColor={palette.outlineInk}
+                />
               </group>
             )}
           </group>

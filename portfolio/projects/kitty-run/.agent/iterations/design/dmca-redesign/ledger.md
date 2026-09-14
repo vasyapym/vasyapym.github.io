@@ -412,3 +412,54 @@ beard/stubble read · one-whisker-per-side read · naked/torso-less read.
   (bald), thin band (headband), kerchief wedge (emo bangs), full-crown
   tent (beanie), quadrant kerchief (swoosh/bang residue), cap (mess).
 - No pending handoffs; design-iteration owns the next round.
+
+## Round R008
+- Goal: replace the rejected cap with headphones (owner pick from a four-
+  option menu: headphones / forehead goggles / beret / neck kerchief) —
+  a minimal two-cup headset that reads instantly, carries mass, and
+  distances the mark from the Sanrio trade dress.
+- Preserved preferences: F002 (keep the design, outfit-only), F003
+  (direction liked), F004 (accessory carries mass), F006 (crown covered
+  along the accessory's span; floating energy — reinterpreted: the head
+  band's arc peeks over the crown, ears draw over it), F008 (senior-
+  developer minimalist).
+- Changes: three surfaces get the same three-shape headset. (1) Two
+  round cups clamped OVER the ear bases (ear tips still poke above-
+  outboard of them), accent colour per surface (red #e94f64 rig/portrait,
+  pink #ff8fbf card mark; deep variants #d13a50 / #a33a72 for the band).
+  (2) A thin band arc rising just over the crown between the cups,
+  underside tucked behind the head, painted BEHIND the ears so the ear
+  tips draw over it (rig: static group z 0.08 head-local vs ear ink
+  0.12; portrait/card: path painted before the ears+head). Rig: cap
+  shapes replaced by headBandShape(pad) + headPhoneCup
+  (ellipseShape(0.26, 0.27)) at the ear anchors (±0.58, 0.55); the
+  band's ends dive into the cups' tops. Jiggle nearly damped (bowRot
+  ×0.15, scale ×0.25 — a headset is rigid). No rig.ts/palette changes;
+  souls helm branch untouched. In-round self-review gate (agent's own
+  inspection, no user verdict): first pass had flank cups at (±0.87,
+  0.44) — REJECTED: cups read as low pom-poms crowding the whiskers and
+  the band's ends vanished behind the head before reaching the cups
+  (kept as R008-portrait-interim-flank-cups.png); reworked in-place to
+  the cups-on-ear-bases layout before presentation.
+- Before: R007 after-shots (the cap).
+- After: R008 after-shots (same viewports, same states).
+- Visual inspection: performed — Chromium 1134 against a static
+  production build; card-mark close-up, portrait close-up, menu rig
+  close-up, mid-run head close-up + full frame. The headset reads as
+  headphones on all three surfaces: cups clamp the ear bases, tips poke
+  above, the band bridges the crown between them. Whiskers clear the
+  cups on every surface; face, dress, palette, composition untouched;
+  souls branch untouched.
+- Code verification: `npm --prefix portfolio run typecheck` PASS;
+  kitty-run.check.ts PASS; kitty-run.sim.ts PASS; shell build PASS
+  (~25s). Same render route as previous rounds (scratch probe on built
+  dist; kitty-run.shots.mjs dev-server flow still hangs on this machine).
+- Open question: LIKED/REJECTED on the headphones; cup size and band
+  height are the declared tuning knobs if the verdict is mixed.
+
+## Session open (2026-09-14, third)
+- Owner resumed the accessory redesign per F009's plan; asked what can
+  replace the cap. Agent offered a four-option menu (headphones /
+  forehead goggles / beret / neck kerchief); owner picked HEADPHONES —
+  recorded here as the round's directive. Standing constraints from the
+  previous session close remain active (F002/F003/F004/F006/F008).

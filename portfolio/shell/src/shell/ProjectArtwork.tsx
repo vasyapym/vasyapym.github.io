@@ -166,6 +166,10 @@ function KittyCenterMark() {
         <polygon points="106,62 94,38 122,54" fill="url(#gem-cat-dense)" />
         <polygon points="166,62 178,38 150,54" fill="url(#gem-cat-dense)" />
       </g>
+      {/* headphones band — the pink line: rises over the crown between
+          the cups, painted before the ears+head so its underside tucks
+          behind the head's silhouette */}
+      <path d="M116 52 Q126 39.5 136 41 Q146 39.5 156 52 L154 47.5 Q145 41.5 136 47 Q127 41.5 118 47.5 Z" fill="#a33a72" />
       {/* ears (bases buried, painted before head) */}
       <polygon points="106,62 94,38 122,54" fill="#f4efe4" />
       <polygon points="166,62 178,38 150,54" fill="#f4efe4" />
@@ -184,14 +188,12 @@ function KittyCenterMark() {
       {/* negative-space eyes, wide-set on one line */}
       <ellipse cx="118" cy="78" rx="2.8" ry="4.2" fill="#0b1317" />
       <ellipse cx="154" cy="78" rx="2.8" ry="4.2" fill="#0b1317" />
-      {/* cap — the single pink signifier: half-ellipse dome nestled
-          between the ears (covers the crown's top), thin darker brim
-          floating past the head's right edge, button dot on the peak */}
-      <path d="M124 54 A12 13 0 0 1 148 54 Z" fill="#ff8fbf" />
-      <path d="M146 53.6 Q160 52.6 171 55.6 Q173.4 56.6 172 56.9 Q158.5 55.6 146 55.4 Z" fill="#a33a72" />
-      <circle cx="136" cy="42" r="1.7" fill="#a33a72" />
+      {/* headphones — the pink signifier: round cups clamped over the
+          ear bases, tips poking above them; they clamp the band's ends */}
+      <ellipse cx="114" cy="59" rx="9" ry="9.5" fill="#ff8fbf" />
+      <ellipse cx="158" cy="59" rx="9" ry="9.5" fill="#ff8fbf" />
       {/* single tiny glint */}
-      <rect x="122" y="58" width="2.6" height="2.6" fill="#ffffff" opacity="0.55" />
+      <rect x="110" y="54" width="2.6" height="2.6" fill="#ffffff" opacity="0.55" />
     </svg>
   );
 }

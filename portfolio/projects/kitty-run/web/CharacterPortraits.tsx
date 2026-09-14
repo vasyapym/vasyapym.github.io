@@ -26,6 +26,11 @@ export function KittyPortrait() {
       <ellipse cx="23" cy="78" rx="9" ry="4.8" transform="rotate(38 23 78)" fill="#ffffff" />
       <ellipse cx="77" cy="78" rx="9" ry="4.8" transform="rotate(-38 77 78)" fill="#ffffff" />
 
+      {/* headphones: the band arc rises over the crown between the ear
+          tips; painted BEFORE the ears+head so its underside tucks
+          behind the head and the ears draw over it */}
+      <path d="M28 22 Q38 11 50 12.5 Q62 11 72 22 L70.5 18 Q60 15.5 50 18 Q40 15.5 29.5 18 Z" fill="#d13a50" />
+
       {/* head 75×50 (1.5:1), fullest at the cheeks, flat crown, soft flat chin */}
       <path d="M12.5 46 C12.5 30 26 18 50 18 C74 18 87.5 30 87.5 46 C87.5 60 70 68 50 68 C30 68 12.5 60 12.5 46 Z" fill="#ffffff" />
 
@@ -33,12 +38,10 @@ export function KittyPortrait() {
       <path d="M21.5 27.5 L25 14 Q26.5 11 29 13.5 L37.5 20.5" fill="#ffffff" />
       <path d="M78.5 27.5 L75 14 Q73.5 11 71 13.5 L62.5 20.5" fill="#ffffff" />
 
-      {/* the cap: half-ellipse dome nestled between the ears (covers
-          the crown's top), thin darker brim floating past the head's
-          right edge, button dot on the peak */}
-      <path d="M37.5 24 A12.5 12 0 0 1 62.5 24 Z" fill="#e94f64" />
-      <path d="M61 23.6 Q75 22.6 88 25.2 Q89.8 25.9 88.4 27.2 Q75 25.4 61 25.4 Z" fill="#d13a50" />
-      <circle cx="50" cy="13.4" r="1.7" fill="#d13a50" />
+      {/* headphones: round cups clamped over the ear bases, ear tips
+          poking above them; they clamp the band's ends */}
+      <ellipse cx="27" cy="25" rx="6.8" ry="7" fill="#e94f64" />
+      <ellipse cx="73" cy="25" rx="6.8" ry="7" fill="#e94f64" />
 
       {/* face in the lower half: small vertical eyes, small ochre nose, NO mouth */}
       <ellipse cx="34" cy="49" rx="2.2" ry="3.4" fill={OUTLINE_PASTEL} stroke="none" />
