@@ -463,3 +463,37 @@ beard/stubble read · one-whisker-per-side read · naked/torso-less read.
   forehead goggles / beret / neck kerchief); owner picked HEADPHONES —
   recorded here as the round's directive. Standing constraints from the
   previous session close remain active (F002/F003/F004/F006/F008).
+
+## Feedback F010
+- Round: R008 (verdict on the presented round)
+- Verdict: REJECTED
+- Scope: the headphones/headset read, all three surfaces
+- Decision: the two-cups-over-the-ears headset does not read as a
+  headset. The accessory redesign restarts in the next session.
+- User source: "it doesnt look like headset. i will do that in next
+  session" (2026-09-14).
+- Artifact: R008 after-shots.
+- Supersedes: none (the headphones were never liked; every state stays
+  in git history).
+
+## Session close (2026-09-14, third)
+- Owner verdict: headphones rejected — they do not read as a headset;
+  the work continues in the next session. No revert requested: the
+  shipped state keeps the headphone accessory live on the site (outfit-
+  only, DMCA-distanced from the bow); every earlier round stays
+  reachable in git history (6fa0736 star clip, 211c01b thin band,
+  0ce62cf wedge, 4b84558 kerchief quadrant, 79bad0f cap, a354dc2
+  headphones).
+- Agent note for the next session (not a user preference): the cups-on-
+  ear-bases layout turned the cups into round earmuff/pom-pom blobs and
+  left the band too shy to sell the headset; the next attempt should
+  first settle WHAT silhouette reads "headset" at card-mark scale
+  (possibly cups at the head's flanks with a clearly visible over-crown
+  band, or a different accessory class entirely) before pixel tuning.
+- Standing constraints: owner loves the design (F002); changes are
+  outfit/accessory-only; the accessory must carry mass (F004), keep the
+  bow's floating energy (F006), and read senior-developer minimalist
+  (F008). Rejected so far: star ear-clip (bald), thin band (headband),
+  kerchief wedge (emo bangs), full-crown tent (beanie), quadrant
+  kerchief (swoosh), cap (mess), headphones (not a headset read).
+- No pending handoffs; design-iteration owns the next round.
