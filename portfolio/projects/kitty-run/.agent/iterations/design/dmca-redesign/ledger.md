@@ -917,3 +917,40 @@ beard/stubble read · one-whisker-per-side read · naked/torso-less read.
 - Open question: choose or approve a design from EITHER batch (R014
   1-10 or R015 1-10, incl. R014-05 headset), or reject all; the pick
   is salvaged onto the three real surfaces (R016).
+
+## Session note (2026-09-14, eleventh)
+- Owner supplied batch 4 from the routing model: 10 designs (berry
+  beret, sailor ribbon, rain hood, star witch, blossom crown, pastry
+  chef, space cadet, winged garden smock, winter earmuffs, pocket
+  royal) — S1/S2 complete SVGs (single white/pink family, mouths
+  present) + S3 pivot d-string PAIRS (piece + detail) per the stated
+  convention (ink #3c2834, w0.035 local units, round joins). Standing
+  directives: render first, choose/approve, no polish; earlier batches
+  stay live.
+
+## Round R016
+- Goal: show batch 4 rendered verbatim on all three surfaces beside the
+  still-standing batches 2-3 (R014/R015), for a choose-or-approve
+  verdict.
+- Preserved preferences: F002 (keep the design, outfit-only), F008
+  (senior-minimal), F015 (delegate -> create on three surfaces).
+- Changes: NO app code changed — preview round. Scratch sheet renders
+  each design three-up: S1 verbatim, S2 verbatim, S3 = head ellipse
+  (rx1 ry0.84) + ears + pivot@(0.52,0.66) pair, ink copies #3c2834
+  w0.035 local units behind fills, scale 34px/unit (piece #e94f64,
+  detail #d13a50 per their S2 accents).
+- Before: R015 sheet (batch 3, kept live).
+- After: R016/sheet.png (10x3 grid).
+- Visual inspection: performed, NO POLISHING. Facts flagged: 02 sailor
+  ribbon's S3 piece is literally a BOW at the pivot — the exact Sanrio
+  trade-dress silhouette this whole course exists to leave; 06 pastry
+  chef's kerchief knot also reads bow-adjacent; every S3 piece is
+  small (~0.3-0.6 unit vs the bow's ~0.74 spread — F004 mass will need
+  enlarging at salvage); mouths present in the model's art, ours stays
+  mouthless; 07 space cadet and 09 winter earmuffs are the R008-
+  rejected headphone family again (though batch 4's renditions read
+  clearly as cans).
+- Code verification: NOT RUN (no app code touched).
+- Open question: choose or approve a design from ANY batch (R014-05
+  headset still on the table, R015 personas, R016 1-10), or reject
+  all; the pick is salvaged onto the three real surfaces (R017).
