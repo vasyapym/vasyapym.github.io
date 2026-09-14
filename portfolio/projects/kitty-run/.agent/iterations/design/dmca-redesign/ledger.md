@@ -844,3 +844,41 @@ beard/stubble read · one-whisker-per-side read · naked/torso-less read.
 - Code verification: NOT RUN (no app code touched).
 - Open question: choose or approve one design (1-10) — or reject all;
   the pick is then salvaged onto the three real surfaces (R014).
+
+## Session note (2026-09-14, ninth)
+- Owner supplied a corrected second batch from the routing model: 10
+  outfit designs with shared build notes (single head block, one accent
+  pair per surface, dark-accent nose, no whiskers/mouth/bow), explicit
+  S3 mapping (head-local -> S1 x=136+40X y=76+35.71Y, -> S2
+  x=50+27X y=43+29.76Y, pivot (0.52,0.66)), and rig defaults (spring
+  jiggle +-14 deg, stiffness 0.22, damping 0.30, clamp +-0.06). Designs:
+  1 knit muffler, 2 chullo beanie, 3 bandana neckerchief, 4 hoodie,
+  5 headphones, 6 snapback cap, 7 sailor collar, 8 bell collar, 9 beret,
+  10 cape. Owner directive stands: screenshots first, choose or approve,
+  no polish — salvage after the choice. R013's batch is superseded by
+  this one (the owner re-rolled rather than picked).
+
+## Round R014
+- Goal: show the owner the corrected 10-design batch rendered verbatim
+  on all three surfaces, for a choose-or-approve verdict before salvage.
+- Preserved preferences: F002 (keep the design, outfit-only), F008
+  (senior-minimal), F015 (delegate -> create on three surfaces).
+- Changes: NO app code changed — preview round. A scratch sheet renders
+  each design three-up: S1 SVG verbatim, S2 SVG verbatim, and S3 built
+  per the model's contract (static head-local parts -> ears -> head ->
+  pivot@(0.52,0.66) dangle, ink copies w0.06 #2a2230 behind every fill,
+  scale 34px/unit, y-down per their mapping).
+- Before: R013 sheet (first three-surface batch).
+- After: R014/sheet.png (10x3 grid).
+- Visual inspection: performed, NO POLISHING. Facts flagged for the
+  choice: batch is far more coherent than R013 (identical head block,
+  no mouths, dark-accent nose, no whiskers — trade-dress items from
+  round 1 removed); S3 dangles all hang from the ear pivot with the
+  jiggle; 2/9 hats and 3/4/6 hoods cover the ears; 5 headphones is the
+  R008-rejected family again (band + cups now clearly read though);
+  S3 preview tiles show the outfit on the model's neutral head — at
+  salvage the piece ports onto our artwork with our palette/ink rules.
+- Code verification: NOT RUN (no app code touched).
+- Open question: choose or approve one design (1-10) — or reject all;
+  the pick is then salvaged onto the three real surfaces (R015) using
+  the model's rig defaults as the starting jiggle.
