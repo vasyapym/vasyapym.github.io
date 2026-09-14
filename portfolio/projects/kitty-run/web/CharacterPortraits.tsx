@@ -33,10 +33,12 @@ export function KittyPortrait() {
       <path d="M21.5 27.5 L25 14 Q26.5 11 29 13.5 L37.5 20.5" fill="#ffffff" />
       <path d="M78.5 27.5 L75 14 Q73.5 11 71 13.5 L62.5 20.5" fill="#ffffff" />
 
-      {/* the bow: upper-right ear, ~40% of head width */}
-      <path d="M67 22 C61 12 51 15 54.5 22 C51 29 61 32 67 22 Z" fill="#e94f64" />
-      <path d="M69 22 C75 12 85 15 81.5 22 C85 29 75 32 69 22 Z" fill="#e94f64" />
-      <ellipse cx="68" cy="22" rx="3.6" ry="4.4" fill="#d13a50" />
+      {/* the star ear-clip: right ear, flat star + deep hub */}
+      <polygon
+        points="64.6,13.3 67.6,17.6 72.8,16.4 69.6,20.7 72.3,25.2 67.3,23.5 63.8,27.5 63.9,22.2 59,20.1 64.1,18.5"
+        fill="#e94f64"
+      />
+      <circle cx="66.5" cy="20.8" r="1.7" fill="#d13a50" />
 
       {/* face in the lower half: small vertical eyes, small ochre nose, NO mouth */}
       <ellipse cx="34" cy="49" rx="2.2" ry="3.4" fill={OUTLINE_PASTEL} stroke="none" />

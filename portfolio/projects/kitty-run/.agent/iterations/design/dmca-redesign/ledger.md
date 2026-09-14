@@ -75,3 +75,50 @@ beard/stubble read · one-whisker-per-side read · naked/torso-less read.
 - All nine redesign attempts remain in history for salvage:
   Pop Kitty (7b951df) was the closest; dry-ink v1 (30ebe55) its
   minimalist evolution; the rest rejected outright.
+
+## Feedback F002
+- Round: R002 (baseline, pre-round)
+- Verdict: LIKED
+- Scope: whole current character — card mark, portrait, in-game rig
+- Decision: keep the current (restored Hello-Kitty-era) design; every
+  change must be limited to the cat's outfit/accessory. Motivation:
+  reduce DMCA/IP exposure of the GitHub Pages site; owner states the
+  risk is low but wants the distance anyway.
+- User source: "I really love the current design, so I don't want to
+  change it. But let's make changes - only on cat's outfit." (session
+  opening message, 2026-09-14)
+- Artifact: R002 before-shots (card-mark/portrait/menu-rig before).
+- Supersedes: F001 scope (portrait-only rework) — the parked full-redesign
+  direction stays parked; new session narrows scope to outfit-only.
+
+## Round R002
+- Goal: strip the most recognisable Sanrio trade-dress element — the ear
+  bow — from all three art surfaces while leaving the loved design
+  otherwise untouched (owner directive F002: outfit-only).
+- Preserved preferences: F002 (keep the design; change outfit only);
+  baseline LIKED card-mark composition; face/proportions/palette per
+  "don't want to change it".
+- Changes: the ear bow replaced by a flat ink-outlined star ear-clip at
+  the same spot, same accent colour per surface (pink #ff8fbf + deep
+  #a33a72 on the card mark; red #e94f64 + deep #d13a50 on the portrait
+  and the rig). Star ties to the game's own star-pickup language.
+  Rig: starShape(0.21, 0.088) + starCore geometry replace bowLoop/bowKnot
+  (removed); bowRef jiggle pose (bowRot/bowScale) kept unchanged; dress,
+  face, palette keys untouched. Card mark: bow ellipses → star polygon +
+  deep hub dot. Portrait: three bow paths → star polygon + deep dot.
+- Before: R002-*-before.png (baseline shots, static build 155f666).
+- After: R002-*-after.png (same viewports, same states, static build of
+  the working tree; screenshots at deviceScaleFactor 2-3).
+- Visual inspection: performed — Chromium 1134 (playwright cache) against
+  a production build served statically; card mark close-up, portrait
+  close-up, menu rig close-up, mid-run rig. Star legible at all three
+  scales; face, dress, whiskers, composition unchanged; no z-order or
+  overflow artifacts observed.
+- Code verification: `npm --prefix portfolio run typecheck` PASS;
+  kitty-run.check.ts PASS; kitty-run.sim.ts PASS; shell build PASS.
+  NOTE: kitty-run.shots.mjs itself was NOT used (its dev-server +
+  networkidle0 flow hung on this machine); a probe-equivalent scratch
+  script rendered the same routes from the built dist instead.
+- Open question: does the star ear-clip keep the character lovable while
+  reading as clearly-not-Sanrio, or should the round try a different
+  accessory / also rethink the dress?

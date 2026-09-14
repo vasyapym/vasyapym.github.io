@@ -3,11 +3,11 @@
 // every frame from the pure rig. React renders the parts once; useFrame
 // writes transforms directly.
 //
-// Two bodies share the one rig. The pastel kitty wears the bow; the ashen
-// knight wears a great helm (visor + ember eyes), pauldrons, a two-layer
-// cape and a greatsword over the shoulder, all built from the same palette
-// keys (bowRed/bowDeep are steel in her palette), so the best-run ghost
-// can still retint her by hex lookup.
+// Two bodies share the one rig. The pastel kitty wears a star ear-clip;
+// the ashen knight wears a great helm (visor + ember eyes), pauldrons, a
+// two-layer cape and a greatsword over the shoulder, all built from the
+// same palette keys (bowRed/bowDeep are steel in her palette), so the
+// best-run ghost can still retint her by hex lookup.
 
 import { useMemo, useRef } from "react";
 import * as THREE from "three";
@@ -49,6 +49,21 @@ function earShape(): THREE.Shape {
   shape.quadraticCurveTo(-0.36, 0.3, -0.12, 0.47);
   shape.quadraticCurveTo(0, 0.54, 0.12, 0.47);
   shape.quadraticCurveTo(0.36, 0.3, 0.28, 0);
+  shape.closePath();
+  return shape;
+}
+
+// Five-point star, tip up, slight tilt — the pastel kitty's ear-clip.
+function starShape(rOuter: number, rInner: number): THREE.Shape {
+  const shape = new THREE.Shape();
+  for (let i = 0; i < 10; i += 1) {
+    const r = i % 2 === 0 ? rOuter : rInner;
+    const a = -Math.PI / 2 - 0.26 + (i * Math.PI) / 5;
+    const x = Math.cos(a) * r;
+    const y = Math.sin(a) * r;
+    if (i === 0) shape.moveTo(x, y);
+    else shape.lineTo(x, y);
+  }
   shape.closePath();
   return shape;
 }
@@ -393,8 +408,8 @@ export function Kitty({
       nose: new THREE.ShapeGeometry(ellipseShape(0.13, 0.1), seg),
       cheek: new THREE.ShapeGeometry(ellipseShape(0.14, 0.09), seg),
       whisker: new THREE.PlaneGeometry(0.36, 0.032),
-      bowLoop: new THREE.ShapeGeometry(ellipseShape(0.34, 0.24), seg),
-      bowKnot: new THREE.ShapeGeometry(ellipseShape(0.16, 0.16), seg),
+      starClip: new THREE.ShapeGeometry(starShape(0.21, 0.088), seg),
+      starCore: new THREE.ShapeGeometry(ellipseShape(0.05, 0.05), seg),
       dress: new THREE.ShapeGeometry(dressShape(), seg),
       foot: new THREE.ShapeGeometry(ellipseShape(0.11, 0.085), seg),
       arm: new THREE.ShapeGeometry(ellipseShape(0.12, 0.2), seg),
@@ -956,28 +971,18 @@ export function Kitty({
                 />
               </group>
             ) : (
-              /* bow */
-              <group ref={bowRef} position={[0.52, 0.66, 0.32]}>
+              /* star ear-clip on the right ear: flat star + deep hub,
+                  same jiggle pose the bow had (bowRot/bowScale) */
+              <group ref={bowRef} position={[0.58, 0.7, 0.32]}>
                 <Part
-                  geometry={geo.bowLoop}
+                  geometry={geo.starClip}
                   color={palette.bowRed}
                   z={0.004}
-                  position={[-0.3, 0]}
-                  rotation={0.45}
-                  outline={1.12}
+                  outline={1.18}
                   outlineColor={palette.outlineInk}
                 />
                 <Part
-                  geometry={geo.bowLoop}
-                  color={palette.bowRed}
-                  z={0.004}
-                  position={[0.3, 0]}
-                  rotation={-0.45}
-                  outline={1.12}
-                  outlineColor={palette.outlineInk}
-                />
-                <Part
-                  geometry={geo.bowKnot}
+                  geometry={geo.starCore}
                   color={palette.bowDeep}
                   z={0.016}
                   outline={1.18}

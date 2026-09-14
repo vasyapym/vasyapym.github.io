@@ -130,7 +130,7 @@ function RaftCenterMark() {
   );
 }
 
-/* ── 2 · Cat Runner — pink spot ink, Hello-Kitty head mark in motion ── */
+/* ── 2 · Cat Runner — pink spot ink, kitty head mark in motion ── */
 function KittyCenterMark() {
   return (
     <svg viewBox="0 0 260 160" aria-hidden="true">
@@ -184,10 +184,12 @@ function KittyCenterMark() {
       {/* negative-space eyes, wide-set on one line */}
       <ellipse cx="118" cy="78" rx="2.8" ry="4.2" fill="#0b1317" />
       <ellipse cx="154" cy="78" rx="2.8" ry="4.2" fill="#0b1317" />
-      {/* bow — the single pink signifier, overlapping right ear base */}
-      <ellipse cx="164" cy="54" rx="6" ry="5" fill="#ff8fbf" />
-      <ellipse cx="176" cy="54" rx="6" ry="5" fill="#ff8fbf" />
-      <circle cx="170" cy="55" r="3.2" fill="#a33a72" />
+      {/* star ear-clip — the single pink signifier, on the right ear base */}
+      <polygon
+        points="167.2,42.7 170.5,47.7 176.4,46.8 172.6,51.4 175.3,56.7 169.7,54.5 165.5,58.8 165.9,52.8 160.5,50.1 166.3,48.6"
+        fill="#ff8fbf"
+      />
+      <circle cx="169" cy="51.5" r="2" fill="#a33a72" />
       {/* single tiny glint */}
       <rect x="122" y="58" width="2.6" height="2.6" fill="#ffffff" opacity="0.55" />
     </svg>
