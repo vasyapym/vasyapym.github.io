@@ -53,17 +53,31 @@ function earShape(): THREE.Shape {
   return shape;
 }
 
-// Five-point star, tip up, slight tilt — the pastel kitty's ear-clip.
-function starShape(rOuter: number, rInner: number): THREE.Shape {
+// Bandana band: a strip draped over the ear base — straight ends, the
+// middle sagging down like cloth. Authored flat, long axis on x; the
+// mesh's rotation tilts it.
+function bandanaBandShape(w: number, t: number, sag: number): THREE.Shape {
+  const hw = w / 2;
   const shape = new THREE.Shape();
-  for (let i = 0; i < 10; i += 1) {
-    const r = i % 2 === 0 ? rOuter : rInner;
-    const a = -Math.PI / 2 - 0.26 + (i * Math.PI) / 5;
-    const x = Math.cos(a) * r;
-    const y = Math.sin(a) * r;
-    if (i === 0) shape.moveTo(x, y);
-    else shape.lineTo(x, y);
-  }
+  shape.moveTo(-hw, 0);
+  shape.quadraticCurveTo(0, -sag, hw, 0);
+  shape.lineTo(hw, t);
+  shape.quadraticCurveTo(0, t - sag, -hw, t);
+  shape.closePath();
+  return shape;
+}
+
+// Bandana tail: a slim pointed cloth triangle hanging down (-y) from the
+// knot, tip leaning by tipX. Authored with its base at the local origin.
+function bandanaTailShape(
+  len: number,
+  tipX: number,
+  baseHalf: number,
+): THREE.Shape {
+  const shape = new THREE.Shape();
+  shape.moveTo(-baseHalf, 0.02);
+  shape.lineTo(tipX, -len);
+  shape.lineTo(baseHalf, 0.02);
   shape.closePath();
   return shape;
 }
@@ -408,8 +422,10 @@ export function Kitty({
       nose: new THREE.ShapeGeometry(ellipseShape(0.13, 0.1), seg),
       cheek: new THREE.ShapeGeometry(ellipseShape(0.14, 0.09), seg),
       whisker: new THREE.PlaneGeometry(0.36, 0.032),
-      starClip: new THREE.ShapeGeometry(starShape(0.21, 0.088), seg),
-      starCore: new THREE.ShapeGeometry(ellipseShape(0.05, 0.05), seg),
+      bandanaBand: new THREE.ShapeGeometry(bandanaBandShape(0.52, 0.12, 0.03), seg),
+      bandanaBackTail: new THREE.ShapeGeometry(bandanaTailShape(0.42, -0.1, 0.05), seg),
+      bandanaFrontTail: new THREE.ShapeGeometry(bandanaTailShape(0.28, 0.1, 0.045), seg),
+      bandanaKnot: new THREE.ShapeGeometry(ellipseShape(0.075, 0.075), seg),
       dress: new THREE.ShapeGeometry(dressShape(), seg),
       foot: new THREE.ShapeGeometry(ellipseShape(0.11, 0.085), seg),
       arm: new THREE.ShapeGeometry(ellipseShape(0.12, 0.2), seg),
@@ -971,21 +987,43 @@ export function Kitty({
                 />
               </group>
             ) : (
-              /* star ear-clip on the right ear: flat star + deep hub,
-                  same jiggle pose the bow had (bowRot/bowScale) */
-              <group ref={bowRef} position={[0.58, 0.7, 0.32]}>
+              /* bandana: cloth band across the right ear base, knot at the
+                  outer end, two tails hanging (back longer/darker, front
+                  shorter/lighter). Same bowRef jiggle pose the bow had
+                  (bowRot/bowScale) — the tails dangle with it. Local z
+                  ladder over the group's z 0.32: back tail 0.004/0.02,
+                  band 0.05/0.07, knot 0.10/0.12, front tail 0.145/0.165. */
+              <group ref={bowRef} position={[0.56, 0.68, 0.32]}>
                 <Part
-                  geometry={geo.starClip}
-                  color={palette.bowRed}
-                  z={0.004}
-                  outline={1.18}
+                  geometry={geo.bandanaBackTail}
+                  color={palette.bowDeep}
+                  z={0.02}
+                  position={[0.24, -0.05]}
+                  outline={1.14}
                   outlineColor={palette.outlineInk}
                 />
                 <Part
-                  geometry={geo.starCore}
+                  geometry={geo.bandanaBand}
+                  color={palette.bowRed}
+                  z={0.07}
+                  rotation={-0.12}
+                  outline={1.1}
+                  outlineColor={palette.outlineInk}
+                />
+                <Part
+                  geometry={geo.bandanaKnot}
                   color={palette.bowDeep}
-                  z={0.016}
-                  outline={1.18}
+                  z={0.12}
+                  position={[0.24, -0.05]}
+                  outline={1.2}
+                  outlineColor={palette.outlineInk}
+                />
+                <Part
+                  geometry={geo.bandanaFrontTail}
+                  color={palette.bowRed}
+                  z={0.165}
+                  position={[0.24, -0.05]}
+                  outline={1.14}
                   outlineColor={palette.outlineInk}
                 />
               </group>

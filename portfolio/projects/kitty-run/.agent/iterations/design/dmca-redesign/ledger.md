@@ -122,3 +122,63 @@ beard/stubble read · one-whisker-per-side read · naked/torso-less read.
 - Open question: does the star ear-clip keep the character lovable while
   reading as clearly-not-Sanrio, or should the round try a different
   accessory / also rethink the dress?
+
+## Feedback F003
+- Round: R002 (verdict on the presented round)
+- Verdict: LIKED
+- Scope: outfit-swap direction itself (bow removal, outfit-only course)
+- Decision: "heading in the right direction" — the outfit-only DMCA
+  course is approved.
+- User source: "This is heading in the right direction." (2026-09-14)
+- Artifact: R002 after-shots.
+- Supersedes: none.
+
+## Feedback F004
+- Round: R002 (verdict on the presented round)
+- Verdict: REJECTED
+- Scope: star ear-clip accessory, all three surfaces (card mark,
+  portrait, rig)
+- Decision: the star reads as too small a filling for the bow's spot —
+  "without the bow, the cat looks bald". The accessory must carry the
+  bow's visual mass.
+- User source: "One concern: without the bow, the cat looks bald."
+- Artifact: R002 after-shots.
+- Supersedes: none (the star was never a liked preference).
+
+## Round R003
+- Goal: replace the rejected star with a bandana that keeps the design's
+  silhouette, sits off to one side (the star's spot), and dangles like
+  the bow did — owner directive, verbatim plan:
+  (1) bandana positioned off to one side where the star is;
+  (2) the bandana should dangle like the bow did.
+- Preserved preferences: F002 (keep the design, outfit-only), F003
+  (direction liked).
+- Changes: all three surfaces get a small side-tied bandana at the
+  right ear base — a cloth band across the ear base, a knot at the
+  outer (upper-right) end, and two pointed cloth tails hanging from
+  the knot (back tail darker/longer, front tail lighter/shorter).
+  Accent per surface unchanged (pink #ff8fbf+#a33a72 card mark; red
+  #e94f64+#d13a50 portrait and rig). Rig: starClip/starCore geometries
+  removed; bandanaBand/bandanaTail/bandanaKnot added to the same
+  bowRef group, so the existing bowRot/bowScale pose jiggle animates
+  the whole bandana (tails dangle exactly like the bow did; no rig.ts
+  change). Star shape helper removed.
+- Before: R002 after-shots (baseline for this round).
+- After: R003 after-shots (same viewports, same states).
+- Visual inspection: NOT YET PERFORMED — to be filled after render.
+- Code verification: NOT YET RUN.
+- Open question: does the bandana carry the bow's mass so the cat no
+  longer reads bald, and do the tails dangle readably at card-mark size?
+- Visual inspection: performed — Chromium 1134 against a static
+  production build; card-mark close-up, portrait close-up, menu rig
+  close-up, mid-run rig. The band + knot + tails read as a side-tied
+  bandana on the right ear on all three surfaces; the ear no longer
+  reads bald; face, dress, whiskers, palette, composition untouched.
+  Card-mark tails are thin (~3-4 units) — the dangle is subtle at mark
+  size; flagged as the round's main tradeoff.
+- Code verification: `npm --prefix portfolio run typecheck` PASS;
+  kitty-run.check.ts PASS; kitty-run.sim.ts PASS; shell build PASS
+  (18.6s). Same rendering route as R002 (scratch probe on built dist;
+  kitty-run.shots.mjs dev-server flow still hangs on this machine).
+- Open question: LIKED/REJECTED on the bandana; and should the card
+  mark's tails get more dangle mass if the verdict is mixed?

@@ -33,12 +33,13 @@ export function KittyPortrait() {
       <path d="M21.5 27.5 L25 14 Q26.5 11 29 13.5 L37.5 20.5" fill="#ffffff" />
       <path d="M78.5 27.5 L75 14 Q73.5 11 71 13.5 L62.5 20.5" fill="#ffffff" />
 
-      {/* the star ear-clip: right ear, flat star + deep hub */}
-      <polygon
-        points="64.6,13.3 67.6,17.6 72.8,16.4 69.6,20.7 72.3,25.2 67.3,23.5 63.8,27.5 63.9,22.2 59,20.1 64.1,18.5"
-        fill="#e94f64"
-      />
-      <circle cx="66.5" cy="20.8" r="1.7" fill="#d13a50" />
+      {/* the bandana: cloth band across the right ear base, knot at the
+          outer end, two tails hanging (back darker/longer, front
+          lighter/shorter) */}
+      <path d="M60.5 19.5 Q70 22 79 25.5 L78 30.5 Q69.5 27.5 60.5 24 Z" fill="#e94f64" />
+      <polygon points="78.6,29.8 82,30.6 76.8,43" fill="#d13a50" />
+      <polygon points="79.6,27.6 83.4,29.4 81.5,42" fill="#e94f64" />
+      <circle cx="81" cy="28" r="2.7" fill="#d13a50" />
 
       {/* face in the lower half: small vertical eyes, small ochre nose, NO mouth */}
       <ellipse cx="34" cy="49" rx="2.2" ry="3.4" fill={OUTLINE_PASTEL} stroke="none" />
