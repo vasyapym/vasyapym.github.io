@@ -1415,3 +1415,64 @@ beard/stubble read · one-whisker-per-side read · naked/torso-less read.
 - User source: "liked" (2026-09-15)
 - Artifact: R022 renders.
 - Supersedes: none.
+
+## Feedback F023
+- Round: R023 (brief stage, pre-render)
+- Verdict: REJECTED
+- Scope: the in-game rig's arm motion and the sleeve/paw join (pastel cat, running state)
+- Decision: the R022 arm treatment is still not enough — the cat's hands
+  still move too much and read unnatural, and the hoodie's sleeve/hand and
+  the cat's hand still read as totally separate pieces. The join must be
+  made un-mistakeable and the swing calmed further. Card and legs are not
+  part of this complaint.
+- User source: "in-game - cat's hand is moving too much, it seems like, and
+  also they look unnatural - please fix. and also its hoodie hands and cat's
+  hand look akward. as if they are totally separatte - fix." (2026-09-15)
+- Artifact: R022 renders.
+- Supersedes: refines F021(c)/(d) further; does not reverse F022's verdict
+  on the card (barrel body, neck-width hood stay accepted).
+
+## Round R023
+- Goal: answer F023 on the in-game rig — the sleeve/hand join must read as
+  ONE garment over ONE arm (un-mistakeable), and the arm swing must calm
+  down further and read natural.
+- Preserved preferences: F002 (face untouched — NO mouth), F004 (mass as
+  cloth, never headwear), F006 (floating energy), F008 (senior-minimal
+  flat fills), F017 (hoodie), F018/F019 (ears + whiskers clear), F022
+  (card barrel + neck-width hood accepted — untouched this round), hood
+  DOWN, palette keys, RESTRICTED z-ladder, drape + cords untouched.
+- Changes: RIG ONLY (Kitty.tsx) — (1) sleeveShape re-authored to cover the
+  WHOLE arm: shoulder cap -> tapered shaft -> rounded hem at ~-0.31 (an
+  oversized hoodie sleeve with the hand tucked inside); (2) armPawShape
+  shortened: the stem (to -0.30) hides fully under the sleeve fill, only
+  the paw tip (rx 0.092, narrower than the cuff) peeks ~0.10 below the
+  hem — white can no longer read as a separate limb under the cuff;
+  (3) cuff band moved down to [0, -0.27] to cap the hem; (4) pastel arm
+  swing amplitude split: grounded 0.35x (paw tip sweeps +-0.07 body
+  units, was +-0.16), airborne 0.6x forward reach (shorter arm keeps the
+  reach natural); souls branch untouched (stock swing, its own ellipse).
+- Before: R022 renders (white forearm + paw visibly separate below the
+  cuff; livelier swing).
+- After: R023/menu.png, R023/menu-cat-close.png, R023/card-close.png,
+  R023/running-f1..f4.png, R023/running-f2-close.png,
+  R023/running-f3-close.png, R023/dash.png, R023/dash-close.png,
+  R023/desktop-running.png, R023/mobile-running.png (chromium 1134, dsf 3
+  close-ups + full game-scale frames, same probes route).
+- Visual inspection: performed — run frames f1/f2/f4: arms read as short
+  red sleeves with a cuff and at most a small white paw tip peeking below
+  the hem; the two-piece sleeve/forearm read from R022 is gone; swing is
+  visibly calmer (arm tips travel a few px, in step with the bob);
+  f3 (backward-swing phase): the trailing sleeve pokes past the body
+  silhouette as a bare rounded red end with NO white — reads as the hand
+  fully tucked inside the sleeve, not as a detached piece; dash: tilt
+  intact, sleeves ride the swing, no new collisions with the pocket,
+  cords or hem; menu backdrop cat stays dressed and calm; card close-up
+  unchanged (card is a separate canvas render — untouched by design).
+- Code verification: `npm --prefix portfolio run typecheck` PASS;
+  kitty-run.check.ts PASS; kitty-run.sim.ts PASS; kitty-run.shots.mjs
+  PASS (CHROME_PATH=chromium-1134, all six shots, no problems).
+- Open question: LIKED/REJECTED on the two F023 points (swing calm +
+  one-piece join). Declared knobs: (1) the white paw peek's size/rounding
+  (currently a small sliver; can grow a rounder tip or disappear
+  entirely); (2) the grounded swing amplitude (0.35x — can go calmer or
+  livelier); (3) the sleeve hem's length (arm overall length).
