@@ -1554,3 +1554,73 @@ beard/stubble read · one-whisker-per-side read · naked/torso-less read.
   (1) the paw peek's size/roundness; (2) the grounded swing amplitude
   (0.35x); (3) the card head's width factor (1.1) and the crown's level;
   (4) the in-game whisker length (0.432).
+
+## Feedback F026
+- Round: R025 (brief stage, pre-render)
+- Verdict: MIXED — REJECTED on the card face spread, LIKED on the rig
+  hand visibility, CLARIFIED the whisker scope, REJECTED the current
+  swing character
+- Scope: (1) the card's face placement/form; (2) the in-game whisker
+  length; (3) the in-game arm motion
+- Decision: (a) the R024 face spread ("морда разъехалась
+  пропорционально") is rejected — instead the face/chin level moves a
+  bit down, keeping the face's form unscaled; (b) the whisker increase
+  was meant for the IN-GAME rig only, not the character-select card
+  (card whiskers stay as-is); (c) the hands being visible is good, but
+  the motion is awkward — the arms must move like the original Hello
+  Kitty before the IP-anxiety redesign (stock rig amplitude, no
+  multipliers).
+- User source: "морда разъехалась пропорционально - i dont like this.
+  instead, make the face/chin level a bit down (instead of squeezing
+  face form). also i meant incease whiskers within game, not in
+  character selection menu. it is good that hands are moving now. but
+  it is awkawrd. make them move like it was in hello kitty before IP
+  anxiety changes of mine" (2026-09-15)
+- Artifact: R024 renders.
+- Supersedes: refines F025 (the card head stays +10% wide; the face
+  does not scale with it) and F024(a) (the visible-not-dangling read
+  stays; the calm swing character is replaced by the original one).
+
+## Round R025
+- Goal: answer F026 — the card face goes back to its original form and
+  sits a bit lower; card whiskers untouched (the whisker increase was
+  in-game only); the rig arms swing with the original Hello-Kitty-era
+  amplitude (stock values, no multipliers).
+- Preserved preferences: F002 (face untouched — NO mouth), F004 (mass as
+  cloth), F006 (floating energy), F008 (senior-minimal flat fills),
+  F017 (hoodie), F018/F019 (ears + whiskers clear), F022 (card barrel +
+  neck-width hood), F023's one-piece read, hood DOWN, palette keys,
+  RESTRICTED z-ladder, drape + cords + legs untouched, souls untouched,
+  F025 card head stays 82.5 wide.
+- Changes: RIG — arm swing restored to stock: `const armSwing =
+  pose.armSwing;` (grounded ±0.5, airborne −0.55 — the original
+  pre-redesign values at eb8519c; the R023 0.35x grounded / 0.6x air
+  multipliers removed; the pocket-dip occlusion at the deepest inward
+  swing is pre-existing original behaviour). CARD — KittyPortrait face
+  reverted to its original form, lowered +2 units: eyes cx 34/66
+  cy 49 (rx 2.2, ry 3.4), nose cx 50 cy 50.5 (rx 2.6, ry 1.9), whiskers
+  translated +2 with the face (rows 45/49/53, tips 40.5/49/57.5,
+  lengths unchanged); head keeps the F025 82.5 width and the F024
+  raised chin line.
+- Before: R024 renders (face scaled with the head, calm 0.35x swing).
+- After: R025/menu.png, R025/card-close.png, R025/card-souls.png,
+  R025/card-face-zoom.png, R025/running-f1.png,
+  R025/running-f1-close.png, R025/running-f4.png,
+  R025/running-f4-close.png, R025/dash.png, R025/dash-close.png
+  (chromium 1134, dsf 3 close-ups + game-scale frames, same probes
+  route).
+- Visual inspection: performed — run frames f1/f4 + dash: the swing is
+  lively again (arms travel visibly front/back like the original);
+  both paws read as clean round white nubs under the cuffs at every
+  clean checked phase, nothing dangles, no fang read; whiskers extend
+  past the head without eye collision; dash tilt intact. Cards: the
+  face sits lower in the head in its original unscaled form (the R024
+  proportional spread is gone), card whiskers keep their length.
+  NOTE: f2/f3 flaked again this run (channel-split + out-of-crop),
+  the same transient headless-GPU pattern as R024 — not a code signal.
+- Code verification: `npm --prefix portfolio run typecheck` PASS;
+  kitty-run.check.ts PASS; kitty-run.sim.ts PASS; kitty-run.shots.mjs
+  PASS (all six shots, no problems).
+- Open question: LIKED/REJECTED per F026(a)-(c). Declared knobs: (1) the
+  card face's lowered level (+2); (2) the stock swing amplitude
+  (grounded ±0.5 / air −0.55); (3) the in-game whisker length (0.432).

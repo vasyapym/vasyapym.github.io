@@ -838,16 +838,16 @@ export function Kitty({
         footRRef.current.position.y = 0.16;
       }
     }
-    // Arm swing (F021 -> F023: the pastel arms still read flaily at the
-    // R022 0.55x). The whole visible arm is shorter now (paw bottom at
-    // local -0.42, was -0.575), and the grounded swing runs at 0.35x —
-    // the paw tip sweeps +-0.07 body units, a quiet jog in step with the
-    // bob. Airborne keeps a firmer 0.6x reach (both arms swing forward,
-    // a natural jump tuck). The knight keeps the stock amplitude its
-    // spaulders were tuned to.
-    const armSwing = isSouls
-      ? pose.armSwing
-      : pose.armSwing * (k.grounded ? 0.35 : 0.6);
+    // Arm swing (F026: the F021/F023 calming multipliers made the now
+    // visible hands read awkward — the motion goes back to the ORIGINAL
+    // pre-redesign kitty: the stock rig amplitude, grounded +-0.5 rad,
+    // airborne -0.55, no multipliers. The short sleeved arm at the
+    // lowered pivot sweeps its paw +-0.22 body units, matching the
+    // original stubby-oval wiggle's energy; at max inward swing the paw
+    // briefly dips behind the pocket's edge, the pre-existing fabric
+    // occlusion. Both variants share the stock swing; the knight's
+    // spaulder damping lives on its own refs.)
+    const armSwing = pose.armSwing;
     if (armLRef.current) armLRef.current.rotation.z = -armSwing;
     if (armRRef.current) armRRef.current.rotation.z = armSwing;
     // Hood drape (pastel only; the ref is null on the souls branch). The

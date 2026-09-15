@@ -55,13 +55,17 @@ export function KittyPortrait() {
           follow the wider crown, height unchanged (top stays at its level) */}
       <path d="M18.65 25.5 L22.5 12 Q24.15 9 26.9 11.5 L36.25 18.5" fill="#ffffff" />
       <path d="M81.35 25.5 L77.5 12 Q75.85 9 73.1 11.5 L63.75 18.5" fill="#ffffff" />
-      {/* face in the lower half: small vertical eyes, small ochre nose, NO mouth */}
-      <ellipse cx="32.4" cy="47" rx="2.42" ry="3.74" fill={OUTLINE_PASTEL} stroke="none" />
-      <ellipse cx="67.6" cy="47" rx="2.42" ry="3.74" fill={OUTLINE_PASTEL} stroke="none" />
-      <ellipse cx="50" cy="48.5" rx="2.86" ry="2.09" fill="#ffd44d" stroke="none" />
-      {/* whiskers: three per side, eye level, slightly fanned */}
-      <path d="M27 43 L3 38.5 M27 47 L2 47 M27 51 L3 55.5" strokeWidth={2} />
-      <path d="M73 43 L97 38.5 M73 47 L98 47 M73 51 L97 55.5" strokeWidth={2} />
+      {/* face in the lower half: small vertical eyes, small ochre nose, NO
+          mouth — original compact form (F026: no spread/scale with the
+          wider head), translated down 2 units so the face sits closer to
+          the chin like the pre-redesign kitty */}
+      <ellipse cx="34" cy="49" rx="2.2" ry="3.4" fill={OUTLINE_PASTEL} stroke="none" />
+      <ellipse cx="66" cy="49" rx="2.2" ry="3.4" fill={OUTLINE_PASTEL} stroke="none" />
+      <ellipse cx="50" cy="50.5" rx="2.6" ry="1.9" fill="#ffd44d" stroke="none" />
+      {/* whiskers: three per side, eye level, slightly fanned (follows the
+          face's lowered level; length unchanged) */}
+      <path d="M27 45 L3 40.5 M27 49 L2 49 M27 53 L3 57.5" strokeWidth={2} />
+      <path d="M73 45 L97 40.5 M73 49 L98 49 M73 53 L97 57.5" strokeWidth={2} />
     </svg>
   );
 }
