@@ -2345,3 +2345,90 @@ beard/stubble read · one-whisker-per-side read · naked/torso-less read.
   and opacity (0.85); (4) the card's ears could follow the rig's
   rounder read if the divergence bothers (F033's liked state would
   move).
+
+## Feedback F042
+- Round: R038 (brief stage, pre-render)
+- Verdict: DIRECTION — the nose goes 30% more transparent
+- Scope: the pastel nose OPACITY on both surfaces (the fill #f57a1f
+  stays). "30% more transparent" read as opacity × 0.7: 0.85 -> 0.6 —
+  the see-through softening is the intent; the alternative readings
+  (0.55 subtractive / 0.8 transparency×1.3) stay declared knobs.
+- User source: "make nose 30% more transparent" (2026-09-15)
+
+## Feedback F043
+- Round: R038 (brief stage, pre-render)
+- Verdict: REJECTED the R037 ear read — "ears look like headphone or
+  something. and it is round. i maybe want roundish. but not round"
+  (the wide low cups read as headphones; the owner steers BETWEEN the
+  R037 round-wide and the F037 point: roundish, not round)
+- Scope: the rig's earShape only (base width back 0.68 -> 0.60, apex
+  up 0.46 -> 0.50, the tip cap back ~41% -> ~33% of the base width,
+  the edges keep only a hint of curve). The outward tilt (F039), the
+  wiggle, the base position, the card (its pointed ears stay), the
+  souls helm fit (apex 0.50 — still under the pre-F037 dome's 0.54) —
+  untouched.
+- User source: "the ears shouldn't resemble headphones… they are
+  round; I might prefer them roundish rather than round. They
+  shouldn't be round" (2026-09-15)
+
+## Feedback F044
+- Round: R038 (brief stage, pre-render)
+- Verdict: DIRECTION — the pastel paws move farther outside the
+  torso; the pressed-to-center arms make the hoodie "look like it is
+  wearing a t-shirt"
+- Scope: the PASTEL arm mount x only (±0.62 -> ±0.70, a per-branch
+  split so the souls knight's shared mount stays at ±0.62 — souls
+  untouched). The swing amplitudes (F031/F034 0.34x alternating),
+  the pivot y, the arm silhouette, the sleeve, the pocket interaction
+  (a passing paw dips behind the pocket's edge) — watched in the
+  render, not pre-tuned.
+- User source: "the cat's hands should be positioned farther outward
+  from its torso. Currently, because the hands sit closer to the
+  center than to the outside, it looks as though the cat is wearing a
+  T-shirt" (2026-09-15)
+
+## Round R038
+- Goal: answer F042 + F043 + F044 — a more transparent nose, roundish-
+  not-round ears, paws farther outside the torso.
+- Preserved preferences: F002 (face untouched — NO mouth), F004 (mass
+  as cloth), F006 (floating energy), F008 (senior-minimal flat fills),
+  F017 (hoodie), F018/F019 (ears + whiskers clear), F022 (card barrel +
+  neck-width hood), F023's one-piece read, hood DOWN, palette keys,
+  RESTRICTED z-ladder, F024 paw peek read, F026 card whiskers' length,
+  F031/F034 swing (0.34x, alternating), the R031 card head, the F039
+  outward tilt, the F040 nose saturation, the souls variant untouched
+  (its shared arm mount stays at ±0.62).
+- Changes: NOSE — opacity 0.85 -> 0.6 on both surfaces (the card
+  fillOpacity + the rig material; "30% more transparent" read as
+  opacity × 0.7; the rig comment carries the F038->F042 history).
+  EARS (RIG ONLY) — earShape lands between the F037 point and the
+  F041 cup: base ±0.34 -> ±0.30 (width 0.68 -> 0.60), apex 0.46 ->
+  0.50, the tip cap ~41% -> ~33% of the base width, only a hint of
+  edge curve; the earShape comment now carries the full
+  F037/F039/F041/F043 history. ARMS (PASTEL ONLY) — the mount x
+  splits per branch: ±0.62 -> ±0.70 (the souls knight keeps ±0.62);
+  the swing, pivot y, silhouette untouched.
+- Before: R037 renders (0.85-apricot nose; the headphone-cup ears;
+  the paws pressed toward the torso center).
+- After: R038/card-cat.png, R038/card-face-zoom.png, R038/menu.png,
+  R038/running-f4.png, R038/dash.png, R038/cat-f4.png,
+  R038/cat-dash.png (chromium 1134, dsf 3, same probes route). The f1
+  crop caught the cat outside the box (known empty-crop flake) — the
+  f4 and dash frames carry the evidence.
+- Visual inspection: performed — the nose reads as a soft peach
+  (clearly more transparent) on both surfaces; the ears are
+  roundish-not-round (narrower, slightly taller, soft blunt tips, no
+  headphone cups); the paws sit at the hoodie's outer edges — the
+  loose-hoodie read replaces the pressed T-shirt read; no floating
+  shoulder lumps from the mount move; the swing keeps the alternating
+  gait.
+- Code verification: `npm --prefix portfolio run typecheck` PASS;
+  kitty-run.check.ts PASS; kitty-run.sim.ts PASS; kitty-run.shots.mjs
+  PASS — a fully clean run (all six shots, no problems), the third
+  clean pass this session.
+- Open question: LIKED/REJECTED per F042/F043/F044. Declared knobs:
+  (1) the transparency reading (0.6 multiplicative vs 0.55
+  subtractive vs 0.8 transparency×1.3); (2) the ear dial (base 0.60 /
+  apex 0.50 / cap 33% — could slide toward the point or the cup);
+  (3) the paw offset (±0.70 — could push to ±0.75 or pull back to
+  ±0.66); (4) the card's paws/ears stay at the liked states.

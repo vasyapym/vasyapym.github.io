@@ -63,20 +63,20 @@ function ellipseShape(rx: number, ry: number): THREE.Shape {
   return shape;
 }
 
-// Ear silhouette (F037/F039/F041 history: the owner loved the round
+// Ear silhouette (F037/F039/F041/F043 history: the owner loved the round
 // in-game ears, asked for card-consistent pointed (F037), kept the
 // outward tips but read the converged pair as bat ears (F039 — signs
-// flipped at the useFrame site), and now steers the SHAPE rounder:
-// F041 rebuilds on the F037 construction with a wider base (±0.34,
-// width 0.68), a shorter apex (0.46), a slight edge bulge and a bigger
-// soft tip cap (~41% of the base width) — pointed-outward but rounder,
-// wider, shorter than the card's pair.
+// flipped at the useFrame site), steered the shape rounder (F041: wide
+// base 0.68, apex 0.46) — and then read THAT as headphones, too round:
+// F043 lands between the F037 point and the F041 cup — base ±0.30
+// (width 0.60), apex 0.50, a hint of edge curve, a ~33% soft tip cap.
+// The card's pair stays pointed.
 function earShape(): THREE.Shape {
   const shape = new THREE.Shape();
-  shape.moveTo(-0.34, 0);
-  shape.quadraticCurveTo(-0.35, 0.26, -0.14, 0.38);
-  shape.quadraticCurveTo(0, 0.46, 0.14, 0.38);
-  shape.quadraticCurveTo(0.35, 0.26, 0.34, 0);
+  shape.moveTo(-0.3, 0);
+  shape.quadraticCurveTo(-0.33, 0.28, -0.1, 0.42);
+  shape.quadraticCurveTo(0, 0.5, 0.1, 0.42);
+  shape.quadraticCurveTo(0.33, 0.28, 0.3, 0);
   shape.closePath();
   return shape;
 }
@@ -1251,7 +1251,7 @@ export function Kitty({
               hands entirely. The lower pivot puts the sleeve's hem, cuff
               and paw peek BELOW the collar line, so the hands show as
               short one-piece sleeve ends beside the pocket. */}
-          <group ref={armLRef} position={[-0.62, isSouls ? 0.92 : 0.8, 0]}>
+          <group ref={armLRef} position={[-(isSouls ? 0.62 : 0.7), isSouls ? 0.92 : 0.8, 0]}>
             {/* pastel: one continuous arm base silhouette (shoulder cap ->
                 short stem -> paw tip), so the paw tip always moves with the
                 sleeve while the whole piece swings; souls keeps the plain
@@ -1343,7 +1343,7 @@ export function Kitty({
               </group>
             )}
           </group>
-          <group ref={armRRef} position={[0.62, isSouls ? 0.92 : 0.8, 0]}>
+          <group ref={armRRef} position={[isSouls ? 0.62 : 0.7, isSouls ? 0.92 : 0.8, 0]}>
             {/* pastel continuous arm+paw, souls plain ellipse — mirrored
                 comment and z ladder on the left arm. */}
             {!isSouls ? (
@@ -1456,13 +1456,14 @@ export function Kitty({
                   <meshBasicMaterial color={palette.eyeInk} />
                 </mesh>
                 <mesh geometry={geo.nose} position={[0, -0.16, 0.27]}>
-                  {/* F040: deep orange #f57a1f at 0.85 — the 0.8 apricot
-                      read brown at game scale; transparency stays (F038).
-                      History: F036 brown, before that yellow. */}
+                  {/* F042: opacity 0.6 — "30% more transparent" read as
+                      opacity × 0.7 off the 0.85; fill #f57a1f stays.
+                      History: F038 orange@0.8, F040 deepened to #f57a1f
+                      @0.85, F036 brown, before that yellow. */}
                   <meshBasicMaterial
                     color={palette.noseYellow}
                     transparent
-                    opacity={0.85}
+                    opacity={0.6}
                   />
                 </mesh>
                 <mesh geometry={geo.cheek} position={[-0.68, -0.22, 0.26]}>

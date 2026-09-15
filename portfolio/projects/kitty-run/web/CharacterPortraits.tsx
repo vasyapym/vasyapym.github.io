@@ -65,7 +65,7 @@ export function KittyPortrait() {
           place in the lowered mass */}
       <ellipse cx="34" cy="52.3" rx="2.2" ry="3.4" fill={OUTLINE_PASTEL} stroke="none" />
       <ellipse cx="66" cy="52.3" rx="2.2" ry="3.4" fill={OUTLINE_PASTEL} stroke="none" />
-      <ellipse cx="50" cy="53.95" rx="2.6" ry="1.9" fill="#f57a1f" fillOpacity={0.85} stroke="none" />
+      <ellipse cx="50" cy="53.95" rx="2.6" ry="1.9" fill="#f57a1f" fillOpacity={0.6} stroke="none" />
       {/* whiskers: three per side, eye level, slightly fanned (rows ride
           the face's +3.3 down-shift; x-ends unchanged — lengths intact) */}
       <path d="M27 48.3 L3 43.8 M27 52.3 L2 52.3 M27 56.3 L3 60.8" strokeWidth={2} />
