@@ -45,27 +45,28 @@ export function KittyPortrait() {
       <path d="M54 84 L55 91" strokeWidth={1.6} stroke="#ffffff" />
       <rect x="43.2" y="90.5" width="4.6" height="7" rx="2" fill="#e88bab" strokeWidth={1.8} />
       <rect x="52.2" y="90.5" width="4.6" height="7" rx="2" fill="#e88bab" strokeWidth={1.8} />
-      {/* head 82.5x50 (F025: +10% width, x-scaled about the centre), full
-          height unchanged so the crown stays at its level — level with the
-          ashen card's head-top band (bone top y 20 / dome apex 24) — while
-          the chin keeps the F024 raised line (neck +10%). Face scales with
-          the head; drawn LAST so the garment never blocks the chin */}
-      <path d="M8.75 44 C8.75 28 23.6 16 50 16 C76.4 16 91.25 28 91.25 44 C91.25 58 77 66 50 66 C23 66 8.75 58 8.75 44 Z" fill="#ffffff" />
+      {/* head 74.25x55 (F027: width back to -10% from the F025 82.5,
+          x-scaled about the centre; height +10% — the crown keeps its
+          level, the chin drops 66 -> 71 so the head's mass sits lower,
+          reading as a taller face). Face rides the lowered head, form
+          unscaled; drawn LAST so the garment never blocks the chin */}
+      <path d="M12.875 46.8 C12.875 29.2 26.24 16 50 16 C73.76 16 87.125 29.2 87.125 46.8 C87.125 62.2 74.3 71 50 71 C25.7 71 12.875 62.2 12.875 46.8 Z" fill="#ffffff" />
       {/* ears: open paths (no base line) drawn over the crown; x-positions
-          follow the wider crown, height unchanged (top stays at its level) */}
-      <path d="M18.65 25.5 L22.5 12 Q24.15 9 26.9 11.5 L36.25 18.5" fill="#ffffff" />
-      <path d="M81.35 25.5 L77.5 12 Q75.85 9 73.1 11.5 L63.75 18.5" fill="#ffffff" />
+          follow the narrower crown, bases ride the reshaped outline, tips
+          keep their height (top stays at its level) */}
+      <path d="M21.785 26.45 L25.25 12 Q26.735 9 29.21 11.5 L37.625 18.75" fill="#ffffff" />
+      <path d="M78.215 26.45 L74.75 12 Q73.265 9 70.79 11.5 L62.375 18.75" fill="#ffffff" />
       {/* face in the lower half: small vertical eyes, small ochre nose, NO
-          mouth — original compact form (F026: no spread/scale with the
-          wider head), translated down 2 units so the face sits closer to
-          the chin like the pre-redesign kitty */}
-      <ellipse cx="34" cy="49" rx="2.2" ry="3.4" fill={OUTLINE_PASTEL} stroke="none" />
-      <ellipse cx="66" cy="49" rx="2.2" ry="3.4" fill={OUTLINE_PASTEL} stroke="none" />
-      <ellipse cx="50" cy="50.5" rx="2.6" ry="1.9" fill="#ffd44d" stroke="none" />
-      {/* whiskers: three per side, eye level, slightly fanned (follows the
-          face's lowered level; length unchanged) */}
-      <path d="M27 45 L3 40.5 M27 49 L2 49 M27 53 L3 57.5" strokeWidth={2} />
-      <path d="M73 45 L97 40.5 M73 49 L98 49 M73 53 L97 57.5" strokeWidth={2} />
+          mouth — original compact form (F026: no spread/scale), now
+          riding +3.3 down with the longer head so the face keeps its
+          place in the lowered mass */}
+      <ellipse cx="34" cy="52.3" rx="2.2" ry="3.4" fill={OUTLINE_PASTEL} stroke="none" />
+      <ellipse cx="66" cy="52.3" rx="2.2" ry="3.4" fill={OUTLINE_PASTEL} stroke="none" />
+      <ellipse cx="50" cy="53.95" rx="2.6" ry="1.9" fill="#ffd44d" stroke="none" />
+      {/* whiskers: three per side, eye level, slightly fanned (rows ride
+          the face's +3.3 down-shift; x-ends unchanged — lengths intact) */}
+      <path d="M27 48.3 L3 43.8 M27 52.3 L2 52.3 M27 56.3 L3 60.8" strokeWidth={2} />
+      <path d="M73 48.3 L97 43.8 M73 52.3 L98 52.3 M73 56.3 L97 60.8" strokeWidth={2} />
     </svg>
   );
 }

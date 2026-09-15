@@ -1624,3 +1624,69 @@ beard/stubble read · one-whisker-per-side read · naked/torso-less read.
 - Open question: LIKED/REJECTED per F026(a)-(c). Declared knobs: (1) the
   card face's lowered level (+2); (2) the stock swing amplitude
   (grounded ±0.5 / air −0.55); (3) the in-game whisker length (0.432).
+
+## Feedback F027
+- Round: R026 (brief stage, pre-render)
+- Verdict: MIXED — REJECTED the stock swing's motion character (hands
+  still awkward, "here and there"), REJECTED the card head's width,
+  REJECTED the face's vertical placement
+- Scope: (1) the in-game arm motion; (2) the card face/head proportions
+- Decision: (a) the rig arms still read as awkwardly waving "here and
+  there" even at the stock amplitude — calm the motion character
+  without returning to the rejected R023 dead-calm 0.35x; (b) the card
+  face/head narrows ~10% in width; (c) the face grows ~10% taller,
+  done by positioning the head lower (the extra height extends
+  downward: the crown keeps its level, the chin drops).
+- User source: "hands still look awkwardly moving here and there. in
+  character choice menu make face's width around -10%. face's height
+  around +10 by positioning the head lower" (2026-09-15)
+- Artifact: R025 renders.
+- Supersedes: F025's +10% head-width preference (the head now narrows
+  back ~10%) and refines F026(c) (the stock amplitude itself still
+  reads awkward at the lowered pivot).
+
+## Round R026
+- Goal: answer F027 — calm the rig's arm motion without going back to
+  the R023 dead-calm; card head narrows ~10% and grows ~10% taller
+  through a lower head placement.
+- Preserved preferences: F002 (face untouched — NO mouth), F004 (mass as
+  cloth), F006 (floating energy), F008 (senior-minimal flat fills),
+  F017 (hoodie), F018/F019 (ears + whiskers clear), F022 (card barrel +
+  neck-width hood), F023's one-piece read, hood DOWN, palette keys,
+  RESTRICTED z-ladder, drape + cords + legs untouched, souls untouched
+  (the souls swing keeps the stock values), F024 paw peek read,
+  F026 card whiskers' length.
+- Changes: RIG — new module const KITTY_SWING_DAMP = 0.7: the pastel arm
+  multiplies the pose swing by 0.7 (grounded ±0.35 rad, airborne
+  −0.385, paw sweep ±0.154 body units — out of the pocket-dip range);
+  souls keeps `pose.armSwing` untouched. CARD — KittyPortrait head
+  narrowed back to 74.25 wide (x-scaled 0.9 about the centre, undoing
+  the F025 +10%) and grown to 55 tall with the crown keeping its level
+  (y 16) while the chin drops 66 -> 71 (the head's mass sits lower, a
+  taller face); ears follow the narrower crown (bases ride the reshaped
+  outline, tip height unchanged); the face (eyes cy 52.3, nose 53.95)
+  and whisker rows ride +3.3 down with the head, all forms and lengths
+  unscaled — the whiskers' x-ends stay put, so against the narrower
+  head they read longer.
+- Before: R025 renders (stock swing, wide 82.5 head).
+- After: R026/menu.png, R026/card-close.png, R026/card-souls.png,
+  R026/card-face-zoom.png, R026/running-f1.png,
+  R026/running-f1-close.png, R026/dash.png, R026/dash-close.png
+  (chromium 1134, dsf 3 close-ups + game-scale frames, same probes
+  route).
+- Visual inspection: performed — run f1 + dash: the swing reads calmer,
+  arms stay close to the barrel, both paws read as clean round white
+  nubs, nothing flails to the sides or dips into the pocket; dash tilt
+  intact; whiskers clear the eyes. Card: the head reads as a taller
+  narrower oval sitting lower into the collar (classic-kitty
+  proportion), crown still level, face in the lower half unchanged in
+  form. NOTE: run-frame-4 flaked this run (empty-crop capture flake,
+  same transient headless-GPU pattern as before) — not a code signal.
+- Code verification: `npm --prefix portfolio run typecheck` PASS;
+  kitty-run.check.ts PASS; kitty-run.sim.ts PASS; kitty-run.shots.mjs
+  PASS (all six shots, no problems).
+- Open question: LIKED/REJECTED per F027(a)-(c). Declared knobs: (1) the
+  swing damp factor (0.7 — up toward stock or down toward 0.35);
+  (2) the card head's width factor (0.9) and height (+10%); (3) the
+  head's drop amount (chin at 71); (4) the card whiskers' now-longer
+  relative read (lengths untouched, heads-up only).
