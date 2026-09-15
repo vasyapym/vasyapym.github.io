@@ -56,13 +56,14 @@ export function KittyPortrait() {
           their height, bases ride the lowered crown outline */}
       <path d="M21.785 30.05 L25.25 12 Q26.735 9 29.21 11.5 L37.625 22.35" fill="#ffffff" />
       <path d="M78.215 30.05 L74.75 12 Q73.265 9 70.79 11.5 L62.375 22.35" fill="#ffffff" />
-      {/* face in the lower half: small vertical eyes, small ochre nose, NO
-          mouth — original compact form (F026: no spread/scale), now
-          riding +3.3 down with the longer head so the face keeps its
-          place in the lowered mass */}
+      {/* face in the lower half: small vertical eyes, small brown nose
+          (F036: #a5714b, was yellow #ffd44d — the strongest remaining
+          Hello Kitty marker), NO mouth — original compact form (F026:
+          no spread/scale), now riding +3.3 down with the longer head
+          so the face keeps its place in the lowered mass */}
       <ellipse cx="34" cy="52.3" rx="2.2" ry="3.4" fill={OUTLINE_PASTEL} stroke="none" />
       <ellipse cx="66" cy="52.3" rx="2.2" ry="3.4" fill={OUTLINE_PASTEL} stroke="none" />
-      <ellipse cx="50" cy="53.95" rx="2.6" ry="1.9" fill="#ffd44d" stroke="none" />
+      <ellipse cx="50" cy="53.95" rx="2.6" ry="1.9" fill="#a5714b" stroke="none" />
       {/* whiskers: three per side, eye level, slightly fanned (rows ride
           the face's +3.3 down-shift; x-ends unchanged — lengths intact) */}
       <path d="M27 48.3 L3 43.8 M27 52.3 L2 52.3 M27 56.3 L3 60.8" strokeWidth={2} />

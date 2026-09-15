@@ -8,7 +8,7 @@ export const PALETTE = {
   bowDeep: "#d13a50",
   suitPink: "#f6a9c0",
   suitDeep: "#e88bab",
-  noseYellow: "#ffd44d",
+  noseYellow: "#a5714b",
   cheek: "#ffc9d8",
   eyeInk: "#3a3142",
 

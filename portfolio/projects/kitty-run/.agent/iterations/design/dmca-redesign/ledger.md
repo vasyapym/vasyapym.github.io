@@ -2035,3 +2035,58 @@ beard/stubble read · one-whisker-per-side read · naked/torso-less read.
   flip, amplitude step-up, souls mirror), nothing pending. Both design
   tracks are now liked: the card (F033) and the rig (this entry).
 - User source: "liked" (2026-09-15)
+
+## Feedback F036
+- Round: R033 (brief stage, pre-render) — after the DMCA-risk review
+  that judged the yellow oval nose the strongest remaining Hello Kitty
+  marker (the face itself stays untouched per F002)
+- Verdict: DIRECTION — the owner steers the nose from yellow to brown
+- Scope: the nose FILL only — the pastel card (KittyPortrait) and the
+  pastel rig's nose mesh; shape, size, position untouched.
+  Deliberately untouched: the star collectible (star #ffd44d — a
+  different object, stays yellow), the souls variant (its noseYellow
+  key already carries the ember orange #e8913c — a different variant),
+  the eyes, whiskers, hoodie red (offered knobs not taken this round).
+- Decision: the pastel nose fill #ffd44d -> #a5714b (a warm mid-brown
+  that reads clearly brown on the white face and holds against the
+  pink card backdrop and the red hoodie).
+- User source: "change nose to brownish" (2026-09-15)
+
+## Round R033
+- Goal: answer F036 — the pastel nose goes from yellow to brownish.
+- Preserved preferences: F002 (face untouched — NO mouth), F004 (mass
+  as cloth), F006 (floating energy), F008 (senior-minimal flat fills),
+  F017 (hoodie), F018/F019 (ears + whiskers clear), F022 (card barrel +
+  neck-width hood), F023's one-piece read, hood DOWN, palette keys,
+  RESTRICTED z-ladder, F024 paw peek read, F026 card whiskers' length,
+  F031/F034 swing (0.34x, alternating), the R031 card head, the souls
+  variant untouched.
+- Changes: the nose FILL only — the card's ellipse (line: fill
+  #ffd44d -> #a5714b) and the rig's nose mesh via the pastel palette
+  (noseYellow value #ffd44d -> #a5714b; the key name predates this and
+  already lies on the souls side, where it carries the ember orange —
+  a rename is refactor debt, out of this round's scope). The star
+  collectible (#ffd44d) and the souls embers keep their yellows; the
+  card's "ochre nose" comment now says brown and cites F036.
+- Before: R031/R032 renders (yellow oval nose).
+- After: R033/card-cat.png, R033/card-face-zoom.png, R033/menu.png,
+  R033/running-f1.png, R033/cat-f1.png (chromium 1134, dsf 3, same
+  probes route).
+- Visual inspection: performed — the card nose reads as a small warm
+  brown oval, clean against the white face and the pink backdrop; the
+  rig nose reads brown in the run frame with the yellow gone; the
+  alternating gait is intact; no other face element moved.
+- Code verification: `npm --prefix portfolio run typecheck` PASS;
+  kitty-run.check.ts PASS; kitty-run.sim.ts PASS; kitty-run.shots.mjs
+  FLAKY — the [desktop] bullet-vignette bloom assert flagged twice this
+  round (opacity 0.039 / 0.022, threshold 0.05), continuing the R032
+  session pattern (6 fails in a row): the dash fires (nonzero values
+  that vary per run) but the fixed 120 ms wall-clock sample lands in
+  the early time-dilated ramp. Unrelated subsystem — the only working-
+  tree game changes are the two nose fills. Not treated as a code
+  signal; documented for the eventual test-timing fix.
+- Open question: LIKED/REJECTED per F036. Declared knobs: (1) the brown
+  depth (#a5714b — could go lighter/pinker or darker/espresso); (2) the
+  DMCA levers not taken: a non-red hoodie, whisker reshape, a mouth
+  (F002 conflict); (3) the palette key rename (noseYellow -> a truthful
+  name) as refactor debt.
