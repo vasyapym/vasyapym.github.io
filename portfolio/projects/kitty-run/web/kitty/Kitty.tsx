@@ -36,15 +36,16 @@ const ROOT_SCALE = 0.72;
 // silhouette at the top of the swing.
 const PAULDRON_DAMP = 0.7;
 
-// Pastel arm-swing damping (F027, F028, F029): the stock ±0.5 rad read
-// as awkward waving "here and there" — at the lowered pivot the paw
-// sweeps ±0.22 body units and dips behind the pocket's edge at the max
-// inward swing. Calmed stepwise: 0.7x (F027), 0.5x (F028), then F029
-// asked 15% less travel still -> 0.425x (0.5·0.85): grounded ±0.21 rad,
-// airborne −0.234, paw sweep ±0.094 units. Still above the rejected
-// R023 dead-calm 0.35x energy. The souls variant keeps the untouched
-// stock swing.
-const KITTY_SWING_DAMP = 0.425;
+// Pastel arm motion (F030): four rounds of amplitude cuts on the lateral
+// z-swing (F023 0.35x -> stock -> F027 0.7x -> F028 0.5x -> F029 0.425x)
+// never fixed the awkward read — the problem was the motion's character,
+// not its size: a side-to-side paw arc reads as waving no matter how
+// small. The pastel arms now bob VERTICALLY instead: the whole arm unit
+// (sleeve + cuff + paw) rides a counter-phase y offset, the left rising
+// while the right dips, stride-synced; airborne both hold a slight lift
+// so the arms rise with the jump. Amplitude is the knob. The souls
+// variant keeps the untouched stock z-swing.
+const KITTY_ARM_BOB = 0.04;
 
 // Souls-only wear shading, drawn INSIDE existing silhouettes (character
 // law: same rig, material only). Values sit one step from the host fill
@@ -848,14 +849,29 @@ export function Kitty({
         footRRef.current.position.y = 0.16;
       }
     }
-    // Arm swing (F027 0.7x, F028 0.5x, F029 −15% travel again ->
-    // KITTY_SWING_DAMP 0.425x: grounded +-0.21 rad, airborne -0.234,
-    // paw sweep +-0.094 body units — tight beside the barrel, still
-    // visibly swinging. The souls variant keeps the untouched stock
-    // swing; the knight's spaulder damping lives on its own refs.)
-    const armSwing = isSouls ? pose.armSwing : pose.armSwing * KITTY_SWING_DAMP;
-    if (armLRef.current) armLRef.current.rotation.z = -armSwing;
-    if (armRRef.current) armRRef.current.rotation.z = armSwing;
+    // Arm motion (F030: the lateral z-swing read as awkward waving at
+    // every amplitude tried (F023, F026-F029) — the pastel arms swap it
+    // for a vertical counter-phase bob: the whole arm unit rides
+    // sin(runPhase) +-KITTY_ARM_BOB, the left rising while the right
+    // dips; airborne both hold a slight +0.03 lift so the arms rise
+    // with the jump, and the pivot stays at its R024 seat (0.8). The
+    // souls variant keeps the untouched stock z-swing; the knight's
+    // spaulder damping lives on its own refs.)
+    if (isSouls) {
+      if (armLRef.current) armLRef.current.rotation.z = -pose.armSwing;
+      if (armRRef.current) armRRef.current.rotation.z = pose.armSwing;
+    } else {
+      const bob = k.grounded ? Math.sin(k.runPhase) * KITTY_ARM_BOB : 0;
+      const lift = k.grounded ? 0 : 0.03;
+      if (armLRef.current) {
+        armLRef.current.rotation.z = 0;
+        armLRef.current.position.y = 0.8 + bob + lift;
+      }
+      if (armRRef.current) {
+        armRRef.current.rotation.z = 0;
+        armRRef.current.position.y = 0.8 - bob + lift;
+      }
+    }
     // Hood drape (pastel only; the ref is null on the souls branch). The
     // hem trails to -x, so — like the cape — a *negative* z rotation lifts
     // it up and back. Same terms as the cape, smaller amplitudes: this is

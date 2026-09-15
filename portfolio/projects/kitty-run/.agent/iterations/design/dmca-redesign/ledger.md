@@ -1782,3 +1782,67 @@ beard/stubble read · one-whisker-per-side read · naked/torso-less read.
 - Open question: LIKED/REJECTED per F029. Declared knob: the swing damp
   factor (0.425 — approaching the rejected dead-calm 0.35, so a further
   cut needs an explicit owner call).
+
+## Feedback F030
+- Round: R029 (brief stage, pre-render)
+- Verdict: REJECTED the lateral swing's motion character itself — even
+  at 0.425x the paws still read as awkward waving "here and there";
+  the owner asked for a recommendation and chose the proposed fix
+- Scope: the in-game arm motion's axis and character (not amplitude)
+- Decision: (a) the diagnosis stands — four amplitude cuts (F023 0.35x,
+  stock, F027 0.7x, F028 0.5x, F029 0.425x) never removed the
+  awkwardness because the SIDE-TO-SIDE z-swing itself is the waving
+  read; (b) the pastel arms swap the lateral swing for a VERTICAL
+  counter-phase bob: the whole arm unit (sleeve + cuff + paw) rides
+  sin(runPhase) ±0.04 body units, the left rising while the right
+  dips, stride-synced; airborne both arms hold a slight +0.03 lift
+  (arms rise with the jump); dash keeps the bob; (c) the souls variant
+  keeps the untouched stock z-swing.
+- User source: "it still feels like awkward movement. what do u
+  recommend?" — chose the recommended "Вертикальный боб" option
+  (2026-09-15)
+- Artifact: R028 renders.
+- Supersedes: F026(c)/F027(a)/F028/F029's lateral-swing line — the
+  swing-amplitude knob is retired for the pastel arms; the arms now
+  have a KITTY_ARM_BOB amplitude knob (0.04) instead.
+
+## Round R029
+- Goal: answer F030 — swap the pastel arms' lateral z-swing for a
+  vertical counter-phase bob (the recommended motion character).
+- Preserved preferences: F002 (face untouched — NO mouth), F004 (mass as
+  cloth), F006 (floating energy), F008 (senior-minimal flat fills),
+  F017 (hoodie), F018/F019 (ears + whiskers clear), F022 (card barrel +
+  neck-width hood), F023's one-piece read, hood DOWN, palette keys,
+  RESTRICTED z-ladder, drape + cords + legs untouched, souls untouched
+  (stock z-swing), F024 paw peek read, F026–F028 card untouched.
+- Changes: RIG — the pastel arm block in useFrame: `rotation.z` no
+  longer alternates; each whole arm group (sleeve + cuff + paw, one
+  piece) translates vertically: grounded y = ±KITTY_ARM_BOB
+  (0.04)·sin(runPhase), counter-phase (left up while the right dips),
+  stride-synced; airborne both arms hold a +0.03 lift (bob frozen, the
+  arms rise with the jump); rotation.z is driven back to 0 every frame
+  on the pastel branch. The module const KITTY_SWING_DAMP (0.425) is
+  replaced by KITTY_ARM_BOB (0.04); both comment blocks carry the full
+  stepwise history and the F030 axis-switch rationale. Souls keeps the
+  stock pose.armSwing z-rotation untouched.
+- Before: R028 renders (0.425x lateral swing).
+- After: R029/menu.png, R029/running-f1.png, R029/running-f1-close.png,
+  R029/running-f3.png, R029/running-f3-close.png, R029/running-f4.png,
+  R029/running-f4-close.png, R029/dash.png, R029/dash-close.png
+  (chromium 1134, dsf 3 close-ups + game-scale frames, same probes
+  route). The card SVG is untouched this round, so no card artifacts
+  are re-captured (R026 set stays current).
+- Visual inspection: performed — run f1/f3/f4 + dash (all clean this
+  run): no lateral splay at all, the paw nubs sit right beside the
+  barrel; the counter-phase bob reads as a subtle vertical offset
+  between frames (one paw a touch higher than the other); the sleeve +
+  cuff + paw move as one piece (the F023 "totally separate" read is
+  structurally impossible now); no shoulder gap at the ±0.04 travel;
+  dash tilt intact, arms tucked.
+- Code verification: `npm --prefix portfolio run typecheck` PASS;
+  kitty-run.check.ts PASS; kitty-run.sim.ts PASS; kitty-run.shots.mjs
+  PASS (all six shots, no problems).
+- Open question: LIKED/REJECTED per F030. Declared knobs: (1) the bob
+  amplitude (0.04 — the vertical travel of each paw); (2) the airborne
+  lift (+0.03); (3) the counter-phase pairing (left up / right down —
+  could flip to in-phase if the read disagrees).
