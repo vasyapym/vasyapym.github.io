@@ -7,12 +7,15 @@
 // honest way — hood DOWN: two uneven cloth rolls bunched behind the neck
 // (mostly hidden by the head, flanks peeking past the cheeks), a draw-cord
 // pair swinging on the chest, a kangaroo pocket, a ribbed hem band and
-// cuffed sleeves riding the arm pivots; the ashen knight wears a great helm
-// (visor + ember eyes), pauldrons, a two-layer cape and a greatsword over
-// the shoulder, all built from the same palette keys (bowRed/bowDeep are
-// steel in her palette), so the best-run ghost can still retint her by hex
-// lookup. On the ready screen the rig is the blurred menu backdrop and the
-// outfit is hidden — the bare cat greets you there.
+// raglan sleeves riding continuous arm+paw silhouettes; a soft flap of the
+// hood's loose back fabric trails behind her (the quiet, hoodie-scale
+// answer to the knight's cape), and stubby legs carry white paws below the
+// hem. The ashen knight wears a great helm (visor + ember eyes),
+// pauldrons, a two-layer cape and a greatsword over the shoulder, all
+// built from the same palette keys (bowRed/bowDeep are steel in her
+// palette), so the best-run ghost can still retint her by hex lookup. The
+// outfit shows in every world status now — the ready screen greets you
+// with the dressed cat as its blurred backdrop preview.
 
 import { useMemo, useRef } from "react";
 import * as THREE from "three";
@@ -157,6 +160,104 @@ function bodyHoodieShape(): THREE.Shape {
   shape.quadraticCurveTo(0.72, 0.6, 0.62, 1.02);
   shape.quadraticCurveTo(0, 1.12, -0.62, 1.02);
   shape.quadraticCurveTo(-0.72, 0.6, -0.66, 0.06);
+  shape.closePath();
+  return shape;
+}
+
+// Ink copy for a pivot-authored shape: the same silhouette grown about its
+// bbox centre. (A uniform scale about the shape's ORIGIN would drift the
+// outline on shapes authored from a shoulder/hip pivot — one side would
+// read thicker than the other. Growing about the bbox centre keeps the
+// margin even at both ends, matching what Part's `outline` gives the
+// origin-centred shapes.)
+function grownInk(shape: THREE.Shape, grow = 1.045, seg = 20): THREE.ShapeGeometry {
+  const geo = new THREE.ShapeGeometry(shape, seg);
+  geo.computeBoundingBox();
+  const bb = geo.boundingBox;
+  if (!bb) return geo;
+  const cx = (bb.min.x + bb.max.x) / 2;
+  const cy = (bb.min.y + bb.max.y) / 2;
+  geo.translate(-cx, -cy, 0);
+  geo.scale(grow, grow, 1);
+  geo.translate(cx, cy, 0);
+  return geo;
+}
+
+// Continuous arm: shoulder cap -> tapered forearm -> round paw, authored in
+// the arm pivot's local frame (origin at the shoulder). One silhouette, so
+// the paw always reads as part of the arm while the whole piece swings —
+// the old stacked ellipse pair left the paw a ~2px sliver behind the cuff.
+// The red sleeve covers the cap and the upper arm; the white forearm and
+// paw live below the cuff line and stay visible through the whole swing.
+function armPawShape(): THREE.Shape {
+  const wTop = 0.135;
+  const wWrist = 0.088;
+  const yWrist = -0.42;
+  const pawRx = 0.118;
+  const pawRy = 0.1;
+  const yPaw = yWrist - pawRy * 0.55;
+  const shape = new THREE.Shape();
+  shape.moveTo(wTop, 0.04);
+  shape.quadraticCurveTo(wTop * 0.99, yWrist * 0.55, wWrist, yWrist);
+  shape.quadraticCurveTo(pawRx * 1.1, yPaw, 0, yPaw - pawRy);
+  shape.quadraticCurveTo(-pawRx * 1.1, yPaw, -wWrist, yWrist);
+  shape.quadraticCurveTo(-wTop * 0.99, yWrist * 0.55, -wTop, 0.04);
+  shape.quadraticCurveTo(-wTop * 0.9, 0.17, 0, 0.17);
+  shape.quadraticCurveTo(wTop * 0.9, 0.17, wTop, 0.04);
+  shape.closePath();
+  return shape;
+}
+
+// Red shoulder sleeve: a round cuff-sleeve ellipse (the R020 shoulder
+// blob read, sized up for the longer arm) riding the arm pivot. A
+// tailored raglan's angular top corners poked past the torso's shoulder
+// curve beside the head and read as little wings, so the sleeve stays a
+// soft origin-centred ellipse (uniform ink growth stays even) and the
+// cuff band caps its bottom edge — the white forearm + paw emerge below.
+function sleeveShape(): THREE.Shape {
+  return ellipseShape(0.165, 0.185);
+}
+
+// Leg + paw: a stubby white leg tucked behind the hem band, paw reaching
+// down to the ground line. Authored in the leg group's local frame (the
+// old foot groups: origin y 0.1 with the step bounce). The stub's top
+// hides behind torso + hem band; the paw hangs past the old ~1px peek so
+// the legs actually read.
+function legPawShape(): THREE.Shape {
+  const wTop = 0.085;
+  const pawRx = 0.115;
+  const pawRy = 0.085;
+  const yPaw = -0.12;
+  const shape = new THREE.Shape();
+  shape.moveTo(wTop, 0.3);
+  shape.quadraticCurveTo(wTop * 0.9, yPaw * 0.6, pawRx, yPaw);
+  shape.quadraticCurveTo(pawRx * 0.75, yPaw - pawRy, 0, yPaw - pawRy);
+  shape.quadraticCurveTo(-pawRx * 0.75, yPaw - pawRy, -pawRx, yPaw);
+  shape.quadraticCurveTo(-wTop * 0.9, yPaw * 0.6, -wTop, 0.3);
+  shape.closePath();
+  return shape;
+}
+
+// Hood's loose back fabric: a soft trailing flap hanging from the neck —
+// the hoodie-scale answer to the knight's cape. Authored in its own
+// group's frame (origin at the neck pivot, y 0.98): the top edge hides
+// behind the torso, the left edge descends and emerges past the torso's
+// lower-left silhouette, and the hem ends in two rounded lobes (a sharp
+// tip read as a spike in the first render). One quiet layer, never wide
+// enough to read as wings.
+function hoodDrapeShape(): THREE.Shape {
+  const shape = new THREE.Shape();
+  shape.moveTo(0.34, 0.06);
+  shape.quadraticCurveTo(0.05, 0.12, -0.26, 0.08);
+  shape.quadraticCurveTo(-0.5, 0.04, -0.58, -0.16);
+  shape.quadraticCurveTo(-0.66, -0.34, -0.8, -0.42);
+  shape.quadraticCurveTo(-0.93, -0.5, -0.91, -0.37);
+  shape.quadraticCurveTo(-0.89, -0.26, -0.73, -0.3);
+  shape.quadraticCurveTo(-0.83, -0.46, -0.66, -0.5);
+  shape.quadraticCurveTo(-0.5, -0.53, -0.36, -0.44);
+  shape.quadraticCurveTo(-0.16, -0.5, 0.06, -0.48);
+  shape.quadraticCurveTo(0.26, -0.46, 0.33, -0.24);
+  shape.quadraticCurveTo(0.39, -0.06, 0.34, 0.06);
   shape.closePath();
   return shape;
 }
@@ -478,12 +579,11 @@ export function Kitty({
   const headRef = useRef<THREE.Group>(null);
   const earLRef = useRef<THREE.Group>(null);
   const earRRef = useRef<THREE.Group>(null);
-  // pastel outfit: one visibility group for the body-worn pieces + one per
-  // sleeve (sleeves must live inside the arm pivots to ride the swing), so
-  // the ready screen can bare the cat with three visibility writes.
-  const outfitRef = useRef<THREE.Group>(null);
-  const sleeveLRef = useRef<THREE.Group>(null);
-  const sleeveRRef = useRef<THREE.Group>(null);
+  // pastel outfit: no visibility gating — the hoodie shows in every world
+  // status now (the ready screen's blurred backdrop preview is the dressed
+  // cat). The sleeves still live inside the arm pivots to ride the swing;
+  // the drape gets its own ref for the cape-style sway.
+  const drapeRef = useRef<THREE.Group>(null);
   const cordLRef = useRef<THREE.Group>(null);
   const cordRRef = useRef<THREE.Group>(null);
   const eyeLRef = useRef<THREE.Mesh>(null);
@@ -620,8 +720,18 @@ export function Kitty({
       ),
       aglet: new THREE.ShapeGeometry(roundedRectShape(0.064, 0.11, 0.03), seg),
       hemBand: new THREE.ShapeGeometry(roundedRectShape(1.24, 0.13, 0.05), seg),
-      sleeve: new THREE.ShapeGeometry(ellipseShape(0.15, 0.17), seg),
-      cuff: new THREE.ShapeGeometry(roundedRectShape(0.26, 0.07, 0.025), seg),
+      // pastel limbs: continuous silhouettes; their ink copies are grown
+      // about the bbox centre (pivot-authored shapes) so the outline stays
+      // even from shoulder to paw.
+      armPaw: new THREE.ShapeGeometry(armPawShape(), seg),
+      armPawInk: grownInk(armPawShape(), 1.05, seg),
+      sleeve: new THREE.ShapeGeometry(sleeveShape(), seg),
+      cuff: new THREE.ShapeGeometry(roundedRectShape(0.3, 0.06, 0.025), seg),
+      legPaw: new THREE.ShapeGeometry(legPawShape(), seg),
+      legPawInk: grownInk(legPawShape(), 1.1, seg),
+      // hood's loose back fabric, trailing behind her
+      hoodDrape: new THREE.ShapeGeometry(hoodDrapeShape(), seg),
+      hoodDrapeInk: grownInk(hoodDrapeShape(), 1.05, seg),
       dress: new THREE.ShapeGeometry(dressShape(), seg),
       foot: new THREE.ShapeGeometry(ellipseShape(0.11, 0.085), seg),
       arm: new THREE.ShapeGeometry(ellipseShape(0.12, 0.2), seg),
@@ -688,12 +798,8 @@ export function Kitty({
     }
     if (earLRef.current) earLRef.current.rotation.z = -0.35 + pose.earL;
     if (earRRef.current) earRRef.current.rotation.z = 0.35 + pose.earR;
-    // Hoodie visibility: on the ready screen the rig is the blurred menu
-    // backdrop — the cat greets you bare; dressed only once the run starts.
-    const showOutfit = world.status !== "ready";
-    if (outfitRef.current) outfitRef.current.visible = showOutfit;
-    if (sleeveLRef.current) sleeveLRef.current.visible = showOutfit;
-    if (sleeveRRef.current) sleeveRRef.current.visible = showOutfit;
+    // Hoodie visibility: gone — the outfit shows in every world status,
+    // so the ready screen's blurred backdrop preview is the dressed cat.
     if (cordLRef.current) {
       // Draw cords: the damped cloth jiggle the pull toggle used to ride,
       // phase-split so the two cords never move as one.
@@ -718,6 +824,22 @@ export function Kitty({
     }
     if (armLRef.current) armLRef.current.rotation.z = -pose.armSwing;
     if (armRRef.current) armRRef.current.rotation.z = pose.armSwing;
+    // Hood drape (pastel only; the ref is null on the souls branch). The
+    // hem trails to -x, so — like the cape — a *negative* z rotation lifts
+    // it up and back. Same terms as the cape, smaller amplitudes: this is
+    // a quiet flap, not a second cape.
+    if (drapeRef.current) {
+      const sway = Math.sin(k.runPhase) * 0.055;
+      const lift = k.grounded
+        ? 0
+        : 0.06 + THREE.MathUtils.clamp(-k.vy * 0.012, -0.1, 0.1);
+      const dash = k.dashT > 0 ? Math.min(1, k.dashT * 8) * 0.28 : 0;
+      drapeRef.current.rotation.z = -THREE.MathUtils.clamp(
+        lift + dash + sway * 0.8,
+        -0.05,
+        0.45,
+      );
+    }
     // Spaulder damping (PAULDRON_DAMP, module scope): each plate keeps a net
     // ±0.3·swing nod. Sign flips with the pivot: the left arm rotates by
     // −armSwing (counter +0.7·swing), the right by +armSwing (counter −0.7).
@@ -787,24 +909,67 @@ export function Kitty({
             </>
           )}
 
-          {/* feet peek below the dress hem */}
+          {/* pastel: the hood's loose back fabric, hanging from the neck
+              and trailing past her back edge. Z -0.09 ink / -0.06 fill —
+              a clear gap behind the dress ink (0.09), so it reads as the
+              layer furthest from the camera without touching the souls
+              cape ladder (souls never renders this group). */}
+          {!isSouls && (
+            <group ref={drapeRef} position={[0, 0.98, 0]}>
+              <Part
+                geometry={geo.hoodDrape}
+                inkGeometry={geo.hoodDrapeInk}
+                color={palette.bowDeep}
+                z={-0.06}
+                outlineColor={palette.outlineInk}
+              />
+            </group>
+          )}
+
+          {/* legs: pastel gets a stubby white leg + paw reaching the
+              ground (the old ellipse peeked ~1px past the hem band);
+              souls keeps the plain foot ellipse. Both ride the same step
+              bounce. Z ladder, world frame: leg fill 0.07 (group 0.03 +
+              local 0.04) / ink 0.04 — behind the dress ink (0.09), so the
+              torso and hem band tuck the stub; only what hangs below the
+              hem band's bottom edge (y 0.06) shows. */}
           <group ref={footLRef} position={[-0.18, 0.1, 0.03]}>
-            <Part
-              geometry={geo.foot}
-              color={palette.kittyWhite}
-              z={0}
-              outline={1.15}
-              outlineColor={palette.outlineInk}
-            />
+            {isSouls ? (
+              <Part
+                geometry={geo.foot}
+                color={palette.kittyWhite}
+                z={0}
+                outline={1.15}
+                outlineColor={palette.outlineInk}
+              />
+            ) : (
+              <Part
+                geometry={geo.legPaw}
+                inkGeometry={geo.legPawInk}
+                color={palette.kittyWhite}
+                z={0.04}
+                outlineColor={palette.outlineInk}
+              />
+            )}
           </group>
           <group ref={footRRef} position={[0.18, 0.1, 0.03]}>
-            <Part
-              geometry={geo.foot}
-              color={palette.kittyWhite}
-              z={0}
-              outline={1.15}
-              outlineColor={palette.outlineInk}
-            />
+            {isSouls ? (
+              <Part
+                geometry={geo.foot}
+                color={palette.kittyWhite}
+                z={0}
+                outline={1.15}
+                outlineColor={palette.outlineInk}
+              />
+            ) : (
+              <Part
+                geometry={geo.legPaw}
+                inkGeometry={geo.legPawInk}
+                color={palette.kittyWhite}
+                z={0.04}
+                outlineColor={palette.outlineInk}
+              />
+            )}
           </group>
 
           {/* souls: greatsword over the right shoulder. Authored vertical
@@ -900,7 +1065,7 @@ export function Kitty({
               below the chin halo's reach (y <= 0.6) so the head always wins
               where they overlap. */}
           {!isSouls && (
-            <group ref={outfitRef}>
+            <group>
               {/* hood DOWN: bunched rolls behind the neck, nothing on the
                   head; creases make the lobes read as bunched cloth */}
               <Part
@@ -1030,29 +1195,50 @@ export function Kitty({
 
           {/* arms pivot at the shoulder */}
           <group ref={armLRef} position={[-0.62, 0.92, 0]}>
-            <Part
-              geometry={geo.arm}
-              color={palette.kittyWhite}
-              z={0.16}
-              outline={1.14}
-              outlineColor={palette.outlineInk}
-            />
-            {/* pastel sleeve INSIDE the arm pivot: rides the swing; the
-                ellipse covers the arm's upper part (its upper half hides
-                behind the head fill anyway), cuff band inside the sleeve's
-                bottom edge, white paw tip peeks below (z ladder: arm fill
-                0.16 -> sleeve ink 0.175 / fill 0.195 -> cuff 0.215). */}
+            {/* pastel: one continuous arm+paw silhouette (shoulder cap ->
+                tapered forearm -> round paw), so the paw reads through the
+                whole swing; souls keeps the plain ellipse its spaulder was
+                fitted to. Z ladder: arm ink 0.13 / fill 0.16 (the grown
+                ink lives at local -0.03 via inkGeometry — the silhouette
+                is pivot-authored, a uniform origin-scale would drift it).
+                The shoulder cap (+0.17 -> body 1.09) hides behind the
+                head's lower curve; the white forearm and paw hang below
+                the sleeve's cuff (local -0.30) and swing across the chest
+                (z 0.16 over the torso fill 0.14, under the pocket's
+                0.18 — a passing hand briefly dips behind the pocket's
+                edge, which reads as fabric, not a glitch). */}
+            {!isSouls ? (
+              <Part
+                geometry={geo.armPaw}
+                inkGeometry={geo.armPawInk}
+                color={palette.kittyWhite}
+                z={0.16}
+                outlineColor={palette.outlineInk}
+              />
+            ) : (
+              <Part
+                geometry={geo.arm}
+                color={palette.kittyWhite}
+                z={0.16}
+                outline={1.14}
+                outlineColor={palette.outlineInk}
+              />
+            )}
+            {/* pastel raglan sleeve INSIDE the arm pivot: rides the swing;
+                covers the cap + upper arm, cuff band caps its bottom edge (z ladder: arm fill 0.16 ->
+                sleeve ink 0.165 / fill 0.195 -> cuff band 0.215), white
+                forearm + paw below. */}
             {!isSouls && (
-              <group ref={sleeveLRef}>
+              <group>
                 <Part
                   geometry={geo.sleeve}
                   color={palette.bowRed}
                   z={0.195}
-                  position={[0, 0.04]}
-                  outline={1.08}
+                  position={[0, -0.01]}
+                  outline={1.07}
                   outlineColor={palette.outlineInk}
                 />
-                <mesh geometry={geo.cuff} position={[0, -0.095, 0.215]}>
+                <mesh geometry={geo.cuff} position={[0, -0.19, 0.215]}>
                   <meshBasicMaterial color={palette.bowDeep} />
                 </mesh>
               </group>
@@ -1101,26 +1287,38 @@ export function Kitty({
             )}
           </group>
           <group ref={armRRef} position={[0.62, 0.92, 0]}>
-            <Part
-              geometry={geo.arm}
-              color={palette.kittyWhite}
-              z={0.16}
-              outline={1.14}
-              outlineColor={palette.outlineInk}
-            />
+            {/* pastel continuous arm+paw, souls plain ellipse — mirrored
+                comment and z ladder on the left arm. */}
+            {!isSouls ? (
+              <Part
+                geometry={geo.armPaw}
+                inkGeometry={geo.armPawInk}
+                color={palette.kittyWhite}
+                z={0.16}
+                outlineColor={palette.outlineInk}
+              />
+            ) : (
+              <Part
+                geometry={geo.arm}
+                color={palette.kittyWhite}
+                z={0.16}
+                outline={1.14}
+                outlineColor={palette.outlineInk}
+              />
+            )}
             {/* pastel right sleeve — same local offsets and z ladder as the
                 left (the shapes are symmetric, no mirroring needed). */}
             {!isSouls && (
-              <group ref={sleeveRRef}>
+              <group>
                 <Part
                   geometry={geo.sleeve}
                   color={palette.bowRed}
                   z={0.195}
-                  position={[0, 0.04]}
-                  outline={1.08}
+                  position={[0, -0.01]}
+                  outline={1.07}
                   outlineColor={palette.outlineInk}
                 />
-                <mesh geometry={geo.cuff} position={[0, -0.095, 0.215]}>
+                <mesh geometry={geo.cuff} position={[0, -0.19, 0.215]}>
                   <meshBasicMaterial color={palette.bowDeep} />
                 </mesh>
               </group>

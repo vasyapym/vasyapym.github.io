@@ -1222,3 +1222,112 @@ beard/stubble read · one-whisker-per-side read · naked/torso-less read.
   or smaller aglets; (2) chest busy-ness (creases/slots thinning); (3)
   the roll mass's peak heights. The character-select card SVG can follow
   the same knobs independently.
+
+## Feedback F020
+- Round: R021 (brief stage, pre-render)
+- Verdict: MIXED — LIKED on the R020 direction, REJECTED on four specifics
+- Scope: (1) the main-menu (portfolio landing) Cat Runner tile artwork;
+  (2) the character-select card portrait; (3) the ready-screen backdrop
+  preview; (4) the in-game rig's limbs and hoodie richness
+- Decision: the owner LOVES the direction of the latest changes and calls
+  the select card "overall great", but: (a) the landing tile illustration
+  now includes a HAT (the R019 hood dome survived on
+  ProjectArtwork.tsx's KittyCenterMark while R020 resynced the other
+  surfaces) — remove it; (b) the card's hood reads DISTORTED — like a
+  T-shirt tied on as a scarf; (c) the ready-screen backdrop preview still
+  shows the OLD bare cat — update it to the hoodie version (this
+  reverses F019's "menu cat needs no hoodie": the owner now explicitly
+  wants the preview dressed); (d) in-game the cat's HANDS are invisible
+  and must show, the LEGS barely peek and must show more, and the hoodie
+  should carry DANGLING elements like the Ashen knight's — not prominent,
+  just visual richness. Standing directives stay in force: the model has
+  autonomy over design and code choices ("no strict rules or
+  requirements"), must reason deeply and thoroughly before output, takes
+  screenshots and delivers what is most visually appealing, avoids
+  low-effort drawing — the quality bar is the Ashen character.
+- User source: "I love the direction of the latest changes... Main menu:
+  the illustration looks like it includes a hat — remove it. / Character
+  selection: overall great, but the hood is a bit distorted — appears as
+  though the cat is wearing a T-shirt as a scarf; the background preview
+  still shows the old version of the cat (without the hoodie) — update
+  that. / The cat's hands are not visible and should be; legs barely
+  visible, should be more so; dangling elements on the hoodie like the
+  Ashen character — not overly prominent, enough for visual richness. /
+  No strict rules; take screenshots, evaluate what is most visually
+  appealing; avoid low-effort drawing; reference the Ashen character."
+  (2026-09-15)
+- Artifact: R020 renders + the live deployed site (R020, deploy 34938993).
+- Supersedes: F019 part 3 only (the bare-menu backdrop decision); every
+  other F019/F018 clause stays in force.
+
+## Round R021
+- Goal: answer F020 on all four surfaces — the landing tile loses its
+  hat, the select card's hood must stop reading as a T-shirt-scarf, the
+  ready backdrop preview shows the dressed cat, and the in-game rig gets
+  visible hands, readable legs and a quiet dangling hood element (the
+  Ashen bar). Routing-tier gambles (per the owner's "lets gamble") fed
+  the card and the rig; both replies integrated by salvage.
+- Preserved preferences: F002 (face untouched — NO mouth), F004 (mass at
+  the upper zone as cloth, never headwear), F006 (floating energy —
+  damped cloth jiggle), F008 (senior-minimal flat fills), F017 (owner
+  picked the hoodie), F018 (ears + whiskers stay clear), F019's
+  ears/whiskers clauses, F020 (this round's mandate).
+- Changes: LANDING TILE — ProjectArtwork.tsx KittyCenterMark: the R019
+  hood dome (dome + lining + toggles + re-laid ear tips) deleted — the
+  mark's bare ears are revealed again; the tiny glint moved back onto
+  the paper head at (122,58). CARD — KittyPortrait reworked from the
+  routing reply (salvaged garment stack, repaired): hood shell bunched
+  at shoulder level (its top edge hides behind the head, lobes merge
+  into the shoulders, bottom edge extended to y 88 so no background gap
+  shows), pink lining reading INSIDE the bunched shell, white chest fur
+  through a NARROW scoop neckline (dips to y 85, never spans the head's
+  width — the scarf read came from the old full-width collar + lobes at
+  cheek height), kangaroo pocket + hand slots, white ink-outlined cords
+  with rounded aglets (rig-matching), R020's eye-level whiskers kept,
+  the reply's inner ears + low whiskers dropped (identity laws), head
+  drawn last. RIG — arms rebuilt as ONE continuous silhouette
+  (armPawShape: shoulder cap -> tapered forearm -> round paw; pivot
+  unchanged (+-0.62, 0.92); ink grown about the bbox centre via a new
+  grownInk helper because pivot-authored shapes drift under Part's
+  uniform origin-scale), red shoulder sleeve back to a soft ellipse
+  (0.165x0.185 — the R020 blob read; the first pass's angular raglan
+  poked past the torso's shoulder curve and read as little wings) with
+  a bowDeep cuff band at its bottom edge and the white forearm + paw
+  (0.33 body units) reading through the whole swing; legs rebuilt as
+  legPawShape stubs (stub tucked behind torso + hem band, paw ellipse
+  reaching to body ~-0.10 — past the old ~1px peek; z fill 0.07 / ink
+  0.04, behind the dress ink 0.09) riding the existing step bounce;
+  hoodDrapeShape — a soft two-lobed flap of the hood's loose back
+  fabric hanging from a neck pivot (0, 0.98), z -0.06/-0.09 ink, bowDeep,
+  emerging past the torso's lower-left silhouette (a sharp single tip
+  read as a spike in the first render and was rounded into lobes),
+  swaying with cape-style terms at smaller amplitudes (sway 0.055, lift
+  0.06, dash 0.28); outfit gating DELETED (outfitRef/sleeve refs +
+  showOutfit writes) — the hoodie shows in every world status. Souls
+  branch untouched (geo.arm/geo.foot kept for it; sleeves/cuff/drape/
+  legs are pastel-only). ECHO retint: all new pieces palette-keyed —
+  FADED needed zero additions.
+- Before: R020 renders (scarf-read card, bare blurred menu cat, ~1px
+  legs, no hands, landing tile wearing the dome).
+- After: R021/landing-tile.png, R021/card-close.png, R021/menu.png,
+  R021/menu-cat-close.png, R021/running.png, R021/running-close.png,
+  R021/dash.png, R021/desktop-running.png, R021/mobile-menu.png
+  (chromium 1134, dsf 3 close-ups, same probes route).
+- Visual inspection: performed — landing tile: the beret is gone, bare
+  ears + glint read clean; card close-up (desktop + mobile): no scarf
+  wrap, open collar + chest fur + cords read as a hoodie worn
+  hood-down, head/chin clear; menu: the blurred backdrop cat is DRESSED
+  (red hoodie reads through the wash); rig close-ups: white paws +
+  forearm read under both cuffs through the swing, stubby legs + paws
+  show below the hem band and overlap the white ground stripe
+  (planted), drape = a quiet dark-red scalloped flap at the torso's
+  lower-left, dash still clears it out; no face/ear/whisker collisions.
+- Code verification: `npm --prefix portfolio run typecheck` PASS;
+  kitty-run.check.ts PASS; kitty-run.sim.ts PASS; shots probe PASS
+  (one flaky bullet-vignette bloom assertion on an early run, clean on
+  the re-run — pre-existing timing flake, not this round's code).
+- Open question: LIKED/REJECTED per surface. Declared knobs: (1) the
+  drape's size/position (bigger/lower or gone); (2) paw size (rx 0.118)
+  and cuff width; (3) how far the legs hang (currently paw bottoms at
+  body ~-0.10, slightly past the old contact line); (4) the card's
+  hood-shell width (spans the body's full x-range).
