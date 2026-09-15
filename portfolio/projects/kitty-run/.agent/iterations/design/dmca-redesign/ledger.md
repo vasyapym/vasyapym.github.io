@@ -1476,3 +1476,81 @@ beard/stubble read · one-whisker-per-side read · naked/torso-less read.
   (currently a small sliver; can grow a rounder tip or disappear
   entirely); (2) the grounded swing amplitude (0.35x — can go calmer or
   livelier); (3) the sleeve hem's length (arm overall length).
+
+## Feedback F024
+- Round: R024 (brief stage, pre-render)
+- Verdict: MIXED — REJECTED on the R023 paw peek, plus two new asks
+- Scope: (1) the in-game rig's paw visibility; (2) the in-game whisker
+  length; (3) the character-select card's neck length
+- Decision: (a) the R023 paw peek went too far — the hands are now
+  HIDDEN; they must be visible again, but WITHOUT the old dangling
+  forearm read (the R022 complaint stands); (b) the in-game whiskers
+  should be ~20% longer; (c) the card's cat neck should grow ~10%.
+- User source: "The in-game hands are hidden again. Please make them
+  visible, but not dangling as they were before. Also, make the in-game
+  cat's whiskers about 20% longer. In the character selection menu,
+  increase the cat's neck by approximately 10%." (2026-09-15)
+- Artifact: R023 renders.
+- Supersedes: refines F023's join fix (one-piece read stays; the peek
+  size was over-corrected).
+
+## Feedback F025
+- Round: R024 (addendum, pre-render)
+- Verdict: ADDITION to F024
+- Scope: the character-select card's head size
+- Decision: the card's head (and proportionally the face) grows ~10%,
+  on top of the F024 neck increase. The in-game hands/whiskers asks stand
+  as recorded in F024.
+- User source: "neck + around 10% (as i wrote); and also head
+  (proportionally face) + around 10%" (2026-09-15)
+- Artifact: R024 in-progress renders.
+- Supersedes: none (extends F024(c)).
+
+## Round R024
+- Goal: answer F024/F025 — hands visible but not dangling; whiskers ~20%
+  longer in-game; card neck ~+10%; card head ~+10% with the crown staying
+  level with the ashen card's head-top band.
+- Preserved preferences: F002 (face untouched — NO mouth), F004 (mass as
+  cloth), F006 (floating energy), F008 (senior-minimal flat fills),
+  F017 (hoodie), F018/F019 (ears + whiskers clear), F022 (card barrel +
+  neck-width hood), F023's one-piece read, hood DOWN, palette keys,
+  RESTRICTED z-ladder, drape + cords + legs untouched, souls untouched.
+- Changes: RIG — (1) pastel arm pivot lowered y 0.92 -> 0.80 (souls keeps
+  0.92): the collar drape (hoodFront z 0.22, sags to body y ~0.50) paints
+  OVER the arm fill (z 0.16) — at the old pivot the R023 cuff + peek sat
+  behind it, hiding the hands entirely; the lower pivot puts the sleeve
+  hem, cuff and paw peek BELOW the collar line; (2) sleeveShape hem
+  flattened (taper to ±0.115 at -0.30, dip to -0.312 — the R023 deep dip
+  made the peek read as two white fangs flanking the dip); (3) cuff band
+  moved to [0, -0.285] so it caps the sleeve's end; (4) armPawShape paw
+  chunkier (rx 0.105, ry 0.1, bottom -0.46 — peek ~0.15, clearly visible,
+  far short of the R022 dangling forearm); (5) whiskers PlaneGeometry
+  0.36 -> 0.432 (+20%). CARD — KittyPortrait: head x-scaled 1.1 about the
+  centre (75 -> 82.5 wide; height unchanged so the crown stays at its
+  level — the ashen card's head-top band is bone top 20 / dome apex 24 /
+  ear tips 10, the pastel crown 16 sits between them), ears + eyes + nose
+  follow (x positions scaled, feature sizes scaled), chin keeps the F024
+  raised line (neck +10%), whiskers unchanged.
+- Before: R023 renders (hidden hands), R022 card.
+- After: R024/menu.png, R024/card-close.png, R024/card-souls.png,
+  R024/running-f2.png, R024/running-f3.png, R024/running-f2-close.png,
+  R024/running-f3-close.png, R024/dash.png, R024/dash-close.png,
+  R024/desktop-running.png (chromium 1134, dsf 3 close-ups + game-scale
+  frames, same probes route).
+- Visual inspection: performed — run frames f2/f3 + dash: both paws read
+  as clean round white nubs under the cuffs at every checked swing phase
+  (the R023 fang/wedge read is gone; nothing dangles); swing stays calm;
+  whiskers extend visibly past the head on both sides, no eye collision;
+  dash tilt intact. Cards side by side: pastel head wider, crown level
+  with the knight's ear tips, neck sliver reads under the chin. NOTE:
+  run-frame-1 captured a headless-GPU channel-split glitch twice in a
+  row (transient Chromium compositing artifact, geometry clean in the
+  same run's other frames) — treated as a capture flake, not a code
+  signal.
+- Code verification: `npm --prefix portfolio run typecheck` PASS;
+  kitty-run.check.ts PASS; kitty-run.sim.ts PASS; kitty-run.shots.mjs
+  PASS (all six shots, no problems).
+- Open question: LIKED/REJECTED per F024(a)-(c) + F025. Declared knobs:
+  (1) the paw peek's size/roundness; (2) the grounded swing amplitude
+  (0.35x); (3) the card head's width factor (1.1) and the crown's level;
+  (4) the in-game whisker length (0.432).

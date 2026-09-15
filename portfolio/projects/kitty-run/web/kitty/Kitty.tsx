@@ -186,19 +186,20 @@ function grownInk(shape: THREE.Shape, grow = 1.045, seg = 20): THREE.ShapeGeomet
 
 // Continuous arm base: shoulder cap -> short tapered stem -> paw tip,
 // authored in the arm pivot's local frame (origin at the shoulder). The
-// red sleeve now covers the whole arm (F023: a long bare forearm read as
-// a separate limb under the cuff), so the white part that shows is only
-// the paw tip slipping out from under the sleeve's hem — half-buried in
-// the cuff, it cannot read as a detached piece. The stem (down to
-// yWrist) hides entirely under the sleeve fill; the paw is NARROWER than
-// the sleeve's cuff width, so it emerges from inside the sleeve instead
-// of bulging past its sides.
+// red sleeve covers the whole arm (F023: a long bare forearm read as
+// a separate limb under the cuff), and the paw tip peeks out from under
+// the sleeve's hem as a CHUNKY round nub (F024: the R023 sliver hid the
+// hands entirely — the peek now spans ~0.15 body units and bulges to
+// rx 0.105, so the paw reads clearly at game scale while staying far
+// short of the R022 dangling forearm). The stem hides entirely under
+// the sleeve fill; the paw is narrower than the sleeve's cuff width, so
+// it emerges from inside the sleeve instead of bulging past its sides.
 function armPawShape(): THREE.Shape {
   const wTop = 0.135;
-  const wWrist = 0.075;
+  const wWrist = 0.078;
   const yWrist = -0.3;
-  const pawRx = 0.092;
-  const pawRy = 0.08;
+  const pawRx = 0.105;
+  const pawRy = 0.1;
   const yPaw = yWrist - pawRy * 0.6;
   const shape = new THREE.Shape();
   shape.moveTo(wTop, 0.04);
@@ -213,19 +214,19 @@ function armPawShape(): THREE.Shape {
 }
 
 // Red raglan sleeve: the WHOLE arm (F023). Round at the shoulder cap,
-// tapering along the arm's line to a rounded hem at the cuff end — the
-// silhouette an oversized hoodie sleeve makes when the hand is tucked
-// inside. It covers the arm base's stem completely; the white paw tip
-// shows only below the hem (armPawShape above), reading as one garment
-// over one arm. The outer bulge keeps the R020 shoulder blob's softness;
-// the hem arc dips to ~-0.31, so the paw peek (~0.11) stays small.
+// tapering along the arm's line to a shallow curved hem at the cuff end —
+// the silhouette an oversized hoodie sleeve makes with the hand tucked
+// inside. The hem tapers only to (±0.115, -0.30) and dips to ~-0.31, so
+// the cuff band (±0.095 at -0.27) stays INSIDE the hem on all sides and
+// the white paw tip (armPawShape, bottom -0.46) peeks ~0.15 below it —
+// clearly visible (F024), never a dangling forearm (F021/F023).
 function sleeveShape(): THREE.Shape {
   const shape = new THREE.Shape();
   shape.moveTo(0.135, 0.08);
   shape.quadraticCurveTo(0.17, -0.05, 0.155, -0.16);
-  shape.quadraticCurveTo(0.145, -0.245, 0.115, -0.285);
-  shape.quadraticCurveTo(0, -0.335, -0.115, -0.285);
-  shape.quadraticCurveTo(-0.145, -0.245, -0.155, -0.16);
+  shape.quadraticCurveTo(0.15, -0.26, 0.115, -0.3);
+  shape.quadraticCurveTo(0, -0.312, -0.115, -0.3);
+  shape.quadraticCurveTo(-0.15, -0.26, -0.155, -0.16);
   shape.quadraticCurveTo(-0.17, -0.05, -0.135, 0.08);
   shape.quadraticCurveTo(0, 0.155, 0.135, 0.08);
   shape.closePath();
@@ -621,7 +622,7 @@ export function Kitty({
       eye: new THREE.ShapeGeometry(ellipseShape(0.085, 0.135), seg),
       nose: new THREE.ShapeGeometry(ellipseShape(0.13, 0.1), seg),
       cheek: new THREE.ShapeGeometry(ellipseShape(0.14, 0.09), seg),
-      whisker: new THREE.PlaneGeometry(0.36, 0.032),
+      whisker: new THREE.PlaneGeometry(0.432, 0.032),
       bowLoop: new THREE.ShapeGeometry(ellipseShape(0.37, 0.26), seg),
       bowKnot: new THREE.ShapeGeometry(ellipseShape(0.15, 0.15), seg),
       hoodBack: new THREE.ShapeGeometry(hoodBackShape(), seg),
@@ -1218,8 +1219,14 @@ export function Kitty({
             </>
           )}
 
-          {/* arms pivot at the shoulder */}
-          <group ref={armLRef} position={[-0.62, 0.92, 0]}>
+          {/* arms pivot at the shoulder. Pastel pivot rides LOWER (y 0.80
+              vs the souls 0.92, F024): the collar drape (hoodFront, z 0.22)
+              sags to body y ~0.50 and painted OVER the arm (z 0.16) — at
+              the old pivot the cuff + paw peek sat behind it, hiding the
+              hands entirely. The lower pivot puts the sleeve's hem, cuff
+              and paw peek BELOW the collar line, so the hands show as
+              short one-piece sleeve ends beside the pocket. */}
+          <group ref={armLRef} position={[-0.62, isSouls ? 0.92 : 0.8, 0]}>
             {/* pastel: one continuous arm base silhouette (shoulder cap ->
                 short stem -> paw tip), so the paw tip always moves with the
                 sleeve while the whole piece swings; souls keeps the plain
@@ -1263,7 +1270,7 @@ export function Kitty({
                   z={0.195}
                   outlineColor={palette.outlineInk}
                 />
-                <mesh geometry={geo.cuff} position={[0, -0.27, 0.215]}>
+                <mesh geometry={geo.cuff} position={[0, -0.285, 0.215]}>
                   <meshBasicMaterial color={palette.bowDeep} />
                 </mesh>
               </group>
@@ -1311,7 +1318,7 @@ export function Kitty({
               </group>
             )}
           </group>
-          <group ref={armRRef} position={[0.62, 0.92, 0]}>
+          <group ref={armRRef} position={[0.62, isSouls ? 0.92 : 0.8, 0]}>
             {/* pastel continuous arm+paw, souls plain ellipse — mirrored
                 comment and z ladder on the left arm. */}
             {!isSouls ? (
@@ -1342,7 +1349,7 @@ export function Kitty({
                   z={0.195}
                   outlineColor={palette.outlineInk}
                 />
-                <mesh geometry={geo.cuff} position={[0, -0.27, 0.215]}>
+                <mesh geometry={geo.cuff} position={[0, -0.285, 0.215]}>
                   <meshBasicMaterial color={palette.bowDeep} />
                 </mesh>
               </group>

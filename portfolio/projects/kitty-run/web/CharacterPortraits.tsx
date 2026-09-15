@@ -45,19 +45,23 @@ export function KittyPortrait() {
       <path d="M54 84 L55 91" strokeWidth={1.6} stroke="#ffffff" />
       <rect x="43.2" y="90.5" width="4.6" height="7" rx="2" fill="#e88bab" strokeWidth={1.8} />
       <rect x="52.2" y="90.5" width="4.6" height="7" rx="2" fill="#e88bab" strokeWidth={1.8} />
-      {/* head 75x50 (1.5:1), fullest at the cheeks — drawn LAST so the
-          garment never blocks the chin */}
-      <path d="M12.5 46 C12.5 30 26 18 50 18 C74 18 87.5 30 87.5 46 C87.5 60 70 68 50 68 C30 68 12.5 60 12.5 46 Z" fill="#ffffff" />
-      {/* ears: open paths (no base line) drawn over the crown */}
-      <path d="M21.5 27.5 L25 14 Q26.5 11 29 13.5 L37.5 20.5" fill="#ffffff" />
-      <path d="M78.5 27.5 L75 14 Q73.5 11 71 13.5 L62.5 20.5" fill="#ffffff" />
+      {/* head 82.5x50 (F025: +10% width, x-scaled about the centre), full
+          height unchanged so the crown stays at its level — level with the
+          ashen card's head-top band (bone top y 20 / dome apex 24) — while
+          the chin keeps the F024 raised line (neck +10%). Face scales with
+          the head; drawn LAST so the garment never blocks the chin */}
+      <path d="M8.75 44 C8.75 28 23.6 16 50 16 C76.4 16 91.25 28 91.25 44 C91.25 58 77 66 50 66 C23 66 8.75 58 8.75 44 Z" fill="#ffffff" />
+      {/* ears: open paths (no base line) drawn over the crown; x-positions
+          follow the wider crown, height unchanged (top stays at its level) */}
+      <path d="M18.65 25.5 L22.5 12 Q24.15 9 26.9 11.5 L36.25 18.5" fill="#ffffff" />
+      <path d="M81.35 25.5 L77.5 12 Q75.85 9 73.1 11.5 L63.75 18.5" fill="#ffffff" />
       {/* face in the lower half: small vertical eyes, small ochre nose, NO mouth */}
-      <ellipse cx="34" cy="49" rx="2.2" ry="3.4" fill={OUTLINE_PASTEL} stroke="none" />
-      <ellipse cx="66" cy="49" rx="2.2" ry="3.4" fill={OUTLINE_PASTEL} stroke="none" />
-      <ellipse cx="50" cy="50.5" rx="2.6" ry="1.9" fill="#ffd44d" stroke="none" />
+      <ellipse cx="32.4" cy="47" rx="2.42" ry="3.74" fill={OUTLINE_PASTEL} stroke="none" />
+      <ellipse cx="67.6" cy="47" rx="2.42" ry="3.74" fill={OUTLINE_PASTEL} stroke="none" />
+      <ellipse cx="50" cy="48.5" rx="2.86" ry="2.09" fill="#ffd44d" stroke="none" />
       {/* whiskers: three per side, eye level, slightly fanned */}
-      <path d="M27 45 L3 40.5 M27 49 L2 49 M27 53 L3 57.5" strokeWidth={2} />
-      <path d="M73 45 L97 40.5 M73 49 L98 49 M73 53 L97 57.5" strokeWidth={2} />
+      <path d="M27 43 L3 38.5 M27 47 L2 47 M27 51 L3 55.5" strokeWidth={2} />
+      <path d="M73 43 L97 38.5 M73 47 L98 47 M73 51 L97 55.5" strokeWidth={2} />
     </svg>
   );
 }
