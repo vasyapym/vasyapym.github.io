@@ -1690,3 +1690,48 @@ beard/stubble read · one-whisker-per-side read · naked/torso-less read.
   (2) the card head's width factor (0.9) and height (+10%); (3) the
   head's drop amount (chin at 71); (4) the card whiskers' now-longer
   relative read (lengths untouched, heads-up only).
+
+## Feedback F028
+- Round: R027 (brief stage, pre-render)
+- Verdict: REJECTED the remaining swing travel — the paw's travel
+  distance must shrink another ~30%
+- Scope: the in-game arm motion amplitude only
+- Decision: the paw's travel distance shrinks ~30% from the R026 0.7x —
+  KITTY_SWING_DAMP 0.7 -> 0.5 (grounded ±0.25 rad, airborne −0.275,
+  paw sweep ±0.11 body units). No card changes this round.
+- User source: "make the hands move even less, around 30% less (i mean
+  distance of its move)" (2026-09-15)
+- Artifact: R026 renders.
+- Supersedes: none (tightens F027(a) further; the R023 dead-calm 0.35x
+  reference stays rejected — 0.5x keeps the swing visible).
+
+## Round R027
+- Goal: answer F028 — the paw's travel distance shrinks ~30% from the
+  R026 0.7x factor.
+- Preserved preferences: F002 (face untouched — NO mouth), F004 (mass as
+  cloth), F006 (floating energy), F008 (senior-minimal flat fills),
+  F017 (hoodie), F018/F019 (ears + whiskers clear), F022 (card barrel +
+  neck-width hood), F023's one-piece read, hood DOWN, palette keys,
+  RESTRICTED z-ladder, drape + cords + legs untouched, souls untouched
+  (stock swing), F024 paw peek read, F026/F027 card untouched.
+- Changes: RIG — KITTY_SWING_DAMP 0.7 -> 0.5 (≈0.7·0.7, a ~28.6% travel
+  cut ≈ the asked ~30%): grounded ±0.5·0.5 = ±0.25 rad, airborne
+  −0.55·0.5 = −0.275, paw sweep ±0.22·0.5 = ±0.11 body units. Comment
+  blocks updated to carry both steps (F027 then F028).
+- Before: R026 renders (0.7x swing).
+- After: R027/menu.png, R027/running-f1.png, R027/running-f1-close.png,
+  R027/dash.png, R027/dash-close.png (chromium 1134, dsf 3 close-ups +
+  game-scale frames, same probes route). The card SVG is untouched this
+  round, so no card artifacts are re-captured (R026 set stays current).
+- Visual inspection: performed — run f1 + dash: the paws now travel a
+  short, tight arc beside the barrel, reading as a gentle stubby wiggle
+  rather than a wave; nothing flails, no pocket dip; dash tilt intact;
+  the f1 blink pose renders clean. NOTE: run-frame-3 flaked this run
+  (empty-crop capture flake, the same transient headless-GPU pattern) —
+  not a code signal.
+- Code verification: `npm --prefix portfolio run typecheck` PASS;
+  kitty-run.check.ts PASS; kitty-run.sim.ts PASS; kitty-run.shots.mjs
+  PASS (all six shots, no problems).
+- Open question: LIKED/REJECTED per F028. Declared knobs: (1) the swing
+  damp factor (0.5 — the next smaller step would be ~0.35, the rejected
+  dead-calm, so a further cut needs an explicit owner call).

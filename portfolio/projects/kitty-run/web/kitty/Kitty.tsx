@@ -36,14 +36,14 @@ const ROOT_SCALE = 0.72;
 // silhouette at the top of the swing.
 const PAULDRON_DAMP = 0.7;
 
-// Pastel arm-swing damping (F027): the stock ±0.5 rad still read as
+// Pastel arm-swing damping (F027, F028): the stock ±0.5 rad read as
 // awkward waving "here and there" — at the lowered pivot the paw sweeps
 // ±0.22 body units and dips behind the pocket's edge at the max inward
-// swing. 0.7x keeps the motion lively (grounded ±0.35 rad, airborne
-// −0.385, paw sweep ±0.154 units) but out of the pocket-dip range, and
-// stays clearly above the rejected R023 dead-calm 0.35x. The souls
-// variant keeps the untouched stock swing.
-const KITTY_SWING_DAMP = 0.7;
+// swing. First calmed to 0.7x (F027), then F028 asked for ~30% less
+// travel still: 0.5x ≈ 0.7·0.7 — grounded ±0.25 rad, airborne −0.275,
+// paw sweep ±0.11 units, still far from the rejected R023 dead-calm
+// 0.35x energy. The souls variant keeps the untouched stock swing.
+const KITTY_SWING_DAMP = 0.5;
 
 // Souls-only wear shading, drawn INSIDE existing silhouettes (character
 // law: same rig, material only). Values sit one step from the host fill
@@ -847,14 +847,12 @@ export function Kitty({
         footRRef.current.position.y = 0.16;
       }
     }
-    // Arm swing (F027: even the stock amplitude read as awkward waving
-    // "here and there" — at the lowered pivot the paw sweeps +-0.22 body
-    // units and dips behind the pocket's edge at max inward swing. The
-    // pastel arm calms to KITTY_SWING_DAMP 0.7x — lively, clearly above
-    // the rejected R023 dead-calm 0.35x, but out of the pocket-dip
-    // range: grounded +-0.35 rad, airborne -0.385, paw sweep +-0.154
-    // units. The souls variant keeps the untouched stock swing; the
-    // knight's spaulder damping lives on its own refs.)
+    // Arm swing (F027 damped the stock amplitude to 0.7x; F028 asked for
+    // ~30% less travel again -> KITTY_SWING_DAMP 0.5x: grounded +-0.25
+    // rad, airborne -0.275, paw sweep +-0.11 body units — well out of
+    // the pocket-dip range, still visibly swinging. The souls variant
+    // keeps the untouched stock swing; the knight's spaulder damping
+    // lives on its own refs.)
     const armSwing = isSouls ? pose.armSwing : pose.armSwing * KITTY_SWING_DAMP;
     if (armLRef.current) armLRef.current.rotation.z = -armSwing;
     if (armRRef.current) armRRef.current.rotation.z = armSwing;
