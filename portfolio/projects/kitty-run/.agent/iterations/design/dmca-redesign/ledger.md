@@ -2574,3 +2574,17 @@ beard/stubble read · one-whisker-per-side read · naked/torso-less read.
   toward the dome); (2) the mount spread (±0.52 — closer or wider);
   (3) the apex (0.545); (4) the souls ear mounts (±0.58) could follow
   if the knight's peek should match.
+
+## Feedback F048
+- Round: R040 (presented renders)
+- Verdict: LIKED
+- Scope: the R040 state as presented — the tighter domes (20% less
+  round off F045) at the ±0.52 centred mounts, riding on the F045
+  half-drawn construction, the F042/F046 nose (0.6, ×0.75, #f24d00),
+  the F044 paw offset, the R031 card.
+- Decision: the R040 ears stand as presented; knobs stay available
+  (the roundness dial, the mount spread, the apex, the souls mounts).
+- User source: "i wrote \"liked\"" (2026-09-15) — the owner's verdict
+  on the R040 round (their message also repeated the F047 text
+  verbatim; clarified via the question tool that the intent was the
+  verdict)
