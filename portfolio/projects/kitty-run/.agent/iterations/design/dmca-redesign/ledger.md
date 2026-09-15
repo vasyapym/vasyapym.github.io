@@ -1331,3 +1331,73 @@ beard/stubble read · one-whisker-per-side read · naked/torso-less read.
   and cuff width; (3) how far the legs hang (currently paw bottoms at
   body ~-0.10, slightly past the old contact line); (4) the card's
   hood-shell width (spans the body's full x-range).
+
+## Feedback F021
+- Round: R022 (brief stage, pre-render)
+- Verdict: MIXED — LIKED on the R021 direction, REJECTED on three specifics
+- Scope: (1) the character-select card's cat proportions and hood; (2)
+  the in-game rig's arm motion and sleeve/paw join
+- Decision: the owner likes the direction overall, but (a) the card's
+  cat reads TOO FIT — "like a slim teenager cat" — the torso needs a
+  chubbier, rounder read; (b) the card's hood is MISPLACED and FAR TOO
+  WIDE — its span equals the shoulder width, which a bunched hood
+  should never reach (it belongs at the neck, narrower than the
+  shoulders); (c) in-game the hands move too much and look unnatural —
+  calm the swing; (d) the hoodie's sleeve and the cat's hand read as
+  completely separate pieces — the join must read as one sleeve over
+  one arm.
+- User source: "Character selection menu: the cat appears to be too
+  fit, like a slim teenager cat. It shouldn't look this fit. Its hood
+  also appears misplaced and is far too wide — its length is equal to
+  the cat's shoulder width, which isn't appropriate for a hood. /
+  In-game: the cat's hands seem to move too much and look unnatural;
+  the hoodie's hands and the cat's hands look awkward, as if they are
+  completely separate." (2026-09-15)
+- Artifact: R021 renders.
+- Supersedes: none (refines R021's card hood/silhouette and rig arm
+  treatment; everything else stays).
+
+## Round R022
+- Goal: answer F021 on its two surfaces — the select card's cat must
+  stop reading fit/slim-teenager and its hood must shrink to a
+  neck-width bunched shell, while the rig's arms calm down and the
+  sleeve/paw join reads as one garment over one arm.
+- Preserved preferences: F002 (face untouched — NO mouth), F004
+  (mass as cloth, never headwear), F006 (floating energy), F008
+  (senior-minimal flat fills), F017 (hoodie), F018/F019 (ears +
+  whiskers clear), F020/F021 (this round's mandate), hood DOWN,
+  palette keys, RESTRICTED z-ladder, head drawn LAST in the card.
+- Changes: CARD — KittyPortrait: hood shell rebuilt to NECK width
+  (new path spanning x 28–72 of the 100-box, well inside the
+  shoulder span; its top edge still hides behind the head), the
+  jaw-under lining layer moved AFTER the chest fur so the chin sits
+  clean on the shell with no background gap; the body rebuilt as a
+  BARREL (fuller flanks, x 10–90, rounded waist at y 74) for the
+  chubby read; pocket, cords, face and whiskers kept verbatim; head
+  still last. RIG — Kitty.tsx: sleeveShape rebalanced into a balloon
+  taper that wraps the arm down to a roundedRect cuff (0.19x0.05,
+  r 0.022) at [0, -0.245, 0.215] (sleeve ink via grownInk), so
+  sleeve -> cuff -> paw reads as one continuous garment; the arm
+  swing amplitude scaled x0.55 in useFrame for the pastel variant
+  (souls variant untouched).
+- Before: R021 renders (card: slim torso + shoulder-wide hood; rig:
+  lively swing, sleeve and paw reading as separate pieces).
+- After: R022/menu.png, R022/menu-cat-close.png, R022/card-close.png,
+  R022/running.png, R022/running-alt.png, R022/running-close.png,
+  R022/dash.png (chromium 1134, dsf 3 close-ups, same probes route).
+- Visual inspection: performed — card close-up: barrel body reads
+  chubby, hood is a narrow neck shell well inside the shoulders
+  (no shoulder-width span), chin clear on the shell, hood DOWN, no
+  mouth; rig full frames (run-frame-2/4): the close-up "wedge" suspicion
+  does NOT survive game scale — paws read as small round white nubs
+  under the cuffs, swing is visibly calmer, legs planted below the
+  hem; dressed blurred menu cat kept; dash ghost-trail intact; no
+  face/ear/whisker collisions.
+- Code verification: `npm --prefix portfolio run typecheck` PASS;
+  kitty-run.check.ts PASS; kitty-run.sim.ts PASS; shots probe re-run
+  clean (13:40 local, fresh closeups in /var/folders scratch).
+- Open question: LIKED/REJECTED per F021 point (a)–(d). Declared
+  knobs: (1) the card hood shell's exact width; (2) paw rx / cuff
+  rounding if the nub read needs softening at close-up; (3) the
+  drape's visibility (still occluded in several swing phases —
+  bigger/lower or gone); (4) how far the legs hang.

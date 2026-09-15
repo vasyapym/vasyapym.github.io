@@ -208,14 +208,24 @@ function armPawShape(): THREE.Shape {
   return shape;
 }
 
-// Red shoulder sleeve: a round cuff-sleeve ellipse (the R020 shoulder
-// blob read, sized up for the longer arm) riding the arm pivot. A
-// tailored raglan's angular top corners poked past the torso's shoulder
-// curve beside the head and read as little wings, so the sleeve stays a
-// soft origin-centred ellipse (uniform ink growth stays even) and the
-// cuff band caps its bottom edge — the white forearm + paw emerge below.
+// Red shoulder sleeve: a soft balloon that WRAPS the continuous arm —
+// round at the shoulder cap, tapering down along the arm's own taper to
+// a cuff edge whose width matches the wrist, so the white forearm
+// emerges as the arm's natural continuation instead of poking out from
+// under a separate-looking band (F021: the R021 ellipse + wide cuff read
+// as two disconnected pieces). The outer bulge keeps the R020 shoulder
+// blob's softness; nothing angular pokes past the torso's shoulder.
 function sleeveShape(): THREE.Shape {
-  return ellipseShape(0.165, 0.185);
+  const shape = new THREE.Shape();
+  shape.moveTo(0.13, 0.1);
+  shape.quadraticCurveTo(0.165, -0.03, 0.15, -0.15);
+  shape.quadraticCurveTo(0.14, -0.225, 0.095, -0.245);
+  shape.quadraticCurveTo(0, -0.275, -0.095, -0.245);
+  shape.quadraticCurveTo(-0.14, -0.225, -0.15, -0.15);
+  shape.quadraticCurveTo(-0.165, -0.03, -0.13, 0.1);
+  shape.quadraticCurveTo(0, 0.175, 0.13, 0.1);
+  shape.closePath();
+  return shape;
 }
 
 // Leg + paw: a stubby white leg tucked behind the hem band, paw reaching
@@ -726,7 +736,8 @@ export function Kitty({
       armPaw: new THREE.ShapeGeometry(armPawShape(), seg),
       armPawInk: grownInk(armPawShape(), 1.05, seg),
       sleeve: new THREE.ShapeGeometry(sleeveShape(), seg),
-      cuff: new THREE.ShapeGeometry(roundedRectShape(0.3, 0.06, 0.025), seg),
+      sleeveInk: grownInk(sleeveShape(), 1.07, seg),
+      cuff: new THREE.ShapeGeometry(roundedRectShape(0.19, 0.05, 0.022), seg),
       legPaw: new THREE.ShapeGeometry(legPawShape(), seg),
       legPawInk: grownInk(legPawShape(), 1.1, seg),
       // hood's loose back fabric, trailing behind her
@@ -822,8 +833,13 @@ export function Kitty({
         footRRef.current.position.y = 0.16;
       }
     }
-    if (armLRef.current) armLRef.current.rotation.z = -pose.armSwing;
-    if (armRRef.current) armRRef.current.rotation.z = pose.armSwing;
+    // Arm swing (F021: the long arm made the stock +-0.5 rad read flaily
+    // and unnatural — the paw tip swept +-0.29 body units). The pastel
+    // arms run the swing at 0.55x (the tip sweeps +-0.16, a calm jog);
+    // the knight keeps the stock amplitude its spaulders were tuned to.
+    const armSwing = isSouls ? pose.armSwing : pose.armSwing * 0.55;
+    if (armLRef.current) armLRef.current.rotation.z = -armSwing;
+    if (armRRef.current) armRRef.current.rotation.z = armSwing;
     // Hood drape (pastel only; the ref is null on the souls branch). The
     // hem trails to -x, so — like the cape — a *negative* z rotation lifts
     // it up and back. Same terms as the cape, smaller amplitudes: this is
@@ -1232,13 +1248,12 @@ export function Kitty({
               <group>
                 <Part
                   geometry={geo.sleeve}
+                  inkGeometry={geo.sleeveInk}
                   color={palette.bowRed}
                   z={0.195}
-                  position={[0, -0.01]}
-                  outline={1.07}
                   outlineColor={palette.outlineInk}
                 />
-                <mesh geometry={geo.cuff} position={[0, -0.19, 0.215]}>
+                <mesh geometry={geo.cuff} position={[0, -0.245, 0.215]}>
                   <meshBasicMaterial color={palette.bowDeep} />
                 </mesh>
               </group>
@@ -1312,13 +1327,12 @@ export function Kitty({
               <group>
                 <Part
                   geometry={geo.sleeve}
+                  inkGeometry={geo.sleeveInk}
                   color={palette.bowRed}
                   z={0.195}
-                  position={[0, -0.01]}
-                  outline={1.07}
                   outlineColor={palette.outlineInk}
                 />
-                <mesh geometry={geo.cuff} position={[0, -0.19, 0.215]}>
+                <mesh geometry={geo.cuff} position={[0, -0.245, 0.215]}>
                   <meshBasicMaterial color={palette.bowDeep} />
                 </mesh>
               </group>

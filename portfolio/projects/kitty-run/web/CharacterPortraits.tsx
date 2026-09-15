@@ -18,18 +18,20 @@ export function KittyPortrait() {
       strokeLinejoin="round"
       strokeLinecap="round"
     >
-      {/* hood DOWN: outer shell bunched behind the neck at shoulder
-          level — its top edge hides behind the head, its lobes merge
-          into the shoulders */}
-      <path d="M10 88 C8 66 22 58 38 62 C44 58 56 58 62 62 C78 58 92 66 90 88 Z"
+      {/* hood DOWN: bunched shell behind the NECK — narrower than the
+          shoulders (a hood never spans shoulder to shoulder): its top
+          edge tucks behind the jaw, the lobes peek beside the neck and
+          merge into the body's round shoulders */}
+      <path d="M28 80 C27 68 30 58 42 56 C45 53 55 53 58 56 C70 58 73 68 72 80 Z"
         fill="#d13a50" stroke="#3a3142" strokeWidth={2.2} />
-      {/* lining: the hood's inner fabric showing between shell and body */}
-      <path d="M19 76 C19 68 30 65 40 68 C46 65 54 65 60 68 C70 65 81 68 81 76 Z"
-        fill="#f6a9c0" stroke="#3a3142" strokeWidth={2.2} />
       {/* chest fur showing through the open collar */}
       <path d="M36 60 L36 76 C38 83 45 87 50 87 C55 87 62 83 64 76 L64 60 Z" fill="#ffffff" />
-      {/* hoodie body: shoulders round into a narrow scoop neckline */}
-      <path d="M10 100 L10 86 C10 77 20 74 30 74 L38 74 C40 80 45 85 50 85 C55 85 60 80 62 74 L70 74 C80 74 90 77 90 86 L90 100 Z"
+      {/* lining: the hood's inner fabric peeking under the jaw, drawn
+          over the fur so it reads as the collar's inside edge */}
+      <path d="M34 68 C38 65.6 44 64.8 50 64.8 C56 64.8 62 65.6 66 68 Q50 70.8 34 68 Z" fill="#f6a9c0" />
+      {/* hoodie body: round barrel — the sides bow out to the hem so the
+          cat reads chubby, not fit; round shoulders carry the hood */}
+      <path d="M10 100 L10 90 C10 79 19 74 32 74 L38 74 C40 80 45 85 50 85 C55 85 60 80 62 74 L68 74 C81 74 90 79 90 90 L90 100 Z"
         fill="#e94f64" stroke="#3a3142" strokeWidth={2.2} strokeLinejoin="round" />
       {/* kangaroo pocket + angled hand slots */}
       <path d="M33 89 L67 89 L65 100 L35 100 Z"
