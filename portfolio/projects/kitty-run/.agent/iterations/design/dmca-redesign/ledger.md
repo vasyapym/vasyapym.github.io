@@ -2432,3 +2432,89 @@ beard/stubble read · one-whisker-per-side read · naked/torso-less read.
   apex 0.50 / cap 33% — could slide toward the point or the cup);
   (3) the paw offset (±0.70 — could push to ±0.75 or pull back to
   ±0.66); (4) the card's paws/ears stay at the liked states.
+
+## Feedback F045
+- Round: R039 (brief stage, pre-render)
+- Verdict: NOSTALGIC STEER — the owner likes "the drawing effect that
+  was before our changes (when it was dmca-round ears). like it was
+  half-drawn" — the pre-F037 dome construction, whose bulging lower
+  edge dove behind the head dome so the ear read as half-emerged,
+  outline only along the upper arc — AND "make it 15% less round"
+  off that dome
+- Scope: the rig's earShape only. The outward tilt (F039), the
+  wiggle, the mount, the paw offset (F044), the nose (F042 0.6), the
+  card, souls — untouched.
+- Decision: restore the pre-F037 dome construction and shave its
+  roundness by 15%: the edge bulge control ±0.36 -> ±0.34 (bulge
+  0.08 -> ~0.06), the cap endpoints ±0.12 -> ±0.10, apex 0.54 ->
+  0.545, base ±0.28 stays — the half-drawn lower burial returns, the
+  upper arc reads slightly tighter than the original dome.
+- User source: "i like the drawing effect that was before our changes
+  (when it was dmca-round ears). like it was half-drawn. also make it
+  15% less round" (2026-09-15)
+
+## Feedback F046
+- Round: R039 (brief stage, pre-render)
+- Verdict: REJECTED the nose read — "because of the nose colour it
+  looks like a pig… right now it is pinkish" — the 0.6 white bleed
+  washes the orange to a pig-pink; direction: ~25% smaller AND orange
+- Scope: the pastel nose SIZE + FILL on both surfaces (the 0.6
+  opacity from F042 stays — the owner's own recent ask; the size
+  shrink and the deeper fill fight the washout: a smaller, denser
+  dot reads orange, a big washed disc reads pig-pink). Position
+  untouched.
+- Decision: the rig nose ellipse 0.13/0.1 -> 0.0975/0.075 (×0.75),
+  the card ellipse rx 2.6 -> 1.95 / ry 1.9 -> 1.43; the fill deepens
+  #f57a1f -> #f24d00 (a deep orange whose 0.6-over-white composite
+  ~#f79466 leans coral-orange, the orangest the 0.6 washout allows —
+  the opacity-back-to-~0.75 knob stays declared for a truer orange).
+- User source: "because of the nose colour it looks like a pig. make
+  it around 25% smaller and orange colour (right now it is pinkish)"
+  (2026-09-15)
+
+## Round R039
+- Goal: answer F045 + F046 — the half-drawn dome ears (15% less
+  round) and a smaller, orangely-reading nose.
+- Preserved preferences: F002 (face untouched — NO mouth), F004 (mass
+  as cloth), F006 (floating energy), F008 (senior-minimal flat fills),
+  F017 (hoodie), F018/F019 (ears + whiskers clear), F022 (card barrel +
+  neck-width hood), F023's one-piece read, hood DOWN, palette keys,
+  RESTRICTED z-ladder, F024 paw peek read, F026 card whiskers' length,
+  F031/F034 swing (0.34x, alternating), the R031 card head, the F039
+  outward tilt, the F042 nose opacity 0.6, the F044 paw offset, the
+  souls variant untouched.
+- Changes: EARS (RIG ONLY) — earShape restores the pre-F037 dome
+  construction (the half-drawn read: the bulging lower edge buries
+  behind the head dome, the outline rides only the upper arc) with
+  15% of the roundness shaved: the bulge control ±0.36 -> ±0.34
+  (bulge 0.08 -> ~0.06), the cap endpoints ±0.12 -> ±0.10, the apex
+  holds 0.545, the base ±0.28; the earShape comment now carries the
+  full F037→F045 history. NOSE — the rig ellipse 0.13/0.1 ->
+  0.0975/0.075 (×0.75), the card ellipse rx 2.6 -> 1.95 / ry 1.9 ->
+  1.43, the fill deepens #f57a1f -> #f24d00 (the 0.6 white bleed was
+  washing to pig-pink; a smaller denser dot composites ~#f79466 —
+  coral-orange, the orangest the 0.6 allows); the card comment
+  carries the F038→F046 history.
+- Before: R038 renders (the roundish-triangle ears; the big washed
+  peach nose).
+- After: R039/card-cat.png, R039/card-face-zoom.png, R039/menu.png,
+  R039/running-f4.png, R039/dash.png, R039/cat-f4.png,
+  R039/cat-dash.png (chromium 1134, dsf 3, same probes route). The f1
+  crop caught the cat outside the box (known empty-crop flake) — the
+  f4 and dash frames carry the evidence.
+- Visual inspection: performed — the ears read half-drawn again (the
+  lower burial is back, the outline rides the upper arc) with a
+  slightly tighter dome than the original; the nose is a small warm
+  dot that leans coral-orange and sits clearly warmer than the pink
+  cheeks — the pig read is gone on both surfaces; the paws, the
+  gait, the transparency all ride unchanged.
+- Code verification: `npm --prefix portfolio run typecheck` PASS;
+  kitty-run.check.ts PASS; kitty-run.sim.ts PASS; kitty-run.shots.mjs
+  PASS — a fully clean run (all six shots, no problems), the fourth
+  clean pass this session.
+- Open question: LIKED/REJECTED per F045/F046. Declared knobs: (1)
+  the ear dial (the dome's 15% shave — the bulge/cap could tighten
+  more or relax back to the original); (2) the nose opacity (0.6 —
+  back toward 0.75 would render a truer orange, at the cost of the
+  F042 ask); (3) the nose size (0.75×); (4) the card divergence
+  (pointed card ears vs the rig's dome) stays.

@@ -63,20 +63,23 @@ function ellipseShape(rx: number, ry: number): THREE.Shape {
   return shape;
 }
 
-// Ear silhouette (F037/F039/F041/F043 history: the owner loved the round
-// in-game ears, asked for card-consistent pointed (F037), kept the
+// Ear silhouette (F037/F039/F041/F043/F045 history: the owner loved the
+// round in-game ears, asked for card-consistent pointed (F037), kept the
 // outward tips but read the converged pair as bat ears (F039 — signs
-// flipped at the useFrame site), steered the shape rounder (F041: wide
-// base 0.68, apex 0.46) — and then read THAT as headphones, too round:
-// F043 lands between the F037 point and the F041 cup — base ±0.30
-// (width 0.60), apex 0.50, a hint of edge curve, a ~33% soft tip cap.
-// The card's pair stays pointed.
+// flipped at the useFrame site), read the F041 wide-low rebuild as
+// headphones (too round), steered "roundish, but not round" (F043) —
+// and then came back: the PRE-F037 dome had the "half-drawn" drawing
+// effect they liked (the bulging lower edge buries behind the head
+// dome, the outline only rides the upper arc). F045 restores that
+// dome construction 15% less round: the bulge control ±0.36 -> ±0.34,
+// the cap endpoints ±0.12 -> ±0.10, the apex holds ~0.545, the base
+// ±0.28. The card's pair stays pointed.
 function earShape(): THREE.Shape {
   const shape = new THREE.Shape();
-  shape.moveTo(-0.3, 0);
-  shape.quadraticCurveTo(-0.33, 0.28, -0.1, 0.42);
-  shape.quadraticCurveTo(0, 0.5, 0.1, 0.42);
-  shape.quadraticCurveTo(0.33, 0.28, 0.3, 0);
+  shape.moveTo(-0.28, 0);
+  shape.quadraticCurveTo(-0.34, 0.3, -0.1, 0.47);
+  shape.quadraticCurveTo(0, 0.545, 0.1, 0.47);
+  shape.quadraticCurveTo(0.34, 0.3, 0.28, 0);
   shape.closePath();
   return shape;
 }
@@ -639,7 +642,7 @@ export function Kitty({
       head: new THREE.ShapeGeometry(ellipseShape(1.0, 0.84), seg),
       ear: new THREE.ShapeGeometry(earShape(), seg),
       eye: new THREE.ShapeGeometry(ellipseShape(0.085, 0.135), seg),
-      nose: new THREE.ShapeGeometry(ellipseShape(0.13, 0.1), seg),
+      nose: new THREE.ShapeGeometry(ellipseShape(0.0975, 0.075), seg),
       cheek: new THREE.ShapeGeometry(ellipseShape(0.14, 0.09), seg),
       whisker: new THREE.PlaneGeometry(0.432, 0.032),
       bowLoop: new THREE.ShapeGeometry(ellipseShape(0.37, 0.26), seg),
@@ -1456,10 +1459,13 @@ export function Kitty({
                   <meshBasicMaterial color={palette.eyeInk} />
                 </mesh>
                 <mesh geometry={geo.nose} position={[0, -0.16, 0.27]}>
-                  {/* F042: opacity 0.6 — "30% more transparent" read as
-                      opacity × 0.7 off the 0.85; fill #f57a1f stays.
-                      History: F038 orange@0.8, F040 deepened to #f57a1f
-                      @0.85, F036 brown, before that yellow. */}
+                  {/* F042: opacity 0.6 ("30% more transparent" read as
+                      opacity × 0.7 off the 0.85). F046: the ellipse
+                      shrinks ×0.75 and the fill deepens to #f24d00 —
+                      the 0.6 white bleed was washing the orange to a
+                      pig-pink; a smaller denser dot reads orange.
+                      History: F038 orange@0.8, F040 #f57a1f@0.85,
+                      F042 0.6, F036 brown, before that yellow. */}
                   <meshBasicMaterial
                     color={palette.noseYellow}
                     transparent
