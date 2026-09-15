@@ -63,12 +63,18 @@ function ellipseShape(rx: number, ry: number): THREE.Shape {
   return shape;
 }
 
+// Ear silhouette (F037: the owner loved the round in-game ears but asked
+// for card consistency — not round. Rebuilt on the card's construction:
+// near-straight edges with a small rounded tip cap — deliberately SOFT
+// ("don't make it too pointy"): the cap is ~29% of the base width and the
+// apex stays ~at the old dome height (0.565 vs 0.54) so the souls helm
+// fit and the ±0.35 outward tilt read unchanged).
 function earShape(): THREE.Shape {
   const shape = new THREE.Shape();
   shape.moveTo(-0.28, 0);
-  shape.quadraticCurveTo(-0.36, 0.3, -0.12, 0.47);
-  shape.quadraticCurveTo(0, 0.54, 0.12, 0.47);
-  shape.quadraticCurveTo(0.36, 0.3, 0.28, 0);
+  shape.lineTo(-0.08, 0.5);
+  shape.quadraticCurveTo(0, 0.565, 0.08, 0.5);
+  shape.lineTo(0.28, 0);
   shape.closePath();
   return shape;
 }

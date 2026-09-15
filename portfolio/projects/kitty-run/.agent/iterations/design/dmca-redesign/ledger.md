@@ -2090,3 +2090,66 @@ beard/stubble read · one-whisker-per-side read · naked/torso-less read.
   DMCA levers not taken: a non-red hoodie, whisker reshape, a mouth
   (F002 conflict); (3) the palette key rename (noseYellow -> a truthful
   name) as refactor debt.
+
+## Feedback F037
+- Round: R034 (brief stage, pre-render)
+- Verdict: DIRECTION — the rig's round ears go card-consistent
+  (not-round), with an explicit softness addendum
+- Scope: the pastel rig's ear SILHOUETTE only (earShape construction).
+  Deliberately untouched: the card (its pointed ears are the target
+  read), the ear base width, position, z-ladder, the ±0.35 outward
+  tilt + pose.earL/R wiggle, the souls helm fit (apex stays ~at the
+  old height), the outline ink.
+- Decision: rebuild earShape as the card's construction — near-straight
+  edges with a small rounded tip cap — but deliberately SOFT (the cap
+  ~29% of the base width, apex ~0.565 vs the old 0.54 dome), because
+  the owner addendum asks not-too-pointy in-game. The owner genuinely
+  loved the round in-game ears; consistency with the card's pointed
+  read won, and the soft cap keeps some of the roundness they liked.
+- User source: "i love the in-game round ears but change it to not
+  round to make it consistent" + "maybe don't make it too pointy in
+  the in-game character" (2026-09-15)
+
+## Round R034
+- Goal: answer F037 — the rig's ears go from round domes to
+  card-consistent soft-pointed triangles.
+- Preserved preferences: F002 (face untouched — NO mouth), F004 (mass
+  as cloth), F006 (floating energy), F008 (senior-minimal flat fills),
+  F017 (hoodie), F018/F019 (ears + whiskers clear), F022 (card barrel +
+  neck-width hood), F023's one-piece read, hood DOWN, palette keys,
+  RESTRICTED z-ladder, F024 paw peek read, F026 card whiskers' length,
+  F031/F034 swing (0.34x, alternating), the R031 card head, the R033
+  nose fill, the souls variant untouched (helm fit reasoned: apex
+  0.565 vs old 0.54, ink tip +0.03 — inside the noted 0.02–0.04 layer
+  gaps).
+- Changes: RIG — earShape rebuilt on the card's construction: two
+  near-straight line edges (base ±0.28 -> tip endpoints ±0.08 at
+  y 0.5) with a small rounded quadratic tip cap (control 0, 0.565) —
+  deliberately SOFT per the owner addendum (cap ~29% of the base
+  width, apex ~at the old dome height). Base width, position, z,
+  the ±0.35 outward tilt, the pose.earL/R wiggle and the outline ink
+  untouched. CARD untouched (its ears are the target read).
+- Before: R032/R033 rig renders (round dome ears).
+- After: R034/menu.png, R034/running-f1.png, R034/cat-f1.png,
+  R034/ear-zoom.png, R034/dash.png, R034/cat-dash.png (chromium 1134,
+  dsf 3, same probes route; the ear-zoom is a 3x NEAREST crop of the
+  frame-1 top strip).
+- Visual inspection: performed — the ears read as soft-pointed
+  triangles leaning outward (the straight edges make the rig's ±0.35
+  tilt more visible than the dome did), the tips carry the soft cap
+  (not needles), the silhouette is slimmer at mid-height (57% of the
+  base width vs the dome's ~118%) and matches the card's read; the
+  ears join the head cleanly with no ink seam; the brown nose and the
+  alternating gait ride unchanged.
+- Code verification: `npm --prefix portfolio run typecheck` PASS;
+  kitty-run.check.ts PASS; kitty-run.sim.ts PASS; kitty-run.shots.mjs
+  FLAKY — the [desktop] bullet-vignette bloom assert flagged once this
+  round (opacity 0.025, threshold 0.05), continuing the R032/R033
+  session pattern (7 fails in a row): environmental timing, unrelated
+  subsystem, not a code signal.
+- Open question: LIKED/REJECTED per F037. Declared knobs: (1) the tip
+  softness (the cap could shrink for sharper or grow for rounder);
+  (2) the outward tilt (±0.35 — the lean reads stronger on straight
+  edges; could ease to ±0.25 for a more upright card-like ear); (3)
+  the souls helm fit is reasoned, not rendered — a souls-mode capture
+  would confirm it.
