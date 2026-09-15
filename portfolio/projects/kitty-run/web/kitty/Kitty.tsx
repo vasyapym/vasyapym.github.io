@@ -3,12 +3,16 @@
 // every frame from the pure rig. React renders the parts once; useFrame
 // writes transforms directly.
 //
-// Two bodies share the one rig. The pastel kitty wears a hoodie — a
-// hood ring wrapped around the head with a pull toggle on the chest;
-// the ashen knight wears a great helm (visor + ember eyes), pauldrons,
-// a two-layer cape and a greatsword over the shoulder, all built from
-// the same palette keys (bowRed/bowDeep are steel in her palette), so
-// the best-run ghost can still retint her by hex lookup.
+// Two bodies share the one rig. The pastel kitty wears a hoodie worn the
+// honest way — hood DOWN: two uneven cloth rolls bunched behind the neck
+// (mostly hidden by the head, flanks peeking past the cheeks), a draw-cord
+// pair swinging on the chest, a kangaroo pocket, a ribbed hem band and
+// cuffed sleeves riding the arm pivots; the ashen knight wears a great helm
+// (visor + ember eyes), pauldrons, a two-layer cape and a greatsword over
+// the shoulder, all built from the same palette keys (bowRed/bowDeep are
+// steel in her palette), so the best-run ghost can still retint her by hex
+// lookup. On the ready screen the rig is the blurred menu backdrop and the
+// outfit is hidden — the bare cat greets you there.
 
 import { useMemo, useRef } from "react";
 import * as THREE from "three";
@@ -54,36 +58,98 @@ function earShape(): THREE.Shape {
   return shape;
 }
 
-// Hood dome: cloth over the CROWN only — peak tents above the head's
-// crown (1.20), the edge dips at the ear positions (0.78) so the
-// animated ear tips keep poking through, and terminates at the head's
-// upper sides (±0.92, 0.32), above the eye line and every whisker row.
-// Lining sliver sags along the hem.
-function hoodDomeShape(): THREE.Shape {
+// Hood DOWN: two uneven cloth rolls bunched behind the neck (body-local).
+// hoodBack (bowDeep) is the taller back layer — its lobed top edge peeks
+// beside the cheeks and in the notch under the chin; hoodFront (bowRed) is
+// the lower front layer whose soft sagging bottom edge is the visible
+// collar line on the chest. Both are mostly occluded by the head (they sit
+// below the head's ink z), so nothing reads as headwear.
+function hoodBackShape(): THREE.Shape {
   const shape = new THREE.Shape();
-  shape.moveTo(-0.92, 0.32);
-  shape.quadraticCurveTo(-0.95, 0.7, -0.84, 0.86);
-  shape.quadraticCurveTo(-0.72, 0.92, -0.6, 0.78);
-  shape.quadraticCurveTo(-0.34, 1.14, 0, 1.2);
-  shape.quadraticCurveTo(0.34, 1.14, 0.6, 0.78);
-  shape.quadraticCurveTo(0.72, 0.92, 0.84, 0.86);
-  shape.quadraticCurveTo(0.95, 0.7, 0.92, 0.32);
-  shape.quadraticCurveTo(0, 0.46, -0.92, 0.32);
+  shape.moveTo(-0.92, 0.54);
+  shape.lineTo(0.92, 0.54);
+  shape.quadraticCurveTo(0.97, 0.74, 0.86, 0.82);
+  shape.quadraticCurveTo(0.78, 0.9, 0.66, 0.84);
+  shape.quadraticCurveTo(0.58, 1.02, 0.44, 0.96);
+  shape.quadraticCurveTo(0.32, 0.9, 0.2, 0.94);
+  shape.quadraticCurveTo(0.06, 1.04, -0.08, 0.92);
+  shape.quadraticCurveTo(-0.2, 0.88, -0.34, 0.96);
+  shape.quadraticCurveTo(-0.5, 1.1, -0.62, 0.92);
+  shape.quadraticCurveTo(-0.72, 0.94, -0.8, 0.86);
+  shape.quadraticCurveTo(-0.93, 0.8, -0.92, 0.54);
   shape.closePath();
   return shape;
 }
 
-function hoodLiningShape(): THREE.Shape {
+function hoodFrontShape(): THREE.Shape {
   const shape = new THREE.Shape();
-  shape.moveTo(-0.92, 0.32);
-  shape.quadraticCurveTo(0, 0.46, 0.92, 0.32);
-  shape.quadraticCurveTo(0, 0.56, -0.92, 0.32);
+  shape.moveTo(-0.86, 0.52);
+  shape.quadraticCurveTo(-0.88, 0.62, -0.78, 0.66);
+  shape.quadraticCurveTo(-0.68, 0.72, -0.58, 0.66);
+  shape.quadraticCurveTo(-0.46, 0.74, -0.36, 0.68);
+  shape.quadraticCurveTo(-0.24, 0.62, -0.12, 0.66);
+  shape.quadraticCurveTo(0, 0.7, 0.12, 0.64);
+  shape.quadraticCurveTo(0.26, 0.6, 0.38, 0.66);
+  shape.quadraticCurveTo(0.52, 0.74, 0.64, 0.66);
+  shape.quadraticCurveTo(0.76, 0.6, 0.8, 0.64);
+  shape.quadraticCurveTo(0.88, 0.6, 0.86, 0.52);
+  shape.quadraticCurveTo(0, 0.44, -0.86, 0.52);
   shape.closePath();
   return shape;
 }
 
-// Body hoodie + kangaroo pocket (body-local, y up; covers the dress's
-// torso, shoulders tucked behind the head, hem straight at 0.06).
+// Thick polyline -> polygon, for cords, slot strokes and cloth creases.
+function ribbonShape(center: [number, number][], w: number): THREE.Shape {
+  const shape = new THREE.Shape();
+  const left: [number, number][] = [];
+  const right: [number, number][] = [];
+  for (let i = 0; i < center.length; i += 1) {
+    const a = center[Math.max(0, i - 1)];
+    const b = center[Math.min(center.length - 1, i + 1)];
+    let dx = b[0] - a[0];
+    let dy = b[1] - a[1];
+    const len = Math.hypot(dx, dy) || 1;
+    dx /= len;
+    dy /= len;
+    left.push([center[i][0] - dy * (w / 2), center[i][1] + dx * (w / 2)]);
+    right.push([center[i][0] + dy * (w / 2), center[i][1] - dx * (w / 2)]);
+  }
+  shape.moveTo(left[0][0], left[0][1]);
+  for (let i = 1; i < left.length; i += 1) shape.lineTo(left[i][0], left[i][1]);
+  for (let i = right.length - 1; i >= 0; i -= 1) {
+    shape.lineTo(right[i][0], right[i][1]);
+  }
+  shape.closePath();
+  return shape;
+}
+
+// Lining sliver: a thin lens hugging the front roll's top edge — the hood's
+// inner fabric catching the light at the neckline.
+function collarLiningShape(): THREE.Shape {
+  const shape = new THREE.Shape();
+  shape.moveTo(-0.32, 0.64);
+  shape.quadraticCurveTo(0, 0.72, 0.32, 0.64);
+  shape.quadraticCurveTo(0, 0.66, -0.32, 0.64);
+  shape.closePath();
+  return shape;
+}
+
+// Kangaroo pocket (body-local): a soft trapezoid low on the chest, top edge
+// under the neckline roll, angled hand slots cut as ink strokes.
+function chestPocketShape(): THREE.Shape {
+  const shape = new THREE.Shape();
+  shape.moveTo(-0.32, 0.44);
+  shape.lineTo(0.32, 0.44);
+  shape.lineTo(0.4, 0.28);
+  shape.quadraticCurveTo(0.4, 0.24, 0.36, 0.24);
+  shape.lineTo(-0.36, 0.24);
+  shape.quadraticCurveTo(-0.4, 0.24, -0.4, 0.28);
+  shape.closePath();
+  return shape;
+}
+
+// Body hoodie (unchanged silhouette: covers the dress, shoulders tucked
+// behind the head, flat hem at 0.06).
 function bodyHoodieShape(): THREE.Shape {
   const shape = new THREE.Shape();
   shape.moveTo(-0.66, 0.06);
@@ -91,17 +157,6 @@ function bodyHoodieShape(): THREE.Shape {
   shape.quadraticCurveTo(0.72, 0.6, 0.62, 1.02);
   shape.quadraticCurveTo(0, 1.12, -0.62, 1.02);
   shape.quadraticCurveTo(-0.72, 0.6, -0.66, 0.06);
-  shape.closePath();
-  return shape;
-}
-
-function hoodPocketShape(): THREE.Shape {
-  const shape = new THREE.Shape();
-  shape.moveTo(-0.34, 0.3);
-  shape.lineTo(0.34, 0.3);
-  shape.quadraticCurveTo(0.3, 0.14, 0.26, 0.12);
-  shape.lineTo(-0.26, 0.12);
-  shape.quadraticCurveTo(-0.3, 0.14, -0.34, 0.3);
   shape.closePath();
   return shape;
 }
@@ -423,7 +478,14 @@ export function Kitty({
   const headRef = useRef<THREE.Group>(null);
   const earLRef = useRef<THREE.Group>(null);
   const earRRef = useRef<THREE.Group>(null);
-  const bowRef = useRef<THREE.Group>(null);
+  // pastel outfit: one visibility group for the body-worn pieces + one per
+  // sleeve (sleeves must live inside the arm pivots to ride the swing), so
+  // the ready screen can bare the cat with three visibility writes.
+  const outfitRef = useRef<THREE.Group>(null);
+  const sleeveLRef = useRef<THREE.Group>(null);
+  const sleeveRRef = useRef<THREE.Group>(null);
+  const cordLRef = useRef<THREE.Group>(null);
+  const cordRRef = useRef<THREE.Group>(null);
   const eyeLRef = useRef<THREE.Mesh>(null);
   const eyeRRef = useRef<THREE.Mesh>(null);
   const footLRef = useRef<THREE.Group>(null);
@@ -448,11 +510,118 @@ export function Kitty({
       whisker: new THREE.PlaneGeometry(0.36, 0.032),
       bowLoop: new THREE.ShapeGeometry(ellipseShape(0.37, 0.26), seg),
       bowKnot: new THREE.ShapeGeometry(ellipseShape(0.15, 0.15), seg),
-      hood: new THREE.ShapeGeometry(hoodDomeShape(), seg),
-      hoodLining: new THREE.ShapeGeometry(hoodLiningShape(), seg),
+      hoodBack: new THREE.ShapeGeometry(hoodBackShape(), seg),
+      hoodFront: new THREE.ShapeGeometry(hoodFrontShape(), seg),
+      // neck cloth creases: ink strokes on the rolls' visible lobes
+      creaseL: new THREE.ShapeGeometry(
+        ribbonShape(
+          [
+            [-0.78, 0.94],
+            [-0.72, 0.84],
+          ],
+          0.05,
+        ),
+        seg,
+      ),
+      creaseR: new THREE.ShapeGeometry(
+        ribbonShape(
+          [
+            [0.68, 0.88],
+            [0.62, 0.78],
+          ],
+          0.05,
+        ),
+        seg,
+      ),
+      creaseC: new THREE.ShapeGeometry(
+        ribbonShape(
+          [
+            [-0.12, 0.57],
+            [0.12, 0.57],
+          ],
+          0.04,
+        ),
+        seg,
+      ),
       bodyHoodie: new THREE.ShapeGeometry(bodyHoodieShape(), seg),
-      hoodPocket: new THREE.ShapeGeometry(hoodPocketShape(), seg),
-      hoodTab: new THREE.ShapeGeometry(roundedRectShape(0.18, 0.13, 0.04), seg),
+      chestPocket: new THREE.ShapeGeometry(chestPocketShape(), seg),
+      pocketSlotL: new THREE.ShapeGeometry(
+        ribbonShape(
+          [
+            [0.22, 0.4],
+            [0.31, 0.3],
+          ],
+          0.05,
+        ),
+        seg,
+      ),
+      pocketSlotR: new THREE.ShapeGeometry(
+        ribbonShape(
+          [
+            [-0.22, 0.4],
+            [-0.31, 0.3],
+          ],
+          0.05,
+        ),
+        seg,
+      ),
+      collarLining: new THREE.ShapeGeometry(collarLiningShape(), seg),
+      cordL: new THREE.ShapeGeometry(
+        ribbonShape(
+          [
+            [0, 0],
+            [-0.012, -0.07],
+            [-0.032, -0.14],
+            [-0.026, -0.2],
+            [0, -0.25],
+          ],
+          0.05,
+        ),
+        seg,
+      ),
+      cordLInk: new THREE.ShapeGeometry(
+        ribbonShape(
+          [
+            [0, 0],
+            [-0.012, -0.07],
+            [-0.032, -0.14],
+            [-0.026, -0.2],
+            [0, -0.25],
+          ],
+          0.11,
+        ),
+        seg,
+      ),
+      cordR: new THREE.ShapeGeometry(
+        ribbonShape(
+          [
+            [0, 0],
+            [0.012, -0.07],
+            [0.032, -0.14],
+            [0.026, -0.2],
+            [0, -0.25],
+          ],
+          0.05,
+        ),
+        seg,
+      ),
+      cordRInk: new THREE.ShapeGeometry(
+        ribbonShape(
+          [
+            [0, 0],
+            [0.012, -0.07],
+            [0.032, -0.14],
+            [0.026, -0.2],
+            [0, -0.25],
+          ],
+          0.11,
+        ),
+        seg,
+      ),
+      aglet: new THREE.ShapeGeometry(roundedRectShape(0.064, 0.11, 0.03), seg),
+      hemBand: new THREE.ShapeGeometry(roundedRectShape(1.24, 0.13, 0.05), seg),
+      sleeve: new THREE.ShapeGeometry(ellipseShape(0.15, 0.17), seg),
+      cuff: new THREE.ShapeGeometry(roundedRectShape(0.26, 0.07, 0.025), seg),
       dress: new THREE.ShapeGeometry(dressShape(), seg),
       foot: new THREE.ShapeGeometry(ellipseShape(0.11, 0.085), seg),
       arm: new THREE.ShapeGeometry(ellipseShape(0.12, 0.2), seg),
@@ -519,11 +688,21 @@ export function Kitty({
     }
     if (earLRef.current) earLRef.current.rotation.z = -0.35 + pose.earL;
     if (earRRef.current) earRRef.current.rotation.z = 0.35 + pose.earR;
-    if (bowRef.current) {
-      // The pull toggle is the hoodie's one moving piece: a damped cloth
-      // jiggle (a toggle swings less than the old ribbon loops did).
-      bowRef.current.rotation.z = pose.bowRot * 0.45;
-      bowRef.current.scale.setScalar(1 + (pose.bowScale - 1) * 0.4);
+    // Hoodie visibility: on the ready screen the rig is the blurred menu
+    // backdrop — the cat greets you bare; dressed only once the run starts.
+    const showOutfit = world.status !== "ready";
+    if (outfitRef.current) outfitRef.current.visible = showOutfit;
+    if (sleeveLRef.current) sleeveLRef.current.visible = showOutfit;
+    if (sleeveRRef.current) sleeveRRef.current.visible = showOutfit;
+    if (cordLRef.current) {
+      // Draw cords: the damped cloth jiggle the pull toggle used to ride,
+      // phase-split so the two cords never move as one.
+      cordLRef.current.rotation.z = pose.bowRot * 0.5 + 0.06;
+      cordLRef.current.scale.setScalar(1 + (pose.bowScale - 1) * 0.4);
+    }
+    if (cordRRef.current) {
+      cordRRef.current.rotation.z = pose.bowRot * 0.5 - 0.06;
+      cordRRef.current.scale.setScalar(1 + (pose.bowScale - 1) * 0.4);
     }
     if (eyeLRef.current) eyeLRef.current.scale.y = pose.eyeScaleY;
     if (eyeRRef.current) eyeRRef.current.scale.y = pose.eyeScaleY;
@@ -712,11 +891,42 @@ export function Kitty({
             outline={1.05}
             outlineColor={palette.outlineInk}
           />
-          {/* pastel: hoodie body over the dress with a kangaroo pocket —
-              ink 0.125 sits under the arm ink (0.13), fill 0.14 under the
-              arm fills (0.16) so the arms stay in front of the chest */}
+          {/* pastel hoodie, hood DOWN (see hoodBack/hoodFront above). Z
+              ladder, body frame, bottom to top: torso ink 0.11 / fill 0.14,
+              hem + pocket ink 0.16 / fill 0.18 (disjoint xy), pocket slots
+              0.20, cords ink 0.25 / fill 0.28, aglets ink 0.31 / fill 0.34,
+              collar lining 0.35, rolls ink 0.16/0.20 fill 0.18/0.22 — the
+              rolls stay under the head's ink (0.19), the chest stack sits
+              below the chin halo's reach (y <= 0.6) so the head always wins
+              where they overlap. */}
           {!isSouls && (
-            <>
+            <group ref={outfitRef}>
+              {/* hood DOWN: bunched rolls behind the neck, nothing on the
+                  head; creases make the lobes read as bunched cloth */}
+              <Part
+                geometry={geo.hoodBack}
+                color={palette.bowDeep}
+                z={0.18}
+                outline={1.035}
+                outlineColor={palette.outlineInk}
+              />
+              <Part
+                geometry={geo.hoodFront}
+                color={palette.bowRed}
+                z={0.22}
+                outline={1.03}
+                outlineColor={palette.outlineInk}
+              />
+              <mesh geometry={geo.creaseL} position={[0, 0, 0.24]}>
+                <meshBasicMaterial color={palette.outlineInk} />
+              </mesh>
+              <mesh geometry={geo.creaseR} position={[0, 0, 0.24]}>
+                <meshBasicMaterial color={palette.outlineInk} />
+              </mesh>
+              <mesh geometry={geo.creaseC} position={[0, 0, 0.24]}>
+                <meshBasicMaterial color={palette.outlineInk} />
+              </mesh>
+              {/* torso panel over the dress */}
               <Part
                 geometry={geo.bodyHoodie}
                 color={palette.bowRed}
@@ -724,25 +934,68 @@ export function Kitty({
                 outline={1.04}
                 outlineColor={palette.outlineInk}
               />
-              <mesh geometry={geo.hoodPocket} position={[0, 0, 0.165]}>
-                <meshBasicMaterial color={palette.bowDeep} />
+              {/* ribbed hem band along the flat hem */}
+              <Part
+                geometry={geo.hemBand}
+                color={palette.bowDeep}
+                z={0.18}
+                position={[0, 0.125]}
+                outline={1.04}
+                outlineColor={palette.outlineInk}
+              />
+              {/* kangaroo pocket with angled hand slots */}
+              <Part
+                geometry={geo.chestPocket}
+                color={palette.bowDeep}
+                z={0.18}
+                outline={1.045}
+                outlineColor={palette.outlineInk}
+              />
+              <mesh geometry={geo.pocketSlotL} position={[0, 0, 0.2]}>
+                <meshBasicMaterial color={palette.outlineInk} />
               </mesh>
-              {/* Pull toggle on the red chest strip — body frame, not head
-                  frame: head-local -0.55 landed on the chin and read as a
-                  mouth dot. Strip runs chin ink (body y ~0.62) down to the
-                  pocket top (0.3); tab center 0.45 keeps ~0.09 to the chin
-                  ink and ~0.06 above the pocket. Fill 0.175 clears the
-                  pocket (0.165); ink at 0.145 rides the hoodie fill (0.14). */}
-              <group ref={bowRef} position={[0, 0.45, 0.175]}>
+              <mesh geometry={geo.pocketSlotR} position={[0, 0, 0.2]}>
+                <meshBasicMaterial color={palette.outlineInk} />
+              </mesh>
+              {/* lining sliver along the front roll's top edge */}
+              <mesh geometry={geo.collarLining} position={[0, 0, 0.25]}>
+                <meshBasicMaterial color={palette.suitPink} />
+              </mesh>
+              {/* draw cords pivot at the neckline so they can lag-swing;
+                  tops tuck just under the front roll's bottom edge */}
+              <group ref={cordLRef} position={[-0.12, 0.52, 0.24]}>
                 <Part
-                  geometry={geo.hoodTab}
-                  color={palette.bowDeep}
-                  z={0}
-                  outline={1.18}
+                  geometry={geo.cordL}
+                  inkGeometry={geo.cordLInk}
+                  color={palette.kittyWhite}
+                  z={0.04}
+                  outlineColor={palette.outlineInk}
+                />
+                <Part
+                  geometry={geo.aglet}
+                  color={palette.suitDeep}
+                  z={0.1}
+                  outline={1.25}
                   outlineColor={palette.outlineInk}
                 />
               </group>
-            </>
+              <group ref={cordRRef} position={[0.12, 0.52, 0.24]}>
+                <Part
+                  geometry={geo.cordR}
+                  inkGeometry={geo.cordRInk}
+                  color={palette.kittyWhite}
+                  z={0.04}
+                  outlineColor={palette.outlineInk}
+                />
+                <Part
+                  geometry={geo.aglet}
+                  color={palette.suitDeep}
+                  z={0.1}
+                  outline={1.25}
+                  outlineColor={palette.outlineInk}
+                />
+              </group>
+            </group>
           )}
           {/* souls: tunic hem occlusion — a suitDeep band tucked along the
               bottom hem (cloth weight), inside the dress silhouette, clear of
@@ -784,6 +1037,26 @@ export function Kitty({
               outline={1.14}
               outlineColor={palette.outlineInk}
             />
+            {/* pastel sleeve INSIDE the arm pivot: rides the swing; the
+                ellipse covers the arm's upper part (its upper half hides
+                behind the head fill anyway), cuff band inside the sleeve's
+                bottom edge, white paw tip peeks below (z ladder: arm fill
+                0.16 -> sleeve ink 0.175 / fill 0.195 -> cuff 0.215). */}
+            {!isSouls && (
+              <group ref={sleeveLRef}>
+                <Part
+                  geometry={geo.sleeve}
+                  color={palette.bowRed}
+                  z={0.195}
+                  position={[0, 0.04]}
+                  outline={1.08}
+                  outlineColor={palette.outlineInk}
+                />
+                <mesh geometry={geo.cuff} position={[0, -0.095, 0.215]}>
+                  <meshBasicMaterial color={palette.bowDeep} />
+                </mesh>
+              </group>
+            )}
             {/* souls: layered spaulder, parented INSIDE the arm pivot so it
                 rides the arm swing (+-0.5 rad grounded, -0.55 airborne)
                 instead of hovering over it. Local offset [0, 0.03] puts the
@@ -835,6 +1108,23 @@ export function Kitty({
               outline={1.14}
               outlineColor={palette.outlineInk}
             />
+            {/* pastel right sleeve — same local offsets and z ladder as the
+                left (the shapes are symmetric, no mirroring needed). */}
+            {!isSouls && (
+              <group ref={sleeveRRef}>
+                <Part
+                  geometry={geo.sleeve}
+                  color={palette.bowRed}
+                  z={0.195}
+                  position={[0, 0.04]}
+                  outline={1.08}
+                  outlineColor={palette.outlineInk}
+                />
+                <mesh geometry={geo.cuff} position={[0, -0.095, 0.215]}>
+                  <meshBasicMaterial color={palette.bowDeep} />
+                </mesh>
+              </group>
+            )}
             {/* souls: right spaulder — same local offsets and z ladder as
                 the left (the shapes are symmetric, no mirroring needed).
                 The greatsword is a sibling group at [0.75, 1.18], untouched. */}
@@ -1047,26 +1337,7 @@ export function Kitty({
                   outlineColor={palette.outlineInk}
                 />
               </group>
-            ) : (
-              /* hood dome (owner intent): hood ON the head — crown
-                  coverage with the animated ear tips poking through the
-                  edge dips (z 0.30 ink / 0.33 fill above the face),
-                  lining sliver along the hem; the pull toggle lives on
-                  the chest via bowRef in the body frame (see the body
-                  hoodie block), damped jiggle. */
-              <>
-                <Part
-                  geometry={geo.hood}
-                  color={palette.bowRed}
-                  z={0.33}
-                  outline={1.045}
-                  outlineColor={palette.outlineInk}
-                />
-                <mesh geometry={geo.hoodLining} position={[0, 0, 0.335]}>
-                  <meshBasicMaterial color={palette.bowDeep} />
-                </mesh>
-              </>
-            )}
+            ) : null}
           </group>
         </group>
       </group>

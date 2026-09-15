@@ -18,18 +18,53 @@ export function KittyPortrait() {
       strokeLinejoin="round"
       strokeLinecap="round"
     >
-      {/* white shirt under the pink pinafore; the head overlaps it (no neck) */}
-      <path d="M24 84 C24 71 36 64 50 64 C64 64 76 71 76 84 L78 100 L22 100 Z" fill="#ffffff" />
-      <path d="M36 64 L41 64 L41 74 L59 74 L59 64 L64 64 L64 74 L70 74 L76 100 L24 100 L30 74 L36 74 Z" fill="#f6a9c0" />
-
-      {/* stubby arms, outward-down from shoulder level */}
+      {/* stubby arms: white paws under red cuffed sleeves */}
       <ellipse cx="23" cy="78" rx="9" ry="4.8" transform="rotate(38 23 78)" fill="#ffffff" />
       <ellipse cx="77" cy="78" rx="9" ry="4.8" transform="rotate(-38 77 78)" fill="#ffffff" />
+      <ellipse cx="21" cy="74" rx="10.5" ry="6" transform="rotate(38 21 74)"
+        fill="#e94f64" stroke="#3a3142" strokeWidth={2.2} />
+      <ellipse cx="79" cy="74" rx="10.5" ry="6" transform="rotate(-38 79 74)"
+        fill="#e94f64" stroke="#3a3142" strokeWidth={2.2} />
+      <rect x="11" y="76" width="8" height="4.2" rx="1.8" transform="rotate(38 15 78)"
+        fill="#d13a50" stroke="#3a3142" strokeWidth={2} />
+      <rect x="81" y="76" width="8" height="4.2" rx="1.8" transform="rotate(-38 85 78)"
+        fill="#d13a50" stroke="#3a3142" strokeWidth={2} />
 
-      {/* head 75×50 (1.5:1), fullest at the cheeks, flat crown, soft flat chin */}
+      {/* hoodie torso: neckline scoop bottoms out at y ~74 — the chin (68)
+          stays clear; shoulders round into the sleeve line */}
+      <path d="M26 100 L26 82 C26 74 31 70 38 69 C44 68.4 47 70 50 70.5 C53 70 56 68.4 62 69 C69 70 74 74 74 82 L74 100 Z"
+        fill="#e94f64" stroke="#3a3142" strokeWidth={2.2} strokeLinejoin="round" />
+
+      {/* hood DOWN: bunched rolls behind the neck — the head covers their
+          inner halves; the lobes peek beside the cheeks and under the chin */}
+      <path d="M10 70 C6 64 8 57 14 55 C18 53.5 23 56 25 60 C26 52 33 48.5 40 50.5 C45 52 47.5 55 47 60 C52 55 60 55 65 59 C68 62 68.5 67 66.5 70 C71 68 77 70 80 74 C83 78 81 83 76 84 L24 84 C17 83 12 78 10 70 Z"
+        fill="#d13a50" stroke="#3a3142" strokeWidth={2.2} strokeLinejoin="round" />
+      {/* front roll: the collar lying on the chest, bottom edge dips below */}
+      <path d="M24 70 C30 65 40 62.5 50 62.5 C60 62.5 70 65 76 70 C72 76 62 79.5 50 79.5 C38 79.5 28 76 24 70 Z"
+        fill="#e94f64" stroke="#3a3142" strokeWidth={2.2} strokeLinejoin="round" />
+      {/* lining sliver along the front roll's top edge */}
+      <path d="M26 68.5 C34 64.5 42 63 50 63 C58 63 66 64.5 74 68.5 Q50 65.5 26 68.5 Z" fill="#f6a9c0" />
+
+      {/* kangaroo pocket + angled hand slots */}
+      <path d="M34 83 L66 83 L64.5 92 Q64 94 61.5 94 L38.5 94 Q36 94 35.5 92 Z"
+        fill="#d13a50" stroke="#3a3142" strokeWidth={2.2} strokeLinejoin="round" />
+      <path d="M41 86.5 L38.5 91" strokeWidth={1.8} />
+      <path d="M59 86.5 L61.5 91" strokeWidth={1.8} />
+      {/* ribbed hem band */}
+      <path d="M26 94 L74 94 L74 100 L26 100 Z" fill="#d13a50" stroke="#3a3142" strokeWidth={2.2} />
+      {/* draw cords hanging from the collar, aglets at the ends */}
+      <path d="M46.5 77 C45.8 80 44.8 83 44 86" strokeWidth={3.6} stroke="#3a3142" />
+      <path d="M46.5 77 C45.8 80 44.8 80 44.2 85.5" strokeWidth={1.6} stroke="#ffffff" />
+      <path d="M53.5 77 C54.2 80 55.2 83 56 86" strokeWidth={3.6} stroke="#3a3142" />
+      <path d="M53.5 77 C54.2 80 55.2 83 55.8 85.5" strokeWidth={1.6} stroke="#ffffff" />
+      <rect x="42" y="85.5" width="4.6" height="7" rx="2" fill="#e88bab" stroke="#3a3142" strokeWidth={1.8} />
+      <rect x="53.4" y="85.5" width="4.6" height="7" rx="2" fill="#e88bab" stroke="#3a3142" strokeWidth={1.8} />
+
+      {/* head 75x50 (1.5:1), fullest at the cheeks — drawn LAST so the
+          garment never blocks the chin */}
       <path d="M12.5 46 C12.5 30 26 18 50 18 C74 18 87.5 30 87.5 46 C87.5 60 70 68 50 68 C30 68 12.5 60 12.5 46 Z" fill="#ffffff" />
 
-      {/* ears: open paths (no base line) drawn over the crown so the head stroke hides under them */}
+      {/* ears: open paths (no base line) drawn over the crown */}
       <path d="M21.5 27.5 L25 14 Q26.5 11 29 13.5 L37.5 20.5" fill="#ffffff" />
       <path d="M78.5 27.5 L75 14 Q73.5 11 71 13.5 L62.5 20.5" fill="#ffffff" />
 
@@ -41,31 +76,6 @@ export function KittyPortrait() {
       {/* whiskers: three per side, eye level, slightly fanned */}
       <path d="M27 45 L3 40.5 M27 49 L2 49 M27 53 L3 57.5" strokeWidth={2} />
       <path d="M73 45 L97 40.5 M73 49 L98 49 M73 53 L97 57.5" strokeWidth={2} />
-
-      {/* hood dome (owner intent, R019): hood ON the head — dome with
-          the ear tips poking through, lining sag along the hem, body
-          over the shirt/pinafore, kangaroo pocket, toggle at the collar;
-          drawn last so the hood overlaps the face edges, whiskers stay
-          clear below the hem */}
-      <path
-        d="M24 84 C24 70 36 63 50 63 C64 63 76 70 76 84 L78 100 L22 100 Z"
-        fill="#e94f64" stroke="#3a3142" strokeWidth={2.2} strokeLinejoin="round"
-      />
-      <path d="M33 86 L67 86 L65 96 L35 96 Z" fill="#d13a50" stroke="#3a3142" strokeWidth={2.2} strokeLinejoin="round" />
-      <rect x="47.4" y="70" width="5.2" height="4" rx="1.6" fill="#d13a50" stroke="#3a3142" strokeWidth={2.2} />
-      <path
-        d="M22 32 Q20 26 25 20 Q35 9 50 10 Q65 9 75 20 Q80 26 78 32 Q50 38 22 32 Z"
-        fill="#e94f64" stroke="#3a3142" strokeWidth={2.2} strokeLinejoin="round"
-      />
-      <path d="M22 32 Q50 38 78 32 Q50 41.5 22 32 Z" fill="#d13a50" />
-      <path
-        d="M22.3 20.5 L25 14 Q26.5 11 29 13.5 L33 17"
-        fill="#ffffff" stroke="#3a3142" strokeWidth={3} strokeLinecap="round" strokeLinejoin="round"
-      />
-      <path
-        d="M77.7 20.5 L75 14 Q73.5 11 71 13.5 L67 17"
-        fill="#ffffff" stroke="#3a3142" strokeWidth={3} strokeLinecap="round" strokeLinejoin="round"
-      />
     </svg>
   );
 }

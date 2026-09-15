@@ -1133,3 +1133,92 @@ beard/stubble read · one-whisker-per-side read · naked/torso-less read.
 - Open question: LIKED/REJECTED on the crown dome; declared tuning
   knobs: dip width (~0.4 per ear), dome peak height, toggle size,
   portrait ear-base read.
+
+## Feedback F019
+- Round: R020 (brief stage, pre-render)
+- Verdict: REJECTED (the R019 crown-dome hoodie, all three surfaces)
+- Scope: the pastel cat's hoodie, in-game rig + character-select card +
+  main-menu backdrop
+- Decision: three-part verdict on R019: (1) in-game the hood dome reads
+  as a CROWN and the red body garment makes the cat look like a priest
+  in a red robe — overall low effort; (2) on the select card the hood
+  reads as a HAT and the garment blocks the head/chin — it must
+  clearly read as a hoodie, not a garment; (3) the main-menu backdrop
+  cat does not need the hoodie at all. The owner lifts F018's hood-up
+  constraint: "no strict rules or requirements" — the brief grants the
+  model autonomy over design and code choices and asks for deeper,
+  more thorough reasoning before output; the quality bar is the Ashen
+  knight (layered, considered — never low-effort). Screenshots drive
+  the evaluation; deliver whatever is most visually appealing.
+- User source: "In-game: the hoodie's shape makes it look like a
+  crown... looks like a priest in a red garment... low effort. /
+  Character selection menu: the hoodie looks like a hat, and the
+  garment blocks the head/chin. It should clearly read as a hoodie.
+  / Main menu: the character doesn't need to have a hoodie here. /
+  no strict rules... reference the Ashen character" (2026-09-15)
+- Artifact: R019 renders.
+- Supersedes: F018 (the hood-must-be-worn-up constraint only; the
+  ears-and-whiskers-clear and no-face-change intents stay in force).
+
+## Round R020
+- Goal: answer F019 on all three surfaces — the hoodie must READ as a
+  hoodie (never a hat/crown/robe), the garment must never block the
+  head/chin, the main-menu backdrop shows the bare cat; quality bar the
+  Ashen knight. Direction: hood DOWN (F018's hood-up constraint
+  superseded by the owner's "no strict rules").
+- Preserved preferences: F002 (face untouched — NO mouth), F004 (mass
+  at the upper zone — the roll IS the crown zone, but as cloth at the
+  NECK, not on the crown), F006 (floating energy — the cords keep the
+  damped cloth jiggle), F008 (senior-minimal flat fills), F017 (owner
+  picked the hoodie), F018 (ears + whiskers stay clear — now honored
+  by a bare head), F019 (this round's mandate).
+- Changes: rig — the R019 crown dome + lining deleted; head group now
+  bare (isSouls ? helm : null). New hood-down kit: hoodBackShape +
+  hoodFrontShape (two uneven cloth rolls bunched behind the neck, body
+  frame, z 0.16/0.20 ink / 0.18/0.22 fill — under the head's ink 0.19,
+  so the head occludes the middle and the lobes peek beside the cheeks
+  and under the chin) + 3 ribbon crease strokes (z 0.24, ink — placed
+  outside the head's silhouette so they never touch the face) +
+  chestPocketShape (kangaroo pocket, bowDeep, ink 0.16/fill 0.18) +
+  2 angled pocket-slot strokes (0.20) + hemBandShape (bowDeep band
+  along the flat hem, ink 0.16/fill 0.18 at y 0.125) + collarLining
+  (suitPink sliver along the front roll's top edge, 0.25) + draw cords
+  (kittyWhite ribbonShape fills with explicit widened ink copies,
+  cordL/RInk; group anchors at (+-0.12, 0.52, z 0.24)) + suitDeep
+  aglets. All pieces live in ONE outfitRef group gated in useFrame:
+  visible = world.status !== "ready" (bare cat on the ready/menu
+  backdrop — the whole React tree renders once; visibility writes are
+  the only per-frame mechanism). Sleeves INSIDE the arm pivots
+  (sleeveL/RRef, own visibility gates): bowRed ellipse (0.175 ink /
+  0.195 fill) + bowDeep cuff band (0.215) inside the sleeve's bottom
+  edge, white paw tips peek below. The old bowRef/hoodTab toggle
+  machinery deleted; the cords inherit its damped pose.bowRot jiggle,
+  phase-split (+-0.06) so they never move as one. Echo retint: all new
+  pieces are palette-keyed — FADED.kitty needed zero additions.
+  Card portrait (KittyPortrait) redrawn to the same anatomy: arms ->
+  sleeves+cuffs, torso hoodie with the neckline scoop bottoming at
+  y ~74 (chin at 68 stays clear), hood rolls + front collar + lining
+  behind the head, pocket + slots + hem band + cords + aglets, head
+  drawn LAST so the garment never blocks the head/chin. The old
+  pinafore/shirt overlay dropped (fully covered by the hoodie).
+- Before: R019 renders (crown dome / hat read / garment over the chin).
+- After: R020/running.png, R020/menu.png, R020/running-close.png,
+  R020/running-close2.png, R020/menu-cat-close.png, R020/card-close.png,
+  R020/mobile-menu.png (chromium 1134, dsf 3 close-ups, same
+  shots-probe route).
+- Visual inspection: performed — in-game close-ups: head fully bare
+  (ears + whiskers + face clear, no hat read), the neck roll reads as
+  bunched cloth hugging the head's underside, cords + aglets visible on
+  the chest (they lean toward a tiny-face read at game scale — declared
+  knob), sleeves/cuffs subtle at the shoulders; menu backdrop close-up:
+  the cat greets BARE in the pink dress (no hoodie) as directed; card
+  close-up (desktop + mobile): chin clear, collar reads below the chin,
+  garment reads as a hoodie, not a hat.
+- Code verification: `npm --prefix portfolio run typecheck` PASS;
+  kitty-run.check.ts PASS; kitty-run.sim.ts PASS; shots probe PASS
+  (no pageerrors/console errors).
+- Open question: LIKED/REJECTED on the hood-down hoodie. Declared knobs:
+  (1) the cords' little-face read on the chest — thinner/shorter cords
+  or smaller aglets; (2) chest busy-ness (creases/slots thinning); (3)
+  the roll mass's peak heights. The character-select card SVG can follow
+  the same knobs independently.
