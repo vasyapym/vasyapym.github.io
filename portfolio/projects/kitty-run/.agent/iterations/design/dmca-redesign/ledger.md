@@ -2024,3 +2024,14 @@ beard/stubble read · one-whisker-per-side read · naked/torso-less read.
   leads first (a sign flip swaps the gait's starting side); (2) the
   amplitude stays 0.34x — could step back up (0.425x) if the
   alternation wants more travel; (3) the souls mirror stays stock.
+
+## Feedback F035
+- Round: R032 (presented renders)
+- Verdict: LIKED
+- Scope: the pastel rig's alternating arm-swing phasing at the 0.34x
+  amplitude; the R031 card stays liked from F033.
+- Decision: the R032 gait stands as presented — one paw out while the
+  other tucks in, swapping each stride; knobs stay available (lead-arm
+  flip, amplitude step-up, souls mirror), nothing pending. Both design
+  tracks are now liked: the card (F033) and the rig (this entry).
+- User source: "liked" (2026-09-15)
