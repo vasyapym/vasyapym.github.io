@@ -1735,3 +1735,50 @@ beard/stubble read · one-whisker-per-side read · naked/torso-less read.
 - Open question: LIKED/REJECTED per F028. Declared knobs: (1) the swing
   damp factor (0.5 — the next smaller step would be ~0.35, the rejected
   dead-calm, so a further cut needs an explicit owner call).
+
+## Feedback F029
+- Round: R028 (brief stage, pre-render)
+- Verdict: REJECTED the remaining travel — the paw's move distance
+  shrinks another ~15%
+- Scope: the in-game arm motion amplitude only
+- Decision: the paw's travel distance shrinks ~15% from the R027 0.5x —
+  KITTY_SWING_DAMP 0.5 -> 0.425 (0.5·0.85): grounded ±0.21 rad,
+  airborne −0.234, paw sweep ±0.094 body units. No card changes.
+- User source: "make it 15% even less movement" (2026-09-15)
+- Artifact: R027 renders.
+- Supersedes: none (tightens F028 further; 0.425x stays above the
+  rejected R023 dead-calm 0.35x reference).
+
+## Round R028
+- Goal: answer F029 — the paw's travel shrinks ~15% from the R027
+  0.5x factor.
+- Preserved preferences: F002 (face untouched — NO mouth), F004 (mass as
+  cloth), F006 (floating energy), F008 (senior-minimal flat fills),
+  F017 (hoodie), F018/F019 (ears + whiskers clear), F022 (card barrel +
+  neck-width hood), F023's one-piece read, hood DOWN, palette keys,
+  RESTRICTED z-ladder, drape + cords + legs untouched, souls untouched
+  (stock swing), F024 paw peek read, F026–F028 card untouched.
+- Changes: RIG — KITTY_SWING_DAMP 0.5 -> 0.425 (0.5·0.85, the asked
+  ~15% travel cut): grounded ±0.5·0.425 = ±0.21 rad, airborne
+  −0.55·0.425 = −0.234, paw sweep ±0.22·0.425 = ±0.094 body units.
+  Comment blocks updated to carry the full stepwise history (F027
+  0.7x, F028 0.5x, F029 0.425x).
+- Before: R027 renders (0.5x swing).
+- After: R028/menu.png, R028/running-f2.png, R028/running-f2-close.png,
+  R028/running-f4.png, R028/running-f4-close.png, R028/dash.png,
+  R028/dash-close.png (chromium 1134, dsf 3 close-ups + game-scale
+  frames, same probes route). The card SVG is untouched this round, so
+  no card artifacts are re-captured (R026 set stays current).
+- Visual inspection: performed — run f2/f4 + dash (all three clean
+  this run): the paws trace a short tight arc right beside the barrel,
+  reading as a subtle stubby wiggle; nothing flails, no pocket dip;
+  dash tilt intact.
+- Code verification: `npm --prefix portfolio run typecheck` PASS;
+  kitty-run.check.ts PASS; kitty-run.sim.ts PASS; kitty-run.shots.mjs
+  first run flagged "[desktop] bullet vignette never bloomed (opacity
+  0.037)" — the autopilot's bullet-time dwell flaked (the vignette is
+  post-processing, unreachable from the arm-swing factor); a clean
+  re-run passed all six shots with no problems.
+- Open question: LIKED/REJECTED per F029. Declared knob: the swing damp
+  factor (0.425 — approaching the rejected dead-calm 0.35, so a further
+  cut needs an explicit owner call).
