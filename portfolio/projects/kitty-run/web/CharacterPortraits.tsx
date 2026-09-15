@@ -45,17 +45,17 @@ export function KittyPortrait() {
       <path d="M54 84 L55 91" strokeWidth={1.6} stroke="#ffffff" />
       <rect x="43.2" y="90.5" width="4.6" height="7" rx="2" fill="#e88bab" strokeWidth={1.8} />
       <rect x="52.2" y="90.5" width="4.6" height="7" rx="2" fill="#e88bab" strokeWidth={1.8} />
-      {/* head 74.25x55 (F027: width back to -10% from the F025 82.5,
-          x-scaled about the centre; height +10% — the crown keeps its
-          level, the chin drops 66 -> 71 so the head's mass sits lower,
-          reading as a taller face). Face rides the lowered head, form
+      {/* head 74.25 wide (F032: the forehead shrinks ~10% — the crown
+          drops 16 -> 19.6, right at the ashen card's bone-top band —
+          while the jaw/chin grows ~15% lower, chin 71 -> 73.8; the width
+          keeps the F027 74.25 and the total height stays ~54, so the
+          relevant proportions hold). Face rides the reshaped head, form
           unscaled; drawn LAST so the garment never blocks the chin */}
-      <path d="M12.875 46.8 C12.875 29.2 26.24 16 50 16 C73.76 16 87.125 29.2 87.125 46.8 C87.125 62.2 74.3 71 50 71 C25.7 71 12.875 62.2 12.875 46.8 Z" fill="#ffffff" />
-      {/* ears: open paths (no base line) drawn over the crown; x-positions
-          follow the narrower crown, bases ride the reshaped outline, tips
-          keep their height (top stays at its level) */}
-      <path d="M21.785 26.45 L25.25 12 Q26.735 9 29.21 11.5 L37.625 18.75" fill="#ffffff" />
-      <path d="M78.215 26.45 L74.75 12 Q73.265 9 70.79 11.5 L62.375 18.75" fill="#ffffff" />
+      <path d="M12.875 46.8 C12.875 32.8 26.24 19.6 50 19.6 C73.76 19.6 87.125 32.8 87.125 46.8 C87.125 65 74.3 73.8 50 73.8 C25.7 73.8 12.875 65 12.875 46.8 Z" fill="#ffffff" />
+      {/* ears: open paths (no base line) drawn over the crown; tips keep
+          their height, bases ride the lowered crown outline */}
+      <path d="M21.785 30.05 L25.25 12 Q26.735 9 29.21 11.5 L37.625 22.35" fill="#ffffff" />
+      <path d="M78.215 30.05 L74.75 12 Q73.265 9 70.79 11.5 L62.375 22.35" fill="#ffffff" />
       {/* face in the lower half: small vertical eyes, small ochre nose, NO
           mouth — original compact form (F026: no spread/scale), now
           riding +3.3 down with the longer head so the face keeps its

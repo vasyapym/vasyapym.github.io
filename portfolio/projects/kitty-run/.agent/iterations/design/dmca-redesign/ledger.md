@@ -1901,3 +1901,61 @@ beard/stubble read · one-whisker-per-side read · naked/torso-less read.
 - Open question: LIKED/REJECTED per F031. Declared knob: the swing damp
   factor (0.34 — now BELOW the R023 dead-calm 0.35 reference, by the
   owner's explicit 20%-cut call).
+
+## Feedback F032
+- Round: R031 (brief stage, pre-render)
+- Verdict: MIXED — the R030 swing stands unjudged this round (no rig
+  comment); REJECTED the card head's forehead/jaw balance
+- Scope: the character-select card's head shape only
+- Decision: (a) the forehead seems big — shrink it ~10% (the crown
+  drops 16 -> 19.6, landing right at the ashen card's bone-top band);
+  (b) keep the relevant proportions the same (the width keeps the F027
+  74.25, the total head height stays ~54); (c) the jaw/chin area grows
+  ~15% — the chin should go lower than it is (71 -> 73.8), growing the
+  area BELOW the unchanged face features.
+- User source: "cat's forehead in character choosing menu seems big.
+  make it a bit smaller, around 10%. keep relevant propotions the same.
+  make its jaw/chin area bigger, around 15% (i.e. it should go lower
+  than it is" (2026-09-15)
+- Artifact: R026 card renders (the current head shape).
+- Supersedes: refines F026(a)/F027(b)-(c) — same width, but the vertical
+  mass redistributes: less forehead, more jaw.
+
+## Round R031
+- Goal: answer F032 — card head: forehead −10%, jaw/chin +15% lower,
+  other proportions held.
+- Preserved preferences: F002 (face untouched — NO mouth), F004 (mass as
+  cloth), F006 (floating energy), F008 (senior-minimal flat fills),
+  F017 (hoodie), F018/F019 (ears + whiskers clear), F022 (card barrel +
+  neck-width hood), F023's one-piece read, hood DOWN, palette keys,
+  RESTRICTED z-ladder, drape + cords + legs untouched, souls untouched
+  (stock swing), F024 paw peek read, F026 card whiskers' length, the
+  R030 rig (0.34x lateral swing) untouched this round.
+- Changes: CARD — KittyPortrait head path reshaped: the crown drops
+  16 -> 19.6 (the forehead −10%: the whole top arc shifts down 3.6),
+  the chin drops 71 -> 73.8 (the jaw/chin +15%, the area below the face
+  grows); the top/bottom curve controls ride the same shifts (29.2 ->
+  32.8, 62.2 -> 65); the widest points stay at y 46.8 and the width
+  stays 74.25 — relevant proportions preserved. Ears keep their tips
+  (12/9) and x-positions; their bases ride the lowered crown (26.45 ->
+  30.05, 18.75 -> 22.35). Face features (eyes cy 52.3, nose 53.95) and
+  whisker rows stay put — the jaw grows below them. RIG untouched.
+- Before: R026 card renders (crown 16, chin 71).
+- After: R031/menu.png, R031/card-close.png, R031/card-souls.png,
+  R031/card-face-zoom.png (chromium 1134, dsf 3, same probes route).
+  No run-frame artifacts this round — the rig is untouched (the R030
+  set stays current).
+- Visual inspection: performed — the crown reads lower and flatter
+  (the forehead no longer dominates the head), the ears poke higher
+  above it and stay clear of the face, the eyes/nose keep their place
+  with the jaw growing below, the chin dips into the collar with the
+  chest-fur sliver reading under it; the crown sits right at the
+  ashen card's bone-top band.
+- Code verification: `npm --prefix portfolio run typecheck` PASS;
+  kitty-run.check.ts PASS; kitty-run.sim.ts PASS; kitty-run.shots.mjs
+  PASS (all six shots, no problems).
+- Open question: LIKED/REJECTED per F032(a)-(c) + the R030 rig verdict
+  still pending from F031. Declared knobs: (1) the crown drop amount
+  (3.6 — the forehead's −10%); (2) the chin drop amount (2.8 — the
+  jaw's +15%); (3) the ear prominence (a consequence of the lowered
+  crown — tips could rise with the crown if the read disagrees).
