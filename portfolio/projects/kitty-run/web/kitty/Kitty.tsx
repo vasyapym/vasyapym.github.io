@@ -63,20 +63,20 @@ function ellipseShape(rx: number, ry: number): THREE.Shape {
   return shape;
 }
 
-// Ear silhouette (F037: the owner loved the round in-game ears but asked
-// for card consistency — not round. Rebuilt on the card's construction:
-// near-straight edges with a small rounded tip cap — deliberately SOFT
-// ("don't make it too pointy"): the cap is ~29% of the base width and the
-// apex stays ~at the old dome height (0.565 vs 0.54) so the souls helm
-// fit reads unchanged. F039: the tips must lean OUTWARD — the original
-// ±0.35 rotation signs carried the tips INWARD (the owner read the
-// converged pair as bat ears), so the signs flipped at the useFrame site).
+// Ear silhouette (F037/F039/F041 history: the owner loved the round
+// in-game ears, asked for card-consistent pointed (F037), kept the
+// outward tips but read the converged pair as bat ears (F039 — signs
+// flipped at the useFrame site), and now steers the SHAPE rounder:
+// F041 rebuilds on the F037 construction with a wider base (±0.34,
+// width 0.68), a shorter apex (0.46), a slight edge bulge and a bigger
+// soft tip cap (~41% of the base width) — pointed-outward but rounder,
+// wider, shorter than the card's pair.
 function earShape(): THREE.Shape {
   const shape = new THREE.Shape();
-  shape.moveTo(-0.28, 0);
-  shape.lineTo(-0.08, 0.5);
-  shape.quadraticCurveTo(0, 0.565, 0.08, 0.5);
-  shape.lineTo(0.28, 0);
+  shape.moveTo(-0.34, 0);
+  shape.quadraticCurveTo(-0.35, 0.26, -0.14, 0.38);
+  shape.quadraticCurveTo(0, 0.46, 0.14, 0.38);
+  shape.quadraticCurveTo(0.35, 0.26, 0.34, 0);
   shape.closePath();
   return shape;
 }
@@ -1456,13 +1456,13 @@ export function Kitty({
                   <meshBasicMaterial color={palette.eyeInk} />
                 </mesh>
                 <mesh geometry={geo.nose} position={[0, -0.16, 0.27]}>
-                  {/* F038: orange, "a bit transparent" — the white head
-                      shows through softly (history: F036 brown, before
-                      that yellow). */}
+                  {/* F040: deep orange #f57a1f at 0.85 — the 0.8 apricot
+                      read brown at game scale; transparency stays (F038).
+                      History: F036 brown, before that yellow. */}
                   <meshBasicMaterial
                     color={palette.noseYellow}
                     transparent
-                    opacity={0.8}
+                    opacity={0.85}
                   />
                 </mesh>
                 <mesh geometry={geo.cheek} position={[-0.68, -0.22, 0.26]}>

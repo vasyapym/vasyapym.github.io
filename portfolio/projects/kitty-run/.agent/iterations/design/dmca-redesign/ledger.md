@@ -2273,3 +2273,75 @@ beard/stubble read · one-whisker-per-side read · naked/torso-less read.
   card-like ear or grow for a wilder cat); (2) the tip softness (the
   F037 cap — sharper or rounder); (3) the apex height (0.565 — taller
   reads alert, shorter reads stubbier).
+
+## Feedback F040
+- Round: R037 (brief stage, pre-render)
+- Verdict: REJECTED the current nose read — "nose looks brown" (the
+  #f28c3b-at-0.8 apricot over the white head muddies toward brown at
+  game scale)
+- Scope: the pastel nose COLOR/OPACITY on both surfaces. The
+  transparency stays (the F038 owner request) but softer: opacity
+  0.8 -> 0.85 and the fill deepens to #f57a1f so the effective color
+  reads unmistakably orange.
+- User source: "nose looks brown" (2026-09-15)
+
+## Feedback F041
+- Round: R037 (brief stage, pre-render)
+- Verdict: DIRECTION — the rig ears go "a bit more on a round side":
+  bigger in width, smaller in height
+- Scope: the rig's earShape only (base width, apex height, edge
+  curvature, tip-cap size). The outward tilt (F039), the wiggle, the
+  base position, the card (its pointed ears stay — F033 liked the
+  card), the souls helm fit (apex drops 0.565 -> ~0.46, safely under
+  the old dome's 0.54) — untouched.
+- Decision: earShape re-blends the F037 pointed construction back
+  toward the pre-F037 dome: base ±0.28 -> ±0.34 (width 0.56 -> 0.68),
+  apex 0.565 -> 0.46, edges regain a slight quadratic bulge, the tip
+  cap widens (~29% -> ~41% of the base width) — pointed-outward but
+  noticeably rounder, wider, shorter.
+- User source: "maybe make ears a bit more on a round side. bigger on
+  width and smaller in height" (2026-09-15)
+
+## Round R037
+- Goal: answer F040 + F041 — the nose reads orange (not brown), the
+  rig ears go rounder, wider, shorter.
+- Preserved preferences: F002 (face untouched — NO mouth), F004 (mass
+  as cloth), F006 (floating energy), F008 (senior-minimal flat fills),
+  F017 (hoodie), F018/F019 (ears + whiskers clear), F022 (card barrel +
+  neck-width hood), F023's one-piece read, hood DOWN, palette keys,
+  RESTRICTED z-ladder, F024 paw peek read, F026 card whiskers' length,
+  F031/F034 swing (0.34x, alternating), the R031 card head, the F039
+  outward tilt, the souls variant untouched.
+- Changes: NOSE — the fill deepens #f28c3b -> #f57a1f and the opacity
+  rises 0.8 -> 0.85 on both surfaces (the card ellipse + the rig
+  material; the rig comment cites F040; transparency stays per F038).
+  EARS (RIG ONLY) — earShape re-blended toward the pre-F037 dome:
+  base ±0.28 -> ±0.34 (width 0.56 -> 0.68), apex 0.565 -> 0.46, the
+  edges regain a slight quadratic bulge, the tip cap widens (~29% ->
+  ~41% of the base width); the outward tilt (F039) and the wiggle
+  ride unchanged; the earShape comment now carries the
+  F037/F039/F041 history. CARD untouched (its pointed ears stay —
+  F033 liked the card; the rig earns its own rounder character).
+- Before: R036 rig renders (tall narrow pointed ears; the apricot
+  nose).
+- After: R037/card-cat.png, R037/card-face-zoom.png, R037/menu.png,
+  R037/running-f1.png, R037/dash.png, R037/cat-f1.png,
+  R037/cat-dash.png (chromium 1134, dsf 3, same probes route).
+- Visual inspection: performed — the nose reads unmistakably orange
+  on both surfaces (the apricot-to-brown muddiness is gone); the ears
+  are wider and shorter with soft blunt tips and a slight edge bulge —
+  a rounded-outward cat read, no bat convergence; the f1 frame caught
+  the rig mid-blink (eyes as thin lines — the rig's life) with the
+  ears and nose reading cleanly; the dash pose holds the round-side
+  ears and the orange nose.
+- Code verification: `npm --prefix portfolio run typecheck` PASS;
+  kitty-run.check.ts PASS; kitty-run.sim.ts PASS; kitty-run.shots.mjs
+  PASS — a fully clean run (all six shots, no problems), the second
+  clean pass this session.
+- Open question: LIKED/REJECTED per F040 + F041. Declared knobs: (1)
+  the ear roundness dial (the current shape sits between the F037
+  point and the pre-F037 dome — could slide either way); (2) the
+  apex/width amounts (0.46 / 0.68); (3) the nose saturation (#f57a1f)
+  and opacity (0.85); (4) the card's ears could follow the rig's
+  rounder read if the divergence bothers (F033's liked state would
+  move).
