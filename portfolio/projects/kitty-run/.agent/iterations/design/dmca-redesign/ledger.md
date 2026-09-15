@@ -2153,3 +2153,123 @@ beard/stubble read · one-whisker-per-side read · naked/torso-less read.
   edges; could ease to ±0.25 for a more upright card-like ear); (3)
   the souls helm fit is reasoned, not rendered — a souls-mode capture
   would confirm it.
+
+## Feedback F038
+- Round: R035 (brief stage, pre-render)
+- Verdict: DIRECTION — the nose goes orange, with a slight
+  transparency
+- Scope: the pastel nose FILL + OPACITY on both surfaces — the card's
+  ellipse and the rig's nose mesh (material transparent + opacity).
+  Shape, size, position untouched. Deliberately untouched: the star
+  collectible and the souls embers (both keep their yellows/oranges —
+  the souls ember orange #e8913c is coincidentally the same family),
+  the eyes, whiskers, ears, hoodie.
+- Decision: fill #a5714b -> #f28c3b (a warm mid-orange), opacity 0.8
+  ("a bit transparent" — the white head shows through softly; on the
+  card via fill-opacity, in the rig via material transparent+opacity).
+  The nose reads softer over the white face than the flat brown did.
+- User source: "change nose to orange but make it a bit transparent"
+  (2026-09-15)
+
+## Round R035
+- Goal: answer F038 — the pastel nose goes orange with a slight
+  transparency.
+- Preserved preferences: F002 (face untouched — NO mouth), F004 (mass
+  as cloth), F006 (floating energy), F008 (senior-minimal flat fills),
+  F017 (hoodie), F018/F019 (ears + whiskers clear), F022 (card barrel +
+  neck-width hood), F023's one-piece read, hood DOWN, palette keys,
+  RESTRICTED z-ladder, F024 paw peek read, F026 card whiskers' length,
+  F031/F034 swing (0.34x, alternating), the R031 card head, the R034
+  soft-pointed ears, the souls variant untouched.
+- Changes: the nose fill + opacity on both surfaces — the card's
+  ellipse (fill #a5714b -> #f28c3b + fillOpacity 0.8, the comment now
+  carries the F036->F038 color history) and the rig's nose mesh
+  (material transparent + opacity 0.8; the comment cites F038). Shape,
+  size, position untouched. The star collectible and the souls embers
+  keep their colors (separate palette keys/objects).
+- Before: R033/R034 renders (flat brown nose).
+- After: R035/card-cat.png, R035/card-face-zoom.png, R035/menu.png,
+  R035/dash.png, R035/cat-dash.png (chromium 1134, dsf 3, same probes
+  route). The f1 close crop hit the known RGB-split capture glitch and
+  the f3 crop caught the cat outside the box — both known capture
+  flakes, discarded; the card set and the dash set carry the evidence.
+- Visual inspection: performed — the card nose reads as a soft
+  apricot-orange (the 0.8 opacity lets the white through, lighter than
+  the flat brown ever was), the rig nose reads the same in the clean
+  dash frame; the soft-pointed ears, the brown-era silhouette, the
+  alternating gait and the whisker fan ride unchanged; no seams or
+  z-order artifacts from the new transparency.
+- Code verification: `npm --prefix portfolio run typecheck` PASS;
+  kitty-run.check.ts PASS; kitty-run.sim.ts PASS; kitty-run.shots.mjs
+  PASS — a fully clean run this round (all six shots, no problems),
+  which also breaks the R032–R034 vignette-flake streak and confirms
+  its environmental-timing nature.
+- Open question: LIKED/REJECTED per F038 (and the still-unverdicted
+  R033 brown / R034 ears — the nose verdict applies to the current
+  orange state). Declared knobs: (1) the orange depth (#f28c3b —
+  could go ember-deep #e8913c or lighter peach); (2) the transparency
+  amount (0.8 — lower for ghostlier, higher for flatter); (3) the
+  R034 ear knobs (tip softness, outward tilt) stay open.
+
+## Feedback F039
+- Round: R036 (brief stage, pre-render)
+- Verdict: REJECTED the R034/R035 ear read — the ears look "ugly… like
+  a bat right now" — and the direction is set: the tips must point
+  OUTWARD (not inward), the overall read "more like a cat"
+- Scope: the rig's ear TILT only (the base rotation signs). The
+  pointed silhouette (F037 soft cap), the base width, the head
+  junction, the wiggle amplitudes, the card (its ears already lean
+  outward — the target read), the nose, the gait — untouched.
+- Decision: flip the base tilt signs — earL -0.35 -> +0.35, earR
+  +0.35 -> -0.35 (the R034 note called ±0.35 an "outward tilt", but
+  the rotation math leans the tips INWARD: clockwise on the left ear
+  carries the tip toward the head center — the bat read; the flipped
+  sign splays the tips outward like the card's). The amount stays 0.35
+  (one knob per round: direction first; the ease-to-±0.28 knob stays
+  declared for the verdict).
+- User source: "the ear looks ugly. it looks like a bat right now.
+  make them point not inwards but outwards. make them look more like
+  a cat" (2026-09-15)
+
+## Round R036
+- Goal: answer F039 — the rig's ear tips lean OUTWARD, the read goes
+  cat-like.
+- Preserved preferences: F002 (face untouched — NO mouth), F004 (mass
+  as cloth), F006 (floating energy), F008 (senior-minimal flat fills),
+  F017 (hoodie), F018/F019 (ears + whiskers clear), F022 (card barrel +
+  neck-width hood), F023's one-piece read, hood DOWN, palette keys,
+  RESTRICTED z-ladder, F024 paw peek read, F026 card whiskers' length,
+  F031/F034 swing (0.34x, alternating), the R031 card head, the R035
+  orange semi-transparent nose, the F037 soft-pointed silhouette, the
+  souls variant untouched.
+- Changes: RIG — the ear tilt signs flipped at the useFrame site:
+  earL -0.35 -> +0.35, earR +0.35 -> -0.35 (the R034 note had called
+  ±0.35 an "outward tilt", but the rotation math carried the tips
+  INWARD — the owner read the converged pair as bat ears). The amount
+  stays 0.35 (one knob per round); the wiggle terms ride unchanged.
+  The earShape comment now records the F039 flip. CARD untouched (its
+  ears already lean outward — the target read).
+- Before: R034/R035 rig renders (tips converged inward — the bat
+  read).
+- After: R036/menu.png, R036/running-f4.png, R036/cat-f4.png,
+  R036/ear-zoom.png, R036/dash.png, R036/cat-dash.png (chromium 1134,
+  dsf 3, same probes route). The f1 crop caught the cat outside the
+  box (known empty-crop flake) — the f4 and dash frames carry the
+  evidence.
+- Visual inspection: performed — both ears now splay outward (the
+  left tip points up-left, the right up-right) with the soft caps
+  keeping them from needles; the pair reads as alert cat ears, the
+  bat convergence is gone; the head junction stays clean, the wiggle
+  phases hold the outward lean; the orange nose and the gait ride
+  unchanged.
+- Code verification: `npm --prefix portfolio run typecheck` PASS;
+  kitty-run.check.ts PASS; kitty-run.sim.ts PASS; kitty-run.shots.mjs
+  FLAKY — the [desktop] bullet-vignette bloom assert flagged once
+  (opacity 0.035, threshold 0.05), the session's environmental-timing
+  pattern (R035's clean pass already proved the flake's nature); not a
+  code signal.
+- Open question: LIKED/REJECTED per F039. Declared knobs: (1) the
+  splay amount (0.35 — could ease toward ±0.25 for a more upright
+  card-like ear or grow for a wilder cat); (2) the tip softness (the
+  F037 cap — sharper or rounder); (3) the apex height (0.565 — taller
+  reads alert, shorter reads stubbier).

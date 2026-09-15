@@ -68,7 +68,9 @@ function ellipseShape(rx: number, ry: number): THREE.Shape {
 // near-straight edges with a small rounded tip cap — deliberately SOFT
 // ("don't make it too pointy"): the cap is ~29% of the base width and the
 // apex stays ~at the old dome height (0.565 vs 0.54) so the souls helm
-// fit and the ±0.35 outward tilt read unchanged).
+// fit reads unchanged. F039: the tips must lean OUTWARD — the original
+// ±0.35 rotation signs carried the tips INWARD (the owner read the
+// converged pair as bat ears), so the signs flipped at the useFrame site).
 function earShape(): THREE.Shape {
   const shape = new THREE.Shape();
   shape.moveTo(-0.28, 0);
@@ -829,8 +831,8 @@ export function Kitty({
       headRef.current.position.y = 1.5 + pose.headBobY;
       headRef.current.rotation.z = pose.headRot;
     }
-    if (earLRef.current) earLRef.current.rotation.z = -0.35 + pose.earL;
-    if (earRRef.current) earRRef.current.rotation.z = 0.35 + pose.earR;
+    if (earLRef.current) earLRef.current.rotation.z = 0.35 + pose.earL;
+    if (earRRef.current) earRRef.current.rotation.z = -0.35 + pose.earR;
     // Hoodie visibility: gone — the outfit shows in every world status,
     // so the ready screen's blurred backdrop preview is the dressed cat.
     if (cordLRef.current) {
@@ -1454,7 +1456,14 @@ export function Kitty({
                   <meshBasicMaterial color={palette.eyeInk} />
                 </mesh>
                 <mesh geometry={geo.nose} position={[0, -0.16, 0.27]}>
-                  <meshBasicMaterial color={palette.noseYellow} />
+                  {/* F038: orange, "a bit transparent" — the white head
+                      shows through softly (history: F036 brown, before
+                      that yellow). */}
+                  <meshBasicMaterial
+                    color={palette.noseYellow}
+                    transparent
+                    opacity={0.8}
+                  />
                 </mesh>
                 <mesh geometry={geo.cheek} position={[-0.68, -0.22, 0.26]}>
                   <meshBasicMaterial color={palette.cheek} />
