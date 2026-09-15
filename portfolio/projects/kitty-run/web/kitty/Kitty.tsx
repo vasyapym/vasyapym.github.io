@@ -71,15 +71,17 @@ function ellipseShape(rx: number, ry: number): THREE.Shape {
 // and then came back: the PRE-F037 dome had the "half-drawn" drawing
 // effect they liked (the bulging lower edge buries behind the head
 // dome, the outline only rides the upper arc). F045 restores that
-// dome construction 15% less round: the bulge control ±0.36 -> ±0.34,
-// the cap endpoints ±0.12 -> ±0.10, the apex holds ~0.545, the base
-// ±0.28. The card's pair stays pointed.
+// dome construction 15% less round (F045: the bulge control ±0.36 ->
+// ±0.34, the cap endpoints ±0.12 -> ±0.10, the apex holds ~0.545, the
+// base ±0.28) and F047 tightens it 20% more (bulge -> ±0.33, cap ->
+// ±0.08) while the mounts pull ~10% toward the centre (±0.58 -> ±0.52,
+// pastel only). The card's pair stays pointed.
 function earShape(): THREE.Shape {
   const shape = new THREE.Shape();
   shape.moveTo(-0.28, 0);
-  shape.quadraticCurveTo(-0.34, 0.3, -0.1, 0.47);
-  shape.quadraticCurveTo(0, 0.545, 0.1, 0.47);
-  shape.quadraticCurveTo(0.34, 0.3, 0.28, 0);
+  shape.quadraticCurveTo(-0.33, 0.3, -0.08, 0.47);
+  shape.quadraticCurveTo(0, 0.545, 0.08, 0.47);
+  shape.quadraticCurveTo(0.33, 0.3, 0.28, 0);
   shape.closePath();
   return shape;
 }
@@ -1415,7 +1417,7 @@ export function Kitty({
 
           {/* head */}
           <group ref={headRef} position={[0, 1.5, 0]}>
-            <group ref={earLRef} position={[-0.58, 0.52, 0.15]}>
+            <group ref={earLRef} position={[-(isSouls ? 0.58 : 0.52), 0.52, 0.15]}>
               <Part
                 geometry={geo.ear}
                 color={palette.kittyWhite}
@@ -1424,7 +1426,7 @@ export function Kitty({
                 outlineColor={palette.outlineInk}
               />
             </group>
-            <group ref={earRRef} position={[0.58, 0.52, 0.15]}>
+            <group ref={earRRef} position={[isSouls ? 0.58 : 0.52, 0.52, 0.15]}>
               <Part
                 geometry={geo.ear}
                 color={palette.kittyWhite}

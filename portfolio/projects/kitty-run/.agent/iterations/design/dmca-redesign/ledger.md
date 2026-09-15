@@ -2518,3 +2518,59 @@ beard/stubble read · one-whisker-per-side read · naked/torso-less read.
   back toward 0.75 would render a truer orange, at the cost of the
   F042 ask); (3) the nose size (0.75×); (4) the card divergence
   (pointed card ears vs the rig's dome) stays.
+
+## Feedback F047
+- Round: R040 (brief stage, pre-render)
+- Verdict: DIRECTION — the ears go ~20% less round AND a bit toward
+  the centre ("around 10")
+- Scope: the rig's earShape + the ear mount x only. "20% less round"
+  applies to the roundness markers off the F045 state: the edge
+  bulge 0.06 -> ~0.048 (control ±0.34 -> ±0.33), the cap endpoints
+  ±0.10 -> ±0.08; the apex (0.545) and the base (±0.28) hold.
+  "Around 10" read as 10% off the mount offset: ±0.58 -> ±0.52 —
+  split per branch (the souls knight keeps ±0.58; its helm fit is
+  reasoned safe: the apex is unchanged and the ears only pull
+  inward). The nose, the paws, the gait, the card — untouched.
+- User source: "make ears around 20% less round. and a bit to the
+  ccentre (around 10)" (2026-09-15)
+
+## Round R040
+- Goal: answer F047 — the ears 20% less round and ~10% closer to the
+  centre.
+- Preserved preferences: F002 (face untouched — NO mouth), F004 (mass
+  as cloth), F006 (floating energy), F008 (senior-minimal flat fills),
+  F017 (hoodie), F018/F019 (ears + whiskers clear), F022 (card barrel +
+  neck-width hood), F023's one-piece read, hood DOWN, palette keys,
+  RESTRICTED z-ladder, F024 paw peek read, F026 card whiskers' length,
+  F031/F034 swing (0.34x, alternating), the R031 card head, the F039
+  outward tilt, the F042 nose opacity 0.6, the F044 paw offset, the
+  F045 dome construction, the souls variant untouched (its ear mounts
+  stay at ±0.58).
+- Changes: EARS (RIG ONLY) — the F045 dome tightens 20% more: the
+  bulge control ±0.34 -> ±0.33 (bulge 0.06 -> ~0.048), the cap
+  endpoints ±0.10 -> ±0.08; the apex 0.545 and the base ±0.28 hold.
+  The mounts pull ~10% toward the centre: ±0.58 -> ±0.52, split per
+  branch (the souls knight keeps ±0.58; the apex is unchanged so the
+  helm fit is reasoned safe). The earShape comment carries the
+  F045/F047 dial history.
+- Before: R039 renders (the F045 dome at the ±0.58 mounts).
+- After: R040/menu.png, R040/running-f4.png, R040/dash.png,
+  R040/cat-f4.png, R040/cat-dash.png (chromium 1134, dsf 3, same
+  probes route; no card artifacts — the card is untouched, its set
+  stays at R039).
+- Visual inspection: performed — the ears sit more centred on the
+  crown and read as tighter domes (less cup-round, the tips slightly
+  more defined), the half-drawn lower burial holds, the outward lean
+  and the wiggle ride unchanged; the f4 frame caught the rig mid-blink
+  again with the ears and the coral nose reading cleanly; the dash
+  pose confirms across phases.
+- Code verification: `npm --prefix portfolio run typecheck` PASS;
+  kitty-run.check.ts PASS; kitty-run.sim.ts PASS; kitty-run.shots.mjs
+  FLAKY — the [desktop] bullet-vignette bloom assert flagged once
+  (opacity 0.017, threshold 0.05), the session's environmental-timing
+  pattern; not a code signal.
+- Open question: LIKED/REJECTED per F047. Declared knobs: (1) the
+  roundness dial (bulge 0.048 / cap 0.08 — toward the point or back
+  toward the dome); (2) the mount spread (±0.52 — closer or wider);
+  (3) the apex (0.545); (4) the souls ear mounts (±0.58) could follow
+  if the knight's peek should match.
