@@ -1959,3 +1959,68 @@ beard/stubble read · one-whisker-per-side read · naked/torso-less read.
   (3.6 — the forehead's −10%); (2) the chin drop amount (2.8 — the
   jaw's +15%); (3) the ear prominence (a consequence of the lowered
   crown — tips could rise with the crown if the read disagrees).
+
+## Feedback F033
+- Round: R031 (presented renders)
+- Verdict: LIKED
+- Scope: the character-select card's head reshape (crown 19.6, chin
+  73.8, width 74.25 held).
+- Decision: the R031 card face stands as-is; no further card knobs. The
+  rig verdict moved to F034.
+- User source: "liked." (2026-09-15)
+
+## Feedback F034
+- Round: R031 rig re-review (the owner rewatched the R030 swing)
+- Verdict: REJECTED the PHASING — the mirrored signs read as a
+  synchronized in-out paddle: both paws splay out, then both cross in
+  together. The amplitude (0.34x) is NOT the complaint.
+- Scope: the pastel rig's arm-swing phasing only.
+- Decision: switch the two pastel arms to ALTERNATE like a real run
+  gait — one paw out while the other tucks slightly in, swapping each
+  stride. The souls variant keeps its untouched stock mirror.
+- User source: the paws move "in and out"; chose "Попеременный мах"
+  (alternating swing) from the offered knobs (2026-09-15).
+- Resolves: F031's pending R030 verdict — the lateral character and the
+  0.34 travel both stand; only the phase flips.
+
+## Round R032
+- Goal: answer F034 — keep the 0.34x lateral swing, fix the phasing to
+  an alternating gait.
+- Preserved preferences: F002 (face untouched — NO mouth), F004 (mass
+  as cloth), F006 (floating energy), F008 (senior-minimal flat fills),
+  F017 (hoodie), F018/F019 (ears + whiskers clear), F022 (card barrel +
+  neck-width hood), F023's one-piece read, hood DOWN, palette keys,
+  RESTRICTED z-ladder, drape + cords + legs untouched, F024 paw peek
+  read, F026 card whiskers' length, F031 amplitude (0.34x — grounded
+  ±0.17 rad, airborne −0.187, paw sweep ±0.075 body units), souls
+  untouched (stock swing), the R031 card untouched this round.
+- Changes: RIG — the pastel arm sign flip: both pastel arms now take
+  rotation.z = -armSwing (previously mirrored -/+, which produced the
+  synchronized in-out), so the paws alternate — one out while the other
+  tucks in, swapping each stride; the souls branch keeps its own
+  untouched mirror inside the isSouls gate; the module-const comment
+  now carries the F023–F034 history. CARD untouched.
+- Before: the R030 running set (mirrored in-out phasing).
+- After: R032/menu.png, R032/running-f1/f3/f4.png + R032/cat-f1/f3/f4.png
+  close crops, R032/dash.png + R032/cat-dash.png (chromium 1134, dsf 3,
+  same probes route). The f2 frame hit a known capture glitch (RGB
+  channel split) and was discarded — not a code signal; the card set
+  stays at R031 (the card is untouched).
+- Visual inspection: performed — f1 reads left-paw-out/right-paw-tucked,
+  f3 the swap (right-out/left-tucked), f4 the neutral passing moment
+  with both paws near the body; no shoulder gaps, no pocket dips, the
+  silhouette stays clean; dash clean.
+- Code verification: `npm --prefix portfolio run typecheck` PASS;
+  kitty-run.check.ts PASS; kitty-run.sim.ts PASS; kitty-run.shots.mjs
+  FLAKY — the [desktop] bullet-vignette bloom assert flagged 4
+  consecutive runs this session (opacity 0.015/0.04/0.021/0.003,
+  threshold 0.05): the values are nonzero and vary run-to-run → the
+  dash fires, but the fixed 120 ms wall-clock sample lands in the early
+  (time-dilated) ramp. Unrelated subsystem — the vignette tracks
+  world.timeScale, untouched this round; the only working-tree game
+  change is the arm sign flip in Kitty.tsx. Prior sessions' clean
+  re-runs passed. Not treated as a code signal.
+- Open question: LIKED/REJECTED per F034. Declared knobs: (1) which arm
+  leads first (a sign flip swaps the gait's starting side); (2) the
+  amplitude stays 0.34x — could step back up (0.425x) if the
+  alternation wants more travel; (3) the souls mirror stays stock.

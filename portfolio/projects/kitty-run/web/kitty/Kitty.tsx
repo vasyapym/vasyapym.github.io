@@ -36,14 +36,15 @@ const ROOT_SCALE = 0.72;
 // silhouette at the top of the swing.
 const PAULDRON_DAMP = 0.7;
 
-// Pastel arm-swing damping (F023-F031 history): the lateral z-swing was
+// Pastel arm-swing damping (F023-F034 history): the lateral z-swing was
 // cut stepwise (F023 0.35x -> stock -> F027 0.7x -> F028 0.5x -> F029
-// 0.425x), swapped once for a vertical counter-phase bob (R029,
-// KITTY_ARM_BOB 0.04) and REJECTED by the owner — the lateral character
-// stays. F031 asks 20% off the R028 travel: 0.425·0.8 = 0.34 ->
-// grounded ±0.17 rad, airborne −0.187, paw sweep ±0.075 body units, the
-// smallest visible lateral swing so far. The souls variant keeps the
-// untouched stock z-swing.
+// 0.425x -> F031 0.34), swapped once for a vertical counter-phase bob
+// (R029, rejected), restored (F031). F034 keeps the 0.34 amplitude but
+// fixes the PHASING: the mirrored signs made both paws splay out then
+// cross in together (the "in and out" read); the pastel arms now take
+// the same sign so they ALTERNATE like a real run gait — one paw out
+// while the other tucks in, swapping each stride. The souls variant
+// keeps the untouched stock mirror.
 const KITTY_SWING_DAMP = 0.34;
 
 // Souls-only wear shading, drawn INSIDE existing silhouettes (character
@@ -848,16 +849,24 @@ export function Kitty({
         footRRef.current.position.y = 0.16;
       }
     }
-    // Arm swing (F031: the R029 vertical bob was rejected — the owner
-    // wants the previous LATERAL z-swing character back, 20% shorter
-    // travel: KITTY_SWING_DAMP 0.425 -> 0.34 (0.425·0.8): grounded
-    // +-0.17 rad, airborne -0.187, paw sweep +-0.075 body units — the
-    // smallest visible lateral swing so far. The souls variant keeps
-    // the untouched stock swing; the knight's spaulder damping lives
-    // on its own refs.)
+    // Arm swing (F034: the mirrored signs produced a SYNCHRONIZED
+    // in-out paddle — both paws splay out, then both cross in, the
+    // "in and out" the owner rejected as unnatural. The pastel arms
+    // now ALTERNATE like a real run gait: both take the same sign
+    // (-armSwing), so one paw flicks out while the other tucks
+    // slightly in and they swap each stride. The amplitude stays
+    // KITTY_SWING_DAMP 0.34 (grounded +-0.17 rad, airborne -0.187,
+    // paw sweep +-0.075 body units). The souls variant keeps the
+    // untouched stock mirror; the knight's spaulder damping lives on
+    // its own refs.)
     const armSwing = isSouls ? pose.armSwing : pose.armSwing * KITTY_SWING_DAMP;
-    if (armLRef.current) armLRef.current.rotation.z = -armSwing;
-    if (armRRef.current) armRRef.current.rotation.z = armSwing;
+    if (isSouls) {
+      if (armLRef.current) armLRef.current.rotation.z = -pose.armSwing;
+      if (armRRef.current) armRRef.current.rotation.z = pose.armSwing;
+    } else {
+      if (armLRef.current) armLRef.current.rotation.z = -armSwing;
+      if (armRRef.current) armRRef.current.rotation.z = -armSwing;
+    }
     // Hood drape (pastel only; the ref is null on the souls branch). The
     // hem trails to -x, so — like the cape — a *negative* z rotation lifts
     // it up and back. Same terms as the cape, smaller amplitudes: this is
