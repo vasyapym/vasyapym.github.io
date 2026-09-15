@@ -4,8 +4,8 @@ Read this first. One screen; everything else is pointed to, not copied.
 
 ## Now — where each active project stands
 
-- **main page** (`portfolio/shell`) — ink catalogue hero + 6-project rail (n140); opt-in Dark Souls realm over untouched catalogue (n149); realm shipped through r21 (n222), threshold "the same seven" (n180); owner device checks pending (Open threads 5).
-- **kitty-run** — ashen qualitative R1–R6 shipped (n84–n87); cap R007 shipped then owner-rejected ("a mess", n129/F009); accessory redesign restarts in a fresh session; knight direction awaits owner steer (n80: five-being rigs rejected, no partial keep).
+- **main page** (`portfolio/shell`) — ink catalogue hero + 6-project rail (n140); opt-in Dark Souls realm over untouched catalogue (n149); realm shipped through r21 (n222), threshold "the same seven" (n180); owner device checks pending (Open threads 4).
+- **kitty-run** — ashen qualitative R1–R6 shipped (n84–n87); cap R007 shipped then owner-rejected ("a mess", n129/F009); accessory redesign LIKED through the dmca-redesign ledger — card R031 (F033), rig R032 (F035), nothing pending; knight direction awaits owner steer (n80: five-being rigs rejected, no partial keep).
 - **evening-forest** — all-tonal rewrite integrated (n33: Dm→Bb→F→C, no noise beds); owner real-device listen-pass pending.
 - **spine** — "The Seventh" card mark shipped (n10, `1373911`).
 - **explosion** — three modes shipped (n28–n31); dormant.
@@ -16,11 +16,10 @@ Read this first. One screen; everything else is pointed to, not copied.
 ## Open threads
 
 1. kitty-run knight direction — owner steer pending; chase stale handoff **h3** (acknowledged, never closed), don't fork around it.
-2. kitty-run accessory redesign — restarts in a fresh session; state lives in the dmca-redesign design ledger (`.agent/iterations/design/dmca-redesign/ledger.md`).
-3. evening-forest — owner listen-pass pending (n33).
-4. main page hero — 3×2 catalogue held through 900–1199px (n148, brief 11 REFINE); owner look pending.
-5. main page realm — owner device checks pending; the per-round lists live in `docs/briefs/ROUNDS.md` (r8–r19 rows): iOS/macOS Safari bands, iOS close glyph under Dynamic Type + safe area, iPhone exit cards, proximity greet feel, project-backed flood feel, doors 6–7 reach, side-flip feel, reduced framing snap.
-6. practice-map — migrate next deep-lesson route pair; owner re-checks shadow-typing on a real iPhone (n35).
+2. evening-forest — owner listen-pass pending (n33).
+3. main page hero — 3×2 catalogue held through 900–1199px (n148, brief 11 REFINE); owner look pending.
+4. main page realm — owner device checks pending; the per-round lists live in `docs/briefs/ROUNDS.md` (r8–r19 rows): iOS/macOS Safari bands, iOS close glyph under Dynamic Type + safe area, iPhone exit cards, proximity greet feel, project-backed flood feel, doors 6–7 reach, side-flip feel, reduced framing snap.
+5. practice-map — migrate next deep-lesson route pair; owner re-checks shadow-typing on a real iPhone (n35).
 
 ## Protocols (unchanged by compaction)
 
