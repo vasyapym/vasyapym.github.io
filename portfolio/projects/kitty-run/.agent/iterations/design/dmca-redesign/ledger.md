@@ -1846,3 +1846,58 @@ beard/stubble read · one-whisker-per-side read · naked/torso-less read.
   amplitude (0.04 — the vertical travel of each paw); (2) the airborne
   lift (+0.03); (3) the counter-phase pairing (left up / right down —
   could flip to in-phase if the read disagrees).
+
+## Feedback F031
+- Round: R030 (brief stage, pre-render)
+- Verdict: REJECTED the R029 vertical bob outright — the owner wants
+  the previous lateral z-swing character back, with its travel cut
+  another ~20%
+- Scope: the in-game arm motion's axis (back to lateral) and travel
+- Decision: (a) the vertical bob is rejected — the lateral swing
+  character returns; (b) the R028 0.425x travel shrinks 20%:
+  KITTY_SWING_DAMP = 0.425·0.8 = 0.34 (grounded ±0.17 rad, airborne
+  −0.187, paw sweep ±0.075 body units) — the smallest visible lateral
+  swing so far.
+- User source: "nope. don't like. rather than that decrease movement
+  distance of previous one 20%" (2026-09-15)
+- Artifact: R029 renders.
+- Supersedes: F030 (the bob experiment is closed as rejected; the
+  KITTY_SWING_DAMP amplitude knob returns at 0.34).
+
+## Round R030
+- Goal: answer F031 — restore the lateral z-swing character and cut its
+  travel ~20% from the R028 0.425x.
+- Preserved preferences: F002 (face untouched — NO mouth), F004 (mass as
+  cloth), F006 (floating energy), F008 (senior-minimal flat fills),
+  F017 (hoodie), F018/F019 (ears + whiskers clear), F022 (card barrel +
+  neck-width hood), F023's one-piece read, hood DOWN, palette keys,
+  RESTRICTED z-ladder, drape + cords + legs untouched, souls untouched
+  (stock swing), F024 paw peek read, F026–F028 card untouched.
+- Changes: RIG — the R029 bob block is reverted to the lateral
+  z-swing: `const armSwing = isSouls ? pose.armSwing :
+  pose.armSwing * KITTY_SWING_DAMP;` with KITTY_SWING_DAMP = 0.34
+  (0.425·0.8, the asked ~20% travel cut): grounded ±0.5·0.34 = ±0.17
+  rad, airborne −0.55·0.34 = −0.187, paw sweep ±0.22·0.34 = ±0.075
+  body units. The module const comment carries the full F023–F031
+  stepwise history including the rejected bob detour; position.y is
+  no longer written by useFrame (the pivot stays at its R024 seat
+  0.8 from JSX). Souls keeps the stock pose.armSwing untouched.
+- Before: R029 renders (vertical bob, rejected).
+- After: R030/menu.png, R030/running-f1.png, R030/running-f1-close.png,
+  R030/running-f4.png, R030/running-f4-close.png, R030/dash.png,
+  R030/dash-close.png (chromium 1134, dsf 3 close-ups + game-scale
+  frames, same probes route). The card SVG is untouched this round, so
+  no card artifacts are re-captured (R026 set stays current).
+- Visual inspection: performed — run f1/f4 + dash (f2/f3 flaked this
+  run, the usual transient capture pattern): the paws trace a very
+  short lateral arc right beside the barrel — the 0.34x swing reads as
+  a faint stubby wiggle, nothing flails, no pocket dip; dash tilt
+  intact; the f1 blink pose renders clean.
+- Code verification: `npm --prefix portfolio run typecheck` PASS;
+  kitty-run.check.ts PASS; kitty-run.sim.ts PASS; kitty-run.shots.mjs
+  first run flagged "[desktop] bullet vignette never bloomed (opacity
+  0.05)" — the known autopilot bullet-time dwell flake (unreachable
+  from the arm-swing factor); a clean re-run passed all six shots.
+- Open question: LIKED/REJECTED per F031. Declared knob: the swing damp
+  factor (0.34 — now BELOW the R023 dead-calm 0.35 reference, by the
+  owner's explicit 20%-cut call).
