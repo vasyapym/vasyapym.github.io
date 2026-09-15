@@ -1401,3 +1401,17 @@ beard/stubble read · one-whisker-per-side read · naked/torso-less read.
   rounding if the nub read needs softening at close-up; (3) the
   drape's visibility (still occluded in several swing phases —
   bigger/lower or gone); (4) how far the legs hang.
+
+## Feedback F022
+- Round: R022 (verdict)
+- Verdict: LIKED
+- Scope: the F021 points (a)–(d) — the card's proportions + hood and
+  the rig's arm swing + sleeve/paw join
+- Decision: the owner liked the round as presented — the chubby
+  barrel card with the neck-width hood and the calmer one-piece
+  sleeve/cuff/paw rig are accepted. The declared knobs (hood width,
+  paw rx / cuff rounding, drape visibility, leg hang) stay available
+  but nothing is pending.
+- User source: "liked" (2026-09-15)
+- Artifact: R022 renders.
+- Supersedes: none.

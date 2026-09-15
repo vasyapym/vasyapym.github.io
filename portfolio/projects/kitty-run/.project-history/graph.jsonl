@@ -296,3 +296,5 @@
 {"type":"edge.added","id":"e135","ts":"2026-09-15T09:38:52.903Z","from":"n144","to":"n145","rel":"continues"}
 {"type":"node.added","id":"n146","ts":"2026-09-15T10:53:40.385Z","kind":"iteration","actor":"design-iteration","title":"R022 chubby card barrel, neck-width hood, calmer sleeves","summary":"F021 answered on card + rig; checks green; wedge suspicion cleared at game scale; shipped this commit","artifacts":[{"kind":"doc-anchor","ref":"ledger Round R022"}]}
 {"type":"edge.added","id":"e136","ts":"2026-09-15T10:54:10.225Z","from":"n145","to":"n146","rel":"continues","rationale":"next design round on the same character brief"}
+{"type":"node.added","id":"n147","ts":"2026-09-15T10:58:01.193Z","kind":"decision","actor":"design-iteration","title":"R022 liked — F021 closed","summary":"Owner liked the round as presented: chubby card + neck-width hood + calmer one-piece sleeve/paw accepted; knobs stay available, nothing pending","artifacts":[{"kind":"doc-anchor","ref":"ledger Feedback F022"}]}
+{"type":"edge.added","id":"e137","ts":"2026-09-15T10:58:01.195Z","from":"n146","to":"n147","rel":"continues"}
