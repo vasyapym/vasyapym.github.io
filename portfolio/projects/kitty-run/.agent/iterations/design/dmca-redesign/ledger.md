@@ -3051,3 +3051,17 @@ beard/stubble read · one-whisker-per-side read · naked/torso-less read.
   shoulder height (crest ~y77 — lower or higher); (2) the flare rate
   (how fast the sides widen toward the hem); (3) the body size (hem 78
   wide — narrower or back toward 80+).
+
+### Feedback F063 — verdict on Round R046 (2026-09-16)
+- Source: user chat, 2026-09-16.
+- Quote: "thats what i wanted. great"
+- Verdict: LIKED — the bottle-form body is approved.
+- Scope: the KittyPortrait hoodie body construction — low shoulders
+  (crest ~y77, below the chin), one smooth gradual flare per side (no
+  walls), somewhat smaller body (hem 78); card, pastel theme, static
+  state. The face/head/ears/whiskers/hood/pocket/cords and the ASHEN
+  card + in-game rigs ride unchanged.
+- Artifact: artifacts/R046/after-card.png (+ after-zoom.png,
+  after-menu.png)
+- Supersedes: none — closes the F062 direction (the R041-R045 slab/dome
+  shoulder constructions are replaced by the approved R046 bottle form).
