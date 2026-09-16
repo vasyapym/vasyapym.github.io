@@ -76,15 +76,18 @@ function ellipseShape(rx: number, ry: number): THREE.Shape {
 // base ±0.28), F047 tightens it 20% more (bulge -> ±0.33, cap ->
 // ±0.08) while the mounts pull ~10% toward the centre (±0.58 -> ±0.52),
 // and F049 shaves the dome another 10% (bulge -> ±0.325, cap ->
-// ±0.072; apex and base hold). The souls knight renders no ears — the
+// ±0.072; apex and base hold), and F051 narrows the BASE 15% (the
+// widest point, near the bottom: base ±0.28 -> ±0.238, the bulge
+// control scales with it -> ±0.276; apex and cap hold). The souls
+// knight renders no ears — the
 // great helm owns the crown (F049: the peeking pair read as cat ears
 // on the knight). The card's pair stays pointed.
 function earShape(): THREE.Shape {
   const shape = new THREE.Shape();
-  shape.moveTo(-0.28, 0);
-  shape.quadraticCurveTo(-0.325, 0.3, -0.072, 0.47);
+  shape.moveTo(-0.238, 0);
+  shape.quadraticCurveTo(-0.276, 0.3, -0.072, 0.47);
   shape.quadraticCurveTo(0, 0.545, 0.072, 0.47);
-  shape.quadraticCurveTo(0.325, 0.3, 0.28, 0);
+  shape.quadraticCurveTo(0.276, 0.3, 0.238, 0);
   shape.closePath();
   return shape;
 }

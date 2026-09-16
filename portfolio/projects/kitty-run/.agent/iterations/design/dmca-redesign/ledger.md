@@ -2708,3 +2708,95 @@ beard/stubble read · one-whisker-per-side read · naked/torso-less read.
   back toward the dome); (2) the cat card's dome height (70 — higher
   or lower); (3) the greatsword tip (the knight's remaining left
   spike — hideable too if it reads as an ear).
+
+## Feedback F054
+- Round: R042 (brief stage, pre-render)
+- Verdict: REJECTED — the ashen SELECT CARD must keep its bone ear
+  tips; the in-game knight stays earless
+- Scope: the KnightPortrait poster only. R041's card removal is
+  reverted verbatim (the polygons return); the R041 rig change (no
+  in-game ears) is LIKED as presented and stays.
+- User source: "The ears should be reverted to their previous design
+  in the character select menu. However, the updated look works well
+  in-game and should remain as is." (2026-09-16)
+- Supersedes: F053's CARD half (the portrait tips); F053's rig half
+  stands.
+
+## Feedback F055
+- Round: R042 (brief stage, pre-render)
+- Verdict: DIRECTION — the cat card's shoulder caps smooth out again
+- Scope: the KittyPortrait hoodie-body shoulder line only. R041's
+  dome still read angular/rectangular (a flat crown + a sharp collar
+  notch); the caps become one continuous cubic per side — vertical
+  departure from the card edge, a round crown past mid-shoulder, a
+  shallow landing on the collar corner.
+- User source: "The top of the cat's shoulders appears too angular
+  and rectangular. They should be smoothed out to resemble more
+  natural, cartoon-style shoulders. Note: this applies only to the
+  character select menu." (2026-09-16)
+
+## Feedback F056
+- Round: R042 (brief stage, pre-render)
+- Verdict: DIRECTION — the rig's ear BASE narrows ~15%
+- Scope: the earShape's lower width only (the F049-liked dial state
+  stands): base endpoints ±0.28 -> ±0.238, the bulge control scales
+  with them ±0.325 -> ±0.276; apex 0.545 and cap endpoints ±0.072
+  hold.
+- User source: "I like the less rounded ears. next - please do reduce
+  the width at the base of the ears (the widest point, near the
+  bottom) by ~15%." (2026-09-16)
+
+## Round R042
+- Goal: answer F054–F056 — the ashen card's tips restored (rig stays
+  earless), the cat card's shoulder caps smoothed, the ear base
+  narrowed 15%.
+- Preserved preferences: F002 (face untouched — NO mouth), F004 (mass
+  as cloth), F006 (floating energy), F008 (senior-minimal flat
+  fills), F017 (hoodie), F018/F019 (ears + whiskers clear), F022
+  (card barrel + neck-width hood), F023's one-piece read, hood DOWN,
+  palette keys, RESTRICTED z-ladder, F024 paw peek read, F026 card
+  whiskers' length, F031/F034 swing (0.34x, alternating), the R031
+  card head, the F039 outward tilt, the F042 nose opacity 0.6, the
+  F044 paw offset, the F045 dome construction, the F048-liked R040
+  ears, the F053 rig half (no in-game ears on the knight), the F051
+  watch pill (title centred, hint gone), the F052 explosion copy.
+- Changes: CARD — KnightPortrait: the two bone ear-tip polygons
+  return verbatim (the R041 removal reverted; the comment carries the
+  F049→F054 history). KittyPortrait: the hoodie body's shoulder line
+  is rebuilt as ONE cubic cap per side — `C10 70 22 66 38 74`
+  (mirrored) replacing the two-segment dome: vertical departure from
+  the side (10,86), a round crown peaking ~x18-22 at y~70, a shallow
+  diagonal landing on the collar corner (38,74) — no flat top run,
+  no squared corner. RIG EARS — the base narrows 15%: base endpoints
+  ±0.28 -> ±0.238, the bulge control ±0.325 -> ±0.276; apex 0.545,
+  cap endpoints ±0.072 and the ±0.52 mounts hold.
+- Before: R041 renders (the earless ashen card; the two-segment
+  shoulder dome at ±0.325 bulge; the base ±0.28), plus the
+  shoulders-zoom-before crop taken this round off the R041 state.
+- After: R042/menu.png, R042/card-cat.png, R042/card-souls.png,
+  R042/run-f1.png, R042/run-f4.png, R042/run-dash.png,
+  R042/souls-f1.png, R042/souls-f4.png, R042/cat-head-zoom.png,
+  R042/souls-head-zoom.png, R042/shoulders-zoom.png (+ the
+  shoulders-zoom-before pair) — chromium 1134, dsf 3, the kitty-r041
+  + kitty-r041-zoom + kitty-r042-shoulders probe route.
+- Visual inspection: performed — the ashen card shows the bone tips
+  again (verbatim pre-R041 design); the cat card's shoulder caps read
+  as continuous curves with no flat plateau (the shoulders-zoom
+  before/after pair confirms: the R041 plateau at y~70 x15..35 is
+  gone, the crown is a round cap with a shallow collar landing); the
+  in-game knight stays earless (one greatsword-tip spike, intended);
+  the in-game ears sit on visibly narrower bases (the half-drawn
+  burial holds); the watch pill and the explosion copy ride
+  unchanged from R041.
+- Code verification: `npm --prefix portfolio run typecheck` PASS;
+  kitty-run.check.ts PASS; kitty-run.sim.ts PASS; kitty-run.shots.mjs
+  FLAKY then clean — the [desktop] bullet-vignette bloom assert
+  flagged once (opacity 0.025, threshold 0.05), the session's
+  environmental-timing pattern, and the immediate rerun passed fully
+  clean (all six shots); not a code signal.
+- Open question: LIKED/REJECTED per F054–F056. Declared knobs: (1)
+  the shoulder cap (crown height ~70 / crown bias outward ~x20 — the
+  cap could rise, bias toward the neck, or the shoulders could
+  narrow); (2) the ear base dial (0.238 — narrower or back toward
+  0.28); (3) the ear roundness dial (bulge 0.043 / cap 0.072 stays
+  from F049).
