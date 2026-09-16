@@ -9,6 +9,10 @@ import {
   readRealmReturnScrollY,
   rememberRealmReturnIntent,
 } from "./realm-return-intent";
+import {
+  clearProjectReturnIntent,
+  readProjectReturnScrollY,
+} from "./project-return-intent";
 import "./realm.css";
 
 type LandingPageProps = {
@@ -169,6 +173,25 @@ export default function LandingPage({
       }
     };
   }, []);
+
+  // A plain back-to-menu trip returns the visitor to the catalogue row they
+  // left: consume the project-return intent before first paint. The realm's
+  // own return path restores its offset elsewhere — never double-drive it.
+  useLayoutEffect(() => {
+    if (externalRealmOpen) {
+      return;
+    }
+    const scrollY = readProjectReturnScrollY();
+    if (scrollY == null) {
+      return;
+    }
+    clearProjectReturnIntent();
+    const maxScroll = Math.max(0, document.documentElement.scrollHeight - window.innerHeight);
+    window.scrollTo({
+      top: Math.min(Math.max(0, scrollY), maxScroll),
+      behavior: "instant",
+    });
+  }, [externalRealmOpen]);
 
   const handleRealmExit = useCallback(() => {
     clearRealmReturnIntent();

@@ -1,6 +1,6 @@
 // WebKit (Safari engine) regression gate for the audio-button background
-// jump: boots the Vite dev server, clicks the title (control), mute and mix
-// in both orders, and diffs the WebGL canvas IN-PAGE per rAF (the page must
+// jump: boots the Vite dev server, clicks the title (control) and the mute
+// button, and diffs the WebGL canvas IN-PAGE per rAF (the page must
 // run with ?preserve, which the probe appends). A header click must never
 // disturb the drawing buffer: the click-frame canvas delta must stay at the
 // baseline level.
@@ -93,8 +93,6 @@ const probe = await page.evaluate(async () => {
     title: await clickAndMeasure(".kitty-run-title"),
     mute1: await clickAndMeasure(".kitty-run-mute"),
     mute2: await clickAndMeasure(".kitty-run-mute"),
-    mix1: await clickAndMeasure(".kitty-run-mix"),
-    mix2: await clickAndMeasure(".kitty-run-mix"),
   };
   window.__rec = false;
   const all = frames.filter((f) => f.d >= 0).map((f) => f.d).sort((a, b) => a - b);
@@ -102,14 +100,12 @@ const probe = await page.evaluate(async () => {
   return out;
 });
 
-const { median, title, mute1, mute2, mix1, mix2 } = probe;
+const { median, title, mute1, mute2 } = probe;
 const limit = median * 3 + 0.5;
 const rows = [
   ["title (control)", title],
   ["mute 1", mute1],
   ["mute 2", mute2],
-  ["mix 1", mix1],
-  ["mix 2", mix2],
 ];
 let failures = 0;
 for (const [label, value] of rows) {

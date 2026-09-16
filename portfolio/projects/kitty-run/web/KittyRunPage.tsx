@@ -30,41 +30,12 @@ import {
 } from "./lib/theme.ts";
 import "./kitty-run.css";
 
-// The three loudness sliders (master / SFX / music), persisted so a visit
-// keeps its mix. Defaults mirror the Sfx engine's own bus levels, so the
-// first apply is a no-op and the sound never jumps.
-type AudioLevels = { master: number; sfx: number; music: number };
-
-const AUDIO_KEY = "kitty-run/audio/v1";
-
-const DEFAULT_LEVELS: AudioLevels = { master: 0.42, sfx: 0.9, music: 0.85 };
-
-function loadAudioLevels(): AudioLevels {
-  try {
-    const raw = window.localStorage.getItem(AUDIO_KEY);
-    if (!raw) return { ...DEFAULT_LEVELS };
-    const parsed = JSON.parse(raw) as Partial<AudioLevels>;
-    const clamp = (v: unknown, fallback: number) =>
-      typeof v === "number" && Number.isFinite(v)
-        ? Math.min(1, Math.max(0, v))
-        : fallback;
-    return {
-      master: clamp(parsed.master, DEFAULT_LEVELS.master),
-      sfx: clamp(parsed.sfx, DEFAULT_LEVELS.sfx),
-      music: clamp(parsed.music, DEFAULT_LEVELS.music),
-    };
-  } catch {
-    // Corrupt entry or unavailable storage: the defaults still play.
-    return { ...DEFAULT_LEVELS };
-  }
-}
-
 export default function KittyRunPage() {
   const world = useMemo(() => createWorld(readBestScore(window.localStorage)), []);
   const reducedMotion = useReducedMotion();
   const [webglOk, setWebglOk] = useState(true);
-  // The selected character: a presentation choice, persisted like the audio
-  // mix. ?souls overrides for one page load; the chip row handles the rest.
+  // The selected character: a presentation choice, persisted across visits.
+  // ?souls overrides for one page load; the chip row handles the rest.
   // Only the ready screen offers the switch, so a selection never races a
   // live run.
   const [character, setCharacter] = useState<CharacterId>(() => {
@@ -84,9 +55,6 @@ export default function KittyRunPage() {
   // drawing buffer, which reads as the background jumping. Same pattern as
   // characterRef below.
   const mutedRef = useRef(false);
-  // Audio mixer state: the three sliders plus whether the popover is open.
-  const [audio, setAudio] = useState<AudioLevels>(loadAudioLevels);
-  const [mixOpen, setMixOpen] = useState(false);
   // The stored best run: seed plus inputs. When present, new runs reuse
   // its seed so the echo races you over the very track it ran.
   const [replay, setReplay] = useState<StoredReplay | null>(() =>
@@ -167,12 +135,6 @@ export default function KittyRunPage() {
     if (!sfxRef.current) sfxRef.current = new Sfx();
     const sfx = sfxRef.current;
     sfx.start();
-    // The sliders own the mix: re-apply the persisted levels on every wake
-    // so a freshly-built graph comes up at the visitor's settings, and a
-    // resumed context re-learns them after a background suspension.
-    sfx.setMaster(audio.master);
-    sfx.setSfx(audio.sfx);
-    sfx.setMusic(audio.music);
     if (!trackRef.current && sfx.context && sfx.musicOutput) {
       trackRef.current = new Soundtrack(sfx.context, sfx.musicOutput);
       // A freshly built graph comes up in the selected character's mood.
@@ -182,7 +144,7 @@ export default function KittyRunPage() {
     // pastel set. Pure table swap on the Sfx instance.
     sfx.setMode(character);
     return sfx;
-  }, [audio, character]);
+  }, [character]);
 
   // The score and the SFX register follow the character: a swap re-voices
   // harmony, tempo band and pad tone at the next bar; the sequencer itself
@@ -191,27 +153,6 @@ export default function KittyRunPage() {
     trackRef.current?.setMode(character);
     sfxRef.current?.setMode(character);
   }, [character]);
-
-  // Slider drag: clamp, persist, and glide the live bus (a no-op before the
-  // first gesture — the stored value is applied when the graph is built).
-  const changeAudio = useCallback((key: keyof AudioLevels, value: number) => {
-    const v = Math.min(1, Math.max(0, value));
-    setAudio((prev) => {
-      const next = { ...prev, [key]: v };
-      try {
-        window.localStorage.setItem(AUDIO_KEY, JSON.stringify(next));
-      } catch {
-        // Private mode or full storage: the sliders still work this visit.
-      }
-      return next;
-    });
-    const sfx = sfxRef.current;
-    if (sfx) {
-      if (key === "master") sfx.setMaster(v);
-      else if (key === "sfx") sfx.setSfx(v);
-      else sfx.setMusic(v);
-    }
-  }, []);
 
   // UI sounds stay polite: silent while muted, cheap no-ops before the
   // first gesture builds the context.
@@ -714,37 +655,6 @@ export default function KittyRunPage() {
             >
               {muted ? "sound off" : "sound on"}
             </button>
-            <button
-              type="button"
-              className="kitty-run-mix"
-              aria-expanded={mixOpen}
-              aria-label="Audio mixer: master, effects and music sliders"
-              onMouseEnter={uiHover}
-              onClick={() => {
-                uiClick();
-                setMixOpen((open) => !open);
-              }}
-            >
-              mix
-            </button>
-            {mixOpen && (
-              <div className="kitty-run-mixpanel">
-                {(["master", "sfx", "music"] as const).map((key) => (
-                  <label key={key} className="kitty-run-mixrow">
-                    <span>{key}</span>
-                    <input
-                      type="range"
-                      min={0}
-                      max={100}
-                      value={Math.round(audio[key] * 100)}
-                      onChange={(event) =>
-                        changeAudio(key, Number(event.target.value) / 100)
-                      }
-                    />
-                  </label>
-                ))}
-              </div>
-            )}
           </div>
         </header>
         <section

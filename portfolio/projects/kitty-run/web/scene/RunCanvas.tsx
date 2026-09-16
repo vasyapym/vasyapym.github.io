@@ -28,7 +28,7 @@ const CAMERA_BASE = new THREE.Vector3(0, 3.2, BASE_CAM_Z);
 // Static renderer configuration, hoisted to module scope on purpose. R3F
 // re-applies `gl`/`dpr`/`camera` whenever their identity changes, and JSX
 // object literals are new objects on every parent render — every header
-// state change (mute, mix, hover) would re-touch the renderer. In WebKit
+// state change (mute, hover) would re-touch the renderer. In WebKit
 // that re-apply visibly disturbs the drawing buffer for a frame: the
 // distance-driven world reads as if it jumped. Stable identities, stable
 // renderer.

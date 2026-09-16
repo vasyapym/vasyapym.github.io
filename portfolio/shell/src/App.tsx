@@ -9,6 +9,9 @@ import {
   readRealmReturnScrollY,
   rememberRealmReturnIntent,
 } from "./shell/realm-return-intent";
+import {
+  rememberProjectReturnIntent,
+} from "./shell/project-return-intent";
 import type { PrototypeVariant } from "./prototype/PortfolioPrototype";
 
 const DesignDirections = lazy(() => import("./design-directions/DesignDirections"));
@@ -56,6 +59,12 @@ export default function App() {
   const comparisonMode = requestedPrototypeVariant !== undefined;
 
   const openProject = useCallback((id: string) => {
+    // Capture the landing's offset while it is still on screen (a realm
+    // chain captures its own intent instead — the viewport then belongs to
+    // the project page beneath the realm, not the catalogue).
+    if (realmReturnRef.current === null) {
+      rememberProjectReturnIntent(window.scrollY);
+    }
     window.history.pushState({}, "", `/projects/${id}/`);
     window.scrollTo({ top: 0 });
     setPathname(`/projects/${id}/`);
@@ -107,8 +116,14 @@ export default function App() {
       return;
     }
 
-    window.history.pushState({}, "", "/");
+    // With a return intent, the landing's mount effect owns the viewport
+    // (it restores the catalogue offset before first paint); the top-reset
+    // here only pins the fresh history entry so browser-native back/forward
+    // never inherit the project page's scroll. A plain back without an
+    // intent — a direct project boot, a realm-exit landing — starts at the
+    // top as before.
     window.scrollTo({ top: 0 });
+    window.history.pushState({}, "", "/");
     setPathname("/");
   }, [beginRealmReturn]);
 

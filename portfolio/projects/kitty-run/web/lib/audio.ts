@@ -122,8 +122,8 @@ export class Sfx {
   // Cached white noise — created once in start(), replayed forever.
   private noiseBuffer: AudioBuffer | null = null;
 
-  // Stored slider values. Defaults match the classic mix; setters may
-  // overwrite these before start(), in which case start() applies them.
+  // Bus loudness. The mixer UI was retired; these are the engine's fixed
+  // levels, applied once when start() builds the graph.
   private masterLevel = 0.42;
   private sfxLevel = 0.9;
   private musicLevel = 0.85;
@@ -202,28 +202,6 @@ export class Sfx {
     this.sfxBus = sfxBus;
     this.musicBus = musicBus;
     this.noiseBuffer = buffer;
-  }
-
-  // --- Loudness setters -----------------------------------------------------
-  // Each stores the value (so a pre-start() slider drag survives to start())
-  // and, if the graph exists, glides to it click-free via setTargetAtTime.
-
-  setMaster(v: number): void {
-    this.masterLevel = this.apply(this.master, v);
-  }
-  setSfx(v: number): void {
-    this.sfxLevel = this.apply(this.sfxBus, v);
-  }
-  setMusic(v: number): void {
-    this.musicLevel = this.apply(this.musicBus, v);
-  }
-
-  private apply(node: GainNode | null, v: number): number {
-    const clamped = Math.min(1, Math.max(0, v));
-    if (node && this.ctx) {
-      node.gain.setTargetAtTime(clamped, this.ctx.currentTime, 0.02);
-    }
-    return clamped;
   }
 
   // --- Helpers --------------------------------------------------------------

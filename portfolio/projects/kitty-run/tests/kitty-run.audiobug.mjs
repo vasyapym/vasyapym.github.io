@@ -1,10 +1,10 @@
 // Regression gate for the audio-controls page-shift bug, in BOTH themes.
-// Boots the Vite dev server on a scratch port, clicks the sound and mix
-// buttons, and reports every observable consequence: exact geometry deltas,
-// browser events caught in the act (scroll / resize / style mutations), a
-// header-strip pixel compare, and a canvas jump detector — per-interval
-// pixel diffs across the click, so a one-frame background snap inside the
-// animated scene shows up as a spike against the baseline drift.
+// Boots the Vite dev server on a scratch port, clicks the sound button, and
+// reports every observable consequence: exact geometry deltas, browser
+// events caught in the act (scroll / resize / style mutations), and a canvas
+// jump detector — per-interval pixel diffs across the click, so a one-frame
+// background snap inside the animated scene shows up as a spike against the
+// baseline drift.
 //
 //   node portfolio/projects/kitty-run/tests/kitty-run.audiobug.mjs
 //   (set CHROME_PATH when the default candidates miss)
@@ -12,17 +12,14 @@
 // Skips cleanly when no browser is available. Exit code 1 when any click
 // provokes a geometry delta, an unexpected event, or a jump spike.
 import { spawn } from "node:child_process";
-import { existsSync, mkdirSync, writeFileSync } from "node:fs";
+import { existsSync } from "node:fs";
 import { dirname, join, resolve } from "node:path";
 import { fileURLToPath } from "node:url";
-import { tmpdir } from "node:os";
 
 const here = dirname(fileURLToPath(import.meta.url));
 const shellDir = resolve(here, "../../../shell");
 const PORT = 5219;
 const BASE = `http://localhost:${PORT}`;
-const SHOTS = join(tmpdir(), "kitty-run-audiobug");
-mkdirSync(SHOTS, { recursive: true });
 
 const CHROME_CANDIDATES = [
   process.env.CHROME_PATH,
@@ -95,7 +92,6 @@ const snapshot = () => {
     title: rect(".kitty-run-title"),
     audio: rect(".kitty-run-audio"),
     mute: rect(".kitty-run-mute"),
-    mix: rect(".kitty-run-mix"),
     stage: rect(".kitty-run-stage"),
     canvasEl: canvas ? { w: canvas.width, h: canvas.height } : null,
   };
@@ -253,43 +249,11 @@ async function scenario(name, viewport, query) {
     await wait(300);
     const afterMute = await page.evaluate(snapshot);
     const muteEvents = await page.evaluate(() => window.__events.splice(0));
-    const stripBefore = Buffer.from(
-      await page.screenshot({ clip: { x: 0, y: 0, width: viewport.width, height: 150 } }),
-    );
-
-    // --- mix open / close ---
-    await page.evaluate(() => window.__events.splice(0));
-    await page.click(".kitty-run-mix");
-    await wait(400);
-    await page.mouse.move(5, 5);
-    await wait(300);
-    const afterMixOpen = await page.evaluate(snapshot);
-    const mixOpenEvents = await page.evaluate(() => window.__events.splice(0));
-    await page.click(".kitty-run-mix");
-    await wait(400);
-    await page.mouse.move(5, 5);
-    await wait(300);
-    const afterMixClose = await page.evaluate(snapshot);
-    const mixCloseEvents = await page.evaluate(() => window.__events.splice(0));
-    const stripAfter = Buffer.from(
-      await page.screenshot({ clip: { x: 0, y: 0, width: viewport.width, height: 150 } }),
-    );
 
     const problems = [];
     const deltas = diff(before, afterMute);
     if (deltas.length > 0) problems.push(`geometry: ${deltas.join(" | ")}`);
     if (spike) problems.push(`canvas jump on mute: interval ${clickInterval.toFixed(2)} vs baseline median ${baseMedian.toFixed(2)}`);
-    if (diff(afterMixOpen, afterMute).length > 0) problems.push(`geometry(mix open): ${diff(afterMixOpen, afterMute).join(" | ")}`);
-    if (mixOpenEvents.length > 0) problems.push(`events(mix open): ${mixOpenEvents.join(" | ")}`);
-    if (diff(afterMixClose, afterMute).length > 0) problems.push(`geometry(mix close): ${diff(afterMixClose, afterMute).join(" | ")}`);
-    if (mixCloseEvents.length > 0) problems.push(`events(mix close): ${mixCloseEvents.join(" | ")}`);
-    // Header strip must return to its pre-click bytes (mouse parked away, so
-    // no hover paint); a persistent difference = an unexpected residue.
-    if (!stripBefore.equals(stripAfter)) {
-      writeFileSync(join(SHOTS, `${tag}-before.png`), stripBefore);
-      writeFileSync(join(SHOTS, `${tag}-after.png`), stripAfter);
-      problems.push(`header strip bytes differ (${stripBefore.length}B vs ${stripAfter.length}B) — saved ${tag}-*.png`);
-    }
     // Mute click events themselves: report separately (a benign canvas-style
     // re-assert from R3F is tolerated; everything else is a problem).
     const noisyMute = muteEvents.filter((e) => !e.startsWith("canvas-style"));
@@ -313,10 +277,10 @@ const desktop = { width: 1440, height: 810, deviceScaleFactor: 1 };
 const mobile = { width: 390, height: 844, deviceScaleFactor: 2, isMobile: true };
 
 await waitForServer(`${BASE}/projects/kitty-run`);
-await scenario("souls desktop mute+mix", desktop, "?souls");
-await scenario("souls mobile mute+mix", mobile, "?souls");
-await scenario("pastel desktop mute+mix", desktop, "");
-await scenario("pastel mobile mute+mix", mobile, "");
+await scenario("souls desktop mute", desktop, "?souls");
+await scenario("souls mobile mute", mobile, "?souls");
+await scenario("pastel desktop mute", desktop, "");
+await scenario("pastel mobile mute", mobile, "");
 
 console.log(failures === 0 ? "audiobug: all clicks leave the page still (both themes)" : `audiobug: ${failures} shifting scenario(s)`);
 process.exit(failures === 0 ? 0 : 1);
