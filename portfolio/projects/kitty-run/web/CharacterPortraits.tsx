@@ -30,12 +30,15 @@ export function KittyPortrait() {
           over the fur so it reads as the collar's inside edge */}
       <path d="M34 68 C38 65.6 44 64.8 50 64.8 C56 64.8 62 65.6 66 68 Q50 70.8 34 68 Z" fill="#f6a9c0" />
       {/* hoodie body: round barrel — the sides bow out to the hem so the
-          cat reads chubby, not fit; each shoulder is ONE cubic cap that
-          leaves the side vertically, crowns just past mid-shoulder and
-          lands shallowly on the collar corner — no flat top run, no
-          squared corner (F049 built the dome; F051 smooths it: the flat
-          crown + sharp collar notch still read angular/rectangular) */}
-      <path d="M10 100 L10 86 C10 70 22 66 38 74 C40 80 45 85 50 85 C55 85 60 80 62 74 C78 66 90 70 90 86 L90 100 Z"
+          cat reads chubby, not fit; each shoulder is ONE pauldron-like
+          arc that mirrors the ashen card's shoulder construction: the
+          side rises steeply from the card edge (10,92), crowns roundly
+          at ~y67.5 near x14-18, then one soft convex run eases down to
+          the collar corner (38,74) — a single continuous curve, no
+          plateau, no slab read (F049 dome and F051 one-cubic cap both
+          read as the same wide ramp; F059 demands a visibly rounder,
+          cartoon-natural ball shoulder) */}
+      <path d="M10 100 L10 92 C10 74 12.5 68 18 67.5 C27 67 36 70 38 74 C40 80 45 85 50 85 C55 85 60 80 62 74 C64 70 73 67 82 67.5 C87.5 68 90 74 90 92 L90 100 Z"
         fill="#e94f64" stroke="#3a3142" strokeWidth={2.2} strokeLinejoin="round" />
       {/* kangaroo pocket + angled hand slots */}
       <path d="M33 89 L67 89 L65 100 L35 100 Z"

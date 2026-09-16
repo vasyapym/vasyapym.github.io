@@ -2800,3 +2800,76 @@ beard/stubble read · one-whisker-per-side read · naked/torso-less read.
   narrow); (2) the ear base dial (0.238 — narrower or back toward
   0.28); (3) the ear roundness dial (bulge 0.043 / cap 0.072 stays
   from F049).
+
+## Feedback F057
+- Round: R042 (presented renders)
+- Verdict: LIKED
+- Scope: the ashen select card as presented (R042/card-souls.png) —
+  the bone ear tips restored verbatim, the in-game knight earless.
+- Decision: F054's card state stands.
+- User source: "i like 1 and 3." (2026-09-16)
+
+## Feedback F058
+- Round: R042 (presented renders)
+- Verdict: LIKED
+- Scope: the rig ear base as presented (R042/cat-head-zoom.png) —
+  the 15% narrower base (±0.238 / bulge ±0.276) on the F049 dial.
+- Decision: the F056 ear state stands.
+- User source: "i like 1 and 3." (2026-09-16)
+
+## Feedback F059
+- Round: R042 (presented renders)
+- Verdict: REJECTED
+- Scope: the KittyPortrait shoulder caps (R042/card-cat.png +
+  shoulders-zoom pair) — the R042 one-cubic cap renders too close to
+  the R041 two-segment dome; the owner cannot see a change after two
+  attempts.
+- Decision: the shoulder smoothing must land VISIBLY — the next round
+  rebuilds the cap as a decisively rounder, cartoon-style ball
+  shoulder (steeper outer rise, higher crown ~y65.5, soft dome top),
+  not a slight retune of the same ramp.
+- User source: "2nd - it looks the same after two iterations"
+  (2026-09-16)
+
+## Round R043
+- Goal: answer F059 — a shoulder cap that VISIBLY reads as a natural
+  cartoon ball shoulder, not a retuned ramp.
+- Preserved preferences: F002 (face untouched — NO mouth), F004 (mass
+  as cloth), F006 (floating energy), F008 (senior-minimal flat
+  fills), F017 (hoodie), F018/F019 (ears + whiskers clear), F022
+  (card barrel + neck-width hood), F023's one-piece read, hood DOWN,
+  palette keys, RESTRICTED z-ladder, F024 paw peek read, F026 card
+  whiskers' length, F031/F034 swing (0.34x, alternating), the R031
+  card head, the F039 outward tilt, the F042 nose opacity 0.6, the
+  F044 paw offset, the F045 dome construction, the F048-liked R040
+  ears, the F053 rig half (no in-game ears on the knight), the
+  F054-liked card tips, the F056-liked ear base, the F051 watch
+  pill, the F052 explosion copy.
+- Changes: CARD — KittyPortrait: the shoulder line rebuilt as ONE
+  pauldron-like arc per side, mirroring the ashen card's own shoulder
+  construction: the side departs vertically at (10,92), the arc
+  crowns roundly at ~y67.5 near x14-18 (hugging the card edge), then
+  a single soft convex run eases down to the collar corner (38,74) —
+  one continuous curve, no plateau, no wall; the visible silhouette
+  (x10..~23, the jaw covers the rest) reads as a round natural
+  cartoon shoulder, decisively rounder than the R041/R042 ramp. This
+  replaces an earlier same-session draft (the steep-walled slab, a
+  rendered candidate that was rejected before presentation).
+- Before: R042 renders (the one-cubic cap, crown ~y70 at x18-22) +
+  this round's shoulders-zoom-before crop off the R042 state.
+- After: R043/card-cat.png, R043/card-souls.png, R043/menu-full.png,
+  R043/shoulders-zoom.png (+ the shoulders-zoom-before pair) —
+  chromium 1134, dsf 3, the kitty-r041 + kitty-r042-shoulders probe
+  route.
+- Visual inspection: performed — the shoulder zoom pair shows the
+  top edge as one continuous round arc cresting near the card edge
+  (no plateau, no flat band), the collar landing smooth; the ashen
+  card, the rig ears, the watch pill and the rest ride unchanged
+  from R042.
+- Code verification: `npm --prefix portfolio run typecheck` PASS;
+  kitty-run.check.ts PASS; kitty-run.sim.ts PASS; kitty-run.shots.mjs
+  PASS — fully clean six-shot run, no vignette flake.
+- Open question: LIKED/REJECTED per F059 (items 1 and 3 already
+  liked). Declared knobs: (1) the crown height (y~67.5 — higher or
+  lower); (2) the crown bias (x~14-18 — further out or in); (3) the
+  outer departure (10,92 — steeper or eased).
