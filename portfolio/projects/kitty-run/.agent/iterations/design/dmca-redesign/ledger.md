@@ -2934,3 +2934,47 @@ beard/stubble read · one-whisker-per-side read · naked/torso-less read.
   distinct dark-red garment dome pieces (the fallback construction);
   (3) the whisker clearance (nudge the crest down if it reads as
   collision).
+
+## Round R045
+- Goal: answer F061 — not raised, LOWER and softer; no boulder, no
+  slab; it must simply look good.
+- Preserved preferences: F002 (face untouched — NO mouth), F004 (mass
+  as cloth), F006 (floating energy), F008 (senior-minimal flat
+  fills), F017 (hoodie), F018/F019 (ears + whiskers clear), F022
+  (card barrel + neck-width hood), F023's one-piece read, hood DOWN,
+  palette keys, RESTRICTED z-ladder, F024 paw peek read, F026 card
+  whiskers' length, F031/F034 swing (0.34x, alternating), the R031
+  card head, the F039 outward tilt, the F042 nose opacity 0.6, the
+  F044 paw offset, the F045 dome construction, the F048-liked R040
+  ears, the F053 rig half (no in-game ears on the knight), the
+  F054-liked card tips, the F056-liked ear base, the F051 watch
+  pill, the F052 explosion copy.
+- Changes: CARD — KittyPortrait: the shoulder rebuilt as a LOW wide
+  soft dome — the wall starts curving at (10,84) and rolls in one
+  gentle arc (crest ~y65.5-66 spanning x15..31) straight into the
+  collar (38,74): no corner, no distinct shoulder mass, no raised
+  ball. F061 verdict first ("no. i don't want them raised. on the
+  contrary. i just dont want it with big shoulders like a boulder. i
+  want it to look good. it looks awkward with the shoulders like
+  this."). Rejected candidates (rendered, local probes): s-v2
+  (near-level top hugging the head edge — reads back toward the
+  slab) and s-v3 (a mirroring typo broke the right shoulder —
+  discarded as broken, never presented).
+- Before: R044 renders (the raised ball, crest ~y61.5) + this
+  round's shoulders-zoom-before crop off the R044 state.
+- After: R045/card-cat.png, R045/card-souls.png, R045/menu-full.png,
+  R045/shoulders-zoom.png (+ the shoulders-zoom-before pair) —
+  chromium 1134, dsf 3, the kitty-r041 + kitty-r042-shoulders probe
+  route.
+- Visual inspection: performed — the zoom pair shows the boulder
+  gone: the visible strip beside the jaw reads as one calm cloth
+  mound, the outer wall no longer towers, the collar landing stays
+  smooth; the ashen card, the rig ears, the watch pill and the rest
+  ride unchanged.
+- Code verification: `npm --prefix portfolio run typecheck` PASS;
+  kitty-run.check.ts PASS; kitty-run.sim.ts PASS; kitty-run.shots.mjs
+  PASS (one vignette flake, rerun clean).
+- Open question: LIKED/REJECTED per F061. Declared knobs: (1) the
+  dome height (crest y~65.5 — lower toward the R042 line or a touch
+  higher); (2) the dome width (the arc's span x15..31 — wider or
+  narrower); (3) the wall's curve start (10,84 — later or earlier).
