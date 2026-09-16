@@ -36,6 +36,8 @@ jobs:
       - name: Build
         working-directory: portfolio
         run: npm run build
+      - name: Stage quicknotes static app
+        run: cp -R quicknotes portfolio/shell/dist/quicknotes
       - uses: actions/upload-pages-artifact@v3
         with:
           path: portfolio/shell/dist
