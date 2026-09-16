@@ -62,12 +62,13 @@ spine/
     ├── loader.ts        wasm loading + rebind plumbing
     ├── spine.css        scoped page styles
     ├── wasm_exec.js     vendored Go runtime shim
-    └── spine.wasm       committed build artifact
+    └── spine.wasm       build artifact (regenerated, not committed)
 ```
 
-The compiled `spine.wasm` is committed next to the page (the same convention
-raft-cluster uses), so the shell's single Vite build picks it up as a static
-asset with no extra pipeline.
+The compiled `spine.wasm` is a reproducible build artifact and is **not**
+committed (same convention raft-cluster uses): the shell's Vite build
+regenerates it with `GOOS=js GOARCH=wasm go build` whenever it is missing,
+so a fresh checkout needs the Go toolchain on PATH.
 
 ## Develop
 
