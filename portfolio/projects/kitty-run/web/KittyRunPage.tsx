@@ -623,7 +623,6 @@ export default function KittyRunPage() {
               onClick={handleWatch}
             >
               <span className="kitty-run-watch-title">{theme.text.watchTitle}</span>
-              <span className="kitty-run-watch-hint">{theme.text.watchHint}</span>
             </button>
           </div>
         </div>

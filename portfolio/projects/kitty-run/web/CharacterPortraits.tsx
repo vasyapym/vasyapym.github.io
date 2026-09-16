@@ -30,8 +30,11 @@ export function KittyPortrait() {
           over the fur so it reads as the collar's inside edge */}
       <path d="M34 68 C38 65.6 44 64.8 50 64.8 C56 64.8 62 65.6 66 68 Q50 70.8 34 68 Z" fill="#f6a9c0" />
       {/* hoodie body: round barrel — the sides bow out to the hem so the
-          cat reads chubby, not fit; round shoulders carry the hood */}
-      <path d="M10 100 L10 90 C10 79 19 74 32 74 L38 74 C40 80 45 85 50 85 C55 85 60 80 62 74 L68 74 C81 74 90 79 90 90 L90 100 Z"
+          cat reads chubby, not fit; the shoulders read as one continuous
+          dome each side (F049: the flat top + squared corner read
+          boulder-like, so the shoulder line now rises in a full convex
+          arc — rounder than the ashen card's pauldron domes) */}
+      <path d="M10 100 L10 88 C10 76 15 70 25 70 C33.5 70 38 71.5 38 74 C40 80 45 85 50 85 C55 85 60 80 62 74 C62 71.5 66.5 70 75 70 C85 70 90 76 90 88 L90 100 Z"
         fill="#e94f64" stroke="#3a3142" strokeWidth={2.2} strokeLinejoin="round" />
       {/* kangaroo pocket + angled hand slots */}
       <path d="M33 89 L67 89 L65 100 L35 100 Z"
@@ -95,11 +98,8 @@ export function KnightPortrait() {
       <path d="M3 92 Q6 70 30 74 L34 98 H3 Z" fill="#6a6d72" />
       <path d="M97 92 Q94 70 70 74 L66 98 H97 Z" fill="#6a6d72" />
 
-      {/* ear tips (bone) peeking above the dome */}
-      <polygon points="24,34 30,10 44,26" fill="#e8e1d2" />
-      <polygon points="76,34 70,10 56,26" fill="#e8e1d2" />
-
-      {/* bone head — only the chin/cheeks end up visible */}
+      {/* bone head — only the chin/cheeks end up visible (F049: the ear
+          tips above the dome are gone — no cat ears on the knight) */}
       <circle cx="50" cy="50" r="30" fill="#e8e1d2" />
 
       {/* steel great helm: dome + visor plate */}

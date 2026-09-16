@@ -722,9 +722,9 @@
   }
 }
 
-/* Autopilot invitation: a quieter paper pill under the start card. It
-   sells the engineering story in one line — the same lookahead bot that
-   verifies every generated track plays the live game on request. */
+/* Autopilot invitation: a quiet pill under the start card (F049: the
+   autopilot hint line is gone — the title carries the invitation alone,
+   centred in the pill). */
 .kitty-run-watch {  display: flex;
   flex-direction: column;
   align-items: center;
@@ -752,12 +752,6 @@
   letter-spacing: 0.07em;
   text-transform: uppercase;
   color: #d13a50;
-}
-
-.kitty-run-watch-hint {
-  font-size: 11px;
-  letter-spacing: 0.04em;
-  color: #8a6f7e;
 }
 
 .kitty-run-card-kicker {
@@ -1310,10 +1304,6 @@
 .kitty-run-page--souls .kitty-run-watch-title {
   color: #e8863c;
   letter-spacing: 0.12em;
-}
-
-.kitty-run-page--souls .kitty-run-watch-hint {
-  color: #9aa3ae;
 }
 
 /* --------------------------------------------------- character picker */

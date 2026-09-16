@@ -63,7 +63,7 @@ function ellipseShape(rx: number, ry: number): THREE.Shape {
   return shape;
 }
 
-// Ear silhouette (F037/F039/F041/F043/F045 history: the owner loved the
+// Ear silhouette (F037/F039/F041/F043/F045/F047 history: the owner loved the
 // round in-game ears, asked for card-consistent pointed (F037), kept the
 // outward tips but read the converged pair as bat ears (F039 — signs
 // flipped at the useFrame site), read the F041 wide-low rebuild as
@@ -73,15 +73,18 @@ function ellipseShape(rx: number, ry: number): THREE.Shape {
 // dome, the outline only rides the upper arc). F045 restores that
 // dome construction 15% less round (F045: the bulge control ±0.36 ->
 // ±0.34, the cap endpoints ±0.12 -> ±0.10, the apex holds ~0.545, the
-// base ±0.28) and F047 tightens it 20% more (bulge -> ±0.33, cap ->
-// ±0.08) while the mounts pull ~10% toward the centre (±0.58 -> ±0.52,
-// pastel only). The card's pair stays pointed.
+// base ±0.28), F047 tightens it 20% more (bulge -> ±0.33, cap ->
+// ±0.08) while the mounts pull ~10% toward the centre (±0.58 -> ±0.52),
+// and F049 shaves the dome another 10% (bulge -> ±0.325, cap ->
+// ±0.072; apex and base hold). The souls knight renders no ears — the
+// great helm owns the crown (F049: the peeking pair read as cat ears
+// on the knight). The card's pair stays pointed.
 function earShape(): THREE.Shape {
   const shape = new THREE.Shape();
   shape.moveTo(-0.28, 0);
-  shape.quadraticCurveTo(-0.33, 0.3, -0.08, 0.47);
-  shape.quadraticCurveTo(0, 0.545, 0.08, 0.47);
-  shape.quadraticCurveTo(0.33, 0.3, 0.28, 0);
+  shape.quadraticCurveTo(-0.325, 0.3, -0.072, 0.47);
+  shape.quadraticCurveTo(0, 0.545, 0.072, 0.47);
+  shape.quadraticCurveTo(0.325, 0.3, 0.28, 0);
   shape.closePath();
   return shape;
 }
@@ -1417,24 +1420,30 @@ export function Kitty({
 
           {/* head */}
           <group ref={headRef} position={[0, 1.5, 0]}>
-            <group ref={earLRef} position={[-(isSouls ? 0.58 : 0.52), 0.52, 0.15]}>
-              <Part
-                geometry={geo.ear}
-                color={palette.kittyWhite}
-                z={0}
-                outline={1.12}
-                outlineColor={palette.outlineInk}
-              />
-            </group>
-            <group ref={earRRef} position={[isSouls ? 0.58 : 0.52, 0.52, 0.15]}>
-              <Part
-                geometry={geo.ear}
-                color={palette.kittyWhite}
-                z={0}
-                outline={1.12}
-                outlineColor={palette.outlineInk}
-              />
-            </group>
+            {/* ears — pastel only; the souls knight's great helm owns the
+                crown, so the pair never renders there (F049) */}
+            {!isSouls && (
+              <>
+                <group ref={earLRef} position={[-0.52, 0.52, 0.15]}>
+                  <Part
+                    geometry={geo.ear}
+                    color={palette.kittyWhite}
+                    z={0}
+                    outline={1.12}
+                    outlineColor={palette.outlineInk}
+                  />
+                </group>
+                <group ref={earRRef} position={[0.52, 0.52, 0.15]}>
+                  <Part
+                    geometry={geo.ear}
+                    color={palette.kittyWhite}
+                    z={0}
+                    outline={1.12}
+                    outlineColor={palette.outlineInk}
+                  />
+                </group>
+              </>
+            )}
             <Part
               geometry={geo.head}
               color={palette.kittyWhite}

@@ -85,9 +85,9 @@ const lantern: ModeDef = {
 const ink: ModeDef = {
   id: "ink",
   title: "ink shockwave",
-  tagline: "a pool of living ink — stir it, then detonate it",
+  tagline: "stir it, then detonate it",
   accentLine: "ink, disturbed",
-  lede: "a pool of living ink. stir it with the pointer; click to detonate a shockwave through it.",
+  lede: "stir it with the pointer; click to detonate a shockwave through it.",
   hint: "move to stir · click to detonate · restore re-pours",
   stageLabel: "stir the ink with the pointer; click to detonate; press enter or space to detonate from center",
   fallback: "this mode needs webgl2 float render targets, and the browser declined — the ink stays still.",

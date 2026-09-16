@@ -21,7 +21,6 @@ export type ThemeText = {
   readyKicker: string;
   readyAction: string;
   watchTitle: string;
-  watchHint: string;
   // Pause card.
   pausedKicker: string;
   pausedHint: string;
@@ -52,7 +51,6 @@ const KITTY_TEXT: ThemeText = {
   readyKicker: "ready",
   readyAction: "start",
   watchTitle: "or watch it play itself",
-  watchHint: "autopilot · the lookahead bot that verifies every track",
   pausedKicker: "paused",
   pausedHint: "p or esc resumes · r restarts",
   pausedAction: "resume",
@@ -135,7 +133,6 @@ const SOULS_TEXT: ThemeText = {
   readyKicker: "rise",
   readyAction: "begin",
   watchTitle: "or watch the hollow walk",
-  watchHint: "autopilot · a hollow that has died on every track",
   pausedKicker: "rest",
   pausedHint: "p or esc to rise · r restarts",
   pausedAction: "go on",

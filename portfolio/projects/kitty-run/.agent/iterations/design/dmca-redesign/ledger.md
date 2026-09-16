@@ -2588,3 +2588,123 @@ beard/stubble read · one-whisker-per-side read · naked/torso-less read.
   on the R040 round (their message also repeated the F047 text
   verbatim; clarified via the question tool that the intent was the
   verdict)
+
+## Feedback F049
+- Round: R041 (brief stage, pre-render)
+- Verdict: DIRECTION — the in-game cat's ears shave another 10% of
+  roundness
+- Scope: the rig's earShape roundness markers only (the F048-liked
+  R040 dome): the edge bulge ~0.048 -> ~0.043 (control ±0.33 ->
+  ±0.325), the cap endpoints ±0.08 -> ±0.072; the apex 0.545, the
+  base ±0.28 and the ±0.52 mounts hold.
+- User source: "I like how we made the cat's in-game character ears
+  less round, but I'd like them to be even less round—about 10% less."
+  (2026-09-16)
+
+## Feedback F050
+- Round: R041 (brief stage, pre-render)
+- Verdict: DIRECTION — the cat card's shoulders go somewhat more
+  rounded
+- Scope: the KittyPortrait poster's hoodie-body shoulder line only
+  (the select-menu card, not the rig). Target roundness: similar to
+  the ashen card's pauldron domes "or even a bit more".
+- User source: "In the character selection menu, the cat's shoulders
+  look square/blocky/boulder-like. Please make them somewhat more
+  rounded—perhaps similar to the Ashen character's shoulders, or even
+  a bit more." (2026-09-16)
+
+## Feedback F051
+- Round: R041 (brief stage, pre-render)
+- Verdict: DIRECTION — the ready card's autopilot hint line goes; the
+  invitation title centres alone
+- Scope: the character-select watch pill ("or watch it play itself" +
+  "autopilot · the lookahead bot that verifies every track"): the hint
+  span removed on both themes; the title keeps its pill, centred.
+- User source: "(in the character choice menu) Remove the 'autopilot
+  the lookahead bot...' text. After removing it, center 'or watch it
+  play itself' proportionally. This reads like AI slop." (2026-09-16)
+
+## Feedback F052
+- Round: R041 (brief stage, pre-render)
+- Verdict: DIRECTION — the Explosion ink mode drops "a pool of living
+  ink."
+- Scope: the ink mode's tagline + lede copy only (both carry the
+  phrase): tagline -> "stir it, then detonate it", lede -> "stir it
+  with the pointer; click to detonate a shockwave through it."
+- User source: "In the Explosion project, remove the sentence 'A pool
+  of living ink.' It also reads like AI slop." (2026-09-16)
+
+## Feedback F053
+- Round: R041 (brief stage, pre-render)
+- Verdict: DIRECTION — no ears on the ashen knight
+- Scope: the ashen character's ears everywhere the knight renders: the
+  select-card portrait's bone tips AND the in-game rig's pair (the
+  R031/R040 "helm fit reasoned safe" assumption never held in render —
+  the first souls-mode capture shows both ears clearing the dome).
+- Supersedes: the F047 branch split (souls keeps ±0.58) and F048's
+  "souls mounts" knob — the knight renders no ears at all now.
+- User source: "The Ashen character's ears are visible (this may be
+  due to our recent changes to the cat character's ears). They should
+  not be visible on the Ashen character." (2026-09-16)
+
+## Round R041
+- Goal: answer F049–F053 — the ear dial's 10% shave, the cat card's
+  dome shoulders, the hint-line removal, the Explosion sentence
+  removal, and the ashen knight's ears gone.
+- Preserved preferences: F002 (face untouched — NO mouth), F004 (mass
+  as cloth), F006 (floating energy), F008 (senior-minimal flat fills),
+  F017 (hoodie), F018/F019 (ears + whiskers clear), F022 (card barrel
+  + neck-width hood), F023's one-piece read, hood DOWN, palette keys,
+  RESTRICTED z-ladder, F024 paw peek read, F026 card whiskers' length,
+  F031/F034 swing (0.34x, alternating), the R031 card head, the F039
+  outward tilt, the F042 nose opacity 0.6, the F044 paw offset, the
+  F045 dome construction, the F048-liked R040 ears (this round only
+  shaves them 10% more), the souls helm untouched.
+- Changes: RIG EARS (pastel only now) — the R040 dome tightens 10%
+  more: the bulge control ±0.33 -> ±0.325 (bulge ~0.048 -> ~0.043),
+  the cap endpoints ±0.08 -> ±0.072; apex 0.545, base ±0.28, mounts
+  ±0.52 hold. SOULS RIG — the knight renders NO ears: the ear groups
+  are pastel-only now (the first souls-mode capture confirmed both
+  ears clearing the helm dome; the remaining left spike is the
+  greatsword tip, documented-intended). The dead ±0.58 branch split
+  goes with them. CARD — KittyPortrait's hoodie body: the shoulder
+  line becomes one continuous convex dome per side (the flat top run
+  and the squared corner out; the dome tops at y 70), rounder than
+  the ashen card's pauldron domes. KnightPortrait: the bone ear tips
+  above the dome are removed. WATCH PILL — the hint span goes (both
+  themes; the watchHint field removed from ThemeText), the title
+  centres alone in the pill; the .kitty-run-watch-hint rules are
+  dropped (pastel + souls). EXPLOSION — ink mode copy: tagline "stir
+  it, then detonate it", lede "stir it with the pointer; click to
+  detonate a shockwave through it."
+- Before: R040 renders (the rig ears; the ±0.58 mounts on the souls
+  knight), plus this round's before-copies for the select cards and
+  the souls run (no earlier round had rendered those surfaces).
+- After: R041/menu.png, R041/card-cat.png, R041/card-souls.png,
+  R041/run-f1.png, R041/run-f4.png, R041/run-dash.png,
+  R041/souls-f1.png, R041/souls-f4.png, R041/cat-head-zoom.png,
+  R041/souls-head-zoom.png (+ before-copies card-cat-before,
+  card-souls-before, menu-before, run-f4-before, souls-f4-before,
+  cat-head-before) — chromium 1134, dsf 3, the kitty-r041 probe
+  route.
+- Visual inspection: performed — the pastel ears sit slightly slimmer
+  with crisper tips (the 10% dial is subtle at run zoom; the
+  half-drawn lower burial holds); the cat card's shoulders read as
+  one round dome per side with no flat top or squared corner; the
+  ashen card shows a bare dome (no bone tips); the in-game knight
+  shows one left spike only (the greatsword tip) — the ear pair is
+  gone on both surfaces; the watch pill carries the centred title
+  alone; the Explosion lede and rail tagline read without the ink
+  sentence.
+- Code verification: `npm --prefix portfolio run typecheck` PASS;
+  kitty-run.check.ts PASS; kitty-run.sim.ts PASS; kitty-run.shots.mjs
+  PASS — a fully clean six-shot run; explosion copy probe PASS (lede
+  + rail tagline verified live, no "living ink" anywhere); the full
+  explosion.check.mjs suite was NOT rerun (a SwiftShader marathon run
+  exceeded its window once — the change is two string literals, the
+  targeted DOM probe covers the changed surface).
+- Open question: LIKED/REJECTED per F049–F053. Declared knobs: (1)
+  the ear dial (bulge 0.043 / cap 0.072 — further toward the point or
+  back toward the dome); (2) the cat card's dome height (70 — higher
+  or lower); (3) the greatsword tip (the knight's remaining left
+  spike — hideable too if it reads as an ear).
