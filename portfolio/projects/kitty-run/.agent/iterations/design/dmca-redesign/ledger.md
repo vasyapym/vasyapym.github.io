@@ -2873,3 +2873,64 @@ beard/stubble read · one-whisker-per-side read · naked/torso-less read.
   liked). Declared knobs: (1) the crown height (y~67.5 — higher or
   lower); (2) the crown bias (x~14-18 — further out or in); (3) the
   outer departure (10,92 — steeper or eased).
+
+### Feedback F060 — verdict on Round R043 (2026-09-16)
+- Source: user chat, 2026-09-16.
+- Quote: "it didnt chang anything. maybe you are changing cat's
+  silhouette and ignoring its outfit?"
+- Verdict: REJECTED — R043's pauldron-arc rebuild is not a visible
+  change on the real card (third shoulder round in a row with the
+  same complaint: F059 on R041/R042, now F060 on R043).
+- Working diagnosis (to verify this round): the head (drawn last)
+  occludes most of the body's top edge, so outline retunes inside the
+  occluded zone can't read; the user's hypothesis is that the round
+  mass should live in the OUTFIT (hoodie shoulder shapes, ashen-
+  pauldron-like pieces beside the head), not in the single body
+  silhouette line.
+
+## Round R044
+- Goal: answer F060 — make the shoulder change VISIBLE at all; the
+  user's hypothesis (silhouette edits hiding inside the head's
+  occlusion) verified first.
+- Preserved preferences: F002 (face untouched — NO mouth), F004 (mass
+  as cloth), F006 (floating energy), F008 (senior-minimal flat
+  fills), F017 (hoodie), F018/F019 (ears + whiskers clear), F022
+  (card barrel + neck-width hood), F023's one-piece read, hood DOWN,
+  palette keys, RESTRICTED z-ladder, F024 paw peek read, F026 card
+  whiskers' length, F031/F034 swing (0.34x, alternating), the R031
+  card head, the F039 outward tilt, the F042 nose opacity 0.6, the
+  F044 paw offset, the F045 dome construction, the F048-liked R040
+  ears, the F053 rig half (no in-game ears on the knight), the
+  F054-liked card tips, the F056-liked ear base, the F051 watch
+  pill, the F052 explosion copy.
+- Diagnosis (rendered layer isolation: a-full / b-body-only /
+  c-hood-only probes): the head spans x12.875..87.125, so the visible
+  shoulder band is only x10..~15-23 — every previous round crowned at
+  ~y67-70 INSIDE the head's occlusion shadow; outline retunes there
+  cannot read. The ashen card's shoulder read comes from its
+  pauldrons being distinct pieces whose domes rise BESIDE the head.
+- Changes: CARD — KittyPortrait: the shoulder ball raised ~6 units to
+  crest ~y61.5 near x14-22, entirely OUTSIDE the head's occlusion,
+  then easing to the collar (38,74); one piece, no new fills (F023
+  one-piece read kept). Rejected candidates (rendered, local probes):
+  a2 distinct dark-red dome pieces (kept as the declared fallback —
+  muddies the one-piece read with a bright-red collar sliver) and c2
+  ashen-verbatim pauldrons (the old slab crest peeked above them).
+- Before: R043 renders (the pauldron arc, crest ~y67.5) + this
+  round's shoulders-zoom-before crop off the R043 state.
+- After: R044/card-cat.png, R044/card-souls.png, R044/menu-full.png,
+  R044/shoulders-zoom.png (+ the shoulders-zoom-before pair) —
+  chromium 1134, dsf 3, the kitty-r041 + kitty-r042-shoulders probe
+  route.
+- Visual inspection: performed — the zoom pair shows the crest risen
+  ~6 units beside the jaw with a visible ball-and-notch read; the
+  lowest whisker clears the crest narrowly (no overlap); the ashen
+  card, the rig ears, the watch pill and the rest ride unchanged.
+- Code verification: `npm --prefix portfolio run typecheck` PASS;
+  kitty-run.check.ts PASS; kitty-run.sim.ts PASS; kitty-run.shots.mjs
+  PASS (two vignette flake runs, third clean).
+- Open question: LIKED/REJECTED per F060. Declared knobs: (1) the
+  crest height (y~61.5 — higher hunch or lower); (2) swap to a2
+  distinct dark-red garment dome pieces (the fallback construction);
+  (3) the whisker clearance (nudge the crest down if it reads as
+  collision).
