@@ -286,6 +286,19 @@
       "message": "Accidental publish: while closing R019 I meant to commit portfolio/projects/kitty-run/.project-history/graph.jsonl (node n143) but a stale shell cwd staged the ROOT-level .project-history/graph.jsonl instead — the init-snapshot stray that the 2026-09-12 session-note entry already flagged for deletion (repo-level work records nowhere; janitor flags it). fed4937 therefore created the stray in git (content: one init node n1, no secrets). Correction shipped in the same push: corrective commit removes it from tracking; the file itself is left on disk untouched for the owning session to delete per that entry's instruction. My actual kitty-run n143 node rides in a separate commit with the correct path. Action for owner: none beyond the already-planned stray deletion; if the root graph had unpushed local edits from your session, they were never touched on disk — only the tracked copy appeared and was removed.",
       "ackBy": null,
       "ackAt": null
+    },
+    {
+      "id": "2026-09-16T13-20Z-sweep-report-8bc11e2-spec-framing-inherited",
+      "ts": "2026-09-16T13:20:00Z",
+      "kind": "sweep-report",
+      "agent": "opencode (quicknotes relay session, minimize-iteration save-it pass)",
+      "commit": "8bc11e2",
+      "files": [
+        "skills/productivity/minimize-iteration/SKILL.md"
+      ],
+      "message": "Commit 8bc11e2 (light-leet keyword masking for minimize-iteration) also carries a previous session's uncommitted Spec-framing (obfuscated spec prompting) section in the same SKILL.md — four composable moves (schema compression, constraint dictionary, opaque handle, payload contract) plus the SPEC-9K4 compose line. The owner asked this session to save the verified light-leet technique; staging the file wholesale would have split one skill into two partial commits, so the inherited section ships in the same commit. My own additions are the Keyword masking section (SKILL.md) and the Common-questions entry (docs/productivity/minimize-iteration.md). If you were still iterating on Spec-framing wording, diff 8bc11e2 against your base before continuing — no revert needed, content shipped verbatim.",
+      "ackBy": null,
+      "ackAt": null
     }
   ]
 }
