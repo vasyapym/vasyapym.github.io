@@ -1076,6 +1076,12 @@ textarea:focus-visible {
     animation: gem-reveal 620ms cubic-bezier(0.2, 0.8, 0.2, 1) backwards;
     animation-delay: var(--reveal-delay, 0ms);}
 
+  /* Return-from-project mount: the catalogue is settled — cards carry
+     is-revealed at first paint; this mutes only the entrance keyframe and
+     leaves the hover lift (a transition) untouched. */
+  .signal-index-reveal-ready.signal-index-reveal-instant .signal-index-card.is-revealed {
+    animation: none;}
+
   /* idle breathe — animates the svg itself */
   .project-artwork-center svg {
     animation: gem-breathe 4s ease-in-out infinite;}

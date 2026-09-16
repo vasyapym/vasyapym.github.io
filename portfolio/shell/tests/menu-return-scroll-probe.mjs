@@ -142,6 +142,26 @@ try {
       `back landed at ${backState.path} scrollY=${backState.y}, expected ≈${saved.savedY} (drift ${drift}px)`,
     );
 
+    // The return mount shows the settled catalogue: every card carries
+    // is-revealed, and no entrance keyframe runs on a visible card.
+    const settled = await page.evaluate(() => {
+      const cards = [...document.querySelectorAll("[data-project-reveal]")];
+      const unRevealed = cards.filter((c) => !c.classList.contains("is-revealed")).length;
+      const animation = cards.length ? getComputedStyle(cards[0]).animationName : "";
+      const instant = document.querySelector(".signal-index-reveal-instant") != null;
+      return { unRevealed, animation, instant };
+    });
+    check(
+      "return mount: every card settled",
+      settled.unRevealed === 0 && settled.instant,
+      `${settled.unRevealed} card(s) still un-revealed after return (instant class: ${settled.instant})`,
+    );
+    check(
+      "return mount: no entrance keyframe",
+      settled.animation === "none",
+      `returned card animationName=${settled.animation}, expected none`,
+    );
+
     // The intent is single-shot: a second return without opening a project
     // keeps the plain top behaviour.
     await page.evaluate(() => {
@@ -173,6 +193,32 @@ try {
     `direct boot back landed at ${directBack.path} scrollY=${directBack.y}`,
   );
   await direct.close();
+
+  // --- scenario 3 (control): a fresh landing still plays the entrance ---
+  const fresh = await browser.newPage();
+  await fresh.setViewport({ width: 1440, height: 810 });
+  await fresh.goto(`${BASE}/`, { waitUntil: "networkidle0", timeout: 45000 });
+  await wait(900);
+  // The hero fills the first screen; scroll into the grid so the sweep
+  // reveals a card, then sample the running keyframe.
+  await fresh.evaluate(() => {
+    window.scrollTo({ top: Math.round(window.innerHeight * 0.8), behavior: "instant" });
+  });
+  await wait(150);
+  const freshReveal = await fresh.evaluate(() => {
+    const cards = [...document.querySelectorAll("[data-project-reveal]")];
+    const inView = cards.find((c) => {
+      const r = c.getBoundingClientRect();
+      return r.top < window.innerHeight && r.bottom > 0 && c.classList.contains("is-revealed");
+    });
+    return inView ? getComputedStyle(inView).animationName : "no-in-view-card";
+  });
+  check(
+    "fresh load still reveals with the keyframe",
+    freshReveal === "gem-reveal",
+    `fresh in-view card animationName=${freshReveal}, expected gem-reveal`,
+  );
+  await fresh.close();
 } finally {
   await browser.close();
 }

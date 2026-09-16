@@ -44,3 +44,40 @@
   native `history.scrollRestoration` for their own entries — out of
   scope for the button flow tested here.
 - Next action: task complete pending delivery commit.
+
+## Pass C002 — VERIFIED
+- Objective and scope: the project-card entrance choreography (gem-reveal
+  keyframe + stagger) does not play on a landing mounted from a project
+  return — the catalogue shows settled, including rows below the viewport;
+  every other mount (fresh load, hash links, realm exits) keeps the reveal.
+- Acceptance criteria:
+  - On a return mount every `[data-project-reveal]` card carries
+    `is-revealed` immediately, and the entrance keyframe never runs.
+  - A fresh landing still plays `gem-reveal` on in-view cards (control).
+- Changes:
+  - `shell/src/shell/LandingPage.tsx` — `returnVisitRef` seeded during
+    render (pre-consumption of the intent); the `revealedProjects`
+    initializer pre-reveals every card at delay 0 on a return mount; the
+    reveal effect adds `signal-index-reveal-instant` and skips the
+    sweep/IO machinery; section reveals still live on every mount.
+  - `shell/src/styles.css` — new instant rule inside the
+    no-preference motion gate: `.signal-index-reveal-ready.signal-index-
+    reveal-instant .signal-index-card.is-revealed { animation: none }` —
+    mutes only the entrance keyframe, leaves the hover lift untouched.
+  - `shell/tests/menu-return-scroll-probe.mjs` — two new assertions
+    (settled cards + no keyframe) and a fresh-load control scenario.
+- Baseline: probe run on the pre-fix tree (LandingPage + styles stashed):
+  "return mount: every card settled" FAILED (4 cards un-revealed, no
+  instant class) — the entrance choreography was live on return.
+- Verification:
+  - Command: `npx tsc --noEmit` (shell) — PASS, exit 0.
+  - Command: `CHROME_PATH=… node portfolio/shell/tests/menu-return-scroll-probe.mjs`
+    — PASS post-fix: 6/6 checks (restored offset, settled mount, no
+    keyframe, no-intent top, fresh-load keyframe control).
+- Final diff review: no debug scaffolding; the instant class only mutes
+  the card keyframe; hero-exit, section hairlines and the artwork breathe
+  are untouched.
+- Design constraints: not applicable (no ledger entries govern the reveal).
+- Remaining risks/blockers: none identified; below-viewport rows revealed
+  without animation on a return visit is the declared behaviour.
+- Next action: task complete pending delivery commit.

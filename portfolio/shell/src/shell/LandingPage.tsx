@@ -144,6 +144,14 @@ export default function LandingPage({
   const realmRestoreFocusRef = useRef(false);
   const realmArtworkRefreshPendingRef = useRef(false);
   const realmFloorRef = useRef<HTMLDivElement>(null);
+  // A return-from-project mount shows the settled catalogue — no card
+  // entrance choreography. Seeded during render, BEFORE the restore layout
+  // effect consumes the intent, so both the reveal state's initializer and
+  // the reveal effect can see it.
+  const returnVisitRef = useRef(false);
+  if (!externalRealmOpen && !returnVisitRef.current && readProjectReturnScrollY() != null) {
+    returnVisitRef.current = true;
+  }
   // A direct root boot restores the landing-owned realm from the r11 intent.
   // During a project-backed return, App already owns the sole RealmMode
   // instance; keep the landing lifecycle open for its existing exit staging,
@@ -430,7 +438,15 @@ export default function LandingPage({
     };
   }, [realmOpen]);
   const [revealedProjects, setRevealedProjects] = useState<ReadonlyMap<string, number>>(
-    () => new Map(),
+    () => {
+      // A return mount reveals every card up front (delay 0): the first
+      // painted frame already carries is-revealed, so no card can flash
+      // hidden or animate on the way in.
+      if (returnVisitRef.current) {
+        return new Map(projects.map((project) => [project.id, 0]));
+      }
+      return new Map();
+    },
   );
   const [revealReady, setRevealReady] = useState(false);
   useEffect(() => {
@@ -446,6 +462,22 @@ export default function LandingPage({
       page.querySelectorAll<HTMLElement>("[data-project-reveal]"),
     );
 
+    // Return mount: the catalogue is already settled (the initializer
+    // revealed every card). Pin the CSS instant class so the entrance
+    // keyframe never runs — including for below-viewport rows the visitor
+    // scrolls to later — and skip the sweep/IO machinery; only the section
+    // reveals below still live.
+    const returning = returnVisitRef.current;
+    if (returning) {
+      page.classList.add("signal-index-reveal-instant");
+    }
+
+    let optimizerIO: IntersectionObserver | null = null;
+    let t1 = 0;
+    let t2 = 0;
+    let onScroll: (() => void) | null = null;
+
+    if (!returning) {
     // Coarse pointers reveal earlier and tighter so the wipe reads during fast
     // touch scrolling (desktop keeps the calmer numbers).
     const coarse = window.matchMedia("(pointer: coarse)").matches;
@@ -501,7 +533,7 @@ export default function LandingPage({
     };
 
     let ticking = false;
-    const onScroll = () => {
+    onScroll = () => {
       if (ticking) {
         return;
       }
@@ -519,16 +551,19 @@ export default function LandingPage({
     // restoration (fires after paint), and animateScrollToCard smooth-scroll
     // settling. Cheap belt-and-braces — one rect per card.
     sweep();
-    const t1 = window.setTimeout(sweep, 120);
-    const t2 = window.setTimeout(sweep, 700);
+    t1 = window.setTimeout(sweep, 120);
+    t2 = window.setTimeout(sweep, 700);
 
     // IO stays purely as an extra low-power trigger; correctness never depends
     // on it (the straddler bug is why). It just calls the same sweep.
-    const optimizerIO = new IntersectionObserver(() => onScroll(), {
+    const io = new IntersectionObserver(() => {
+      if (onScroll) onScroll();
+    }, {
       threshold: 0,
       rootMargin: "0px 0px -6% 0px",
     });
-    cards.forEach((card) => optimizerIO.observe(card));
+    cards.forEach((card) => io.observe(card));
+    optimizerIO = io;
 
     // Deep-link safety: reveal the hash target immediately regardless of band.
     const hash = window.location.hash;
@@ -537,9 +572,11 @@ export default function LandingPage({
       revealed.add(id);
       revealCard(id, 0);
     }
+    }
 
     // Section-level reveal (hairline draw-in): a tall section can never reach a
-    // 12% ratio, so it triggers on any pixel.
+    // 12% ratio, so it triggers on any pixel. Lives on every mount — the
+    // return-visit exemption covers the project-card entrance only.
     const sections = Array.from(
       page.querySelectorAll<HTMLElement>("[data-section-reveal]"),
     );
@@ -558,9 +595,11 @@ export default function LandingPage({
     sections.forEach((section) => sectionObserver.observe(section));
 
     return () => {
-      window.removeEventListener("scroll", onScroll);
-      window.removeEventListener("resize", onScroll);
-      optimizerIO.disconnect();
+      if (onScroll) {
+        window.removeEventListener("scroll", onScroll);
+        window.removeEventListener("resize", onScroll);
+      }
+      optimizerIO?.disconnect();
       sectionObserver.disconnect();
       window.clearTimeout(t1);
       window.clearTimeout(t2);
