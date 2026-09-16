@@ -1,0 +1,99 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>notes</title>
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22 viewBox%3D%220 0 64 64%22%3E%3Crect width%3D%2264%22 height%3D%2264%22 rx%3D%227%22 fill%3D%22%2316161e%22%2F%3E%3Crect x%3D%22.5%22 y%3D%22.5%22 width%3D%2263%22 height%3D%2263%22 rx%3D%226.5%22 fill%3D%22none%22 stroke%3D%22%231f2335%22%2F%3E%3Cg fill%3D%22none%22 stroke-linecap%3D%22round%22 stroke-linejoin%3D%22round%22%3E%3Cpath d%3D%22M18 18h29v19L36 48H18Z%22 stroke%3D%22%233b4261%22 stroke-width%3D%221.25%22%2F%3E%3Cpath d%3D%22M47 37H36v11%22 stroke%3D%22%237aa2f7%22 stroke-width%3D%221.5%22%2F%3E%3Cpath d%3D%22M13 21v-8h8%22 stroke%3D%22%237aa2f7%22 stroke-width%3D%221.5%22%2F%3E%3C%2Fg%3E%3C%2Fsvg%3E">
+<link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+<header id="top">
+  <button id="drawer-toggle" class="btn" aria-label="Menu" aria-controls="sidebar" aria-expanded="false">☰</button>
+  <span class="brand">
+    <svg class="brand-mark" viewBox="0 0 64 64" aria-hidden="true">
+      <path d="M18 18h29v19L36 48H18Z" fill="none" stroke="#3b4261" stroke-width="1.25" stroke-linecap="round" stroke-linejoin="round"/>
+      <path d="M47 37H36v11" fill="none" stroke="#7aa2f7" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+      <path d="M13 21v-8h8" fill="none" stroke="#7aa2f7" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+    </svg>notes</span>
+  <input id="search" type="search" placeholder="Search (Ctrl+K)  ·  Palette (Ctrl+P)" autocomplete="off">
+  <span id="sync" class="sync" title="Sync status">local</span>
+  <span id="user"></span>
+  <button id="auth-btn" class="btn">Sign in</button>
+</header>
+
+<div id="layout">
+  <aside id="sidebar">
+    <div class="side-head">
+      <button id="new-btn" class="btn" title="New note (Ctrl+N)">+ New</button>
+      <button id="export-btn" class="btn" title="Export (Ctrl+Shift+E)">↓ Zip</button>
+    </div>
+    <div id="tree"></div>
+  </aside>
+
+  <main id="main">
+    <div id="empty" class="empty">
+      <svg class="art art-scratch" viewBox="0 0 64 64" aria-hidden="true">
+        <g fill="none" stroke-linecap="round" stroke-linejoin="round">
+          <rect x="11" y="13" width="42" height="38" rx="2.5" stroke="#3b4261" stroke-width="1.25"/>
+          <path d="M11 23h42" stroke="#3b4261" stroke-width="1.25"/>
+          <path d="M22 34h24M22 42h16" stroke="#3b4261" stroke-width="1.25" opacity=".7"/>
+          <circle cx="16.5" cy="18" r="1" fill="#3b4261" stroke="none"/>
+          <circle cx="21.5" cy="18" r="1" fill="#3b4261" stroke="none"/>
+          <path d="M17 31v6" stroke="#7aa2f7" stroke-width="1.5"/>
+          <rect x="17" y="31" width="4.5" height="6" stroke="#7aa2f7" stroke-width="1.5"/>
+        </g>
+      </svg>
+      <svg class="art art-offline" viewBox="0 0 64 64" aria-hidden="true">
+        <g fill="none" stroke-linecap="round" stroke-linejoin="round" stroke="#3b4261" stroke-width="1.25">
+          <path d="M26.3 38.3a8 8 0 0 1 11.4 0"/>
+          <path d="M21.4 33.4a15 15 0 0 1 21.2 0"/>
+          <path d="M16.4 28.4a22 22 0 0 1 31.2 0" opacity=".7"/>
+        </g>
+        <path d="M18 52 46 24" fill="none" stroke="#7aa2f7" stroke-width="1.5" stroke-linecap="round"/>
+        <circle cx="32" cy="44" r="1.8" fill="#7aa2f7"/>
+      </svg>
+      <span>No note selected — <kbd>Ctrl</kbd>+<kbd>N</kbd> to create one.</span>
+    </div>
+    <div id="editor" hidden>
+      <div class="meta">
+        <input id="title" placeholder="Title" autocomplete="off" spellcheck="false">
+        <input id="path" placeholder="folder/subfolder" autocomplete="off" spellcheck="false" title="Virtual folder path">
+        <button id="delete-btn" class="btn danger" title="Delete (Ctrl+D)">✕</button>
+      </div>
+      <div id="panes" class="panes split">
+        <textarea id="body" placeholder="Write markdown… [[wiki-links]] supported" spellcheck="true"></textarea>
+        <article id="preview" class="preview"></article>
+      </div>
+    </div>
+  </main>
+</div>
+
+<footer id="status">
+  <span><kbd>Ctrl+N</kbd> new · <kbd>Ctrl+P</kbd> palette · <kbd>Ctrl+E</kbd> view · <kbd>Ctrl+S</kbd> sync · <kbd>Ctrl+D</kbd> delete · <kbd>Esc</kbd> back</span>
+  <span id="count"></span>
+</footer>
+
+<dialog id="palette">
+  <input id="pal-input" placeholder="Type to open a note, or > for commands" autocomplete="off">
+  <ul id="pal-list"></ul>
+</dialog>
+
+<dialog id="export-dlg">
+  <form method="dialog">
+    <h3>Export as .md in a zip</h3>
+    <label>Scope
+      <select id="export-scope"></select>
+    </label>
+    <menu>
+      <button value="cancel" class="btn">Cancel</button>
+      <button value="ok" class="btn primary">Download</button>
+    </menu>
+  </form>
+</dialog>
+
+<script type="module" src="js/app.js"></script>
+<div id="backdrop" aria-hidden="true"></div>
+<div id="drawer-edge" aria-hidden="true"></div>
+</body>
+</html>

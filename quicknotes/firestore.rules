@@ -1,0 +1,26 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+
+    // Each user owns exactly their own subtree: users/{uid}/notes/{noteId}
+    match /users/{uid}/notes/{noteId} {
+      allow read, write: if request.auth != null
+                         && request.auth.uid == uid
+                         && (request.method == 'delete' || validNote(request.resource.data));
+    }
+
+    function validNote(n) {
+      return n.keys().hasOnly(['id','title','path','body','createdAt','updatedAt','deleted'])
+        && n.id is string && n.id.size() <= 64
+        && n.title is string && n.title.size() <= 500
+        && n.path is string && n.path.size() <= 500
+        && n.body is string && n.body.size() <= 900000
+        && n.createdAt is number && n.updatedAt is number
+        && n.deleted is bool;
+    }
+
+    match /{document=**} {
+      allow read, write: if false;
+    }
+  }
+}

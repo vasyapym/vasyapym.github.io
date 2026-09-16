@@ -40,6 +40,16 @@ Rules of the move:
 - One axis at a time: when testing whether keywords matter, keep prompt size constant and change only the masking — otherwise the signal is unreadable.
 - Banned words (they read as tier-downers and invite clichés): `prototype`, `demo`, `example`, `simple`, `basic`, `todo`, `tutorial`, `mvp`.
 
+## Named-style routing (genre unpacking)
+
+Jargon can steer a prompt as much as keywords: hex tokens, `viewBox`, API names — code-flavored vocabulary in an art ask may route the prompt outside the creative lane entirely. The counter-move: replace the spec with a **named style** — `tokyo-night terminal aesthetic`, `swiss minimal`, `excalidraw hand-drawn` — and let a strong model unpack the whole vocabulary for free (the same convention-inference that lets `SKILL.md` imply frontmatter). Verified on a real relay (2026-09-16, SVG art-kit round): a named style beat both the six-token spec and its leet-masked copies — one style phrase carried the palette, the stroke weight, and the gradient bans in four words.
+
+Supporting moves:
+
+- Say colors **qualitatively** (`near-black background, pale text, one soft blue highlight`) when their exact values are yours to fix later — re-tinting hexes at integration is cheap, so per inference accounting the prompt shouldn't pay for them. Keep only what integration cannot repair (e.g. the one accent that must match app tokens exactly).
+- If the suspicion is genre-routing rather than jargon, reframe the ask as a **code artifact** (`4 inline <svg> constants, currentColor strokes`) to hold the coding lane.
+- Named-style + payload contract composes: `…each fenced with viewBox, <=160 lines`.
+
 ## Salvage integration
 
 The randomized routing model may answer in a different direction than the one asked — at good or great quality. Integrating its reply is therefore salvage, not compliance: read for fragments of code that are fittable in the repo, lift those fragments (repaired to repo conventions, typechecked), wire them in, and leave the rest of the reply on the floor. Never paste the reply wholesale.
