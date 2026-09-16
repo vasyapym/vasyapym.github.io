@@ -2978,3 +2978,76 @@ beard/stubble read · one-whisker-per-side read · naked/torso-less read.
   dome height (crest y~65.5 — lower toward the R042 line or a touch
   higher); (2) the dome width (the arc's span x15..31 — wider or
   narrower); (3) the wall's curve start (10,84 — later or earlier).
+
+### Feedback F062 — verdict on Round R045 (2026-09-16)
+- Source: user chat, 2026-09-16.
+- Quote: "you didnt lower anything. it changed nothing."
+- Verdict: REJECTED — the R045 dome (crest y65.5, ~4.5 units under
+  the R044 ball) still reads as unchanged at card size. Five rounds
+  (R041-R045) of ±5-unit top-edge tuning are all sub-visible; the
+  next attempt must move the visible shoulder silhouette by a
+  DECISIVE step (drop the red mass's visible top beside the card
+  edges to ~y75-85 and/or narrow the body well below the head's
+  74.25 width) and verify visibly against artifacts/R042's slab zoom
+  before presenting.
+- F062 addendum (same chat): the direction is a BOTTLE FORM — the
+  head is the smallest part and the body widens gradually downward
+  ("head is the smallest and then the body gets bigger gradually,
+  not instantly like you put low-effort rectangular form"); plain
+  "smaller" is NOT the ask either — the fix is the gradual taper
+  plus a somewhat smaller body. The task brief for the next session
+  should stay general: bottle taper + smaller, no preset numbers.
+
+## Round R046
+- Goal: answer F062 (+ its addendum) — rebuild the body as a BOTTLE: the
+  head the smallest part, the body widening gradually downward instead of
+  the instant rectangular slab, and the body/torso/shoulders starting
+  clearly LOWER (the user: "currently it starts almost at the face of
+  the cat"). F062 also demanded a DECISIVE visible step after five
+  sub-visible ±5-unit rounds.
+- Preserved preferences: F002 (face untouched — NO mouth), F004 (mass as
+  cloth), F006 (floating energy), F008 (senior-minimal flat fills), F017
+  (hoodie), F018/F019 (ears + whiskers clear), F022 (card barrel +
+  neck-width hood), F023's one-piece read, hood DOWN, palette keys,
+  RESTRICTED z-ladder, F024 paw peek read, F026 card whiskers' length,
+  F031/F034 swing (0.34x, alternating), the R031 card head, the F039
+  outward tilt, the F042 nose opacity 0.6, the F044 paw offset, the
+  F045 dome construction superseded by F062's bottle direction, the
+  F048-liked R040 ears, the F053 rig half (no in-game ears on the
+  knight), the F054-liked card tips, the F056-liked ear base, the F051
+  watch pill, the F052 explosion copy.
+- Changes: CARD — KittyPortrait's hoodie body rebuilt as ONE closed
+  bottle path: the sides are a single smooth flare each (from the hem
+  x11/x89 at y100 easing up-and-in through ~x16 at y81 to the shoulder
+  crest ~y76.5-77.5 spanning x26-74), then one soft round-over per side
+  into the scoop corners (38,81)/(62,81) and the same centre scoop dip
+  (50,85) as before. Decisive moves vs R045: the shoulder line dropped
+  ~11 units (crest ~y77, clearly BELOW the chin at 73.8 — the old crest
+  y65.5-66 rose beside the cheeks), so the entire top edge now renders
+  unoccluded under the jaw (the old crest hid mostly inside the head's
+  occlusion); the vertical walls are gone (the red beside the card edges
+  now starts ~y92 instead of ~y66); the body narrowed somewhat (hem 78
+  wide vs 80, shoulders 48 vs the old 80-wide dome line). Hood shell,
+  chest fur, lining, pocket, hand slots, cords, head, ears, face and
+  whiskers ride unchanged; cord tops keep their exact relationship to
+  the scoop (both lines move together at x46).
+- Before: R045 renders + this round's fresh before shots off the R045
+  state (same probe route): R046/before-card.png, R046/before-zoom.png,
+  R046/before-menu.png.
+- After: R046/after-card.png, R046/after-zoom.png, R046/after-menu.png
+  — chromium (playwright cache), dsf 3, 1134-wide viewport, the
+  kitty-r046-bottle probe.
+- Visual inspection: performed — the before/after card pair shows the
+  slab gone: the shoulders sit low under the chin with a visible
+  background gap beside the jaw's outer underside, the sides read as one
+  smooth gradual flare to the hem, the red no longer rises beside the
+  face at all (the zoom pair: red used to crest at the whisker line, now
+  background shows between whiskers and shoulder); the scoop, cords,
+  pocket and face ride unchanged; the ASHEN card is untouched.
+- Code verification: `npm --prefix portfolio run typecheck` PASS;
+  kitty-run.check.ts PASS; kitty-run.sim.ts PASS; kitty-run.shots.mjs
+  PASS — clean six-shot run, no vignette flake.
+- Open question: LIKED/REJECTED per F062. Declared knobs: (1) the
+  shoulder height (crest ~y77 — lower or higher); (2) the flare rate
+  (how fast the sides widen toward the hem); (3) the body size (hem 78
+  wide — narrower or back toward 80+).

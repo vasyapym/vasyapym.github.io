@@ -29,15 +29,16 @@ export function KittyPortrait() {
       {/* lining: the hood's inner fabric peeking under the jaw, drawn
           over the fur so it reads as the collar's inside edge */}
       <path d="M34 68 C38 65.6 44 64.8 50 64.8 C56 64.8 62 65.6 66 68 Q50 70.8 34 68 Z" fill="#f6a9c0" />
-      {/* hoodie body: round barrel — the sides bow out to the hem so the
-          cat reads chubby, not fit; the shoulder is a LOW wide soft dome:
-          the wall starts curving at (10,84) and rolls in one gentle arc
-          (~y65.5-66 crest spanning x15..31) straight into the collar
-          (38,74) — no corner, no distinct shoulder mass, no raised ball
-          (F061: not raised — LOWER and softer; the boulder hunch and the
-          slab corner both rejected, the read is a calm cloth mound
-          beside the jaw) */}
-      <path d="M10 100 L10 84 C10 70 15 65.5 24 66 C31.5 66.4 36.5 69.5 38 74 C40 80 45 85 50 85 C55 85 60 80 62 74 C63.5 69.5 68.5 66.4 76 66 C85 65.5 90 70 90 84 L90 100 Z"
+      {/* hoodie body: bottle form (F062) — the head is the smallest part
+          and the body widens gradually downward: the sides are ONE smooth
+          curve each, flaring from a narrow low shoulder to the hem (no
+          vertical wall, no instant slab); the shoulder line sits ~11 units
+          LOWER than the old dome (crest ~y77, clearly below the chin at
+          73.8 — the old crest y65.5-66 rose beside the cheeks, reading as
+          "starts almost at the face"), and the whole top edge now renders
+          unoccluded under the jaw; one piece, no new fills; hem slightly
+          narrowed (78 wide vs the old 80) */}
+      <path d="M11 100 C12.5 89 16 81 26 77.5 C31 76 35.5 77.5 38 81 C41 84.5 45 85 50 85 C55 85 59 84.5 62 81 C64.5 77.5 69 76 74 77.5 C84 81 87.5 89 89 100 Z"
         fill="#e94f64" stroke="#3a3142" strokeWidth={2.2} strokeLinejoin="round" />
       {/* kangaroo pocket + angled hand slots */}
       <path d="M33 89 L67 89 L65 100 L35 100 Z"
