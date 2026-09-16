@@ -39,6 +39,10 @@ Both directions are true and they trade against each other: less detail means mo
 
 Shorten less next round. Move one level of detail — a contract, an example, a constraint — back into the prompt and resend, instead of padding the first prompt defensively.
 
+**Does routing react to keywords, not just length?**
+
+It can — service and protocol words (`auth`, `firebase`, `google`, …) seem able to steer the prompt to a different tier on their own. The counter-move is **light leet**: mask only the suspected trigger words — digit `1` for `i`, `0` for `o`, `@` for `a` — so no exact keyword matches while a strong model decodes instantly: `f1rebase g00gle @uth f1rest0re`. Mask feature words or the output contract and you break the reply instead of the route; and keep exactly one plausible reading per mask (`fb` reads as Facebook, `0Auth` as "no auth" — prefer `@uth`). When testing whether keywords matter, keep the prompt size constant and change only the masking.
+
 **Is this just writing terse prompts?**
 
 No. Abbreviation for its own sake loses information; inference accounting keeps exactly the information the model cannot reconstruct and drops the rest. A three-line prompt that names the right formats can outperform a page of context.
