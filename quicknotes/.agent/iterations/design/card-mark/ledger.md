@@ -36,3 +36,22 @@ Artifacts under `artifacts/R<nnn>/`. Append-only.
 - Visual inspection: performed — same viewport/session/state as R001 shots. Observations: tray reads cleaner than R001's (steel lip + bone rim, no boat echo); dashed waiting slot floats detached top-right (story linkage weaker than R001's slot-in-tray); dot bed is a hard-edged rectangular field peeking from behind the tray (house beds fade in ovals); dog-ear sits at the note's bottom-right corner (subtle); single rust accent visible.
 - Code verification: NOT RUN (JSX-only swap inside an existing component; next build covers). Visual render confirmed via dev server screenshot.
 - Open question: R001 or R002 (or a mix — e.g. R002 tray + R001 in-tray slot + fading oval bed)? Accent: keep variant's terracotta #c8785a, move to app blue #7aa2f7 (realm door hue), or house steel #7b93b3?
+
+## Feedback F002
+- Round: R002
+- Verdict: REJECTED (as final)
+- Scope: both presented marks (R001, R002), catalogue card
+- Decision: both read "ok" but as tidy illustrations of a note app; the owner wants a creative concept with senior-developer taste — an idea carried by the mechanism, not just a well-drawn tray. R001 stays the acceptable fallback if nothing better lands.
+- User source: "these are ok but i want some creative approach but something in the taste of a senior developer"
+- Artifact: artifacts/R002/after-quicknotes-r002.png
+- Supersedes: F001 (R001's mild-acceptance no longer closes the task; R001 demoted to fallback)
+
+## Round R003
+- Goal: owner steer — "creative approach in senior-developer taste" (F002); concept-level round fed by the randomized model's raw intelligence (5 concepts), owner shortlist → V5 "anchored note, slack tether" picked for re-inking.
+- Preserved preferences: F002 (R001/R002 not final; R001 fallback).
+- Changes: QuicknotesCenterMark → V5 concept, house-inked by orchestrator per the new division of labour (model = concept; owner side = tokens): slate note slab #26333b with bone border, steel line + #7aa2f7 cursor line, dim ledge #465059, dashed remote box #b6ac95 + slack dashed tether #7b93b3, fading halftone bed (pattern id qn-bed, unique for page DOM).
+- Before: artifacts/R002/after-quicknotes-r002.png (and R001)
+- After: artifacts/R003/after-quicknotes-r003.png
+- Visual inspection: performed — first two shots came back EMPTY; root-caused: the catalogue hides .project-artwork (visibility:hidden) until the card scrolls into view (shell reveal-on-scroll), so the screenshot procedure now scrollIntoView + settle before capture; after-fix shot verified: single accent, story reads, house vocabulary intact.
+- Code verification: NOT RUN this round (JSX-only swap; next build covers).
+- Open question: verdict on R003 vs R001 fallback vs R002 — LIKED closes the mark task; also confirm accent #7aa2f7.

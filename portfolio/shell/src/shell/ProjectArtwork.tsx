@@ -437,28 +437,22 @@ function TrailCenterMark() {
    one slot empty (dashed) and its keyed replacement registered beside it with
    registration ticks. The anatomy of a stack: rhythm, load, a missing member. ── */
 function QuicknotesCenterMark() {
-  const accent = "#c8785a"; // single muted accent
-  const dots: ReactElement[] = [];
-  for (let y = 0; y < 5; y++)
-    for (let x = 0; x < 13; x++)
-      dots.push(<circle key={`${x}-${y}`} cx={16 + x * 18} cy={104 + y * 11} r={1.4} fill="#465059" opacity={0.5} />);
   return (
     <svg viewBox="0 0 260 160" aria-hidden="true">
-      <g>{dots}</g>
-      {/* dashed waiting slot */}
-      <rect x={150} y={44} width={70} height={44} rx={4} fill="none" stroke="#7b93b3" strokeWidth={1.5} strokeDasharray="5 4" opacity={0.7} />
-      {/* dropping dog-eared note */}
-      <g transform="rotate(-8 88 60)">
-        <path d="M50 30 H112 V78 L100 90 H50 Z" fill="#26333b" stroke="#b6ac95" strokeWidth={1.6} />
-        <path d="M112 78 L100 90 V78 Z" fill="#465059" stroke="#b6ac95" strokeWidth={1.2} />
-        <line x1={60} y1={46} x2={102} y2={46} stroke="#7b93b3" strokeWidth={1.2} opacity={0.6} />
-        <line x1={60} y1={56} x2={94} y2={56} stroke="#7b93b3" strokeWidth={1.2} opacity={0.6} />
-        <line x1={60} y1={66} x2={78} y2={66} stroke={accent} strokeWidth={2} />
-      </g>
-      {/* folder tray */}
-      <path d="M28 108 H232 L220 148 H40 Z" fill="#465059" stroke="#b6ac95" strokeWidth={1.8} />
-      <path d="M28 108 H232 V116 H28 Z" fill="#26333b" stroke="#7b93b3" strokeWidth={1.4} />
-      <path d="M40 148 L28 108 M220 148 L232 108" stroke="#b6ac95" strokeWidth={1.2} opacity={0.5} />
+      <defs>
+        <pattern id="qn-bed" width="7" height="7" patternUnits="userSpaceOnUse">
+          <circle cx="2" cy="2" r="1.2" fill="#465059" opacity=".5" />
+        </pattern>
+      </defs>
+      <ellipse cx="130" cy="86" rx="115" ry="62" fill="url(#qn-bed)" opacity=".35" />
+      {/* the remote copy is still an outline, its tether slack */}
+      <rect x="176" y="20" width="58" height="44" rx="9" fill="none" stroke="#b6ac95" strokeWidth="2.5" strokeDasharray="7 6" />
+      <path d="M152 82 C 186 84 172 48 176 44" fill="none" stroke="#7b93b3" strokeWidth="2.5" strokeLinecap="round" strokeDasharray="7 6" />
+      {/* the note is already kept: solid slab on its ledge */}
+      <rect x="42" y="62" width="106" height="72" rx="10" fill="#26333b" stroke="#b6ac95" strokeWidth="1.5" />
+      <rect x="60" y="84" width="58" height="7" rx="3.5" fill="#7b93b3" opacity=".7" />
+      <rect x="60" y="104" width="38" height="7" rx="3.5" fill="#7aa2f7" />
+      <rect x="30" y="142" width="130" height="8" rx="4" fill="#465059" />
     </svg>
   );
 }
