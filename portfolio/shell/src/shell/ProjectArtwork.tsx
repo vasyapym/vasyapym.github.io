@@ -444,15 +444,15 @@ function QuicknotesCenterMark() {
           <circle cx="2" cy="2" r="1.2" fill="#465059" opacity=".5" />
         </pattern>
       </defs>
-      <ellipse cx="130" cy="86" rx="115" ry="62" fill="url(#qn-bed)" opacity=".35" />
-      {/* the remote copy is still an outline, its tether slack */}
-      <rect x="176" y="20" width="58" height="44" rx="9" fill="none" stroke="#b6ac95" strokeWidth="2.5" strokeDasharray="7 6" />
-      <path d="M152 82 C 186 84 172 48 176 44" fill="none" stroke="#7b93b3" strokeWidth="2.5" strokeLinecap="round" strokeDasharray="7 6" />
-      {/* the note is already kept: solid slab on its ledge */}
-      <rect x="42" y="62" width="106" height="72" rx="10" fill="#26333b" stroke="#b6ac95" strokeWidth="1.5" />
-      <rect x="60" y="84" width="58" height="7" rx="3.5" fill="#7b93b3" opacity=".7" />
-      <rect x="60" y="104" width="38" height="7" rx="3.5" fill="#7aa2f7" />
-      <rect x="30" y="142" width="130" height="8" rx="4" fill="#465059" />
+      <ellipse cx="130" cy="88" rx="115" ry="56" fill="url(#qn-bed)" opacity=".35" />
+      {/* four copies already touch down; the fifth is still airborne */}
+      <rect x="34" y="112" width="192" height="8" rx="4" fill="#465059" />
+      <rect x="44" y="82" width="28" height="28" rx="5" fill="#26333b" stroke="#7b93b3" strokeWidth="1.5" />
+      <rect x="80" y="82" width="28" height="28" rx="5" fill="#465059" stroke="#7b93b3" strokeWidth="1.5" />
+      <rect x="116" y="82" width="28" height="28" rx="5" fill="#26333b" stroke="#b6ac95" strokeWidth="1.5" />
+      <rect x="152" y="82" width="28" height="28" rx="5" fill="#7aa2f7" opacity=".9" />
+      <rect x="188" y="46" width="28" height="28" rx="5" fill="none" stroke="#b6ac95" strokeWidth="2.5" strokeDasharray="6 5" />
+      <rect x="197" y="86" width="9" height="9" rx="4.5" fill="#7b93b3" opacity=".7" />
     </svg>
   );
 }

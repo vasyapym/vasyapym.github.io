@@ -55,3 +55,22 @@ Artifacts under `artifacts/R<nnn>/`. Append-only.
 - Visual inspection: performed — first two shots came back EMPTY; root-caused: the catalogue hides .project-artwork (visibility:hidden) until the card scrolls into view (shell reveal-on-scroll), so the screenshot procedure now scrollIntoView + settle before capture; after-fix shot verified: single accent, story reads, house vocabulary intact.
 - Code verification: NOT RUN this round (JSX-only swap; next build covers).
 - Open question: verdict on R003 vs R001 fallback vs R002 — LIKED closes the mark task; also confirm accent #7aa2f7.
+
+## Feedback F003
+- Round: R003
+- Verdict: LIKED (directed)
+- Scope: catalogue card mark, concept level
+- Decision: owner prefers the V4 "tally on the ground" concept in the house-inked rendering (shown in the 5-concept comparison) over the presented R003; blocks settling on a line with the last copy still airborne is the story to ship.
+- User source: "i think this was better - V4 house-inked"
+- Artifact: v5-compare.png row 2, tile 4 (house-inked V4)
+- Supersedes: F002's open question — R003 presented but not adopted; R001 remains fallback, R002 retired
+
+## Round R004
+- Goal: ship the owner-directed V4 "tally on the ground" concept (F003) into the card.
+- Preserved preferences: F003 (V4 house-inked is the direction), F002 (senior-taste restraint).
+- Changes: QuicknotesCenterMark → V4 house-inked exactly as judged in the concept comparison: fading halftone bed, ledge bar #465059, four landed blocks (slate fills #26333b/#465059 with steel/bone borders, the live one #7aa2f7), fifth copy still airborne as dashed bone outline + counterweight dot. No canvas rect (card canvas stays live).
+- Before: artifacts/R003/after-quicknotes-r003.png
+- After: artifacts/R004/after-quicknotes-r004.png
+- Visual inspection: performed — scrollIntoView procedure (reveal-on-scroll accounted), shot verified against the judged compare tile: composition matches, single blue accent, dashes = pending, bed reads.
+- Code verification: NOT RUN (JSX-only swap inside existing component; next build covers).
+- Open question: closing confirm — LIKED on R004 closes the mark task (final build check then runs).
