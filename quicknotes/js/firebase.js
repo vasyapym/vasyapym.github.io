@@ -22,14 +22,31 @@ if (configured) {
   });
   // Session survives reload/tab close.
   setPersistence(auth, browserLocalPersistence).catch(console.warn);
-  // Surface redirect sign-in errors; the session itself resolves via watchAuth.
-  getRedirectResult(auth).catch(console.warn);
+  // Surface redirect sign-in errors once (the result itself resolves the
+  // session via watchAuth); a failed redirect must not stay silent.
+  getRedirectResult(auth).catch(e => {
+    console.error("redirect sign-in failed:", e);
+    if (e?.code === "auth/unauthorized-domain") {
+      alert("Sign-in redirect was rejected for this domain.\nFirebase console → Authentication → Settings → Authorized domains → add this domain.");
+    } else if (e?.code) {
+      alert(`Sign-in redirect failed: ${e.code}`);
+    }
+  });
 }
 
 export function watchAuth(cb) {
   if (!auth) { cb(null); return () => {}; }
   return onAuthStateChanged(auth, cb);
 }
+
+// Codes that mean "popup could not happen or died before returning a verdict"
+// — the redirect flow is the working path in every one of these browsers.
+const POPUP_FALLBACK_CODES = new Set([
+  "auth/popup-blocked",
+  "auth/popup-failed-to-open",
+  "auth/operation-not-supported-in-this-environment",
+  "auth/cancelled-popup-request",
+]);
 
 export async function login() {
   if (!auth) { alert("Firebase not configured — edit js/config.js"); return; }
@@ -38,10 +55,15 @@ export async function login() {
   try {
     await signInWithPopup(auth, provider);
   } catch (e) {
-    // Popup blocked or unsupported environment (iOS Safari etc.) → full-page redirect.
-    if (e?.code === "auth/popup-blocked" || e?.code === "auth/operation-not-supported-in-this-environment") {
+    const code = e?.code ?? "";
+    if (POPUP_FALLBACK_CODES.has(code)) {
       await signInWithRedirect(auth, provider);
       return; // page navigates away; watchAuth resolves the session on return
+    }
+    if (code === "auth/popup-closed-by-user") return; // user closed it on purpose
+    if (code === "auth/unauthorized-domain") {
+      alert("This domain is not authorized for sign-in.\nFirebase console → Authentication → Settings → Authorized domains → add this domain.");
+      return;
     }
     throw e;
   }
