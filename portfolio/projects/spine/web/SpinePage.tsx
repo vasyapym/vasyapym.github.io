@@ -11,10 +11,10 @@
 // re-entering the page after SPA navigation just re-binds the fresh DOM via
 // the spineRebind hook the Go side exposes.
 //
-// Skin: "amberframe" phosphor-CRT terminal — canvas as the protagonist,
-// inspector as a readout rail, output as a paper-tape printout. React also
-// renders the CRT chrome overlays and the status line; the engine never
-// needs to know about them.
+// Skin: the portfolio's ink-catalogue language (F002) — deep-ink field,
+// warm paper text, ochre accent; canvas as the protagonist with a dotted
+// bed, inspector as a readout rail, output as a printout, status line.
+// React also renders the status line; the engine never needs to know.
 
 import { useEffect, useState } from "react";
 import { mountSpine } from "./loader";
@@ -32,13 +32,9 @@ export default function SpinePage() {
 
   return (
     <div className="spine-root" data-mode={mode}>
-      {/* CRT chrome — pure overlay, pointer-transparent, engine-blind */}
-      <div className="spine-crt-scan" aria-hidden />
-      <div className="spine-crt-bloom" aria-hidden />
-
       <div className="spine-topbar">
         <h2 className="spine-heading spine-inspector-heading">
-          ◈ inspector<span id="spine-sel-label" />
+          inspector<span id="spine-sel-label" />
         </h2>
 
         <div className="spine-modebar" role="group" aria-label="View mode">

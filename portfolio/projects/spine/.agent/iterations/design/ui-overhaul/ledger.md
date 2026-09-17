@@ -85,3 +85,46 @@ No earlier design-iteration ledger exists for spine; numbering starts at R001.
 - Open question: owner verdict on the amber CRT direction — scanline/bloom
   intensity, warm-black field vs the house cool ink, and whether machine-id
   node tags should stay always-on.
+
+## Feedback F002
+- Round: R001
+- Verdict: REJECTED (styling only — usability explicitly endorsed)
+- Scope: the amber CRT skin of the Spine app UI (palette, scanlines/bloom
+  chrome, warm-black field), all viewports, both modes
+- Decision: re-tint the page to the site's established ink-catalogue identity
+  (deep ink #0b1317 field, warm paper text, ochre accent); keep R001's
+  structural improvements — floating dock, readout inspector, status line,
+  node tags
+- User source: "This is an improvement — the usability is noticeably better.
+  However, the styling feels inconsistent with the overall design language of
+  the website. As it stands, the elements have a burgundy, denim-like
+  appearance that doesn't quite fit. Let's align them more closely with the
+  site's established visual identity." (2026-09-17)
+- Artifact: artifacts/R001/desktop-design.png
+- Supersedes: the amber palette layer of R001 within its stated scope
+
+## Round R002
+- Goal: re-language the R001 surface to the house ink-catalogue identity
+  (F002) — keep the structure, swap the skin.
+- Preserved preferences: F001 (card mark untouched); F002 (R001 structure —
+  floating dock, readout inspector, status line, node tags; only the palette
+  layer changes).
+- Changes: SpinePage.tsx (dropped the CRT overlay divs and the ◈ glyph) +
+  spine.css (full re-tint): field `var(--ink-bg)` deep ink, warm paper text
+  `#eeeae0`, ochre accent `#d39b61`/bright `#e8b57c` for selection/actions,
+  coral `#ff6a5f` only on destructive hover; amber CRT chrome removed
+  entirely; canvas bed = the house halftone-dot device at 20px grid;
+  node tags re-inked to muted paper (machine notation in the catalogue's
+  caption register); pressed mobile mode chip = solid ochre with ink text
+  (realm buttons' treatment); focus rings = house bright ochre.
+- Before: `artifacts/R001/*`
+- After: `artifacts/R002/*` (desktop-design, desktop-full, mobile-design,
+  mobile-code)
+- Visual inspection: performed — desktop 1440 + mobile 390 both modes, read
+  as images; page now reads as a member of the ink catalogue (deep-ink field
+  continuous with the frame chrome, one ochre accent, paper notation).
+- Code verification: shell tsc ok; spine smoke ok (6→8 nodes, grid toggle,
+  undo/redo, hash, sel-label, modebar, html5+pointer drag, mobile shots);
+  vite production build ok.
+- Open question: owner verdict on the re-inked surface (and whether the
+  dotted bed density reads right).
