@@ -437,42 +437,28 @@ function TrailCenterMark() {
    one slot empty (dashed) and its keyed replacement registered beside it with
    registration ticks. The anatomy of a stack: rhythm, load, a missing member. ── */
 function QuicknotesCenterMark() {
+  const accent = "#c8785a"; // single muted accent
+  const dots: ReactElement[] = [];
+  for (let y = 0; y < 5; y++)
+    for (let x = 0; x < 13; x++)
+      dots.push(<circle key={`${x}-${y}`} cx={16 + x * 18} cy={104 + y * 11} r={1.4} fill="#465059" opacity={0.5} />);
   return (
     <svg viewBox="0 0 260 160" aria-hidden="true">
-      <defs>
-        <pattern id="halftone" width="6" height="6" patternUnits="userSpaceOnUse">
-          <circle cx="1.5" cy="1.5" r="1.2" fill="#465059" opacity="0.55" />
-          <circle cx="4.5" cy="4.5" r="0.7" fill="#7b93b3" opacity="0.28" />
-        </pattern>
-      </defs>
-      <ellipse cx="130" cy="104" rx="112" ry="50" fill="url(#halftone)" opacity="0.35" />
-      <ellipse cx="130" cy="100" rx="72" ry="34" fill="url(#halftone)" opacity="0.3" />
-
-      {/* guide rails / drop path */}
-      <g stroke="#7b93b3" strokeWidth="1" opacity="0.55">
-        <path d="M84 10v36M176 10v36" />
-        <path d="M84 52v40M176 52v40" strokeDasharray="4 5" />
+      <g>{dots}</g>
+      {/* dashed waiting slot */}
+      <rect x={150} y={44} width={70} height={44} rx={4} fill="none" stroke="#7b93b3" strokeWidth={1.5} strokeDasharray="5 4" opacity={0.7} />
+      {/* dropping dog-eared note */}
+      <g transform="rotate(-8 88 60)">
+        <path d="M50 30 H112 V78 L100 90 H50 Z" fill="#26333b" stroke="#b6ac95" strokeWidth={1.6} />
+        <path d="M112 78 L100 90 V78 Z" fill="#465059" stroke="#b6ac95" strokeWidth={1.2} />
+        <line x1={60} y1={46} x2={102} y2={46} stroke="#7b93b3" strokeWidth={1.2} opacity={0.6} />
+        <line x1={60} y1={56} x2={94} y2={56} stroke="#7b93b3" strokeWidth={1.2} opacity={0.6} />
+        <line x1={60} y1={66} x2={78} y2={66} stroke={accent} strokeWidth={2} />
       </g>
-      <circle cx="84" cy="48" r="4" fill="#26333b" stroke="#b6ac95" strokeWidth="1.2" />
-      <circle cx="176" cy="48" r="4" fill="#26333b" stroke="#b6ac95" strokeWidth="1.2" />
-
-      {/* falling dog-eared note */}
-      <g transform="rotate(-8 130 52)">
-        <path d="M100 22h48l14 14v48h-62z" fill="#26333b" stroke="#b6ac95" strokeWidth="1.5" strokeLinejoin="round" />
-        <path d="M148 22l14 14h-14z" fill="#465059" stroke="#b6ac95" strokeWidth="1.2" strokeLinejoin="round" />
-        <g stroke="#7b93b3" strokeWidth="2" opacity="0.6">
-          <path d="M108 56h30M108 64h40M108 72h22" />
-        </g>
-        <path d="M108 44h26" stroke="#7aa2f7" strokeWidth="3" />
-        <path d="M104 39v10" stroke="#7aa2f7" strokeWidth="2" />
-      </g>
-
-      {/* tray back, filed note, waiting slot, tray front */}
-      <path d="M40 92h180v30H40z" fill="#26333b" stroke="#7b93b3" strokeWidth="1.5" />
-      <path d="M62 84h58v38H62z" fill="#465059" stroke="#7b93b3" strokeWidth="1.2" />
-      <path d="M142 84h58v38h-58z" fill="none" stroke="#b6ac95" strokeWidth="1.2" strokeDasharray="5 4" opacity="0.8" />
-      <path d="M28 108h204l-10 34H38z" fill="#465059" stroke="#b6ac95" strokeWidth="1.5" strokeLinejoin="round" />
-      <path d="M40 130h180" stroke="#26333b" strokeWidth="2" opacity="0.85" />
+      {/* folder tray */}
+      <path d="M28 108 H232 L220 148 H40 Z" fill="#465059" stroke="#b6ac95" strokeWidth={1.8} />
+      <path d="M28 108 H232 V116 H28 Z" fill="#26333b" stroke="#7b93b3" strokeWidth={1.4} />
+      <path d="M40 148 L28 108 M220 148 L232 108" stroke="#b6ac95" strokeWidth={1.2} opacity={0.5} />
     </svg>
   );
 }

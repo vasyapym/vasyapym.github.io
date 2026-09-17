@@ -17,3 +17,22 @@ Artifacts under `artifacts/R<nnn>/`. Append-only.
 - Visual inspection: performed — headless Chromium (puppeteer-core + playwright chromium), 1440×900@2x, artwork element of the quicknotes card on the dev server; compared against reference-spine/reference-raft shots in the same session/state. Reads at card scale; single accent; no hollow geometry left.
 - Code verification: typecheck/build not rerun after JSX-only edit inside an existing component (no signature/contract change); NOT RUN this round, next build will cover.
 - Open question: LIKED / REJECTED? Sub-questions if mixed: bed density, tray reading as "boat", keeping #7aa2f7 vs house steel for the cursor accent.
+
+## Feedback F001
+- Round: R001
+- Verdict: LIKED (mild)
+- Scope: R001 composition as a whole, catalogue card, desktop
+- Decision: owner said "it is fine" — acceptable baseline, but immediately asked to try an alternative variant, so the round continues; not a closing approval.
+- User source: "it is fine. but let's try this one -" (variant B pasted)
+- Artifact: artifacts/R001/after-quicknotes-r001.png
+- Supersedes: none
+
+## Round R002
+- Goal: evaluate the owner's relay-sourced alternative mark (variant B, "drop tray") against R001.
+- Preserved preferences: F001 (R001 acceptable; not closing).
+- Changes: swapped QuicknotesCenterMark to variant B verbatim minus consistency repairs: opaque #0b1317 canvas removed, role/aria-label + xmlns + width/height attrs dropped (house convention), internal name kept under registry symbol, dots array typed ReactElement (global JSX namespace is gone in React 19 types). Accent kept AS DELIVERED (#c8785a muted terracotta) so the comparison is honest — accent question explicitly on the table.
+- Before: artifacts/R001/after-quicknotes-r001.png
+- After: artifacts/R002/after-quicknotes-r002.png
+- Visual inspection: performed — same viewport/session/state as R001 shots. Observations: tray reads cleaner than R001's (steel lip + bone rim, no boat echo); dashed waiting slot floats detached top-right (story linkage weaker than R001's slot-in-tray); dot bed is a hard-edged rectangular field peeking from behind the tray (house beds fade in ovals); dog-ear sits at the note's bottom-right corner (subtle); single rust accent visible.
+- Code verification: NOT RUN (JSX-only swap inside an existing component; next build covers). Visual render confirmed via dev server screenshot.
+- Open question: R001 or R002 (or a mix — e.g. R002 tray + R001 in-tray slot + fading oval bed)? Accent: keep variant's terracotta #c8785a, move to app blue #7aa2f7 (realm door hue), or house steel #7b93b3?
