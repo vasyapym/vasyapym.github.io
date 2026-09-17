@@ -1,27 +1,28 @@
 /* web/spine.css — scoped styles for the Spine layout-engine page.
    Skin: the portfolio's ink-catalogue language (deep ink, warm paper, ochre
-   accent). Everything lives under .spine-root so nothing leaks into the
-   shell. R001's structure (dock, readout inspector, status line, node tags)
-   re-tinted to the house palette per F002. */
+   accent). Chat-model polish pass, integrated with repo repairs: host-frame
+   height, native-select de-bezel, focus rings, nested container tints,
+   dashed drop target, mobile flow order and dock wrap. Everything lives
+   under .spine-root so nothing leaks into the shell. */
 
 .spine-root {
-  /* House ink-catalogue tokens, with fallbacks for standalone use */
-  --spine-bg: var(--ink-bg, #0b1317);
-  --spine-panel: var(--ink-panel, rgba(238, 234, 224, 0.045));
-  --spine-bg-sunk: rgba(0, 0, 0, 0.28);
-  --spine-line: var(--ink-line, rgba(238, 234, 224, 0.26));
-  --spine-line-soft: var(--ink-line-soft, rgba(238, 234, 224, 0.13));
-  --spine-text: var(--ink-text, #eeeae0);
-  --spine-muted: var(--ink-muted, rgba(238, 234, 224, 0.68));
-  --spine-faint: var(--ink-faint, rgba(238, 234, 224, 0.48));
-  --spine-accent: #d39b61;
-  --spine-accent-bright: #e8b57c;
-  --spine-danger: #ff6a5f;
-  --spine-node: var(--ink-panel, rgba(238, 234, 224, 0.045));
+  --ink: #0b1317;
+  --paper: #eeeae0;
+  --muted: rgba(238, 234, 224, 0.68);
+  --line: rgba(238, 234, 224, 0.26);
+  --line-soft: rgba(238, 234, 224, 0.13);
+  --panel: rgba(238, 234, 224, 0.045);
+  --accent: #d39b61;
+  --accent-bright: #e8b57c;
+  --danger: #ff6a5f;
+  --r: 8px;
+  --r-sm: 6px;
+  --font: var(--mono, "IBM Plex Mono", ui-monospace, SFMono-Regular, Menlo, monospace);
 
+  color-scheme: dark;
   display: grid;
-  grid-template-columns: 300px 1fr 340px;
-  grid-template-rows: auto 1fr auto;
+  grid-template-columns: 264px minmax(0, 1fr) 340px;
+  grid-template-rows: auto minmax(0, 1fr) auto;
   grid-template-areas:
     "topbar workspace code"
     "inspector workspace code"
@@ -29,11 +30,12 @@
   /* The frame topbar is 60px + 1px rule; fill the rest of the viewport. */
   height: calc(100dvh - 61px);
   min-height: 560px;
-  color: var(--spine-text);
-  background: var(--spine-bg);
-  font-family: var(--mono, ui-monospace, monospace);
+  background: var(--ink);
+  color: var(--paper);
+  font-family: var(--font);
+  font-size: 12px;
   line-height: 1.5;
-  box-sizing: border-box;
+  letter-spacing: 0.01em;
 }
 
 .spine-root *,
@@ -42,454 +44,388 @@
   box-sizing: border-box;
 }
 
-/* ---- panes ---------------------------------------------------------------- */
+.spine-root button,
+.spine-root select,
+.spine-root input {
+  font-family: inherit;
+  color: inherit;
+}
 
+/* ---- topbar ---- */
 .spine-topbar {
   grid-area: topbar;
   display: flex;
   flex-direction: column;
-  gap: 12px;
-  background: var(--spine-panel);
-  border-right: 1px solid var(--spine-line-soft);
-  padding: 14px 16px;
-}
-
-.spine-inspector,
-.spine-code {
-  background: var(--spine-panel);
-  overflow-y: auto;
-  padding: 14px 16px;
-}
-
-.spine-inspector {
-  grid-area: inspector;
-  border-right: 1px solid var(--spine-line-soft);
-  padding-top: 0;
-}
-
-.spine-code {
-  grid-area: code;
-  border-left: 1px solid var(--spine-line-soft);
+  gap: 10px;
+  padding: 14px 16px 0;
+  background: var(--ink);
 }
 
 .spine-heading {
-  margin: 0 0 10px;
+  margin: 0;
   font-size: 13px;
   font-weight: 500;
-  letter-spacing: 0.18em;
-  color: var(--spine-muted);
+  letter-spacing: 0.02em;
+  color: var(--paper);
 }
 
-.spine-code-head .spine-heading {
-  margin: 0;
+#spine-sel-label {
+  color: var(--accent-bright);
 }
-
-/* Selection echo: the engine writes the selected node's name here on every
-   render, so "where will + item land" is answered next to the dock. */
-.spine-root #spine-sel-label {
-  color: var(--spine-accent-bright);
-  letter-spacing: 0;
-  font-weight: 500;
-}
-
-.spine-root #spine-sel-label:not(:empty)::before {
+#spine-sel-label:not(:empty)::before {
   content: " · ";
+  color: var(--muted);
 }
-
-/* ---- mode switch (narrow viewports only) ----------------------------------- */
 
 .spine-modebar {
   display: none;
+  gap: 6px;
+}
+.spine-modebar button {
+  padding: 6px 12px;
+  background: transparent;
+  border: 1px solid var(--line-soft);
+  border-radius: var(--r-sm);
+  color: var(--muted);
+  font-size: 12px;
+  cursor: pointer;
+  transition: color 0.12s ease, border-color 0.12s ease;
+}
+.spine-modebar button:hover {
+  border-color: var(--line);
+  color: var(--paper);
+}
+.spine-modebar button[aria-pressed="true"] {
+  color: var(--accent-bright);
+  border-color: var(--accent);
 }
 
-/* ---- inspector readout ------------------------------------------------------ */
-
-.spine-root fieldset {
-  border: 0;
-  border-bottom: 1px dashed var(--spine-line-soft);
-  margin: 0 0 12px;
-  padding: 0 0 12px;
-}
-
-.spine-root legend {
+/* ---- inspector ---- */
+.spine-inspector {
+  grid-area: inspector;
+  overflow-y: auto;
+  padding: 16px;
+  border-right: 1px solid var(--line-soft);
   display: flex;
-  align-items: center;
-  gap: 8px;
-  width: 100%;
-  color: var(--spine-faint);
-  font-size: 10px;
-  font-weight: 500;
-  letter-spacing: 0.24em;
-  padding: 0 0 6px;
-  text-transform: uppercase;
+  flex-direction: column;
+  gap: 14px;
 }
 
-.spine-root legend::after {
-  content: "";
-  flex: 1;
-  height: 1px;
-  background: linear-gradient(90deg, var(--spine-line-soft) 0 2px, transparent 2px 5px);
+.spine-inspector fieldset {
+  margin: 0;
+  padding: 0;
+  border: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+.spine-inspector legend {
+  display: block;
+  width: 100%;
+  padding: 0 0 8px;
+  margin-bottom: 4px;
+  border-bottom: 1px solid var(--line-soft);
+  color: var(--muted);
+  font-size: 11px;
+  letter-spacing: 0.04em;
 }
 
 .spine-field {
-  display: grid;
-  grid-template-columns: 124px minmax(0, 1fr);
-  gap: 8px;
-  align-items: center;
-  margin-bottom: 8px;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
 }
-
 .spine-field label {
-  font-size: 10px;
-  letter-spacing: 0.08em;
-  color: var(--spine-muted);
-  text-transform: lowercase;
+  font-size: 11px;
+  letter-spacing: 0.02em;
+  color: var(--muted);
 }
 
-.spine-field label::before {
-  content: "▸ ";
-  opacity: 0.5;
-}
-
-.spine-root select,
-.spine-root input {
-  color: var(--spine-text);
-  border: 1px solid var(--spine-line-soft);
-  border-radius: 2px;
-  padding: 5px 8px;
+.spine-inspector select,
+.spine-inspector input {
+  width: 100%;
+  padding: 7px 9px;
+  background: var(--panel);
+  border: 1px solid var(--line-soft);
+  border-radius: var(--r-sm);
+  color: var(--paper);
   font-size: 12px;
-  font-family: inherit;
-  background: var(--spine-bg-sunk);
+  transition: border-color 0.12s ease;
+}
+.spine-inspector select:hover,
+.spine-inspector input:hover {
+  border-color: var(--line);
+}
+.spine-inspector select:focus,
+.spine-inspector input:focus {
+  outline: none;
+  border-color: var(--accent-bright);
 }
 
 /* Native select chrome fights the theme — reset the appearance and draw a
    matching flat control with a bone chevron instead. */
-.spine-root select {
+.spine-inspector select {
   appearance: none;
   -webkit-appearance: none;
   -moz-appearance: none;
   background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8' viewBox='0 0 12 8'%3E%3Cpath d='M1 1l5 5 5-5' fill='none' stroke='%23b6ac95' stroke-width='1.5' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E");
   background-repeat: no-repeat;
-  background-position: right 8px center;
-  padding-right: 26px;
+  background-position: right 9px center;
+  padding-right: 28px;
   cursor: pointer;
 }
 
-.spine-root select:hover,
-.spine-root input:hover {
-  border-color: var(--spine-accent);
+.spine-inspector select option {
+  background: var(--ink);
+  color: var(--paper);
 }
 
-.spine-root select option {
-  background: var(--spine-bg);
-  color: var(--spine-text);
-}
-
-.spine-root select:focus,
-.spine-root input:focus,
-.spine-root button:focus-visible {
-  outline: 2px solid var(--spine-accent-bright);
-  outline-offset: 1px;
-}
-
-.spine-root .hidden {
-  display: none;
-}
-
-/* ---- workspace: the protagonist ---------------------------------------------- */
-
+/* ---- workspace + rulers (scroll-shift fix) ---- */
 .spine-workspace {
   grid-area: workspace;
   position: relative;
-  padding: 30px 24px 96px;
-  overflow: auto;
-  /* The house "dotted bed": every card mark sits on a sparse halftone field;
-     the canvas extends that device at architectural scale. */
-  background-image: radial-gradient(rgba(238, 234, 224, 0.07) 1px, transparent 1.5px);
-  background-size: 20px 20px;
-  background-color: var(--spine-bg);
+  overflow: hidden;
+  background: var(--ink);
 }
 
 .spine-ruler {
   position: absolute;
+  z-index: 2;
+  background: var(--ink);
   pointer-events: none;
-  opacity: 0.5;
-  z-index: 1;
 }
-
 .spine-ruler-h {
   top: 0;
-  left: 0;
+  left: 22px;
   right: 0;
-  height: 14px;
-  background: repeating-linear-gradient(90deg, rgba(238, 234, 224, 0.12) 0 1px, transparent 1px 10px);
-  border-bottom: 1px solid var(--spine-line-soft);
+  height: 22px;
+  border-bottom: 1px solid var(--line-soft);
+  background-image: repeating-linear-gradient(
+    90deg,
+    var(--line-soft) 0 1px,
+    transparent 1px 20px
+  );
 }
-
 .spine-ruler-v {
   top: 0;
   left: 0;
   bottom: 0;
-  width: 14px;
-  background: repeating-linear-gradient(0deg, rgba(238, 234, 224, 0.12) 0 1px, transparent 1px 10px);
-  border-right: 1px solid var(--spine-line-soft);
+  width: 22px;
+  border-right: 1px solid var(--line-soft);
+  background-image: repeating-linear-gradient(
+    0deg,
+    var(--line-soft) 0 1px,
+    transparent 1px 20px
+  );
+}
+
+.spine-scroll {
+  position: absolute;
+  top: 22px;
+  left: 22px;
+  right: 0;
+  bottom: 0;
+  z-index: 1;
+  overflow: auto;
+  background-color: var(--ink);
+  background-image: radial-gradient(
+    rgba(238, 234, 224, 0.07) 1px,
+    transparent 1px
+  );
+  background-size: 20px 20px;
+  background-position: 0 0;
 }
 
 #spine-canvas {
-  position: relative;
-  z-index: 2;
+  min-width: 100%;
   min-height: 100%;
+  padding: 20px;
 }
 
-/* ---- nodes (engine-written classes) ------------------------------------------- */
-
+/* ---- nodes (engine-written states) ---- */
 .spine-root .node {
-  position: relative;
-  border: 1px solid var(--spine-line-soft);
-  border-radius: 2px;
+  touch-action: none;
+  border-radius: var(--r-sm);
   padding: 10px;
-  min-width: 60px;
-  min-height: 40px;
+  min-width: 44px;
+  min-height: 44px;
   cursor: grab;
   user-select: none;
-  /* Scoped to nodes only: a gesture that starts on a box is always a drag,
-     while the topbar, inspector and canvas gaps keep normal page scroll. */
-  touch-action: none;
-  transition: outline-color 90ms linear, background-color 90ms linear;
+  transition: border-color 0.12s ease, background-color 0.12s ease;
 }
-
-/* Node tag: the machine id, printed above the box in muted paper — the same
-   register as the catalogue's lowercase mono captions. */
-.spine-root .node::before {
-  content: attr(data-id);
-  position: absolute;
-  top: -15px;
-  left: -1px;
-  z-index: 3;
-  height: 13px;
-  padding: 0 5px;
-  display: inline-flex;
-  align-items: center;
-  font-size: 9px;
-  letter-spacing: 0.1em;
-  line-height: 1;
-  color: var(--spine-muted);
-  background: rgba(11, 19, 23, 0.92);
-  border: 1px solid var(--spine-line-soft);
-  opacity: 0.6;
-  pointer-events: none;
-  white-space: nowrap;
+.spine-root .container {
+  border: 1px solid var(--line);
+  background: rgba(238, 234, 224, 0.02);
 }
-
-.spine-root .node.container {
-  background: var(--spine-panel);
-}
-
-/* Nested containers deepen one step per level so hierarchy stays legible
-   in deep trees without adding borders or labels. */
+/* Nested containers deepen one step per level so hierarchy stays legible. */
 .spine-root .node .node.container {
-  background: rgba(238, 234, 224, 0.08);
+  background: rgba(238, 234, 224, 0.06);
 }
-
 .spine-root .node .node .node.container {
-  background: rgba(238, 234, 224, 0.12);
+  background: rgba(238, 234, 224, 0.1);
 }
-
-.spine-root .node.item {
-  background: var(--spine-node);
+.spine-root .item {
+  border: 1px solid var(--line-soft);
+  background: var(--panel);
   display: flex;
   align-items: center;
   justify-content: center;
   font-size: 12px;
-  color: var(--spine-text);
 }
-
-.spine-root .node.selected {
-  outline: 1px solid var(--spine-accent-bright);
-  outline-offset: 1px;
-  box-shadow: 0 0 0 3px rgba(211, 155, 97, 0.12);
-  z-index: 2;
+.spine-root .node:hover {
+  border-color: var(--line);
 }
-
-.spine-root .node.selected::before {
-  color: #171a1c;
-  background: var(--spine-accent-bright);
-  border-color: var(--spine-accent-bright);
-  opacity: 1;
+.spine-root .selected {
+  border-color: var(--accent-bright);
+  background: rgba(211, 155, 97, 0.08);
 }
-
-/* While carrying a box: the original dims so the translucent browser drag
-   ghost reads as intentional, and the box under the cursor gets a dashed
-   outline showing exactly where the drop would land. */
-.spine-root .node.dragging {
-  opacity: 0.3;
+.spine-root .dragging {
+  opacity: 0.5;
   cursor: grabbing;
 }
-
-.spine-root .node.drop-target {
-  outline: 2px dashed var(--spine-accent-bright);
-  outline-offset: 1px;
-  background-color: rgba(211, 155, 97, 0.10);
+.spine-root .drop-target {
+  border-color: var(--accent);
+  background: rgba(211, 155, 97, 0.1);
+  border-style: dashed;
 }
 
-/* ---- floating tool dock -------------------------------------------------------- */
-
+/* ---- dock ---- */
 .spine-dock {
   position: absolute;
+  z-index: 3;
   left: 50%;
-  bottom: 14px;
+  bottom: 16px;
   transform: translateX(-50%);
-  z-index: 30;
   display: flex;
   align-items: center;
-  gap: 5px;
+  gap: 8px;
+  padding: 8px;
+  background: var(--ink);
+  border: 1px solid var(--line-soft);
+  border-radius: var(--r);
   max-width: calc(100% - 28px);
-  padding: 6px 8px;
-  background: rgba(11, 19, 23, 0.92);
-  border: 1px solid var(--spine-line-soft);
-  backdrop-filter: blur(2px);
   overflow-x: auto;
   scrollbar-width: none;
 }
-
 .spine-dock::-webkit-scrollbar {
   display: none;
 }
-
+.spine-dock button {
+  padding: 7px 12px;
+  background: transparent;
+  border: 1px solid var(--line-soft);
+  border-radius: var(--r-sm);
+  color: var(--paper);
+  font-size: 12px;
+  white-space: nowrap;
+  cursor: pointer;
+  transition: color 0.12s ease, border-color 0.12s ease, background-color 0.12s ease;
+}
+.spine-dock button:hover:not(:disabled) {
+  border-color: var(--line);
+  background: var(--panel);
+}
+.spine-dock button:disabled {
+  opacity: 0.38;
+  cursor: default;
+}
+.spine-dock .spine-danger {
+  color: var(--muted);
+}
+.spine-dock .spine-danger:hover:not(:disabled) {
+  color: var(--danger);
+  border-color: var(--danger);
+  background: transparent;
+}
 .spine-dock-sep {
   width: 1px;
   align-self: stretch;
-  background: var(--spine-line-soft);
-  flex: none;
+  margin: 2px 2px;
+  background: var(--line-soft);
 }
 
-.spine-root button {
-  background: var(--spine-node);
-  color: var(--spine-text);
-  border: 1px solid var(--spine-line-soft);
-  border-radius: 2px;
-  padding: 4px 9px;
-  cursor: pointer;
-  font-size: 11px;
-  font-family: inherit;
-  letter-spacing: 0.1em;
-  white-space: nowrap;
-  transition: color 120ms ease, border-color 120ms ease, background 120ms ease;
+/* ---- code pane ---- */
+.spine-code {
+  grid-area: code;
+  overflow-y: auto;
+  padding: 16px;
+  border-left: 1px solid var(--line-soft);
 }
-
-.spine-root button:hover {
-  color: var(--spine-accent-bright);
-  border-color: var(--spine-accent);
-}
-
-.spine-root button:active {
-  transform: translateY(1px);
-}
-
-/* Touch has no hover — the pressed state is the only tap feedback there is. */
-@media (hover: none) {
-  .spine-root button:active {
-    color: var(--spine-accent-bright);
-    border-color: var(--spine-accent);
-    background: rgba(211, 155, 97, 0.14);
-  }
-}
-
-.spine-root button:disabled {
-  opacity: 0.4;
-  cursor: not-allowed;
-}
-
-.spine-root button.spine-danger:hover {
-  color: var(--spine-danger);
-  border-color: rgba(255, 106, 95, 0.5);
-  background: rgba(255, 106, 95, 0.10);
-}
-
-/* ---- code output: the printout --------------------------------------------------- */
-
 .spine-code-head {
   display: flex;
-  justify-content: space-between;
   align-items: center;
-  margin-bottom: 10px;
+  justify-content: space-between;
+  margin-bottom: 12px;
 }
-
+#spine-btn-copy {
+  padding: 6px 12px;
+  background: transparent;
+  border: 1px solid var(--line-soft);
+  border-radius: var(--r-sm);
+  color: var(--muted);
+  font-size: 12px;
+  cursor: pointer;
+  transition: color 0.12s ease, border-color 0.12s ease;
+}
+#spine-btn-copy:hover {
+  border-color: var(--line);
+  color: var(--paper);
+}
 .spine-code h3 {
-  font-size: 10px;
-  font-weight: 500;
-  letter-spacing: 0.2em;
-  color: var(--spine-faint);
-  margin: 14px 0 4px;
+  margin: 14px 0 6px;
+  font-size: 11px;
+  font-weight: 400;
+  letter-spacing: 0.02em;
+  color: var(--muted);
 }
-
 .spine-code pre {
-  background: var(--spine-bg);
-  border: 1px solid var(--spine-line-soft);
-  border-radius: 2px;
-  padding: 10px 12px 16px;
-  overflow: auto;
   margin: 0;
+  padding: 12px;
+  background: var(--panel);
+  border: 1px solid var(--line-soft);
+  border-radius: var(--r-sm);
+  overflow-x: auto;
 }
-
 .spine-code code {
-  font-family: var(--mono, ui-monospace, monospace);
   font-size: 11.5px;
-  line-height: 1.55;
-  color: var(--spine-muted);
+  line-height: 1.6;
+  color: var(--paper);
   white-space: pre;
 }
 
-/* ---- status line ----------------------------------------------------------------- */
-
+/* ---- status ---- */
 .spine-status {
   grid-area: status;
   display: flex;
   align-items: center;
-  border-top: 1px solid var(--spine-line-soft);
-  background: rgba(238, 234, 224, 0.03);
-  font-size: 10.5px;
-  letter-spacing: 0.08em;
-  color: var(--spine-muted);
-  overflow: hidden;
-  white-space: nowrap;
-  height: 26px;
+  gap: 16px;
+  padding: 8px 16px;
+  border-top: 1px solid var(--line-soft);
+  font-size: 11px;
+  color: var(--muted);
 }
-
-.spine-status-seg {
-  padding: 0 10px;
-  border-right: 1px solid var(--spine-line-soft);
-}
-
 .spine-status-grow {
   flex: 1;
-  border-right: 0;
-  color: var(--spine-faint);
-  overflow: hidden;
-  text-overflow: ellipsis;
 }
 
-.spine-status-cursor {
-  padding-right: 10px;
-  color: var(--spine-accent-bright);
-  animation: spine-blink 1.05s steps(2) infinite;
+/* ---- focus (house bright-ochre ring, keyboard-visible everywhere) ---- */
+.spine-root button:focus-visible,
+.spine-root select:focus-visible,
+.spine-root input:focus-visible {
+  outline: 2px solid var(--accent-bright);
+  outline-offset: 2px;
 }
 
-@keyframes spine-blink {
-  50% { opacity: 0; }
+/* ---- engine hidden toggle ---- */
+.spine-root .hidden {
+  display: none;
 }
 
-/* ---- narrow viewports: one page scroll, two modes ---------------------------------
-   The three desktop panes reorganise into a single column behind a sticky
-   chrome bar (selection heading + mode switch). Design mode shows canvas +
-   inspector — the edit→see-result loop stays short; Code mode swaps the
-   canvas for the read-only Output pane. Both panes stay mounted so the wasm
-   engine's id bindings never notice the switch. */
-
+/* ---- mobile ---- */
 @media (max-width: 1100px) {
   .spine-root {
     grid-template-columns: 1fr;
-    grid-template-rows: auto auto auto auto auto;
+    grid-template-rows: auto;
     grid-template-areas:
       "topbar"
       "workspace"
@@ -499,103 +435,43 @@
     height: auto;
     min-height: calc(100dvh - 61px);
   }
-
-  /* Sticky chrome: opaque background so canvas and fields scroll under it. */
   .spine-topbar {
     position: sticky;
     top: 0;
-    z-index: 10;
+    z-index: 5;
     flex-direction: row;
     align-items: center;
-    gap: 12px;
-    background: var(--spine-bg);
-    border-right: none;
-    border-bottom: 1px solid var(--spine-line-soft);
+    background: var(--ink);
+    border-bottom: 1px solid var(--line-soft);
     padding: 10px 16px;
   }
-
   .spine-topbar .spine-heading {
-    margin: 0;
     flex: 1;
     min-width: 0;
     overflow: hidden;
     text-overflow: ellipsis;
     white-space: nowrap;
   }
-
   .spine-modebar {
     display: flex;
-    gap: 0;
   }
-
-  .spine-modebar button {
-    padding: 8px 14px;
-    font-size: 11px;
-  }
-
-  .spine-modebar button:first-child {
-    border-radius: 2px 0 0 2px;
-  }
-
-  .spine-modebar button:last-child {
-    border-radius: 0 2px 2px 0;
-    margin-left: -1px;
-  }
-
-  /* Pressed mode = solid house accent with ink text (the realm buttons'
-     established treatment). */
-  .spine-modebar button[aria-pressed="true"] {
-    color: #171a1c;
-    background: var(--spine-accent);
-    border-color: var(--spine-accent);
-  }
-
-  .spine-root[data-mode="design"] .spine-code {
-    display: none;
-  }
-
-  .spine-root[data-mode="code"] .spine-inspector,
-  .spine-root[data-mode="code"] .spine-workspace {
-    display: none;
-  }
-
-  /* No pane-internal scrolling: the page is the single scroll context. */
-  .spine-inspector,
-  .spine-code {
-    overflow: visible;
-    max-height: none;
-    border-right: none;
-    border-left: none;
-    padding: 16px;
-  }
-
   .spine-inspector {
-    border-top: none; /* the sticky topbar's rule separates it already */
+    border-right: 0;
+    border-bottom: 1px solid var(--line-soft);
   }
-
-  .spine-code {
-    border-top: 1px solid var(--spine-line-soft);
-  }
-
   .spine-workspace {
-    padding: 20px 14px 96px;
-    /* A workable canvas above the fold, growing with content. */
-    min-height: min(62dvh, 520px);
-    border-top: 1px solid var(--spine-line-soft);
+    min-height: 62vh;
+    border-bottom: 1px solid var(--line-soft);
   }
-
-  /* Touch targets: 44px minimum. */
-  .spine-root button,
-  .spine-root select,
-  .spine-root input {
-    min-height: 44px;
-    font-size: 14px;
+  /* The page is the single scroll context: the scroller goes static so the
+     canvas grows with content and no nested scrollbar fights the page. */
+  .spine-scroll {
+    position: static;
   }
-
-  .spine-root button {
-    padding: 10px 12px;
+  /* Rulers are desktop furniture. */
+  .spine-ruler {
+    display: none;
   }
-
   .spine-dock {
     left: 8px;
     right: 8px;
@@ -605,15 +481,24 @@
     justify-content: flex-start;
     bottom: 10px;
   }
-
-  .spine-field {
-    grid-template-columns: 1fr;
-    gap: 4px;
+  .spine-code {
+    border-left: 0;
+    border-top: 1px solid var(--line-soft);
+  }
+  .spine-root[data-mode="design"] .spine-code {
+    display: none;
+  }
+  .spine-root[data-mode="code"] .spine-inspector,
+  .spine-root[data-mode="code"] .spine-workspace {
+    display: none;
+  }
+  .spine-root button,
+  .spine-root select,
+  .spine-root input {
+    min-height: 44px;
   }
 }
 
-/* Keep touch entry at the no-auto-zoom threshold, including on hybrid devices.
-   Follow the narrow-layout rules so their 14px declaration cannot win. */
 @media (any-pointer: coarse) {
   .spine-root select,
   .spine-root input {
@@ -621,16 +506,11 @@
   }
 }
 
-/* ---- reduced motion ---------------------------------------------------------------- */
-
 @media (prefers-reduced-motion: reduce) {
-  .spine-status-cursor {
-    animation: none;
-  }
-
   .spine-root *,
   .spine-root *::before,
   .spine-root *::after {
-    transition-duration: 0.01ms !important;
+    transition: none !important;
+    animation: none !important;
   }
 }

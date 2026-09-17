@@ -11,10 +11,10 @@
 // re-entering the page after SPA navigation just re-binds the fresh DOM via
 // the spineRebind hook the Go side exposes.
 //
-// Skin: the portfolio's ink-catalogue language (F002) — deep-ink field,
-// warm paper text, ochre accent; canvas as the protagonist with a dotted
-// bed, inspector as a readout rail, output as a printout, status line.
-// React also renders the status line; the engine never needs to know.
+// Skin: the portfolio's ink-catalogue language (deep ink, warm paper, ochre
+// accent). The workspace is a non-scrolling wrapper: the rulers and the
+// floating dock are siblings of the inner .spine-scroll, so nothing shifts
+// while the canvas scrolls (F003).
 
 import { useEffect, useState } from "react";
 import { mountSpine } from "./loader";
@@ -56,7 +56,6 @@ export default function SpinePage() {
       </div>
 
       <aside className="spine-inspector" aria-label="Inspector">
-
         <div id="spine-panel-mode" className="spine-field">
           <label htmlFor="spine-f-mode">display</label>
           <select id="spine-f-mode" defaultValue="flex">
@@ -144,7 +143,12 @@ export default function SpinePage() {
       <section className="spine-workspace" aria-label="Layout canvas">
         <span className="spine-ruler spine-ruler-h" aria-hidden />
         <span className="spine-ruler spine-ruler-v" aria-hidden />
-        <div id="spine-canvas" />
+
+        {/* The inner scroller: #spine-canvas scrolls here while the rulers
+            and the dock stay pinned to the workspace. */}
+        <div className="spine-scroll">
+          <div id="spine-canvas" />
+        </div>
 
         {/* Floating tool dock — the engine only binds these by id, the
             placement is React's business. */}
@@ -179,7 +183,6 @@ export default function SpinePage() {
         <span className="spine-status-seg spine-status-grow">
           drag · nest · retune · copy
         </span>
-        <span className="spine-status-cursor" aria-hidden>█</span>
       </footer>
     </div>
   );

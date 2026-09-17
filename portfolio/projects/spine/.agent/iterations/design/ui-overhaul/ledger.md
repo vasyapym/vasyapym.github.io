@@ -128,3 +128,66 @@ No earlier design-iteration ledger exists for spine; numbering starts at R001.
   vite production build ok.
 - Open question: owner verdict on the re-inked surface (and whether the
   dotted bed density reads right).
+
+## Feedback F003
+- Round: R002
+- Verdict: REJECTED (behavior)
+- Scope: elements that shift when the canvas scrolls (workspace rulers and
+  the floating dock are absolutely positioned inside the scroll container),
+  desktop + mobile
+- Decision: remove the scroll-shift behavior entirely — overlays must stay
+  put while content scrolls
+- User source: "some elements shifts on scroll, which can create a glitchy
+  visual effect — let's remove that behavior" (2026-09-17)
+- Artifact: artifacts/R002/desktop-design.png
+- Supersedes: none
+
+## Feedback F004
+- Round: R002
+- Verdict: REJECTED (aesthetic register)
+- Scope: overall styling register of the Spine app UI, all viewports
+- Decision: the current look leans brutalist (hard hairline boxes, tracked
+  uppercase, dashed rules, 2px radii, always-on tags); re-polish toward the
+  site's minimalist direction while staying inside the house ink language
+  (F002's palette outcome stands)
+- User source: "the current styling leans toward a brutalist aesthetic,
+  which is inconsistent with the overall design language of the site (more
+  of a 'minimalist' style). Let's ensure it aligns with the established
+  visual direction" (2026-09-17)
+- Artifact: artifacts/R002/desktop-design.png
+- Supersedes: none
+
+## Round R003
+- Goal: deepening relay to the chat model — polish pass on the R002 surface
+  applying F003 (no scroll shift) and F004 (minimalist, not brutalist).
+- Note: the relayed brief carried the current files verbatim; the model's
+  reply rebuilt spine.css from the spec (the second block did not survive
+  its context window) — the rebuild was contract-clean, so it stands as the
+  round's candidate with integration repairs.
+- Preserved preferences: F001, F002 (ink-catalogue palette outcome), F003,
+  F004; every engine id/class/wording per §5.
+- Changes (SpinePage.tsx + spine.css): workspace becomes a non-scrolling
+  wrapper with an inner .spine-scroll around #spine-canvas — rulers + dock
+  are pinned siblings, nothing moves on scroll; brutalist tells removed
+  (▸ markers, always-on node tags, dashed rules, tracked uppercase, 2px
+  radii, backdrop-blur, status segment boxes, blinking cursor) → lowercase
+  0.02–0.04em notation, hairline-under-legend groups, 6–8px radii, flat
+  panel fills, quiet rest states, ochre only on selection/focus/pressed.
+- Integration repairs on the model's css: host-frame height
+  (calc(100dvh − 61px)), topbar back to column 1 (full-width band duplicated
+  the host chrome), native-select de-bezel + bone chevron + dark options,
+  focus-visible bright-ochre rings, mobile flow order workspace→inspector
+  (edit→see loop) and full-width wrapping dock, dashed drop-target,
+  nested-container depth tints, node cursors (grab/grabbing), dock button
+  nowrap, desktop scroller geometry.
+- Before: `artifacts/R002/*` — After: `artifacts/R003/*`
+- Visual inspection: performed — desktop 1440 + mobile 390, both modes, read
+  as images; fixes caught on render: dock button text wrap, mobile dock
+  width. Rest state is quiet: hairlines, no dashes, no tags, one accent.
+- Code verification: shell tsc ok; spine smoke ok (6→8 nodes, grid toggle,
+  undo/redo, hash, sel-label, modebar, html5+pointer drag, mobile shots);
+  vite production build ok. (One smoke run failed on a stale port listener,
+  green on retry — infra, not code.)
+- Open question: owner verdict on the minimalist register; node tags were
+  dropped as part of the polish (machine ids are gone from the canvas) —
+  flag if you want them back in a quieter form.
