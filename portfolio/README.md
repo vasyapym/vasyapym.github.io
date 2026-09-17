@@ -13,7 +13,7 @@ npm --prefix portfolio install
 npm --prefix portfolio run dev
 ```
 
-Open <http://localhost:5173>. The solid field index is the main route; Planck to Now, Practice Map, Raft Cluster, Evening Forest, Cat Runner, and Spine are available from the project list. Direct routes are <http://localhost:5173/projects/planck-to-now>, <http://localhost:5173/projects/practice-map>, <http://localhost:5173/projects/raft-cluster>, <http://localhost:5173/projects/evening-forest>, <http://localhost:5173/projects/kitty-run>, and <http://localhost:5173/projects/spine>. The older Assembly field comparison remains available at `/?prototype=room` and `/?prototype=field`. The shell runs on port `5173`.
+Open <http://localhost:5173>. The solid field index is the main route; Planck to Now, Practice Map, Raft Cluster, Evening Forest, Cat Runner, and Spine are available from the project list. Direct routes are <http://localhost:5173/projects/planck-to-now>, <http://localhost:5173/projects/practice-map>, <http://localhost:5173/projects/raft-cluster>, <http://localhost:5173/projects/evening-forest>, <http://localhost:5173/projects/kitty-run>, and <http://localhost:5173/projects/spine>. Quicknotes is embedded from the sibling static app at <http://localhost:5173/quicknotes/> (route `/projects/quicknotes`). The older Assembly field comparison remains available at `/?prototype=room` and `/?prototype=field`. The shell runs on port `5173`.
 
 Raft Cluster is fully client-side: its Rust consensus core is compiled to WebAssembly (`projects/raft-cluster/core`, see `core/ABI.md`) and committed as a build artifact next to the page, so no service process is needed. Spine follows the same pattern with a Go core: its layout engine is compiled to WebAssembly (`projects/spine/web/spine.wasm`) and committed next to the page.
 
@@ -28,6 +28,7 @@ portfolio/
 │   ├── kitty-run/     procedural vector-animation runner game
 │   ├── planck-to-now/ GPU-accelerated cosmology simulation
 │   ├── practice-map/  deep lessons and local progress for engineering patterns
+│   ├── quicknotes/    static no-build markdown notes with Firebase sync
 │   ├── raft-cluster/  Raft consensus core (Rust → WASM) with a live browser demo
 │   └── spine/         draggable Flexbox/Grid layout engine (Go → WASM)
 └── shell/           React/Vite landing page and project host

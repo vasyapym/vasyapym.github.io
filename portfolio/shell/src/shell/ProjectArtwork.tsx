@@ -58,6 +58,7 @@ const CENTER_MARKS: Partial<Record<ProjectCenter, () => ReactElement>> = {
   spiral: SpiralCenterMark,
   trail: TrailCenterMark,
   spine: SpineCenterMark,
+  quicknotes: QuicknotesCenterMark,
 };
 
 function CenterMark({ mark, label }: { mark: ProjectCenter; label: string }) {
@@ -435,6 +436,25 @@ function TrailCenterMark() {
    literally — a column of stacked vertebrae threaded on an alignment rail,
    one slot empty (dashed) and its keyed replacement registered beside it with
    registration ticks. The anatomy of a stack: rhythm, load, a missing member. ── */
+function QuicknotesCenterMark() {
+  return (
+    <svg viewBox="0 0 260 160" aria-hidden="true">
+      {/* scattered scratchpad tiles behind the open note */}
+      <rect x="52" y="34" width="52" height="66" rx="4" fill="#16161e" stroke="#3b4261" strokeWidth="1.5" transform="rotate(-7 78 67)" />
+      <rect x="158" y="40" width="52" height="66" rx="4" fill="#16161e" stroke="#3b4261" strokeWidth="1.5" transform="rotate(6 184 73)" />
+      {/* the open note, dog-eared, with the accent fold */}
+      <rect x="96" y="22" width="70" height="92" rx="5" fill="#16161e" stroke="#8b919c" strokeWidth="2" />
+      <path d="M138 22v26h28" fill="none" stroke="#7aa2f7" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
+      <line x1="108" y1="46" x2="136" y2="46" stroke="#3b4261" strokeWidth="2" />
+      <line x1="108" y1="62" x2="152" y2="62" stroke="#3b4261" strokeWidth="2" opacity="0.7" />
+      <line x1="108" y1="78" x2="146" y2="78" stroke="#3b4261" strokeWidth="2" opacity="0.7" />
+      <line x1="108" y1="94" x2="120" y2="94" stroke="#7aa2f7" strokeWidth="2.5" />
+      {/* the folder tray the note drops into */}
+      <path d="M84 132h94l-7 16H91Z" fill="none" stroke="#3b4261" strokeWidth="1.5" strokeLinejoin="round" />
+    </svg>
+  );
+}
+
 function SpineCenterMark() {
   return (
     <svg viewBox="0 0 260 160" aria-hidden="true">

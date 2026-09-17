@@ -1,6 +1,6 @@
 import { execFileSync } from "node:child_process";
-import { copyFileSync, existsSync, readFileSync } from "node:fs";
-import { dirname, resolve } from "node:path";
+import { copyFileSync, existsSync, readdirSync, readFileSync, statSync } from "node:fs";
+import { dirname, join, relative, resolve } from "node:path";
 import { fileURLToPath } from "node:url";
 import { defineConfig, type OutputAsset, type Plugin } from "vite";
 import react from "@vitejs/plugin-react";
@@ -9,6 +9,7 @@ const shellRoot = dirname(fileURLToPath(import.meta.url));
 const planckToNowRoot = resolve(shellRoot, "../projects/planck-to-now");
 const planckToNowIndex = resolve(planckToNowRoot, "index.html");
 const planckToNowBundle = resolve(planckToNowRoot, "dist/main.js");
+const quicknotesRoot = resolve(shellRoot, "../../quicknotes");
 const raftCoreRoot = resolve(shellRoot, "../projects/raft-cluster/core");
 const raftCoreWasm = resolve(shellRoot, "../projects/raft-cluster/web/raft_core.wasm");
 const spineRoot = resolve(shellRoot, "../projects/spine");
@@ -157,8 +158,72 @@ function planckToNowStaticPlugin(): Plugin {
   };
 }
 
+const QUICKNOTES_MIME: Record<string, string> = {
+  ".html": "text/html; charset=utf-8",
+  ".js": "text/javascript; charset=utf-8",
+  ".mjs": "text/javascript; charset=utf-8",
+  ".css": "text/css; charset=utf-8",
+  ".svg": "image/svg+xml",
+  ".json": "application/json",
+  ".md": "text/markdown; charset=utf-8",
+  ".rules": "text/plain; charset=utf-8",
+};
+
+/**
+ * Quicknotes is a static no-build ES-module app living at ../quicknotes.
+ * Served verbatim in dev and emitted verbatim into the bundle, so the
+ * catalogue page and the standalone /quicknotes/ URL stay one artifact.
+ */
+function quicknotesStaticPlugin(): Plugin {
+  const walk = (dir: string): string[] => {
+    const out: string[] = [];
+    for (const entry of readdirSync(dir, { withFileTypes: true })) {
+      const full = join(dir, entry.name);
+      if (statSync(full).isDirectory()) out.push(...walk(full));
+      else out.push(full);
+    }
+    return out;
+  };
+  const mimeFor = (file: string): string =>
+    QUICKNOTES_MIME[file.slice(file.lastIndexOf("."))] ?? "application/octet-stream";
+  return {
+    name: "quicknotes-static",
+    configureServer(server) {
+      server.middlewares.use((request, response, next) => {
+        const url = new URL(request.url ?? "/", "http://localhost");
+        const pathname = decodeURIComponent(url.pathname);
+        if (!pathname.startsWith("/quicknotes")) { next(); return; }
+        if (pathname === "/quicknotes" || pathname === "/quicknotes/") {
+          response.statusCode = 200;
+          response.setHeader("Content-Type", "text/html; charset=utf-8");
+          response.end(readFileSync(join(quicknotesRoot, "index.html")));
+          return;
+        }
+        const rel = relative("/quicknotes", pathname);
+        const file = resolve(quicknotesRoot, rel);
+        if (!file.startsWith(quicknotesRoot + "/") || !existsSync(file) || !statSync(file).isFile()) {
+          next();
+          return;
+        }
+        response.statusCode = 200;
+        response.setHeader("Content-Type", mimeFor(file));
+        response.end(readFileSync(file));
+      });
+    },
+    generateBundle() {
+      for (const file of walk(quicknotesRoot)) {
+        this.emitFile({
+          type: "asset",
+          fileName: `quicknotes/${relative(quicknotesRoot, file).split("\\").join("/")}`,
+          source: readFileSync(file),
+        });
+      }
+    },
+  };
+}
+
 export default defineConfig({
-  plugins: [wasmArtifactsPlugin(), planckToNowStaticPlugin(), spaFallbackPlugin(), react()],
+  plugins: [wasmArtifactsPlugin(), planckToNowStaticPlugin(), quicknotesStaticPlugin(), spaFallbackPlugin(), react()],
   esbuild: { target: "es2020" },
   optimizeDeps: { esbuildOptions: { target: "es2020" } },
   build: { target: "es2020" },

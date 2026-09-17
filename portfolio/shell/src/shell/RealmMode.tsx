@@ -47,7 +47,7 @@ interface RealmModeProps {
 type Phase = "entering" | "active" | "leaving" | "diving";
 
 // door hues, catalogue order (index-aligned to the seven ids)
-const DOOR_HUES = ["#86aed4", "#dc7f95", "#ff8a3c", "#9fb0bd", "#ffb45e", "#ffd9a0", "#7fa8c9"] as const;
+const DOOR_HUES = ["#86aed4", "#dc7f95", "#ff8a3c", "#9fb0bd", "#ffb45e", "#ffd9a0", "#7fa8c9", "#7aa2f7"] as const;
 
 // wasd / arrows → unit thrust vector
 const DIR: Record<string, readonly [number, number]> = {
