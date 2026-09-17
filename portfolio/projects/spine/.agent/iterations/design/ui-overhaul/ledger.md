@@ -267,3 +267,56 @@ No earlier design-iteration ledger exists for spine; numbering starts at R001.
 - Open question: owner verdict (real Edge/Windows look pending); if sans
   chrome loses too much of the instrument feel, revert switch is one
   font-family line.
+
+## Feedback F007
+- Round: R005
+- Verdict: LIKED
+- Scope: the de-noised app surface (sans chrome / mono printout, soft
+  texture, thin scrollbars), all viewports
+- Decision: keep R005 as the standing look
+- User source: "i like it. next - there needs to be limitation for mobile.
+  it goes beyond visible are (containers, items)" (2026-09-17)
+- Artifact: artifacts/R005/desktop-design.png
+- Supersedes: none (closes the noise thread)
+
+## Feedback F008
+- Round: R005
+- Verdict: REJECTED (behavior, mobile)
+- Scope: mobile (≤1100px / touch): containers and items extend beyond the
+  visible viewport when the tree outgrows the canvas strip
+- Decision: constrain the layout so boxes stay within the viewable area on
+  mobile (details follow in the round after a live probe)
+- User source: same message as F007 (2026-09-17)
+- Artifact: artifacts/R005/mobile-design.png
+- Supersedes: none
+
+## Round R006
+- Goal: apply F008 — mobile constraint so containers/items stay within the
+  viewable area (css-only, mobile block).
+- Diagnosis (live probes on the real wasm engine, 390px + 320px): default
+  add/delete paths never overflow (root wraps). The reproducible escape is a
+  user-authored nowrap row with fat gaps — content grew to 1061px against
+  390/320 viewports, confined to the canvas strip but beyond the right edge.
+- Changes: on mobile, `.node { max-width: 100%; overflow-wrap: anywhere }` —
+  no box may exceed its parent's box, long labels wrap instead of pushing
+  width; `#spine-canvas` padding 20→14px (more usable strip width);
+  `.spine-scroll` overflow-x stays the explicit horizontal release valve so
+  any user-authored overflow pans inside the strip — the page itself never
+  scrolls horizontally (verified: pageScrollWidth == innerWidth in both
+  hostile and default cases, before and after).
+- Constraint honestly bounded: a deliberately nowrap row still extends
+  inside the pannable strip (the preview must mirror the user's own
+  flex-wrap setting — the engine's inline styles are never overridden).
+  Touch pan works from gaps/padding; node gestures stay reserved for the
+  engine's touch drag (shipped feature, n12).
+- Before: `artifacts/R005/*` — After: `artifacts/R006/*`
+  (+ `overflow-nowrap-pan.png` — the hostile nowrap case, strip-preserved).
+- Visual inspection: performed — desktop 1440 + mobile 390, both modes, read
+  as images; the demo tree fits with the wider strip, dock unchanged.
+- Code verification: shell tsc ok; spine smoke ok (6→8 nodes, grid toggle,
+  undo/redo, hash, sel-label, modebar, html5+pointer drag, mobile shots);
+  vite production build ok; live probes before/after (page containment
+  green).
+- Open question: owner verdict; if a hard clip is wanted for deliberately
+  nowrap rows (boxes hidden beyond the edge instead of pannable), that is a
+  one-line `overflow-x: hidden` swap but hides content — not recommended.

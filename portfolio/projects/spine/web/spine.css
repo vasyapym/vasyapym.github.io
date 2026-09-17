@@ -473,6 +473,18 @@
      canvas grows with content and no nested scrollbar fights the page. */
   .spine-scroll {
     position: static;
+    /* F008: the canvas strip is the horizontal release valve — user-authored
+       nowrap rows pan here instead of spilling across the page. */
+    overflow-x: auto;
+  }
+  /* F008: no box may exceed its parent's box on mobile — nesting stays
+     inside the viewable strip; long labels wrap instead of pushing width. */
+  .spine-root .node {
+    max-width: 100%;
+    overflow-wrap: anywhere;
+  }
+  #spine-canvas {
+    padding: 14px;
   }
   /* Rulers are desktop furniture. */
   .spine-ruler {
