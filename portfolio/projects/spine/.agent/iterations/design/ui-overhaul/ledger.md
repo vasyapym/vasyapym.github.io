@@ -191,3 +191,39 @@ No earlier design-iteration ledger exists for spine; numbering starts at R001.
 - Open question: owner verdict on the minimalist register; node tags were
   dropped as part of the polish (machine ids are gone from the canvas) —
   flag if you want them back in a quieter form.
+
+## Feedback F005
+- Round: R003
+- Verdict: REJECTED (scope: the ochre highlight layer)
+- Scope: every warm ochre highlight state of the app UI — the selected-node
+  wash, the drop-target wash, the ochre input-focus border and 2px focus
+  ring, the ochre pressed-chip text ("всё охряное сразу" reads yellow)
+- Decision: treatment A — remove the warm fills/washes entirely; selection
+  becomes a precise ochre ring; focus ring thins to 1px and mouse-focus
+  borders go neutral; pressed chip text goes paper (border stays ochre).
+  Ochre remains as precise accents only. If rings still read yellow, the
+  next step is steel (#7b93b3) selection (variant B, parked).
+- User source: "it seems good. highlighting feels not good (yellow
+  highlighting. what can we do about it?" + questionnaire answers "всё
+  охряное сразу" / "A: кольцо без заливки" (2026-09-17)
+- Artifact: artifacts/R003/desktop-design.png
+- Supersedes: none
+
+## Round R004
+- Goal: apply F005 treatment A — de-yellow the highlight layer, keep precise
+  ochre accents (css-only, spine.css).
+- Preserved preferences: F001–F004; engine contract untouched.
+- Changes: `.selected` = 1px ochre ring (outline, offset 2px) — warm wash
+  removed, node border back to its neutral kind; `.drop-target` dashed ochre
+  border, wash removed; input focus border back to neutral line (mouse),
+  focus-visible ring thinned 2px→1px; pressed mobile mode chip text → paper
+  (ochre border stays).
+- Before: `artifacts/R003/*` — After: `artifacts/R004/*`
+- Visual inspection: performed — desktop 1440 + mobile 390, both modes, read
+  as images: the warm fills are gone; selection reads as a crisp ring; the
+  only remaining ochre is precise (ring, chip border, sel-label).
+- Code verification: shell tsc ok; spine smoke ok (6→8 nodes, grid toggle,
+  undo/redo, hash, sel-label, modebar, html5+pointer drag, mobile shots);
+  vite production build ok.
+- Open question: owner verdict; variant B (steel selection) parked if any
+  ochre ring still reads yellow.

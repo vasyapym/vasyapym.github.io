@@ -96,7 +96,7 @@
   color: var(--paper);
 }
 .spine-modebar button[aria-pressed="true"] {
-  color: var(--accent-bright);
+  color: var(--paper);
   border-color: var(--accent);
 }
 
@@ -159,7 +159,7 @@
 .spine-inspector select:focus,
 .spine-inspector input:focus {
   outline: none;
-  border-color: var(--accent-bright);
+  border-color: var(--line);
 }
 
 /* Native select chrome fights the theme — reset the appearance and draw a
@@ -276,8 +276,8 @@
   border-color: var(--line);
 }
 .spine-root .selected {
-  border-color: var(--accent-bright);
-  background: rgba(211, 155, 97, 0.08);
+  outline: 1px solid var(--accent-bright);
+  outline-offset: 2px;
 }
 .spine-root .dragging {
   opacity: 0.5;
@@ -285,7 +285,6 @@
 }
 .spine-root .drop-target {
   border-color: var(--accent);
-  background: rgba(211, 155, 97, 0.1);
   border-style: dashed;
 }
 
@@ -412,7 +411,7 @@
 .spine-root button:focus-visible,
 .spine-root select:focus-visible,
 .spine-root input:focus-visible {
-  outline: 2px solid var(--accent-bright);
+  outline: 1px solid var(--accent-bright);
   outline-offset: 2px;
 }
 
