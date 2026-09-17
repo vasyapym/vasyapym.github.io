@@ -74,3 +74,12 @@ Artifacts under `artifacts/R<nnn>/`. Append-only.
 - Visual inspection: performed — scrollIntoView procedure (reveal-on-scroll accounted), shot verified against the judged compare tile: composition matches, single blue accent, dashes = pending, bed reads.
 - Code verification: NOT RUN (JSX-only swap inside existing component; next build covers).
 - Open question: closing confirm — LIKED on R004 closes the mark task (final build check then runs).
+
+## Feedback F004
+- Round: R004
+- Verdict: LIKED (closing)
+- Scope: quicknotes catalogue card mark, all viewports
+- Decision: R004 (V4 "tally on the ground" house-inked) is the approved final mark. Task closed; active constraint: concept-level changes to the card art go through a new design round; the bed/accent tuning stays inside this constraint until revisited.
+- User source: "i like it" (responding to R004 presented as the shipped card)
+- Artifact: artifacts/R004/after-quicknotes-r004.png
+- Supersedes: none (closes F002/F003 thread)
