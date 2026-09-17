@@ -227,3 +227,43 @@ No earlier design-iteration ledger exists for spine; numbering starts at R001.
   vite production build ok.
 - Open question: owner verdict; variant B (steel selection) parked if any
   ochre ring still reads yellow.
+
+## Feedback F006
+- Round: R004
+- Verdict: REJECTED (scope: visual noise, especially Edge on Windows)
+- Scope: overall visual noise level of the app UI; font rendering suspected
+  as the main contributor (all-mono chrome at 10–12px reads scratchy under
+  Windows ClearType); unstyled scrollbars and the dot/ruler texture add to it
+- Decision: small adjustments only (no sweeping changes): split type by
+  register — sans for UI chrome, mono reserved for the code printout; quiet
+  the tick/dot layers; thin styled scrollbars; sizes +0.5px where tiny
+- User source: "This is looking good overall. However, it feels visually
+  noisy, especially when viewed in Microsoft Edge on Windows. I suspect the
+  font may be the most contributing factor. Let's experiment with some
+  adjustments (not only font-wise), without making sweeping changes."
+  (2026-09-17)
+- Artifact: artifacts/R004/desktop-design.png
+- Supersedes: none
+
+## Round R005
+- Goal: apply F006 — de-noise without sweeping changes (css-only,
+  spine.css).
+- Preserved preferences: F001–F005; structure untouched.
+- Changes: type split by register — UI chrome (headings, labels, legends,
+  buttons, status, select/input text) → var(--sans); mono reserved for the
+  code printout (--code-font) at 12px; tiny sizes lifted 11→11.5px,
+  heading 13→13.5px, dock buttons 12→12.5px; letter-spacing stripped
+  (0.01–0.04em → 0); dot bed softened 0.07→0.055 alpha, grid 20→24px;
+  ruler ticks 0.13→0.09 alpha, pitch 20→24px; thin styled scrollbars
+  (scrollbar-color paper 22%) on inspector/code/canvas scroller — the
+  unstyled chunky native bars were a big Edge/Windows noise source.
+- Before: `artifacts/R004/*` — After: `artifacts/R005/*`
+- Visual inspection: performed — desktop 1440 + mobile 390, both modes, read
+  as images: chrome reads calmer, canvas texture quieter; the mono printout
+  is now the only mono surface.
+- Code verification: shell tsc ok; spine smoke ok (6→8 nodes, grid toggle,
+  undo/redo, hash, sel-label, modebar, html5+pointer drag, mobile shots);
+  vite production build ok.
+- Open question: owner verdict (real Edge/Windows look pending); if sans
+  chrome loses too much of the instrument feel, revert switch is one
+  font-family line.

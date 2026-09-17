@@ -17,7 +17,8 @@
   --danger: #ff6a5f;
   --r: 8px;
   --r-sm: 6px;
-  --font: var(--mono, "IBM Plex Mono", ui-monospace, SFMono-Regular, Menlo, monospace);
+  --ui-font: var(--sans, "IBM Plex Sans", ui-sans-serif, system-ui, sans-serif);
+  --code-font: var(--mono, "IBM Plex Mono", ui-monospace, SFMono-Regular, Menlo, monospace);
 
   color-scheme: dark;
   display: grid;
@@ -32,10 +33,12 @@
   min-height: 560px;
   background: var(--ink);
   color: var(--paper);
-  font-family: var(--font);
+  /* Type split by register (F006): sans carries the UI chrome — all-mono at
+     10–12px is scratchy under Windows ClearType — and mono is reserved for
+     the code printout. */
+  font-family: var(--ui-font);
   font-size: 12px;
   line-height: 1.5;
-  letter-spacing: 0.01em;
 }
 
 .spine-root *,
@@ -63,9 +66,8 @@
 
 .spine-heading {
   margin: 0;
-  font-size: 13px;
+  font-size: 13.5px;
   font-weight: 500;
-  letter-spacing: 0.02em;
   color: var(--paper);
 }
 
@@ -109,6 +111,8 @@
   display: flex;
   flex-direction: column;
   gap: 14px;
+  scrollbar-width: thin;
+  scrollbar-color: rgba(238, 234, 224, 0.22) transparent;
 }
 
 .spine-inspector fieldset {
@@ -126,8 +130,7 @@
   margin-bottom: 4px;
   border-bottom: 1px solid var(--line-soft);
   color: var(--muted);
-  font-size: 11px;
-  letter-spacing: 0.04em;
+  font-size: 11.5px;
 }
 
 .spine-field {
@@ -136,8 +139,7 @@
   gap: 6px;
 }
 .spine-field label {
-  font-size: 11px;
-  letter-spacing: 0.02em;
+  font-size: 11.5px;
   color: var(--muted);
 }
 
@@ -202,8 +204,8 @@
   border-bottom: 1px solid var(--line-soft);
   background-image: repeating-linear-gradient(
     90deg,
-    var(--line-soft) 0 1px,
-    transparent 1px 20px
+    rgba(238, 234, 224, 0.09) 0 1px,
+    transparent 1px 24px
   );
 }
 .spine-ruler-v {
@@ -214,8 +216,8 @@
   border-right: 1px solid var(--line-soft);
   background-image: repeating-linear-gradient(
     0deg,
-    var(--line-soft) 0 1px,
-    transparent 1px 20px
+    rgba(238, 234, 224, 0.09) 0 1px,
+    transparent 1px 24px
   );
 }
 
@@ -229,11 +231,13 @@
   overflow: auto;
   background-color: var(--ink);
   background-image: radial-gradient(
-    rgba(238, 234, 224, 0.07) 1px,
+    rgba(238, 234, 224, 0.055) 1px,
     transparent 1px
   );
-  background-size: 20px 20px;
+  background-size: 24px 24px;
   background-position: 0 0;
+  scrollbar-width: thin;
+  scrollbar-color: rgba(238, 234, 224, 0.22) transparent;
 }
 
 #spine-canvas {
@@ -315,7 +319,7 @@
   border: 1px solid var(--line-soft);
   border-radius: var(--r-sm);
   color: var(--paper);
-  font-size: 12px;
+  font-size: 12.5px;
   white-space: nowrap;
   cursor: pointer;
   transition: color 0.12s ease, border-color 0.12s ease, background-color 0.12s ease;
@@ -349,6 +353,8 @@
   overflow-y: auto;
   padding: 16px;
   border-left: 1px solid var(--line-soft);
+  scrollbar-width: thin;
+  scrollbar-color: rgba(238, 234, 224, 0.22) transparent;
 }
 .spine-code-head {
   display: flex;
@@ -386,7 +392,8 @@
   overflow-x: auto;
 }
 .spine-code code {
-  font-size: 11.5px;
+  font-family: var(--code-font);
+  font-size: 12px;
   line-height: 1.6;
   color: var(--paper);
   white-space: pre;
@@ -400,7 +407,7 @@
   gap: 16px;
   padding: 8px 16px;
   border-top: 1px solid var(--line-soft);
-  font-size: 11px;
+  font-size: 11.5px;
   color: var(--muted);
 }
 .spine-status-grow {
