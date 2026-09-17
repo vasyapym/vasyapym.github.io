@@ -7,7 +7,7 @@ Read this first. One screen; everything else is pointed to, not copied.
 - **main page** (`portfolio/shell`) — ink catalogue hero + 6-project rail (n140); opt-in Dark Souls realm over untouched catalogue (n149); realm shipped through r21 (n222), threshold "the same seven" (n180); owner device checks pending (Open threads 4).
 - **kitty-run** — ashen qualitative R1–R6 shipped (n84–n87); cap R007 shipped then owner-rejected ("a mess", n129/F009); accessory redesign LIKED through the dmca-redesign ledger — card R031 (F033), rig R032 (F035), nothing pending; knight direction awaits owner steer (n80: five-being rigs rejected, no partial keep).
 - **evening-forest** — all-tonal rewrite integrated (n33: Dm→Bb→F→C, no noise beds); owner real-device listen-pass pending.
-- **spine** — "The Seventh" card mark shipped (n10, `1373911`).
+- **spine** — UI overhaul R001–R006 shipped (chat-model amberframe salvage → house re-ink → polish → de-noise → mobile caps; owner liked R005/R006 look, F007); residual mobile overflow (user-authored nowrap rows) PARKED for the next iteration — handoff **h1** to code-iteration (n21, ledger `portfolio/projects/spine/.agent/iterations/design/ui-overhaul/`).
 - **explosion** — three modes shipped (n28–n31); dormant.
 - **practice-map** — deep-lesson reader + shadow-typing live (n35); next lesson-pair migration pending.
 - **planck-to-now** — fates feature PARKED (n26: all four fates black, scope creep); full code + design doc parked in `parked-fates/` (n28, branch `fates-parked-v1`); B1/B2 briefs kept as the return roadmap.

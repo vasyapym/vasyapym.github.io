@@ -320,3 +320,19 @@ No earlier design-iteration ledger exists for spine; numbering starts at R001.
 - Open question: owner verdict; if a hard clip is wanted for deliberately
   nowrap rows (boxes hidden beyond the edge instead of pannable), that is a
   one-line `overflow-x: hidden` swap but hides content — not recommended.
+
+## Feedback F009
+- Round: R006
+- Verdict: REJECTED (partial — the residual overflow persists beyond the
+  width-chain cap)
+- Scope: mobile, the pannable-strip case — user-authored nowrap/fat-gap rows
+  still extend beyond the visible area; R006's caps improved it but did not
+  eliminate it
+- Decision: park the remaining mobile-overflow work for the NEXT iteration —
+  R006's caps stay in effect meanwhile; the thread is handed to
+  code-iteration (engine-aware options: fit-to-width scaling, or a
+  touch-pan reconciliation that does not break the shipped touch drag)
+- User source: "it is still there but maybe got a bit better. for now lets
+  stop. this is for next iteration" (2026-09-17)
+- Artifact: artifacts/R006/overflow-nowrap-pan.png
+- Supersedes: none
