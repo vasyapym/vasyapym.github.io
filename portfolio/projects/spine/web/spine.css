@@ -1,28 +1,40 @@
 /* web/spine.css — scoped styles for the Spine layout-engine page.
-   Everything lives under .spine-root so nothing leaks into the shell. */
+   Skin: "amberframe" phosphor-CRT terminal. Everything lives under
+   .spine-root so nothing leaks into the shell. */
 
 .spine-root {
-  --spine-bg: var(--ink-bg, #14161a);
-  --spine-panel: rgba(238, 234, 224, 0.03);
-  --spine-line: var(--ink-line, rgba(238, 234, 224, 0.14));
-  --spine-text: var(--ink-text, #e6e9ef);
-  --spine-muted: var(--ink-muted, #8b93a1);
-  --spine-accent: var(--ink-accent, #5b8cff);
-  --spine-node: rgba(238, 234, 224, 0.06);
+  /* CRT palette (deliberate warm-black, distinct from the host ink field) */
+  --spine-bg: #0a0805;
+  --spine-bg-panel: #0d0a06;
+  --spine-bg-sunk: #060503;
+  --spine-amber: #ffb23f;
+  --spine-amber-hi: #ffe1b0;
+  --spine-amber-mid: #d9973a;
+  --spine-steel: #7b93b3;
+  --spine-danger: #ff6a3d;
+  --spine-text: #f0d9b0;
+  --spine-muted: #c99a5b;
+  --spine-faint: #8a5a12;
+  --spine-line: rgba(255, 178, 63, 0.16);
+  --spine-line-hard: rgba(255, 178, 63, 0.34);
+  --spine-node: rgba(255, 178, 63, 0.04);
 
   display: grid;
   grid-template-columns: 300px 1fr 340px;
-  grid-template-rows: auto 1fr;
+  grid-template-rows: auto 1fr auto;
   grid-template-areas:
     "topbar workspace code"
-    "inspector workspace code";
+    "inspector workspace code"
+    "status status status";
   /* The frame topbar is 60px + 1px rule; fill the rest of the viewport. */
   height: calc(100dvh - 61px);
   min-height: 560px;
   color: var(--spine-text);
-  background: var(--spine-bg);
-  font-family: var(--sans, system-ui, sans-serif);
+  background:
+    radial-gradient(120% 90% at 50% 40%, #100b05 0%, var(--spine-bg) 58%, #050402 100%);
+  font-family: var(--mono, ui-monospace, monospace);
   line-height: 1.5;
+  isolation: isolate;
   box-sizing: border-box;
 }
 
@@ -32,35 +44,54 @@
   box-sizing: border-box;
 }
 
+/* ---- CRT chrome (static; calm under reduced motion) ------------------------ */
+
+.spine-crt-scan {
+  position: absolute;
+  inset: 0;
+  z-index: 90;
+  pointer-events: none;
+  background: repeating-linear-gradient(
+    to bottom,
+    rgba(0, 0, 0, 0.22) 0 1px,
+    rgba(0, 0, 0, 0) 1px 3px
+  );
+  mix-blend-mode: multiply;
+}
+
+.spine-crt-bloom {
+  position: absolute;
+  inset: 0;
+  z-index: 91;
+  pointer-events: none;
+  background: radial-gradient(130% 100% at 50% 45%, rgba(255, 150, 20, 0.05), transparent 62%);
+  box-shadow:
+    inset 0 0 90px rgba(0, 0, 0, 0.75),
+    inset 0 0 260px rgba(0, 0, 0, 0.45);
+}
+
 /* ---- panes ---------------------------------------------------------------- */
 
 .spine-topbar {
   grid-area: topbar;
   display: flex;
   flex-direction: column;
-  gap: 14px;
-  background: var(--spine-panel);
+  gap: 12px;
+  background: linear-gradient(180deg, rgba(255, 178, 63, 0.05), transparent);
   border-right: 1px solid var(--spine-line);
-  padding: 16px;
-}
-
-/* The heading + toolbar live in the topbar above the inspector fields, so
-   the left rail reads the same as before; the fields simply continue below. */
-.spine-topbar .spine-heading {
-  margin: 0;
+  padding: 14px 16px;
 }
 
 .spine-inspector,
 .spine-code {
-  background: var(--spine-panel);
+  background: var(--spine-bg-panel);
   overflow-y: auto;
-  padding: 16px;
+  padding: 14px 16px;
 }
 
 .spine-inspector {
   grid-area: inspector;
   border-right: 1px solid var(--spine-line);
-  /* The topbar above already carries the top padding; fields start flush. */
   padding-top: 0;
 }
 
@@ -70,25 +101,27 @@
 }
 
 .spine-heading {
-  margin: 0 0 12px;
+  margin: 0 0 10px;
   font-size: 13px;
-  font-weight: 600;
-  letter-spacing: 0.05em;
-  text-transform: uppercase;
+  font-weight: 500;
+  letter-spacing: 0.22em;
   color: var(--spine-muted);
 }
 
+.spine-code-head .spine-heading {
+  margin: 0;
+}
+
 /* Selection echo: the engine writes the selected node's name here on every
-   render, so "where will + Item land" is answered next to the buttons. */
+   render, so "where will + item land" is answered next to the dock. */
 .spine-root #spine-sel-label {
-  color: var(--spine-accent);
-  text-transform: none;
+  color: var(--spine-amber);
   letter-spacing: 0;
   font-weight: 500;
 }
 
 .spine-root #spine-sel-label:not(:empty)::before {
-  content: "· ";
+  content: " · ";
 }
 
 /* ---- mode switch (narrow viewports only) ----------------------------------- */
@@ -97,98 +130,73 @@
   display: none;
 }
 
-.spine-modebar button[aria-pressed="true"] {
-  color: var(--spine-accent);
-  border-color: var(--spine-accent);
-  background: color-mix(in srgb, var(--spine-accent) 12%, transparent);
-  position: relative;
-  z-index: 1;
-}
-
-/* ---- inspector ------------------------------------------------------------- */
-
-.spine-toolbar {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 6px;
-}
-
-.spine-root button {
-  background: var(--spine-node);
-  color: var(--spine-text);
-  border: 1px solid var(--spine-line);
-  border-radius: 6px;
-  padding: 6px 10px;
-  cursor: pointer;
-  font-size: 13px;
-  font-family: inherit;
-  transition: border-color 160ms ease, color 160ms ease, background 160ms ease;
-}
-
-.spine-root button:hover {
-  border-color: var(--spine-accent);
-}
-
-/* Touch has no hover — the pressed state is the only tap feedback there is. */
-.spine-root button:active {
-  border-color: var(--spine-accent);
-  color: var(--spine-accent);
-  background: color-mix(in srgb, var(--spine-accent) 12%, transparent);
-}
-
-.spine-root button:disabled {
-  opacity: 0.4;
-  cursor: not-allowed;
-}
+/* ---- inspector readout ------------------------------------------------------ */
 
 .spine-root fieldset {
-  border: 1px solid var(--spine-line);
-  border-radius: 8px;
-  margin: 0 0 14px;
-  padding: 10px 12px;
+  border: 0;
+  border-bottom: 1px dashed var(--spine-line);
+  margin: 0 0 12px;
+  padding: 0 0 12px;
 }
 
 .spine-root legend {
-  color: var(--spine-muted);
-  font-size: 12px;
-  padding: 0 6px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  width: 100%;
+  color: var(--spine-faint);
+  font-size: 10px;
+  font-weight: 500;
+  letter-spacing: 0.26em;
+  padding: 0 0 6px;
+  text-transform: uppercase;
+}
+
+.spine-root legend::after {
+  content: "";
+  flex: 1;
+  height: 1px;
+  background: repeating-linear-gradient(90deg, var(--spine-line-hard) 0 2px, transparent 2px 5px);
 }
 
 .spine-field {
-  display: flex;
-  flex-direction: column;
-  gap: 4px;
-  margin-bottom: 10px;
+  display: grid;
+  grid-template-columns: 124px minmax(0, 1fr);
+  gap: 8px;
+  align-items: center;
+  margin-bottom: 8px;
 }
 
 .spine-field label {
-  font-size: 12px;
+  font-size: 10px;
+  letter-spacing: 0.08em;
   color: var(--spine-muted);
+  text-transform: lowercase;
+}
+
+.spine-field label::before {
+  content: "▸ ";
+  opacity: 0.5;
 }
 
 .spine-root select,
 .spine-root input {
-  color: var(--spine-text);
+  color: var(--spine-amber-hi);
   border: 1px solid var(--spine-line);
-  border-radius: 6px;
-  padding: 6px 8px;
-  font-size: 13px;
+  border-radius: 2px;
+  padding: 5px 8px;
+  font-size: 12px;
   font-family: inherit;
+  background: rgba(0, 0, 0, 0.35);
 }
 
-.spine-root input {
-  background: var(--spine-bg);
-}
-
-/* Native select chrome (the OS bezel gradient + white popup) fights the
-   dark theme — reset the appearance and draw a matching flat control with
-   a custom chevron instead. */
+/* Native select chrome fights the theme — reset the appearance and draw a
+   matching flat control with a custom amber chevron instead. */
 .spine-root select {
   appearance: none;
   -webkit-appearance: none;
   -moz-appearance: none;
-  background-color: var(--spine-node);
-  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8' viewBox='0 0 12 8'%3E%3Cpath d='M1 1l5 5 5-5' fill='none' stroke='%237d7669' stroke-width='1.5' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E");
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8' viewBox='0 0 12 8'%3E%3Cpath d='M1 1l5 5 5-5' fill='none' stroke='%23d9973a' stroke-width='1.5' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E");
   background-repeat: no-repeat;
   background-position: right 8px center;
   padding-right: 26px;
@@ -197,40 +205,76 @@
 
 .spine-root select:hover,
 .spine-root input:hover {
-  border-color: var(--spine-accent);
+  border-color: var(--spine-line-hard);
 }
 
 .spine-root select option {
-  background: var(--spine-bg);
+  background: var(--spine-bg-sunk);
   color: var(--spine-text);
 }
 
 .spine-root select:focus,
 .spine-root input:focus,
 .spine-root button:focus-visible {
-  outline: 2px solid var(--spine-accent);
-  outline-offset: 1px;
+  outline: 1px dashed var(--spine-amber);
+  outline-offset: 2px;
 }
 
 .spine-root .hidden {
   display: none;
 }
 
-/* ---- canvas ---------------------------------------------------------------- */
+/* ---- workspace: the protagonist ---------------------------------------------- */
 
 .spine-workspace {
   grid-area: workspace;
-  padding: 24px;
+  position: relative;
+  padding: 30px 24px 96px;
   overflow: auto;
+  background:
+    radial-gradient(90% 70% at 50% 30%, rgba(255, 150, 20, 0.05), transparent 70%),
+    repeating-linear-gradient(90deg, rgba(255, 178, 63, 0.045) 0 1px, transparent 1px 40px),
+    repeating-linear-gradient(0deg, rgba(255, 178, 63, 0.045) 0 1px, transparent 1px 40px),
+    var(--spine-bg-sunk);
+}
+
+.spine-ruler {
+  position: absolute;
+  pointer-events: none;
+  opacity: 0.5;
+  z-index: 1;
+}
+
+.spine-ruler-h {
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 14px;
+  background: repeating-linear-gradient(90deg, rgba(255, 178, 63, 0.14) 0 1px, transparent 1px 10px);
+  border-bottom: 1px solid rgba(255, 178, 63, 0.10);
+}
+
+.spine-ruler-v {
+  top: 0;
+  left: 0;
+  bottom: 0;
+  width: 14px;
+  background: repeating-linear-gradient(0deg, rgba(255, 178, 63, 0.14) 0 1px, transparent 1px 10px);
+  border-right: 1px solid rgba(255, 178, 63, 0.10);
 }
 
 #spine-canvas {
+  position: relative;
+  z-index: 2;
   min-height: 100%;
 }
 
+/* ---- nodes (engine-written classes) ------------------------------------------- */
+
 .spine-root .node {
+  position: relative;
   border: 1px solid var(--spine-line);
-  border-radius: 6px;
+  border-radius: 2px;
   padding: 10px;
   min-width: 60px;
   min-height: 40px;
@@ -239,20 +283,44 @@
   /* Scoped to nodes only: a gesture that starts on a box is always a drag,
      while the topbar, inspector and canvas gaps keep normal page scroll. */
   touch-action: none;
+  transition: outline-color 90ms linear, background-color 90ms linear;
+}
+
+/* Node tag: the machine id, printed above the box. Steel = machine notation
+   layer; amber stays the human/selection layer. */
+.spine-root .node::before {
+  content: attr(data-id);
+  position: absolute;
+  top: -15px;
+  left: -1px;
+  z-index: 3;
+  height: 13px;
+  padding: 0 5px;
+  display: inline-flex;
+  align-items: center;
+  font-size: 9px;
+  letter-spacing: 0.12em;
+  line-height: 1;
+  color: var(--spine-steel);
+  background: rgba(10, 8, 5, 0.92);
+  border: 1px solid var(--spine-line-hard);
+  opacity: 0.55;
+  pointer-events: none;
+  white-space: nowrap;
 }
 
 .spine-root .node.container {
-  background: color-mix(in srgb, var(--spine-accent) 8%, transparent);
+  background: rgba(255, 178, 63, 0.035);
 }
 
 /* Nested containers deepen one step per level so hierarchy stays legible
    in deep trees without adding borders or labels. */
 .spine-root .node .node.container {
-  background: color-mix(in srgb, var(--spine-accent) 13%, transparent);
+  background: rgba(255, 178, 63, 0.07);
 }
 
 .spine-root .node .node .node.container {
-  background: color-mix(in srgb, var(--spine-accent) 18%, transparent);
+  background: rgba(255, 178, 63, 0.11);
 }
 
 .spine-root .node.item {
@@ -260,77 +328,202 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  font-size: 13px;
+  font-size: 12px;
+  color: var(--spine-amber-hi);
 }
 
 .spine-root .node.selected {
-  outline: 2px solid var(--spine-accent);
+  outline: 1px solid var(--spine-amber);
   outline-offset: 1px;
+  box-shadow: 0 0 0 3px rgba(255, 178, 63, 0.08);
+  z-index: 2;
+}
+
+.spine-root .node.selected::before {
+  color: #120a00;
+  background: var(--spine-amber);
+  opacity: 1;
 }
 
 /* While carrying a box: the original dims so the translucent browser drag
    ghost reads as intentional, and the box under the cursor gets a dashed
    outline showing exactly where the drop would land. */
 .spine-root .node.dragging {
-  opacity: 0.45;
+  opacity: 0.3;
   cursor: grabbing;
 }
 
 .spine-root .node.drop-target {
-  outline: 2px dashed var(--spine-accent);
+  outline: 2px dashed var(--spine-amber);
   outline-offset: 1px;
+  background-color: rgba(255, 178, 63, 0.1);
 }
 
-/* ---- code output ----------------------------------------------------------- */
+/* ---- floating tool dock -------------------------------------------------------- */
+
+.spine-dock {
+  position: absolute;
+  left: 50%;
+  bottom: 14px;
+  transform: translateX(-50%);
+  z-index: 30;
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  max-width: calc(100% - 28px);
+  padding: 6px 8px;
+  background: rgba(10, 7, 2, 0.9);
+  border: 1px solid var(--spine-line-hard);
+  backdrop-filter: blur(2px);
+  overflow-x: auto;
+  scrollbar-width: none;
+}
+
+.spine-dock::-webkit-scrollbar {
+  display: none;
+}
+
+.spine-dock-sep {
+  width: 1px;
+  align-self: stretch;
+  background: var(--spine-line);
+  flex: none;
+}
+
+.spine-root button {
+  background: none;
+  color: var(--spine-amber-mid);
+  border: 1px solid var(--spine-line);
+  border-radius: 2px;
+  padding: 4px 9px;
+  cursor: pointer;
+  font-size: 11px;
+  font-family: inherit;
+  letter-spacing: 0.12em;
+  white-space: nowrap;
+  transition: color 120ms ease, border-color 120ms ease, background 120ms ease;
+}
+
+.spine-root button:hover {
+  color: var(--spine-amber-hi);
+  border-color: var(--spine-line-hard);
+  background: rgba(255, 178, 63, 0.08);
+}
+
+.spine-root button:active {
+  transform: translateY(1px);
+}
+
+/* Touch has no hover — the pressed state is the only tap feedback there is. */
+@media (hover: none) {
+  .spine-root button:active {
+    color: var(--spine-amber-hi);
+    border-color: var(--spine-amber);
+    background: rgba(255, 178, 63, 0.16);
+  }
+}
+
+.spine-root button:disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
+}
+
+.spine-root button.spine-danger:hover {
+  color: var(--spine-danger);
+  border-color: rgba(255, 106, 61, 0.5);
+  background: rgba(255, 106, 61, 0.10);
+}
+
+/* ---- code output: the paper-tape printout -------------------------------------- */
 
 .spine-code-head {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  margin-bottom: 12px;
-}
-
-.spine-code-head .spine-heading {
-  margin: 0;
+  margin-bottom: 10px;
 }
 
 .spine-code h3 {
-  font-size: 12px;
-  color: var(--spine-muted);
+  font-size: 10px;
+  font-weight: 500;
+  letter-spacing: 0.2em;
+  color: var(--spine-faint);
   margin: 14px 0 4px;
 }
 
 .spine-code pre {
-  background: var(--spine-bg);
+  background: var(--spine-bg-sunk);
   border: 1px solid var(--spine-line);
-  border-radius: 8px;
-  padding: 12px;
+  border-radius: 2px;
+  padding: 10px 12px 16px;
   overflow: auto;
   margin: 0;
 }
 
 .spine-code code {
   font-family: var(--mono, ui-monospace, monospace);
-  font-size: 12px;
+  font-size: 11.5px;
+  line-height: 1.55;
+  color: var(--spine-amber-mid);
   white-space: pre;
 }
 
-/* ---- narrow viewports: one page scroll, two modes ---------------------------
+/* ---- status line ----------------------------------------------------------------- */
+
+.spine-status {
+  grid-area: status;
+  display: flex;
+  align-items: center;
+  border-top: 1px solid var(--spine-line);
+  background: rgba(255, 178, 63, 0.04);
+  font-size: 10.5px;
+  letter-spacing: 0.08em;
+  color: var(--spine-muted);
+  overflow: hidden;
+  white-space: nowrap;
+  height: 26px;
+}
+
+.spine-status-seg {
+  padding: 0 10px;
+  border-right: 1px solid var(--spine-line);
+}
+
+.spine-status-grow {
+  flex: 1;
+  border-right: 0;
+  color: var(--spine-faint);
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.spine-status-cursor {
+  padding-right: 10px;
+  color: var(--spine-amber);
+  animation: spine-blink 1.05s steps(2) infinite;
+}
+
+@keyframes spine-blink {
+  50% { opacity: 0; }
+}
+
+/* ---- narrow viewports: one page scroll, two modes ---------------------------------
    The three desktop panes reorganise into a single column behind a sticky
-   chrome bar (selection heading + mode switch + tree actions). Design mode
-   shows canvas + inspector — the edit→see-result loop stays short; Code mode
-   swaps the canvas for the read-only Output pane. Both panes stay mounted so
-   the wasm engine's id bindings never notice the switch. */
+   chrome bar (selection heading + mode switch). Design mode shows canvas +
+   inspector — the edit→see-result loop stays short; Code mode swaps the
+   canvas for the read-only Output pane. Both panes stay mounted so the wasm
+   engine's id bindings never notice the switch. */
 
 @media (max-width: 1100px) {
   .spine-root {
     grid-template-columns: 1fr;
-    grid-template-rows: auto auto auto auto;
+    grid-template-rows: auto auto auto auto auto;
     grid-template-areas:
       "topbar"
       "workspace"
       "inspector"
-      "code";
+      "code"
+      "status";
     height: auto;
     min-height: calc(100dvh - 61px);
   }
@@ -340,28 +533,48 @@
     position: sticky;
     top: 0;
     z-index: 10;
+    flex-direction: row;
+    align-items: center;
     gap: 12px;
-    background: var(--spine-bg);
+    background: rgba(10, 8, 5, 0.96);
     border-right: none;
     border-bottom: 1px solid var(--spine-line);
-    padding: 12px 16px;
+    padding: 10px 16px;
+  }
+
+  .spine-topbar .spine-heading {
+    margin: 0;
+    flex: 1;
+    min-width: 0;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
   }
 
   .spine-modebar {
     display: flex;
+    gap: 0;
   }
 
   .spine-modebar button {
-    flex: 1;
+    padding: 8px 14px;
+    font-size: 11px;
   }
 
   .spine-modebar button:first-child {
-    border-radius: 6px 0 0 6px;
+    border-radius: 2px 0 0 2px;
   }
 
   .spine-modebar button:last-child {
-    border-radius: 0 6px 6px 0;
+    border-radius: 0 2px 2px 0;
     margin-left: -1px;
+  }
+
+  /* Bracketed-chip pressed state (amberframe's toggle). */
+  .spine-modebar button[aria-pressed="true"] {
+    color: #120a00;
+    background: var(--spine-amber);
+    border-color: var(--spine-amber);
   }
 
   .spine-root[data-mode="design"] .spine-code {
@@ -369,14 +582,11 @@
   }
 
   .spine-root[data-mode="code"] .spine-inspector,
-  .spine-root[data-mode="code"] .spine-workspace,
-  .spine-root[data-mode="code"] .spine-toolbar,
-  .spine-root[data-mode="code"] .spine-inspector-heading {
+  .spine-root[data-mode="code"] .spine-workspace {
     display: none;
   }
 
-  /* No pane-internal scrolling: the page is the single scroll context, so
-     the old 420px caps and their nested scrollbars go away. */
+  /* No pane-internal scrolling: the page is the single scroll context. */
   .spine-inspector,
   .spine-code {
     overflow: visible;
@@ -395,12 +605,13 @@
   }
 
   .spine-workspace {
-    padding: 16px;
+    padding: 20px 14px 96px;
     /* A workable canvas above the fold, growing with content. */
     min-height: min(62dvh, 520px);
+    border-top: 1px solid var(--spine-line);
   }
 
-  /* Touch targets: 44px minimum with slightly larger type. */
+  /* Touch targets: 44px minimum. */
   .spine-root button,
   .spine-root select,
   .spine-root input {
@@ -411,6 +622,21 @@
   .spine-root button {
     padding: 10px 12px;
   }
+
+  .spine-dock {
+    left: 8px;
+    right: 8px;
+    transform: none;
+    max-width: none;
+    flex-wrap: wrap;
+    justify-content: flex-start;
+    bottom: 10px;
+  }
+
+  .spine-field {
+    grid-template-columns: 1fr;
+    gap: 4px;
+  }
 }
 
 /* Keep touch entry at the no-auto-zoom threshold, including on hybrid devices.
@@ -419,5 +645,19 @@
   .spine-root select,
   .spine-root input {
     font-size: 16px;
+  }
+}
+
+/* ---- reduced motion ---------------------------------------------------------------- */
+
+@media (prefers-reduced-motion: reduce) {
+  .spine-status-cursor {
+    animation: none;
+  }
+
+  .spine-root *,
+  .spine-root *::before,
+  .spine-root *::after {
+    transition-duration: 0.01ms !important;
   }
 }

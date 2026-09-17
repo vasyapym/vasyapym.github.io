@@ -10,6 +10,11 @@
 // The wasm module is loaded once per browser session (module-level promise);
 // re-entering the page after SPA navigation just re-binds the fresh DOM via
 // the spineRebind hook the Go side exposes.
+//
+// Skin: "amberframe" phosphor-CRT terminal — canvas as the protagonist,
+// inspector as a readout rail, output as a paper-tape printout. React also
+// renders the CRT chrome overlays and the status line; the engine never
+// needs to know about them.
 
 import { useEffect, useState } from "react";
 import { mountSpine } from "./loader";
@@ -27,9 +32,13 @@ export default function SpinePage() {
 
   return (
     <div className="spine-root" data-mode={mode}>
+      {/* CRT chrome — pure overlay, pointer-transparent, engine-blind */}
+      <div className="spine-crt-scan" aria-hidden />
+      <div className="spine-crt-bloom" aria-hidden />
+
       <div className="spine-topbar">
         <h2 className="spine-heading spine-inspector-heading">
-          Inspector<span id="spine-sel-label" />
+          ◈ inspector<span id="spine-sel-label" />
         </h2>
 
         <div className="spine-modebar" role="group" aria-label="View mode">
@@ -38,39 +47,30 @@ export default function SpinePage() {
             aria-pressed={mode === "design"}
             onClick={() => setMode("design")}
           >
-            Design
+            design
           </button>
           <button
             type="button"
             aria-pressed={mode === "code"}
             onClick={() => setMode("code")}
           >
-            Code
+            code
           </button>
-        </div>
-
-        <div className="spine-toolbar">
-          <button id="spine-btn-add-item" type="button">+ Item</button>
-          <button id="spine-btn-add-container" type="button">+ Container</button>
-          <button id="spine-btn-delete" type="button">Delete</button>
-          <button id="spine-btn-undo" type="button" disabled>Undo</button>
-          <button id="spine-btn-redo" type="button" disabled>Redo</button>
-          <button id="spine-btn-reset" type="button">Start Anew</button>
         </div>
       </div>
 
       <aside className="spine-inspector" aria-label="Inspector">
 
         <div id="spine-panel-mode" className="spine-field">
-          <label htmlFor="spine-f-mode">Mode</label>
+          <label htmlFor="spine-f-mode">display</label>
           <select id="spine-f-mode" defaultValue="flex">
-            <option value="flex">Flexbox</option>
-            <option value="grid">Grid</option>
+            <option value="flex">flex</option>
+            <option value="grid">grid</option>
           </select>
         </div>
 
         <fieldset id="spine-panel-flex">
-          <legend>Flex</legend>
+          <legend>flex</legend>
           <div className="spine-field">
             <label htmlFor="spine-f-flex-direction">flex-direction</label>
             <select id="spine-f-flex-direction" defaultValue="row">
@@ -112,7 +112,7 @@ export default function SpinePage() {
         </fieldset>
 
         <fieldset id="spine-panel-grid" className="hidden">
-          <legend>Grid</legend>
+          <legend>grid</legend>
           <div className="spine-field">
             <label htmlFor="spine-f-grid-template-columns">grid-template-columns</label>
             <input id="spine-f-grid-template-columns" type="text" />
@@ -146,23 +146,45 @@ export default function SpinePage() {
       </aside>
 
       <section className="spine-workspace" aria-label="Layout canvas">
+        <span className="spine-ruler spine-ruler-h" aria-hidden />
+        <span className="spine-ruler spine-ruler-v" aria-hidden />
         <div id="spine-canvas" />
+
+        {/* Floating tool dock — the engine only binds these by id, the
+            placement is React's business. */}
+        <div className="spine-dock" role="toolbar" aria-label="Layout tools">
+          <button id="spine-btn-add-item" type="button">+ item</button>
+          <button id="spine-btn-add-container" type="button">+ container</button>
+          <button id="spine-btn-delete" type="button" className="spine-danger">delete</button>
+          <span className="spine-dock-sep" aria-hidden />
+          <button id="spine-btn-undo" type="button" disabled>undo</button>
+          <button id="spine-btn-redo" type="button" disabled>redo</button>
+          <button id="spine-btn-reset" type="button" className="spine-danger">start anew</button>
+        </div>
       </section>
 
       <aside className="spine-code">
         <div className="spine-code-head">
-          <h2 className="spine-heading">Output</h2>
-          <button id="spine-btn-copy" type="button">Copy</button>
+          <h2 className="spine-heading">output</h2>
+          <button id="spine-btn-copy" type="button">copy</button>
         </div>
-        <h3>HTML</h3>
+        <h3>index.html</h3>
         <pre>
           <code id="spine-code-html" />
         </pre>
-        <h3>CSS</h3>
+        <h3>layout.css</h3>
         <pre>
           <code id="spine-code-css" />
         </pre>
       </aside>
+
+      <footer className="spine-status" role="status">
+        <span className="spine-status-seg">~/spine.lay</span>
+        <span className="spine-status-seg spine-status-grow">
+          drag · nest · retune · copy
+        </span>
+        <span className="spine-status-cursor" aria-hidden>█</span>
+      </footer>
     </div>
   );
 }
