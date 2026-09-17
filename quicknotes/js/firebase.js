@@ -46,10 +46,20 @@ const POPUP_FALLBACK_CODES = new Set([
   "auth/popup-failed-to-open",
   "auth/operation-not-supported-in-this-environment",
   "auth/cancelled-popup-request",
+  "auth/web-storage-unsupported",
 ]);
 
 export async function login() {
   if (!auth) { alert("Firebase not configured — edit js/config.js"); return; }
+  // Embedded in the catalogue iframe, browsers (notably Safari) suppress
+  // popups from cross-context frames and the redirect would navigate the
+  // frame to Google, which refuses framing. Hand the whole sign-in to a
+  // top-level tab instead; same origin, so the session is shared.
+  if (window.self !== window.top) {
+    alert("Sign-in opens the app in a new tab (popups are restricted inside embedded frames). Sign in there, then reload this page — the session is shared.");
+    window.open(location.origin + "/quicknotes/", "_blank", "noopener");
+    return;
+  }
   const provider = new GoogleAuthProvider();
   provider.setCustomParameters({ prompt: "select_account" });
   try {
