@@ -439,18 +439,40 @@ function TrailCenterMark() {
 function QuicknotesCenterMark() {
   return (
     <svg viewBox="0 0 260 160" aria-hidden="true">
-      {/* scattered scratchpad tiles behind the open note */}
-      <rect x="52" y="34" width="52" height="66" rx="4" fill="#16161e" stroke="#3b4261" strokeWidth="1.5" transform="rotate(-7 78 67)" />
-      <rect x="158" y="40" width="52" height="66" rx="4" fill="#16161e" stroke="#3b4261" strokeWidth="1.5" transform="rotate(6 184 73)" />
-      {/* the open note, dog-eared, with the accent fold */}
-      <rect x="96" y="22" width="70" height="92" rx="5" fill="#16161e" stroke="#8b919c" strokeWidth="2" />
-      <path d="M138 22v26h28" fill="none" stroke="#7aa2f7" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
-      <line x1="108" y1="46" x2="136" y2="46" stroke="#3b4261" strokeWidth="2" />
-      <line x1="108" y1="62" x2="152" y2="62" stroke="#3b4261" strokeWidth="2" opacity="0.7" />
-      <line x1="108" y1="78" x2="146" y2="78" stroke="#3b4261" strokeWidth="2" opacity="0.7" />
-      <line x1="108" y1="94" x2="120" y2="94" stroke="#7aa2f7" strokeWidth="2.5" />
-      {/* the folder tray the note drops into */}
-      <path d="M84 132h94l-7 16H91Z" fill="none" stroke="#3b4261" strokeWidth="1.5" strokeLinejoin="round" />
+      <defs>
+        <pattern id="halftone" width="6" height="6" patternUnits="userSpaceOnUse">
+          <circle cx="1.5" cy="1.5" r="1.2" fill="#465059" opacity="0.55" />
+          <circle cx="4.5" cy="4.5" r="0.7" fill="#7b93b3" opacity="0.28" />
+        </pattern>
+      </defs>
+      <ellipse cx="130" cy="104" rx="112" ry="50" fill="url(#halftone)" opacity="0.35" />
+      <ellipse cx="130" cy="100" rx="72" ry="34" fill="url(#halftone)" opacity="0.3" />
+
+      {/* guide rails / drop path */}
+      <g stroke="#7b93b3" strokeWidth="1" opacity="0.55">
+        <path d="M84 10v36M176 10v36" />
+        <path d="M84 52v40M176 52v40" strokeDasharray="4 5" />
+      </g>
+      <circle cx="84" cy="48" r="4" fill="#26333b" stroke="#b6ac95" strokeWidth="1.2" />
+      <circle cx="176" cy="48" r="4" fill="#26333b" stroke="#b6ac95" strokeWidth="1.2" />
+
+      {/* falling dog-eared note */}
+      <g transform="rotate(-8 130 52)">
+        <path d="M100 22h48l14 14v48h-62z" fill="#26333b" stroke="#b6ac95" strokeWidth="1.5" strokeLinejoin="round" />
+        <path d="M148 22l14 14h-14z" fill="#465059" stroke="#b6ac95" strokeWidth="1.2" strokeLinejoin="round" />
+        <g stroke="#7b93b3" strokeWidth="2" opacity="0.6">
+          <path d="M108 56h30M108 64h40M108 72h22" />
+        </g>
+        <path d="M108 44h26" stroke="#7aa2f7" strokeWidth="3" />
+        <path d="M104 39v10" stroke="#7aa2f7" strokeWidth="2" />
+      </g>
+
+      {/* tray back, filed note, waiting slot, tray front */}
+      <path d="M40 92h180v30H40z" fill="#26333b" stroke="#7b93b3" strokeWidth="1.5" />
+      <path d="M62 84h58v38H62z" fill="#465059" stroke="#7b93b3" strokeWidth="1.2" />
+      <path d="M142 84h58v38h-58z" fill="none" stroke="#b6ac95" strokeWidth="1.2" strokeDasharray="5 4" opacity="0.8" />
+      <path d="M28 108h204l-10 34H38z" fill="#465059" stroke="#b6ac95" strokeWidth="1.5" strokeLinejoin="round" />
+      <path d="M40 130h180" stroke="#26333b" strokeWidth="2" opacity="0.85" />
     </svg>
   );
 }
