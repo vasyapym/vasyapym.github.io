@@ -172,12 +172,24 @@ function renderEditor() {
   if (document.activeElement !== el.title) el.title.value = n.title;
   if (document.activeElement !== el.path) el.path.value = n.path;
   if (document.activeElement !== el.body) el.body.value = n.body;
-  renderPreview();
   el.panes.className = "panes " + state.view;
+  // N021: pane class FIRST, then render — the gated renderPreview skips a
+  // hidden pane, so it must run AFTER the toggle has made it visible.
+  renderPreview();
   // Plain text labels — eye/pencil emoji removed (Decision Log).
   el.viewToggle.textContent = state.view === "view" ? "Edit" : "Preview";
 }
+// N021 (S3): the preview pane is display:none in mobile edit mode — a full
+// markdown innerHTML rebuild per keystroke there is pure waste (paste stall).
+const previewVisible = () => el.preview.offsetParent !== null;
+let previewQueued = false;
+function schedulePreview() {
+  if (previewQueued || !previewVisible()) return; // never queue work for a hidden pane
+  previewQueued = true;
+  requestAnimationFrame(() => { previewQueued = false; renderPreview(); });
+}
 function renderPreview() {
+  if (!previewVisible()) return; // full-markdown rebuild only when shown
   const n = active(); if (!n) return;
   el.preview.innerHTML = render(n.body, { exists: t => !!byTitle(t) });
 }
@@ -195,10 +207,23 @@ function createNote(partial = {}) {
   openNote(n.id); focusEl(el.title);
   return n;
 }
+// N021 (S3): persist used to run synchronously on EVERY keystroke (a paste
+// stalls the main thread on a whole-store localStorage write). It is now
+// debounced 300ms off the keystroke path and flushed on blur / hide.
+let persistTimer = 0;
+function schedulePersist() { clearTimeout(persistTimer); persistTimer = setTimeout(flushPersist, 300); }
+function flushPersist() {
+  clearTimeout(persistTimer); persistTimer = 0;
+  persist(); // synchronous full-notes localStorage write, now OFF the keystroke path
+}
+addEventListener("visibilitychange", () => { if (document.visibilityState === "hidden") flushPersist(); });
+addEventListener("pagehide", flushPersist);
+
 function updateActive(patch) {
   const n = active(); if (!n) return;
   Object.assign(n, patch, { updatedAt: Date.now(), _dirty: true });
-  persist(); schedulePush(n.id);
+  schedulePersist();  // was: persist() synchronously every keystroke
+  schedulePush(n.id); // Firebase push already debounced at 800ms (unchanged)
 }
 function deleteActive() {
   const n = active(); if (!n) return;
@@ -282,10 +307,9 @@ function openPalette(prefix = "") {
 // never be scrolled into view. visualViewport gives the real visible box; we
 // pin the dialog to its top and cap the list to what fits above the keyboard.
 // Gated to mobile; on desktop we clear the inline styles and the CSS wins.
-// NOTE (H3 interplay): pinViewport() now drives vv.offsetTop → 0 whenever iOS
-// tries to pan, so the `top` term below settles to `pad` (visible-box top).
-// The onViewport() handler always runs pin BEFORE this, so we read a settled
-// offsetTop, never a mid-pan value.
+// N021: offsetTop is no longer forced to 0 by any pin — the layout viewport is
+// stable (resizes-visual), so the `top` term below reads the live offsetTop
+// (≈0 in the plain-website model) via the shared onVV → readViewport path.
 function fitPalette() {
   if (!el.palette.open) return;
   if (!narrow.matches) { el.palette.style.top = ""; el.palList.style.maxHeight = ""; return; }
@@ -331,8 +355,8 @@ el.palInput.addEventListener("keydown", e => {
 el.palList.addEventListener("click", e => { const li = e.target.closest("li"); if (li) palRun(+li.dataset.i); });
 // Clear the keyboard-fit overrides so a later desktop open uses the CSS geometry.
 el.palette.addEventListener("close", () => { el.palette.style.top = ""; el.palList.style.maxHeight = ""; });
-// (visualViewport re-fit is now driven by the single onViewport() handler in
-// the keyboard-proof section, which calls fitPalette after pin + fitViewport.)
+// (visualViewport re-fit is driven by the single onVV() handler in the
+// plain-website keyboard section, which calls fitPalette last.)
 
 // ---------- view ----------
 function cycleView() {
@@ -364,7 +388,7 @@ el.path.onchange = el.path.onblur = () => {
   if (clean !== el.path.value) { updateActive({ path: clean }); el.path.value = clean; }
   renderTree();
 };
-el.body.oninput = () => { updateActive({ body: el.body.value }); renderPreview(); };
+el.body.oninput = () => { updateActive({ body: el.body.value }); schedulePreview(); };
 el.search.oninput = () => { state.filter = el.search.value; renderTree(); };
 el.preview.addEventListener("click", e => {
   const a = e.target.closest("a[data-wiki]");
@@ -414,86 +438,95 @@ syncNet();
 window.addEventListener("online", () => { syncNet(); pushAllDirty(); });
 window.addEventListener("offline", () => { syncNet(); setSync("offline", "err"); });
 
-// ---------- keyboard-proof app box + visual-viewport pin ----------
-// dvh ignores the software keyboard: when the caret would sit under it, iOS
-// pans the visual viewport (the tap-shift + "second layout level" feel).
-// Sizing the app grid to the real visible box (visualViewport.height) keeps
-// the caret above the keyboard so there is nothing to pan. Mobile-only; the
-// CSS fallback stays 100dvh. Pairs with fitPalette (same mechanism).
-function fitViewport() {
-  if (!narrow.matches) { document.documentElement.style.removeProperty("--app-h"); return; }
-  const vv = window.visualViewport;
-  document.documentElement.style.setProperty("--app-h", (vv ? vv.height : window.innerHeight) + "px");
-}
-// H3: iOS can leave the visual viewport PANNED (offsetTop > 0) after the
-// keyboard opens/closes; the grid is already sized to the visible box, so
-// re-pinning that box to layout-top is always the correct resolution.
-// N019: the pan is compensated, not fought. The owner's asymmetry gave the
-// mechanism away: it fires "after scrolling down and tapping text" — i.e.
-// tapping text near the BOTTOM, where the rising keyboard covers the caret.
-// iOS then pans the vv (offsetTop > 0, animated — "scrolls up a bit slowly")
-// to reveal it. Yanking that pan back (pre-N018) strands the caret behind
-// the keyboard; re-pinning it (N018) reads as a fight/crawl. Instead the
-// body FOLLOWS the pan: translateY(offsetTop) keeps the app box glued to
-// the visible top for ANY pan — no stranded band, no crawl — and the caret
-// stays exactly where iOS revealed it. Guards:
-// 1) subpixel offsets (wkbug 226354 fires vv scroll for 0.5px during inner
-//    scrolls) are ignored (threshold > 1),
-// 2) mid-touch nothing runs (re-checked on pointerup),
-// 3) a pinch (vv.scale !== 1) is never compensated or pinned.
-// The UNFOCUSED path keeps the scrollTo pin (dismiss settle): offsetTop → 0
-// and the translate resets. N013: in the catalogue card a surviving pan can
-// be HOST-level — the same-origin parent re-pin stays.
+// ================= N021: plain-website keyboard model =================
+// No body resize, no vv pin, no body translate, no settle loop. The layout
+// viewport is STABLE (viewport meta interactive-widget=resizes-visual); the
+// keyboard just OVERLAPS the page. The <textarea> is the only internal
+// scroller; while a field is focused we give the body keyboard-height bottom
+// padding (--kb-h), so iOS reveals the caret by scrolling the TEXTAREA —
+// offsetTop stays 0 and header/footer never move. Dismiss = padding off =
+// exact return. Robust to unknown Safari resize timing: the padding only
+// changes scroll range, never geometry; a focusin estimate covers a late or
+// absent resize. Replaces the deleted N010–N020 fit/pin/align/settle/tuck
+// cluster (five rounds of guards were the smell — the band was intrinsic to
+// sizing layout from vv.height, which Safari reports at animation START).
+// (narrow/focusEl are declared near the top of this file and reused here.)
+const FIELD = /^(INPUT|TEXTAREA|SELECT)$/;
+const fieldFocused = () => FIELD.test(document.activeElement?.tagName || "");
+
+// pointerDown kept: the header auto-hide logic below still consumes it.
 let pointerDown = false;
 addEventListener("pointerdown", () => { pointerDown = true; }, { passive: true });
 addEventListener("pointerup", () => { pointerDown = false; }, { passive: true });
 addEventListener("pointercancel", () => { pointerDown = false; }, { passive: true });
-const fieldFocused = () => /^(INPUT|TEXTAREA|SELECT)$/.test(document.activeElement?.tagName || "");
-function pinViewport() {
+
+// keyboard height = stable layout height − shrunken visual height
+function currentKbHeight() {
   const vv = window.visualViewport;
-  if (vv && vv.scale === 1 && vv.offsetTop > 1) {
-    window.scrollTo(0, 0);
-    try { if (window.self !== window.top) window.parent.scrollTo(0, 0); } catch { /* cross-origin */ }
-  }
+  if (!vv) return 0;
+  return Math.max(0, Math.round(window.innerHeight - vv.height));
 }
-function alignViewport() {
+function setKbHeight(px) {
+  document.documentElement.style.setProperty("--kb-h", (px || 0) + "px");
+}
+
+// ---- in-app Done (S2): iOS Safari can omit the accessory bar in iframes ----
+const doneBar = document.createElement("button");
+doneBar.id = "done-bar"; doneBar.type = "button"; doneBar.textContent = "Done";
+doneBar.setAttribute("aria-label", "Dismiss keyboard");
+doneBar.hidden = true;
+// pointerdown + preventDefault so the tap never steals focus before we blur.
+doneBar.addEventListener("pointerdown", e => {
+  e.preventDefault();
+  const a = document.activeElement;
+  if (a && FIELD.test(a.tagName)) a.blur();
+});
+addEventListener("DOMContentLoaded", () => document.body.appendChild(doneBar), { once: true });
+function positionDoneBar() {
   const vv = window.visualViewport;
-  if (!vv || vv.scale !== 1 || vv.offsetTop <= 1) { document.body.style.transform = ""; return; }
-  document.body.style.transform = `translateY(${vv.offsetTop}px)`;
+  if (doneBar.hidden || !vv) return;
+  const y = Math.round(vv.offsetTop + vv.height - (doneBar.offsetHeight || 36));
+  doneBar.style.transform = `translateY(${y}px)`; // anchor to the visible bottom
 }
-// D6 ordering holds: pin before fit before fitPalette, so the palette reads a
-// settled offsetTop. WebKit fires vv scroll only when a gesture FINISHES and
-// iOS may re-pan after the keyboard settles (~250-300ms), so the coalesced
-// frame is followed by a short settling loop that re-asserts on dismiss.
-// The loop is DISMISS-ONLY (wired from focusout): running it on every vv scroll
-// event re-yanks on iOS's subpixel offsetTop jitter — the rapid-glitch feel.
-let settleQueued = false;
-function settleViewport() {
-  if (!pointerDown) { // mid-touch skip covers BOTH branches (focusout re-runs)
-    if (fieldFocused()) alignViewport(); // iOS owns the pan; follow it (N019)
-    else { pinViewport(); alignViewport(); }
-  }
-  fitViewport();
-  fitPalette();
+function showDoneBar(show) {
+  if (show && narrow.matches) { doneBar.hidden = false; positionDoneBar(); }
+  else doneBar.hidden = true;
 }
-function settleLoop() {
+
+// ---- single rAF-throttled vv reader: NO page movement, only Done + palette ---
+let vvQueued = false;
+function readViewport() {
+  if (narrow.matches && fieldFocused()) setKbHeight(currentKbHeight());
+  positionDoneBar();
+  fitPalette(); // keep: command-palette dialog placement
+}
+function onVV() {
+  if (vvQueued) return;
+  vvQueued = true;
+  requestAnimationFrame(() => { vvQueued = false; readViewport(); });
+}
+window.visualViewport?.addEventListener("resize", onVV);
+window.visualViewport?.addEventListener("scroll", onVV);
+narrow.addEventListener?.("change", onVV);
+
+// ---- field focus: give textarea scroll room + show Done; blur: undo, flush ----
+document.addEventListener("focusin", e => {
+  if (!narrow.matches || !FIELD.test(e.target.tagName)) return;
+  // estimate first (robust to late/absent vv resize), onVV refines to the real value
+  setKbHeight(currentKbHeight() || Math.round(window.innerHeight * 0.4));
+  document.body.classList.add("kb");
+  showDoneBar(true);
+});
+document.addEventListener("focusout", () => {
   if (!narrow.matches) return;
-  for (const t of [0, 120, 300]) setTimeout(() => {
-    if (!fieldFocused() && !pointerDown && window.visualViewport && window.visualViewport.offsetTop > 1) settleViewport();
-  }, t);
-}
-function onViewport() {
-  if (settleQueued) return;
-  settleQueued = true;
-  requestAnimationFrame(() => { settleQueued = false; settleViewport(); });
-}
-window.visualViewport?.addEventListener("resize", onViewport);
-window.visualViewport?.addEventListener("scroll", onViewport);
-narrow.addEventListener?.("change", onViewport);
-// Keyboard close: vv resize may lag the dismissal on some iOS builds; a blur
-// of any field re-runs the settle (and its dismiss-only loop) shortly after —
-// the loop is what outlives the ~250-300ms dismiss animation.
-window.addEventListener("focusout", () => { if (narrow.matches) setTimeout(() => { onViewport(); settleLoop(); }, 80); });
+  setTimeout(() => { // debounce so field→field moves don't flicker
+    if (fieldFocused()) return;
+    document.body.classList.remove("kb");
+    setKbHeight(0);
+    showDoneBar(false);
+    flushPersist(); // guarantee the synced pipeline sees the final value
+  }, 60);
+});
 
 // ---------- mobile header auto-hide ("revert to non-sticky") ----------
 // The header is grid row 1 of a fixed body — permanently on screen, which the
@@ -535,41 +568,10 @@ function onHeaderScroll(e) {
 for (const sc of headerScrollers) sc?.addEventListener("scroll", onHeaderScroll, { passive: true });
 el.search.addEventListener("focus", () => setHeaderHidden(false));
 
-// ---------- keyboard-open: tuck the info footer away while typing ----------
-// N020 (why the footer moved): the keyboard is an OS overlay and Safari fires
-// vv resize at the START of its animation — the app box must end above the
-// keyboard, and the footer sits at the box bottom, so it was forced to ride
-// the shrink slightly out of sync (the "area below 32 notes · 3 folders"
-// moving; no web API can sync to the keyboard curve — native apps use
-// private APIs for that). The footer is info-only and useless while typing,
-// so instead of riding it TUCKS DOWN out of view (margin-bottom glide, the
-// mirror of the header auto-hide): nothing below the note count exists to
-// move. --status-h is measured BEFORE the class lands (the header does the
-// same with --top-h; post-collapse measurements are garbage).
-let kbHideTimer = 0;
-const FIELD = /^(INPUT|TEXTAREA|SELECT)$/;
-function setKeyboardOpen(open) {
-  if (open) {
-    document.documentElement.style.setProperty("--status-h", el.status.offsetHeight + "px");
-    document.body.classList.add("keyboard-open");
-  } else document.body.classList.remove("keyboard-open");
-}
-document.addEventListener("focusin", e => {
-  if (!narrow.matches || !FIELD.test(e.target.tagName)) return;
-  clearTimeout(kbHideTimer);
-  setKeyboardOpen(true);
-});
-document.addEventListener("focusout", e => {
-  if (!narrow.matches || !FIELD.test(e.target.tagName)) return;
-  clearTimeout(kbHideTimer);
-  kbHideTimer = setTimeout(() => setKeyboardOpen(false), 120);
-});
-narrow.addEventListener?.("change", () => { if (!narrow.matches) { clearTimeout(kbHideTimer); setKeyboardOpen(false); } });
-
 // ---------- boot ----------
 switchUser(null);
 el.sort.value = state.sort;
-onViewport();
+onVV();
 // Narrow viewports hide the shortcut cheat-sheet, so the search placeholder
 // shouldn't advertise keyboard shortcuts there either (Decision Log).
 const setSearchPlaceholder = () =>

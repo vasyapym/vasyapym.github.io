@@ -212,17 +212,11 @@ dialog::backdrop{background:rgba(0,0,0,.55)}
      app.js overrides max-height inline to fit above the software keyboard */
   #pal-list{max-height:60dvh}
 
-  /* footer: drop keyboard cheat-sheet, keep count, clear home indicator */
+  /* footer: drop keyboard cheat-sheet, keep count, clear home indicator.
+     N021: no tuck anymore — the footer is simply COVERED by the keyboard
+     (the layout viewport is stable, nothing resizes), so it never moves. */
   #status{padding:6px 12px calc(6px + env(safe-area-inset-bottom))}
   #status .shortcuts{display:none}
-  /* N020: while the keyboard is open (body.keyboard-open, wired from
-     focusin/focusout in app.js) the info footer TUCKS DOWN out of view via a
-     negative bottom margin glide — the mirror of the header auto-hide. It
-     must not ride the --app-h box shrink: the footer moving out of sync with
-     the keyboard animation was the "area below 32 notes · 3 folders moves"
-     complaint. --status-h is measured by app.js before the class lands. */
-  #status{transition:margin-bottom .25s ease-out}
-  body.keyboard-open #status{margin-bottom:calc(-1 * var(--status-h,40px))}
 
   /* editor/preview bottom safe area + tighter preview gutters.
      line-height:1.5 (was 1.6) is the honest "smaller editor" lever: the font
@@ -231,16 +225,22 @@ dialog::backdrop{background:rgba(0,0,0,.55)}
   #body{padding:16px;padding-bottom:calc(16px + env(safe-area-inset-bottom));line-height:1.5}
   .preview{padding:16px;padding-bottom:calc(16px + env(safe-area-inset-bottom))}
 
-  /* Keyboard-proof app box: dvh ignores the software keyboard, so iOS pans
-     the visual viewport to lift the caret (the tap-shift). app.js writes the
-     real visible height into --app-h (visualViewport.height); this fallback
-     keeps the dvh sizing if JS never runs. The height transition glides the
-     resize so it tracks the keyboard animation continuously instead of
-     landing in mid-animation steps (N018: the band beneath the textarea
-     growing, then "clumsily" snapping shut). */
-  body{height:var(--app-h,100dvh);transition:height .22s ease-out}
+  /* N021: keyboard-proof via body RESIZE is gone — the layout viewport is
+     stable (meta interactive-widget=resizes-visual; body stays 100vh/100dvh
+     from the base rule). The keyboard OVERLAPS the page; while a field is
+     focused (body.kb) the textarea gets keyboard-height bottom scroll room so
+     iOS reveals the caret by scrolling the TEXTAREA, not by panning the page.
+     --kb-h is written by app.js (real vv delta, focus-time estimate first). */
+  body.kb #body{padding-bottom:calc(16px + env(safe-area-inset-bottom) + var(--kb-h,0px))}
 }
-@media (prefers-reduced-motion:reduce){#sidebar,#backdrop,#top,#status,body{transition:none}}
+@media (prefers-reduced-motion:reduce){#sidebar,#backdrop,#top{transition:none}}
+/* N021 (S2): honest one-handed keyboard dismiss — iOS Safari can omit the
+   form-accessory bar ("Done") for fields in certain iframe presentations.
+   Anchored to the VISUAL viewport via transform (JS), never touches the
+   system keyboard. Colour matches the app's primary button (--acc). */
+#done-bar{position:fixed;top:0;right:12px;z-index:60;height:36px;min-width:64px;padding:0 16px;border:0;border-radius:8px;background:var(--acc,#3b82f6);color:#0b0d12;font:600 14px/36px var(--sans);box-shadow:0 2px 8px rgba(0,0,0,.4);will-change:transform}
+#done-bar[hidden]{display:none}
+@media (min-width:761px){#done-bar{display:none}}
 
 /* iOS Safari auto-zooms when a focused field is <16px, so this block used to
    hold every field at the 16px floor. Owner device feedback (N012) asked for
