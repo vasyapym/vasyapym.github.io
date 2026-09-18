@@ -1,0 +1,656 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>practice map — playground</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&family=IBM+Plex+Sans:wght@300;400;500&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg:#0b1317; --text:#eeeae0; --faint:rgba(238,234,224,.48);
+  --line:rgba(238,234,224,.26); --line-soft:rgba(238,234,224,.13);
+  --panel:rgba(238,234,224,.045); --accent:#d39b61; --accent-bright:#e8b57c; --accent-deep:#b97f45;
+  --panel-radius:20px; --pill-radius:999px;
+}
+*{box-sizing:border-box}
+html,body{margin:0;padding:0}
+body{
+  background:var(--bg); color:var(--text);
+  font-family:"IBM Plex Sans",system-ui,sans-serif; font-weight:300;
+  -webkit-font-smoothing:antialiased; text-rendering:optimizeLegibility;
+}
+::selection{background:rgba(211,155,97,.28)}
+
+/* ---------- film grain ---------- */
+.pg-grain{
+  position:fixed; inset:0; pointer-events:none; z-index:9; opacity:.06; mix-blend-mode:soft-light;
+  background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='140' height='140'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.85' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='140' height='140' filter='url(%23n)'/%3E%3C/svg%3E");
+}
+
+/* ---------- shared chrome ---------- */
+.mono,.pg-kicker,.pg-band,.pg-tier-name,.pg-tier-count,.pg-num,.pg-pill,.pg-chip,
+.pg-face-label,.pg-face-count,.pg-search input,.pg-footer,.pg-pal input,.pg-pal-kind,.pg-hint,.pg-empty{
+  font-family:"IBM Plex Mono",ui-monospace,monospace; text-transform:lowercase; letter-spacing:.04em;
+}
+.pg-pill{
+  display:inline-flex; align-items:center; gap:.5em;
+  font-size:.72rem; line-height:1; padding:.72em 1.1em;
+  border:1px solid var(--line); border-radius:var(--pill-radius);
+  background:transparent; color:var(--text); cursor:pointer;
+  transition:border-color .18s ease, color .18s ease, background .18s ease;
+}
+.pg-pill:hover{border-color:var(--accent); color:var(--accent-bright); background:rgba(211,155,97,.07)}
+.pg-pill:focus-visible,.pg-tier-row:focus-visible,.pg-face-head:focus-visible,.pg-pal-item:focus-visible{
+  outline:1px solid var(--accent); outline-offset:2px;
+}
+
+/* ---------- field / page ---------- */
+.pg-field{min-height:100vh; position:relative; overflow-x:hidden}
+.pg-field::before{
+  content:""; position:fixed; inset:0; pointer-events:none;
+  background:radial-gradient(120% 70% at 78% -10%, rgba(211,155,97,.09), transparent 62%);
+}
+.pg-page{position:relative; z-index:1; max-width:1200px; margin:0 auto; padding:54px 30px 72px}
+
+/* ---------- 1. hero ---------- */
+.pg-hero{
+  display:grid; grid-template-columns:minmax(0,1fr) 320px; gap:32px; align-items:end;
+  padding-bottom:44px; border-bottom:1px solid var(--line-soft);
+}
+.pg-hero-copy{min-width:0}
+.pg-kicker{font-size:.68rem; color:var(--faint); margin:0 0 22px}
+.pg-kicker b{font-weight:400; color:var(--accent)}
+.pg-head{
+  margin:0; font-weight:300; font-size:clamp(2.5rem,7.2vw,4.6rem);
+  line-height:.98; letter-spacing:-.025em; text-transform:lowercase;
+}
+.pg-head span{display:block}
+.pg-head .l2{color:var(--accent-bright)}
+.pg-lede{
+  margin:24px 0 0; max-width:46ch; font-size:.99rem; line-height:1.62; color:rgba(238,234,224,.72);
+}
+.pg-rail{
+  border:1px solid var(--line-soft); border-radius:var(--panel-radius); background:var(--panel);
+  padding:20px; display:flex; flex-direction:column; gap:14px; align-items:flex-start;
+}
+.pg-rail .pg-hint{font-size:.66rem; color:var(--faint); line-height:1.7; margin:0}
+
+/* ---------- 2. layout ---------- */
+.pg-layout{
+  margin-top:40px; display:grid; gap:28px 30px;
+  grid-template-columns:minmax(0,0.92fr) minmax(0,1.28fr);
+  grid-template-areas:"list search" "list panel";
+  align-items:start;
+}
+
+/* tier list */
+.pg-tier-list{grid-area:list; border-top:1px solid var(--line-soft)}
+.pg-tier-row{
+  width:100%; display:grid; gap:6px 18px; align-items:baseline; text-align:left;
+  grid-template-columns:minmax(0,1fr) auto;
+  padding:17px 16px 17px 14px; background:transparent; color:inherit;
+  border:0; border-bottom:1px solid var(--line-soft); border-left:2px solid transparent;
+  cursor:pointer; transition:background .18s ease, border-color .18s ease;
+}
+.pg-tier-row:hover{background:rgba(238,234,224,.03); border-left-color:var(--line)}
+.pg-tier-row.is-active{background:var(--panel); border-left-color:var(--accent)}
+.pg-tier-name{font-size:.78rem; color:var(--text); display:inline-flex; align-items:center; gap:.7em; flex-wrap:wrap}
+.pg-tier-row.is-active .pg-tier-name{color:var(--accent-bright)}
+.pg-tier-count{font-size:.66rem; color:var(--faint); white-space:nowrap; justify-self:end}
+.pg-tier-sample{
+  grid-column:1 / -1; font-size:.93rem; line-height:1.45; color:rgba(238,234,224,.62);
+  overflow:hidden; text-overflow:ellipsis; display:-webkit-box; -webkit-line-clamp:1; -webkit-box-orient:vertical;
+}
+.pg-band{
+  font-size:.6rem; line-height:1; padding:.42em .85em; border-radius:var(--pill-radius);
+  border:1px solid var(--line-soft); color:var(--faint); white-space:nowrap;
+}
+.pg-band[data-band="max"]{color:var(--accent-bright); border-color:rgba(232,181,124,.42)}
+.pg-band[data-band="high"]{color:var(--accent); border-color:rgba(211,155,97,.34)}
+.pg-band[data-band="medium"]{color:rgba(238,234,224,.70); border-color:var(--line-soft)}
+.pg-band[data-band="low"]{color:var(--faint); border-color:var(--line-soft)}
+.pg-band[data-band="thinking"]{color:var(--accent-deep); border-color:rgba(185,127,69,.46)}
+
+/* ---------- 5a. search ---------- */
+.pg-search{grid-area:search; display:flex; gap:10px; align-items:center}
+.pg-search input{
+  flex:1 1 auto; min-width:0; font-size:.72rem; color:var(--text);
+  background:var(--panel); border:1px solid var(--line-soft); border-radius:var(--pill-radius);
+  padding:.85em 1.15em; outline:none; transition:border-color .18s ease;
+}
+.pg-search input::placeholder{color:var(--faint)}
+.pg-search input:focus{border-color:var(--accent)}
+.pg-search .pg-pill{flex:0 0 auto}
+
+/* ---------- 3. tier panel ---------- */
+.pg-tier-panel{
+  grid-area:panel; border:1px solid var(--line-soft); border-radius:var(--panel-radius);
+  background:var(--panel); padding:24px 22px 26px; min-width:0;
+}
+.pg-tier-head{
+  display:flex; align-items:center; gap:.8em; flex-wrap:wrap;
+  padding-bottom:18px; margin-bottom:20px; border-bottom:1px solid var(--line-soft);
+}
+.pg-tier-head h2{
+  margin:0; font-family:"IBM Plex Mono",monospace; font-weight:400; text-transform:lowercase;
+  letter-spacing:.04em; font-size:.86rem; color:var(--accent-bright);
+}
+.pg-cards{display:flex; flex-direction:column; gap:14px}
+.pg-card{
+  border:1px solid var(--line-soft); border-radius:var(--panel-radius);
+  padding:18px 20px; display:grid; grid-template-columns:auto minmax(0,1fr); gap:4px 16px;
+  transition:border-color .2s ease, background .2s ease;
+}
+.pg-card:hover{border-color:var(--line)}
+.pg-card.is-flash{border-color:var(--accent); background:rgba(211,155,97,.06)}
+.pg-num{grid-row:1 / span 4; font-size:.68rem; color:var(--accent-deep); padding-top:.28em}
+.pg-card h3{margin:0; font-weight:400; font-size:1.04rem; line-height:1.35; letter-spacing:-.005em}
+.pg-card p{margin:.5em 0 0; font-size:.91rem; line-height:1.62; color:rgba(238,234,224,.68)}
+.pg-chips{display:flex; flex-wrap:wrap; gap:7px; margin-top:13px}
+.pg-chip{
+  font-size:.62rem; line-height:1; padding:.5em .85em; border-radius:var(--pill-radius);
+  border:1px solid var(--line-soft); color:var(--faint);
+}
+.pg-chip.is-more{color:var(--accent-deep); border-color:rgba(185,127,69,.34)}
+.pg-card-foot{margin-top:15px}
+
+/* ---------- 4. folders ---------- */
+.pg-faces{display:flex; flex-direction:column; gap:24px}
+.pg-face{position:relative; border:1px solid var(--line-soft); border-radius:var(--panel-radius); background:rgba(238,234,224,.02)}
+.pg-face::before{
+  content:""; position:absolute; top:-9px; left:20px; width:92px; height:10px;
+  border:1px solid var(--line-soft); border-bottom:0; border-radius:9px 9px 0 0;
+  background:#101a1f;
+}
+.pg-face.is-open::before{border-color:rgba(211,155,97,.36)}
+.pg-face.is-open{border-color:rgba(211,155,97,.28)}
+.pg-face-head{
+  width:100%; text-align:left; background:transparent; border:0; color:inherit; cursor:pointer;
+  padding:16px 20px; display:block; min-height:56px; border-radius:var(--panel-radius);
+}
+.pg-face-top{display:flex; align-items:baseline; gap:.7em; flex-wrap:wrap}
+.pg-face-label{font-size:.74rem; color:var(--text)}
+.pg-face.is-open .pg-face-label{color:var(--accent-bright)}
+.pg-face-count{font-size:.64rem; color:var(--faint)}
+.pg-face-mark{margin-left:auto; font-size:.66rem; color:var(--faint); font-family:"IBM Plex Mono",monospace}
+.pg-peek{margin:11px 0 0; padding:0; list-style:none; display:flex; flex-direction:column; gap:5px}
+.pg-peek li{
+  font-size:.88rem; line-height:1.45; color:rgba(238,234,224,.52); padding-left:16px; position:relative;
+  overflow:hidden; text-overflow:ellipsis; white-space:nowrap;
+}
+.pg-peek li::before{content:"—"; position:absolute; left:0; color:var(--line)}
+.pg-shelf{
+  padding:4px 20px 20px; display:flex; flex-direction:column; gap:12px;
+  border-top:1px solid var(--line-soft); margin-top:4px; padding-top:18px;
+}
+.pg-empty{font-size:.7rem; color:var(--faint); padding:12px 2px}
+
+/* ---------- 5b. palette ---------- */
+.pg-palette{
+  position:fixed; inset:0; z-index:40; display:none;
+  background:rgba(7,12,15,.72); backdrop-filter:blur(6px);
+}
+.pg-palette.is-open{display:block}
+.pg-pal{
+  position:absolute; top:11vh; left:50%; transform:translateX(-50%); width:min(560px,calc(100% - 40px));
+  border:1px solid var(--line); border-radius:var(--panel-radius); background:#0d171c;
+  box-shadow:0 30px 80px rgba(0,0,0,.55); overflow:hidden;
+}
+.pg-pal input{
+  width:100%; border:0; border-bottom:1px solid var(--line-soft); background:transparent;
+  color:var(--text); font-size:.78rem; padding:18px 22px; outline:none;
+}
+.pg-pal input::placeholder{color:var(--faint)}
+.pg-pal-list{max-height:52vh; overflow:auto; padding:8px}
+.pg-pal-item{
+  width:100%; display:flex; align-items:baseline; gap:12px; text-align:left;
+  padding:11px 14px; border:0; border-radius:14px; background:transparent; color:inherit; cursor:pointer;
+}
+.pg-pal-item.is-sel{background:rgba(211,155,97,.12)}
+.pg-pal-kind{font-size:.6rem; color:var(--accent-deep); flex:0 0 58px}
+.pg-pal-title{font-size:.94rem; line-height:1.35; overflow:hidden; text-overflow:ellipsis; white-space:nowrap}
+.pg-pal-item.is-sel .pg-pal-title{color:var(--accent-bright)}
+.pg-pal-sub{margin-left:auto; font-family:"IBM Plex Mono",monospace; font-size:.6rem; letter-spacing:.04em; color:var(--faint); white-space:nowrap}
+.pg-pal-foot{border-top:1px solid var(--line-soft); padding:11px 22px; font-family:"IBM Plex Mono",monospace; font-size:.6rem; letter-spacing:.04em; color:var(--faint)}
+
+/* ---------- footer ---------- */
+.pg-footer{
+  margin-top:56px; padding-top:22px; border-top:1px solid var(--line-soft);
+  display:flex; justify-content:space-between; gap:16px; flex-wrap:wrap;
+  font-size:.64rem; color:var(--faint);
+}
+
+/* ---------- 6. mobile ---------- */
+@media (max-width:700px){
+  .pg-page{padding:36px 18px 56px}
+  .pg-hero{grid-template-columns:1fr; gap:26px; padding-bottom:32px}
+  .pg-rail{width:100%}
+  .pg-layout{margin-top:30px; grid-template-columns:1fr; grid-template-areas:"list" "search" "panel"; gap:22px}
+  .pg-tier-row{grid-template-columns:1fr; padding:16px 12px; min-height:64px}
+  .pg-tier-count{justify-self:start}
+  .pg-tier-panel{padding:20px 16px 22px}
+  .pg-card{grid-template-columns:1fr; padding:16px}
+  .pg-num{grid-row:auto; padding-top:0; margin-bottom:6px}
+  .pg-face-head{padding:18px 16px; min-height:64px}
+  .pg-shelf{padding:16px 14px 18px}
+  .pg-pal{top:0; left:0; transform:none; width:100%; border-radius:0 0 var(--panel-radius) var(--panel-radius); border-left:0; border-right:0; border-top:0}
+  .pg-pal-list{max-height:64vh}
+}
+</style>
+</head>
+<body>
+<div class="pg-grain" aria-hidden="true"></div>
+
+<div class="pg-field">
+  <div class="pg-page">
+
+    <!-- ============ 1. HERO ============ -->
+    <header class="pg-hero">
+      <div class="pg-hero-copy">
+        <p class="pg-kicker" id="pgKicker"></p>
+        <h1 class="pg-head">
+          <span class="l1">tier by tier.</span>
+          <span class="l2">model by model.</span>
+        </h1>
+        <p class="pg-lede">
+          Журнал эксперимента: каждый ярус — это модель, а его уроки — её обучающие образцы.
+          Один и тот же материал, разные объяснения — видно, как меняется манера преподавания от яруса к ярусу.
+        </p>
+      </div>
+      <aside class="pg-rail">
+        <button class="pg-pill" type="button" data-stub="graph">explore concept graph ↗</button>
+        <p class="pg-hint">граф понятий собирается отдельно</p>
+      </aside>
+    </header>
+
+    <!-- ============ 2–5. LAYOUT ============ -->
+    <main class="pg-layout">
+      <nav class="pg-tier-list" id="pgTierList" aria-label="model tiers"></nav>
+
+      <div class="pg-search">
+        <input id="pgSearch" type="search" autocomplete="off" spellcheck="false"
+               placeholder="фильтр уроков — название и описание" aria-label="filter lessons">
+        <button class="pg-pill" type="button" data-open-palette>⌘k</button>
+      </div>
+
+      <section class="pg-tier-panel" id="pgPanel" aria-live="polite"></section>
+    </main>
+
+    <!-- ============ FOOTER ============ -->
+    <footer class="pg-footer">
+      <span>practice map · playground</span>
+      <span id="pgFootCount"></span>
+    </footer>
+  </div>
+</div>
+
+<!-- ============ PALETTE ============ -->
+<div class="pg-palette" id="pgPalette" role="dialog" aria-modal="true" aria-label="jump to tier or lesson">
+  <div class="pg-pal">
+    <input id="pgPalInput" type="text" autocomplete="off" spellcheck="false" placeholder="jump to tier or lesson…">
+    <div class="pg-pal-list" id="pgPalList"></div>
+    <div class="pg-pal-foot">↑↓ navigate · ⏎ open · esc close</div>
+  </div>
+</div>
+
+<script>
+/* ============================================================
+   DATA — the single source. Everything visible derives from it.
+   Shape: [{id, name, band, volumes?:[{name, topicIds}], topics:[{id,title,summary,concepts}]}]
+   Append entries to add lessons / tiers. Nothing below is hardcoded copy.
+   ============================================================ */
+const DATA = [
+  {
+    id:"astra-6-max", name:"astra-6-max", band:"max",
+    topics:[
+      { id:"ddos", title:"DDoS: анатомия атаки и оборона периметра",
+        summary:"Как объёмные и прикладные атаки валят сервис: от SYN-флуда и амплификации до медленных L7-запросов. Разбираем порядок действий — обнаружение, фильтрация, перенос трафика в центр очистки.",
+        concepts:["l3/l4 flood","l7 flood","amplification","syn cookies","anycast","rate limiting","waf","scrubbing center","botnet"] },
+      { id:"lanthimos", title:"Йоргос Лантимос: грамматика неудобного кадра",
+        summary:"Почему его фильмы смотрятся как этнографический отчёт о людях: ровная интонация актёров, широкоугольная оптика, ритуал вместо сюжета. Разбираем приёмы, которые держат зрителя на дистанции.",
+        concepts:["греческая странная волна","фишай","симметрия кадра","абсурдизм","ритуал","плоская интонация"] }
+    ]
+  },
+  {
+    id:"fable-5.1-high", name:"fable-5.1-high", band:"high",
+    topics:[
+      { id:"kubernetes", title:"Kubernetes: от пода до продакшена",
+        summary:"Слой за слоем: под, деплоймент, сервис, ингресс. Что такое желаемое состояние, кто его сверяет, и почему кластер лечит себя сам, пока вы описываете результат, а не шаги.",
+        concepts:["pod","deployment","service","ingress","configmap","statefulset","hpa","rbac","etcd"] },
+      { id:"hitchcock", title:"Хичкок: саспенс как инженерия",
+        summary:"Бомба под столом, о которой знает только зритель. Разбираем, как режиссёр распределяет информацию между камерой, героем и залом — и получает напряжение из обычного разговора.",
+        concepts:["саспенс","макгаффин","долли-зум","монтаж взгляда","точка зрения","бомба под столом"] },
+      { id:"agentic", title:"Агентное программирование: цикл, инструменты, память",
+        summary:"Модель перестаёт быть текстовым автоматом и получает петлю: план → вызов инструмента → наблюдение → правка плана. Где ставить ограничители и как не дать агенту закольцеваться.",
+        concepts:["react-цикл","вызов инструментов","планировщик","краткая память","долгая память","критик","песочница"] },
+      { id:"agi", title:"AGI: определения, пороги, споры",
+        summary:"Что вообще считают «общим» интеллектом и почему у каждой школы свой порог. Бенчмарки, перенос навыка, эмерджентность — и аккуратный разбор того, где спор терминологический, а где содержательный.",
+        concepts:["обобщение","перенос навыка","масштабирование","эмерджентность","бенчмарки","alignment"] }
+    ]
+  },
+  {
+    id:"astra-6-medium", name:"astra-6-medium", band:"medium",
+    topics:[
+      { id:"rust", title:"Rust: владение, заимствование, время жизни",
+        summary:"Главная идея языка — у значения всегда один хозяин. Смотрим, как компилятор ловит гонки и висячие ссылки ещё до запуска, и почему борьба с borrow checker заканчивается через неделю.",
+        concepts:["ownership","borrow checker","lifetimes","result","трейты","cargo","match"] },
+      { id:"symfony-laravel", title:"Symfony и Laravel: два взгляда на PHP-фреймворк",
+        summary:"Строгая сборка из компонентов против батареек в комплекте. Сравниваем контейнер, слой данных и маршрутизацию, чтобы выбор фреймворка был инженерным, а не вкусовым.",
+        concepts:["di-контейнер","doctrine","eloquent","маршрутизация","очереди","artisan","бандлы"] }
+    ]
+  },
+  {
+    id:"fable-5.1-low", name:"fable-5.1-low", band:"low",
+    topics:[
+      { id:"go", title:"Go: флагманский урок о конкурентности",
+        summary:"Флагманский урок яруса: горутины стоят копейки, каналы связывают их без мьютексов, select разруливает ожидание. Заодно — почему язык намеренно отказывается от половины привычных абстракций.",
+        concepts:["горутины","каналы","select","контекст","интерфейсы","defer","go mod","gc","профилирование"] }
+    ]
+  },
+  {
+    id:"opus-4.8-thinking", name:"opus-4.8-thinking", band:"thinking",
+    volumes:[
+      { name:"vol 01 — first contact",        topicIds:["lx-shell","lx-fs","lx-nav","lx-help"] },
+      { name:"vol 02 — permissions & users",  topicIds:["lx-perm","lx-users","lx-sudo"] },
+      { name:"vol 03 — processes & pipes",    topicIds:["lx-proc","lx-signals","lx-redirect","lx-pipes","lx-textools","lx-jobs"] },
+      { name:"vol 04 — scripting & env",      topicIds:["lx-bash","lx-vars","lx-flow","lx-cron"] },
+      { name:"vol 05 — packages",             topicIds:["lx-pkg","lx-repo","lx-build"] }
+    ],
+    topics:[
+      { id:"lx-shell", title:"Первый вход: оболочка, приглашение, команда",
+        summary:"Что именно вы видите после логина: кто печатает приглашение, как разбирается строка, чем команда отличается от встроенной функции оболочки.",
+        concepts:["shell","prompt","bash","встроенные команды","история"] },
+      { id:"lx-fs", title:"Файловая система: один корень на всё",
+        summary:"Почему в Linux нет дисков C: и D:, зачем нужны /etc, /var, /usr и /proc, и как монтирование пристраивает новое устройство внутрь единого дерева.",
+        concepts:["fhs","корень","монтирование","/etc","/var","/proc","инод"] },
+      { id:"lx-nav", title:"Навигация: ls, cd, pwd, tree",
+        summary:"Ходим по дереву каталогов и учимся читать вывод ls -l построчно: тип, права, владелец, размер, время. Относительные и абсолютные пути.",
+        concepts:["ls","cd","pwd","tree","абсолютный путь","относительный путь","скрытые файлы"] },
+      { id:"lx-help", title:"Справка на месте: man, --help, tldr",
+        summary:"Система сама себе документация. Разделы man, навигация по странице, чтение синопсиса — привычка проверять справку экономит часы поисков.",
+        concepts:["man","разделы man","--help","apropos","tldr","info"] },
+
+      { id:"lx-perm", title:"Права доступа: rwx, восьмеричная запись, umask",
+        summary:"Три набора битов и три категории субъектов. Читаем drwxr-xr-x без запинки, считаем 755 в уме, разбираем, откуда берутся права у только что созданного файла.",
+        concepts:["rwx","chmod","chown","umask","sticky bit","setuid"] },
+      { id:"lx-users", title:"Пользователи и группы: кто есть кто в системе",
+        summary:"Где на самом деле живут учётные записи, чем uid отличается от имени, зачем нужны служебные пользователи без оболочки и как группы дают доступ без раздачи root.",
+        concepts:["/etc/passwd","/etc/shadow","uid","gid","useradd","usermod","группы"] },
+      { id:"lx-sudo", title:"sudo и root: привилегии без риска",
+        summary:"Почему постоянная работа под root — плохая привычка. Разбираем sudoers, журналирование привилегированных команд и принцип наименьших прав на практике.",
+        concepts:["root","sudo","sudoers","visudo","наименьшие привилегии","аудит"] },
+
+      { id:"lx-proc", title:"Процессы: ps, top, дерево родителей",
+        summary:"Всё в системе — процесс с номером и родителем. Читаем ps aux, смотрим нагрузку в top/htop, разбираемся с зомби и сиротами.",
+        concepts:["pid","ppid","ps","top","htop","nice","зомби-процесс"] },
+      { id:"lx-signals", title:"Сигналы: kill, trap и мягкая остановка",
+        summary:"kill не «убивает», а отправляет сигнал. Разница между TERM и KILL, зачем перехватывать сигнал в скрипте и как выглядит корректное завершение работы.",
+        concepts:["sigterm","sigkill","sighup","kill","trap","graceful shutdown"] },
+      { id:"lx-redirect", title:"Перенаправление: stdin, stdout, stderr",
+        summary:"Три стандартных потока и операторы > >> < 2>. Почему ошибки не попадают в файл вместе с выводом и как их туда всё-таки отправить.",
+        concepts:["stdin","stdout","stderr","> и >>","2>&1","/dev/null","heredoc"] },
+      { id:"lx-pipes", title:"Конвейеры: | , tee, xargs",
+        summary:"Философия маленьких утилит: вывод одной становится вводом другой. Собираем цепочку из четырёх команд и решаем задачу, для которой в другой системе писали бы программу.",
+        concepts:["pipe","tee","xargs","подстановка команд","сортировка","uniq"] },
+      { id:"lx-textools", title:"grep, sed, awk: текст как поток",
+        summary:"Три инструмента и понятная граница между ними: найти, заменить, посчитать по колонкам. Регулярные выражения вводим ровно в том объёме, который нужен на практике.",
+        concepts:["grep","sed","awk","регулярные выражения","поля","подстановка","cut"] },
+      { id:"lx-jobs", title:"Фоновые задачи: &, jobs, nohup, screen",
+        summary:"Как отправить долгую команду в фон, вернуть её обратно и не потерять при обрыве ssh. Задания оболочки против настоящей демонизации.",
+        concepts:["&","jobs","fg","bg","nohup","screen","tmux"] },
+
+      { id:"lx-bash", title:"Bash-скрипт: шебанг, аргументы, коды возврата",
+        summary:"Превращаем историю команд в файл: строка #!, права на исполнение, позиционные аргументы и осмысленный exit code, по которому скрипт можно встроить в конвейер.",
+        concepts:["shebang","$1 $@","exit code","set -e","chmod +x","кавычки"] },
+      { id:"lx-vars", title:"Переменные и окружение: export, PATH, .bashrc",
+        summary:"Чем локальная переменная отличается от экспортированной, как оболочка ищет исполняемый файл и в каком порядке читаются файлы инициализации.",
+        concepts:["export","path","env",".bashrc",".profile","подстановка переменных"] },
+      { id:"lx-flow", title:"Ветвления и циклы: if, case, for, while",
+        summary:"Управляющие конструкции оболочки и коварство теста [ ]. Пишем скрипт обхода каталога, который не ломается на пробелах в именах файлов.",
+        concepts:["if","test [ ]","case","for","while","read","массивы"] },
+      { id:"lx-cron", title:"Автоматизация: cron и systemd timers",
+        summary:"Пять полей расписания и типичные грабли: урезанный PATH, отсутствие вывода, задачи в двух экземплярах. Когда стоит перейти на таймеры systemd.",
+        concepts:["crontab","расписание","systemd timer","логи задач","блокировка","окружение cron"] },
+
+      { id:"lx-pkg", title:"Пакетные менеджеры: apt, dnf, pacman",
+        summary:"Пакет, зависимость, база установленного. Обновление системы одной командой и почему разные дистрибутивы говорят об одном и том же разными словами.",
+        concepts:["apt","dnf","pacman","зависимости","dpkg","rpm","обновление"] },
+      { id:"lx-repo", title:"Репозитории и ключи: откуда берётся софт",
+        summary:"Список источников, подписи и доверие. Как добавить сторонний репозиторий, ничего не сломав, и чем это отличается от скачивания случайного .deb.",
+        concepts:["sources.list","gpg-ключ","подпись пакета","ppa","приоритеты","зеркала"] },
+      { id:"lx-build", title:"Сборка из исходников: configure, make, install",
+        summary:"Классическая тройка команд, зачем нужны заголовочные файлы -dev и как не засорить систему файлами вне контроля пакетного менеджера.",
+        concepts:["make","./configure","prefix","-dev пакеты","checkinstall","зависимости сборки"] }
+    ]
+  }
+];
+
+/* ============================================================
+   DERIVED HELPERS
+   ============================================================ */
+const $  = (s,r=document)=>r.querySelector(s);
+const esc = s => String(s).replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+const pad = n => String(n).padStart(2,'0');
+const tierById = id => DATA.find(t => t.id === id);
+const topicOf  = (t,id) => t.topics.find(x => x.id === id);
+
+function orderedTopics(tier){
+  if (!tier.volumes) return tier.topics;
+  const out = [];
+  tier.volumes.forEach(v => v.topicIds.forEach(id => { const tp = topicOf(tier,id); if (tp && !out.includes(tp)) out.push(tp); }));
+  tier.topics.forEach(tp => { if (!out.includes(tp)) out.push(tp); });
+  return out;
+}
+const totalLessons = () => DATA.reduce((n,t) => n + t.topics.length, 0);
+const plural = (n,w) => n + " " + w + (n === 1 ? "" : "s");
+
+const state = { tier: DATA[0].id, q:"", open:new Set(), pal:false, pq:"", pi:0, flash:null };
+
+/* ============================================================
+   1. HERO + FOOTER COUNTS (derived, never hardcoded)
+   ============================================================ */
+function renderChrome(){
+  const m = DATA.length, l = totalLessons();
+  $("#pgKicker").innerHTML = "playground <b>·</b> " + esc(plural(m,"model")) + " · " + esc(plural(l,"lesson"));
+  $("#pgFootCount").textContent = plural(m,"model") + " · " + plural(l,"lesson") + " · ⌘k";
+}
+
+/* ============================================================
+   2. TIER LIST
+   ============================================================ */
+function renderTierList(){
+  $("#pgTierList").innerHTML = DATA.map(t => {
+    const first = orderedTopics(t)[0];
+    return `<button class="pg-tier-row${t.id===state.tier?' is-active':''}" type="button" data-tier="${esc(t.id)}" aria-pressed="${t.id===state.tier}">
+      <span class="pg-tier-name">${esc(t.name)}<span class="pg-band" data-band="${esc(t.band)}">${esc(t.band)}</span></span>
+      <span class="pg-tier-count">${esc(plural(t.topics.length,"lesson"))}</span>
+      <span class="pg-tier-sample">${esc(first ? first.title : "")}</span>
+    </button>`;
+  }).join("");
+}
+
+/* ============================================================
+   3. CARDS  /  4. FOLDER FACES  /  5a. SEARCH FILTER
+   ============================================================ */
+function cardHTML(tier, tp, num){
+  const shown = tp.concepts.slice(0,8);
+  const extra = tp.concepts.length - shown.length;
+  return `<article class="pg-card${state.flash===tp.id?' is-flash':''}" id="c-${esc(tier.id)}-${esc(tp.id)}">
+    <span class="pg-num">${pad(num)}</span>
+    <h3>${esc(tp.title)}</h3>
+    <p>${esc(tp.summary)}</p>
+    <div class="pg-chips">
+      ${shown.map(c=>`<span class="pg-chip">${esc(c)}</span>`).join("")}
+      ${extra>0?`<span class="pg-chip is-more">+${extra} more</span>`:""}
+    </div>
+    <div class="pg-card-foot"><button class="pg-pill" type="button" data-stub="lesson">open lesson →</button></div>
+  </article>`;
+}
+
+function renderPanel(){
+  const tier = tierById(state.tier);
+  const ord  = orderedTopics(tier);
+  const num  = new Map(ord.map((tp,i)=>[tp.id,i+1]));
+  const q    = state.q.trim().toLowerCase();
+  const hit  = tp => !q || (tp.title + " " + tp.summary).toLowerCase().includes(q);
+
+  const head = `<div class="pg-tier-head">
+      <h2>${esc(tier.name)}</h2>
+      <span class="pg-band" data-band="${esc(tier.band)}">${esc(tier.band)}</span>
+    </div>`;
+
+  let body;
+  if (tier.volumes){
+    const faces = tier.volumes.map(v => {
+      const tps  = v.topicIds.map(id => topicOf(tier,id)).filter(Boolean);
+      const vis  = tps.filter(hit);
+      if (q && !vis.length) return "";
+      const key  = tier.id + "::" + v.name;
+      const open = q ? true : state.open.has(key);
+      const peek = tps.slice(0,3);
+      return `<section class="pg-face${open?' is-open':''}">
+        <button class="pg-face-head" type="button" data-face="${esc(key)}" aria-expanded="${open}">
+          <span class="pg-face-top">
+            <span class="pg-face-label">${esc(v.name)}</span>
+            <span class="pg-face-count">· ${esc(plural(tps.length,"lesson"))}</span>
+            <span class="pg-face-mark">${open?"− close":"+ open"}</span>
+          </span>
+          ${open?"":`<ul class="pg-peek">${peek.map(tp=>`<li>${esc(tp.title)}</li>`).join("")}</ul>`}
+        </button>
+        ${open?`<div class="pg-shelf">${vis.map(tp=>cardHTML(tier,tp,num.get(tp.id))).join("")}</div>`:""}
+      </section>`;
+    }).join("");
+    body = faces ? `<div class="pg-faces">${faces}</div>` : `<p class="pg-empty">no lessons match “${esc(state.q.trim())}”</p>`;
+  } else {
+    const vis = ord.filter(hit);
+    body = vis.length
+      ? `<div class="pg-cards">${vis.map(tp=>cardHTML(tier,tp,num.get(tp.id))).join("")}</div>`
+      : `<p class="pg-empty">no lessons match “${esc(state.q.trim())}”</p>`;
+  }
+  $("#pgPanel").innerHTML = head + body;
+
+  if (state.flash){
+    const el = document.getElementById("c-" + state.tier + "-" + state.flash);
+    const id = state.flash; state.flash = null;
+    if (el){
+      el.scrollIntoView({behavior:"smooth", block:"center"});
+      setTimeout(()=>{ const n = document.getElementById("c-"+state.tier+"-"+id); if(n) n.classList.remove("is-flash"); }, 1400);
+    }
+  }
+}
+
+function render(){ renderTierList(); renderPanel(); }
+
+/* ============================================================
+   5b. PALETTE — fuzzy jump over tiers + lessons
+   ============================================================ */
+function paletteItems(){
+  const out = [];
+  DATA.forEach(t => {
+    out.push({ kind:"tier", title:t.name, sub:t.band + " · " + plural(t.topics.length,"lesson"), tier:t.id, topic:null, hay:t.name+" "+t.band });
+    orderedTopics(t).forEach(tp => {
+      out.push({ kind:"lesson", title:tp.title, sub:t.name, tier:t.id, topic:tp.id, hay:tp.title+" "+tp.summary+" "+t.name });
+    });
+  });
+  return out;
+}
+function fuzzy(q, s){
+  if (!q) return 0;
+  const str = s.toLowerCase(), qq = q.toLowerCase().replace(/\s+/g,"");
+  let i = 0, prev = -1, score = 0;
+  for (const ch of qq){
+    const idx = str.indexOf(ch, i);
+    if (idx < 0) return -1;
+    score += (idx === prev + 1) ? 0 : (idx - i) + 2;
+    prev = idx; i = idx + 1;
+  }
+  return score;
+}
+let palResults = [];
+function renderPalette(){
+  const q = state.pq.trim();
+  palResults = paletteItems()
+    .map(it => ({ it, s: fuzzy(q, it.hay) }))
+    .filter(r => r.s >= 0)
+    .sort((a,b) => a.s - b.s)
+    .slice(0, 40)
+    .map(r => r.it);
+  if (state.pi >= palResults.length) state.pi = Math.max(0, palResults.length - 1);
+  $("#pgPalList").innerHTML = palResults.length
+    ? palResults.map((it,i)=>`<button class="pg-pal-item${i===state.pi?' is-sel':''}" type="button" data-pal="${i}">
+        <span class="pg-pal-kind">${it.kind}</span>
+        <span class="pg-pal-title">${esc(it.title)}</span>
+        <span class="pg-pal-sub">${esc(it.sub)}</span>
+      </button>`).join("")
+    : `<div class="pg-empty" style="padding:18px 16px">no match</div>`;
+  const sel = $(".pg-pal-item.is-sel");
+  if (sel) sel.scrollIntoView({block:"nearest"});
+}
+function openPalette(){
+  state.pal = true; state.pq = ""; state.pi = 0;
+  $("#pgPalette").classList.add("is-open");
+  const inp = $("#pgPalInput"); inp.value = ""; renderPalette(); setTimeout(()=>inp.focus(), 10);
+}
+function closePalette(){ state.pal = false; $("#pgPalette").classList.remove("is-open"); }
+function choosePalette(i){
+  const it = palResults[i]; if (!it) return;
+  state.tier = it.tier;
+  if (it.topic){
+    const tier = tierById(it.tier);
+    if (tier.volumes){
+      const vol = tier.volumes.find(v => v.topicIds.includes(it.topic));
+      if (vol) state.open.add(tier.id + "::" + vol.name);
+    }
+    state.flash = it.topic;
+    state.q = ""; $("#pgSearch").value = "";
+  }
+  closePalette(); render();
+}
+
+/* ============================================================
+   EVENTS
+   ============================================================ */
+document.addEventListener("click", e => {
+  const row = e.target.closest("[data-tier]");
+  if (row){ state.tier = row.dataset.tier; render(); return; }
+
+  const face = e.target.closest("[data-face]");
+  if (face){
+    const k = face.dataset.face;
+    state.open.has(k) ? state.open.delete(k) : state.open.add(k);
+    renderPanel(); return;
+  }
+
+  const pal = e.target.closest("[data-pal]");
+  if (pal){ choosePalette(Number(pal.dataset.pal)); return; }
+
+  if (e.target.closest("[data-open-palette]")){ openPalette(); return; }
+
+  if (e.target.closest("[data-stub]")) return;           /* stub pills: no-op by design */
+
+  if (state.pal && !e.target.closest(".pg-pal")) closePalette();
+});
+
+$("#pgSearch").addEventListener("input", e => { state.q = e.target.value; renderPanel(); });
+
+$("#pgPalInput").addEventListener("input", e => { state.pq = e.target.value; state.pi = 0; renderPalette(); });
+
+document.addEventListener("keydown", e => {
+  if ((e.metaKey || e.ctrlKey) && e.key.toLowerCase() === "k"){
+    e.preventDefault(); state.pal ? closePalette() : openPalette(); return;
+  }
+  if (!state.pal) return;
+  if (e.key === "Escape"){ e.preventDefault(); closePalette(); }
+  else if (e.key === "ArrowDown"){ e.preventDefault(); state.pi = Math.min(state.pi + 1, palResults.length - 1); renderPalette(); }
+  else if (e.key === "ArrowUp"){ e.preventDefault(); state.pi = Math.max(state.pi - 1, 0); renderPalette(); }
+  else if (e.key === "Enter"){ e.preventDefault(); choosePalette(state.pi); }
+});
+
+/* boot */
+renderChrome();
+render();
+</script>
+</body>
+</html>
