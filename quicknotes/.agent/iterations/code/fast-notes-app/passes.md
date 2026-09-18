@@ -211,3 +211,10 @@
   5. Keyboard key area (Return key) now hints search/next/done/go per field (4a: OS keyboard height itself unchanged — that is Safari chrome).
   6. Regression sweep: palette last item reachable; note taps don't shift the screen; desktop header/layout unchanged.
 - Next action: owner runs checklist 1–6; intermittent band/offset → pass N012 with rAF-debounced pin.
+
+## OWNER VERDICT (device) — N009–N011 iOS outcome: FAILED
+- Owner reports after device testing: "nothing is fixed for iOS Safari" — the N009–N011 symptom set (scroll feel, keyboard band, font sizes, meta row) shows no observable improvement on the real device. Owner will take the iOS pass personally in the next iteration.
+- Delivery ruled out as the cause (integrator, this session): live https://vasyapym.github.io/quicknotes/ serves ALL N011 changes (enterkeyhint ×4, text-size-adjust ×2, pinViewport ×3 in app.js; last-modified 2026-09-18 13:02:32 GMT, cache-control max-age=600). The owner tested current code.
+- Consequence for the ledger: the static-verified hypotheses H1–H3 (Safari font boosting; meta-row flex fragility; stuck visual-viewport offsetTop pan) did NOT translate into device-visible improvement — either the mechanisms are wrong for this context (iframe host? actual iOS version?) or secondary drivers dominate. Their code changes remain in place (harmless, plausibly correct on desktop), but must NOT be counted as fixes.
+- Evidence gap to close next iteration (owner-led): on-device instrumentation before more code — remote Web Inspector (Mac → Safari → Develop → iPhone) to read computed font sizes (is boosting real?), visualViewport.height/offsetTop/scale during keyboard open/close, and which scroller actually pans. Compare standalone /quicknotes/ vs catalogue iframe. The earlier "compact keyboard in iframe" observation (N009) suggests the iframe context itself may be the dominating factor — test standalone first.
+- Status of the iOS thread: NOT FIXED, ownership moved to the owner for the next iteration. No further code changes from this agent until new on-device evidence arrives.
