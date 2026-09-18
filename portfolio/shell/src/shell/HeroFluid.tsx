@@ -18,7 +18,12 @@ export default function HeroFluid() {
   useEffect(() => {
     const canvasEl = canvasRef.current;
     if (!canvasEl) return;
-    const ctx2d = canvasEl.getContext("2d", { alpha: false });
+    // alpha: true on purpose — Safari composites opaque canvas pixels in a
+    // different colour space than CSS (verified via safaridriver: the same
+    // #0b1317 sampled differently on canvas vs on a CSS block), which tinted
+    // the hero a different colour than the rest of the page. The canvas stays
+    // transparent and CSS (var(--ink-bg)) paints the flat ink behind it.
+    const ctx2d = canvasEl.getContext("2d", { alpha: true });
     if (!ctx2d) return;
     // Definite-type aliases: the hoisted function declarations below capture
     // these, and TS strict cannot carry the null-narrowing into them.
@@ -36,7 +41,6 @@ export default function HeroFluid() {
     const STEP_MS = 1000 / 30;
     const BUOY = 14;
     const AMB = 4.5;
-    const BG = "#0b1317";
     // warm off-white -> ochre ramp, opaque (tone is by bucket, never by alpha)
     const RAMP = ["#26333b", "#465059", "#7d7669", "#b6ac95", "#d49a5f", "#ecba7f"];
 
@@ -252,8 +256,8 @@ export default function HeroFluid() {
     }
 
     function render(st: number): void {
-      ctx.fillStyle = BG;
-      ctx.fillRect(0, 0, backW, backH);
+      // Transparent clear, never a painted fill — see the alpha note above.
+      ctx.clearRect(0, 0, backW, backH);
       const uw = backW / GW;
       const uh = backH / GH;
       const cw = uw * st;
