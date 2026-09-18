@@ -1,0 +1,3 @@
+{"type":"node.added","id":"n1","ts":"2026-09-18T07:14:26.425Z","kind":"snapshot","actor":"user","title":"Project start"}
+{"type":"node.added","id":"n2","ts":"2026-09-18T07:14:37.842Z","kind":"iteration","actor":"design-iteration","title":"R002: catalogue host inset to site gutters + app header wrap fix","summary":"styles.css .quicknotes-host padding-inline formula (16px <=560); app #top flex-wrap + #search min-width:0 clear the 454px mobile overflow. Metrics aligned 1920..390.","artifacts":[{"kind":"git-commit","ref":"0c609f1"},{"kind":"file","ref":"../../.agent/iterations/design/project-page-alignment/ledger.md"}]}
+{"type":"edge.added","id":"e1","ts":"2026-09-18T07:14:37.843Z","from":"n1","to":"n2","rel":"continues"}
