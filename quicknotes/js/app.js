@@ -489,6 +489,17 @@ window.addEventListener("focusout", () => { if (narrow.matches) setTimeout(() =>
 // the drawer stays reachable while the header is hidden. Desktop never hides.
 const headerScrollers = [el.tree, el.body, el.preview];
 const lastScroll = new WeakMap();
+// N017: tapping/typing in the editor makes iOS scroll the TEXTAREA itself
+// (caret reveal — the engine lifts the tapped/typed caret into view, e.g.
+// above the keyboard). Those scroll events fire right after a tap or input
+// with the finger already up, and used to read as user pans → the auto-hide
+// yanked the whole layout by --top-h on every tap into the text ("drags/
+// scrolls up when you click text in edit mode"). A real pan scrolls WHILE
+// the finger is down, so #body toggles are suppressed only inside the short
+// reveal window (250ms after a tap/keystroke) when no finger is down.
+let bodyTapAt = 0, bodyInputAt = 0;
+el.body.addEventListener("pointerup", () => { bodyTapAt = Date.now(); }, { passive: true });
+el.body.addEventListener("input", () => { bodyInputAt = Date.now(); }, { passive: true });
 function setHeaderHidden(hidden) {
   if (!narrow.matches) hidden = false;
   // measure BEFORE the class collapses the grid row to 0 (post-collapse
@@ -502,6 +513,7 @@ function onHeaderScroll(e) {
   if (!lastScroll.has(sc)) { lastScroll.set(sc, sc.scrollTop); return; } // first event: no direction yet
   const delta = sc.scrollTop - lastScroll.get(sc);
   lastScroll.set(sc, sc.scrollTop);
+  if (sc === el.body && !pointerDown && Date.now() - Math.max(bodyTapAt, bodyInputAt) < 250) return; // caret reveal, not a pan (N017)
   if (delta > 2 && sc.scrollTop > 60) setHeaderHidden(true);
   else if (delta < -2) setHeaderHidden(false);
 }
