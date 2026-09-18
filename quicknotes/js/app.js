@@ -38,6 +38,11 @@ const state = {
 const narrow = matchMedia("(max-width:760px)");
 
 // ---------- helpers ----------
+// Every programmatic focus goes through here: a bare .focus() makes WebKit
+// scroll ancestors to "reveal" the target — the tap-shift glitch. For users
+// who just tapped a note/field the element is already on screen, so the
+// reveal-scroll is pure jitter; preventScroll removes it.
+const focusEl = elm => elm?.focus({ preventScroll: true });
 const live = () => Object.values(state.notes).filter(n => !n.deleted);
 const active = () => state.notes[state.activeId] || null;
 const byTitle = t => live().find(n => n.title.trim().toLowerCase() === t.trim().toLowerCase());
@@ -180,13 +185,13 @@ function renderAll() { renderTree(); renderEditor(); }
 // ---------- note ops ----------
 function openNote(id) {
   state.activeId = id; renderAll();
-  if (state.view === "view") el.preview.focus(); else el.body.focus();
+  if (state.view === "view") focusEl(el.preview); else focusEl(el.body);
 }
 function createNote(partial = {}) {
   const cur = active();
   const n = makeNote({ path: cur ? cur.path : "", ...partial });
   state.notes[n.id] = n; persist(); schedulePush(n.id);
-  openNote(n.id); el.title.focus();
+  openNote(n.id); focusEl(el.title);
   return n;
 }
 function updateActive(patch) {
@@ -199,7 +204,7 @@ function deleteActive() {
   if (!confirm(`Delete "${n.title || "Untitled"}"?`)) return;
   n.deleted = true; n.updatedAt = Date.now(); n._dirty = true;
   persist(); schedulePush(n.id);
-  state.activeId = null; renderAll(); el.search.focus();
+  state.activeId = null; renderAll(); focusEl(el.search);
 }
 function softDeleteNote(id) {
   const n = state.notes[id]; if (!n || n.deleted) return;
@@ -207,7 +212,7 @@ function softDeleteNote(id) {
   n.deleted = true; n.updatedAt = Date.now(); n._dirty = true;
   persist(); schedulePush(id);
   if (state.activeId === id) state.activeId = null;
-  renderAll(); el.search.focus();
+  renderAll(); focusEl(el.search);
 }
 
 // ---------- tree actions (context menus, long-press, drag&drop) ----------
@@ -268,7 +273,7 @@ const commands = [
   { label: "Sign in / out", run: () => state.user ? logout() : login() }
 ];
 function openPalette(prefix = "") {
-  el.palInput.value = prefix; el.palette.showModal(); el.palInput.focus(); renderPalette(); fitPalette();
+  el.palInput.value = prefix; el.palette.showModal(); focusEl(el.palInput); renderPalette(); fitPalette();
 }
 // The palette used top:12vh + #pal-list max-height:50vh, both computed against
 // the LAYOUT viewport, which does not shrink for the iOS software keyboard —
@@ -361,7 +366,7 @@ el.preview.addEventListener("click", e => {
   const a = e.target.closest("a[data-wiki]");
   if (a) { e.preventDefault(); followWiki(a.dataset.wiki); }
 });
-el.title.addEventListener("keydown", e => { if (e.key === "Enter") { e.preventDefault(); el.body.focus(); } });
+el.title.addEventListener("keydown", e => { if (e.key === "Enter") { e.preventDefault(); focusEl(el.body); } });
 el.body.addEventListener("keydown", e => {
   if (e.key === "Tab") { // insert two spaces
     e.preventDefault();
@@ -372,13 +377,13 @@ el.body.addEventListener("keydown", e => {
   }
 });
 el.search.addEventListener("keydown", e => {
-  if (e.key === "Enter" || e.key === "ArrowDown") { e.preventDefault(); el.tree.querySelector(".note-item")?.focus(); }
+  if (e.key === "Enter" || e.key === "ArrowDown") { e.preventDefault(); focusEl(el.tree.querySelector(".note-item")); }
 });
 el.tree.addEventListener("keydown", e => {
   const items = [...el.tree.querySelectorAll(".note-item")];
   const i = items.indexOf(document.activeElement);
-  if (e.key === "ArrowDown" || e.key === "j") { e.preventDefault(); items[Math.min(i + 1, items.length - 1)]?.focus(); }
-  if (e.key === "ArrowUp" || e.key === "k") { e.preventDefault(); if (i <= 0) el.search.focus(); else items[i - 1].focus(); }
+  if (e.key === "ArrowDown" || e.key === "j") { e.preventDefault(); focusEl(items[Math.min(i + 1, items.length - 1)]); }
+  if (e.key === "ArrowUp" || e.key === "k") { e.preventDefault(); if (i <= 0) focusEl(el.search); else focusEl(items[i - 1]); }
 });
 
 document.addEventListener("keydown", e => {
@@ -386,7 +391,7 @@ document.addEventListener("keydown", e => {
   const inText = /^(INPUT|TEXTAREA)$/.test(document.activeElement?.tagName);
   if (mod && e.key.toLowerCase() === "n") { e.preventDefault(); createNote(); }
   else if (mod && e.key.toLowerCase() === "p") { e.preventDefault(); openPalette(e.shiftKey ? ">" : ""); }
-  else if (mod && e.key.toLowerCase() === "k") { e.preventDefault(); el.search.focus(); el.search.select(); }
+  else if (mod && e.key.toLowerCase() === "k") { e.preventDefault(); focusEl(el.search); el.search.select(); }
   else if (mod && e.key.toLowerCase() === "e" && e.shiftKey) { e.preventDefault(); openExport(); }
   else if (mod && e.key.toLowerCase() === "e") { e.preventDefault(); cycleView(); }
   else if (mod && e.key.toLowerCase() === "s") { e.preventDefault(); persist(); pushAllDirty(); }
@@ -394,9 +399,9 @@ document.addEventListener("keydown", e => {
   else if (e.key === "Escape") {
     if (el.palette.open) el.palette.close();
     else if (drawer.isOpen()) { e.preventDefault(); drawer.close(); }
-    else if (inText && document.activeElement !== el.search) { el.search.focus(); }
+    else if (inText && document.activeElement !== el.search) { focusEl(el.search); }
   }
-  else if (e.key === "/" && !inText) { e.preventDefault(); el.search.focus(); }
+  else if (e.key === "/" && !inText) { e.preventDefault(); focusEl(el.search); }
 });
 
 window.addEventListener("beforeunload", () => persist());
@@ -405,9 +410,25 @@ syncNet();
 window.addEventListener("online", () => { syncNet(); pushAllDirty(); });
 window.addEventListener("offline", () => { syncNet(); setSync("offline", "err"); });
 
+// ---------- keyboard-proof app box ----------
+// dvh ignores the software keyboard: when the caret would sit under it, iOS
+// pans the visual viewport (the tap-shift + "second layout level" feel).
+// Sizing the app grid to the real visible box (visualViewport.height) keeps
+// the caret above the keyboard so there is nothing to pan. Mobile-only; the
+// CSS fallback stays 100dvh. Pairs with fitPalette (same mechanism).
+function fitViewport() {
+  if (!narrow.matches) { document.documentElement.style.removeProperty("--app-h"); return; }
+  const vv = window.visualViewport;
+  document.documentElement.style.setProperty("--app-h", (vv ? vv.height : window.innerHeight) + "px");
+}
+window.visualViewport?.addEventListener("resize", fitViewport);
+window.visualViewport?.addEventListener("scroll", fitViewport);
+narrow.addEventListener?.("change", fitViewport);
+
 // ---------- boot ----------
 switchUser(null);
 el.sort.value = state.sort;
+fitViewport();
 // Narrow viewports hide the shortcut cheat-sheet, so the search placeholder
 // shouldn't advertise keyboard shortcuts there either (Decision Log).
 const setSearchPlaceholder = () =>

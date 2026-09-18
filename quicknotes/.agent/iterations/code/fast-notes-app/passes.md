@@ -158,3 +158,30 @@
   7. Spine + Raft: hard-reload catalogue pages, tap value fields — expect NO zoom (fix already deployed; this validates the stale-report hypothesis).
   8. Compact keyboard: compare standalone `/quicknotes/` vs catalogue card iframe; report iOS version + which context shows the compact keyboard (diagnosis for a possible WebKit bug report; no code fix attempted).
 - Next action: owner runs checklist items 1–8; outcomes decide task close vs polish round (item 7 outcome also closes the spine/raft zoom thread).
+
+## Pass N010 — VERIFIED (static scope) / device checks pending owner
+- Objective and scope: owner's post-N009 iOS feedback — (1) tap-shift micro-pan on field/text taps, (2) "two-level" scrolling, (3) sync indicator to top-right + compact search. Relay reply arrived complete through Phase 4 (evidence map with a shared-mechanism chain, decisions D1–D5) and truncated mid-Phase-5 (index.html sidebar); missing file portions reconstructed deterministically by the orchestrator from the model's own D1–D5 + edit plan onto the N009 baseline, per the brief's truncation protocol (no TRUNCATED-AFTER marker — paste cut).
+- Diagnosis (from relay, accepted): the three symptoms are ONE causal chain — bare `.focus()` reveal-scroll (12 call sites, zero preventScroll) + keyboard-open visual-viewport pan (dvh excludes keyboard; editor had no fitPalette equivalent) + scroll chaining (no overscroll-behavior anywhere; 4 nested scrollers) + unclamped page (no overflow on html/body). Header: `#search{flex:1}` grabbed all width, `#sync` squeezed before Sign Out.
+- Acceptance criteria covered: all programmatic focus via `focusEl()` with `{preventScroll:true}` (audit: raw `.focus(` = definition only, 12→12 routed); app grid sized to `visualViewport.height` on mobile via `--app-h` (`fitViewport()`, vv resize/scroll + narrow-change + boot, removeProperty on desktop, CSS fallback `var(--app-h,100dvh)`); `overscroll-behavior:none` on html/body + `contain` on all 4 nested scrollers (#tree/#body/.preview/#pal-list) + `overflow:hidden` page clamp; viewport meta + `interactive-widget=resizes-content` (progressive, Chrome-only — iOS path is JS); search capped `max-width:480px` (mobile `width:min(44vw,260px)`, no grow); `#sync{margin-left:auto}` right zone (desktop too — sanctioned by the request), signed-out mobile fallback `body.signed-out #auth-btn{margin-left:auto}`.
+- Changes: `index.html` (meta only), `css/style.css` (page clamp, 4×contain, search cap, sync right zone, mobile --app-h + compact search + auth fallback), `js/app.js` (focusEl routing ×12, fitViewport + wiring).
+- Baseline: N009 state (fbd0aa7). Fail-before gates on HEAD: preventScroll ×0, overscroll-behavior ×0, --app-h ×0, interactive-widget ×0, max-width:480px ×0, margin-left:auto ×0, raw `.focus(` ×12.
+- Verification:
+  - Gate G4 (focus routing) — `grep -c '\.focus('` → 2 after (definition + one comment mention; 0 bare call sites), preventScroll ×2; focusEl ×13 (12 call sites + definition). PASS.
+  - Gate G5 (chaining) — overscroll tokens ×6 (none ×1 on html/body + contain ×4 + comment) vs 0 before. PASS.
+  - Gate G6 (--app-h) — css ×2, js ×2 (write + removeProperty + wiring + comment); scoping: var(--app-h)/compact-search/auth-fallback confirmed INSIDE the 760px block. PASS.
+  - Gate G7/G8 (meta/header) — interactive-widget ×1 (was 0), max-width:480px ×1, #sync auto-margin ×1, contain 4/4. PASS.
+  - Command: `node --check` app copy → OK; HTMLParser balance + 31-id contract + meta check → PASS; CSS braces balanced + 7 markers → PASS; static server curl 3×200.
+  - NOT RUN (device-bound, owner-side): absence of the micro-pan on real taps; keyboard-open behavior with --app-h (caret visibility without pan); end-of-scroll chaining feel; right-zone aesthetics at 320/390px.
+- Final diff review: done — 3 product files (+64/−21) + this ledger; no debug scaffolding/secrets; N009 features intact (single-row header, palette fit, labels, targets, zoom guard, safe-areas); sync text updates preserved (setSync untouched, indicator relocated only).
+- Design constraints: not applicable.
+- Remaining risks/blockers: (a) `focus({preventScroll})` requires Safari 15.4+ — older iOS silently keeps the old behavior (no breakage); (b) --app-h uses vv.height which on some iOS versions briefly reports stale values during keyboard animation (owner to judge smoothness); (c) desktop header changes (search cap + right-anchored sync) are global by design — flag to owner in case desktop look needs a separate pass; (d) overflow:hidden on html/body assumes the grid never legitimately needs page scroll (true for current layout; revisit if content modes grow).
+- Owner device checklist (iPhone, iOS Safari):
+  1. Tap a note in the tree → editor opens with NO screen nudge.
+  2. Tap title/path/body while keyboard closed → no shift; keyboard opens, caret visible, page does not slide.
+  3. Scroll body to the very end and keep dragging → page must not move (no chain); same in tree and preview.
+  4. Scroll tree, tap a note, scroll again → single consistent context (no "level switch").
+  5. Header: "synced" sits at the right zone before Sign out; search is compact; sync text still updates on edits (syncing…→synced).
+  6. Signed out: Sign in button right-aligned, no "local (…)" label.
+  7. Palette regression: last item reachable above keyboard (N009 item 5).
+  8. Desktop: search capped at 480px, sync+name+Sign in right-anchored — confirm acceptable (global change) or request a desktop-scoped follow-up.
+- Next action: owner runs checklist 1–8; item 8 verdict decides whether the header change needs a desktop-scoped adjustment round.

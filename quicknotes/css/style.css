@@ -5,7 +5,11 @@
   --sans:system-ui,-apple-system,Segoe UI,Roboto,sans-serif;
 }
 *{box-sizing:border-box}
-html,body{height:100%;margin:0;background:var(--bg);color:var(--fg);font:14px/1.5 var(--sans)}
+/* overflow:hidden + overscroll-behavior:none clamp the page to ONE scroll
+   layer: the app is a fixed grid whose inner regions (#tree, #body, .preview)
+   scroll on their own; chaining a nested scroller's overscroll out to the
+   page is what read as "a second layout level" on touch. */
+html,body{height:100%;margin:0;background:var(--bg);color:var(--fg);font:14px/1.5 var(--sans);overflow:hidden;overscroll-behavior:none}
 button,input,select,textarea{font:inherit;color:inherit}
 kbd{font:11px var(--mono);background:var(--bg3);border:1px solid var(--border);border-radius:3px;padding:0 4px}
 a{color:var(--acc)}
@@ -25,12 +29,15 @@ body{display:grid;grid-template-rows:auto 1fr auto;height:100vh;height:100dvh}
 .empty .art-offline{display:none;width:140px;height:140px}
 body.offline .empty .art-scratch{display:none}
 body.offline .empty .art-offline{display:block}
-/* min-width:0 lets the search shrink below its intrinsic width so the
-   header row fits narrow viewports (was pinning body min-width to 454px) */
-#search{flex:1;min-width:0;background:var(--bg3);border:1px solid var(--border);border-radius:6px;padding:6px 10px;outline:none}
+/* min-width:0 lets the search shrink below its intrinsic width; max-width
+   caps it so the sync cluster can claim the right-hand header zone. */
+#search{flex:1;min-width:0;max-width:480px;background:var(--bg3);border:1px solid var(--border);border-radius:6px;padding:6px 10px;outline:none}
 #search:focus{border-color:var(--acc)}
 .sync{font:12px var(--mono);color:var(--fg2)}
 .sync.ok{color:var(--ok)}.sync.busy{color:var(--warn)}.sync.err{color:var(--danger)}
+/* Right-anchored status cluster (sync + user + auth): the auto margin eats
+   whatever the capped search leaves free. */
+#sync{margin-left:auto}
 #user{font-size:12px;color:var(--fg2)}
 #user img{width:22px;height:22px;border-radius:50%;vertical-align:middle;margin-right:6px}
 
@@ -55,7 +62,7 @@ body.drawer-lock{overflow:hidden}
 .side-sort .sort-label{font-size:11px;text-transform:uppercase;letter-spacing:.5px;color:var(--fg2)}
 #sort{flex:1;background:var(--bg3);border:1px solid var(--border);border-radius:6px;padding:5px 8px;outline:none;cursor:pointer}
 #sort:focus{border-color:var(--acc)}
-#tree{overflow:auto;padding:0 4px 8px}
+#tree{overflow:auto;overscroll-behavior:contain;padding:0 4px 8px}
 .tree-empty{display:flex;flex-direction:column;align-items:center;gap:10px;padding:24px 8px;color:var(--fg2);font-size:12px;text-align:center}
 .tree-empty svg{width:120px;height:120px;opacity:.85}
 .folder{margin-top:6px}
@@ -79,8 +86,10 @@ body.drawer-lock{overflow:hidden}
 .panes.split{grid-template-columns:1fr 1fr}
 .panes.edit #preview{display:none}
 .panes.view #body{display:none}
-#body{resize:none;border:0;outline:none;background:var(--bg);padding:16px;font:14px/1.6 var(--mono);border-right:1px solid var(--border)}
-.preview{overflow:auto;padding:16px 24px}
+/* contain on every nested scroller: reaching an end must not chain the pan
+   outward into the page — the "different layout context" feeling. */
+#body{resize:none;border:0;outline:none;background:var(--bg);padding:16px;font:14px/1.6 var(--mono);border-right:1px solid var(--border);overscroll-behavior:contain}
+.preview{overflow:auto;overscroll-behavior:contain;padding:16px 24px}
 .preview h1,.preview h2,.preview h3{margin:.8em 0 .4em;line-height:1.25}
 .preview h1{font-size:1.7em;border-bottom:1px solid var(--border)}
 .preview p{margin:.5em 0}
@@ -100,7 +109,7 @@ dialog{background:var(--bg2);color:var(--fg);border:1px solid var(--border);bord
 dialog::backdrop{background:rgba(0,0,0,.55)}
 #palette{top:12vh;margin-top:0}
 #pal-input{width:100%;background:none;border:0;border-bottom:1px solid var(--border);padding:12px 14px;font-size:16px;outline:none}
-#pal-list{list-style:none;margin:0;padding:6px;max-height:50vh;overflow:auto}
+#pal-list{list-style:none;margin:0;padding:6px;max-height:50vh;overflow:auto;overscroll-behavior:contain}
 #pal-list li{padding:6px 10px;border-radius:6px;cursor:pointer;display:flex;justify-content:space-between}
 #pal-list li.sel{background:var(--bg3);color:var(--acc)}
 #pal-list li small{color:var(--fg2);font-family:var(--mono)}
@@ -120,6 +129,13 @@ dialog::backdrop{background:rgba(0,0,0,.55)}
   .brand{display:none}
   #user{display:none}
   body.signed-out #sync{display:none}
+  /* signed-out fallback: #sync carries the right-zone auto margin, so when it
+     is hidden the auth button takes the anchor instead. */
+  body.signed-out #auth-btn{margin-left:auto}
+
+  /* Compact search: it no longer needs to grab the whole row (D5) — the
+     freed width becomes the right-hand status zone around #sync. */
+  #search{flex:0 1 auto;width:min(44vw,260px)}
 
   #drawer-toggle{display:inline-flex}
   #sidebar{
@@ -168,6 +184,12 @@ dialog::backdrop{background:rgba(0,0,0,.55)}
   /* editor/preview bottom safe area + tighter preview gutters */
   #body{padding:16px;padding-bottom:calc(16px + env(safe-area-inset-bottom))}
   .preview{padding:16px;padding-bottom:calc(16px + env(safe-area-inset-bottom))}
+
+  /* Keyboard-proof app box: dvh ignores the software keyboard, so iOS pans
+     the visual viewport to lift the caret (the tap-shift). app.js writes the
+     real visible height into --app-h (visualViewport.height); this fallback
+     keeps the dvh sizing if JS never runs. */
+  body{height:var(--app-h,100dvh)}
 }
 @media (prefers-reduced-motion:reduce){#sidebar,#backdrop{transition:none}}
 
