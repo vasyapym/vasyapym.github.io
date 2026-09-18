@@ -178,3 +178,15 @@ Artifacts: artifacts/R000-baseline/
   (cap). No horizontal scroll at any width; typecheck PASS.
 - Open question: LIKED / REJECTED on the desktop scaling curve (floor 17.2 →
   cap 24px; the vw slope and cap are single numbers to tweak)?
+
+## Feedback F003
+- Round: R006
+- Verdict: LIKED
+- Scope: the desktop title scaling curve (clamp(1.075rem, 1.6vw, 1.5rem)) —
+  and with it the whole raft title line of iterations (R002-R006)
+- Decision: the window-adaptive title stands; the chrome-trim thread is
+  CLOSED — raft hero (title + geometry + adaptive size) and practice-map
+  whitespace (R001, F001) both settled, no remaining work
+- User source: "liked"
+- Artifact: artifacts/R001/raft-title5-desktop.png
+- Supersedes: none
