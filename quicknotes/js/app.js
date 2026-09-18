@@ -467,27 +467,44 @@ addEventListener("pointerdown", () => { pointerDown = true; }, { passive: true }
 addEventListener("pointerup", () => { pointerDown = false; }, { passive: true });
 addEventListener("pointercancel", () => { pointerDown = false; }, { passive: true });
 
-// keyboard height = stable layout height − shrunken visual height
+// N027: height sources. Under interactive-widget=resizes-visual the LAYOUT
+// viewport is stable across keyboard show/hide; documentElement.clientHeight
+// tracks it. window.innerHeight on this build follows the VISUAL viewport
+// (shrinks with the keyboard — the N024 stale-gap mechanism) — never use it
+// for geometry.
+function layoutHeight() {
+  return document.documentElement.clientHeight || window.innerHeight;
+}
+
 function currentKbHeight() {
   const vv = window.visualViewport;
   if (!vv) return 0;
-  return Math.max(0, Math.round(window.innerHeight - vv.height));
+  return Math.max(0, Math.round(layoutHeight() - vv.height));
 }
 function setKbHeight(px) {
   document.documentElement.style.setProperty("--kb-h", (px || 0) + "px");
 }
 
 // ---- N024: rigid container height ("make it just static" — Obsidian ask) ----
-// The owner reads the whole app as a container that flexes from the bottom
-// when the keyboard appears. If this iOS build's dvh reacts to the keyboard
-// (wkbug class), body{height:100dvh} IS that flex. Pin the height to
-// innerHeight — keyboard-independent on iOS — and FREEZE it while a field is
-// focused, so nothing can resize the shell mid-typing. Refreshed on blur.
+// Freeze while focused (no URL-bar micro-reflows mid-type); the keyboard-
+// independent source means dismiss timing can no longer capture a shrunken
+// value — the P1 dark-gap mechanism is gone.
 function pinBodyHeight() {
   if (!narrow.matches) { document.documentElement.style.removeProperty("--app-v"); return; }
   if (fieldFocused()) return; // frozen mid-focus: the shell cannot flex while typing
-  document.documentElement.style.setProperty("--app-v", window.innerHeight + "px");
+  document.documentElement.style.setProperty("--app-v", layoutHeight() + "px");
 }
+
+// ---- N027 (P2): touch-scroll gate — an external scrollTop write during iOS
+// momentum cancels the momentum (the "rapid and chaotic" feel). revealCaret
+// must never write scrollTop while the user is panning (incl. the 400ms
+// momentum window after touchend).
+let userScrolling = false, scrollIdle = 0;
+function beginUserScroll() { userScrolling = true; clearTimeout(scrollIdle); }
+function endUserScroll() { clearTimeout(scrollIdle); scrollIdle = setTimeout(() => { userScrolling = false; }, 400); }
+document.addEventListener("touchmove", beginUserScroll, { passive: true, capture: true });
+document.addEventListener("touchend", endUserScroll, { passive: true, capture: true });
+document.addEventListener("touchcancel", endUserScroll, { passive: true, capture: true });
 
 // N025 (S2 closed by owner): the in-app Done bar is REMOVED — iOS always
 // shows the standard keyboard accessory bar with Done on this device (owner
@@ -495,13 +512,23 @@ function pinBodyHeight() {
 // the normal dismiss paths.
 
 // ---- single rAF-throttled vv reader: NO page movement, only palette -------
-let vvQueued = false;
+let lastKb = 0;
 function readViewport() {
   pinBodyHeight();
-  if (narrow.matches && fieldFocused()) setKbHeight(currentKbHeight());
-  revealCaret(); // real keyboard height has landed — re-aim the caret
+  if (narrow.matches && fieldFocused()) {
+    const kb = currentKbHeight();
+    setKbHeight(kb);
+    // N027 (P2): one-shot re-aim only when the keyboard first lands (0 → up);
+    // never per-frame, never during an active pan/momentum — a per-frame
+    // revealCaret fought native scrolling (the chaotic feel).
+    if (kb - lastKb > 80 && !userScrolling) revealCaret();
+    lastKb = kb;
+  } else {
+    lastKb = 0;
+  }
   fitPalette(); // keep: command-palette dialog placement
 }
+let vvQueued = false;
 function onVV() {
   if (vvQueued) return;
   vvQueued = true;
@@ -550,7 +577,9 @@ function tweenScrollTo(elm, to) {
 function revealCaret() {
   if (!narrow.matches || document.activeElement !== el.body) return;
   const ta = el.body;
-  const kb = currentKbHeight() || Math.round(window.innerHeight * 0.4);
+  // N027: the fallback estimate uses layoutHeight too (innerHeight tracks the
+  // visual viewport on this build — the relay's diagnosis applies to every use)
+  const kb = currentKbHeight() || Math.round(layoutHeight() * 0.4);
   const visible = ta.clientHeight - kb; // the area that stays above the keyboard
   if (visible <= 0) return;
   const caretY = caretContentY();
@@ -564,18 +593,23 @@ function revealCaret() {
 let caretQueued = false;
 document.addEventListener("selectionchange", () => {
   if (document.activeElement !== el.body) return;
+  if (userScrolling) return; // N027: never fight native scroll / momentum
   if (caretQueued) return;
   caretQueued = true;
-  requestAnimationFrame(() => { caretQueued = false; revealCaret(); });
+  requestAnimationFrame(() => {
+    caretQueued = false;
+    if (!userScrolling) revealCaret();
+  });
 });
 
 // ---- field focus: give textarea scroll room; blur: undo, flush ----
 document.addEventListener("focusin", e => {
   if (!narrow.matches || !FIELD.test(e.target.tagName)) return;
   // estimate first (robust to late/absent vv resize), onVV refines to the real value
-  setKbHeight(currentKbHeight() || Math.round(window.innerHeight * 0.4));
+  setKbHeight(currentKbHeight() || Math.round(layoutHeight() * 0.4));
   document.body.classList.add("kb");
-  requestAnimationFrame(revealCaret); // N022: caret above the keyboard before iOS looks
+  lastKb = 0; // allow the next vv frame to fire the one-shot re-aim
+  requestAnimationFrame(revealCaret);
 });
 document.addEventListener("focusout", () => {
   if (!narrow.matches) return;
@@ -583,6 +617,8 @@ document.addEventListener("focusout", () => {
     if (fieldFocused()) return;
     document.body.classList.remove("kb");
     setKbHeight(0);
+    pinBodyHeight(); // N027 (P1): re-pin NOW that the field is blurred
+    setTimeout(pinBodyHeight, 300); // belt: re-pin after the close animation settles
     flushPersist(); // guarantee the synced pipeline sees the final value
   }, 60);
 });
@@ -630,29 +666,55 @@ el.search.addEventListener("focus", () => setHeaderHidden(false));
 // ---------- boot ----------
 switchUser(null);
 el.sort.value = state.sort;
-pinBodyHeight();
-onVV();
-// ---- N024: on-device instrument (?debug=1 or #debug) — reads WHICH viewport
-// value moves during the owner's repro. Nine engine-side mechanism rounds have
-// not converged; the iOS truth lives on the device, so we ship the meter.
-// Hash form added in N025: it survives navigation and works in private tabs
-// where the owner may paste the URL directly.
-if (new URLSearchParams(location.search).has("debug") || location.hash.toLowerCase().includes("debug")) {
-  const meter = document.createElement("pre");
-  meter.style.cssText = "position:fixed;top:0;left:0;z-index:200;margin:0;padding:4px 6px;background:#000c;color:#0f0;font:10px/1.35 ui-monospace,monospace;white-space:pre;pointer-events:none";
-  const fmt = n => (n == null ? "-" : Math.round(n * 10) / 10);
+// ---- N027 (P3): bulletproof debug meter — ?debug=1 or #debug turns it on and
+// PERSISTS in localStorage (survives standalone launches and param-stripping);
+// ?debug=0 clears it. Mounted FIRST, own try/catch, top z-index, safe-area
+// offset so the notch/header can never hide it.
+function debugRequested() {
+  try {
+    const u = new URL(location.href);
+    if (u.searchParams.get("debug") === "0") { try { localStorage.removeItem("qn:debug"); } catch {} return false; }
+    const on = u.searchParams.has("debug") || /(^|[#&])debug\b/.test(location.hash);
+    if (on) { try { localStorage.setItem("qn:debug", "1"); } catch {} return true; }
+    return localStorage.getItem("qn:debug") === "1";
+  } catch {
+    return /debug/.test(location.search + location.hash);
+  }
+}
+function mountDebugMeter() {
+  if (!debugRequested() || document.getElementById("qn-vv-meter")) return;
+  const m = document.createElement("pre");
+  m.id = "qn-vv-meter";
+  m.style.cssText = [
+    "position:fixed",
+    "top:calc(env(safe-area-inset-top,0px) + 2px)",
+    "left:2px",
+    "z-index:2147483647",
+    "margin:0", "padding:4px 6px",
+    "font:11px/1.25 ui-monospace,Menlo,monospace",
+    "color:#0f0", "background:rgba(0,0,0,.72)",
+    "white-space:pre", "pointer-events:none", "max-width:72vw"
+  ].join(";");
+  document.body.appendChild(m);
+  const vv = window.visualViewport, ds = document.documentElement, sty = ds.style;
   const tick = () => {
-    const vv = window.visualViewport;
-    const r = document.body.getBoundingClientRect();
-    meter.textContent =
-      `innerH ${fmt(window.innerHeight)}  vvH ${vv ? fmt(vv.height) : "-"}\n` +
-      `vvTop ${vv ? fmt(vv.offsetTop) : "-"}  vvS ${vv ? fmt(vv.scale) : "-"}\n` +
-      `scrollY ${fmt(window.scrollY)}  dvh ${document.documentElement.clientHeight}\n` +
-      `bodyT ${fmt(r.top)}  bodyB ${fmt(r.bottom)}  bodyH ${fmt(r.height)}\n` +
-      `kb --kb-h ${document.documentElement.style.getPropertyValue("--kb-h") || "0"}  app-v ${document.documentElement.style.getPropertyValue("--app-v") || "-"}`;
+    try {
+      const r = (el.body || document.body).getBoundingClientRect();
+      m.textContent =
+        `iH ${window.innerHeight}  cH ${document.documentElement.clientHeight}\n` +
+        `vv ${vv ? Math.round(vv.height) : "-"}  off ${vv ? Math.round(vv.offsetTop) : "-"}  sc ${vv ? vv.scale.toFixed(2) : "-"}\n` +
+        `scrollY ${Math.round(window.scrollY)}  scroll ${userScrolling ? 1 : 0}\n` +
+        `body ${Math.round(r.top)}/${Math.round(r.bottom)}/${Math.round(r.height)}\n` +
+        `kb ${sty.getPropertyValue("--kb-h").trim() || "0"}  app-v ${sty.getPropertyValue("--app-v").trim() || "-"}`;
+    } catch (e) { m.textContent = "meter err: " + e.message; }
     requestAnimationFrame(tick);
   };
-  tick();
+  requestAnimationFrame(tick);
+}
+try { mountDebugMeter(); } catch (_) { /* the meter must never block boot */ }
+try { pinBodyHeight(); onVV(); } catch (e) {
+  const x = document.getElementById("qn-vv-meter");
+  if (x) x.textContent = "boot err: " + e.message;
 }
 // Narrow viewports hide the shortcut cheat-sheet, so the search placeholder
 // shouldn't advertise keyboard shortcuts there either (Decision Log).
