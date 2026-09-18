@@ -428,11 +428,17 @@ function fitViewport() {
 // H3: iOS can leave the visual viewport PANNED (offsetTop > 0) after the
 // keyboard opens/closes; the grid is already sized to the visible box, so
 // re-pinning that box to layout-top is always the correct resolution.
-// N015 owner verdict ("glitchy"): the yank must NOT fight iOS —
+// N018: the pin applies WHILE A FIELD IS FOCUSED TOO. N016's yield
+// ("iOS owns the pan while typing") left the keyboard-open reveal pan
+// stranded for the whole focus session — the panned vv no longer matches
+// the layout-top body, so the empty band beneath the textarea grew and
+// then snapped shut (owner: "area beneath gets bigger, then clumsily
+// smaller"). With --app-h the caret is always inside the visible box, so
+// a panned vv is never a legitimate reveal. Guards that DO stay:
 // 1) subpixel offsets (wkbug 226354 fires vv scroll for 0.5px during inner
 //    scrolls) are treated as zero (threshold > 1),
-// 2) while a field is focused iOS OWNS the pan (caret reveal) — no yank,
-// 3) mid-touch the yank is skipped entirely (re-checked on pointerup).
+// 2) mid-touch the yank is skipped (re-checked on pointerup),
+// 3) a pinch (vv.scale !== 1) is never fought.
 // N013: in the catalogue card the surviving pan can be HOST-level, which this
 // window's scrollTo can't reset — so when framed, re-pin the same-origin parent.
 let pointerDown = false;
@@ -442,7 +448,7 @@ addEventListener("pointercancel", () => { pointerDown = false; }, { passive: tru
 const fieldFocused = () => /^(INPUT|TEXTAREA|SELECT)$/.test(document.activeElement?.tagName || "");
 function pinViewport() {
   const vv = window.visualViewport;
-  if (vv && vv.offsetTop > 1) {
+  if (vv && vv.scale === 1 && vv.offsetTop > 1) {
     window.scrollTo(0, 0);
     try { if (window.self !== window.top) window.parent.scrollTo(0, 0); } catch { /* cross-origin */ }
   }
@@ -455,9 +461,7 @@ function pinViewport() {
 // event re-yanks on iOS's subpixel offsetTop jitter — the rapid-glitch feel.
 let settleQueued = false;
 function settleViewport() {
-  if (fieldFocused()) { fitViewport(); fitPalette(); return; } // iOS owns the pan while typing
-  if (pointerDown) return; // never yank mid-touch; focusout re-runs this
-  pinViewport();
+  if (!pointerDown) pinViewport(); // N018: also while focused; mid-touch skip stays (focusout re-runs)
   fitViewport();
   fitPalette();
 }
