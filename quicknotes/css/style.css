@@ -254,6 +254,13 @@ dialog::backdrop{background:rgba(0,0,0,.55)}
   #search,#body{font-size:13px}
   /* owner N015 verdict: the sort select read too big — 16px → 14px (~15% down) */
   #sort{font-size:14px}
+  /* N023: iOS's focus path for sub-16px fields includes an animated viewport
+     pan even when maximum-scale=1 clamps the zoom itself — the owner's
+     device memory "when the font was bigger there was no bug" points here
+     (the 13px drop in N012 started the tap-shift era). While the keyboard is
+     open (body.kb) the small fields present the 16px floor so the zoom-focus
+     path never triggers; the idle look stays compact (13px). */
+  body.kb #body,body.kb #search,body.kb #path{font-size:16px}
 }
 
 .ctx{position:fixed;z-index:100;min-width:180px;margin:0;padding:4px;list-style:none;background:var(--bg2);color:var(--fg);border:1px solid var(--border);border-radius:10px;box-shadow:0 1px 2px rgba(0,0,0,.3),0 8px 28px rgba(0,0,0,.35);font:14px/1.3 var(--sans);outline:none;user-select:none}
