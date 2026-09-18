@@ -59,6 +59,13 @@
   border: 0;
 }
 
+.raft-thesis {
+  margin: 0;
+  max-width: 60ch;
+  color: var(--raft-muted);
+  font-size: 0.9rem;
+}
+
 .raft-head-controls {
   display: flex;
   flex-wrap: wrap;

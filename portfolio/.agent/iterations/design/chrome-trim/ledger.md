@@ -61,3 +61,32 @@ Artifacts: artifacts/R000-baseline/
 - Code verification: `npm run typecheck` PASS; no horizontal scroll at
   1440/390 on either page.
 - Open question: LIKED / REJECTED on the round?
+
+## Feedback F001
+- Round: R001
+- Verdict: LIKED
+- Scope: the round as a whole — raft hero text removal + practice-map hero
+  band whitespace −35%
+- Decision: both changes stand as shipped
+- User source: "i like it"
+- Artifact: artifacts/R001/
+- Supersedes: none
+
+## Round R002
+- Goal: owner-specified copy replacement on raft — add "A full Raft state
+  machine written in Rust, compiled to WebAssembly, and visualized with
+  Canvas 2D." in the removed thesis's slot (the smaller-font line), sr-only
+  h1 stays.
+- Preserved preferences: F001; no big hero headline returns.
+- Changes (owner gave the exact text and placement — trivial, integrated
+  directly without chat-model delegation):
+  - RaftPage.tsx: `<p className="raft-thesis">` added to .raft-head before
+    the controls, with the owner's sentence verbatim.
+  - raft.css: .raft-thesis rule restored verbatim (0.9rem, muted, 60ch).
+- Before: artifacts/R001/raft-desktop.png
+- After: artifacts/R001/raft-thesis-desktop.png, raft-thesis-mobile.png
+- Visual inspection: PERFORMED (1440 + 390): thesis 14.4px muted at
+  x=120/top-left, controls right-aligned (flex-end), grid at y=152 desktop /
+  y=199 mobile; no overlap, no horizontal scroll.
+- Code verification: `npm run typecheck` PASS.
+- Open question: none — owner-specified copy; thread continues if feedback.
