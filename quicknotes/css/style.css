@@ -68,7 +68,7 @@ body.drawer-lock{overflow:hidden}
    independent of #top, so the drawer stays reachable while the header is gone.
    Desktop (>760px) never gets .header-hidden (JS is gated on the narrow mq),
    so the header is permanent there. */
-#top{transition:transform .24s cubic-bezier(.2,.8,.2,1)}
+#top{transition:margin-top .24s cubic-bezier(.2,.8,.2,1)}
 
 #layout{display:grid;grid-template-columns:260px 1fr;min-height:0}
 #sidebar{background:var(--bg2);border-right:1px solid var(--border);display:flex;flex-direction:column;min-height:0}
@@ -176,13 +176,13 @@ dialog::backdrop{background:rgba(0,0,0,.55)}
   #top{padding-top:calc(6px + env(safe-area-inset-top));padding-left:calc(12px + env(safe-area-inset-left));padding-right:calc(12px + env(safe-area-inset-right))}
   .side-head,.side-sort{padding-left:calc(8px + env(safe-area-inset-left))}
 
-  /* Header auto-hide mechanics: the grid row collapses to 0 (min-content →
-     nothing) and #top translates up its own measured height (--top-h, written
-     by app.js; falls back to a generous 96px that covers the wrapped safe-area
-     case). z-index keeps it above the region as it leaves. */
+  /* Header auto-hide mechanics: margin-top (not transform + row-collapse) —
+     the auto grid track shrinks GRADUALLY every animation frame, so there is
+     no instant layout jump mid-scroll (the "glitchy" snap) and the 1fr region
+     reclaims the space smoothly. --top-h is written by app.js before the
+     class lands; falls back to a generous 96px. */
   #top{position:relative;z-index:10}
-  body.header-hidden{grid-template-rows:0 1fr auto}
-  body.header-hidden #top{transform:translateY(calc(-1 * var(--top-h,96px)))}
+  body.header-hidden #top{margin-top:calc(-1 * var(--top-h,96px))}
 
   /* ≥40px touch targets */
   .btn{min-height:40px;padding:8px 12px}
@@ -241,6 +241,8 @@ dialog::backdrop{background:rgba(0,0,0,.55)}
   input,select,textarea{font-size:16px}
   #path{font-size:13px}
   #search,#body{font-size:13px}
+  /* owner N015 verdict: the sort select read too big — 16px → 14px (~15% down) */
+  #sort{font-size:14px}
 }
 
 .ctx{position:fixed;z-index:100;min-width:180px;margin:0;padding:4px;list-style:none;background:var(--bg2);color:var(--fg);border:1px solid var(--border);border-radius:10px;box-shadow:0 1px 2px rgba(0,0,0,.3),0 8px 28px rgba(0,0,0,.35);font:14px/1.3 var(--sans);outline:none;user-select:none}

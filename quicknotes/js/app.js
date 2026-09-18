@@ -428,11 +428,21 @@ function fitViewport() {
 // H3: iOS can leave the visual viewport PANNED (offsetTop > 0) after the
 // keyboard opens/closes; the grid is already sized to the visible box, so
 // re-pinning that box to layout-top is always the correct resolution.
+// N015 owner verdict ("glitchy"): the yank must NOT fight iOS —
+// 1) subpixel offsets (wkbug 226354 fires vv scroll for 0.5px during inner
+//    scrolls) are treated as zero (threshold > 1),
+// 2) while a field is focused iOS OWNS the pan (caret reveal) — no yank,
+// 3) mid-touch the yank is skipped entirely (re-checked on pointerup).
 // N013: in the catalogue card the surviving pan can be HOST-level, which this
 // window's scrollTo can't reset — so when framed, re-pin the same-origin parent.
+let pointerDown = false;
+addEventListener("pointerdown", () => { pointerDown = true; }, { passive: true });
+addEventListener("pointerup", () => { pointerDown = false; }, { passive: true });
+addEventListener("pointercancel", () => { pointerDown = false; }, { passive: true });
+const fieldFocused = () => /^(INPUT|TEXTAREA|SELECT)$/.test(document.activeElement?.tagName || "");
 function pinViewport() {
   const vv = window.visualViewport;
-  if (vv && vv.offsetTop > 0) {
+  if (vv && vv.offsetTop > 1) {
     window.scrollTo(0, 0);
     try { if (window.self !== window.top) window.parent.scrollTo(0, 0); } catch { /* cross-origin */ }
   }
@@ -441,8 +451,12 @@ function pinViewport() {
 // settled offsetTop. WebKit fires vv scroll only when a gesture FINISHES and
 // iOS may re-pan after our scrollTo lands (~250-300ms dismiss), so the coalesced
 // frame is followed by a short settling loop that re-asserts while a pan survives.
+// The loop is DISMISS-ONLY (wired from focusout): running it on every vv scroll
+// event re-yanks on iOS's subpixel offsetTop jitter — the rapid-glitch feel.
 let settleQueued = false;
 function settleViewport() {
+  if (fieldFocused()) { fitViewport(); fitPalette(); return; } // iOS owns the pan while typing
+  if (pointerDown) return; // never yank mid-touch; focusout re-runs this
   pinViewport();
   fitViewport();
   fitPalette();
@@ -450,20 +464,21 @@ function settleViewport() {
 function settleLoop() {
   if (!narrow.matches) return;
   for (const t of [0, 120, 300]) setTimeout(() => {
-    if (window.visualViewport && window.visualViewport.offsetTop > 0) settleViewport();
+    if (!fieldFocused() && !pointerDown && window.visualViewport && window.visualViewport.offsetTop > 1) settleViewport();
   }, t);
 }
 function onViewport() {
   if (settleQueued) return;
   settleQueued = true;
-  requestAnimationFrame(() => { settleQueued = false; settleViewport(); settleLoop(); });
+  requestAnimationFrame(() => { settleQueued = false; settleViewport(); });
 }
 window.visualViewport?.addEventListener("resize", onViewport);
 window.visualViewport?.addEventListener("scroll", onViewport);
 narrow.addEventListener?.("change", onViewport);
 // Keyboard close: vv resize may lag the dismissal on some iOS builds; a blur
-// of any field re-runs the settle (and its loop) shortly after.
-window.addEventListener("focusout", () => { if (narrow.matches) setTimeout(onViewport, 80); });
+// of any field re-runs the settle (and its dismiss-only loop) shortly after —
+// the loop is what outlives the ~250-300ms dismiss animation.
+window.addEventListener("focusout", () => { if (narrow.matches) setTimeout(() => { onViewport(); settleLoop(); }, 80); });
 
 // ---------- mobile header auto-hide ("revert to non-sticky") ----------
 // The header is grid row 1 of a fixed body — permanently on screen, which the

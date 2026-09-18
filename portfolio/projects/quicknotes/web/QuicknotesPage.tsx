@@ -13,7 +13,7 @@ export default function QuicknotesPage() {
   useEffect(() => {
     const vv = window.visualViewport;
     if (!vv) return;
-    const pin = () => { if (vv.offsetTop > 0) window.scrollTo(0, 0); };
+    const pin = () => { if (vv.offsetTop > 1) window.scrollTo(0, 0); };
     vv.addEventListener("scroll", pin);
     vv.addEventListener("resize", pin);
     return () => {
