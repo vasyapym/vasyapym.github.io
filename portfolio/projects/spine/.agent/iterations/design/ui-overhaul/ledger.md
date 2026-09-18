@@ -336,3 +336,117 @@ No earlier design-iteration ledger exists for spine; numbering starts at R001.
   stop. this is for next iteration" (2026-09-17)
 - Artifact: artifacts/R006/overflow-nowrap-pan.png
 - Supersedes: none
+
+## Feedback F010
+- Round: R006 (standing R005 look)
+- Verdict: REJECTED (aesthetic register)
+- Scope: overall visual style of the Spine app UI, all viewports
+- Decision: the current look leans too close to a mobile-game aesthetic;
+  move to an engineering-oriented look — what a senior developer expects
+  from a technical tool
+- User source: task brief (2026-09-18): "The current visual style leans too
+  close to a mobile game aesthetic. I'd prefer a more engineering-oriented
+  look — more aligned with what a senior developer would expect from a
+  technical tool."
+- Artifact: artifacts/R006/desktop-design.png
+- Supersedes: none (refines F004's minimalist direction — same ink palette,
+  different register)
+
+## Feedback F011
+- Round: R006 (standing R005 look)
+- Verdict: REJECTED (scalability of the composition)
+- Scope: canvas composition as element/container count grows, all viewports
+- Decision: address visual clutter at scale — the layout must stay legible
+  when many containers/items are present
+- User source: task brief (2026-09-18): "As the number of containers/elements
+  increases, the layout becomes visually cluttered. This needs to be
+  addressed to maintain clarity at scale."
+- Artifact: artifacts/R006/desktop-design.png
+- Supersedes: none
+
+## Feedback F012
+- Round: R006 (feature request)
+- Verdict: REJECTED (missing capability)
+- Scope: adaptive fullscreen mode, triggered by element count relative to
+  screen size; most valuable on mobile
+- Decision: add an adaptive fullscreen mode — once the element count exceeds
+  a threshold (calculated relative to screen size), prompt the user with an
+  option to enter fullscreen mode enabling standard scroll navigation
+- User source: task brief (2026-09-18): "Once the element count exceeds a
+  threshold (calculated relative to screen size), prompt the user with an
+  option to enter fullscreen mode, enabling standard scroll navigation. This
+  would be particularly valuable on mobile devices."
+- Artifact: none (capability gap, not a rendered artifact)
+- Supersedes: none (complements, does not replace, the parked F009
+  mobile-overflow thread)
+
+## Feedback F013
+- Round: R007 (direction source)
+- Verdict: ACCEPTED (owner-endorsed direction)
+- Scope: the design language of the Spine app UI, all viewports — the
+  "DATUM" register (drawing sheet, not game board): three strokes carry all
+  state (hairline = exists, stronger ink = hover, 2px ochre = live); ink
+  opacity, not fills, does hierarchy; corner machine-callout tags; ledger
+  inspector; scale bar; LOD by rendered width; focus dimming; adaptive
+  scroll mode
+- Decision: adopt DATUM (from the randomized routing model, relayed
+  2026-09-18) as R007's design source. House palette hexes stay (F002
+  stands; colors are the owner's to fix at integration). Within DATUM's
+  endorsement, three earlier decisions are refined, none reverted: F005's
+  1px ring becomes DATUM's 2px ochre live-stroke (no fills anywhere,
+  ring still precise); F006/F007's type split extends mono to canvas
+  callouts, ledger values and the status line (code printout stays 12px);
+  F004's caps-avoidance is lifted for tracked-caps micro-labels (10px
+  sans) per DATUM's drawing-sheet notation
+- User source: "stop the above. i actually got the answer from randomized
+  strongest model. let's do that instead — 1. Direction: DATUM…" (2026-09-18)
+- Artifact: artifacts/R007/desktop-design.png
+- Supersedes: F005 (stroke weights only, within DATUM scope), F004
+  (caps-micro-labels only), F006/F007 (mono notation extension only)
+
+## Round R007
+- Goal: re-register the surface to DATUM (F010/F013), clarity at scale
+  (F011), adaptive scroll mode (F012).
+- Preserved preferences: F001–F003, F008 as amended by F013; engine
+  contract untouched (ids, classes, #spine-canvas > .node shape, inline
+  styles, 44px coarse targets); palette hexes per F002.
+- Changes (SpinePage.tsx + spine.css, css-led with a React measurement
+  pass): three-stroke state system; radii ≤2px; nested-fill tints removed
+  (ink-opacity hierarchy); container corner tags via attr(data-id); ledger
+  inspector (caps sans labels, right-aligned mono values, bottom-rule
+  inputs, ochre focus rule); flush dock (static bar, hairline top, text
+  cells) with a React-only "scroll" toggle; flat mode chips with 2px ochre
+  underline (mobile); code pane flattened to hairline caps headers; mono
+  status; scale bar "└─ 100px" pinned bottom-left; React MutationObserver +
+  rAF pass stamps additive data-* attrs — data-lod (≥120 full / ≥44 tag /
+  <44 stroke-only), data-collapse (container <60 wide with a child <12px
+  wide → ×N count), data-focus (target 2px ochre / chain strong ink /
+  peer base / far recedes), data-dims (witness "W × H" outside the
+  selected stroke); adaptive scroll mode — trigger ratio > 1.4 mobile /
+  2.0 desktop or mobile median box < 44px, non-blocking mono prompt bar
+  above the dock ("layout ×N viewport · scroll mode → · dismiss"), dismiss
+  remembered per session and re-arms when ratio doubles, dock toggle as
+  second path; scroll mode = workspace fixed full-viewport, 1:1 canvas,
+  native scroll (touch-action pan), sticky "◂ exit" header, Esc to exit,
+  bottom-sheet inspector (40vh; right-hand 480px drawer on desktop) on
+  selection, exit restores scroll to the selection.
+- Floored (needs engine/Go support — recorded for a later round):
+  FLEX→ direction glyph, full breadcrumb path (containers with children
+  carry no text label in the DOM), coincident-line snap, 8px dot module
+  fading under zoom (no zoom exists; 24px bed kept per F006), structure
+  rail (no external select API), code two-tone, empty-state crosshair,
+  back-gesture exit.
+- Before: artifacts/R006/* — After: artifacts/R007/* (desktop-design,
+  desktop-selected, desktop-scale, desktop-scrollmode, mobile-design,
+  mobile-prompt, mobile-scrollmode, mobile-sheet)
+- Visual inspection: performed — desktop 1440 + mobile 390, both modes,
+  plus selection/scale/scroll-mode states, read as images. Fixes caught on
+  render: LOD stroke cut moved below the 44px touch floor (item labels
+  vanished at <60px); desktop sheet capped to a 480px right drawer.
+- Code verification: shell tsc ok; spine smoke ok (6→8 nodes, grid toggle,
+  undo/redo, hash, sel-label, modebar, html5+pointer drag, mobile shots);
+  vite production build ok; probe lifecycle green (desktop prompt at
+  ×2.5, mobile prompt at ×2.7, Esc exits, zero page errors).
+- Open question: owner verdict on the DATUM register; parked F009
+  (mobile nowrap overflow) is naturally addressed by scroll mode but stays
+  parked until this round's verdict.
