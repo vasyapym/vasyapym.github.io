@@ -74,3 +74,16 @@ Observed site alignment system (portfolio/shell/src/styles.css):
 - Open question: LIKED / REJECTED verdict on the round as a whole?
 
 
+
+## Feedback F001
+- Round: R001 (implemented)
+- Verdict: LIKED
+- Scope: project-page content alignment on both pages ("Raft Cluster", "Spine"),
+  desktop + mobile — the round as a whole, including the padding-inline gutter
+  formula and the 16px ≤560 collapse
+- Decision: keep R001 as the standing layout; the project-page-alignment
+  thread is CLOSED — no remaining implementation work, no open tradeoffs
+  (the sticky-mobile-topbar tradeoff passed without objection)
+- User source: "liked" (reply to the R001 presentation)
+- Artifact: artifacts/R001/ (commit da3c04b)
+- Supersedes: none
