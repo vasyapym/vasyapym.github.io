@@ -8,8 +8,12 @@
 /* overflow:hidden + overscroll-behavior:none clamp the page to ONE scroll
    layer: the app is a fixed grid whose inner regions (#tree, #body, .preview)
    scroll on their own; chaining a nested scroller's overscroll out to the
-   page is what read as "a second layout level" on touch. */
-html,body{height:100%;margin:0;background:var(--bg);color:var(--fg);font:14px/1.5 var(--sans);overflow:hidden;overscroll-behavior:none}
+   page is what read as "a second layout level" on touch.
+   text-size-adjust:100% disables Mobile Safari's block-inflation heuristic —
+   the root cause of "fonts too large" (editor + folder names) and the mode-
+   dependent widening that pushed ✕ off meta row 1. It does NOT shrink text
+   below authored size, so the coarse-pointer 16px zoom floor is untouched. */
+html,body{height:100%;margin:0;background:var(--bg);color:var(--fg);font:14px/1.5 var(--sans);overflow:hidden;overscroll-behavior:none;-webkit-text-size-adjust:100%;text-size-adjust:100%}
 button,input,select,textarea{font:inherit;color:inherit}
 kbd{font:11px var(--mono);background:var(--bg3);border:1px solid var(--border);border-radius:3px;padding:0 4px}
 a{color:var(--acc)}
@@ -164,9 +168,15 @@ dialog::backdrop{background:rgba(0,0,0,.55)}
   .folder>summary{padding:10px 8px}
   #sort{min-height:40px}
 
-  /* meta: mobile-first — title+toggle+delete on row 1, path reflows below */
+  /* meta: mobile-first — title+toggle+delete on row 1, path reflows below.
+     flex:1 1 0 + min-width:0 give the title a ZERO basis and override the
+     input's implicit min-width:auto, so it absorbs 100% of the row's shrink.
+     Result: the ✕ delete button and the toggle keep fixed size and can never
+     be pushed to a new row regardless of the "Edit"/"Preview" label length
+     or any residual autosizing (was flex:1 1 auto → intrinsic-width fragile,
+     which wrapped ✕ in preview mode). */
   .meta{flex-wrap:wrap}
-  #title{flex:1 1 auto;font-size:20px}
+  #title{flex:1 1 0;min-width:0;font-size:20px}
   #view-toggle{display:inline-flex;align-items:center;gap:4px;flex:0 0 auto}
   #delete-btn{flex:0 0 auto}
   #path{order:3;flex:1 0 100%}
@@ -181,8 +191,11 @@ dialog::backdrop{background:rgba(0,0,0,.55)}
   #status{padding:6px 12px calc(6px + env(safe-area-inset-bottom))}
   #status .shortcuts{display:none}
 
-  /* editor/preview bottom safe area + tighter preview gutters */
-  #body{padding:16px;padding-bottom:calc(16px + env(safe-area-inset-bottom))}
+  /* editor/preview bottom safe area + tighter preview gutters.
+     line-height:1.5 (was 1.6) is the honest "smaller editor" lever: the font
+     stays at the 16px coarse-pointer floor (no focus auto-zoom) while the
+     de-boosted text now sets tighter, so it reads smaller/denser. */
+  #body{padding:16px;padding-bottom:calc(16px + env(safe-area-inset-bottom));line-height:1.5}
   .preview{padding:16px;padding-bottom:calc(16px + env(safe-area-inset-bottom))}
 
   /* Keyboard-proof app box: dvh ignores the software keyboard, so iOS pans

@@ -185,3 +185,29 @@
   7. Palette regression: last item reachable above keyboard (N009 item 5).
   8. Desktop: search capped at 480px, sync+name+Sign in right-anchored — confirm acceptable (global change) or request a desktop-scoped follow-up.
 - Next action: owner runs checklist 1–8; item 8 verdict decides whether the header change needs a desktop-scoped adjustment round.
+
+## Pass N011 — VERIFIED (static scope) / device checks pending owner
+- Objective and scope: owner's third iOS round — (1) ✕ wraps to its own row in preview mode only; (2) editor + folder fonts too large on iOS; (3) last list element unreachable, scrolling "engages" only after the header leaves the screen; (4a) keyboard/viewport shrink request; (4b) black band left after keyboard dismiss. Relay reply complete through Phase 4 + full index.html/style.css + app.js cut mid-`pinViewport()`; tail (pinViewport body, onViewport consolidation, boot) reconstructed deterministically from the model's own D6 (single handler pin→fit→fitPalette) + N010 boot.
+- Diagnosis (relay, accepted by integrator): owner's header-CSS hypothesis REJECTED with evidence — header is grid row 1, not fixed/sticky. Real causes: (a) NO `text-size-adjust` anywhere → Mobile Safari block-inflation inflated `#body` (16px coarse), `.folder>summary` (12px) and the toggle label — root of symptoms 2 AND the mode-dependent ✕ wrap (symptom 1); (b) `#title{flex:1 1 auto}` content-basis + input's implicit `min-width:auto` made meta row 1 fragile; (c) `fitViewport()` sized the grid to `vv.height` but never compensated `vv.offsetTop` — a panned visual viewport pushes the header above the visible box and the last row behind it (symptom 3), and on dismiss a stuck pan shows the dark layout-viewport background below the app (symptom 4b). Interplay with `fitPalette` explicitly reconciled: after the pin drives `offsetTop→0`, fitPalette's `top` term settles to `pad`; single handler runs pin FIRST so reads are settled (D6).
+- Acceptance criteria covered: `-webkit-text-size-adjust:100%;text-size-adjust:100%` on html/body (boost killed; 16px zoom floor untouched); mobile `#title` → `flex:1 1 0;min-width:0` (✕ can never wrap in either mode); mobile `#body` line-height 1.6→1.5 (honest "smaller" without breaking the floor); `pinViewport()` (`window.scrollTo(0,0)` when `vv.offsetTop>0`) consolidated with fitViewport+fitPalette into one `onViewport()` on vv resize/scroll + narrow change + boot (replaces 4 separate listeners with 2); `enterkeyhint` ×4 (search/next/done/go) as the honest 4a micro-improvement — OS keyboard height documented as not controllable.
+- Changes: `index.html` (enterkeyhint ×4), `css/style.css` (text-size-adjust, mobile title zero-basis, mobile body line-height), `js/app.js` (pinViewport + onViewport consolidation + boot via onViewport).
+- Baseline: N010 state (d3eb22f). Fail-before gates on HEAD: text-size-adjust ×0, scrollTo ×0, `flex:1 1 0` ×0, enterkeyhint ×0, mobile line-height ×0.
+- Verification:
+  - Gate G9 (boost off) — `text-size-adjust:100%` ×2 (webkit + std) after ×0 before. PASS.
+  - Gate G10 (pin) — `window.scrollTo(0, 0)` ×1, pinViewport ×3 (def + comment + call in onViewport), onViewport ×7; vv listener adds = 2 (was 4 in N010 — consolidation confirmed). PASS.
+  - Gate G11 (meta row) — `#title{flex:1 1 0;min-width:0` ×1, inside the 760px block. PASS.
+  - Gate G12 (enterkeyhint) — ×4, one per field. PASS.
+  - Gate G13 (line-height) — mobile `#body` 1.5 ×1 (base 1.6 intact for desktop). PASS.
+  - Command: `node --check` app copy → OK; HTMLParser balance + 31-id contract + enterkeyhint count → PASS; CSS braces + scoping + zoom-floor intact → PASS; static server curl 3×200.
+  - NOT RUN (device-bound, owner-side): boost absence visually, ✕ non-wrap in preview mode, last-element reachability with header on screen, black-band clearance after dismiss, enterkeyhint key labels.
+- Final diff review: done — 3 product files (+54/−18) + this ledger; N009/N010 regressions guarded (focusEl ×13 with 0 bare call sites, palette fit intact and now ordered after pin, single-row header + right zone + 40px targets + safe-areas untouched); no secrets/scaffolding.
+- Design constraints: not applicable.
+- Remaining risks/blockers: (a) pin fights iOS only when the pan exceeds one frame — if band/offset reappears intermittently, next lever is rAF-debounced pin; (b) symptom 1's boost mechanism is Inferred (H1) — if ✕ still wraps with boosting dead, suspect `#view-toggle` white-space wrapping next; (c) 4a: residual keyboard height is OS chrome, not fixable in-page.
+- Owner device checklist (iPhone, iOS Safari):
+  1. Preview mode: ✕ stays on the meta row 1 (both toggle labels).
+  2. Editor text and folder names render at authored sizes (16px editor / 12px folder caps), visibly denser than before.
+  3. Tree/body: scroll to the very last element with the header visible — reachable.
+  4. Tap into body, let keyboard open, type, dismiss — no black band below the app; header stays visible the whole time.
+  5. Keyboard key area (Return key) now hints search/next/done/go per field (4a: OS keyboard height itself unchanged — that is Safari chrome).
+  6. Regression sweep: palette last item reachable; note taps don't shift the screen; desktop header/layout unchanged.
+- Next action: owner runs checklist 1–6; intermittent band/offset → pass N012 with rAF-debounced pin.

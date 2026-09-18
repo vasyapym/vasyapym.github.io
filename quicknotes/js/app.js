@@ -281,6 +281,10 @@ function openPalette(prefix = "") {
 // never be scrolled into view. visualViewport gives the real visible box; we
 // pin the dialog to its top and cap the list to what fits above the keyboard.
 // Gated to mobile; on desktop we clear the inline styles and the CSS wins.
+// NOTE (H3 interplay): pinViewport() now drives vv.offsetTop → 0 whenever iOS
+// tries to pan, so the `top` term below settles to `pad` (visible-box top).
+// The onViewport() handler always runs pin BEFORE this, so we read a settled
+// offsetTop, never a mid-pan value.
 function fitPalette() {
   if (!el.palette.open) return;
   if (!narrow.matches) { el.palette.style.top = ""; el.palList.style.maxHeight = ""; return; }
@@ -326,9 +330,8 @@ el.palInput.addEventListener("keydown", e => {
 el.palList.addEventListener("click", e => { const li = e.target.closest("li"); if (li) palRun(+li.dataset.i); });
 // Clear the keyboard-fit overrides so a later desktop open uses the CSS geometry.
 el.palette.addEventListener("close", () => { el.palette.style.top = ""; el.palList.style.maxHeight = ""; });
-// Re-fit whenever the keyboard shows/hides or the visible box shifts.
-window.visualViewport?.addEventListener("resize", fitPalette);
-window.visualViewport?.addEventListener("scroll", fitPalette);
+// (visualViewport re-fit is now driven by the single onViewport() handler in
+// the keyboard-proof section, which calls fitPalette after pin + fitViewport.)
 
 // ---------- view ----------
 function cycleView() {
@@ -410,7 +413,7 @@ syncNet();
 window.addEventListener("online", () => { syncNet(); pushAllDirty(); });
 window.addEventListener("offline", () => { syncNet(); setSync("offline", "err"); });
 
-// ---------- keyboard-proof app box ----------
+// ---------- keyboard-proof app box + visual-viewport pin ----------
 // dvh ignores the software keyboard: when the caret would sit under it, iOS
 // pans the visual viewport (the tap-shift + "second layout level" feel).
 // Sizing the app grid to the real visible box (visualViewport.height) keeps
@@ -421,14 +424,34 @@ function fitViewport() {
   const vv = window.visualViewport;
   document.documentElement.style.setProperty("--app-h", (vv ? vv.height : window.innerHeight) + "px");
 }
-window.visualViewport?.addEventListener("resize", fitViewport);
-window.visualViewport?.addEventListener("scroll", fitViewport);
-narrow.addEventListener?.("change", fitViewport);
+// H3: fitViewport sizes to vv.height but iOS can leave the visual viewport
+// PANNED (offsetTop > 0) after the keyboard opens/closes. Since the grid is
+// anchored at layout-top (y=0) but the visible box is shifted down, the header
+// slides above the box, the last list row hides in the offset region below it
+// ("scrolls only once the header is gone" / last element unreachable), and on
+// dismiss a dark band (layout-viewport bg) shows under the app. The grid is
+// already sized to the visible box, so RE-PINNING that box to the layout top
+// is always the correct resolution — one line clears symptoms 3 and 4b.
+function pinViewport() {
+  const vv = window.visualViewport;
+  if (vv && vv.offsetTop > 0) window.scrollTo(0, 0);
+}
+// One settle point (D6): re-pin the visual viewport, size the app box to the
+// visible height, then re-fit the palette — the palette must read a settled
+// offsetTop, so pin always runs first.
+function onViewport() {
+  pinViewport();
+  fitViewport();
+  fitPalette();
+}
+window.visualViewport?.addEventListener("resize", onViewport);
+window.visualViewport?.addEventListener("scroll", onViewport);
+narrow.addEventListener?.("change", onViewport);
 
 // ---------- boot ----------
 switchUser(null);
 el.sort.value = state.sort;
-fitViewport();
+onViewport();
 // Narrow viewports hide the shortcut cheat-sheet, so the search placeholder
 // shouldn't advertise keyboard shortcuts there either (Decision Log).
 const setSearchPlaceholder = () =>

@@ -16,7 +16,7 @@
       <path d="M47 37H36v11" fill="none" stroke="#7aa2f7" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
       <path d="M13 21v-8h8" fill="none" stroke="#7aa2f7" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
     </svg>notes</span>
-  <input id="search" type="search" placeholder="Search (Ctrl+K)  ·  Palette (Ctrl+P)" autocomplete="off">
+  <input id="search" type="search" placeholder="Search (Ctrl+K)  ·  Palette (Ctrl+P)" autocomplete="off" enterkeyhint="search">
   <span id="sync" class="sync" title="Sync status">local</span>
   <span id="user"></span>
   <button id="auth-btn" class="btn">Sign in</button>
@@ -65,9 +65,9 @@
     </div>
     <div id="editor" hidden>
       <div class="meta">
-        <input id="title" placeholder="Title" autocomplete="off" spellcheck="false">
+        <input id="title" placeholder="Title" autocomplete="off" spellcheck="false" enterkeyhint="next">
         <button id="view-toggle" class="btn" title="Toggle edit / preview" aria-label="Toggle preview">Preview</button>
-        <input id="path" placeholder="folder/subfolder" autocomplete="off" spellcheck="false" title="Virtual folder path">
+        <input id="path" placeholder="folder/subfolder" autocomplete="off" spellcheck="false" title="Virtual folder path" enterkeyhint="done">
         <button id="delete-btn" class="btn danger" title="Delete (Ctrl+D)">✕</button>
       </div>
       <div id="panes" class="panes split">
@@ -84,7 +84,7 @@
 </footer>
 
 <dialog id="palette">
-  <input id="pal-input" placeholder="Type to open a note, or > for commands" autocomplete="off">
+  <input id="pal-input" placeholder="Type to open a note, or > for commands" autocomplete="off" enterkeyhint="go">
   <ul id="pal-list"></ul>
 </dialog>
 
