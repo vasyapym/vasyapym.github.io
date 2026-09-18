@@ -1002,6 +1002,11 @@ textarea:focus-visible {
   border: 0;
   background: #0f1115;}
 
+/* Band insurance: a stranded top-window pan after keyboard dismissal can
+   expose the light --index-bg behind the frame's 100dvh bottom edge — paint
+   the page body ink-dark so any residual band reads black instead of white. */
+body:has(.quicknotes-frame) { background: #0b1317; }
+
 
 /* -- copy block -- */
 .gem-card-copy {

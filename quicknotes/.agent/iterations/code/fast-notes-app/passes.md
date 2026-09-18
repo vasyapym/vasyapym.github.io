@@ -257,3 +257,16 @@
   - NOT RUN (device-bound, owner): keyboard band (item 3 is iOS-vv-bound — rAF pin + focusout re-settle + parent pin are the hardening; webkit cannot emulate the keyboard), drawer edge-swipe feel with the header hidden, real-URL-bar dvh behavior in the card.
 - Artifacts: `.agent/iterations/code/fast-notes-app/artifacts/n014/{gate1,gate2,gate3}*.png`.
 - Next action: owner device pass (card + standalone, iPhone) — scroll-to-last in the card, keyboard open/dismiss band, header auto-hide, folder labels, editor feel; then brief close + deploy catalogue.
+
+## Pass N015 — INTEGRATED (relay reply complete; static + webkit verified; device pending owner)
+- Objective and scope: owner device verdict on N014 — (a) focus-zoom pair (13px field zoom-in on focus, zoom-back on dismiss) rejected after earlier acceptance; (b) "Done" leaves the page displaced (stranded vv pan); (c) the band behind the keyboard is now WHITE. Diagnosis: (c) is the catalogue body `--index-bg:#e4e5e1` (light) exposed behind the 100dvh frame by the stranded TOP-window pan — same mechanism as (b), which the app cannot see from inside the iframe (wkbug 179794).
+- Changes (all from the relay reply, integrated verbatim):
+  - `quicknotes/index.html` + `portfolio/shell/index.html` — `maximum-scale=1` added to both viewport metas (kills the <16px focus auto-zoom at 13px text; pinch still works — Safari ignores maximum-scale for pinch since iOS 10; top-document meta governs zoom in the card).
+  - `quicknotes/js/app.js` vv section — settling loop `settleLoop()` ([0,120,300]ms re-asserts gated to narrow, checking `vv.offsetTop > 0` as fact) chained into the rAF-coalesced `onViewport`; focusout re-settle retained (fires the loop); pinViewport unchanged (window + same-origin parent re-pin).
+  - `portfolio/shell/src/web/QuicknotesPage.tsx` — host-side vv pin (useEffect: scroll+resize → scrollTo(0,0) on offsetTop>0; zero-overflow page makes the pin safe against legitimate scroll); first-ever import in this file (React useEffect).
+  - `portfolio/shell/src/styles.css` — `body:has(.quicknotes-frame){background:#0b1317}` band insurance near the host block.
+- Verification:
+  - Static: `node --check` app copy OK; CSS braces balanced; metas carry maximum-scale=1 in BOTH documents; `tsc --noEmit` (shell typecheck) clean.
+  - WebKit (iPhone emulation): N014 gates re-run ALL GREEN after integration (card dead band 0 + last row visible; auto-hide both directions; type metrics unchanged; desktop untouched). NEW gates: boot clean with zero pageerrors after focusout storms; dismiss path (focus #body → blur) settles at `vvTop 0`, `--app-h` correct, no stranded header state; card bodyBg paints #0f1115-dark; stranded-pan emulation on the host (scrollY 133 → pin → 0).
+  - NOT RUN (device-bound, owner): real keyboard zoom absence + pinch still zooms (maximum-scale=1 effectiveness governed by the TOP document in the card), settle-loop timing on the real dismiss animation, no white band after Done.
+- Next action: owner device pass — type in #body/#search, press Done, in BOTH contexts; confirm no zoom, content returns, no band; then catalogue deploy + brief close.

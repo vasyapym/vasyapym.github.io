@@ -425,17 +425,11 @@ function fitViewport() {
   const vv = window.visualViewport;
   document.documentElement.style.setProperty("--app-h", (vv ? vv.height : window.innerHeight) + "px");
 }
-// H3: fitViewport sizes to vv.height but iOS can leave the visual viewport
-// PANNED (offsetTop > 0) after the keyboard opens/closes. Since the grid is
-// anchored at layout-top (y=0) but the visible box is shifted down, the header
-// slides above the box, the last list row hides in the offset region below it
-// ("scrolls only once the header is gone" / last element unreachable), and on
-// dismiss a dark band (layout-viewport bg) shows under the app. The grid is
-// already sized to the visible box, so RE-PINNING that box to the layout top
-// is always the correct resolution — one line clears symptoms 3 and 4b.
-// N013 hardening: in the catalogue card the surviving band can be HOST-level
-// (the iframe is taller than the visible box), which this window's scrollTo
-// can never reset — so when framed, re-pin the same-origin parent too.
+// H3: iOS can leave the visual viewport PANNED (offsetTop > 0) after the
+// keyboard opens/closes; the grid is already sized to the visible box, so
+// re-pinning that box to layout-top is always the correct resolution.
+// N013: in the catalogue card the surviving pan can be HOST-level, which this
+// window's scrollTo can't reset — so when framed, re-pin the same-origin parent.
 function pinViewport() {
   const vv = window.visualViewport;
   if (vv && vv.offsetTop > 0) {
@@ -443,28 +437,32 @@ function pinViewport() {
     try { if (window.self !== window.top) window.parent.scrollTo(0, 0); } catch { /* cross-origin */ }
   }
 }
-// WebKit fires vv scroll events only when a gesture FINISHES (wkbug 218465),
-// and iOS can re-pan after our scrollTo lands. D6 ordering still holds — pin
-// runs before fit/fitPalette inside the same rAF, so the palette reads a
-// settled offsetTop — but the settle is coalesced into one frame, with one
-// delayed re-assert catching a post-burst re-pan.
+// D6 ordering holds: pin before fit before fitPalette, so the palette reads a
+// settled offsetTop. WebKit fires vv scroll only when a gesture FINISHES and
+// iOS may re-pan after our scrollTo lands (~250-300ms dismiss), so the coalesced
+// frame is followed by a short settling loop that re-asserts while a pan survives.
 let settleQueued = false;
 function settleViewport() {
   pinViewport();
   fitViewport();
   fitPalette();
 }
+function settleLoop() {
+  if (!narrow.matches) return;
+  for (const t of [0, 120, 300]) setTimeout(() => {
+    if (window.visualViewport && window.visualViewport.offsetTop > 0) settleViewport();
+  }, t);
+}
 function onViewport() {
   if (settleQueued) return;
   settleQueued = true;
-  requestAnimationFrame(() => { settleQueued = false; settleViewport(); });
-  setTimeout(() => { if (window.visualViewport?.offsetTop > 0) settleViewport(); }, 140);
+  requestAnimationFrame(() => { settleQueued = false; settleViewport(); settleLoop(); });
 }
 window.visualViewport?.addEventListener("resize", onViewport);
 window.visualViewport?.addEventListener("scroll", onViewport);
 narrow.addEventListener?.("change", onViewport);
 // Keyboard close: vv resize may lag the dismissal on some iOS builds; a blur
-// of any field re-runs the settle shortly after, clearing a stranded band.
+// of any field re-runs the settle (and its loop) shortly after.
 window.addEventListener("focusout", () => { if (narrow.matches) setTimeout(onViewport, 80); });
 
 // ---------- mobile header auto-hide ("revert to non-sticky") ----------
