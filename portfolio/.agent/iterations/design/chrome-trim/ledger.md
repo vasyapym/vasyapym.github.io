@@ -90,3 +90,25 @@ Artifacts: artifacts/R000-baseline/
   y=199 mobile; no overlap, no horizontal scroll.
 - Code verification: `npm run typecheck` PASS.
 - Open question: none — owner-specified copy; thread continues if feedback.
+
+## Round R003
+- Goal: owner tweak — the R002 thesis line becomes the TITLE (the removed
+  hero headline's register) instead of the small muted line.
+- Preserved preferences: F001; owner's sentence is the verbatim copy; no
+  extra text.
+- Changes (owner-specified, trivial — integrated directly):
+  - RaftPage.tsx: sr-only h1 + p.raft-thesis replaced by one visible
+    `<h1>` with the owner's sentence; controls untouched.
+  - raft.css: .raft-sr-title and .raft-thesis rules removed; .raft-head h1
+    rule restored with the removed headline's styles (clamp 1.25-1.6rem,
+    600, -0.01em) PLUS the removed text-track flex (1 1 340px, min-width
+    260px) so the removed hero's geometry returns: title left, controls
+    right on the same row. (First attempt without the track wrapped the
+    controls below-left — rejected during visual check.)
+- Before: artifacts/R001/raft-thesis-desktop.png
+- After: artifacts/R001/raft-title2-desktop.png, raft-title2-mobile.png
+- Visual inspection: PERFORMED (1440 + 390): desktop h1 two lines at
+  x=120..949 y=93..170, controls right-aligned x=965..1320 same row, grid at
+  y=186; mobile title wraps, controls follow below; no horizontal scroll.
+- Code verification: `npm run typecheck` PASS.
+- Open question: LIKED / REJECTED on the title treatment?

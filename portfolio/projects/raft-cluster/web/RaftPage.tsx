@@ -528,11 +528,10 @@ export default function RaftPage() {
   return (
     <div className="raft-field" ref={rootRef}>
       <header className="raft-head">
-        <h1 className="raft-sr-title">Raft cluster</h1>
-        <p className="raft-thesis">
-          A full Raft state machine written in Rust, compiled to WebAssembly, and
-          visualized with Canvas 2D.
-        </p>
+        <h1>
+          A full Raft state machine written in Rust, compiled to WebAssembly,
+          and visualized with Canvas 2D.
+        </h1>
         <div className="raft-head-controls">
           <label className="raft-ctl">
             <span>Cluster</span>
