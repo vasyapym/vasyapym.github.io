@@ -969,10 +969,31 @@ textarea:focus-visible {
 
 /* quicknotes page host — the static app owns its own chrome.
    Owner verdict (F002): full-bleed on purpose — the app is more useful
-   without the site's gutter cap; alignment applies to the other pages. */
+   without the site's gutter cap; alignment applies to the other pages.
+   Card fix (item 1): scope the WHOLE project frame (pure :has(), no topbar
+   measurement) to an exact-viewport flex column — topbar (auto) + host
+   (flex:1) == 100dvh — so the host document has zero scrollable overflow at
+   any width and the app's own last list row is reachable. Other pages keep
+   the shared .project-frame rule above (min-height:100vh) untouched. Desktop
+   is unchanged (100dvh == 100vh; topbar 60px, host fills the rest). */
+.project-frame:has(.quicknotes-frame) {
+  min-height: 0;
+  height: 100dvh;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;}
+
+.project-frame:has(.quicknotes-frame) .project-frame-topbar {
+  flex: 0 0 auto;}
+
 .quicknotes-host {
   height: calc(100vh - 60px);
   background: var(--ink-bg);}
+
+.project-frame:has(.quicknotes-frame) .quicknotes-host {
+  height: auto;
+  flex: 1 1 auto;
+  min-height: 0;}
 
 .quicknotes-frame {
   display: block;

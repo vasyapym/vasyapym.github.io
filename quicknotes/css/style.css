@@ -58,6 +58,18 @@ body.offline .empty .art-offline{display:block}
 #drawer-edge{display:none}
 body.drawer-lock{overflow:hidden}
 
+/* ===== Mobile header auto-hide (owner item 1: "revert to non-sticky") =====
+   No position:sticky exists; the header is grid row 1 of a fixed body, so it
+   is always on screen. On mobile we let JS toggle body.header-hidden when an
+   inner scroller (#tree/#body/.preview) is panned DOWN, and clear it on pan-UP
+   or when a header field (#search) focuses. We collapse the grid row to 0 and
+   slide #top up by its own height so the 1fr region reclaims the space — the
+   "not enough room for a notes app" complaint. #drawer-edge is fixed and
+   independent of #top, so the drawer stays reachable while the header is gone.
+   Desktop (>760px) never gets .header-hidden (JS is gated on the narrow mq),
+   so the header is permanent there. */
+#top{transition:transform .24s cubic-bezier(.2,.8,.2,1)}
+
 #layout{display:grid;grid-template-columns:260px 1fr;min-height:0}
 #sidebar{background:var(--bg2);border-right:1px solid var(--border);display:flex;flex-direction:column;min-height:0}
 .side-head{display:flex;gap:6px;padding:8px}
@@ -70,7 +82,10 @@ body.drawer-lock{overflow:hidden}
 .tree-empty{display:flex;flex-direction:column;align-items:center;gap:10px;padding:24px 8px;color:var(--fg2);font-size:12px;text-align:center}
 .tree-empty svg{width:120px;height:120px;opacity:.85}
 .folder{margin-top:6px}
-.folder>summary{cursor:pointer;color:var(--fg2);font-size:12px;text-transform:uppercase;letter-spacing:.5px;padding:4px 8px;list-style:none;user-select:none}
+/* item 5 — folder labels read as secondary list text: normal case + no
+   tracking (the prominence came from uppercase+letter-spacing, not the size).
+   Muted colour + 12px keep them below the 14px .note-item rows. ▸/▾ kept. */
+.folder>summary{cursor:pointer;color:var(--fg2);font-size:12px;padding:4px 8px;list-style:none;user-select:none}
 .folder>summary::before{content:"▸ "}
 .folder[open]>summary::before{content:"▾ "}
 .note-item{display:block;width:100%;text-align:left;background:none;border:0;border-radius:5px;padding:5px 10px;cursor:pointer;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
@@ -161,11 +176,19 @@ dialog::backdrop{background:rgba(0,0,0,.55)}
   #top{padding-top:calc(6px + env(safe-area-inset-top));padding-left:calc(12px + env(safe-area-inset-left));padding-right:calc(12px + env(safe-area-inset-right))}
   .side-head,.side-sort{padding-left:calc(8px + env(safe-area-inset-left))}
 
+  /* Header auto-hide mechanics: the grid row collapses to 0 (min-content →
+     nothing) and #top translates up its own measured height (--top-h, written
+     by app.js; falls back to a generous 96px that covers the wrapped safe-area
+     case). z-index keeps it above the region as it leaves. */
+  #top{position:relative;z-index:10}
+  body.header-hidden{grid-template-rows:0 1fr auto}
+  body.header-hidden #top{transform:translateY(calc(-1 * var(--top-h,96px)))}
+
   /* ≥40px touch targets */
   .btn{min-height:40px;padding:8px 12px}
   #drawer-toggle{min-width:40px;justify-content:center}
   .note-item{padding:11px 12px}
-  .folder>summary{padding:10px 8px;font-size:10px}
+  .folder>summary{padding:10px 8px}
   #sort{min-height:40px}
 
   /* meta: mobile-first — title+toggle+delete on row 1, path reflows below.
@@ -174,9 +197,11 @@ dialog::backdrop{background:rgba(0,0,0,.55)}
      Result: the ✕ delete button and the toggle keep fixed size and can never
      be pushed to a new row regardless of the "Edit"/"Preview" label length
      or any residual autosizing (was flex:1 1 auto → intrinsic-width fragile,
-     which wrapped ✕ in preview mode). */
-  .meta{flex-wrap:wrap}
-  #title{flex:1 1 0;min-width:0;font-size:20px}
+     which wrapped ✕ in preview mode).
+     Item 4 — calmer/denser editor chrome: title 17px (was 20px), meta padding
+     6px 10px (was 8px 12px), path 13px mono via the pointer:coarse block. */
+  .meta{flex-wrap:wrap;padding:6px 10px;gap:6px}
+  #title{flex:1 1 0;min-width:0;font-size:17px}
   #view-toggle{display:inline-flex;align-items:center;gap:4px;flex:0 0 auto}
   #delete-btn{flex:0 0 auto}
   #path{order:3;flex:1 0 100%}
@@ -204,16 +229,17 @@ dialog::backdrop{background:rgba(0,0,0,.55)}
      keeps the dvh sizing if JS never runs. */
   body{height:var(--app-h,100dvh)}
 }
-@media (prefers-reduced-motion:reduce){#sidebar,#backdrop{transition:none}}
+@media (prefers-reduced-motion:reduce){#sidebar,#backdrop,#top{transition:none}}
 
 /* iOS Safari auto-zooms when a focused field is <16px, so this block used to
    hold every field at the 16px floor. Owner device feedback (N012) asked for
    ~20% smaller mobile text on the search bar and editor and explicitly
-   accepted the focus-zoom regression, so those two drop to 13px; everything
-   else (e.g. #path) stays at the no-zoom floor. */
+   accepted the focus-zoom regression, so those two drop to 13px; #path drops
+   to 13px too (item 4 — calmer meta row) while staying a deliberate, small
+   mono chip; everything else stays at the no-zoom floor. */
 @media (hover:none) and (pointer:coarse){
   input,select,textarea{font-size:16px}
-  #path{font-size:16px}
+  #path{font-size:13px}
   #search,#body{font-size:13px}
 }
 

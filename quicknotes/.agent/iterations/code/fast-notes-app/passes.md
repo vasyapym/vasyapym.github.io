@@ -238,3 +238,22 @@
 - Changes: none to product code. New `docs/briefs/BRIEF-quicknotes-ios-n013-consolidated.md` (verbatim app + host code, diagnosis, 5 asks, output contract); superseded `BRIEF-quicknotes-ios-scroll-self-verify.md` deleted (diagnosis recorded in graph n9/n10).
 - NOT RUN: on-device A/B (standalone vs card) — owner-side; the relay reply's integration + webkit gates are the next session.
 - Next action: relay the consolidated brief to the chat model; integrate by salvage; verify with the same webkit harness (fail-before/pass-after on the dead-band metric).
+
+## Pass N014 — INTEGRATED (relay salvage + deterministic completion; webkit gates green)
+- Objective and scope: implement the consolidated iOS round (host band, keyboard band, header auto-hide, editor type, folder labels) from the relay reply. Reply arrived TRUNCATED: complete `portfolio/shell/src/styles.css` (host) + complete `quicknotes/css/style.css` arrived; `quicknotes/js/app.js` and `QuicknotesPage.tsx` did not (the reply declared the TSX unchanged, pure-CSS :has()). Missing app.js portions reconstructed deterministically from the reply's own CSS contract (body.header-hidden + --top-h) and the brief's keyboard spec — flagged as integrator-authored, not relay-authored.
+- Changes:
+  - `portfolio/shell/src/styles.css` — relay verbatim: `.project-frame:has(.quicknotes-frame){min-height:0;height:100dvh;display:flex;flex-direction:column;overflow:hidden}` + topbar `flex:0 0 auto` + host `height:auto;flex:1 1 auto;min-height:0` (base `.quicknotes-host{height:calc(100vh - 60px)}` kept as the no-:has() fallback). Host page = exactly the dynamic viewport → zero scrollable overflow at any width; other pages untouched via :has() scoping.
+  - `quicknotes/css/style.css` — relay: folder summary de-shouted (normal case, no tracking, 12px; mobile 10px override dropped); header auto-hide mechanics (`#top` transform transition; `body.header-hidden{grid-template-rows:0 1fr auto}` + `translateY(calc(-1*var(--top-h,96px)))`, ≤760px only; `#top` added to reduced-motion); editor chrome: `.meta` 6px 10px/6px gap, `#title` 17px, coarse-block `#path` 16→13px (NOTE: brief said keep ≥16px — relay chose 13px for the calmer meta row; #path now zooms on focus like #search/#body, flag to owner).
+  - `quicknotes/js/app.js` (integrator, per reply's contract): `el.top` added; header auto-hide (scroll-direction listener on #tree/#body/.preview with WeakMap last-position, hide on pan-down >2px below 60px depth, show on pan-up or #search focus, gated by the narrow mq, --top-h measured BEFORE the row collapses); vv settle hardened (rAF-coalesced pin→fit→fitPalette with one 140ms re-assert; parent-window re-pin inside pinViewport when framed, same-origin try/catch; narrow-gated focusout re-settle).
+- Integration bugs found and fixed (fail-before/pass-after inside this pass):
+  1. Auto-hide: first scroll event initialized the last-position WeakMap with the ALREADY-updated scrollTop → delta 0 → header never hid on the first pan. Fixed: first event records and returns.
+  2. `--top-h` was measured AFTER the grid row collapsed → 13px garbage height (translate barely moved). Fixed: measure before toggling the class (53px correct).
+- Verification (webkit-2104, iPhone 390×664 emulation, 40 seeded notes; harness replica carries the new host rules verbatim):
+  - GATE 1 card geometry — `hostOverflow 33→0`, `deadBand 0`, tree at max scroll shows Note 21 fully inside the frame (bottom 563 ≤ 571) WITH the catalogue topbar visible. PASS (fail-before: n013 shots 02/03).
+  - GATE 2 auto-hide — pan down → `body.header-hidden` true, header leaves (--top-h 53px); pan up → false; desktop >760px never hides. PASS.
+  - GATE 3 type — title 17px, path 13px, body 13px, folder 12px/none/normal, note-item 14px unchanged. PASS.
+  - GATE 4 desktop — header visible, `--app-h` unset, topbar flex. PASS.
+  - Static: `node --check` app copy OK; CSS braces 145/145; markers verified.
+  - NOT RUN (device-bound, owner): keyboard band (item 3 is iOS-vv-bound — rAF pin + focusout re-settle + parent pin are the hardening; webkit cannot emulate the keyboard), drawer edge-swipe feel with the header hidden, real-URL-bar dvh behavior in the card.
+- Artifacts: `.agent/iterations/code/fast-notes-app/artifacts/n014/{gate1,gate2,gate3}*.png`.
+- Next action: owner device pass (card + standalone, iPhone) — scroll-to-last in the card, keyboard open/dismiss band, header auto-hide, folder labels, editor feel; then brief close + deploy catalogue.

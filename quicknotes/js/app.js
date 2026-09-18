@@ -14,7 +14,8 @@ const el = {
   panes: $("#panes"), body: $("#body"), preview: $("#preview"),
   count: $("#count"), palette: $("#palette"), palInput: $("#pal-input"), palList: $("#pal-list"),
   exportDlg: $("#export-dlg"), exportScope: $("#export-scope"),
-  hamburger: $("#drawer-toggle"), backdrop: $("#backdrop"), edge: $("#drawer-edge"), main: $("#main")
+  hamburger: $("#drawer-toggle"), backdrop: $("#backdrop"), edge: $("#drawer-edge"), main: $("#main"),
+  top: $("#top")
 };
 
 const drawer = initDrawer({
@@ -432,21 +433,67 @@ function fitViewport() {
 // dismiss a dark band (layout-viewport bg) shows under the app. The grid is
 // already sized to the visible box, so RE-PINNING that box to the layout top
 // is always the correct resolution — one line clears symptoms 3 and 4b.
+// N013 hardening: in the catalogue card the surviving band can be HOST-level
+// (the iframe is taller than the visible box), which this window's scrollTo
+// can never reset — so when framed, re-pin the same-origin parent too.
 function pinViewport() {
   const vv = window.visualViewport;
-  if (vv && vv.offsetTop > 0) window.scrollTo(0, 0);
+  if (vv && vv.offsetTop > 0) {
+    window.scrollTo(0, 0);
+    try { if (window.self !== window.top) window.parent.scrollTo(0, 0); } catch { /* cross-origin */ }
+  }
 }
-// One settle point (D6): re-pin the visual viewport, size the app box to the
-// visible height, then re-fit the palette — the palette must read a settled
-// offsetTop, so pin always runs first.
-function onViewport() {
+// WebKit fires vv scroll events only when a gesture FINISHES (wkbug 218465),
+// and iOS can re-pan after our scrollTo lands. D6 ordering still holds — pin
+// runs before fit/fitPalette inside the same rAF, so the palette reads a
+// settled offsetTop — but the settle is coalesced into one frame, with one
+// delayed re-assert catching a post-burst re-pan.
+let settleQueued = false;
+function settleViewport() {
   pinViewport();
   fitViewport();
   fitPalette();
 }
+function onViewport() {
+  if (settleQueued) return;
+  settleQueued = true;
+  requestAnimationFrame(() => { settleQueued = false; settleViewport(); });
+  setTimeout(() => { if (window.visualViewport?.offsetTop > 0) settleViewport(); }, 140);
+}
 window.visualViewport?.addEventListener("resize", onViewport);
 window.visualViewport?.addEventListener("scroll", onViewport);
 narrow.addEventListener?.("change", onViewport);
+// Keyboard close: vv resize may lag the dismissal on some iOS builds; a blur
+// of any field re-runs the settle shortly after, clearing a stranded band.
+window.addEventListener("focusout", () => { if (narrow.matches) setTimeout(onViewport, 80); });
+
+// ---------- mobile header auto-hide ("revert to non-sticky") ----------
+// The header is grid row 1 of a fixed body — permanently on screen, which the
+// owner reads as "sticky, not enough room for a notes app". Mobile only: pan
+// an inner list down → body.header-hidden collapses the row to 0 and slides
+// #top up its measured height (--top-h); pan up or focusing the header's
+// search brings it back. The fixed #drawer-edge is independent of #top, so
+// the drawer stays reachable while the header is hidden. Desktop never hides.
+const headerScrollers = [el.tree, el.body, el.preview];
+const lastScroll = new WeakMap();
+function setHeaderHidden(hidden) {
+  if (!narrow.matches) hidden = false;
+  // measure BEFORE the class collapses the grid row to 0 (post-collapse
+  // offsetHeight is garbage — the row's content box shrinks with it)
+  if (hidden && !document.body.classList.contains("header-hidden"))
+    document.documentElement.style.setProperty("--top-h", el.top.offsetHeight + "px");
+  document.body.classList.toggle("header-hidden", hidden);
+}
+function onHeaderScroll(e) {
+  const sc = e.currentTarget;
+  if (!lastScroll.has(sc)) { lastScroll.set(sc, sc.scrollTop); return; } // first event: no direction yet
+  const delta = sc.scrollTop - lastScroll.get(sc);
+  lastScroll.set(sc, sc.scrollTop);
+  if (delta > 2 && sc.scrollTop > 60) setHeaderHidden(true);
+  else if (delta < -2) setHeaderHidden(false);
+}
+for (const sc of headerScrollers) sc?.addEventListener("scroll", onHeaderScroll, { passive: true });
+el.search.addEventListener("focus", () => setHeaderHidden(false));
 
 // ---------- boot ----------
 switchUser(null);
