@@ -428,19 +428,22 @@ function fitViewport() {
 // H3: iOS can leave the visual viewport PANNED (offsetTop > 0) after the
 // keyboard opens/closes; the grid is already sized to the visible box, so
 // re-pinning that box to layout-top is always the correct resolution.
-// N018: the pin applies WHILE A FIELD IS FOCUSED TOO. N016's yield
-// ("iOS owns the pan while typing") left the keyboard-open reveal pan
-// stranded for the whole focus session — the panned vv no longer matches
-// the layout-top body, so the empty band beneath the textarea grew and
-// then snapped shut (owner: "area beneath gets bigger, then clumsily
-// smaller"). With --app-h the caret is always inside the visible box, so
-// a panned vv is never a legitimate reveal. Guards that DO stay:
+// N019: the pan is compensated, not fought. The owner's asymmetry gave the
+// mechanism away: it fires "after scrolling down and tapping text" — i.e.
+// tapping text near the BOTTOM, where the rising keyboard covers the caret.
+// iOS then pans the vv (offsetTop > 0, animated — "scrolls up a bit slowly")
+// to reveal it. Yanking that pan back (pre-N018) strands the caret behind
+// the keyboard; re-pinning it (N018) reads as a fight/crawl. Instead the
+// body FOLLOWS the pan: translateY(offsetTop) keeps the app box glued to
+// the visible top for ANY pan — no stranded band, no crawl — and the caret
+// stays exactly where iOS revealed it. Guards:
 // 1) subpixel offsets (wkbug 226354 fires vv scroll for 0.5px during inner
-//    scrolls) are treated as zero (threshold > 1),
-// 2) mid-touch the yank is skipped (re-checked on pointerup),
-// 3) a pinch (vv.scale !== 1) is never fought.
-// N013: in the catalogue card the surviving pan can be HOST-level, which this
-// window's scrollTo can't reset — so when framed, re-pin the same-origin parent.
+//    scrolls) are ignored (threshold > 1),
+// 2) mid-touch nothing runs (re-checked on pointerup),
+// 3) a pinch (vv.scale !== 1) is never compensated or pinned.
+// The UNFOCUSED path keeps the scrollTo pin (dismiss settle): offsetTop → 0
+// and the translate resets. N013: in the catalogue card a surviving pan can
+// be HOST-level — the same-origin parent re-pin stays.
 let pointerDown = false;
 addEventListener("pointerdown", () => { pointerDown = true; }, { passive: true });
 addEventListener("pointerup", () => { pointerDown = false; }, { passive: true });
@@ -453,15 +456,23 @@ function pinViewport() {
     try { if (window.self !== window.top) window.parent.scrollTo(0, 0); } catch { /* cross-origin */ }
   }
 }
+function alignViewport() {
+  const vv = window.visualViewport;
+  if (!vv || vv.scale !== 1 || vv.offsetTop <= 1) { document.body.style.transform = ""; return; }
+  document.body.style.transform = `translateY(${vv.offsetTop}px)`;
+}
 // D6 ordering holds: pin before fit before fitPalette, so the palette reads a
 // settled offsetTop. WebKit fires vv scroll only when a gesture FINISHES and
-// iOS may re-pan after our scrollTo lands (~250-300ms dismiss), so the coalesced
-// frame is followed by a short settling loop that re-asserts while a pan survives.
+// iOS may re-pan after the keyboard settles (~250-300ms), so the coalesced
+// frame is followed by a short settling loop that re-asserts on dismiss.
 // The loop is DISMISS-ONLY (wired from focusout): running it on every vv scroll
 // event re-yanks on iOS's subpixel offsetTop jitter — the rapid-glitch feel.
 let settleQueued = false;
 function settleViewport() {
-  if (!pointerDown) pinViewport(); // N018: also while focused; mid-touch skip stays (focusout re-runs)
+  if (!pointerDown) { // mid-touch skip covers BOTH branches (focusout re-runs)
+    if (fieldFocused()) alignViewport(); // iOS owns the pan; follow it (N019)
+    else { pinViewport(); alignViewport(); }
+  }
   fitViewport();
   fitPalette();
 }
