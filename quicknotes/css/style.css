@@ -11,7 +11,9 @@ kbd{font:11px var(--mono);background:var(--bg3);border:1px solid var(--border);b
 a{color:var(--acc)}
 [hidden]{display:none!important}
 
-body{display:grid;grid-template-rows:auto 1fr auto;height:100vh}
+/* height:100dvh tracks iOS Safari's collapsing URL bar so the footer/editor
+   bottom never clip; the plain 100vh line above is the pre-15.4 fallback. */
+body{display:grid;grid-template-rows:auto 1fr auto;height:100vh;height:100dvh}
 /* flex-wrap:wrap — the header row's min-content (~454px) pinned body width
    and overflowed narrow viewports; wrapping lets chrome reflow instead */
 #top{display:flex;align-items:center;gap:10px;flex-wrap:wrap;padding:6px 12px;background:var(--bg2);border-bottom:1px solid var(--border)}
@@ -36,6 +38,8 @@ body.offline .empty .art-offline{display:block}
 .btn:hover{border-color:var(--acc)}
 .btn.primary{background:var(--acc);color:#0b0d12;border-color:var(--acc)}
 .btn.danger:hover{border-color:var(--danger);color:var(--danger)}
+/* mobile-only Write/Preview switch — hidden on desktop, Ctrl+E still cycles */
+#view-toggle{display:none}
 
 #drawer-toggle{display:none}
 #backdrop{position:fixed;inset:0;z-index:29;background:rgba(0,0,0,.5);opacity:0;pointer-events:none;transition:opacity .28s cubic-bezier(.2,.8,.2,1)}
@@ -47,6 +51,10 @@ body.drawer-lock{overflow:hidden}
 #sidebar{background:var(--bg2);border-right:1px solid var(--border);display:flex;flex-direction:column;min-height:0}
 .side-head{display:flex;gap:6px;padding:8px}
 .side-head .btn{flex:1}
+.side-sort{display:flex;align-items:center;gap:8px;padding:0 8px 8px}
+.side-sort .sort-label{font-size:11px;text-transform:uppercase;letter-spacing:.5px;color:var(--fg2)}
+#sort{flex:1;background:var(--bg3);border:1px solid var(--border);border-radius:6px;padding:5px 8px;outline:none;cursor:pointer}
+#sort:focus{border-color:var(--acc)}
 #tree{overflow:auto;padding:0 4px 8px}
 .tree-empty{display:flex;flex-direction:column;align-items:center;gap:10px;padding:24px 8px;color:var(--fg2);font-size:12px;text-align:center}
 .tree-empty svg{width:120px;height:120px;opacity:.85}
@@ -105,8 +113,9 @@ dialog::backdrop{background:rgba(0,0,0,.55)}
   #layout{grid-template-columns:1fr}
   #drawer-toggle{display:inline-flex}
   #sidebar{
-    position:fixed;inset:0 auto 0 0;z-index:30;width:min(260px,85vw);
+    position:fixed;inset:0 auto 0 0;z-index:30;width:min(300px,85vw);
     padding-left:env(safe-area-inset-left);
+    padding-bottom:env(safe-area-inset-bottom);
     transform:translateX(-100%);
     transition:transform .28s cubic-bezier(.2,.8,.2,1);
     box-shadow:0 0 0 1px rgba(0,0,0,.06),8px 0 24px rgba(0,0,0,.18);
@@ -117,8 +126,45 @@ dialog::backdrop{background:rgba(0,0,0,.55)}
   #drawer-edge{display:block;position:fixed;inset:0 auto 0 0;width:24px;z-index:28;touch-action:pan-y}
   .panes.split{grid-template-columns:1fr}
   .panes.split #preview{display:none}
+
+  /* notch/home-indicator safe areas on the fixed chrome */
+  #top{padding-top:calc(6px + env(safe-area-inset-top));padding-left:calc(12px + env(safe-area-inset-left));padding-right:calc(12px + env(safe-area-inset-right))}
+  .side-head,.side-sort{padding-left:calc(8px + env(safe-area-inset-left))}
+
+  /* ≥40px touch targets */
+  .btn{min-height:40px;padding:8px 12px}
+  #drawer-toggle{min-width:40px;justify-content:center}
+  .note-item{padding:11px 12px}
+  .folder>summary{padding:10px 8px}
+  #sort{min-height:40px}
+
+  /* meta: mobile-first — title+toggle+delete on row 1, path reflows below */
+  .meta{flex-wrap:wrap}
+  #title{flex:1 1 auto;font-size:20px}
+  #view-toggle{display:inline-flex;align-items:center;gap:4px;flex:0 0 auto}
+  #delete-btn{flex:0 0 auto}
+  #path{order:3;flex:1 0 100%}
+
+  /* dialogs fit 320px */
+  dialog{min-width:0;width:min(94vw,480px)}
+
+  /* footer: drop keyboard cheat-sheet, keep count, clear home indicator */
+  #status{padding:6px 12px calc(6px + env(safe-area-inset-bottom))}
+  #status .shortcuts{display:none}
+
+  /* editor/preview bottom safe area + tighter preview gutters */
+  #body{padding:16px;padding-bottom:calc(16px + env(safe-area-inset-bottom))}
+  .preview{padding:16px;padding-bottom:calc(16px + env(safe-area-inset-bottom))}
 }
 @media (prefers-reduced-motion:reduce){#sidebar,#backdrop{transition:none}}
+
+/* iOS Safari auto-zooms when a focused field is <16px. A coarse-pointer
+   capability query neutralises it for every touch device (all widths)
+   without any per-element hack and without touching mouse/desktop. */
+@media (hover:none) and (pointer:coarse){
+  input,select,textarea{font-size:16px}
+  #path,#body{font-size:16px}
+}
 
 .ctx{position:fixed;z-index:100;min-width:180px;margin:0;padding:4px;list-style:none;background:var(--bg2);color:var(--fg);border:1px solid var(--border);border-radius:10px;box-shadow:0 1px 2px rgba(0,0,0,.3),0 8px 28px rgba(0,0,0,.35);font:14px/1.3 var(--sans);outline:none;user-select:none}
 .ctx [role=menuitem]{padding:7px 12px;border-radius:6px;cursor:default}

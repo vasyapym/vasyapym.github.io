@@ -8,9 +8,10 @@ import { initTreeActions } from "./tree-actions.js";
 const $ = s => document.querySelector(s);
 const el = {
   search: $("#search"), sync: $("#sync"), user: $("#user"), authBtn: $("#auth-btn"),
-  newBtn: $("#new-btn"), exportBtn: $("#export-btn"), tree: $("#tree"),
+  newBtn: $("#new-btn"), exportBtn: $("#export-btn"), tree: $("#tree"), sort: $("#sort"),
   empty: $("#empty"), editor: $("#editor"), title: $("#title"), path: $("#path"),
-  delBtn: $("#delete-btn"), panes: $("#panes"), body: $("#body"), preview: $("#preview"),
+  delBtn: $("#delete-btn"), viewToggle: $("#view-toggle"),
+  panes: $("#panes"), body: $("#body"), preview: $("#preview"),
   count: $("#count"), palette: $("#palette"), palInput: $("#pal-input"), palList: $("#pal-list"),
   exportDlg: $("#export-dlg"), exportScope: $("#export-scope"),
   hamburger: $("#drawer-toggle"), backdrop: $("#backdrop"), edge: $("#drawer-edge"), main: $("#main")
@@ -23,9 +24,13 @@ const drawer = initDrawer({
 
 const VIEWS = new Set(["edit", "split", "view"]);
 const savedView = localStorage.getItem("view");
+const SORTS = new Set(["updated", "created", "title"]);
+const savedSort = localStorage.getItem("sort");
 const state = {
   uid: "local", user: null, notes: {}, activeId: null, filter: "",
-  view: VIEWS.has(savedView) ? savedView : "split", unsubNotes: null, openFolders: new Set()
+  view: VIEWS.has(savedView) ? savedView : "split",
+  sort: SORTS.has(savedSort) ? savedSort : "updated",
+  unsubNotes: null, openFolders: new Set()
 };
 
 // ---------- helpers ----------
@@ -34,6 +39,16 @@ const active = () => state.notes[state.activeId] || null;
 const byTitle = t => live().find(n => n.title.trim().toLowerCase() === t.trim().toLowerCase());
 const setSync = (txt, cls = "") => { el.sync.textContent = txt; el.sync.className = "sync " + cls; };
 const persist = () => saveLocal(state.uid, state.notes);
+
+// Alphabetical = case/locale-insensitive, natural-numeric; empty → "Untitled";
+// ties fall back to most-recently-edited so order stays stable and useful.
+const collator = new Intl.Collator(undefined, { sensitivity: "base", numeric: true });
+function cmpNotes() {
+  if (state.sort === "created") return (a, b) => b.createdAt - a.createdAt;
+  if (state.sort === "title")
+    return (a, b) => collator.compare(a.title || "Untitled", b.title || "Untitled") || b.updatedAt - a.updatedAt;
+  return (a, b) => b.updatedAt - a.updatedAt;
+}
 
 // ---------- sync ----------
 const pending = new Map();
@@ -96,7 +111,7 @@ function escapeHtml(s) { return s.replace(/[&<>"']/g, c => ({ "&": "&amp;", "<":
 function renderTree() {
   const q = state.filter.toLowerCase();
   const notes = live().filter(n => !q || (n.title + " " + n.path + " " + n.body).toLowerCase().includes(q))
-    .sort((a, b) => b.updatedAt - a.updatedAt);
+    .sort(cmpNotes());
   const groups = new Map();
   for (const n of notes) { const p = n.path || ""; if (!groups.has(p)) groups.set(p, []); groups.get(p).push(n); }
   const paths = [...groups.keys()].sort((a, b) => (a === "" ? -1 : b === "" ? 1 : a.localeCompare(b)));
@@ -146,6 +161,7 @@ function renderEditor() {
   if (document.activeElement !== el.body) el.body.value = n.body;
   renderPreview();
   el.panes.className = "panes " + state.view;
+  el.viewToggle.textContent = state.view === "view" ? "✎ Edit" : "👁 Preview";
 }
 function renderPreview() {
   const n = active(); if (!n) return;
@@ -252,6 +268,8 @@ function renderPalette() {
     const t = q.slice(1).trim().toLowerCase();
     palItems = commands.filter(c => c.label.toLowerCase().includes(t)).map(c => ({ label: c.label, hint: "cmd", run: c.run }));
   } else {
+    // Palette keeps its own recency ordering (a quick-switcher wants "recent",
+    // not whatever the sidebar sort is) — see Decision Log.
     const t = q.trim().toLowerCase();
     palItems = live().filter(n => !t || (n.title + " " + n.path).toLowerCase().includes(t))
       .sort((a, b) => b.updatedAt - a.updatedAt).slice(0, 50)
@@ -282,12 +300,24 @@ function cycleView() {
   state.view = { edit: "split", split: "view", view: "edit" }[state.view];
   localStorage.setItem("view", state.view); renderEditor();
 }
+// Mobile switcher: split collapses to the editor on phones, so a binary
+// Write⇄Preview toggle is unambiguous where the 3-way cycle would dead-tap.
+function toggleMobileView() {
+  state.view = state.view === "view" ? "edit" : "view";
+  localStorage.setItem("view", state.view); renderEditor();
+}
 
 // ---------- events ----------
 el.authBtn.onclick = () => state.user ? logout() : login().catch(e => alert(e.message));
 el.newBtn.onclick = () => createNote();
 el.exportBtn.onclick = openExport;
 el.delBtn.onclick = deleteActive;
+el.viewToggle.onclick = toggleMobileView;
+el.sort.onchange = () => {
+  state.sort = SORTS.has(el.sort.value) ? el.sort.value : "updated";
+  localStorage.setItem("sort", state.sort);
+  renderTree();
+};
 el.title.oninput = () => { updateActive({ title: el.title.value }); renderTree(); };
 el.path.oninput = () => updateActive({ path: el.path.value });
 el.path.onchange = el.path.onblur = () => {
@@ -347,5 +377,13 @@ window.addEventListener("offline", () => { syncNet(); setSync("offline", "err");
 
 // ---------- boot ----------
 switchUser(null);
+el.sort.value = state.sort;
+// Narrow viewports hide the shortcut cheat-sheet, so the search placeholder
+// shouldn't advertise keyboard shortcuts there either (Decision Log).
+const narrow = matchMedia("(max-width:760px)");
+const setSearchPlaceholder = () =>
+  el.search.placeholder = narrow.matches ? "Search" : "Search (Ctrl+K)  ·  Palette (Ctrl+P)";
+setSearchPlaceholder();
+narrow.addEventListener?.("change", setSearchPlaceholder);
 if (!configured) setSync("local only — set js/config.js", "err");
 watchAuth(user => switchUser(user));

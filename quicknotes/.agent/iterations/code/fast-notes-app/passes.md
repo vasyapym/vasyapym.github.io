@@ -87,3 +87,46 @@
 - Design constraints: not applicable.
 - Remaining risks/blockers: sync-error thread still unreported by owner; runtime UX untested owner-side; tree is flat-by-exact-path while allFolders derives ancestor chains — consistent enough for the menu checks, noted for a future nested-tree pass.
 - Next action: owner runtime test; then either polish round or task close (+ Firebase rules thread resolution).
+
+## Pass N006 — VERIFIED (static scope; auth hardening)
+- Objective and scope: owner reported sign-in failing sometimes/browser-dependent — popup blockers. Harden the popup→redirect chain and stop hiding redirect failures.
+- Acceptance criteria covered: fallback now covers the full popup-fatality set (popup-blocked, popup-failed-to-open, operation-not-supported-in-this-environment, cancelled-popup-request); popup-closed-by-user stays a silent no-op (user intent); unauthorized-domain (both flows) explains the exact console fix; boot-time getRedirectResult failures alert once instead of console.warn-only.
+- Changes: `js/firebase.js` (POPUP_FALLBACK_CODES set, login() branching, getRedirectResult catch → user-facing alerts for known codes).
+- Baseline: N005 state.
+- Verification:
+  - Command: `node --check firebase.mjs` → OK.
+  - NOT RUN: real popup-blocked behavior across Brave/Firefox ETP/iOS — owner-side (can't automate OAuth popups here).
+- Final diff review: done — fallback set is additive; no behavior change when popups work.
+- Design constraints: not applicable.
+- Remaining risks/blockers: if the owner's actual failure was unauthorized-domain (github.io not yet in authorized domains), the fix is console-side, not code-side — pass N004 instructions cover it.
+- Next action: owner re-test sign-in on the failing browser; report which case it was.
+
+## Pass N007 — VERIFIED (static scope; Safari iframe sign-in)
+- Objective and scope: owner reported sign-in fixed on Windows Edge but still failing on macOS Safari. Leading hypothesis: the test happened in the catalogue card (iframe) — Safari suppresses popups from frames, and a redirect would navigate the frame to Google, which refuses framing.
+- Acceptance criteria covered: in-iframe sign-in hands off to a top-level tab (same origin, session shared via storage); web-storage-unsupported joins the popup-fallback codes (private mode / strict ITP); popup-closed-by-user still silent.
+- Changes: `js/firebase.js` (iframe top-tab handoff in login(), POPUP_FALLBACK_CODES + web-storage-unsupported).
+- Baseline: N006 state.
+- Verification:
+  - Command: `node --check firebase.mjs` → OK.
+  - NOT RUN: real macOS Safari test (card + standalone URL, regular + private window) — owner-side.
+- Final diff review: done — in-iframe path bypasses Firebase entirely (no popup attempt in frames); the alert explains the handoff.
+- Design constraints: not applicable.
+- Remaining risks/blockers: if the owner's Safari failure was in the standalone URL (not the card), the iframe hypothesis is wrong — need the alert text / console line to classify (popup-blocked vs unauthorized-domain vs web-storage-unsupported vs private-mode IndexedDB).
+- Next action: owner re-test on macOS Safari in BOTH contexts (standalone URL, catalogue card); report exact behavior.
+
+## Pass N008 — VERIFIED (static scope; runtime pending owner test)
+- Objective and scope: two features in one relay round — (1) note sorting (date created / date last edited / alphabetical) with persistence; (2) mobile responsiveness for iOS Safari. Relay brief enforced a 6-phase reasoning format (restate → decision log → edit plan → full files → self-review → risks) with full design autonomy granted to the chat model; reply arrived truncated mid-file (timeout) and the app.js tail (online/offline handlers + boot section) was completed by the orchestrator per the reply's own edit plan.
+- Acceptance criteria covered: three persisted sort modes (localStorage `sort`, default `updated`), applied within folder groups via sort-then-group; native `<select>` sort control usable by touch + keyboard; `100dvh` with `100vh` fallback; `viewport-fit=cover` + safe-area insets (top/left/right header, left/bottom drawer, bottom footer/editor/preview); focus-zoom neutralised via `@media (hover:none) and (pointer:coarse)` 16px rule; dialogs fit 320px (`min-width:0;width:min(94vw,480px)` in mobile query only); ≥40px touch targets on mobile; meta row reflows (path drops to its own row); touch-reachable Write⇄Preview `#view-toggle` (mobile only, binary because split collapses to editor on phones); footer cheat-sheet hidden on mobile, count kept; search placeholder swapped to "Search" on narrow viewports via matchMedia; palette keeps recency ordering (explicit decision); desktop (>760px) unchanged except the sort row.
+- Changes: `index.html` (viewport-fit=cover; `.side-sort` + `#sort` select; `#view-toggle` in meta; `.shortcuts` span class); `css/style.css` (dvh, safe areas, touch targets, meta reflow, dialog sizing, footer/footer-hide, coarse-pointer 16px block, `.side-sort`/`#sort`/`#view-toggle` styles); `js/app.js` (el map + sort/viewToggle; SORTS set + persisted `state.sort`; `cmpNotes()` with Intl.Collator base/numeric, empty title → "Untitled", tie → updatedAt desc; renderEditor sets toggle label; `el.sort.onchange` persists + renderTree; `toggleMobileView` binary Write⇄Preview; boot syncs select value + matchMedia placeholder swap — orchestrator-written tail). Other modules untouched.
+- Baseline: N007 state (v1 + drawer/folder ops + auth hardening, static-verified).
+- Verification:
+  - Command: `node --check` app.mjs/store.mjs copies → OK, exit 0.
+  - Command: `node sort-probe.mjs` (5 assertions: updated desc, created desc, title case-insensitive + natural numeric + empty→Untitled placement + tie-break, sort-then-group per-folder order) → ALL PASS. Two earlier FAILs were probe-expectation defects (expected "Untitled" first although base-insensitive collation orders U after n; listed runtime class `.side-sort` as id) — confirmed against actual output; code unchanged.
+  - Command: python HTMLParser balance + id/class cross-check → balanced, no dup ids, all 30 el-map/contract ids present, `.side-sort`/`.shortcuts`/`viewport-fit=cover` present, runtime hooks (folder/note-item/tree-empty/panes/ctx emitters) verified in js sources.
+  - Command: CSS marker check (12/12: dvh, coarse-pointer block, dialog fit, safe areas ×3, 40px targets, view-toggle both states, shortcuts hide, both media queries) + braces balanced → PASS.
+  - Command: static server curl sweep ×12 paths → all 200 (first sweep 000s — known server-startup race in the harness, retried with readiness probe).
+  - NOT RUN: real iOS Safari (dvh URL-bar behavior, focus-zoom, safe areas, native select picker, drawer feel, keyboard-overlap editing) — owner-side; visual acceptance belongs to design-iteration.
+- Final diff review: done — 3 product files + this ledger only; no debug scaffolding, no secrets, no unrelated churn; all keyboard shortcuts, sync flow, drawer/tree-actions/menu DOM contracts preserved.
+- Design constraints: not applicable (no design ledger).
+- Remaining risks/blockers: `dvh`/`viewport-fit`/coarse-pointer fixes are static-verified only until owner tests on iPhone; `#view-toggle` binary toggle assumes split-is-never-useful-on-phones (matches CSS collapse); sort select adds one row of sidebar height on desktop (the one sanctioned desktop change).
+- Next action: owner iPhone test (sorting + Safari quirks from Risks list); then task close or polish round.

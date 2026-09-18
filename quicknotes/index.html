@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
 <meta charset="utf-8">
-<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <title>notes</title>
 <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22 viewBox%3D%220 0 64 64%22%3E%3Crect width%3D%2264%22 height%3D%2264%22 rx%3D%227%22 fill%3D%22%2316161e%22%2F%3E%3Crect x%3D%22.5%22 y%3D%22.5%22 width%3D%2263%22 height%3D%2263%22 rx%3D%226.5%22 fill%3D%22none%22 stroke%3D%22%231f2335%22%2F%3E%3Cg fill%3D%22none%22 stroke-linecap%3D%22round%22 stroke-linejoin%3D%22round%22%3E%3Cpath d%3D%22M18 18h29v19L36 48H18Z%22 stroke%3D%22%233b4261%22 stroke-width%3D%221.25%22%2F%3E%3Cpath d%3D%22M47 37H36v11%22 stroke%3D%22%237aa2f7%22 stroke-width%3D%221.5%22%2F%3E%3Cpath d%3D%22M13 21v-8h8%22 stroke%3D%22%237aa2f7%22 stroke-width%3D%221.5%22%2F%3E%3C%2Fg%3E%3C%2Fsvg%3E">
 <link rel="stylesheet" href="css/style.css">
@@ -27,6 +27,14 @@
     <div class="side-head">
       <button id="new-btn" class="btn" title="New note (Ctrl+N)">+ New</button>
       <button id="export-btn" class="btn" title="Export (Ctrl+Shift+E)">↓ Zip</button>
+    </div>
+    <div class="side-sort">
+      <label for="sort" class="sort-label">Sort</label>
+      <select id="sort" title="Sort notes" aria-label="Sort notes">
+        <option value="updated">Last edited</option>
+        <option value="created">Date created</option>
+        <option value="title">Title (A–Z)</option>
+      </select>
     </div>
     <div id="tree"></div>
   </aside>
@@ -58,6 +66,7 @@
     <div id="editor" hidden>
       <div class="meta">
         <input id="title" placeholder="Title" autocomplete="off" spellcheck="false">
+        <button id="view-toggle" class="btn" title="Toggle edit / preview" aria-label="Toggle preview">👁 Preview</button>
         <input id="path" placeholder="folder/subfolder" autocomplete="off" spellcheck="false" title="Virtual folder path">
         <button id="delete-btn" class="btn danger" title="Delete (Ctrl+D)">✕</button>
       </div>
@@ -70,7 +79,7 @@
 </div>
 
 <footer id="status">
-  <span><kbd>Ctrl+N</kbd> new · <kbd>Ctrl+P</kbd> palette · <kbd>Ctrl+E</kbd> view · <kbd>Ctrl+S</kbd> sync · <kbd>Ctrl+D</kbd> delete · <kbd>Esc</kbd> back</span>
+  <span class="shortcuts"><kbd>Ctrl+N</kbd> new · <kbd>Ctrl+P</kbd> palette · <kbd>Ctrl+E</kbd> view · <kbd>Ctrl+S</kbd> sync · <kbd>Ctrl+D</kbd> delete · <kbd>Esc</kbd> back</span>
   <span id="count"></span>
 </footer>
 
