@@ -15,7 +15,7 @@ const el = {
   count: $("#count"), palette: $("#palette"), palInput: $("#pal-input"), palList: $("#pal-list"),
   exportDlg: $("#export-dlg"), exportScope: $("#export-scope"),
   hamburger: $("#drawer-toggle"), backdrop: $("#backdrop"), edge: $("#drawer-edge"), main: $("#main"),
-  top: $("#top")
+  top: $("#top"), status: $("#status")
 };
 
 const drawer = initDrawer({
@@ -534,6 +534,37 @@ function onHeaderScroll(e) {
 }
 for (const sc of headerScrollers) sc?.addEventListener("scroll", onHeaderScroll, { passive: true });
 el.search.addEventListener("focus", () => setHeaderHidden(false));
+
+// ---------- keyboard-open: tuck the info footer away while typing ----------
+// N020 (why the footer moved): the keyboard is an OS overlay and Safari fires
+// vv resize at the START of its animation — the app box must end above the
+// keyboard, and the footer sits at the box bottom, so it was forced to ride
+// the shrink slightly out of sync (the "area below 32 notes · 3 folders"
+// moving; no web API can sync to the keyboard curve — native apps use
+// private APIs for that). The footer is info-only and useless while typing,
+// so instead of riding it TUCKS DOWN out of view (margin-bottom glide, the
+// mirror of the header auto-hide): nothing below the note count exists to
+// move. --status-h is measured BEFORE the class lands (the header does the
+// same with --top-h; post-collapse measurements are garbage).
+let kbHideTimer = 0;
+const FIELD = /^(INPUT|TEXTAREA|SELECT)$/;
+function setKeyboardOpen(open) {
+  if (open) {
+    document.documentElement.style.setProperty("--status-h", el.status.offsetHeight + "px");
+    document.body.classList.add("keyboard-open");
+  } else document.body.classList.remove("keyboard-open");
+}
+document.addEventListener("focusin", e => {
+  if (!narrow.matches || !FIELD.test(e.target.tagName)) return;
+  clearTimeout(kbHideTimer);
+  setKeyboardOpen(true);
+});
+document.addEventListener("focusout", e => {
+  if (!narrow.matches || !FIELD.test(e.target.tagName)) return;
+  clearTimeout(kbHideTimer);
+  kbHideTimer = setTimeout(() => setKeyboardOpen(false), 120);
+});
+narrow.addEventListener?.("change", () => { if (!narrow.matches) { clearTimeout(kbHideTimer); setKeyboardOpen(false); } });
 
 // ---------- boot ----------
 switchUser(null);

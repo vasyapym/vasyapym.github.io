@@ -215,6 +215,14 @@ dialog::backdrop{background:rgba(0,0,0,.55)}
   /* footer: drop keyboard cheat-sheet, keep count, clear home indicator */
   #status{padding:6px 12px calc(6px + env(safe-area-inset-bottom))}
   #status .shortcuts{display:none}
+  /* N020: while the keyboard is open (body.keyboard-open, wired from
+     focusin/focusout in app.js) the info footer TUCKS DOWN out of view via a
+     negative bottom margin glide — the mirror of the header auto-hide. It
+     must not ride the --app-h box shrink: the footer moving out of sync with
+     the keyboard animation was the "area below 32 notes · 3 folders moves"
+     complaint. --status-h is measured by app.js before the class lands. */
+  #status{transition:margin-bottom .25s ease-out}
+  body.keyboard-open #status{margin-bottom:calc(-1 * var(--status-h,40px))}
 
   /* editor/preview bottom safe area + tighter preview gutters.
      line-height:1.5 (was 1.6) is the honest "smaller editor" lever: the font
@@ -232,7 +240,7 @@ dialog::backdrop{background:rgba(0,0,0,.55)}
      growing, then "clumsily" snapping shut). */
   body{height:var(--app-h,100dvh);transition:height .22s ease-out}
 }
-@media (prefers-reduced-motion:reduce){#sidebar,#backdrop,#top,body{transition:none}}
+@media (prefers-reduced-motion:reduce){#sidebar,#backdrop,#top,#status,body{transition:none}}
 
 /* iOS Safari auto-zooms when a focused field is <16px, so this block used to
    hold every field at the 16px floor. Owner device feedback (N012) asked for
