@@ -111,6 +111,16 @@ dialog::backdrop{background:rgba(0,0,0,.55)}
 
 @media (max-width:760px){
   #layout{grid-template-columns:1fr}
+
+  /* single-row header on mobile: keep only drawer + search + status + auth.
+     Brand (icon + "notes") and the user avatar/name are dropped; the signed-
+     out "local (…)" label is hidden, while the signed-in "synced" indicator
+     survives (body.signed-out toggled by switchUser in app.js). Desktop rules
+     above are untouched, so brand + name still show >760px. */
+  .brand{display:none}
+  #user{display:none}
+  body.signed-out #sync{display:none}
+
   #drawer-toggle{display:inline-flex}
   #sidebar{
     position:fixed;inset:0 auto 0 0;z-index:30;width:min(300px,85vw);
@@ -147,6 +157,9 @@ dialog::backdrop{background:rgba(0,0,0,.55)}
 
   /* dialogs fit 320px */
   dialog{min-width:0;width:min(94vw,480px)}
+  /* palette list fallback cap in dvh when visualViewport is unavailable;
+     app.js overrides max-height inline to fit above the software keyboard */
+  #pal-list{max-height:60dvh}
 
   /* footer: drop keyboard cheat-sheet, keep count, clear home indicator */
   #status{padding:6px 12px calc(6px + env(safe-area-inset-bottom))}

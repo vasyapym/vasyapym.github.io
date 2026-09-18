@@ -130,3 +130,31 @@
 - Design constraints: not applicable (no design ledger).
 - Remaining risks/blockers: `dvh`/`viewport-fit`/coarse-pointer fixes are static-verified only until owner tests on iPhone; `#view-toggle` binary toggle assumes split-is-never-useful-on-phones (matches CSS collapse); sort select adds one row of sidebar height on desktop (the one sanctioned desktop change).
 - Next action: owner iPhone test (sorting + Safari quirks from Risks list); then task close or polish round.
+
+## Pass N009 — VERIFIED (static scope) / PARTIALLY FIXED overall (device checks pending owner)
+- Objective and scope: owner iOS feedback round via relay (same 6-phase deep-reasoning + autonomy format; reply complete, only trailing prose cut — owner checklist completed by orchestrator). Symptoms: (1a) signed-out sync label crowds search; (1b) signed-in header wraps to two rows; (2) 👁 on Preview button; (3a) palette last item unreachable behind keyboard; (3b) focus-zoom reported on spine/raft value fields; (3c) compact keyboard in iframe.
+- Evidence map (from relay, verified by integrator): 1a/1b/2/3a root causes Confirmed in code (`setSync("local (signed out)")` + `flex-wrap` header min-content; `#palette{top:12vh}` + `#pal-list{max-height:50vh}` are layout-viewport-based and ignore the keyboard-shrunk visualViewport). 3b: quicknotes coverage Confirmed complete (7/7 fields hit the coarse 16px rule); spine (`spine.css:816`, R007) and raft (`raft.css:215`, R005) already ship the fix AND the live deploy (chunk `SpinePage-y_ofCuV3.css`, commit 8b3064d, 10:28Z) contains it — the zoom report almost certainly predates today's deploy; re-test only, no spine/raft code change authorized or made. 3c: Assumed WebKit iframe behavior; no reliable in-code fix; diagnostic checklist instead.
+- Acceptance criteria covered: single-row mobile header in both auth states (brand + user name hidden on mobile only; signed-out status hidden via `body.signed-out`, signed-in "synced" kept); desktop header unchanged; Preview label emoji-free ("Preview"/"Edit" — ✎ dropped too for symmetry, documented); palette fits above the keyboard via `visualViewport`-driven `fitPalette()` (gated ≤760px, inline styles cleared on close, vv resize/scroll listeners) with `60dvh` CSS fallback; zoom guard unchanged (coverage audited 7/7).
+- Changes: `index.html` (👁 removed from `#view-toggle`), `css/style.css` (mobile-only: `.brand`/`#user` hidden, `body.signed-out #sync` hidden, `#pal-list` 60dvh fallback cap), `js/app.js` (`narrow` matchMedia hoisted as single mobile source of truth; `switchUser` toggles `body.signed-out`; renderEditor labels "Edit"/"Preview"; `fitPalette()` + wiring in openPalette/palette-close/vv listeners). Other modules untouched; spine/raft untouched.
+- Baseline: N008 state (commit 6d159de). Fail-before gate evidence on HEAD: 👁 ×1 in index.html, ✎ ×1 in app.js, `signed-out` ×0 (app+css), `fitPalette`/`visualViewport` ×0.
+- Verification:
+  - Gate G1 (emoji labels) — Command: `grep -c '👁' index.html` + `grep -c '✎' app.js` → 0 and 0 after (1 and 1 before); `>Preview<` present. PASS.
+  - Gate G2 (signed-out hook) — Command: `grep -c signed-out` app.js/css → 2/2 after (0/0 before); hide rules at css lines 120–122, confirmed INSIDE the max-width:760px block (awk block scan = 1, index > media-query index). PASS.
+  - Gate G3 (palette fit) — Command: `grep -c fitPalette|visualViewport` → 4/4 after (0/0 before); node --check app.mjs copy → OK, exit 0. PASS.
+  - Command: python HTMLParser balance + 31-id contract cross-check + classes → PASS.
+  - Command: CSS brace balance + 4 new markers + scoping check → PASS.
+  - Command: static server curl `/`, css, app.js → 200 ×3.
+  - NOT RUN (device-bound, owner-side): pixel-level absence of header overlap/wrap; visualViewport keyboard-shrink behavior on target iOS; last-item reachability above the keyboard; compact-keyboard diagnosis.
+- Final diff review: done — 3 product files + this ledger; +46/−4; no debug scaffolding, no secrets, no spine/raft/shell churn; DOM contract and all shortcuts intact; desktop scoping verified mechanically.
+- Design constraints: not applicable (no design ledger).
+- Remaining risks/blockers: (a) unconfigured+signed-out hides the "local only — set js/config.js" error on mobile (accepted; desktop still shows it); (b) fitPalette heuristic (`h - inputH - pad*3`, floor 120px) may need tuning on device; (c) 3c compact keyboard is WebKit-internal — only diagnosis possible.
+- Owner device checklist (iPhone, iOS Safari):
+  1. Signed out, ≤760px: header is one row (☰ + search + Sign in), no "local (signed out)" text.
+  2. Signed in: one row (☰ + search + synced + Sign out); no "notes" title/icon/name.
+  3. Desktop >760px: brand + user name still visible; nothing else changed.
+  4. Preview toggle label reads "Preview"/"Edit", no emoji.
+  5. Palette with ~15 notes: open, scroll to bottom — last item reachable above keyboard; dismiss/reshow keyboard → list refits.
+  6. Tap each field (search/title/path/body/sort/palette input): no page zoom anywhere.
+  7. Spine + Raft: hard-reload catalogue pages, tap value fields — expect NO zoom (fix already deployed; this validates the stale-report hypothesis).
+  8. Compact keyboard: compare standalone `/quicknotes/` vs catalogue card iframe; report iOS version + which context shows the compact keyboard (diagnosis for a possible WebKit bug report; no code fix attempted).
+- Next action: owner runs checklist items 1–8; outcomes decide task close vs polish round (item 7 outcome also closes the spine/raft zoom thread).

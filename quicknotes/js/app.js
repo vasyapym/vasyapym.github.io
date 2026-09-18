@@ -33,6 +33,10 @@ const state = {
   unsubNotes: null, openFolders: new Set()
 };
 
+// max-width:760px is the single source of truth for "mobile" in JS too
+// (placeholder text + palette keyboard-fit gate).
+const narrow = matchMedia("(max-width:760px)");
+
 // ---------- helpers ----------
 const live = () => Object.values(state.notes).filter(n => !n.deleted);
 const active = () => state.notes[state.activeId] || null;
@@ -90,6 +94,9 @@ function switchUser(user) {
     ? `<img src="${escapeHtml(user.photoURL || "")}" alt="">${escapeHtml(user.displayName || user.email || "")}`
     : "";
   el.authBtn.textContent = user ? "Sign out" : "Sign in";
+  // CSS hook: on mobile the signed-out "local (…)" status is hidden, while the
+  // signed-in "synced" indicator stays. (see css @media max-width:760px)
+  document.body.classList.toggle("signed-out", !user);
   state.activeId = null;
   renderAll();
 
@@ -161,7 +168,8 @@ function renderEditor() {
   if (document.activeElement !== el.body) el.body.value = n.body;
   renderPreview();
   el.panes.className = "panes " + state.view;
-  el.viewToggle.textContent = state.view === "view" ? "✎ Edit" : "👁 Preview";
+  // Plain text labels — eye/pencil emoji removed (Decision Log).
+  el.viewToggle.textContent = state.view === "view" ? "Edit" : "Preview";
 }
 function renderPreview() {
   const n = active(); if (!n) return;
@@ -260,7 +268,24 @@ const commands = [
   { label: "Sign in / out", run: () => state.user ? logout() : login() }
 ];
 function openPalette(prefix = "") {
-  el.palInput.value = prefix; el.palette.showModal(); el.palInput.focus(); renderPalette();
+  el.palInput.value = prefix; el.palette.showModal(); el.palInput.focus(); renderPalette(); fitPalette();
+}
+// The palette used top:12vh + #pal-list max-height:50vh, both computed against
+// the LAYOUT viewport, which does not shrink for the iOS software keyboard —
+// so the list's lower rows sat behind the keyboard and the last item could
+// never be scrolled into view. visualViewport gives the real visible box; we
+// pin the dialog to its top and cap the list to what fits above the keyboard.
+// Gated to mobile; on desktop we clear the inline styles and the CSS wins.
+function fitPalette() {
+  if (!el.palette.open) return;
+  if (!narrow.matches) { el.palette.style.top = ""; el.palList.style.maxHeight = ""; return; }
+  const vv = window.visualViewport;
+  const h = vv ? vv.height : window.innerHeight;
+  const top = vv ? vv.offsetTop : 0;
+  const pad = 8;
+  el.palette.style.top = (top + pad) + "px";
+  const inputH = el.palInput.offsetHeight || 48;
+  el.palList.style.maxHeight = Math.max(120, h - inputH - pad * 3) + "px";
 }
 function renderPalette() {
   const q = el.palInput.value;
@@ -294,6 +319,11 @@ el.palInput.addEventListener("keydown", e => {
   else if (e.key === "Enter") { e.preventDefault(); palRun(); }
 });
 el.palList.addEventListener("click", e => { const li = e.target.closest("li"); if (li) palRun(+li.dataset.i); });
+// Clear the keyboard-fit overrides so a later desktop open uses the CSS geometry.
+el.palette.addEventListener("close", () => { el.palette.style.top = ""; el.palList.style.maxHeight = ""; });
+// Re-fit whenever the keyboard shows/hides or the visible box shifts.
+window.visualViewport?.addEventListener("resize", fitPalette);
+window.visualViewport?.addEventListener("scroll", fitPalette);
 
 // ---------- view ----------
 function cycleView() {
@@ -380,7 +410,6 @@ switchUser(null);
 el.sort.value = state.sort;
 // Narrow viewports hide the shortcut cheat-sheet, so the search placeholder
 // shouldn't advertise keyboard shortcuts there either (Decision Log).
-const narrow = matchMedia("(max-width:760px)");
 const setSearchPlaceholder = () =>
   el.search.placeholder = narrow.matches ? "Search" : "Search (Ctrl+K)  ·  Palette (Ctrl+P)";
 setSearchPlaceholder();
