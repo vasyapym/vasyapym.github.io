@@ -198,7 +198,14 @@ function renderAll() { renderTree(); renderEditor(); }
 // ---------- note ops ----------
 function openNote(id) {
   state.activeId = id; renderAll();
-  if (state.view === "view") focusEl(el.preview); else focusEl(el.body);
+  if (state.view === "view") focusEl(el.preview);
+  else {
+    // N022: deterministic caret — engines differ on programmatic-focus caret
+    // (Chromium: END → the old "page pans on note-open" / new: auto-scroll to
+    // bottom). Opening a note must land at its START with a calm keyboard.
+    el.body.selectionStart = el.body.selectionEnd = 0;
+    focusEl(el.body);
+  }
 }
 function createNote(partial = {}) {
   const cur = active();
@@ -498,6 +505,7 @@ let vvQueued = false;
 function readViewport() {
   if (narrow.matches && fieldFocused()) setKbHeight(currentKbHeight());
   positionDoneBar();
+  revealCaret(); // real keyboard height has landed — re-aim the caret
   fitPalette(); // keep: command-palette dialog placement
 }
 function onVV() {
@@ -509,6 +517,64 @@ window.visualViewport?.addEventListener("resize", onVV);
 window.visualViewport?.addEventListener("scroll", onVV);
 narrow.addEventListener?.("change", onVV);
 
+// ---- N022: pre-reveal the caret INSIDE the textarea ----
+// Device video verdict on N021: iOS still PANS the visual viewport for LOW
+// taps (page slides up ~150px, the title row exits view) — its caret reveal
+// runs on the caret's position regardless of the scroll room we added. The
+// only way to leave iOS nothing to reveal is to put the caret above the
+// keyboard zone BEFORE its animation completes: measure the caret's content
+// Y with a style-mirror of the textarea, then tween the textarea's scrollTop
+// so the caret bottom rests ~20px above the keyboard line. The --kb-h bottom
+// padding guarantees the scroll range reaches that position. Only-scroll-down
+// (never scroll back up), so high taps stay perfectly still (the asymmetry).
+const caretMirror = document.createElement("div");
+function caretContentY() {
+  const ta = el.body, cs = getComputedStyle(ta), m = caretMirror;
+  m.style.cssText = "position:absolute;visibility:hidden;top:0;left:0;z-index:-1;box-sizing:border-box;"
+    + `width:${ta.clientWidth}px;padding:${cs.paddingTop} ${cs.paddingRight} ${cs.paddingBottom} ${cs.paddingLeft};`
+    + `font-family:${cs.fontFamily};font-size:${cs.fontSize};font-weight:${cs.fontWeight};`
+    + `line-height:${cs.lineHeight};letter-spacing:${cs.letterSpacing};white-space:pre-wrap;`
+    + `overflow-wrap:${cs.overflowWrap};word-break:${cs.wordBreak};tab-size:${cs.tabSize}`;
+  m.textContent = ta.value.slice(0, ta.selectionStart ?? ta.value.length);
+  const dot = document.createElement("span");
+  dot.textContent = "\u200b"; // zero-width: keeps an empty last line measurable
+  m.appendChild(dot);
+  if (!m.parentNode) document.body.appendChild(m);
+  return dot.offsetTop + dot.offsetHeight; // caret BOTTOM in content coords
+}
+let tweenRaf = 0;
+function tweenScrollTo(elm, to) {
+  cancelAnimationFrame(tweenRaf);
+  const from = elm.scrollTop, dist = to - from, t0 = performance.now();
+  const step = now => {
+    const p = Math.min(1, (now - t0) / 200), e = 1 - (1 - p) ** 3;
+    elm.scrollTop = from + dist * e;
+    if (p < 1) tweenRaf = requestAnimationFrame(step);
+  };
+  tweenRaf = requestAnimationFrame(step);
+}
+function revealCaret() {
+  if (!narrow.matches || document.activeElement !== el.body) return;
+  const ta = el.body;
+  const kb = currentKbHeight() || Math.round(window.innerHeight * 0.4);
+  const visible = ta.clientHeight - kb; // the area that stays above the keyboard
+  if (visible <= 0) return;
+  const caretY = caretContentY();
+  // minimal movement: lift the caret only as far as the keyboard zone demands,
+  // +20px margin (≈ one line) so a slightly-off mirror measure can't re-pan
+  const desired = Math.round(caretY - visible + 20);
+  const max = Math.max(0, ta.scrollHeight - ta.clientHeight);
+  const to = Math.max(0, Math.min(desired, max));
+  if (to > ta.scrollTop + 2) tweenScrollTo(ta, to); // high taps: no-op
+}
+let caretQueued = false;
+document.addEventListener("selectionchange", () => {
+  if (document.activeElement !== el.body) return;
+  if (caretQueued) return;
+  caretQueued = true;
+  requestAnimationFrame(() => { caretQueued = false; revealCaret(); });
+});
+
 // ---- field focus: give textarea scroll room + show Done; blur: undo, flush ----
 document.addEventListener("focusin", e => {
   if (!narrow.matches || !FIELD.test(e.target.tagName)) return;
@@ -516,6 +582,7 @@ document.addEventListener("focusin", e => {
   setKbHeight(currentKbHeight() || Math.round(window.innerHeight * 0.4));
   document.body.classList.add("kb");
   showDoneBar(true);
+  requestAnimationFrame(revealCaret); // N022: caret above the keyboard before iOS looks
 });
 document.addEventListener("focusout", () => {
   if (!narrow.matches) return;
