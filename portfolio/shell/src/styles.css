@@ -986,17 +986,32 @@ textarea:focus-visible {
   flex-direction: column;
   overflow: hidden;}
 
+/* N028 (owner: "make the header static"): the topbar never participates in
+   document flow — anchor it to the top window and inset the frame below it.
+   When the iOS keyboard opens for the iframe's caret, Safari can pan the TOP
+   window itself (wkbug 179794 class): the in-flow topbar slid out of view
+   ("header hidden") and the frame's bottom edge lifted, leaving an empty band
+   below ("the below is empty space"). A fixed topbar is immune to that pan;
+   the frame keeps its exact-viewport geometry via top padding instead of the
+   flex topbar slot. */
 .project-frame:has(.quicknotes-frame) .project-frame-topbar {
-  flex: 0 0 auto;}
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  z-index: 40;
+  --frame-topbar-h: 61px;}
 
 .quicknotes-host {
   height: calc(100vh - 60px);
   background: var(--ink-bg);}
 
 .project-frame:has(.quicknotes-frame) .quicknotes-host {
-  height: auto;
-  flex: 1 1 auto;
-  min-height: 0;}
+  height: 100dvh;
+  flex: none;
+  min-height: 0;
+  padding-top: var(--frame-topbar-h, 60px);
+  box-sizing: border-box;}
 
 .quicknotes-frame {
   display: block;
