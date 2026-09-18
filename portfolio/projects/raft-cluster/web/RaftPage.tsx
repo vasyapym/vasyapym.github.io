@@ -528,12 +528,7 @@ export default function RaftPage() {
   return (
     <div className="raft-field" ref={rootRef}>
       <header className="raft-head">
-        <div className="raft-head-text">
-          <h1>Raft — a live cluster in your browser</h1>
-          <p className="raft-thesis">
-            Every node runs the same Rust consensus core, compiled to WebAssembly.
-          </p>
-        </div>
+        <h1 className="raft-sr-title">Raft cluster</h1>
         <div className="raft-head-controls">
           <label className="raft-ctl">
             <span>Cluster</span>

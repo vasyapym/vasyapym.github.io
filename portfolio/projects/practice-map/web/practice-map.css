@@ -32,7 +32,7 @@
 }
 
 .practice-map-page {
-  padding-top: clamp(3rem, 5vw, 4.5rem);
+  padding-top: clamp(1.95rem, 3.25vw, 2.9rem);
   padding-bottom: 6rem;
   font-family: var(--sans);
 }
@@ -53,7 +53,7 @@
      min-width:auto from overflowing. */
   display: grid;
   grid-template-columns: minmax(0, 1fr) minmax(0, 320px);
-  gap: clamp(1.25rem, 3vw, 2.5rem);
+  gap: clamp(0.8rem, 1.95vw, 1.6rem);
 }
 
 /* Copy panel — the .signal-index-hero-copy language (Reference 3): flat scrim,
@@ -512,7 +512,7 @@
   display: grid;
   grid-template-columns: minmax(190px, 0.28fr) minmax(0, 1fr);
   gap: clamp(1.75rem, 5vw, 5rem);
-  margin-top: clamp(3rem, 6vw, 5rem);
+  margin-top: clamp(1.95rem, 3.9vw, 3.25rem);
 }
 
 .practice-area-nav {
@@ -1557,7 +1557,7 @@
 @media (max-width: 900px) {
   .practice-map-hero {
     grid-template-columns: minmax(0, 1fr);
-    gap: 2.5rem;
+    gap: 1.6rem;
   }
 
   /* Stacked rows are independent tracks, so the rail's height cannot
@@ -1591,7 +1591,7 @@
 
 @media (max-width: 560px) {
   .practice-map-page {
-    padding-top: 2.5rem;
+    padding-top: 1.6rem;
     padding-bottom: 4rem;
   }
 
