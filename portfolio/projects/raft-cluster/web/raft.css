@@ -23,7 +23,10 @@
   background: var(--raft-bg);
   font-family: var(--sans, "IBM Plex Sans", system-ui, sans-serif);
   line-height: 1.5;
-  padding: clamp(16px, 3vw, 32px);
+  padding-block: clamp(16px, 3vw, 32px);
+  /* Site alignment: == min(100% - 72px, 1200px) centered, so the content
+     tracks .project-frame-nav (36px gutters, 1200px cap; 16px at <=560). */
+  padding-inline: max(36px, calc((100% - 1200px) / 2));
   box-sizing: border-box;
 }
 
@@ -87,6 +90,13 @@
 @media (max-width: 900px) {
   .raft-grid {
     grid-template-columns: 1fr;
+  }
+}
+
+@media (max-width: 560px) {
+  .raft-field {
+    /* Site 16px-gutter collapse (matches .section-shell at <=560). */
+    padding-inline: 16px;
   }
 }
 

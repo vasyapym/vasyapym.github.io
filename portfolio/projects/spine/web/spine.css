@@ -31,6 +31,12 @@
   /* The frame topbar is 60px + 1px rule; fill the rest of the viewport. */
   height: calc(100dvh - 61px);
   min-height: 560px;
+  /* Padding must not grow the height/width chain. */
+  box-sizing: border-box;
+  /* Site alignment: == min(100% - 72px, 1200px) centered, so the panes track
+     .project-frame-nav (36px gutters, 1200px cap) while the ink wash stays
+     full-bleed under the padding. */
+  padding-inline: max(36px, calc((100% - 1200px) / 2));
   background: var(--ink);
   color: var(--paper);
   /* Type split by register (F006): sans carries the UI chrome — all-mono at
@@ -514,6 +520,13 @@
   .spine-root select,
   .spine-root input {
     min-height: 44px;
+  }
+}
+
+@media (max-width: 560px) {
+  .spine-root {
+    /* Site 16px-gutter collapse (matches .section-shell at <=560). */
+    padding-inline: 16px;
   }
 }
 
