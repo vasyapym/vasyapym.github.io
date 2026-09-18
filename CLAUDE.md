@@ -40,6 +40,10 @@ The five canonical triage roles map directly to `needs-triage`, `needs-info`, `r
 
 This is a single-context repo: read root `CONTEXT.md` and `docs/adr/` for domain context and decisions. See `docs/agents/domain.md`.
 
+### Script lessons
+
+"Script lesson {topic}" (or «конвейерный урок {тема}») runs the fast Practice Map lesson pipeline: one minimal relay prompt drafts the whole lesson free-form, the orchestrator salvages, converts via `scripts/convert-lesson.mjs`, wires the area, and validates. Recipe and gates: `docs/agents/lesson-pipeline.md`. The deep track is the `lesson-iteration` skill.
+
 ### Project graph
 
 Iterations, decisions, plans, and handoffs append to a per-project history log (`.project-history/graph.jsonl`) via `scripts/project-graph`. Any session that settles something important — a direction, a plan, a verdict, a pass — records **one** node before wrapping up (never one per commit; a multi-commit pass is one `git-range` artifact). There is no auto-record hook: no commit exists purely to carry graph bookkeeping. Recording is unconditional but bounded: node `summary` ≤ 200 chars at write time — detail belongs in `--meta`, the design handoff, or a brief, not in the log. See `docs/agents/project-graph.md`.
