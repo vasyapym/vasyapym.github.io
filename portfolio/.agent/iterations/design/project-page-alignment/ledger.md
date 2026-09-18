@@ -140,3 +140,37 @@ Observed site alignment system (portfolio/shell/src/styles.css):
   tested width; EF page untouched (constraints hold by non-interference).
 - Open question: LIKED / REJECTED on (a) EF stage staying full-bleed, (b) QN
   inset + app header wrap fix?
+
+## Feedback F002
+- Round: R002 (implemented)
+- Verdict: REJECTED
+- Scope: the shell-side gutter inset of the Quicknotes host only
+  (.quicknotes-host padding-inline + 16px ≤560 knee) — the Quicknotes PAGE
+  inside the site frame. Not scoped: the app-side header wrap fix
+  (quicknotes/css/style.css), Evening Forest's stage exemption.
+- Decision: the Quicknotes embed returns to full-bleed on purpose — the app
+  is more convenient without the width cap. The width-restriction language
+  stays on the other project pages (Raft, Spine) and the EF intro.
+- User source: "on the second thought it is convenient for Quicknotes to not
+  have this width restriction. reverse it"
+- Artifact: artifacts/R002/quicknotes-1440.png (the rejected state);
+  reversal verified against artifacts/R002-baseline/quicknotes-desktop.png
+- Supersedes: R002's shell change for Quicknotes only (R001's raft/spine
+  treatment unaffected)
+
+## Round R003
+- Goal: reverse the rejected scope of R002 — restore .quicknotes-host to
+  full-bleed.
+- Preserved preferences: F002 scope; app-side overflow fix KEPT (independent
+  defect fix, verified still effective); EF zero-diff verdict stands.
+- Changes: styles.css .quicknotes-host back to height+background only
+  (comment records the owner verdict); the ≤560 media rule removed.
+- Before: artifacts/R002/quicknotes-1440.png
+- After: verified live — iframe x=0..1440@1440 and x=0..390@390, inner body
+  == viewport at 390 (app fix intact), no horizontal scroll at either width.
+  Artifact: artifacts/R002/quicknotes-1440-reverted.png
+- Visual inspection: DOM metrics + screenshot read; full-bleed matches the
+  R002 baseline state.
+- Code verification: metrics pass; typecheck unaffected (CSS property
+  removal, shell compiles — verified in R002, rule deletion is inert).
+- Open question: none — thread closed per F002.

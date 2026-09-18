@@ -968,16 +968,11 @@ textarea:focus-visible {
   transition: opacity 180ms ease-out;}
 
 /* quicknotes page host — the static app owns its own chrome.
-   Site alignment: the iframe viewport is capped like .project-frame-nav
-   (36px gutters, 1200px cap; 16px at <=560) while the ink wash stays
-   full-bleed under the padding. */
+   Owner verdict (F002): full-bleed on purpose — the app is more useful
+   without the site's gutter cap; alignment applies to the other pages. */
 .quicknotes-host {
   height: calc(100vh - 60px);
-  background: var(--ink-bg);
-  padding-inline: max(36px, calc((100% - 1200px) / 2));}
-
-@media (max-width: 560px) {
-  .quicknotes-host { padding-inline: 16px; }}
+  background: var(--ink-bg);}
 
 .quicknotes-frame {
   display: block;
