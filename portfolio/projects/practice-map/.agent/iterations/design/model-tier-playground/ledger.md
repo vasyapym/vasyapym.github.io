@@ -107,3 +107,12 @@ Owner decisions fixed into the brief (mode 2 — design owned by the orchestrato
 - Visual inspection: performed — rail centered (no dead middle), faces closed with enter affordance, vol 03 entered with breadcrumb + cards 08–11, back returns to faces, palette jump enters volume + flash on card 09, mobile 390 crumb wraps under the back link; zero console errors. Two splice regressions during the round (a state field dropped by the panel rewrite; a CSS insert landing inside the shared chrome selector group) were caught by probes/integrity greps and fixed before presenting.
 - Code verification: artifact-level only (not integrated) — integrity set: single html/script/DATA, chrome group intact, crumb css exactly once, state keeps q, no shelf references.
 - Open question: owner verdict on R003 — enter/exit navigation + rail proportion. On approval → React salvage.
+
+## Feedback F008
+- Round: R003
+- Verdict: LIKED
+- Scope: R003 as presented (enter/exit volume navigation + proportionate rail + the R002 skin); deferred improvements acknowledged
+- Decision: the round is accepted for now; polish continues later. Design thread settled — the approved artifact (R003) is the reference for implementation.
+- User source: "ok for now. we will improve later"
+- Artifact: artifacts/R003/*
+- Supersedes: none
