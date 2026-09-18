@@ -112,3 +112,19 @@ Artifacts: artifacts/R000-baseline/
   y=186; mobile title wraps, controls follow below; no horizontal scroll.
 - Code verification: `npm run typecheck` PASS.
 - Open question: LIKED / REJECTED on the title treatment?
+
+## Round R004
+- Goal: owner tweak — title shortened to "A full Raft state machine written
+  in Rust." and font size reduced ~30%.
+- Preserved preferences: F001; R003 geometry (track left, controls right).
+- Changes (owner-specified, trivial — integrated directly):
+  - RaftPage.tsx: h1 text shortened to the owner's sentence verbatim.
+  - raft.css: h1 font-size clamp(1.25rem, 2.4vw, 1.6rem) →
+    clamp(0.875rem, 1.68vw, 1.12rem) (×0.7 on every stop).
+- Before: artifacts/R001/raft-title2-desktop.png
+- After: artifacts/R001/raft-title3-desktop.png, raft-title3-mobile.png
+- Visual inspection: PERFORMED (1440 + 390): desktop one line at 17.9px,
+  controls same row (y=93..127), grid at y=143; mobile 14px single line,
+  grid at y=177; no horizontal scroll either width.
+- Code verification: `npm run typecheck` PASS.
+- Open question: LIKED / REJECTED?
