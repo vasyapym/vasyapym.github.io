@@ -1,5 +1,5 @@
 // Ad-hoc probe: the php-frameworks area + deep reader render (Symfony/Laravel lesson).
-// Same harness approach as practice-map.check.mjs, but driven at the 4th area.
+// Same harness approach as practice-map.check.mjs; the php area is located by text.
 import { spawn } from "node:child_process";
 import { existsSync, mkdirSync } from "node:fs";
 import { tmpdir } from "node:os";
@@ -76,13 +76,15 @@ try {
   const areaButtons = await page.$$eval(".practice-area-list button", (b) =>
     b.map((x) => x.textContent.trim()),
   );
-  check(areaButtons.length === 4, `4 areas listed (${areaButtons.length})`);
-  check(
-    areaButtons[3].includes("Laravel") || areaButtons[3].includes("Symfony"),
-    `4th area is Symfony/Laravel (${areaButtons[3]})`,
+  // The Hitchcock area joined between Symfony/Laravel and Linux; locate the
+  // php-frameworks area by text so future area additions stay harmless.
+  check(areaButtons.length === 5, `5 areas listed (${areaButtons.length})`);
+  const phpAreaIndex = areaButtons.findIndex(
+    (t) => t.includes("Laravel") || t.includes("Symfony"),
   );
+  check(phpAreaIndex > -1, `Symfony/Laravel area listed (index ${phpAreaIndex})`);
 
-  await page.click(".practice-area-list button:nth-child(4)");
+  await page.click(`.practice-area-list button:nth-child(${phpAreaIndex + 1})`);
   await wait(400);
   const cardCount = await page.$$eval(".practice-topic-card", (c) => c.length);
   check(cardCount === 1, `php-frameworks area renders its single card (${cardCount})`);
