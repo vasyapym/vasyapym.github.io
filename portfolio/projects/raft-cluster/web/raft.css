@@ -48,12 +48,13 @@
 }
 
 /* The owner's one-line title — the removed hero headline's register,
-   back in the removed hero's geometry: text track left, controls right. */
+   back in the removed hero's geometry: text track left, controls right.
+   Size: ~5-10% above the option choice texts (0.85rem), per owner spec. */
 .raft-head h1 {
   flex: 1 1 340px;
   min-width: 260px;
   margin: 0;
-  font-size: clamp(0.875rem, 1.68vw, 1.12rem);
+  font-size: 0.915rem;
   font-weight: 600;
   letter-spacing: -0.01em;
 }
@@ -213,6 +214,10 @@
   .raft-field select,
   .raft-field input[type="text"] {
     font-size: 16px;
+  }
+  /* Keep the title's +7.5% over the option texts in the 16px regime too. */
+  .raft-head h1 {
+    font-size: 1.075rem;
   }
 }
 

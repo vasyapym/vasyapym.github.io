@@ -128,3 +128,27 @@ Artifacts: artifacts/R000-baseline/
   grid at y=177; no horizontal scroll either width.
 - Code verification: `npm run typecheck` PASS.
 - Open question: LIKED / REJECTED?
+
+## Round R005
+- Goal: owner tweak — title "too small", must sit 5-10% above the option
+  choice texts ("3 nodes" / "5 nodes" / "7 nodes").
+- Interpretation (recorded): the option texts render at 0.85rem = 13.6px
+  (desktop) and 16px in the any-pointer:coarse zoom-guard regime. R004's
+  clamp floored at 14px — BELOW the 16px option texts on touch/narrow
+  viewports, which is the regime where the title could read "too small".
+  Fix anchors the title to the option size itself: options × 1.075 in both
+  regimes. On desktop this also reduces the title 17.9 → 14.64px (the old
+  +32% gap exceeded the requested 5-10%); flagged to the owner with numbers.
+- Changes (owner-specified ratio — integrated directly):
+  - raft.css: .raft-head h1 font-size clamp(0.875rem, 1.68vw, 1.12rem) →
+    0.915rem (= 0.85rem × 1.075); new rule in the any-pointer:coarse block:
+    1.075rem (= 16px × 1.075).
+- Before: artifacts/R001/raft-title3-desktop.png
+- After: artifacts/R001/raft-title4-desktop.png, raft-title4-mobile.png
+- Visual inspection: PERFORMED (1440 + 390 touch): desktop title 14.64px vs
+  select 13.6px (+7.6%), one line, controls same row; touch title 17.2px vs
+  select 16px (+7.5%); no horizontal scroll.
+- Code verification: `npm run typecheck` PASS.
+- Open question: LIKED / REJECTED? If the owner meant the desktop title to
+  stay larger (they said "too small" seeing 17.9px), the anchor multiplier
+  is one number to change.
