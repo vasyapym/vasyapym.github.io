@@ -152,3 +152,29 @@ Artifacts: artifacts/R000-baseline/
 - Open question: LIKED / REJECTED? If the owner meant the desktop title to
   stay larger (they said "too small" seeing 17.9px), the anchor multiplier
   is one number to change.
+
+## Feedback F002
+- Round: R005
+- Verdict: LIKED (partial — mobile)
+- Scope: the mobile/touch title size (1.075rem = option texts × 1.075)
+- Decision: keep the mobile title size as shipped; desktop must grow and
+  adapt to the simulation window width
+- User source: "i like this on mobile. on desktop it is small. increase.
+  make it so that it is adaptable to the 'raft cluster' simulation window"
+- Artifact: artifacts/R001/raft-title4-mobile.png
+- Supersedes: none
+
+## Round R006
+- Goal: desktop title bigger and window-adaptive per F002; mobile untouched.
+- Preserved preferences: F002 (mobile 1.075rem coarse rule stays verbatim);
+  R003 geometry; owner sentence verbatim.
+- Changes: raft.css .raft-head h1 font-size 0.915rem →
+  clamp(1.075rem, 1.6vw, 1.5rem) — floor is the liked mobile size, scales
+  with viewport, caps at 1.5rem. Coarse-pointer rule (1.075rem) untouched.
+- Before: artifacts/R001/raft-title4-desktop.png
+- After: artifacts/R001/raft-title5-desktop.png, -1920.png, -mobile.png
+- Visual inspection: PERFORMED. Measured font sizes: 390 → 17.2px (floor,
+  liked); 1024 → 17.2px (floor knee ~1075px); 1440 → 23.04px; 1920 → 24px
+  (cap). No horizontal scroll at any width; typecheck PASS.
+- Open question: LIKED / REJECTED on the desktop scaling curve (floor 17.2 →
+  cap 24px; the vw slope and cap are single numbers to tweak)?
