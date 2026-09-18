@@ -241,13 +241,9 @@ dialog::backdrop{background:rgba(0,0,0,.55)}
   body{height:var(--app-v,100dvh)}
 }
 @media (prefers-reduced-motion:reduce){#sidebar,#backdrop,#top{transition:none}}
-/* N021 (S2): honest one-handed keyboard dismiss — iOS Safari can omit the
-   form-accessory bar ("Done") for fields in certain iframe presentations.
-   Anchored to the VISUAL viewport via transform (JS), never touches the
-   system keyboard. Colour matches the app's primary button (--acc). */
-#done-bar{position:fixed;top:0;right:12px;z-index:60;height:36px;min-width:64px;padding:0 16px;border:0;border-radius:8px;background:var(--acc,#3b82f6);color:#0b0d12;font:600 14px/36px var(--sans);box-shadow:0 2px 8px rgba(0,0,0,.4);will-change:transform}
-#done-bar[hidden]{display:none}
-@media (min-width:761px){#done-bar{display:none}}
+/* N025: the in-app #done-bar is REMOVED (owner: the standard iOS keyboard
+   accessory bar with Done is always present; the extra button flashed on
+   every tap). blur flows through the normal dismiss paths. */
 
 /* iOS Safari auto-zooms when a focused field is <16px, so this block used to
    hold every field at the 16px floor. Owner device feedback (N012) asked for

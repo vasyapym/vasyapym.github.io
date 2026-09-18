@@ -489,35 +489,16 @@ function pinBodyHeight() {
   document.documentElement.style.setProperty("--app-v", window.innerHeight + "px");
 }
 
-// ---- in-app Done (S2): iOS Safari can omit the accessory bar in iframes ----
-const doneBar = document.createElement("button");
-doneBar.id = "done-bar"; doneBar.type = "button"; doneBar.textContent = "Done";
-doneBar.setAttribute("aria-label", "Dismiss keyboard");
-doneBar.hidden = true;
-// pointerdown + preventDefault so the tap never steals focus before we blur.
-doneBar.addEventListener("pointerdown", e => {
-  e.preventDefault();
-  const a = document.activeElement;
-  if (a && FIELD.test(a.tagName)) a.blur();
-});
-addEventListener("DOMContentLoaded", () => document.body.appendChild(doneBar), { once: true });
-function positionDoneBar() {
-  const vv = window.visualViewport;
-  if (doneBar.hidden || !vv) return;
-  const y = Math.round(vv.offsetTop + vv.height - (doneBar.offsetHeight || 36));
-  doneBar.style.transform = `translateY(${y}px)`; // anchor to the visible bottom
-}
-function showDoneBar(show) {
-  if (show && narrow.matches) { doneBar.hidden = false; positionDoneBar(); }
-  else doneBar.hidden = true;
-}
+// N025 (S2 closed by owner): the in-app Done bar is REMOVED — iOS always
+// shows the standard keyboard accessory bar with Done on this device (owner
+// verdict; the N021 "no Done" report did not reproduce). blur stays wired to
+// the normal dismiss paths.
 
-// ---- single rAF-throttled vv reader: NO page movement, only Done + palette ---
+// ---- single rAF-throttled vv reader: NO page movement, only palette -------
 let vvQueued = false;
 function readViewport() {
   pinBodyHeight();
   if (narrow.matches && fieldFocused()) setKbHeight(currentKbHeight());
-  positionDoneBar();
   revealCaret(); // real keyboard height has landed — re-aim the caret
   fitPalette(); // keep: command-palette dialog placement
 }
@@ -588,13 +569,12 @@ document.addEventListener("selectionchange", () => {
   requestAnimationFrame(() => { caretQueued = false; revealCaret(); });
 });
 
-// ---- field focus: give textarea scroll room + show Done; blur: undo, flush ----
+// ---- field focus: give textarea scroll room; blur: undo, flush ----
 document.addEventListener("focusin", e => {
   if (!narrow.matches || !FIELD.test(e.target.tagName)) return;
   // estimate first (robust to late/absent vv resize), onVV refines to the real value
   setKbHeight(currentKbHeight() || Math.round(window.innerHeight * 0.4));
   document.body.classList.add("kb");
-  showDoneBar(true);
   requestAnimationFrame(revealCaret); // N022: caret above the keyboard before iOS looks
 });
 document.addEventListener("focusout", () => {
@@ -603,7 +583,6 @@ document.addEventListener("focusout", () => {
     if (fieldFocused()) return;
     document.body.classList.remove("kb");
     setKbHeight(0);
-    showDoneBar(false);
     flushPersist(); // guarantee the synced pipeline sees the final value
   }, 60);
 });
@@ -653,10 +632,12 @@ switchUser(null);
 el.sort.value = state.sort;
 pinBodyHeight();
 onVV();
-// ---- N024: on-device instrument (?debug=1) — reads WHICH viewport value
-// moves during the owner's repro. Nine engine-side mechanism rounds have not
-// converged; the iOS truth lives on the device, so we ship the meter.
-if (new URLSearchParams(location.search).has("debug")) {
+// ---- N024: on-device instrument (?debug=1 or #debug) — reads WHICH viewport
+// value moves during the owner's repro. Nine engine-side mechanism rounds have
+// not converged; the iOS truth lives on the device, so we ship the meter.
+// Hash form added in N025: it survives navigation and works in private tabs
+// where the owner may paste the URL directly.
+if (new URLSearchParams(location.search).has("debug") || location.hash.toLowerCase().includes("debug")) {
   const meter = document.createElement("pre");
   meter.style.cssText = "position:fixed;top:0;left:0;z-index:200;margin:0;padding:4px 6px;background:#000c;color:#0f0;font:10px/1.35 ui-monospace,monospace;white-space:pre;pointer-events:none";
   const fmt = n => (n == null ? "-" : Math.round(n * 10) / 10);
