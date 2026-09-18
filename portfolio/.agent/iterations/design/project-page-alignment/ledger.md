@@ -87,3 +87,56 @@ Observed site alignment system (portfolio/shell/src/styles.css):
 - User source: "liked" (reply to the R001 presentation)
 - Artifact: artifacts/R001/ (commit da3c04b)
 - Supersedes: none
+
+## Round R002
+- Goal: extend the R001 alignment language to "Evening Forest" and
+  "Quicknotes" (owner request: "let's do the same"). Both pages are
+  structurally different from R001's pair: EF = immersive 3D stage under an
+  already-aligned .section-shell intro; QN = full-bleed same-origin iframe
+  hosting the standalone quicknotes app.
+- Preserved preferences: EF dusk-scene art history (graph n34-n38) — alignment
+  pass must not touch scene art; QN app internals off-limits except a minimal
+  fix for the overflow defect found in the baseline; standalone /quicknotes/
+  route must stay full-bleed.
+- Baseline measured (Chromium 129, 1440/1920/390): EF intro already pixel-
+  matches .project-frame-nav (120..1320@1440); EF stage full-bleed 0..1440.
+  QN host/frame full-bleed; inside the iframe the app's header/main/footer
+  span its viewport edge-to-edge; at 390 the app lays out 454px wide in a
+  390px iframe — internal horizontal overflow, footer clipped (defect found
+  this round, pre-existing).
+- Before: artifacts/R002-baseline/
+- After: — (brief drafted for chat-model delegation, brief 1 of the relay)
+- Visual inspection: baseline performed (screenshots + DOM metrics above).
+- Code verification: NOT RUN
+- Open question: awaiting chat-model deliverable.
+
+## Round R002 (implemented — completes the R002 briefing above)
+- Goal: extend the R001 alignment language to "Evening Forest" and
+  "Quicknotes"; delegate per-page reading of "content" to the chat model.
+- Preserved preferences: unchanged from R002 briefing block.
+- Changes (chat-model design, integrated by orchestrator):
+  - Evening Forest: NO code change — the intro already runs .section-shell
+    (pixel-matches the topbar); the model's verdict: the 3D stage is an
+    immersive scene = full-bleed background under C1, exempt from gutters
+    (insetting would seam lit-world/flat-#140b20, change pointer-lock aspect,
+    letter a game viewport). Integrated as a deliberate zero diff.
+  - Quicknotes shell (styles.css .quicknotes-host): R001 padding-inline
+    formula + 16px ≤560 knee — iframe becomes a 1200-capped viewport; app's
+    own header/footer edges align with the topbar; height chain untouched;
+    standalone /quicknotes/ full-bleed by construction.
+  - Quicknotes app defect (found in baseline, 454px-in-390px): the model's
+    hypothesized selector didn't exist; orchestrator traced the real root —
+    header #top flex row min-content 454px pinned body width (not the footer
+    the model blamed). Fix: `flex-wrap: wrap` on #top + `min-width: 0` on
+    #search (quicknotes/css/style.css). One-line-class fixes, no reskin.
+- Before: artifacts/R002-baseline/
+- After: artifacts/R002/
+- Visual inspection: PERFORMED. Metrics 1920/1440/1200/1024/561/560/390 both
+  routes: content gutters == .project-frame-nav gutters everywhere; QN inner
+  body scrollWidth == iframe width at every size incl. 358@390 (was 454).
+  Screenshots inspected: desktop app edges align with back-link; mobile
+  header wraps into two rows, footer chips wrap, nothing clipped.
+- Code verification: `npm run typecheck` PASS; no top-level h-scroll at any
+  tested width; EF page untouched (constraints hold by non-interference).
+- Open question: LIKED / REJECTED on (a) EF stage staying full-bleed, (b) QN
+  inset + app header wrap fix?

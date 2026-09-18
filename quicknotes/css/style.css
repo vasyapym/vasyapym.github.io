@@ -12,7 +12,9 @@ a{color:var(--acc)}
 [hidden]{display:none!important}
 
 body{display:grid;grid-template-rows:auto 1fr auto;height:100vh}
-#top{display:flex;align-items:center;gap:10px;padding:6px 12px;background:var(--bg2);border-bottom:1px solid var(--border)}
+/* flex-wrap:wrap — the header row's min-content (~454px) pinned body width
+   and overflowed narrow viewports; wrapping lets chrome reflow instead */
+#top{display:flex;align-items:center;gap:10px;flex-wrap:wrap;padding:6px 12px;background:var(--bg2);border-bottom:1px solid var(--border)}
 .brand{display:flex;align-items:center;gap:8px;font-weight:600;letter-spacing:.5px;color:var(--acc)}
 .brand-mark{width:20px;height:20px}
 
@@ -21,7 +23,9 @@ body{display:grid;grid-template-rows:auto 1fr auto;height:100vh}
 .empty .art-offline{display:none;width:140px;height:140px}
 body.offline .empty .art-scratch{display:none}
 body.offline .empty .art-offline{display:block}
-#search{flex:1;background:var(--bg3);border:1px solid var(--border);border-radius:6px;padding:6px 10px;outline:none}
+/* min-width:0 lets the search shrink below its intrinsic width so the
+   header row fits narrow viewports (was pinning body min-width to 454px) */
+#search{flex:1;min-width:0;background:var(--bg3);border:1px solid var(--border);border-radius:6px;padding:6px 10px;outline:none}
 #search:focus{border-color:var(--acc)}
 .sync{font:12px var(--mono);color:var(--fg2)}
 .sync.ok{color:var(--ok)}.sync.busy{color:var(--warn)}.sync.err{color:var(--danger)}
