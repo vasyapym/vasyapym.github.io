@@ -477,6 +477,18 @@ function setKbHeight(px) {
   document.documentElement.style.setProperty("--kb-h", (px || 0) + "px");
 }
 
+// ---- N024: rigid container height ("make it just static" — Obsidian ask) ----
+// The owner reads the whole app as a container that flexes from the bottom
+// when the keyboard appears. If this iOS build's dvh reacts to the keyboard
+// (wkbug class), body{height:100dvh} IS that flex. Pin the height to
+// innerHeight — keyboard-independent on iOS — and FREEZE it while a field is
+// focused, so nothing can resize the shell mid-typing. Refreshed on blur.
+function pinBodyHeight() {
+  if (!narrow.matches) { document.documentElement.style.removeProperty("--app-v"); return; }
+  if (fieldFocused()) return; // frozen mid-focus: the shell cannot flex while typing
+  document.documentElement.style.setProperty("--app-v", window.innerHeight + "px");
+}
+
 // ---- in-app Done (S2): iOS Safari can omit the accessory bar in iframes ----
 const doneBar = document.createElement("button");
 doneBar.id = "done-bar"; doneBar.type = "button"; doneBar.textContent = "Done";
@@ -503,6 +515,7 @@ function showDoneBar(show) {
 // ---- single rAF-throttled vv reader: NO page movement, only Done + palette ---
 let vvQueued = false;
 function readViewport() {
+  pinBodyHeight();
   if (narrow.matches && fieldFocused()) setKbHeight(currentKbHeight());
   positionDoneBar();
   revealCaret(); // real keyboard height has landed — re-aim the caret
@@ -638,7 +651,28 @@ el.search.addEventListener("focus", () => setHeaderHidden(false));
 // ---------- boot ----------
 switchUser(null);
 el.sort.value = state.sort;
+pinBodyHeight();
 onVV();
+// ---- N024: on-device instrument (?debug=1) — reads WHICH viewport value
+// moves during the owner's repro. Nine engine-side mechanism rounds have not
+// converged; the iOS truth lives on the device, so we ship the meter.
+if (new URLSearchParams(location.search).has("debug")) {
+  const meter = document.createElement("pre");
+  meter.style.cssText = "position:fixed;top:0;left:0;z-index:200;margin:0;padding:4px 6px;background:#000c;color:#0f0;font:10px/1.35 ui-monospace,monospace;white-space:pre;pointer-events:none";
+  const fmt = n => (n == null ? "-" : Math.round(n * 10) / 10);
+  const tick = () => {
+    const vv = window.visualViewport;
+    const r = document.body.getBoundingClientRect();
+    meter.textContent =
+      `innerH ${fmt(window.innerHeight)}  vvH ${vv ? fmt(vv.height) : "-"}\n` +
+      `vvTop ${vv ? fmt(vv.offsetTop) : "-"}  vvS ${vv ? fmt(vv.scale) : "-"}\n` +
+      `scrollY ${fmt(window.scrollY)}  dvh ${document.documentElement.clientHeight}\n` +
+      `bodyT ${fmt(r.top)}  bodyB ${fmt(r.bottom)}  bodyH ${fmt(r.height)}\n` +
+      `kb --kb-h ${document.documentElement.style.getPropertyValue("--kb-h") || "0"}  app-v ${document.documentElement.style.getPropertyValue("--app-v") || "-"}`;
+    requestAnimationFrame(tick);
+  };
+  tick();
+}
 // Narrow viewports hide the shortcut cheat-sheet, so the search placeholder
 // shouldn't advertise keyboard shortcuts there either (Decision Log).
 const setSearchPlaceholder = () =>

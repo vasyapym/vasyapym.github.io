@@ -232,6 +232,13 @@ dialog::backdrop{background:rgba(0,0,0,.55)}
      iOS reveals the caret by scrolling the TEXTAREA, not by panning the page.
      --kb-h is written by app.js (real vv delta, focus-time estimate first). */
   body.kb #body{padding-bottom:calc(16px + env(safe-area-inset-bottom) + var(--kb-h,0px))}
+  /* N024: "make it just static" (Obsidian-shell ask) — the container height is
+     pinned to the keyboard-independent layout height and FROZEN while a field
+     is focused (app.js writes --app-v and skips updates mid-focus). If this
+     iOS build's dvh reacts to the keyboard (wkbug class), this pin removes
+     the whole "container flexes from the bottom" motion; otherwise it is a
+     no-op that changes nothing. */
+  body{height:var(--app-v,100dvh)}
 }
 @media (prefers-reduced-motion:reduce){#sidebar,#backdrop,#top{transition:none}}
 /* N021 (S2): honest one-handed keyboard dismiss — iOS Safari can omit the
@@ -254,13 +261,10 @@ dialog::backdrop{background:rgba(0,0,0,.55)}
   #search,#body{font-size:13px}
   /* owner N015 verdict: the sort select read too big — 16px → 14px (~15% down) */
   #sort{font-size:14px}
-  /* N023: iOS's focus path for sub-16px fields includes an animated viewport
-     pan even when maximum-scale=1 clamps the zoom itself — the owner's
-     device memory "when the font was bigger there was no bug" points here
-     (the 13px drop in N012 started the tap-shift era). While the keyboard is
-     open (body.kb) the small fields present the 16px floor so the zoom-focus
-     path never triggers; the idle look stays compact (13px). */
-  body.kb #body,body.kb #search,body.kb #path{font-size:16px}
+  /* N023 REVERTED (owner verdict: "when you click text it gets bigger — I don't
+     like it"): the font swap is out; the 16px floor lives only in the meta
+     (maximum-scale=1). The zoom-focus pan candidate remains unproven until the
+     ?debug=1 overlay (N024) reads the real viewport values on device. */
 }
 
 .ctx{position:fixed;z-index:100;min-width:180px;margin:0;padding:4px;list-style:none;background:var(--bg2);color:var(--fg);border:1px solid var(--border);border-radius:10px;box-shadow:0 1px 2px rgba(0,0,0,.3),0 8px 28px rgba(0,0,0,.35);font:14px/1.3 var(--sans);outline:none;user-select:none}
