@@ -1,11 +1,9 @@
 import type {
   FeedbackKind,
   PracticeArea,
-  TopicStatus,
 } from "./curriculum";
 
 export type TopicProgress = {
-  readonly status: TopicStatus;
   readonly feedback: readonly FeedbackKind[];
   readonly note: string;
 };
@@ -14,22 +12,7 @@ export type PracticeState = {
   readonly topics: Readonly<Record<string, TopicProgress>>;
 };
 
-export type PracticeSummary = {
-  total: number;
-  queued: number;
-  inProgress: number;
-  revisit: number;
-  applied: number;
-};
-
 const STORAGE_KEY = "practice-map:progress:v1";
-
-const TOPIC_STATUSES: readonly TopicStatus[] = [
-  "queued",
-  "in-progress",
-  "revisit",
-  "applied",
-];
 
 const FEEDBACK_KINDS: readonly FeedbackKind[] = [
   "clear",
@@ -46,7 +29,6 @@ export function createInitialState(areas: readonly PracticeArea[]): PracticeStat
   for (const area of areas) {
     for (const topic of area.topics) {
       topics[topic.id] = {
-        status: "queued",
         feedback: [],
         note: "",
       };
@@ -80,7 +62,6 @@ export function loadPracticeState(areas: readonly PracticeArea[]): PracticeState
       }
 
       topics[topicId] = {
-        status: isTopicStatus(saved.status) ? saved.status : topics[topicId].status,
         feedback: Array.isArray(saved.feedback)
           ? saved.feedback.filter(isFeedbackKind)
           : topics[topicId].feedback,
@@ -100,24 +81,6 @@ export function savePracticeState(state: PracticeState) {
   }
 
   window.localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
-}
-
-export function setTopicStatus(
-  state: PracticeState,
-  topicId: string,
-  status: TopicStatus,
-): PracticeState {
-  const current = state.topics[topicId];
-  if (!current) {
-    return state;
-  }
-
-  return {
-    topics: {
-      ...state.topics,
-      [topicId]: { ...current, status },
-    },
-  };
 }
 
 export function toggleTopicFeedback(
@@ -161,29 +124,6 @@ export function setTopicNote(
   };
 }
 
-export function summarizePractice(
-  areas: readonly PracticeArea[],
-  state: PracticeState,
-): PracticeSummary {
-  const summary: PracticeSummary = {
-    total: 0,
-    queued: 0,
-    inProgress: 0,
-    revisit: 0,
-    applied: 0,
-  };
-
-  for (const area of areas) {
-    for (const topic of area.topics) {
-      summary.total += 1;
-      const status = state.topics[topic.id]?.status ?? "queued";
-      summary[statusSummaryKey(status)] += 1;
-    }
-  }
-
-  return summary;
-}
-
 export function formatFeedback(
   areas: readonly PracticeArea[],
   state: PracticeState,
@@ -214,18 +154,6 @@ export function formatFeedback(
   return feedbackCount > 0 ? lines.join("\n").trim() : "No feedback captured yet.";
 }
 
-function isTopicStatus(value: unknown): value is TopicStatus {
-  return typeof value === "string" && TOPIC_STATUSES.includes(value as TopicStatus);
-}
-
 function isFeedbackKind(value: unknown): value is FeedbackKind {
   return typeof value === "string" && FEEDBACK_KINDS.includes(value as FeedbackKind);
-}
-
-function statusSummaryKey(status: TopicStatus): keyof Omit<PracticeSummary, "total"> {
-  if (status === "in-progress") {
-    return "inProgress";
-  }
-
-  return status;
 }

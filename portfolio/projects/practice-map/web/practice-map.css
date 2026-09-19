@@ -529,22 +529,6 @@
   letter-spacing: 0.02em;
 }
 
-.practice-topic-status {
-  text-transform: lowercase;
-}
-
-.practice-topic-status.status-in-progress {
-  color: var(--ink-accent-bright);
-}
-
-.practice-topic-status.status-applied {
-  color: #96b896;
-}
-
-.practice-topic-status.status-revisit {
-  color: var(--ink-accent);
-}
-
 .practice-topic-card h3 {
   margin: 0;
   color: var(--ink-text);
@@ -586,44 +570,6 @@
   border-color: var(--ink-accent);
   color: var(--ink-accent-bright);
   background: var(--ink-panel);
-}
-
-/* Lesson status lives inside the lesson window as a quiet top row of the
-   scroll body (owner round: de-emphasized on the listing) — it fits every
-   viewport, keeps the header minimal, and leaves the close button pinned. */
-.practice-lesson-statusrow {
-  display: flex;
-  align-items: center;
-  gap: 0.7rem;
-  margin-top: 1rem;
-}
-
-.practice-lesson-statusrow > span {
-  color: var(--ink-faint);
-  font-family: var(--mono);
-  font-size: 0.66rem;
-  letter-spacing: 0.05em;
-  text-transform: lowercase;
-}
-
-.practice-lesson-status {
-  border: 1px solid var(--ink-line-soft);
-  border-radius: 999px;
-  padding: 0.35rem 0.7rem;
-  color: var(--ink-muted);
-  background: transparent;
-  cursor: pointer;
-  font-family: var(--mono);
-  font-size: 0.66rem;
-  letter-spacing: 0.05em;
-  text-transform: lowercase;
-  transition: border-color 180ms ease, color 180ms ease;
-}
-
-.practice-lesson-status:hover,
-.practice-lesson-status:focus-visible {
-  border-color: var(--ink-accent);
-  color: var(--ink-text);
 }
 
 .practice-map-footer {

@@ -1,5 +1,3 @@
-export type TopicStatus = "queued" | "in-progress" | "revisit" | "applied";
-
 export type FeedbackKind =
   | "clear"
   | "too-broad"

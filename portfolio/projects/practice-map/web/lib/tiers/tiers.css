@@ -89,15 +89,16 @@
   color:var(--ink-text); caret-color:var(--ink-accent);
   background:var(--ink-panel); border:1px solid var(--ink-line-soft); border-radius:var(--pill-radius);
   padding:0 1.15em; appearance:none; -webkit-appearance:none; outline:none;
-  transition:border-color .18s ease, box-shadow .18s ease;
+  transition:border-color .18s ease;
 }
 .pg-search input::placeholder{color:var(--ink-faint); letter-spacing:.05em}
 /* strip browser search-field chrome (cancel button, decoration) */
 .pg-search input::-webkit-search-cancel-button,
 .pg-search input::-webkit-search-decoration{-webkit-appearance:none; appearance:none}
 .pg-search input:hover{border-color:var(--ink-line)}
-.pg-search input:focus{border-color:var(--ink-accent); box-shadow:0 0 0 3px rgba(211,155,97,.08)}
-.pg-search input:focus-visible{outline:1px solid var(--ink-accent); outline-offset:2px}
+/* focus is a whisper: border steps one opacity notch; no colour, no glow */
+.pg-search input:focus{border-color:var(--ink-line)}
+.pg-search input:focus-visible{outline:1px solid var(--ink-line); outline-offset:2px}
 .pg-search .pg-pill{flex:0 0 auto; min-height:44px; letter-spacing:.05em}
 @media (pointer:fine){
   .pg-search input{min-height:40px}

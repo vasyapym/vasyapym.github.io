@@ -5,7 +5,6 @@ import {
   useMemo,
   useRef,
   useState,
-  type ChangeEvent,
   type MouseEvent,
 } from "react";
 import { createPortal } from "react-dom";
@@ -14,14 +13,11 @@ import {
   type LessonExample,
   type LessonSection,
   type TopicCard as TopicCardDefinition,
-  type TopicStatus,
 } from "./curriculum";
 import {
   createInitialState,
   loadPracticeState,
   savePracticeState,
-  setTopicStatus,
-  summarizePractice,
   type PracticeState,
 } from "./progress";
 import "./practice-map.css";
@@ -45,13 +41,6 @@ import {
   writeScrollProgress,
 } from "./lib/scrollProgress/storage";
 
-const STATUS_LABELS: Readonly<Record<TopicStatus, string>> = {
-  queued: "queued",
-  "in-progress": "in progress",
-  revisit: "revisit",
-  applied: "applied",
-};
-
 const LESSON_TABS = [
   { key: "problem", label: "problem" },
   { key: "model", label: "model" },
@@ -70,8 +59,6 @@ export default function PracticeMapPage() {
   const [flashTopicId, setFlashTopicId] = useState<string | null>(null);
   const [openLessonId, setOpenLessonId] = useState<string | null>(null);
   const [paletteOpen, setPaletteOpen] = useState(false);
-
-  const summary = summarizePractice(curriculum, state);
 
   useEffect(() => {
     savePracticeState(state);
@@ -265,8 +252,6 @@ export default function PracticeMapPage() {
           <LessonOverlay
             index={openTopicIndex}
             topic={openTopic}
-            status={state.topics[openTopic.id].status}
-            onStatusChange={(status) => setState(setTopicStatus(state, openTopic.id, status))}
             onClose={() => setOpenLessonId(null)}
           />
         )}
@@ -274,12 +259,11 @@ export default function PracticeMapPage() {
         <footer className="practice-map-footer">
           <span>local notes · no account</span>
           <span className="practice-map-footer-meta">
-            <span>{summary.queued} queued</span>
             <button
               className="practice-map-reset"
               type="button"
               onClick={() => {
-                if (window.confirm("Reset all statuses, feedback, and notes?")) {
+                if (window.confirm("Reset all notes and progress?")) {
                   setState(createInitialState(curriculum));
                 }
               }}
@@ -296,14 +280,10 @@ export default function PracticeMapPage() {
 function LessonOverlay({
   index,
   topic,
-  status,
-  onStatusChange,
   onClose,
 }: {
   index: number;
   topic: TopicCardDefinition;
-  status: TopicStatus;
-  onStatusChange: (status: TopicStatus) => void;
   onClose: () => void;
 }) {
   const [tab, setTab] = useState<LessonTabKey>("problem");
@@ -320,10 +300,6 @@ function LessonOverlay({
   const deep = topic.deepLesson;
   const free = useFreeSettings(topic.id);
   const freeEnabled = free.value?.enabled ?? false;
-
-  const handleStatusChange = (event: ChangeEvent<HTMLSelectElement>) => {
-    onStatusChange(event.target.value as TopicStatus);
-  };
 
   const updateProgress = () => {
     const scroller = scrollRef.current;
@@ -653,20 +629,6 @@ function LessonOverlay({
         >
           <div aria-hidden="true" className="practice-lesson-progress">
             <span ref={progressRef} />
-          </div>
-
-          <div className="practice-lesson-statusrow">
-            <span>status</span>
-            <select
-              aria-label={`Status for ${topic.title}`}
-              className="practice-lesson-status"
-              value={status}
-              onChange={handleStatusChange}
-            >
-              {Object.entries(STATUS_LABELS).map(([value, label]) => (
-                <option key={value} value={value}>{label}</option>
-              ))}
-            </select>
           </div>
 
           {topic.objectives && topic.objectives.length > 0 && (

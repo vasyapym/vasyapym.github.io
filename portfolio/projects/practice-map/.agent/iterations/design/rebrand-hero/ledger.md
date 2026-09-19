@@ -304,3 +304,52 @@ mobile top 390).
 - Visual inspection: eight shots read. 1440: verdict/ledger share one measure, disposition column answers the dead right field, masthead ascenders unclipped inside the masks; body hierarchy faces>cards>list intact below the bare-field hero. 1024: verdict ~50px, ledger full-width. 700: 3-col ledger holds, specimens near-full. 560: accession dropped cleanly, kept/cut column retained. 390: h1 proportionate untruncated, specimens ellipsis (clipped-output concept), dispositions legible. 320: h1 wraps inside its masks (no clipping), truncation flags on specimens only, zero overflow
 - Code verification: `tsc --noEmit` clean; `practice-map.check.mjs` green except the pre-existing "ArrowRight advances sections" failure (unchanged baseline); headless probe at 1440/1024/700/560/390/320: docΔ=0, heroΔ=0, 4 rec + 4 disp rows everywhere, zero console/page errors
 - Open question: owner verdict on the record-sheet execution (F019); the model's one logged interpretation — "panel keeps real vertical presence" read as "hero keeps real vertical presence" (panel skin deleted by design) — stands unless the owner wants a literal panel back. Next: R012 element-craft brief (F020 model-list rationale, F022 folders, F023 Go Back), then R013 mobile spacing (F021, orchestrator-direct)
+
+## Feedback F025
+- Round: none (owner batch, 2026-09-20, post-R011 review)
+- Verdict: REJECTED (scale + treatment)
+- Scope: hero heading — the subtext line ("not all of these are good.") + heading treatment, all viewports
+- Decision: scale the subtext down to ~40% of its current size; drop ALL stylistic effects on the heading (the masked line-rise, the 700-ochre emphasis); select a typeface that feels archival and unembellished — something that gets out of its own way
+- User source: item 1: «"Archive of AI Outputs. Not all of these are good." Scale the subtext down to ~40% of its current size. Drop all stylistic effects on the heading and select a typeface that feels archival and unembellished — something that gets out of its own way.»
+- Refines: F019 (the record-sheet structure survived review; scale/effects/typeface reopen)
+
+## Feedback F026
+- Round: none (owner batch, 2026-09-20, post-R011 review)
+- Verdict: REJECTED (premise)
+- Scope: hero ledger entries — the kept/cut semantics
+- Decision: "good structure, wrong premise" — the entries must NOT frame a review process (keep good / discard bad); this is an archive where nothing gets discarded and pristine completions sit alongside hallucinated capital cities; the section must reflect indiscriminate preservation, not editorial judgment. Rethink.
+- User source: item 2: «Good structure, wrong premise. The current entries frame this as a review process — keep the good, discard the bad. That contradicts the core idea. This is an archive. Nothing gets discarded. Pristine code completions sit alongside hallucinated capital cities. The section needs to reflect that indiscriminate preservation, not editorial judgment. Rethink.»
+- Supersedes: F019's confirmed tone in scope (the kept/cut legend + per-row dispositions die; h1 copy survives — the owner re-quoted it as the heading)
+
+## Feedback F027
+- Round: none (owner batch, 2026-09-20, post-R011 review)
+- Verdict: REJECTED (active state)
+- Scope: model list active-row treatment (`.pg-tier-row.is-active` — the ochre inset spine + ochre ordinal device from R008)
+- Decision: keep the left-rail model list as-is otherwise; replace the yellow active-state highlight with something quieter — current styling reads "performative rather than intentional"; a senior portfolio communicates restraint, not range
+- User source: item 3: «Keep the left-rail model list. Replace the yellow active-state highlight with something quieter. As it stands, the styling feels performative rather than intentional. A senior portfolio should communicate restraint, not range.»
+- Supersedes: R008's F014 resolution (spine + ochre ordinal) within active-row scope
+
+## Feedback F028
+- Round: none (owner batch, 2026-09-20, post-R011 review)
+- Verdict: REJECTED (focus state)
+- Scope: search bar focus treatment (`.pg-search input:focus` + `:focus-visible`)
+- Decision: the ochre border + glow/underline on focus are overdesigned; a subtle shift in border weight or opacity is sufficient; the interaction should feel seamless, not announced
+- User source: item 4: «The yellow border and underline on focus are overdesigned. Dial it back — a subtle shift in border weight or opacity is sufficient. The interaction should feel seamless, not announced.»
+- Supersedes: R008's focus treatment within search-input scope
+
+## Feedback F029
+- Round: none (owner batch, 2026-09-20, post-R011 review)
+- Verdict: REJECTED (removal)
+- Scope: the per-lesson status machinery (queued / in progress / revisit / applied)
+- Decision: remove entirely — a leftover from an earlier concept; no longer serves the project. Renders today as the lesson-window statusrow select and the footer "N queued" count (no status renders on the map cards themselves; `.practice-topic-status*` CSS is already orphaned)
+- User source: item 5: «Remove entirely. The "Queued" / "In Progress" states are a leftover from an earlier concept and no longer serve the project.»
+
+## Round R012
+- Goal: leg A of the post-R011 owner batch — F028 (search focus quieted) + F029 (status machinery removed) — orchestrator-direct: pure deletion + one-line restyle, no design choices to delegate (R009 precedent)
+- Preserved preferences: F018/F024 register laws, focus-visible visibility law (keyboard focus keeps a visible ring — neutral, not ochre), the reset-progress control (notes/feedback remain resettable)
+- Changes: `tiers.css` — search input focus drops the ochre border + 3px ochre glow (box-shadow transition removed); focus = border steps one opacity notch (line-soft → line), `:focus-visible` = 1px neutral ring (ink-line, offset 2px); ochre caret kept (typing affordance, not an announcement). `PracticeMapPage.tsx` — STATUS_LABELS, summary/summarizePractice call, LessonOverlay status/onStatusChange props + handleStatusChange + the statusrow JSX, footer "{queued} queued" span all deleted; reset confirm reworded to "Reset all notes and progress?"; ChangeEvent + TopicStatus imports removed. `progress.ts` — status field deleted from TopicProgress, setTopicStatus, PracticeSummary, summarizePractice, statusSummaryKey, TOPIC_STATUSES, isTopicStatus removed; createInitialState/loadPracticeState reshaped (old saved statuses are ignored on load, no migration needed). `curriculum.ts` — TopicStatus type removed. `practice-map.css` — orphaned `.practice-topic-status*` (pre-existing orphans) and `.practice-lesson-statusrow`/`.practice-lesson-status` rules deleted
+- Before: artifacts/R000-r011-baseline lineage + the shipped R011 page state
+- After: artifacts/R012/ (search-focus-1440, lesson-window-top-1440, footer-1440)
+- Visual inspection: lesson window opens straight into section chips (no status row); footer renders "local notes · no account | reset progress" (no queued count); focus state computed neutral (rgba(238,234,224,.26) border, box-shadow none)
+- Code verification: `tsc --noEmit` clean; `practice-map.check.mjs` green except the pre-existing "ArrowRight advances sections" failure (unchanged baseline)
+- Open question: none — owner-decided removals. Next: R013 = the design leg (F025 subtext/typeface, F026 archive-premise rethink, F027 quieter active state) via chat-model brief
