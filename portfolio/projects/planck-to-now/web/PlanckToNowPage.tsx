@@ -15,10 +15,7 @@ export default function PlanckToNowPage() {
     <div className="planck-field">
       <section className="planck-page" aria-labelledby="planck-to-now-title">
         <header className="planck-hero">
-          <h1 id="planck-to-now-title">
-            13.8 billion years.
-            <span>One scrub.</span>
-          </h1>
+          <h1 id="planck-to-now-title">13.8 billion years.</h1>
           <nav className="planck-actions" aria-label="Planck to Now project links">
             <a className="planck-action-primary" href="#planck-simulation">
               Open the simulation <span aria-hidden="true">↓</span>

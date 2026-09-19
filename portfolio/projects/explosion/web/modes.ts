@@ -25,8 +25,6 @@ export type ModeHandle = {
   readonly stats: ModeStats;
 };
 
-export type Technique = { label: string; detail: string };
-
 export type Mounted = {
   handle: ModeHandle;
   formatHud: (stats: ModeStats) => string;
@@ -41,7 +39,7 @@ export type ModeDef = {
   hint: string;
   stageLabel: string;
   fallback: string;
-  techniques: ReadonlyArray<Technique>;
+  techniques: ReadonlyArray<string>;
   mount(element: HTMLElement): Promise<Mounted | null>;
 };
 
@@ -65,13 +63,7 @@ const lantern: ModeDef = {
   hint: "click to detonate · enter/space from center · restore reassembles",
   stageLabel: "detonate the paper-lantern moon; press enter or space to blast from center",
   fallback: "webgl is unavailable — this piece needs a webgl context to render the lantern.",
-  techniques: [
-    { label: "gpgpu", detail: "shard state lives in ping-pong float textures; shaders integrate physics" },
-    { label: "single mesh", detail: "one instanced mesh is both the lantern and its debris" },
-    { label: "no timers", detail: "destruction is same-frame, never deferred or converted" },
-    { label: "flashpoint", detail: "an auto shockwave bloom marks peak dispersion" },
-    { label: "soft-gl safe", detail: "nearest-filtered state textures, no post chain, cpu fallback" },
-  ],
+  techniques: ["gpgpu", "single mesh", "no timers", "flashpoint", "soft-gl safe"],
   mount: (element: HTMLElement): Promise<Mounted | null> => {
     const handle: SpecimenHandle | null = mountSpecimen(element);
     if (handle == null) return Promise.resolve(null);
@@ -91,13 +83,7 @@ const ink: ModeDef = {
   hint: "move to stir · click to detonate · restore re-pours",
   stageLabel: "stir the ink with the pointer; click to detonate; press enter or space to detonate from center",
   fallback: "this mode needs webgl2 float render targets, and the browser declined — the ink stays still.",
-  techniques: [
-    { label: "navier–stokes", detail: "a real fluid solver in fragment shaders: advection, pressure jacobi, vorticity confinement" },
-    { label: "uv units", detail: "velocity lives in resolution-independent units; grids stay fixed as the canvas resizes" },
-    { label: "no readback", detail: "the display pass samples the exact textures the solver wrote this frame" },
-    { label: "shock ring", detail: "each blast injects a radial impulse plus a traveling annulus of outward force" },
-    { label: "half-float fields", detail: "rgba16f ping-pong targets, additive splats, a software-renderer tier for slow gpus" },
-  ],
+  techniques: ["navier–stokes", "uv units", "no readback", "shock ring", "half-float fields"],
   mount: async (element: HTMLElement): Promise<Mounted | null> => {
     const mod = await import("./ink");
     const handle: InkHandle | null = mod.mountInk(element);
@@ -118,13 +104,7 @@ const fault: ModeDef = {
   hint: "click to detonate · restore reseals",
   stageLabel: "interactive ceramic seal fracture experiment",
   fallback: "this experiment needs floating-point graphics support.",
-  techniques: [
-    { label: "gpu elastodynamics", detail: "texture-resident displacement and velocity evolve through explicit finite-difference wave propagation" },
-    { label: "cohesive bond damage", detail: "irreversible directional bond weakening turns local strain into persistent fracture scars" },
-    { label: "conservative edge forces", detail: "neighboring cells share bond stiffness, preserving equal-and-opposite internal forces" },
-    { label: "mineral-guided fracture", detail: "a deterministic voronoi microstructure biases failure without prescribing the blast path" },
-    { label: "relief shading", detail: "gpu displacement lit through reconstructed normals and emissive faults — no readback" },
-  ],
+  techniques: ["gpu elastodynamics", "cohesive bond damage", "conservative edge forces", "mineral-guided fracture", "relief shading"],
   mount: async (element: HTMLElement): Promise<Mounted | null> => {
     const mod = await import("./fault");
     const handle: FaultHandle | null = mod.mountFault(element);

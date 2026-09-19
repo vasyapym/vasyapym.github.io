@@ -269,33 +269,21 @@
 /* ---- techniques list ------------------------------------------------------ */
 
 .explosion-techniques {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
-  gap: 10px 20px;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px 20px;
   margin: 0;
-  padding: 20px 0 0;
+  padding: 18px 0 0;
   list-style: none;
   border-top: 1px solid var(--panel-line-soft);
 }
 
 .explosion-technique {
-  display: flex;
-  flex-direction: column;
-  gap: 3px;
   font-family: var(--mono);
-}
-
-.explosion-technique-label {
   font-size: 0.78rem;
   letter-spacing: 0.02em;
   text-transform: lowercase;
   color: var(--ink-accent, #d39b61);
-}
-
-.explosion-technique-detail {
-  font-size: 0.75rem;
-  line-height: 1.5;
-  color: var(--ink-muted);
 }
 
 /* ---- mode selector (first visit + "switch mode") -------------------------- */
@@ -400,10 +388,6 @@
 
   .explosion-mode-card {
     padding: 16px 14px;
-  }
-
-  .explosion-techniques {
-    grid-template-columns: 1fr;
   }
 }
 

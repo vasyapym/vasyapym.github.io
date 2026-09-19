@@ -1,7 +1,7 @@
 import { useCallback, useEffect, useRef, useState, type KeyboardEvent as ReactKeyboardEvent, type PointerEvent as ReactPointerEvent, type ReactElement } from "react";
 import {
   MODES, getMode, hasWebGL, otherMode, readModeParam, readPreferredMode, writePreferredMode,
-  type ModeId, type ModeStats, type Mounted, type Technique,
+  type ModeId, type ModeStats, type Mounted,
 } from "./modes";
 import "./explosion-luna.css";
 
@@ -165,7 +165,7 @@ export default function ExplosionLunaPage() {
 
   const active = view.kind === "mode" ? getMode(view.id) : null;
   const dataMode = view.kind === "select" ? "select" : view.id;
-  const techniques: ReadonlyArray<Technique> = active?.techniques ?? [];
+  const techniques: ReadonlyArray<string> = active?.techniques ?? [];
 
   const renderStage = (): ReactElement => {
     if (view.kind === "select") {
@@ -292,9 +292,8 @@ export default function ExplosionLunaPage() {
       {active ? (
         <ul className="explosion-techniques" aria-label="Techniques inside">
           {techniques.map((t) => (
-            <li key={t.label} className="explosion-technique">
-              <span className="explosion-technique-label">{t.label}</span>
-              <span className="explosion-technique-detail">{t.detail}</span>
+            <li key={t} className="explosion-technique">
+              {t}
             </li>
           ))}
         </ul>

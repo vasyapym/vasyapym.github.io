@@ -255,18 +255,6 @@ textarea:focus-visible {
   border-radius: var(--panel-radius);}
 
 
-.signal-index-hero-kicker {
-  margin: 0 0 clamp(0.7rem, 1.6vw, 1.1rem);
-  font-family: var(--mono);
-  font-size: 0.7rem;
-  font-weight: 500;
-  letter-spacing: 0.34em;
-  text-transform: lowercase;
-  color: var(--ink-accent-bright);
-  opacity: 0;
-  animation: signal-index-type-kicker 0.7s cubic-bezier(0.22, 1, 0.36, 1) 0.1s both;}
-
-
 /* Editorial headline — pulled back from viewport-filling display type (the
    named attempt-2 failure). IBM Plex Sans, confident but restrained, so the
    fluid carries the impression. Three masked lines still rise on entrance. */
@@ -640,11 +628,6 @@ textarea:focus-visible {
   line-height: 0.97;}
 
 
-.planck-hero h1 span {
-  display: block;
-  color: var(--ink-accent);}
-
-
 .planck-actions {
   display: flex;
   flex-wrap: wrap;
@@ -834,12 +817,6 @@ textarea:focus-visible {
     padding: 1rem 1rem 1.1rem;
   }
 
-  .signal-index-hero-kicker {
-    margin-bottom: 0.7rem;
-    font-size: 0.62rem;
-    letter-spacing: 0.3em;
-  }
-
   .signal-index-hero-headline {
     font-size: clamp(1.6rem, calc((100vw - 32px) / 10.5), 2.48rem);
     line-height: 0.98;
@@ -868,7 +845,6 @@ textarea:focus-visible {
   }
 
   .signal-index-hero-line-in,
-  .signal-index-hero-kicker,
   .signal-index-hero-note {
     animation: none;
   }
@@ -877,7 +853,6 @@ textarea:focus-visible {
     transform: none;
   }
 
-  .signal-index-hero-kicker,
   .signal-index-hero-note {
     opacity: 1;
   }}
