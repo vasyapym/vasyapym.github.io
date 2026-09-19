@@ -21,6 +21,7 @@ export type ProjectCenter =
   | "blast"
   | "spiral"
   | "trail"
+  | "matrix"
   | "raft"
   | "spine"
   | "quicknotes";

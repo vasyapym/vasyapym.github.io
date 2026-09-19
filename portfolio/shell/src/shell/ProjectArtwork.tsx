@@ -56,7 +56,7 @@ const CENTER_MARKS: Partial<Record<ProjectCenter, () => ReactElement>> = {
   fox: FoxCenterMark,
   blast: BlastCenterMark,
   spiral: SpiralCenterMark,
-  trail: TrailCenterMark,
+  matrix: MatrixCenterMark,
   spine: SpineCenterMark,
   quicknotes: QuicknotesCenterMark,
 };
@@ -74,6 +74,7 @@ export const INCUMBENT_MARKS: Partial<Record<ProjectCenter, () => ReactElement>>
   blast: BlastCenterMark,
   spiral: SpiralCenterMark,
   trail: TrailCenterMark,
+  matrix: MatrixCenterMark,
 };
 
 /* ── 1 · Raft Cluster — coral spot ink, the cluster as a shift-register
@@ -358,7 +359,79 @@ function SpiralCenterMark() {
   );
 }
 
-/* ── 6 · Practice Map — sky spot ink, terraced climb to a lit summit ── */
+/* ── 6 · Practice Map — sky spot ink, the archive as an occupancy matrix:
+   a pigeonhole wall of tier rows × month columns — newer tiers nearly full
+   (halftone hatch), the legacy tier cold and sparse, a dashed blue fill-front
+   marking where intake is happening, the next open cell circled in sky.
+   Salvaged from the R003 schematic-plate set (plate 10), re-framed 600×400 →
+   260×160, plate text translated to geometry for card legibility. ── */
+function MatrixCenterMark() {
+  return (
+    <svg viewBox="0 0 260 160" aria-hidden="true">
+      <defs>
+        <pattern id="gem-matrix-dense" width="7" height="7" patternUnits="userSpaceOnUse">
+          <circle cx="3.5" cy="3.5" r="1.9" fill="#7d7669" />
+        </pattern>
+        <pattern id="gem-matrix-sparse" width="11" height="11" patternUnits="userSpaceOnUse">
+          <circle cx="5.5" cy="5.5" r="1.6" fill="#7d7669" />
+        </pattern>
+        <pattern id="gem-matrix-halo" width="7" height="7" patternUnits="userSpaceOnUse">
+          <circle cx="3.5" cy="3.5" r="1.9" fill="#5cc8ff" />
+        </pattern>
+      </defs>
+
+      {/* sparse printed backdrop (may exceed safe area) */}
+      <ellipse cx="130" cy="82" rx="104" ry="64" fill="url(#gem-matrix-sparse)" opacity="0.09" />
+      {/* halo — pulse binds to class */}
+      <ellipse className="gem-halo" style={haloVar(0.12)} cx="124" cy="86" rx="62" ry="44" fill="url(#gem-matrix-halo)" opacity="0.12" />
+
+      {/* WALL W-2 — 4 tier rows × 7 month columns */}
+      <rect x="34" y="38" width="180" height="100" fill="none" stroke="#7d7669" strokeWidth="1" opacity="0.7" />
+      <path d="M58 38V138M82 38V138M106 38V138M130 38V138M154 38V138M178 38V138" fill="none" stroke="#7d7669" strokeWidth="0.8" opacity="0.28" />
+      <path d="M34 64H214M34 90H214M34 116H214" fill="none" stroke="#7d7669" strokeWidth="0.8" opacity="0.28" />
+
+      {/* T-I row — hottest, one cell still open at the front */}
+      <g fill="url(#gem-matrix-dense)" stroke="#465059" strokeWidth="1">
+        <rect x="36" y="40" width="20" height="22" /><rect x="60" y="40" width="20" height="22" /><rect x="84" y="40" width="20" height="22" /><rect x="108" y="40" width="20" height="22" /><rect x="132" y="40" width="20" height="22" /><rect x="156" y="40" width="20" height="22" />
+      </g>
+      {/* T-II row — filling */}
+      <g fill="url(#gem-matrix-dense)" stroke="#465059" strokeWidth="1">
+        <rect x="36" y="66" width="20" height="22" /><rect x="60" y="66" width="20" height="22" /><rect x="84" y="66" width="20" height="22" /><rect x="108" y="66" width="20" height="22" /><rect x="132" y="66" width="20" height="22" />
+      </g>
+      {/* T-III row — open stack */}
+      <g fill="url(#gem-matrix-dense)" stroke="#465059" strokeWidth="1">
+        <rect x="36" y="92" width="20" height="22" /><rect x="60" y="92" width="20" height="22" /><rect x="84" y="92" width="20" height="22" />
+      </g>
+      {/* T-IV row — legacy cold: one transferred tray, dashed holding bay */}
+      <rect x="36" y="118" width="20" height="22" fill="#26333b" stroke="#7d7669" strokeWidth="1" />
+      <rect x="132" y="118" width="42" height="22" fill="none" stroke="#7d7669" strokeWidth="1" strokeDasharray="3 3" opacity="0.7" />
+
+      {/* FILL FRONT — dashed, the intake edge of the wall */}
+      <path d="M182 40V132" fill="none" stroke="#5cc8ff" strokeWidth="1.2" strokeDasharray="4 3" opacity="0.85" />
+      <path d="M182 40L178 46M182 40L186 46" fill="none" stroke="#5cc8ff" strokeWidth="1.2" opacity="0.85" />
+
+      {/* NEXT OPEN CELL — T-I, just past the front */}
+      <rect x="180" y="40" width="20" height="22" fill="none" stroke="#7d7669" strokeWidth="1" />
+      <circle cx="190" cy="51" r="6.5" fill="none" stroke="#5cc8ff" strokeWidth="1" opacity="0.6" />
+      <circle cx="190" cy="51" r="3.5" fill="#5cc8ff" />
+      {/* second open cell — T-II, waiting */}
+      <circle cx="162" cy="77" r="5" fill="none" stroke="#5cc8ff" strokeWidth="1" opacity="0.45" />
+
+      {/* MONTH AXIS — ticks, no numerals */}
+      <path d="M40 142V146M64 142V146M88 142V146M112 142V146M136 142V146M160 142V146M184 142V146M208 142V146" fill="none" stroke="#7d7669" strokeWidth="1" opacity="0.5" />
+      <path d="M38 150H214" fill="none" stroke="#b6ac95" strokeWidth="1" opacity="0.35" />
+
+      {/* TIER INDEX — side ticks, one per row */}
+      <path d="M28 44V58M26 70V84M24 96V110M22 122V136" fill="none" stroke="#465059" strokeWidth="1.5" opacity="0.8" />
+
+      {/* TITLE-BLOCK TAB — blank stamp outline, bottom-right */}
+      <rect x="222" y="128" width="28" height="14" fill="none" stroke="#7d7669" strokeWidth="0.8" opacity="0.6" />
+      <path d="M222 134H250" fill="none" stroke="#7d7669" strokeWidth="0.8" opacity="0.4" />
+    </svg>
+  );
+}
+
+/* Retired incumbent (name-round comparison only): terraced climb to a lit summit ── */
 function TrailCenterMark() {
   return (
     <svg viewBox="0 0 260 160" aria-hidden="true">
