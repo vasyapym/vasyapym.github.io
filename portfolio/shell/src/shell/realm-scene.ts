@@ -40,7 +40,7 @@ export interface RealmSceneOptions {
 }
 
 export interface RealmScene {
-  startEnter(chipX: number, chipY: number, spawnDoorIndex?: number | null): void;
+  startEnter(chipX: number, chipY: number, returnDoorId?: string | null): void;
   startLeave(chipX: number, chipY: number): void;
   startDive(id: string): void;
   startGreeting(id: string): void;
@@ -104,15 +104,29 @@ export interface RealmScene {
 
 type Phase = "idle" | "entering" | "active" | "leaving" | "diving" | "done";
 
-const ANCHORS: readonly { readonly fx: number; readonly fy: number }[] = [
-  { fx: 0.25, fy: 0.26 },
-  { fx: 0.68, fy: 0.3 },
-  { fx: 0.46, fy: 0.48 },
-  { fx: 0.8, fy: 0.55 },
-  { fx: 0.2, fy: 0.68 },
-  { fx: 0.52, fy: 0.78 },
-  { fx: 0.76, fy: 0.9 },
-];
+type Anchor = { readonly fx: number; readonly fy: number };
+
+// id-keyed like DOOR_HUES — reorders must not swap geography. Balanced
+// top-left→bottom-right tour across the two-viewport anchor span, sides
+// alternated for pairwise separation, first anchor below the hud band.
+const ANCHORS: Record<string, Anchor> = {
+  "spine": { fx: 0.22, fy: 0.14 },
+  "raft-cluster": { fx: 0.66, fy: 0.24 },
+  "kitty-run": { fx: 0.4, fy: 0.36 },
+  "explosion": { fx: 0.78, fy: 0.47 },
+  "evening-forest": { fx: 0.24, fy: 0.58 },
+  "planck-to-now": { fx: 0.58, fy: 0.68 },
+  "practice-map": { fx: 0.34, fy: 0.8 },
+  "quicknotes": { fx: 0.72, fy: 0.9 },
+};
+
+// center fallback so an unmapped door (or a null return door) never crashes
+// or spawns at a neighbour's spot.
+const FALLBACK_ANCHOR: Anchor = { fx: 0.5, fy: 0.5 };
+
+function anchorFor(id: string): Anchor {
+  return ANCHORS[id] ?? FALLBACK_ANCHOR;
+}
 
 const INK: readonly [number, number, number] = [11 / 255, 19 / 255, 23 / 255];
 const WARM: readonly [number, number, number] = [232 / 255, 181 / 255, 124 / 255];
@@ -232,13 +246,12 @@ export function createRealmScene(
   const reduced = opts.reducedMotion;
   const small = opts.smallScreen;
   const doors = opts.doors;
-  const count = Math.min(doors.length, ANCHORS.length);
 
   // ── static per-door data (built once) ──
   const hues: [number, number, number][] = [];
   const hueCss: string[] = [];
   const names: string[] = [];
-  for (let i = 0; i < count; i++) {
+  for (let i = 0; i < doors.length; i++) {
     const d = doors[i];
     const rgb = parseHex(d.hue);
     hues.push(rgb);
@@ -312,9 +325,9 @@ export function createRealmScene(
   let motionPrimed = false;
   let lastTickWall = -1;
 
-  // ── pick anchors (sized by count: creatures always hold exactly count entries) ──
-  const pickAnchorX = new Float32Array(count);
-  const pickAnchorY = new Float32Array(count);
+  // ── pick anchors (sized by doors: one slot per creature) ──
+  const pickAnchorX = new Float32Array(doors.length);
+  const pickAnchorY = new Float32Array(doors.length);
   let pickAnchorValid = false;
   let pickAnchorTime = 0;
   let pickAnchorZoom = 1;
@@ -351,7 +364,7 @@ export function createRealmScene(
   let nearestDist = Infinity;
   let lastNearestId: string | null = null;
   const voices: Voice[] = [];
-  for (let i = 0; i < count; i++) voices.push({ id: doors[i].id, pan: 0, gain: 0 });
+  for (let i = 0; i < doors.length; i++) voices.push({ id: doors[i].id, pan: 0, gain: 0 });
   const snapshot = { speed: 0, nearest: 0, voices: voices as readonly Voice[] };
 
   // ── renderers ──
@@ -380,7 +393,7 @@ export function createRealmScene(
     if (id === null) return camYState;
     const idx = findIdx(id);
     if (idx < 0) return camYState;
-    const fy = ANCHORS[idx].fy;
+    const fy = anchorFor(id).fy;
     const bandTop = small ? CHROME.hudM : CHROME.hudD;
     const bandBot = small ? vh * CHROME.sheetTopM - CHROME.padM : vh - CHROME.capD;
     const bandCy = (bandTop + bandBot) * 0.5;
@@ -550,7 +563,13 @@ export function createRealmScene(
   }
 
   function buildCreatures(): void {
-    creatures = createCreatures(doors.slice(0, count), ANCHORS.slice(0, count), interactR);
+    // id-keyed anchors resolve per door, so every door (incl. the newly added
+    // quicknotes) gets its own geography and reorders can't shuffle positions.
+    creatures = createCreatures(
+      doors,
+      doors.map((d) => anchorFor(d.id)),
+      interactR,
+    );
     greetIdx = -1;
     greetT = 0;
   }
@@ -1197,7 +1216,8 @@ export function createRealmScene(
     g.globalAlpha = hintAlpha;
     g.textAlign = "center";
     g.fillStyle = PAPER_CSS;
-    g.fillText("drag the light — find the seven", vw * 0.5, vh - 28);
+    // count comes from the live door list — an added project must not stale it
+    g.fillText(`drag the light — find the ${doors.length}`, vw * 0.5, vh - 28);
     g.globalAlpha = 1;
   }
 
@@ -1349,17 +1369,18 @@ export function createRealmScene(
   }
 
   const scene: RealmScene = {
-    startEnter(cx, cy, spawnDoorIndex) {
+    startEnter(cx, cy, returnDoorId) {
       if (destroyed || (phase !== "idle" && phase !== "done")) return;
       chipX = cx;
       chipY = cy;
       resize();
       resetForEnter();
-      if (spawnDoorIndex != null && spawnDoorIndex >= 0 && spawnDoorIndex < ANCHORS.length) {
-        // r19 deep-return spawn: park the lantern at the exited door's anchor
-        // and frame the camera on it (the warpTo law), computed from ANCHORS —
-        // the creatures are still unplaced here (first tick hasn't run).
-        const a = ANCHORS[spawnDoorIndex];
+      if (returnDoorId != null) {
+        // r19 deep-return spawn: park the lantern at the exited door's own
+        // anchor, resolved by id so a catalogue reorder never spawns at a
+        // neighbour's spot — the creatures are still unplaced here (first
+        // tick hasn't run). Unknown ids fall back to the centre anchor.
+        const a = anchorFor(returnDoorId);
         lan.x = clamp(a.fx * world.w, 0, world.w);
         lan.y = clamp(a.fy * world.anchorH - interactR * 0.6, 0, world.h);
         camYState = clamp(a.fy * world.anchorH - vh * 0.5, 0, Math.max(0, world.h - vh));
@@ -1467,7 +1488,7 @@ export function createRealmScene(
       const idx = findIdx(id);
       if (idx < 0 || vw <= 520) return "right";
       const sheetW = Math.min(SHEET_MAX, 0.92 * vw);
-      const ax = ANCHORS[idx].fx * vw;
+      const ax = anchorFor(id).fx * vw;
       const leftRoom = (ax - interactR) - sheetW;
       const rightRoom = (vw - sheetW) - (ax + interactR);
       return (leftRoom > rightRoom && leftRoom > 0) ? "left" : "right";
@@ -1532,8 +1553,9 @@ export function createRealmScene(
       lan.y = clamp(c.y - interactR * 0.6, 0, world.h);
       lvx = 0;
       lvy = 0;
-      // frame on the creature's anchor, not the parked lantern (r13)
-      camYState = clamp(ANCHORS[i].fy * world.anchorH - vh * 0.5, 0, Math.max(0, world.h - vh));
+      // frame on the creature's own anchor, not the parked lantern (r13);
+      // resolved by id so reorders can't desync the frame from the geometry
+      camYState = clamp(anchorFor(c.id).fy * world.anchorH - vh * 0.5, 0, Math.max(0, world.h - vh));
       cam.camY = camYState;
       camVy = 0;
       lanSx = sx(lan.x);

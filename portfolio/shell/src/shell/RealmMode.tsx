@@ -706,12 +706,9 @@ export default function RealmMode({ projects, onOpenProject, onExit, onEntered, 
 
     const e = entryRef.current;
     const rid = returnDoorIdRef.current;
-    let spawnDoorIndex: number | null = null;
-    if (rid !== null) {
-      const idx = projects.findIndex((p) => p.id === rid);
-      if (idx >= 0) spawnDoorIndex = idx;
-    }
-    scene.startEnter(e.x, e.y, spawnDoorIndex);
+    // id-keyed spawn: thread returnDoorId straight through (may be null). the
+    // scene resolves the anchor by id — no index lookups that break on reorder.
+    scene.startEnter(e.x, e.y, rid);
 
     // ---- body scroll lock (preserve landing scroll position) ----
     const scrollY = window.scrollY;

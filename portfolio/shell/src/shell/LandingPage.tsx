@@ -881,13 +881,13 @@ export default function LandingPage({
           <div className="rt-f-inner">
             <h2
               id="realm-threshold-title"
-              aria-label="the same 7 works, beneath the surface — 7 doors into the same catalogue."
+              aria-label={`the same ${projects.length} works, beneath the surface — ${projects.length} doors into the same catalogue.`}
             >
               <span className="rt-f-line rt-f-above">
                 <span className="rt-f-phrase">the same work,</span>
 
                 <span className="rt-f-register" aria-hidden="true">
-                  <span className="rt-f-count">07</span>
+                  <span className="rt-f-count">{String(projects.length).padStart(2, "0")}</span>
                   <span className="rt-f-noun">works</span>
                 </span>
               </span>{" "}
@@ -895,7 +895,7 @@ export default function LandingPage({
                 <span className="rt-f-phrase">beneath the surface.</span>
 
                 <span className="rt-f-register" aria-hidden="true">
-                  <span className="rt-f-count">07</span>
+                  <span className="rt-f-count">{String(projects.length).padStart(2, "0")}</span>
                   <span className="rt-f-noun rt-f-doors">doors</span>
                 </span>
               </span>
