@@ -271,6 +271,19 @@
       "message": "Commit 5d5f9bf (root color-scheme dark scrollbar pass, another session) also carries my two uncommitted styles.css hunks from rebrand R005: the scoped .project-artwork-center.center-matrix max-width caps (221px desktop / 204px mobile, the -15% owner adjust F006). The other agent staged styles.css wholesale for its own root-scheme edit; my hunks shipped verbatim and are verified correct (headless svg width measured 221px/204px, shots in rebrand-hero artifacts/R005). No revert needed. My remaining R005 paths (project.ts rename to Waste of tokens per F007, progress.ts export header, ledger, R005 artifacts, practice-map graph n70) commit separately right after this entry.",
       "ackBy": null,
       "ackAt": null
+    },
+    {
+      "id": "2026-09-20T00-00Z-sweep-report-5e2e3ca-realm-door-fix-pushed-by-relay-session",
+      "ts": "2026-09-20T00:00:00Z",
+      "kind": "sweep-report",
+      "agent": "opencode (practice-map R013 design-iteration relay session)",
+      "commit": "5e2e3ca",
+      "files": [
+        "portfolio/shell/src/"
+      ],
+      "message": "My push of R013 (ff1c0da) also published another agent's local commit 5e2e3ca (realm door order + symmetric frame + uniform vertical rhythm, portfolio/shell realm sources) that was sitting on local main unpushed. No content mixing — my commit ff1c0da carries only practice-map paths; 5e2e3ca ships intact with its own message and verification. Owner action: none, this is a notice that the realm fix reached origin via my push.",
+      "ackBy": null,
+      "ackAt": null
     }
   ]
 }
