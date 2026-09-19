@@ -24,9 +24,19 @@
 // indicator). "none" matches Raft Cluster (no override). "dark" is today's
 // P4 look, the never-worse degrade. One device round settles the winner.
 //
+// P6 (macOS ghost pass, owner report): the light default resurrected a bar
+// on macOS Safari ("previously no scrollbar in macos safari") with a pale
+// "ghost" strip left of the native thumb — the light-scheme scrollbar
+// gutter/track painting. Fix: the light treatment also carries
+// scrollbar-width:none. Desktop engines honor it (bar gone, ghost gone);
+// iOS ignores it on the ROOT (P1/P2 device-proven), so the iPhone keeps the
+// scheme-driven native indicator — the owner confirms the bar is "still
+// there" on iOS, which is the mechanism, not a regression.
+//
 // This gate loads the BUILT site and asserts, per context:
 //   G1 desktop landing, no param — attribute defaults to "light", computed
-//      color-scheme "light" (assertion 6), no scrollbar-width, scroll intact;
+//      color-scheme "light" (assertion 6), scrollbar-width none (the macOS
+//      no-bar restoration), scroll intact;
 //   G2 touch landing — same default contract (iOS is the owner's engine);
 //   G3 picker round — each ?bar= value sets the attribute AND persists
 //      (assertions 3–4); a reload without the param keeps the treatment;
@@ -36,7 +46,10 @@
 //   G4 route-local — a project page carries no attribute and keeps the
 //      global dark scheme (assertion 9);
 //   G5 static — only the "dark" treatment emits root webkit rules (7), and
-//      no scrollbar-width/scrollbar-color anywhere on this path (8).
+//      the only scrollbar-width allowed is light's `none` (macOS no-bar
+//      restoration — the light block ships no root webkit pseudos, so the
+//      interop law is defeated there ON PURPOSE and scoped to that block;
+//      none/dark/html stay clean) (8).
 //      resolveScrollBarTreatment()'s guarded storage/URL fallbacks
 //      (assertion 10) are runtime code paths, asserted by review not gate.
 //
@@ -210,7 +223,7 @@ const freshLanding = async (viewport) => {
   check(s.attr === "light", `no param + empty storage resolves to "light" (got ${s.attr})`);
   // The interop law: a non-auto scrollbar-width would make Safari 18+ ignore
   // every webkit pseudo and resurrect the engine-default light bar.
-  check(s.sbWidth === "auto", `no scrollbar-width poison on the landing (${s.sbWidth})`);
+  check(s.sbWidth === "none", `light treatment hides the root bar on desktop (${s.sbWidth})`);
   check(s.colorScheme === "light", `light treatment computes color-scheme "light" (${s.colorScheme})`);
   const scrolls = await page.evaluate(probeScroll);
   check(scrolls, "landing still scrolls with the picker in place");
@@ -222,45 +235,51 @@ const freshLanding = async (viewport) => {
   const page = await freshLanding({ width: 390, height: 844, touch: true });
   const s = await page.evaluate(readState);
   check(s.attr === "light", `mobile: default resolves to "light" (got ${s.attr})`);
-  check(s.sbWidth === "auto", `mobile: no scrollbar-width poison (${s.sbWidth})`);
+  // Computed declaration only — iOS renders the bar anyway (ignored on the
+  // root, P1/P2 device-proven); the iPhone colour verdict is the device round.
+  check(s.sbWidth === "none", `mobile: light treatment declares scrollbar-width none (${s.sbWidth})`);
   check(s.colorScheme === "light", `mobile: light treatment computes "light" (${s.colorScheme})`);
   await page.close();
 }
 
 // G3 — the picker round (desktop): every treatment sets + persists; the
 // invalid value is ignored; the schemes actually differ (staleness canary).
+// ONE page for the none→reload persistence chain; then a FRESH page per
+// treatment — Playwright gives each newPage() its own storage context, so
+// every param write is judged from a clean slate and goto-races vanish.
 {
   const page = await openLanding(`${base}/?bar=none`, { width: 1440, height: 900, touch: false });
   let s = await page.evaluate(readState);
   check(s.attr === "none" && s.stored === "none", `?bar=none sets the attribute and persists (${s.attr}, stored ${s.stored})`);
   check(s.colorScheme === "normal", `none treatment computes "normal" (${s.colorScheme})`);
+  check(s.sbWidth === "auto", `none treatment = Raft purity: no scrollbar-width (${s.sbWidth})`);
 
   await page.goto(`${base}/`, { waitUntil: "load", timeout: 60000 });
   await waitFor(page, () => Boolean(document.querySelector(".signal-index")), 20000);
   await wait(600);
   s = await page.evaluate(readState);
   check(s.attr === "none", `reload without the param keeps the persisted treatment (${s.attr})`);
+  await page.close();
 
-  await page.goto(`${base}/?bar=dark`, { waitUntil: "load", timeout: 60000 });
-  await waitFor(page, () => Boolean(document.querySelector(".signal-index")), 20000);
-  await wait(600);
-  s = await page.evaluate(readState);
+  const darkPage = await openLanding(`${base}/?bar=dark`, { width: 1440, height: 900, touch: false });
+  s = await darkPage.evaluate(readState);
   check(s.attr === "dark" && s.stored === "dark", `?bar=dark sets + persists "dark" (${s.attr}, stored ${s.stored})`);
   check(s.colorScheme === "dark", `dark treatment computes "dark" (${s.colorScheme})`);
+  check(s.sbWidth === "auto", `dark treatment keeps its webkit pseudos honored (${s.sbWidth})`);
+  await darkPage.close();
 
-  await page.goto(`${base}/?bar=light`, { waitUntil: "load", timeout: 60000 });
-  await waitFor(page, () => Boolean(document.querySelector(".signal-index")), 20000);
-  await wait(600);
-  s = await page.evaluate(readState);
+  const lightPage = await openLanding(`${base}/?bar=light`, { width: 1440, height: 900, touch: false });
+  s = await lightPage.evaluate(readState);
   check(s.attr === "light" && s.stored === "light", `?bar=light sets + persists "light" (${s.attr}, stored ${s.stored})`);
+  check(s.sbWidth === "none", `light treatment declares scrollbar-width none (${s.sbWidth})`);
+  await lightPage.close();
 
-  await page.goto(`${base}/?bar=zzz`, { waitUntil: "load", timeout: 60000 });
-  await waitFor(page, () => Boolean(document.querySelector(".signal-index")), 20000);
-  await wait(600);
-  s = await page.evaluate(readState);
-  check(s.attr === "light", `invalid ?bar=zzz falls back to the persisted value (${s.attr})`);
-  check(s.stored === "light", `invalid ?bar=zzz is not written to storage (stored ${s.stored})`);
-  await page.close();
+  const zzzPage = await openLanding(`${base}/?bar=zzz`, { width: 1440, height: 900, touch: false });
+  s = await zzzPage.evaluate(readState);
+  check(s.attr === "light", `invalid ?bar=zzz falls back to the default (${s.attr})`);
+  check(s.stored === null, `invalid ?bar=zzz is not written to storage (stored ${s.stored})`);
+  check(s.sbWidth === "none", `invalid ?bar=zzz falls back to light's scrollbar-width (${s.sbWidth})`);
+  await zzzPage.close();
 }
 
 // G4 — route-local: a project page clears the attribute (engine default bar)
@@ -294,7 +313,7 @@ const freshLanding = async (viewport) => {
   if (built) {
     // Minifiers may drop the quotes around attribute values — compare both.
     const norm = built.replaceAll('"', "");
-    check(norm.includes('data-landing-scroll=light]{color-scheme:light'), 'light treatment ships color-scheme:light');
+    check(norm.includes('data-landing-scroll=light]{color-scheme:light;scrollbar-width:none'), 'light treatment ships color-scheme:light + scrollbar-width:none (macOS no-bar restoration)');
     check(norm.includes('data-landing-scroll=none]{color-scheme:normal'), 'none treatment ships color-scheme:normal');
     check(norm.includes('data-landing-scroll=dark]{color-scheme:dark'), 'dark treatment ships color-scheme:dark');
     check(
@@ -330,18 +349,25 @@ const freshLanding = async (viewport) => {
     );
     // No interop poison on this path: scan every treatment block AND the
     // plain html rule for scrollbar-width/scrollbar-color declarations.
+    // The interop law, scoped: the light treatment DELIBERATELY ships
+    // scrollbar-width:none (macOS no-bar restoration; it carries no root
+    // webkit pseudos, so the law has nothing to kill there). none/dark and
+    // the html rule must carry NO scrollbar-width/scrollbar-color: none =
+    // Raft purity, dark = the webkit pseudos must stay honored.
     let poison = false;
     for (let at = norm.indexOf("data-landing-scroll="); at !== -1; ) {
       const open = norm.indexOf("{", at);
       const close = norm.indexOf("}", open);
       const block = open === -1 || close === -1 ? "" : norm.slice(open + 1, close);
-      if (/scrollbar-(width|color)\s*:/.test(block)) poison = true;
+      const head = norm.slice(norm.lastIndexOf("}", at) + 1, open);
+      const isLight = /data-landing-scroll=light\]/.test(head);
+      if (!isLight && /scrollbar-(width|color)\s*:/.test(block)) poison = true;
       at = norm.indexOf("data-landing-scroll=", at + 1);
     }
     const htmlAt = norm.indexOf("html{");
     const htmlBlock = htmlAt === -1 ? "" : norm.slice(htmlAt, norm.indexOf("}", htmlAt));
     if (/scrollbar-(width|color)\s*:/.test(htmlBlock)) poison = true;
-    check(!poison, "no scrollbar-width/scrollbar-color on the landing path (interop law)");
+    check(!poison, "no scrollbar-width/color outside the light treatment (none=Raft purity, dark=webkit pseudos, html=global)");
   } else {
     console.log("ok   (built css not found — G5 static checks skipped)");
   }

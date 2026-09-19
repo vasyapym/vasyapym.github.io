@@ -60,9 +60,18 @@ html {
    lets the real device settle light vs. Raft-match in a single round; the
    "dark" key degrades to today's shipped (P4) look, never worse. */
 
-/* A — default/ship: light scheme -> native DARK indicator on the dark ink */
+/* A — default/ship: light scheme -> native DARK indicator on the dark ink.
+   scrollbar-width:none restores the owner's macOS baseline ("no scrollbar in
+   macOS Safari" — the pre-ink-register look): desktop engines honor it and
+   draw nothing. iOS IGNORES scrollbar-width on the ROOT (P1/P2
+   device-proven), so the iPhone keeps the native overlay whose colour the
+   light scheme drives dark — the pick itself. Law note: the interop law
+   (no non-auto scrollbar-width) was derived for an INNER scroller whose
+   webkit pseudos were the styling path; the light treatment ships NO root
+   pseudos, so there is nothing for the law to kill. */
 html[data-landing-scroll="light"] {
-  color-scheme: light;}
+  color-scheme: light;
+  scrollbar-width: none;}
 
 /* B — match Raft Cluster: no scheme override, no custom layer (UA-default
    scheme, whose native indicator reads dark for the owner) */
