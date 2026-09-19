@@ -791,8 +791,10 @@ try {
   const frameOf = (p) => p.evaluate(() => window.__r13?.getFrameSnapshot());
 
   const ds13 = await depthOf(r13);
+  // depth model — the span constant tracks r14 (K 2 → 2.5, the absorbed deep);
+  // deep + the additive relations are unchanged
   check("r13: depth model = frozen anchor span + additive deep",
-    !!ds13 && ds13.anchorH === 2 * ds13.vh && ds13.deep === Math.round(ds13.vh * 0.5) &&
+    !!ds13 && ds13.anchorH === 2.5 * ds13.vh && ds13.deep === Math.round(ds13.vh * 0.5) &&
     ds13.h === ds13.anchorH + ds13.deep && ds13.range === ds13.h - ds13.vh,
     JSON.stringify(ds13));
   check("r13: frame idle before any selection",
@@ -904,7 +906,7 @@ try {
   await r13.keyboard.press("Escape");
   await wait(600);
   // warp to the LAST door — the deep-floor creature, wherever the live
-  // geography puts it (door 8 / raft-cluster since the quicknotes-first
+  // geography puts it (door 8 / planck-to-now since the raft-after-kitty
   // reorder; hard-coding "7" staled the moment the count grew)
   const r13DoorCount = await r13.evaluate(() =>
     Object.keys(window.__r13?.getDepthSnapshot()?.anchors ?? {}).length);
@@ -1656,8 +1658,8 @@ try {
       return !!body && body.scrollTop === 0;
     }, 2500));
   // r13 mobile: the bottom-sheet law stands; the frame lifts the deep-floor
-  // creature above it (last door, live-derived — raft-cluster took the floor
-  // when quicknotes moved to the top in the ordered-rhythm geography)
+  // creature above it (last door, live-derived — planck-to-now took the floor
+  // when raft-cluster moved up after kitty-run in the r14 geography)
   await mobile.keyboard.press("Escape");
   await wait(400);
   await mobile.evaluate(() => {

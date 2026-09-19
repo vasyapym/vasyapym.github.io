@@ -19,6 +19,7 @@ const pinnedOrder = [
   "spine",
   "practice-map",
   "kitty-run",
+  "raft-cluster",
 ];
 
 const discoveredProjects = [...alphabetized].sort((left, right) => {

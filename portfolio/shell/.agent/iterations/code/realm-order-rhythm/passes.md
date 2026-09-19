@@ -61,3 +61,61 @@ hard-coded fixtures baked in); orchestrator integrated.
   (key 8 = Raft Cluster now) — owner-facing, no code impact.
 - Next action: task complete on the code side; offer design-iteration round
   if the owner wants a visual feedback pass on the rhythm.
+
+## Pass C002 — VERIFIED
+- Objective and scope: owner round 2 — (1) doors still too close: the
+  rhythm must account for the added bottom space (the deep floor) and
+  redistribute; (2) raft-cluster right after kitty-run; (3) Spine card
+  illustration signature colour → red.
+- Chat-model decisions (relay round 2): the added space below IS
+  `world.deep` (0.5vh) — the round-1 rhythm distributed only over the 2vh
+  anchor span, so both symptoms (180px gaps + a 720px dead run below the
+  last door) trace to the span excluding the deep zone. Fix: absorb it —
+  `ANCHOR_SPAN_K` 2 → 2.5 (r14), keep `DEEP_K=0.5` additive below (world
+  = 3 viewports), keep the fy law `0.15+0.10·i`: gaps 180→225px, mirrored
+  337.5px in-span margins @1440×900. Order: raft takes slot 4 (fx 0.4,
+  fy 0.55); evening/explosion/planck shift down one slot; planck-to-now is
+  the last door again. fx = fixed L/R-alternating slots, geometry unchanged;
+  first/third doors stay left-half. Spine mark: `#7b93b3` → `#a6533e`
+  (house index red: dense dots, halo dots, 2 ticks), `#42536b` → `#6e3527`
+  (dark derivative); neutrals + Quicknotes' shared `#7b93b3` untouched;
+  `spine/project.ts` accent metadata steel → red (descriptive only;
+  DOOR_HUES separate and unchanged).
+- Probe gate audit (chat model, confirmed): G0 depth model legitimately
+  updates (`2*vh` → `2.5*vh`, the only assertion edit); G1–G6 all hold live
+  on the new boundaries (shallow 0.5/K = 0.2, warp-last 1.5/K = 0.6).
+- Changes: realm-scene.ts (ANCHOR_SPAN_K 2.5 + r14 comment, ANCHORS
+  re-seated + header comment), discover-projects.ts (pinnedOrder +
+  raft-cluster), ProjectArtwork.tsx (SpineCenterMark reds),
+  spine/project.ts (accent metadata), realm-probe.mjs (G0 constant + 2
+  stale door-name comments).
+- Baseline: post-C001 tree (n258), tsc exit 0, probe suite green.
+- Verification:
+  - Command: `npm run build` (portfolio/shell)
+    Result: PASS — tsc --noEmit + vite build, exit 0.
+  - Command: `CHROME_PATH=…Chromium node tests/realm-probe.mjs <outDir>`
+    Result: PASS — "realm-probe: all checks passed" on the new K=2.5 law.
+  - Command: `node ../probes/realm-anchor-shots.mjs` (dev server :5199)
+    Result: PASS — legend order: quicknotes, spine, waste of tokens, cat
+    runner, raft cluster, evening forest, explosion, planck to now; door 04
+    (Raft) framed left-half/sheet-right at its new slot. Evidence:
+    /var/folders/8x/yls1cw1d6s3fmbrxhqg0y17w0000gp/T/opencode/quicknotes-r001/realm-door-04.png
+    (scratch, local-only).
+  - Command: `node ../probes/spine-card-shot.mjs` (one-off, gitignored)
+    Result: PASS — spine card shows the red signature (red-dotted keyed
+    vertebra + dark red stroke, red halo + ticks), neutrals intact; card
+    numbered 02 in the new order. Evidence:
+    /var/folders/8x/yls1cw1d6s3fmbrxhqg0y17w0000gp/T/opencode/quicknotes-r001/spine-card-red.png.
+- Final diff review: performed — 5 work files + the pending round-1 graph
+  bookkeeping lines; no stray edits, no secrets; probe assertion edits
+  limited to the legitimately changed law constant; comment syncs only
+  otherwise.
+- Design constraints: R001 id-keyed geography preserved (re-seating into
+  fixed slots); r13 framing law untouched; r13 "span frozen at two
+  viewports" superseded by r14 (owner-driven, documented in-code); Spine
+  app's ochre theme untouched (card illustration scope only).
+- Remaining risks/blockers: visual verdict on the 225px rhythm and the red
+  mark = owner (design-iteration if wanted); warp digit→door map shifted
+  again (key 8 = planck-to-now).
+- Next action: task complete on the code side.
+

@@ -107,24 +107,23 @@ type Phase = "idle" | "entering" | "active" | "leaving" | "diving" | "done";
 
 type Anchor = { readonly fx: number; readonly fy: number };
 
-// id-keyed like DOOR_HUES — a reorder reassigns VALUES here; it never swaps
-// geography by index (R001). Rows are written top->bottom in tour order.
-// Vertical rhythm is a single arithmetic sequence: fy = 0.15 + 0.10*i for
-// i = 0..7. That yields symmetric edge margins (0.15*anchorH above the first
-// door == 0.15*anchorH below the last) and one uniform gap (g = 0.10*anchorH)
-// between every consecutive pair. fx alternates left/right each row for
-// pairwise separation; the two central values (0.4 / 0.58) are kept
-// non-adjacent, and the first/third doors sit in the left half so their sheets
-// dock right. The deep floor stays additive below the frozen anchor span.
+// id-keyed like DOOR_HUES — a reorder re-seats projects into fixed slots; it
+// never swaps geography by index (R001). Rows are written top->bottom in tour
+// order. Tour order = catalogue order. fy = 0.15 + 0.10·i over the 2.5-viewport
+// anchor span (r14): uniform 225px gaps, mirrored 337.5px edge margins
+// @1440×900, then a 0.5vh deep floor additive below for light travel.
+// fx = the 8 fixed L/R-alternating slots (unchanged geometry); projects
+// re-seated so raft-cluster follows kitty-run. First/third left; the two
+// central fx (0.4 @slot4, 0.58 @slot7) stay non-adjacent.
 const ANCHORS: Record<string, Anchor> = {
   "quicknotes": { fx: 0.22, fy: 0.15 },
   "spine": { fx: 0.72, fy: 0.25 },
   "practice-map": { fx: 0.34, fy: 0.35 },
   "kitty-run": { fx: 0.66, fy: 0.45 },
-  "evening-forest": { fx: 0.4, fy: 0.55 },
-  "explosion": { fx: 0.78, fy: 0.65 },
-  "planck-to-now": { fx: 0.24, fy: 0.75 },
-  "raft-cluster": { fx: 0.58, fy: 0.85 },
+  "raft-cluster": { fx: 0.4, fy: 0.55 },
+  "evening-forest": { fx: 0.78, fy: 0.65 },
+  "explosion": { fx: 0.24, fy: 0.75 },
+  "planck-to-now": { fx: 0.58, fy: 0.85 },
 };
 
 // center fallback so an unmapped door (or a null return door) never crashes
@@ -151,12 +150,15 @@ const DIVE_REDUCED = 0.4;
 const DEGRADED_DISC = 0.8;
 const DEGRADED_DIVE_DISC = 0.9;
 
-// r13 deepfloor-frame: the anchor span is frozen at two viewports (geography
-// law); the world grows additively BELOW it so the camera/light can travel
-// past the last creature. Selection framing retargets camY — a view-only move
+// r13 deepfloor-frame: selection framing retargets camY — a view-only move
 // that never touches the r10-parked lantern — so the greeting core clears the
 // panel, legend, hud and caption.
-const ANCHOR_SPAN_K = 2;
+// r14: the anchor span absorbs the former deep floor so the rhythm
+// distributes across the full traversable depth (owner: "account for
+// the added space below"). K 2 → 2.5 (= old anchorH+deep). Gaps 180→225px
+// @1440×900; mirrored 337.5px in-span margins. DEEP_K unchanged: a fresh
+// 0.5vh floor stays additive below (world = 3 viewports) for light travel.
+const ANCHOR_SPAN_K = 2.5;
 const DEEP_K = 0.5;
 const FRAME_K = 3.2;
 const FRAME_EPS = 0.5;

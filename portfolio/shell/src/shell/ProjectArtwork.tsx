@@ -534,9 +534,9 @@ function SpineCenterMark() {
   return (
     <svg viewBox="0 0 260 160" aria-hidden="true">
       <defs>
-        <pattern id="gem-spine-dense" patternUnits="userSpaceOnUse" width="7" height="7"><circle cx="3.5" cy="3.5" r="1.9" fill="#7b93b3" /></pattern>
+        <pattern id="gem-spine-dense" patternUnits="userSpaceOnUse" width="7" height="7"><circle cx="3.5" cy="3.5" r="1.9" fill="#a6533e" /></pattern>
         <pattern id="gem-spine-sparse" patternUnits="userSpaceOnUse" width="11" height="11"><circle cx="5.5" cy="5.5" r="1.6" fill="#7d7669" /></pattern>
-        <pattern id="gem-spine-halo" patternUnits="userSpaceOnUse" width="7" height="7"><circle cx="3.5" cy="3.5" r="1.9" fill="#7b93b3" /></pattern>
+        <pattern id="gem-spine-halo" patternUnits="userSpaceOnUse" width="7" height="7"><circle cx="3.5" cy="3.5" r="1.9" fill="#a6533e" /></pattern>
       </defs>
       <ellipse cx="130" cy="80" rx="104" ry="64" fill="url(#gem-spine-sparse)" opacity="0.09" />
       <ellipse className="gem-halo" cx="130" cy="80" rx="58" ry="42" fill="url(#gem-spine-halo)" style={haloVar(0.12)} opacity={0.12} />
@@ -549,11 +549,11 @@ function SpineCenterMark() {
       <rect x="96" y="93" width="64" height="17" rx="2" fill="#465059" stroke="#b6ac95" strokeWidth="2.5" />
       <rect x="106" y="114" width="44" height="15" rx="2" fill="#1c262d" stroke="#7d7669" strokeWidth="2" />
       {/* registration ticks keying the replacement to the empty slot */}
-      <line x1="158" y1="76" x2="166" y2="76" stroke="#7b93b3" strokeWidth="1.5" />
-      <line x1="158" y1="85" x2="166" y2="85" stroke="#7b93b3" strokeWidth="1.5" />
+      <line x1="158" y1="76" x2="166" y2="76" stroke="#a6533e" strokeWidth="1.5" />
+      <line x1="158" y1="85" x2="166" y2="85" stroke="#a6533e" strokeWidth="1.5" />
       {/* the keyed replacement vertebra */}
       <g transform="rotate(-4 196 81)">
-        <rect x="176" y="72" width="42" height="17" rx="2" fill="url(#gem-spine-dense)" stroke="#42536b" strokeWidth="2.5" />
+        <rect x="176" y="72" width="42" height="17" rx="2" fill="url(#gem-spine-dense)" stroke="#6e3527" strokeWidth="2.5" />
         <rect x="178" y="75" width="5" height="2" fill="#ffffff" opacity="0.55" />
       </g>
     </svg>
