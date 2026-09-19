@@ -3,6 +3,11 @@
   --acc:#7aa2f7;--danger:#f7768e;--ok:#9ece6a;--warn:#e0af68;--border:#2a2f3a;
   --mono:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;
   --sans:system-ui,-apple-system,Segoe UI,Roboto,sans-serif;
+  /* owner ask: native chrome (scrollbars, the select's popup menu) drew
+     light-scheme white on the dark app in macOS Safari — declare the dark
+     scheme so every native control matches (practice-map lesson-overlay
+     precedent). */
+  color-scheme:dark;
 }
 *{box-sizing:border-box}
 /* overflow:hidden + overscroll-behavior:none clamp the page to ONE scroll
@@ -76,7 +81,16 @@ body.drawer-lock{overflow:hidden}
 .side-head .btn{flex:1}
 .side-sort{display:flex;align-items:center;gap:8px;padding:0 8px 8px}
 .side-sort .sort-label{font-size:11px;text-transform:uppercase;letter-spacing:.5px;color:var(--fg2)}
+/* owner ask: macOS Safari drew the native aqua select (old-fashioned, off-
+   theme). appearance:none + a theme chevron make #sort match the app chrome
+   everywhere; the popup list itself follows color-scheme:dark above. */
 #sort{flex:1;background:var(--bg3);border:1px solid var(--border);border-radius:6px;padding:5px 8px;outline:none;cursor:pointer}
+#sort,#export-dlg select{
+  appearance:none;-webkit-appearance:none;
+  background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='6' viewBox='0 0 10 6'%3E%3Cpath d='M1 1l4 4 4-4' fill='none' stroke='%238b919c' stroke-width='1.5' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E");
+  background-repeat:no-repeat;background-position:right 8px center;
+  padding-right:26px;
+}
 #sort:focus{border-color:var(--acc)}
 #tree{overflow:auto;overscroll-behavior:contain;padding:0 4px 8px}
 .tree-empty{display:flex;flex-direction:column;align-items:center;gap:10px;padding:24px 8px;color:var(--fg2);font-size:12px;text-align:center}
@@ -134,7 +148,7 @@ dialog::backdrop{background:rgba(0,0,0,.55)}
 #pal-list li small{color:var(--fg2);font-family:var(--mono)}
 #export-dlg form{padding:16px}
 #export-dlg label{display:flex;flex-direction:column;gap:6px;margin:12px 0}
-#export-dlg select{background:var(--bg3);border:1px solid var(--border);border-radius:6px;padding:6px}
+#export-dlg select{background:var(--bg3);border:1px solid var(--border);border-radius:6px;padding:6px;padding-right:26px}
 #export-dlg menu{display:flex;justify-content:flex-end;gap:8px;margin:0;padding:0}
 
 @media (max-width:760px){
@@ -274,3 +288,15 @@ dialog::backdrop{background:rgba(0,0,0,.55)}
 #tree [data-folder],#tree [data-id]{-webkit-touch-callout:none;user-select:none}
 #tree .drop-target{outline:2px solid var(--acc);outline-offset:-2px;border-radius:6px}
 #tree .rename{font:inherit;width:100%;padding:1px 4px;background:var(--bg);border:1px solid var(--acc);border-radius:4px;outline:none}
+
+/* owner ask: the desktop scrollbar read white/prominent in macOS Safari.
+   Practice-map precedent (lesson-scroll): webkit-pseudo styling with a
+   transparent track + quiet translucent thumb. NO standard scrollbar-width/
+   scrollbar-color here — any non-auto value makes Safari 18+/Chrome 121+
+   ignore the webkit pseudos below and draw the engine default (the exact
+   white-bar bug practice-map fixed). Firefox falls back to the dark
+   color-scheme default declared at :root. */
+#tree::-webkit-scrollbar,#body::-webkit-scrollbar,.preview::-webkit-scrollbar,#pal-list::-webkit-scrollbar,.preview pre::-webkit-scrollbar{width:8px;height:8px}
+#tree::-webkit-scrollbar-track,#body::-webkit-scrollbar-track,.preview::-webkit-scrollbar-track,#pal-list::-webkit-scrollbar-track,.preview pre::-webkit-scrollbar-track{background:transparent}
+#tree::-webkit-scrollbar-thumb,#body::-webkit-scrollbar-thumb,.preview::-webkit-scrollbar-thumb,#pal-list::-webkit-scrollbar-thumb,.preview pre::-webkit-scrollbar-thumb{background:rgba(215,218,224,.25);border-radius:999px}
+#tree::-webkit-scrollbar-corner,#body::-webkit-scrollbar-corner{background:transparent}
