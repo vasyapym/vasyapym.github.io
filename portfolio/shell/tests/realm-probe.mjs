@@ -791,10 +791,10 @@ try {
   const frameOf = (p) => p.evaluate(() => window.__r13?.getFrameSnapshot());
 
   const ds13 = await depthOf(r13);
-  // depth model — the span constant tracks r14 (K 2 → 2.5, the absorbed deep);
-  // deep + the additive relations are unchanged
+  // depth model — the span constant tracks r14 r3 (K 2.5 → 3.0, the fy
+  // window spreads to 0.08…0.92); deep + the additive relations unchanged
   check("r13: depth model = frozen anchor span + additive deep",
-    !!ds13 && ds13.anchorH === 2.5 * ds13.vh && ds13.deep === Math.round(ds13.vh * 0.5) &&
+    !!ds13 && ds13.anchorH === 3 * ds13.vh && ds13.deep === Math.round(ds13.vh * 0.5) &&
     ds13.h === ds13.anchorH + ds13.deep && ds13.range === ds13.h - ds13.vh,
     JSON.stringify(ds13));
   check("r13: frame idle before any selection",
@@ -817,7 +817,7 @@ try {
     }, 3000));
   // r13 law: the framing retargets camY toward the band centre, clamped to the
   // world — a centreable creature lands exactly at the band centre; a shallow
-  // anchor (the deliberate rhythm puts door 1 at fy 0.15) clamps at 0 and must
+  // anchor (the deliberate rhythm puts door 1 at fy 0.08) clamps at 0 and must
   // still sit inside the clear band. Derived from the live anchors, so a
   // geography tweak cannot stale it.
   check("r13: framed camY follows the clamp law — door 1 stays inside the clear band",

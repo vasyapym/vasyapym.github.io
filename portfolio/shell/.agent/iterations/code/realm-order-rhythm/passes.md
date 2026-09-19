@@ -119,3 +119,50 @@ hard-coded fixtures baked in); orchestrator integrated.
   again (key 8 = planck-to-now).
 - Next action: task complete on the code side.
 
+## Pass C003 — VERIFIED
+- Objective and scope: owner round 3 — breathing space better but still
+  condensed; "search in graph/commits how i asked you to expand the below
+  because i couldn't see the project description; there are plenty space
+  left there to distribute more generously".
+- History mined (relay input): r13 (946f3cb, graph n192/n193,
+  BRIEF-realm-r13-deep-bottom-depth-A) — owner verbatim: the description
+  sheet overlapped the bottom creatures' greetings and there was not enough
+  scrollable space below for the light to reach down; r13 froze the span at
+  2vh and added the 0.5vh deep floor as travel space.
+- Chat-model diagnosis (relay round 3): round 2 only SCALED the world —
+  the fy window stayed 0.15…0.85 = 70% of the span, so ~337px of unused
+  span stacked on the 450px deep below the last door. The empty run the
+  owner sees = in-span slack + the deep. Fix: SPREAD the fy window to
+  0.08…0.92 (84% of span), span 2.5→3.0 (absorbs another r13 deep's worth,
+  fresh 0.5vh deep below), DEEP_K kept 0.5 (inflating it re-creates the
+  perceived emptiness). Gaps 225→324px (+44%) @1440×900; the last door
+  lands at y=2484 — inside where the old r13 deep floor was. Mobile lift
+  bound holds with 24.5px slack; the r13 greeting-clears-sheet contract
+  intact; the light still travels below.
+- Changes: realm-scene.ts (ANCHOR_SPAN_K 3.0 + law-history comment,
+  ANCHORS fy re-spread + header comment), realm-probe.mjs (G0 constant
+  2.5→3.0 — the only assertion edit — + 1 stale door-1 comment). Order, fx
+  slots, hues, species, CHROME, landing untouched.
+- Verification:
+  - Command: `npm run build` (portfolio/shell)
+    Result: PASS — tsc --noEmit + vite build, exit 0.
+  - Command: `CHROME_PATH=…Chromium node tests/realm-probe.mjs <outDir>`
+    Result: PASS — "realm-probe: all checks passed" (G0 tracks K=3).
+  - Command: `node ../probes/realm-anchor-shots.mjs` (dev server :5199)
+    Result: PASS — door 07 (planck-to-now, the deepest at fy 0.92) framed
+    with the sheet docked left, greeting core clear of the chrome; legend
+    order intact. Evidence:
+    /var/folders/8x/yls1cw1d6s3fmbrxhqg0y17w0000gp/T/opencode/quicknotes-r001/realm-door-07.png.
+- Final diff review: performed — 2 files; assertion edit limited to the
+  legitimately changed law constant; comment syncs only otherwise.
+- Design constraints: R001 id-keyed geography preserved; r13 travel floor
+  preserved (G6); r13 sheet-overlap fix preserved (mobile lift 24.5px
+  slack @390×725); round-1 symmetric-frame intent survives as the in-span
+  mirror (top inset = in-span bottom inset = 216px) under the round-3
+  generosity priority.
+- Remaining risks/blockers: visual verdict = owner; door 1 (fy 0.08) now
+  sits within interactR of the entry spawn on mobile (its greeting may
+  fire immediately on entry) — behavioural feel, owner device check.
+- Next action: task complete on the code side.
+
+

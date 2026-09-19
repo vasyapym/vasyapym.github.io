@@ -109,21 +109,20 @@ type Anchor = { readonly fx: number; readonly fy: number };
 
 // id-keyed like DOOR_HUES — a reorder re-seats projects into fixed slots; it
 // never swaps geography by index (R001). Rows are written top->bottom in tour
-// order. Tour order = catalogue order. fy = 0.15 + 0.10·i over the 2.5-viewport
-// anchor span (r14): uniform 225px gaps, mirrored 337.5px edge margins
-// @1440×900, then a 0.5vh deep floor additive below for light travel.
-// fx = the 8 fixed L/R-alternating slots (unchanged geometry); projects
-// re-seated so raft-cluster follows kitty-run. First/third left; the two
-// central fx (0.4 @slot4, 0.58 @slot7) stay non-adjacent.
+// order (= catalogue order). fy = 0.08 + i·0.12 over the 3-viewport anchor
+// span (r14 r3): m=0.08 top inset, g=0.12 uniform gap, last=0.92; the 0.5vh
+// r13 deep stays additive below. fx = the 8 fixed L/R-alternating slots
+// (unchanged geometry). First/third doors left-half so their sheets dock
+// right; the two central fx (0.4 @slot4, 0.58 @slot7) stay non-adjacent.
 const ANCHORS: Record<string, Anchor> = {
-  "quicknotes": { fx: 0.22, fy: 0.15 },
-  "spine": { fx: 0.72, fy: 0.25 },
-  "practice-map": { fx: 0.34, fy: 0.35 },
-  "kitty-run": { fx: 0.66, fy: 0.45 },
-  "raft-cluster": { fx: 0.4, fy: 0.55 },
-  "evening-forest": { fx: 0.78, fy: 0.65 },
-  "explosion": { fx: 0.24, fy: 0.75 },
-  "planck-to-now": { fx: 0.58, fy: 0.85 },
+  "quicknotes": { fx: 0.22, fy: 0.08 },
+  "spine": { fx: 0.72, fy: 0.2 },
+  "practice-map": { fx: 0.34, fy: 0.32 },
+  "kitty-run": { fx: 0.66, fy: 0.44 },
+  "raft-cluster": { fx: 0.4, fy: 0.56 },
+  "evening-forest": { fx: 0.78, fy: 0.68 },
+  "explosion": { fx: 0.24, fy: 0.8 },
+  "planck-to-now": { fx: 0.58, fy: 0.92 },
 };
 
 // center fallback so an unmapped door (or a null return door) never crashes
@@ -153,13 +152,24 @@ const DEGRADED_DIVE_DISC = 0.9;
 // r13 deepfloor-frame: selection framing retargets camY — a view-only move
 // that never touches the r10-parked lantern — so the greeting core clears the
 // panel, legend, hud and caption.
-// r14: the anchor span absorbs the former deep floor so the rhythm
-// distributes across the full traversable depth (owner: "account for
-// the added space below"). K 2 → 2.5 (= old anchorH+deep). Gaps 180→225px
-// @1440×900; mirrored 337.5px in-span margins. DEEP_K unchanged: a fresh
-// 0.5vh floor stays additive below (world = 3 viewports) for light travel.
-const ANCHOR_SPAN_K = 2.5;
-const DEEP_K = 0.5;
+// r14 r1–r2: requested order + symmetric frame + uniform gap; absorbed the
+//   r13 deep into the span (ANCHOR_SPAN_K 2→2.5, fresh 0.5vh deep
+//   re-provisioned below). gaps 180→225px @1440×900.
+// r14 r3: r1–r2 only SCALED — the fy window stayed at 0.15…0.85 (70% of
+//   span), so the doors stayed condensed in the upper span with ~337px of
+//   unused span + the 450px deep sitting empty below. Fix: span grows
+//   2.5→3.0 (absorbs another r13 deep-floor's worth), fresh 0.5vh deep
+//   re-provisioned below, and the fy window SPREADS to 0.08…0.92 (84% of
+//   span). Tour run fills 72% of the world (was 58%); the LAST door lands
+//   at y=2484 @1440×900 — inside where the old r13 deep floor used to be.
+//   gaps 225→324px (+44%). r13 contract intact: the 0.5vh deep still
+//   supplies the range surplus that lifts the bottom creature clear of the
+//   mobile sheet / desktop band (24.5px slack @390×725), and the light
+//   still travels below the anchor band.
+const ANCHOR_SPAN_K = 3.0;
+const DEEP_K = 0.5;          // travel floor, additive below the span — kept
+                             // minimal on purpose: it must read as r13
+                             // travel, not as slack to be filled.
 const FRAME_K = 3.2;
 const FRAME_EPS = 0.5;
 const CHROME = { hudD: 64, capD: 64, hudM: 56, sheetTopM: 0.52, padM: 8 } as const;
