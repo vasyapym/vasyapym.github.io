@@ -814,7 +814,11 @@ textarea:focus-visible {
     justify-self: stretch;
     max-width: none;
     align-self: start;
-    padding: 1rem 1rem 1.1rem;
+    /* +0.4rem top / +0.3rem bottom vs the pre-kicker 1rem block: the removed
+       'currents' kicker took its own line + margin (~18px) out of the panel
+       and the type read condensed on iOS; ~+15px (~9%) restores the air
+       without bringing the word back. Note margin-top 1rem → 1.2rem. */
+    padding: 1.4rem 1rem 1.4rem;
   }
 
   .signal-index-hero-headline {
@@ -824,7 +828,7 @@ textarea:focus-visible {
   }
 
   .signal-index-hero-note {
-    margin-top: 1rem;
+    margin-top: 1.2rem;
     font-size: 0.62rem;
   }
 
