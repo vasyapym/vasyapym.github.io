@@ -133,6 +133,7 @@ const waitFor = async (page, fn, timeout) => {
 const readState = () => ({
   attr: document.documentElement.hasAttribute("data-no-scroll-bar"),
   sbWidth: getComputedStyle(document.documentElement).scrollbarWidth,
+  colorScheme: getComputedStyle(document.documentElement).colorScheme,
   supportsSbWidth: CSS.supports("scrollbar-width", "none"),
 });
 
@@ -164,6 +165,12 @@ const probeScroll = () =>
     !s.supportsSbWidth || s.sbWidth === "none",
     `desktop hides the document scrollbar (scrollbar-width=${s.sbWidth}${s.supportsSbWidth ? "" : " — engine lacks scrollbar-width, attribute-only pass"})`,
   );
+  // iOS device verdict: the root indicator cannot be hidden, so it must read
+  // dark like the project fields' bars — not the light-scheme default.
+  check(
+    /dark/.test(s.colorScheme),
+    `root color-scheme renders the forced bar dark (${s.colorScheme})`,
+  );
   const scrolls = await page.evaluate(probeScroll);
   check(scrolls, "landing still scrolls with the bar hidden");
   await page.close();
@@ -182,6 +189,10 @@ const probeScroll = () =>
   check(
     !s.supportsSbWidth || s.sbWidth === "none",
     `mobile hides the bar where the engine supports it (${s.sbWidth})`,
+  );
+  check(
+    /dark/.test(s.colorScheme),
+    `mobile root color-scheme renders the forced bar dark (${s.colorScheme})`,
   );
   await page.close();
 }

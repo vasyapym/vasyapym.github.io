@@ -42,7 +42,14 @@ html {
   scroll-behavior: smooth;
   /* classic-scrollbar platforms: reserve the gutter so page-height changes
      never resize the layout (overlay-scrollbar platforms ignore this) */
-  scrollbar-gutter: stable;}
+  scrollbar-gutter: stable;
+  /* Owner device verdict (iOS Safari): no CSS hides the root scroller's
+     indicator — iOS forces it to exist. So it must read like the project
+     fields' bars (Raft Cluster etc.): color-scheme dark renders the native
+     indicator dark on the dark ink instead of the light-scheme default.
+     Project pages get the same from their .field color-scheme: dark rules;
+     the landing's scroller is the ROOT, so the scheme lives here. */
+  color-scheme: dark;}
 
 /* The main menu (html[data-no-scroll-bar], set by LandingPage) never paints
    its document scrollbar — the page stays scrollable, the bar just never
@@ -961,6 +968,9 @@ textarea:focus-visible {
   width: 100%;
   height: 100%;}
 
+.project-artwork-center.center-matrix {
+  max-width: 221px;}
+
 .gem-halo {
   transition: opacity 180ms ease-out;}
 
@@ -1200,6 +1210,9 @@ body:has(.quicknotes-frame) { background: #0b1317; }
      breathe ±3px intact — marks must stay inside the card at every width. */
   .project-artwork-center {
     max-width: 240px;}
+
+  .project-artwork-center.center-matrix {
+    max-width: 204px;}
 
   .gem-card-copy {
     padding: 20px;
