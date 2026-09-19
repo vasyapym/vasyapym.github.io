@@ -223,3 +223,12 @@ Owner decisions fixed into the brief (mode 2 — design owned by the orchestrato
 - Visual inspection: performed — hero single full-width card with the new copy; badges gone, rows tighter; summaries clamped with ellipsis; foot holds both outlined controls; search + ⌘k pill-rounded; crumb inversion reads (dominant go back, small title); lesson-scoped overlay renders the focus set with the source-lesson readout + ranked list; mobile rhythm visibly tightened (whole tier list + search + first card inside the first fold). Observation: the 49-concept DDoS lesson renders a dense canvas (density is the lesson's real concept count — cap question left for owner feedback; most lessons render small clean sets).
 - Code verification: typecheck PASS, build PASS; practice-map.check.mjs green except the 1 documented pre-existing environment fail (ArrowRight, chromium-1134 — reproduces on the pre-change tree). Graph legs retargeted for the new entry: desktop leg enters vol 01 and clicks `.pg-card-graph`; 28-node assertion → lesson-scope focus-set assertions (≥2 nodes, "source lesson" readout, ranklist present); dimmed-node check guarded by nodeCount ≥ 5; both mobile legs tap `.pg-card-graph`. One integration defect found and fixed: the ranked list initially starved the 320px canvas below its near-square ratio floor — readout box tightened to 4rem at ≤400px (ratio 0.836→0.865), useless max-height overrides removed.
 - Open question: owner verdict on R005 — liked/rejected per element; the canvas density on very large lessons (DDoS 49 concepts) is the one open tradeoff to weigh.
+
+## Feedback F017
+- Round: R005
+- Verdict: LIKED
+- Scope: R005 as presented — all eight asks (hero copy + scale, badge removal, card clamp + padding, go-back crumb, per-card lesson-scoped graph + ranked list, mobile rhythm, tier-row scale, pill corners)
+- Decision: the round is accepted; the owner's remaining improvements are deferred to the next session (owner will drive them, not a rejection). The open canvas-density tradeoff (49-concept lessons) rides with those deferred improvements.
+- User source: "i like it. there are some improvements needed but i will do it in next session"
+- Artifact: artifacts/R005/*
+- Supersedes: none
