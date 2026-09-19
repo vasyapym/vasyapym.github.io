@@ -1,27 +1,32 @@
 // Landing scrollbar gate — regression check for the main-menu scrollbar.
 //
-// Bug: the shell landing is a full-height scrollable document, so the engine
-// paints its scrollbar — a classic bar on desktop platforms and the native
-// indicator on iOS. The owner noticed it right after the quicknotes N033 pass
-// removed the card's inner (second) scrollbar: with one bar left it became
-// unwanted on the main menu, desktop and mobile both. Owner verdict: the main
-// menu never paints its scrollbar, but the page must keep scrolling.
-//
-// Fix: LandingPage sets html[data-no-scroll-bar] (route-local, restored on
-// unmount); styles.css hides the bar via scrollbar-width:none PLUS an
-// UNCONDITIONAL webkit display:none — the owner device check proved the
-// fine-pointer scoping left the big classic bar on iOS Safari (older 18.x
-// lacks scrollbar-width), so for the document scroller the webkit kill
-// applies in every context: it is the mechanism that hides the bar in both
-// classic and overlay WebKit modes.
+// Bug history (3 device verdicts from the owner, one bug, three passes):
+//   P1: a bar "appeared" on the landing (the quicknotes card's inner bar went
+//       quiet; the host bar became the only visible one). First fix: hide it.
+//   P2: on iOS the bar stayed AND went big — the fine-pointer scoping never
+//       applied on iOS; the unconditional webkit display:none engaged the
+//       classic bar instead (iOS ignores scrollbar-width on the root).
+//   P3: color-scheme: dark didn't darken it — the REAL law was already in the
+//       repo (practice-map round 4): ANY non-auto scrollbar-width makes
+//       Safari 18+/Chrome 121+ ignore every webkit pseudo and draw the
+//       engine default — the light bar. And iOS forces the root indicator to
+//       exist regardless.
+//   P3 final (owner's direct ask: "why didn't you just make it black?"): the
+//       landing renders its bar in the INK register — the practice-map
+//       reader's approved treatment (8px, transparent track, translucent
+//       paper thumb, 999px radius, literal rgba because custom properties do
+//       not resolve inside scrollbar pseudos), unconditional, and WITHOUT
+//       scrollbar-width (the interop poison).
 //
 // This gate loads the BUILT site and asserts, per context:
-//   G1 desktop landing — attribute set, bar hidden (where the engine supports
-//      scrollbar-width), page still scrolls;
-//   G2 touch landing — attribute set (WebKit touch contexts included);
+//   G1 desktop landing — attribute set, NO scrollbar-width (interop law:
+//      the engine must actually apply the webkit pseudos), color-scheme dark
+//      (Firefox fallback), page still scrolls;
+//   G2 touch landing — same contract (the styled bar applies on iOS too);
 //   G3 route-local — a project page clears the attribute and keeps its bar;
-//   G4 static — the webkit kill in the built CSS is unconditional (not inside
-//      any fine-pointer-only media block).
+//   G4 static — the ink webkit rules exist unconditionally (not inside any
+//      fine-pointer media), and no scrollbar-width:none is attached to the
+//      attribute (the interop poison that resurrected the white bar).
 //
 //   node shell/tests/landing-scrollbar-gate.mjs     (from portfolio/)
 //   node tests/landing-scrollbar-gate.mjs           (from shell/)
@@ -83,7 +88,6 @@ const CHROME_CANDIDATES = [
 
 let browser = null;
 let engine = "chrome";
-let isPlaywright = false;
 try {
   const { webkit } = await import("playwright-core");
   const candidates = [
@@ -131,10 +135,9 @@ const waitFor = async (page, fn, timeout) => {
 };
 
 const readState = () => ({
-  attr: document.documentElement.hasAttribute("data-no-scroll-bar"),
+  attr: document.documentElement.hasAttribute("data-ink-scroll-bar"),
   sbWidth: getComputedStyle(document.documentElement).scrollbarWidth,
   colorScheme: getComputedStyle(document.documentElement).colorScheme,
-  supportsSbWidth: CSS.supports("scrollbar-width", "none"),
 });
 
 // Instant scroll only: html{scroll-behavior:smooth} animates plain scrollTo.
@@ -152,7 +155,7 @@ const probeScroll = () =>
   });
 
 // ---------------------------------------------------------------------------
-// G1 — desktop landing (1440×900, fine pointer): bar hidden, scroll intact.
+// G1 — desktop landing (1440×900, fine pointer): ink bar wired, scroll intact.
 {
   const page = await browser.newPage();
   await setViewport(page, { width: 1440, height: 900, touch: false });
@@ -160,24 +163,21 @@ const probeScroll = () =>
   await waitFor(page, () => Boolean(document.querySelector(".signal-index")), 20000);
   await wait(600);
   const s = await page.evaluate(readState);
-  check(s.attr, "desktop landing sets html[data-no-scroll-bar]");
-  check(
-    !s.supportsSbWidth || s.sbWidth === "none",
-    `desktop hides the document scrollbar (scrollbar-width=${s.sbWidth}${s.supportsSbWidth ? "" : " — engine lacks scrollbar-width, attribute-only pass"})`,
-  );
-  // iOS device verdict: the root indicator cannot be hidden, so it must read
-  // dark like the project fields' bars — not the light-scheme default.
+  check(s.attr, "desktop landing sets html[data-ink-scroll-bar]");
+  // The interop law: a non-auto scrollbar-width would make Safari 18+ ignore
+  // every webkit pseudo and resurrect the engine-default light bar.
+  check(s.sbWidth === "auto", `no scrollbar-width poison on the landing (${s.sbWidth})`);
   check(
     /dark/.test(s.colorScheme),
-    `root color-scheme renders the forced bar dark (${s.colorScheme})`,
+    `root color-scheme covers the Firefox fallback (${s.colorScheme})`,
   );
   const scrolls = await page.evaluate(probeScroll);
-  check(scrolls, "landing still scrolls with the bar hidden");
+  check(scrolls, "landing still scrolls with the ink bar");
   await page.close();
 }
 
-// G2 — touch landing (390×844 coarse pointer): attribute set; the hide must
-// not depend on the fine-pointer-only webkit rule here.
+// G2 — touch landing (390×844 coarse pointer): the styled bar applies on iOS
+// too (the owner accepts the forced indicator — it must be the ink one).
 {
   const page = await browser.newPage();
   await setViewport(page, { width: 390, height: 844, touch: true });
@@ -185,19 +185,16 @@ const probeScroll = () =>
   await waitFor(page, () => Boolean(document.querySelector(".signal-index")), 20000);
   await wait(600);
   const s = await page.evaluate(readState);
-  check(s.attr, "mobile landing sets html[data-no-scroll-bar]");
-  check(
-    !s.supportsSbWidth || s.sbWidth === "none",
-    `mobile hides the bar where the engine supports it (${s.sbWidth})`,
-  );
+  check(s.attr, "mobile landing sets html[data-ink-scroll-bar]");
+  check(s.sbWidth === "auto", `mobile: no scrollbar-width poison (${s.sbWidth})`);
   check(
     /dark/.test(s.colorScheme),
-    `mobile root color-scheme renders the forced bar dark (${s.colorScheme})`,
+    `mobile root color-scheme covers the fallback (${s.colorScheme})`,
   );
   await page.close();
 }
 
-// G3 — route-local: a project page clears the attribute and keeps its bar.
+// G3 — route-local: a project page clears the attribute (engine default bar).
 {
   const page = await browser.newPage();
   await setViewport(page, { width: 1440, height: 900, touch: false });
@@ -206,16 +203,13 @@ const probeScroll = () =>
   await wait(600);
   const s = await page.evaluate(readState);
   check(!s.attr, "project page clears the landing attribute (route-local)");
-  check(s.sbWidth !== "none", `project page keeps its scrollbar (${s.sbWidth})`);
+  check(s.sbWidth === "auto", `project page keeps its engine bar (${s.sbWidth})`);
   await page.close();
 }
 
-// G4 — the owner device check (iOS Safari: the bar survived the fine-pointer
-// scoping and stayed big) inverted the scoping: for the DOCUMENT scroller the
-// webkit kill must be UNCONDITIONAL — it is the only mechanism that hides the
-// bar in both classic and overlay modes on every WebKit version. Assert: every
-// html[data-no-scroll-bar]::-webkit-scrollbar rule in the built CSS sits OUTSIDE
-// any fine-pointer-only media block.
+// G4 — static law in the BUILT css: the ink webkit rules for the attribute
+// exist UNCONDITIONALLY (not inside any fine-pointer media), and no
+// scrollbar-width:none is attached to the attribute (interop poison).
 {
   let built = "";
   try {
@@ -228,9 +222,9 @@ const probeScroll = () =>
     let unscoped = 0;
     let scoped = 0;
     for (
-      let at = built.indexOf("data-no-scroll-bar]::-webkit-scrollbar");
+      let at = built.indexOf("data-ink-scroll-bar]::-webkit-scrollbar");
       at !== -1;
-      at = built.indexOf("data-no-scroll-bar]::-webkit-scrollbar", at + 1)
+      at = built.indexOf("data-ink-scroll-bar]::-webkit-scrollbar", at + 1)
     ) {
       // Walk backwards through brace depth to the enclosing block's opening
       // brace; if that block is a @media with hover/pointer:fine in its
@@ -252,9 +246,17 @@ const probeScroll = () =>
       if (fine) scoped += 1;
       else unscoped += 1;
     }
-    check(unscoped > 0 && scoped === 0, `webkit kill unconditional on the document (unscoped ${unscoped}, fine-pointer-scoped ${scoped})`);
+    check(unscoped >= 3 && scoped === 0, `ink webkit rules unconditional (unscoped ${unscoped}, fine-pointer-scoped ${scoped})`);
+    check(!built.includes("data-ink-scroll-bar]{scrollbar-width"), "no scrollbar-width poison attached to the attribute");
+    // The thumb must be a LITERAL color (vars do not resolve inside scrollbar
+    // pseudos — an invalid background falls back to the engine's light thumb;
+    // esbuild may minify the rgba literal to hex — accept either form).
+    const thumbAt = built.indexOf("data-ink-scroll-bar]::-webkit-scrollbar-thumb");
+    const thumbBlock = thumbAt === -1 ? "" : built.slice(thumbAt, thumbAt + 220).split("}")[0];
+    const literalThumb = thumbBlock.length > 0 && !thumbBlock.includes("var(") && (/#eeeae0|rgba\(/.test(thumbBlock));
+    check(literalThumb, `thumb pinned to a literal ink color (${thumbBlock.slice(0, 80)})`);
   } else {
-    console.log("ok   (built css not found — G4 static scoping check skipped)");
+    console.log("ok   (built css not found — G4 static checks skipped)");
   }
 }
 

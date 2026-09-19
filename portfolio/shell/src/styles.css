@@ -51,21 +51,33 @@ html {
      the landing's scroller is the ROOT, so the scheme lives here. */
   color-scheme: dark;}
 
-/* The main menu (html[data-no-scroll-bar], set by LandingPage) never paints
-   its document scrollbar — the page stays scrollable, the bar just never
-   renders. Two layers: scrollbar-width covers Firefox and Safari 18.2+; the
-   webkit kill is UNCONDITIONAL because the owner's device check proved
-   scrollbar-width alone leaves the big classic bar on iOS Safari (older 18.x
-   lacks scrollbar-width, and the root scroller then keeps painting) —
-   display:none is the mechanism that hides the bar in BOTH modes on every
-   WebKit version. Scope note: the quicknotes N033 fine-pointer law applies to
-   the app's INNER scrollers (where the native thin indicator is wanted); the
-   owner's verdict here is the opposite — no bar at all on the document. */
-html[data-no-scroll-bar] {
-  scrollbar-width: none;}
+/* The main menu (html[data-ink-scroll-bar], set by LandingPage) renders its
+   document scrollbar in the ink register — owner device verdicts, pass 3:
+   iOS Safari FORCES the root indicator to exist (no CSS hides it:
+   scrollbar-width is ignored on the root and display:none never applied),
+   and the owner's final call is "make it black", not "make it vanish".
+   Pattern = the practice-map reader's owner-approved bar (round 4 law:
+   VISIBLE and ink-consistent — neither white, nor invisible).
+   NO scrollbar-width/scrollbar-color here: any non-auto value triggers the
+   CSS Scrollbars interop rule — Safari 18+/Chrome 121+ then IGNORE every
+   webkit pseudo below and draw the engine default (the white bar this pass
+   existed to kill). The webkit pseudos are the styling path for
+   Safari/Chrome (they also engage the classic thin bar on iOS, which the
+   owner accepts); Firefox falls back to its color-scheme-dark default
+   (declared on html above). */
+html[data-ink-scroll-bar]::-webkit-scrollbar {
+  width: 8px;}
 
-html[data-no-scroll-bar]::-webkit-scrollbar {
-  display: none;}
+html[data-ink-scroll-bar]::-webkit-scrollbar-track {
+  background: transparent;}
+
+html[data-ink-scroll-bar]::-webkit-scrollbar-thumb {
+  /* literal rgba, not var(): custom properties do not resolve inside
+     scrollbar pseudo-element rules — an invalid background falls back to
+     the engine's opaque default (light) thumb. Pinned to the
+     practice-map reader's approved --ink-line rgba(238, 234, 224, 0.26). */
+  background: rgba(238, 234, 224, 0.26);
+  border-radius: 999px;}
 
 
 body {
