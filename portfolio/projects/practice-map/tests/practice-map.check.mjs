@@ -384,11 +384,19 @@ try {
 
   // --- desktop: concept graph ------------------------------------------------
 
-  await page.click(".practice-graph-open");
+  // R005: the hero graph button is gone — the graph opens per lesson card.
+  // The thinking tier shows folder faces, so enter vol 01 first.
+  await page.click(".pg-face-head");
+  await wait(400);
+  await page.click(".pg-card-graph");
   check(await appears(".practice-graph-overlay"), "concept graph opens");
 
   const nodeCount = await page.$$eval(".practice-graph-node", (n) => n.length);
-  check(nodeCount === 28, `graph renders 28 nodes (${nodeCount})`);
+  check(nodeCount >= 2, `lesson-scoped graph renders its focus set (${nodeCount})`);
+
+  const scopeReadout = await page.$eval(".practice-graph-readout", (el) => el.textContent);
+  check(scopeReadout.includes("source lesson"), `readout names the source lesson (${scopeReadout.slice(0, 60)})`);
+  check((await page.$(".practice-graph-ranklist")) !== null, "ranked list renders for the lesson scope");
 
   const nodesInside = await page.evaluate(() => {
     const canvas = document.querySelector(".practice-graph-canvas").getBoundingClientRect();
@@ -427,7 +435,9 @@ try {
   check(pipeAfter !== pipeBox.nodeX, `dragging moves the node (${pipeBox.nodeX} -> ${pipeAfter})`);
   const edgesAfterDrag = await page.$$eval(".practice-graph-edges line", (l) => l.length);
   check(edgesAfterDrag >= 1, "edges follow the dragged node");
-  check(await appears(".practice-graph-node.is-dimmed"), "unrelated nodes dim while a node is active");
+  if (nodeCount >= 5) {
+    check(await appears(".practice-graph-node.is-dimmed"), "unrelated nodes dim while a node is active");
+  }
 
   await page.keyboard.press("Escape");
   await wait(400);
@@ -572,7 +582,7 @@ try {
 
   // --- mobile: the map is a full-height sheet with a usable canvas ----------
 
-  await page.tap(".practice-graph-open");
+  await page.tap(".pg-card-graph");
   check(await appears(".practice-graph-overlay"), "concept graph opens on mobile");
 
   const sheetFit = await page.evaluate(() => {
@@ -687,7 +697,7 @@ try {
 
   await page.keyboard.press("Escape");
   await wait(300);
-  await page.tap(".practice-graph-open");
+  await page.tap(".pg-card-graph");
   check(await appears(".practice-graph-overlay"), "graph opens at 320px");
   const narrowGraph = await page.evaluate(() => {
     const panel = document.querySelector(".practice-graph-panel").getBoundingClientRect();

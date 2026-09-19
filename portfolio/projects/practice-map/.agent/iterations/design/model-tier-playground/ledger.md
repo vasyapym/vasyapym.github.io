@@ -133,3 +133,93 @@ Owner decisions fixed into the brief (mode 2 — design owned by the orchestrato
 - Data rule recorded: lessons keep arriving via the lesson script pipeline into curriculum areas; a NEW area requires a one-line TIERS append (tier = data).
 - Open question: none — implementation shipped; deferred polish stays in F008.
 - Shipped: commit at round close per the owner's always-current-repo setting.
+
+## Feedback F009
+- Round: R004
+- Verdict: REJECTED
+- Scope: hero headline copy, all viewports
+- Decision: headline text becomes "Archive of AI outputs teaching stuff." — supersedes the brief-fixed R001 hero copy ("tier by tier. / model by model.", ledger preamble)
+- User source: task item 1: "Hero text — Update to: 'Archive of AI outputs teaching stuff.'"
+- Artifact: artifacts/R005/b-desktop-hero.png
+- Supersedes: hero-copy part of the R001 decision set (ledger preamble)
+
+## Feedback F010
+- Round: R004
+- Verdict: REJECTED
+- Scope: band badges (max/high/medium/low/thinking) beside/under model names, tier list + panel head, all viewports
+- Decision: remove the badges — the tier indicator is already inside the model name; reclaim the extra row they introduce
+- User source: task item 2: "Model labels — Tier indicators (e.g., 'max,' 'high') are already embedded in the model names. Remove them from the labels…"
+- Artifact: artifacts/R005/b-desktop-list-cards.png
+- Supersedes: none
+
+## Feedback F011
+- Round: R004
+- Verdict: REJECTED
+- Scope: lesson-card summary density + internal padding, all viewports
+- Decision: truncate card preview text (char or line limit) and increase card padding for a cleaner layout
+- User source: task item 3: "Lesson cards — Descriptions are currently too dense. Apply a character or line limit…"
+- Artifact: artifacts/R005/b-desktop-list-cards.png
+- Supersedes: none
+
+## Feedback F012
+- Round: R004
+- Verdict: REJECTED
+- Scope: volume-view breadcrumb row, all viewports
+- Decision: make the back action prominent (relabel explicitly, e.g. "Go Back"), reduce the folder-name font size to invert today's hierarchy (tiny back link, big title)
+- User source: task item 4: "Folder navigation — The back action is undersized relative to the folder name…"
+- Artifact: artifacts/R005/b-desktop-volume-crumb.png
+- Supersedes: refines F008's deferred polish for the crumb introduced in R003
+
+## Feedback F013
+- Round: R004
+- Verdict: REJECTED
+- Scope: hero rail (graph button + hint) and graph entry point, all viewports
+- Decision: remove "explore concept graph" + the hint from the hero; re-enter the graph from a per-lesson-card control beside "open lesson", opening the graph focused on that lesson
+- User source: task item 5: "Hero section — Remove 'Explore Concept Graph' from the hero area. Reposition it as a button within each lesson card…"
+- Artifact: artifacts/R005/b-desktop-hero.png
+- Supersedes: the hero rail treatment settled by F006/F008 (rail proportion work) — the rail is removed outright
+
+## Feedback F014
+- Round: R004
+- Verdict: REJECTED
+- Scope: section spacing on mobile (≤700/≤560 media: hero floor/gap, layout margins, card/faces/tier-row padding)
+- Decision: tighten margins/padding to the minimalist rhythm — the current stacked spacing reads disproportionately generous
+- User source: task item 6: "For mobile — Section spacing — Margins and padding between sections are disproportionately generous. Tighten them…"
+- Artifact: artifacts/R005/b-mobile-top.png
+- Supersedes: none
+
+## Feedback F015
+- Round: R004
+- Verdict: REJECTED
+- Scope: tier-list rows (the model entries), scale + visual weight, all viewports
+- Decision: reduce the tier-row scale/weight to a more restrained card list (orchestrator reading of "model cards"; owner can correct)
+- User source: task item 7: "Model cards — The card list is visually heavy and oversized. Reduce its scale and visual weight…"
+- Artifact: artifacts/R005/b-desktop-list-cards.png
+- Supersedes: none
+
+## Feedback F016
+- Round: R004
+- Verdict: REJECTED
+- Scope: search input + ⌘K pill corners, all viewports
+- Decision: restore rounded (pill) corners — root cause: var(--pill-radius) is undefined in the repo CSS (artifact defined 999px; the R004 port aliased only --panel-radius), so corners render square; this is a regression of the liked pill family (hero-route ledger F007)
+- User source: task item 8: "search bar should have rounded corners (i. e. be consistent with design language)."
+- Artifact: artifacts/R005/b-desktop-list-cards.png
+- Supersedes: none
+
+## Round R005
+- Goal: the deferred polish batch (F009–F016) — 8 owner asks implemented through the chat-model deepening round (brief: docs/briefs/BRIEF-practice-map-r005-polish-batch.md, with §0 donor verdicts from two reviewed external drafts), integrated by the orchestrator.
+- Preserved preferences: F001 structure (two-column tier IA, faces, palette, search — all untouched); F005 skin (solid cards, panel radius, hover lift); chip law n196; overlay key ownership; Linux volumes; lowercase mono chrome; outlined pill family.
+- Changes:
+  - F009: hero → "archive of ai outputs / teaching stuff." (two lowercase lines, second accent-bright); hero collapses to one full-width copy card; h1 clamp divisor 22→26 (longer first line, full-width band).
+  - F010: `.pg-band` badges deleted everywhere — TierList rows, TierPanel head, the shared-chrome selector group, base rule + five data-band color rules; `band` survives as data (palette sub still reads it).
+  - F011: `.pg-card p` → hard 2-line clamp (`-webkit-line-clamp` + `line-clamp`), `min-height:3.4em` removed; card padding 24→30 desktop, 20 @700, 16 @560.
+  - F012: crumb inverted — `.pg-crumb-back` = 0.95rem outlined 999px pill "← go back" (44px floor), row-dominant; `.pg-crumb-title` steps to 0.82rem mono muted.
+  - F013: hero rail + Russian hint + `.practice-graph-open` deleted; page state `graphOpen:boolean` → `graphTopic:TopicCard|null`; every card foot gains `.pg-card-graph` ("concept graph ↗", outlined, 44px) beside the open-lesson pill (`.pg-pill` stays unique to it); ConceptGraph takes `topic` — lesson scope per the §0 algebra: focus = lesson concepts + up to 2 strongest neighbors each, sorted by summed strength; overlay title = lesson title; readout line "source lesson · …" + `.practice-graph-ranklist` (index/name/×strength/lessons, scrollable); layout option A (seedLayout on the focus set). Global scope preserved in code (no entry point today).
+  - F014: stepped mobile shrink — pg-layout 40→32 (@900) → 24/gap18 (@700) → 18/gap14 (@560); card 30→20→16; tier-row/face-head 44px floors; hero 10.5rem floor died with the rail.
+  - F015: tier rows restrained — name 1.15→1rem/600, padding .8/.9→.62/.85rem, gap .35→.3rem, count .74→.72rem, sample .74→.72rem quiet (orchestrator reading of "model cards").
+  - F016: root cause fixed — `--pill-radius: 999px` declared on `.practice-map-field` (the R004 port aliased only `--panel-radius`, so `.pg-pill`/`.pg-search input` rendered square); card-foot hardcoded 999px replaced with the token.
+- Before: artifacts/R005/b-*.png (baseline, pre-round)
+- After: artifacts/R005/a-desktop-hero.png, a-desktop-list-cards.png, a-desktop-volume-crumb.png, a-desktop-graph-lesson.png (lesson-scoped overlay: title + source-lesson readout + ranked list), a-mobile-top.png
+- Visual inspection: performed — hero single full-width card with the new copy; badges gone, rows tighter; summaries clamped with ellipsis; foot holds both outlined controls; search + ⌘k pill-rounded; crumb inversion reads (dominant go back, small title); lesson-scoped overlay renders the focus set with the source-lesson readout + ranked list; mobile rhythm visibly tightened (whole tier list + search + first card inside the first fold). Observation: the 49-concept DDoS lesson renders a dense canvas (density is the lesson's real concept count — cap question left for owner feedback; most lessons render small clean sets).
+- Code verification: typecheck PASS, build PASS; practice-map.check.mjs green except the 1 documented pre-existing environment fail (ArrowRight, chromium-1134 — reproduces on the pre-change tree). Graph legs retargeted for the new entry: desktop leg enters vol 01 and clicks `.pg-card-graph`; 28-node assertion → lesson-scope focus-set assertions (≥2 nodes, "source lesson" readout, ranklist present); dimmed-node check guarded by nodeCount ≥ 5; both mobile legs tap `.pg-card-graph`. One integration defect found and fixed: the ranked list initially starved the 320px canvas below its near-square ratio floor — readout box tightened to 4rem at ≤400px (ratio 0.836→0.865), useless max-height overrides removed.
+- Open question: owner verdict on R005 — liked/rejected per element; the canvas density on very large lessons (DDoS 49 concepts) is the one open tradeoff to weigh.

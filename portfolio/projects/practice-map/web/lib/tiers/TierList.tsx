@@ -22,12 +22,7 @@ export function TierList({ tiers, activeTierId, onSelect, lessonCount, sampleTit
             aria-pressed={active}
             onClick={() => onSelect(tier.id)}
           >
-            <span className="pg-tier-name">
-              {tier.name}
-              <span className="pg-band" data-band={tier.band}>
-                {tier.band}
-              </span>
-            </span>
+            <span className="pg-tier-name">{tier.name}</span>
             <span className="pg-tier-count">{plural(lessonCount(tier.id), "lesson")}</span>
             <span className="pg-tier-sample">{sampleTitle(tier.id)}</span>
           </button>

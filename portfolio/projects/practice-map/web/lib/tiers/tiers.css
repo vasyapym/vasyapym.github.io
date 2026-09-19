@@ -5,8 +5,14 @@
    (.pg-hero/.pg-head/.pg-rail) and the field/page shells stay in
    practice-map.css, which already carries the same geometry. */
 
+/* --pill-radius was defined in the source artifact but lost when only
+   --panel-radius was aliased onto the field shell, so var(--pill-radius)
+   resolved to nothing and the pill controls rendered square. Restore it on
+   the field wrapper; it cascades to every control below. */
+.practice-map-field{ --pill-radius:999px; }
+
 /* ---------- shared chrome ---------- */
-.pg-kicker,.pg-band,.pg-tier-count,.pg-pill,.pg-chip,
+.pg-kicker,.pg-tier-count,.pg-pill,.pg-chip,
 .pg-face-count,.pg-search input,.pg-pal input,.pg-pal-kind,.pg-hint,.pg-empty{
   font-family:"IBM Plex Mono",ui-monospace,monospace; text-transform:lowercase; letter-spacing:.04em;
 }
@@ -36,11 +42,11 @@
   align-items:start;
 }
 
-/* tier list — mirror of .practice-area-list */
+/* tier list — restrained model rows (badge row removed; name stepped down) */
 .pg-tier-list{grid-area:list; margin-top:1rem}
 .pg-tier-row{
   width:100%; display:grid; grid-template-columns:minmax(0,1fr) auto; align-items:start;
-  gap:1rem; padding:.8rem .9rem; text-align:left;
+  gap:.9rem; padding:.62rem .85rem; text-align:left;
   border:1px solid transparent; border-bottom-color:var(--ink-line-soft);
   border-radius:var(--panel-radius);
   background:transparent; color:rgba(238,234,224,.68); cursor:pointer;
@@ -49,25 +55,16 @@
 .pg-tier-row:hover,
 .pg-tier-row.is-active{border-color:var(--ink-line); color:var(--ink-text); background:rgba(211,155,97,.09)}
 .pg-tier-name{
-  display:grid; gap:.35rem; min-width:0;
-  font-family:var(--sans); font-size:1.15rem; font-weight:600;
-  letter-spacing:0; line-height:1.1; color:inherit; text-transform:none;
+  display:grid; gap:.3rem; min-width:0;
+  font-family:var(--sans); font-size:1rem; font-weight:600;
+  letter-spacing:0; line-height:1.15; color:inherit; text-transform:none;
 }
-.pg-band{
-  font-family:var(--mono); font-size:.74rem; letter-spacing:.04em;
-  text-transform:lowercase; white-space:nowrap;
-}
-.pg-band[data-band=max]{color:var(--ink-accent-bright)}
-.pg-band[data-band=high]{color:var(--ink-accent)}
-.pg-band[data-band=medium]{color:rgba(238,234,224,.70)}
-.pg-band[data-band=low]{color:var(--ink-faint)}
-.pg-band[data-band=thinking]{color:var(--ink-accent-deep)}
 .pg-tier-count{
-  font-family:var(--mono); font-size:.74rem; color:var(--ink-accent);
+  font-family:var(--mono); font-size:.72rem; color:var(--ink-accent);
   justify-self:end; white-space:nowrap;
 }
 .pg-tier-sample{
-  grid-column:1 / -1; font-size:.74rem; line-height:1.4; color:var(--ink-faint);
+  grid-column:1 / -1; font-size:.72rem; line-height:1.4; color:var(--ink-faint);
   overflow:hidden; text-overflow:ellipsis; display:-webkit-box; -webkit-line-clamp:1; -webkit-box-orient:vertical;
 }
 
@@ -95,7 +92,7 @@
 .pg-cards{display:flex; flex-direction:column; gap:.9rem}
 .pg-card{
   border:1px solid var(--ink-line-soft); border-radius:var(--panel-radius);
-  padding:24px; background:#0b1317; min-width:0;
+  padding:30px; background:#0b1317; min-width:0;
   transition:transform 180ms ease-out, box-shadow 180ms ease-out, background 180ms ease-out;
 }
 .pg-card:hover{transform:translateY(-6px); box-shadow:0 18px 40px rgba(0,0,0,.32); background:#0f171c}
@@ -109,7 +106,12 @@
   margin:0; font-family:var(--sans);
   font-size:clamp(20px,1.6vw,24px); font-weight:700; line-height:1.2; color:var(--ink-text);
 }
-.pg-card p{margin:0; color:var(--ink-muted); font-size:14px; line-height:1.5; min-height:3.4em}
+/* Preview only: the full summary lives on in the lesson reader, so the card
+   clamps to two lines. */
+.pg-card p{
+  margin:0; color:var(--ink-muted); font-size:14px; line-height:1.5;
+  display:-webkit-box; -webkit-line-clamp:2; line-clamp:2; -webkit-box-orient:vertical; overflow:hidden;
+}
 .pg-chips{display:flex; flex-wrap:wrap; gap:.35rem; margin-top:.9rem}
 .pg-chip{
   border:1px solid var(--ink-line-soft); padding:.28rem .4rem; color:var(--ink-faint);
@@ -119,15 +121,26 @@
   color:var(--ink-faint); background:none; cursor:pointer;
   text-decoration:underline; text-decoration-color:rgba(238,234,224,.29); text-underline-offset:2px;
 }
-.pg-card-foot{margin-top:.9rem}
-.pg-card-foot .pg-pill{
-  display:inline-flex; align-items:center; gap:.5rem; justify-self:start;
-  border:1px solid var(--ink-line-soft); border-radius:999px; padding:.45rem .7rem;
-  color:var(--ink-accent); background:transparent; cursor:pointer;
+
+/* Foot holds up to two outlined pills; .pg-pill stays the "open lesson"
+   control, .pg-card-graph is the new per-lesson graph control (outlined,
+   not solid), both floored at 44px. */
+.pg-card-foot{
+  margin-top:.9rem; display:flex; flex-wrap:wrap; align-items:center; gap:.6rem;
+}
+.pg-card-foot .pg-pill,
+.pg-card-graph{
+  display:inline-flex; align-items:center; gap:.5rem; min-height:44px;
+  border:1px solid var(--ink-line-soft); border-radius:var(--pill-radius);
+  padding:.45rem .9rem; background:transparent; cursor:pointer;
   font-family:var(--mono); font-size:.72rem; letter-spacing:.04em; text-transform:lowercase;
   transition:border-color 180ms ease, color 180ms ease, background 180ms ease, gap 180ms ease;
 }
+.pg-card-foot .pg-pill{color:var(--ink-accent)}
 .pg-card-foot .pg-pill:hover{gap:.75rem; border-color:var(--ink-accent); color:var(--ink-accent-bright); background:var(--ink-panel)}
+.pg-card-graph{color:var(--ink-muted)}
+.pg-card-graph:hover{gap:.75rem; border-color:var(--ink-accent); color:var(--ink-accent-bright); background:rgba(211,155,97,.07)}
+.pg-card-graph:focus-visible{outline:1px solid var(--ink-accent); outline-offset:2px}
 
 /* ---------- 4. folders ---------- */
 .pg-faces{display:flex; flex-direction:column; gap:1.1rem}
@@ -153,21 +166,26 @@
 .pg-peek li::before{content:'—'; position:absolute; left:0; color:var(--ink-line)}
 .pg-empty{font-size:.7rem; color:var(--ink-faint); padding:12px 2px; font-family:var(--mono); letter-spacing:.04em; text-transform:lowercase}
 
-/* ---------- 4b. volume-view crumb ---------- */
+/* ---------- 4b. volume-view crumb (inverted: back is dominant) ---------- */
 .pg-crumb{
-  display:flex; align-items:baseline; gap:.9em; flex-wrap:wrap;
+  display:flex; align-items:center; gap:.9em; flex-wrap:wrap;
   padding-bottom:1rem; margin-bottom:1.1rem; border-bottom:1px solid var(--ink-line-soft);
 }
+/* Back joins the outlined pill family (donor proportions in OUR language,
+   not a solid fill), now the row's dominant control at 44px. */
 .pg-crumb-back{
-  border:0; background:none; cursor:pointer; color:var(--ink-accent);
-  font-family:var(--mono); font-size:.72rem; letter-spacing:.04em; text-transform:lowercase;
-  padding:0;
-  transition:color 180ms ease;
+  display:inline-flex; align-items:center; gap:.5rem; min-height:44px;
+  border:1px solid var(--ink-line); border-radius:var(--pill-radius);
+  padding:.5rem 1rem; background:transparent; cursor:pointer; color:var(--ink-accent);
+  font-family:var(--mono); font-size:.95rem; letter-spacing:.03em; text-transform:lowercase;
+  transition:border-color 180ms ease, color 180ms ease, background 180ms ease, gap 180ms ease;
 }
-.pg-crumb-back:hover{color:var(--ink-accent-bright)}
+.pg-crumb-back:hover{gap:.7rem; border-color:var(--ink-accent); color:var(--ink-accent-bright); background:rgba(211,155,97,.07)}
+.pg-crumb-back:focus-visible{outline:1px solid var(--ink-accent); outline-offset:2px}
+/* Title steps down below the back control. */
 .pg-crumb-title{
-  font-family:var(--sans); font-size:1.15rem; font-weight:600;
-  line-height:1.1; color:var(--ink-text);
+  font-family:var(--mono); font-size:.82rem; font-weight:500;
+  letter-spacing:.04em; text-transform:lowercase; line-height:1.2; color:var(--ink-muted);
 }
 
 /* ---------- 5b. palette ---------- */
@@ -197,13 +215,27 @@
 .pg-pal-sub{margin-left:auto; font-family:var(--mono); font-size:.6rem; letter-spacing:.04em; color:var(--ink-faint); white-space:nowrap}
 .pg-pal-foot{border-top:1px solid var(--ink-line-soft); padding:11px 22px; font-family:var(--mono); font-size:.6rem; letter-spacing:.04em; color:var(--ink-faint)}
 
-/* ---------- 6. mobile ---------- */
+/* ---------- 6. mobile (stepped token-shrink, one rhythm; ≥44px floors) ---------- */
+@media (max-width:900px){
+  .pg-layout{margin-top:32px; gap:26px 26px}
+}
 @media (max-width:700px){
-  .pg-layout{margin-top:30px; grid-template-columns:1fr; grid-template-areas:"list" "search" "panel"; gap:22px}
-  .pg-tier-row{grid-template-columns:1fr; padding:16px 12px; min-height:64px}
-  .pg-tier-count{justify-self:start}
-  .pg-card{padding:16px}
-  .pg-face-head{padding:18px 16px; min-height:64px}
+  .pg-layout{margin-top:24px; grid-template-columns:1fr; grid-template-areas:"list" "search" "panel"; gap:18px}
+  .pg-tier-row{grid-template-columns:1fr auto; padding:.7rem .8rem; min-height:44px}
+  .pg-tier-count{justify-self:end}
+  .pg-card{padding:20px}
+  .pg-tier-head{padding-bottom:.8rem; margin-bottom:.9rem}
+  .pg-crumb{padding-bottom:.8rem; margin-bottom:.9rem}
+  .pg-face-head{padding:14px 16px; min-height:44px}
+  .pg-faces{gap:.9rem}
+  .pg-cards{gap:.75rem}
   .pg-pal{top:0; left:0; transform:none; width:100%; border-radius:0 0 var(--panel-radius) var(--panel-radius); border-left:0; border-right:0; border-top:0}
   .pg-pal-list{max-height:64vh}
+}
+@media (max-width:560px){
+  .pg-layout{margin-top:18px; gap:14px}
+  .pg-card{padding:16px}
+  .pg-tier-head{padding-bottom:.7rem; margin-bottom:.75rem}
+  .pg-crumb{padding-bottom:.7rem; margin-bottom:.75rem; gap:.7em}
+  .pg-card-foot{gap:.5rem}
 }

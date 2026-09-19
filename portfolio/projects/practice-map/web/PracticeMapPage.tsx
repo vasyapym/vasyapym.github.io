@@ -72,7 +72,7 @@ export default function PracticeMapPage() {
   const [flashTopicId, setFlashTopicId] = useState<string | null>(null);
   const [openLessonId, setOpenLessonId] = useState<string | null>(null);
   const [paletteOpen, setPaletteOpen] = useState(false);
-  const [graphOpen, setGraphOpen] = useState(false);
+  const [graphTopic, setGraphTopic] = useState<TopicCardDefinition | null>(null);
 
   const summary = summarizePractice(curriculum, state);
 
@@ -144,7 +144,7 @@ export default function PracticeMapPage() {
   // palette stays out of its way and Esc does not exit the volume beneath.
   useEffect(() => {
     const onKey = (event: globalThis.KeyboardEvent) => {
-      if (openLessonId || graphOpen) return;
+      if (openLessonId || graphTopic) return;
       if ((event.metaKey || event.ctrlKey) && event.key.toLowerCase() === "k") {
         event.preventDefault();
         setPaletteOpen((v) => !v);
@@ -156,7 +156,7 @@ export default function PracticeMapPage() {
     };
     window.addEventListener("keydown", onKey);
     return () => window.removeEventListener("keydown", onKey);
-  }, [paletteOpen, activeVolume, openLessonId, graphOpen]);
+  }, [paletteOpen, activeVolume, openLessonId, graphTopic]);
 
   const jump = useCallback((tierId: string, topicId: string | null) => {
     setActiveTierId(tierId);
@@ -185,15 +185,9 @@ export default function PracticeMapPage() {
 
         <header className="practice-map-hero">
           <h1 id="practice-map-title">
-            tier by tier.
-            <span>model by model.</span>
+            archive of ai outputs
+            <span>teaching stuff.</span>
           </h1>
-          <div className="practice-map-hero-note">
-            <button className="practice-graph-open" type="button" onClick={() => setGraphOpen(true)}>
-              explore concept graph <span aria-hidden="true">↗</span>
-            </button>
-            <p className="pg-hint">граф понятий собирается отдельно</p>
-          </div>
         </header>
 
         <div className="pg-layout">
@@ -217,13 +211,14 @@ export default function PracticeMapPage() {
               onEnterVolume={setActiveVolume}
               onExitVolume={() => setActiveVolume(null)}
               onOpenLesson={setOpenLessonId}
+              onOpenGraph={(topic) => setGraphTopic(topic)}
               flashTopicId={flashTopicId}
               onOpenPalette={() => setPaletteOpen(true)}
             />
           )}
         </div>
 
-        {graphOpen && <ConceptGraph onClose={() => setGraphOpen(false)} />}
+        {graphTopic && <ConceptGraph topic={graphTopic} onClose={() => setGraphTopic(null)} />}
 
         {paletteOpen && (
           <Palette
@@ -345,7 +340,7 @@ function seedLayout(
   return out;
 }
 
-function ConceptGraph({ onClose }: { onClose: () => void }) {
+function ConceptGraph({ topic, onClose }: { topic: TopicCardDefinition | null; onClose: () => void }) {
   // Full adjacency model, built once from the real curriculum: every concept
   // is ranked by unique co-occurrence neighbors; the map shows the top slice.
   const graphAll = useMemo(() => {
@@ -424,35 +419,77 @@ function ConceptGraph({ onClose }: { onClose: () => void }) {
     | null
   >(null);
 
-  // Chip spacing is pixel-based, so the node count adapts to the canvas the
-  // overlay actually gets: 28 ideas on a desktop canvas, fewer where chips
-  // would otherwise bury each other.
   const layout = layoutParams(dims?.w ?? 834);
-  const nodeCount = dims ? layout.count : 28;
 
+  // Focus set. Global scope (no topic): today's top-slice behavior. Lesson
+  // scope: seeds = this lesson's concepts present in the graph; focus = seeds
+  // + up to 2 strongest neighbors per seed (neighbor strength = summed edge
+  // weight), deduplicated; sorted by strength.
+  const focus = useMemo(() => {
+    const strengthOf = (name: string): number => {
+      const m = graphAll.edges.get(name);
+      if (!m) return 0;
+      let s = 0;
+      for (const w of m.values()) s += w;
+      return s;
+    };
+
+    if (!topic) {
+      const nodeCount = dims ? layout.count : 28;
+      const names = graphAll.ranked.slice(0, nodeCount);
+      return { names, seedCount: names.length, neighborCount: 0, lessonScope: false };
+    }
+
+    const seeds = Array.from(new Set(topic.concepts)).filter((c) => graphAll.topicsByConcept.has(c));
+    const seedSet = new Set(seeds);
+    const picked = new Set<string>(seeds);
+    for (const seed of seeds) {
+      const m = graphAll.edges.get(seed);
+      if (!m) continue;
+      const strongest = Array.from(m.entries())
+        .filter(([n]) => !seedSet.has(n))
+        .sort((a, b) => b[1] - a[1] || a[0].localeCompare(b[0]))
+        .slice(0, 2)
+        .map(([n]) => n);
+      for (const n of strongest) picked.add(n);
+    }
+    const names = Array.from(picked).sort(
+      (a, b) => strengthOf(b) - strengthOf(a) || a.localeCompare(b),
+    );
+    return {
+      names,
+      seedCount: seeds.length,
+      neighborCount: names.length - seeds.length,
+      lessonScope: true,
+    };
+  }, [topic, graphAll, dims, layout.count]);
+
+  // Subgraph over the focus set: edges only where both ends are in focus.
   const graphModel = useMemo(() => {
-    const rankedSet = new Set(graphAll.ranked.slice(0, nodeCount));
-    const nodes = graphAll.ranked.slice(0, nodeCount).map((name) => {
+    const focusSet = new Set(focus.names);
+    const nodes = focus.names.map((name) => {
       const neighborMap = graphAll.edges.get(name) ?? new Map<string, number>();
       const sorted = Array.from(neighborMap.entries())
         .map(([n, w]) => ({ name: n, weight: w }))
         .sort((a, b) => b.weight - a.weight || a.name.localeCompare(b.name));
       const titles = graphAll.topicsByConcept.get(name) ?? [];
-      const sideAll = sorted.filter((e) => !rankedSet.has(e.name));
+      const sideAll = sorted.filter((e) => !focusSet.has(e.name));
+      const mapLinks = sorted.filter((e) => focusSet.has(e.name));
+      let strength = 0;
+      for (const e of sorted) strength += e.weight;
       return {
         name,
         topicCount: titles.length,
-        mapLinks: sorted.filter((e) => rankedSet.has(e.name)),
+        strength,
+        mapLinks,
         sideLinks: sideAll.slice(0, 4),
         sideLinkCount: sideAll.length,
         topicTitles: Array.from(new Set(titles)).slice(0, 3),
       };
     });
-    return {
-      nodes,
-      nodeByName: new Map(nodes.map((node) => [node.name, node])),
-    };
-  }, [graphAll, nodeCount]);
+    const linkCount = nodes.reduce((n, node) => n + node.mapLinks.length, 0) / 2;
+    return { nodes, nodeByName: new Map(nodes.map((n) => [n.name, n])), linkCount };
+  }, [graphAll, focus]);
 
   // Re-seed whenever the measured canvas or the node set settles.
   useLayoutEffect(() => {
@@ -595,7 +632,7 @@ function ConceptGraph({ onClose }: { onClose: () => void }) {
         <header className="practice-graph-header">
           <div>
             <span className="practice-lesson-kicker">system map</span>
-            <h2>Concept constellation</h2>
+            <h2>{focus.lessonScope && topic ? topic.title : "Concept constellation"}</h2>
           </div>
           <button
             ref={closeRef}
@@ -689,6 +726,29 @@ function ConceptGraph({ onClose }: { onClose: () => void }) {
           </span>
         </div>
         <div className="practice-graph-readout" aria-live="polite">
+          {focus.lessonScope && topic && (
+            <>
+              <p className="practice-graph-readout-head">
+                source lesson · {topic.title} · {focus.seedCount}{" "}
+                {focus.seedCount === 1 ? "lesson concept" : "lesson concepts"} +{" "}
+                {focus.neighborCount} strongest{" "}
+                {focus.neighborCount === 1 ? "neighbor" : "neighbors"} ·{" "}
+                {graphModel.linkCount} {graphModel.linkCount === 1 ? "link" : "links"}
+              </p>
+              <ul className="practice-graph-ranklist">
+                {graphModel.nodes.map((node, i) => (
+                  <li key={node.name}>
+                    <span className="rl-idx">{String(i + 1).padStart(2, "0")}</span>
+                    <span className="rl-name">{node.name}</span>
+                    <span className="rl-strength">×{node.strength}</span>
+                    <span className="rl-lessons">
+                      {node.topicCount} {node.topicCount === 1 ? "lesson" : "lessons"}
+                    </span>
+                  </li>
+                ))}
+              </ul>
+            </>
+          )}
           {activeNode ? (
             <>
               <p className="practice-graph-readout-head">

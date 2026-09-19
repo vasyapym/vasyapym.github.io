@@ -17,6 +17,7 @@ type TierPanelProps = {
   onEnterVolume: (name: string) => void;
   onExitVolume: () => void;
   onOpenLesson: (topicId: string) => void;
+  onOpenGraph: (topic: TierTopic) => void;
   flashTopicId: string | null;
   onOpenPalette: () => void;
 };
@@ -25,10 +26,12 @@ function Card({
   topic,
   isFlash,
   onOpenLesson,
+  onOpenGraph,
 }: {
   topic: TierTopic;
   isFlash: boolean;
   onOpenLesson: (topicId: string) => void;
+  onOpenGraph: (topic: TierTopic) => void;
 }) {
   const [expanded, setExpanded] = useState(false);
   // Repo law (n196): <=10 concepts all shown with no expander, >=11 capped
@@ -62,13 +65,19 @@ function Card({
           </button>
         )}
       </div>
-      {topic.lesson && (
-        <div className="pg-card-foot">
+      {/* Foot always renders: every card qualifies for the graph control
+          (concepts exist regardless of topic.lesson); "open lesson" only
+          when a reader exists. */}
+      <div className="pg-card-foot">
+        {topic.lesson && (
           <button className="pg-pill" type="button" onClick={() => onOpenLesson(topic.id)}>
             open lesson →
           </button>
-        </div>
-      )}
+        )}
+        <button className="pg-card-graph" type="button" onClick={() => onOpenGraph(topic)}>
+          concept graph ↗
+        </button>
+      </div>
     </article>
   );
 }
@@ -82,6 +91,7 @@ export function TierPanel({
   onEnterVolume,
   onExitVolume,
   onOpenLesson,
+  onOpenGraph,
   flashTopicId,
   onOpenPalette,
 }: TierPanelProps) {
@@ -110,7 +120,7 @@ export function TierPanel({
       <>
         <div className="pg-crumb">
           <button className="pg-crumb-back" type="button" onClick={onExitVolume}>
-            ← {tier.name}
+            ← go back
           </button>
           <span className="pg-crumb-title">{activeVolume}</span>
         </div>
@@ -122,6 +132,7 @@ export function TierPanel({
                 topic={tp}
                 isFlash={tp.id === flashTopicId}
                 onOpenLesson={onOpenLesson}
+                onOpenGraph={onOpenGraph}
               />
             ))}
           </div>
@@ -134,9 +145,6 @@ export function TierPanel({
     const head = (
       <div className="pg-tier-head">
         <h2>{tier.name}</h2>
-        <span className="pg-band" data-band={tier.band}>
-          {tier.band}
-        </span>
       </div>
     );
 
@@ -190,6 +198,7 @@ export function TierPanel({
                   topic={tp}
                   isFlash={tp.id === flashTopicId}
                   onOpenLesson={onOpenLesson}
+                  onOpenGraph={onOpenGraph}
                 />
               ))}
             </div>

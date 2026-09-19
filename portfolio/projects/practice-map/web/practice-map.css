@@ -46,14 +46,10 @@
   text-transform: lowercase;
 }
 
+/* Hero is now a single full-width copy card (the concept-graph rail moved
+   into each lesson card's foot). No grid — the card fills the run. */
 .practice-map-hero {
-  /* One full-width unit: the copy card fills the left run (text stays
-     left-aligned inside it), the rail caps at 320px flush to the right
-     corner — no dead field after it. minmax(0,…) on both tracks keeps
-     min-width:auto from overflowing. */
-  display: grid;
-  grid-template-columns: minmax(0, 1fr) minmax(0, 320px);
-  gap: clamp(0.8rem, 1.95vw, 1.6rem);
+  display: block;
 }
 
 /* Copy panel — the .signal-index-hero-copy language (Reference 3): flat scrim,
@@ -70,7 +66,11 @@
   border-left: 2px solid var(--ink-accent-deep);
   border-radius: var(--panel-radius);
   font-family: var(--display);
-  font-size: clamp(1.15rem, calc((100vw - 72px) / 22), 3.2rem);
+  /* Divisor 22→26: the new copy ("archive of ai outputs" = 21 chars) is far
+     longer than the old 15-char line, and the hero is now full-width, so a
+     slower growth rate keeps both lines inside the band while still reaching
+     the 3.2rem cap near 1440. */
+  font-size: clamp(1.15rem, calc((100vw - 72px) / 26), 3.2rem);
   font-weight: 600;
   letter-spacing: -0.02em;
   line-height: 0.98;
@@ -81,40 +81,6 @@
 .practice-map-hero h1 span {
   display: block;
   color: var(--ink-accent-bright);
-}
-
-/* Rail panel — the .signal-index-beneath language (Reference 5): heavier 0.78
-   scrim so the mono chrome inside clears 4.5:1 over the grain-lit ink. */
-.practice-map-hero-note {
-  display: grid;
-  justify-items: start;
-  gap: 1rem;
-  /* Rail content rides centered in its equal-height track (F006/R003):
-     the pill + hint hug the middle, no dead top/bottom runs. */
-  align-content: center;
-  padding: clamp(1.05rem, 2vw, 1.55rem) 1.25rem clamp(1.2rem, 2.2vw, 1.7rem);
-  background: rgba(9, 15, 18, 0.78);
-  border: 1px solid var(--ink-line-soft);
-  border-radius: var(--panel-radius);
-}
-
-.practice-graph-open {
-  border: 1px solid var(--ink-line-soft);
-  padding: 0.5rem 0.7rem;
-  color: var(--ink-accent);
-  background: transparent;
-  cursor: pointer;
-  font-family: var(--mono);
-  font-size: 0.7rem;
-  letter-spacing: 0.04em;
-  text-transform: lowercase;
-  transition: border-color 180ms ease, color 180ms ease, background 180ms ease;
-}
-
-.practice-graph-open:hover {
-  border-color: var(--ink-accent);
-  color: var(--ink-accent-bright);
-  background: var(--ink-panel);
 }
 
 .practice-graph-overlay {
@@ -319,6 +285,22 @@
   text-transform: lowercase;
 }
 
+/* Ranked list of the lesson-scoped focus set (index, concept, strength,
+   lessons count) — sits under the source-lesson readout line. */
+.practice-graph-ranklist{
+  list-style:none; margin:.6rem 0 0; padding:0;
+  max-height:34vh; overflow:auto;
+  font-family:var(--mono); font-size:.66rem; letter-spacing:.03em; color:var(--ink-faint);
+}
+.practice-graph-ranklist li{
+  display:grid; grid-template-columns:2.2em minmax(0,1fr) auto auto; gap:.7em;
+  align-items:baseline; padding:.28rem 0; border-bottom:1px solid var(--ink-line-soft);
+}
+.practice-graph-ranklist .rl-idx{color:var(--ink-accent-deep)}
+.practice-graph-ranklist .rl-name{color:var(--ink-muted); overflow:hidden; text-overflow:ellipsis; white-space:nowrap; text-transform:lowercase}
+.practice-graph-ranklist .rl-strength{color:var(--ink-accent); justify-self:end}
+.practice-graph-ranklist .rl-lessons{justify-self:end}
+
 @media (max-width: 700px) {
   .practice-graph-overlay {
     padding: max(0.6rem, env(safe-area-inset-top))
@@ -416,6 +398,13 @@
 
   .practice-graph-header h2 {
     font-size: 1.15rem;
+  }
+
+  /* The lesson-scoped readout (source line + ranked list) lives in this fixed
+     box; 4rem frees the ~8px the 320px canvas needs to hold its 0.85
+     near-square ratio floor under the two-line wrapped header. */
+  .practice-graph-readout {
+    height: 4rem;
   }
 
   .practice-graph-node {
@@ -1552,27 +1541,9 @@
   }
 }
 
-/* Hero-only collapse at 900px: below it the copy card + 320px rail + gap
-   no longer hold two columns (the copy card needs ~300px of text room). */
 @media (max-width: 900px) {
-  .practice-map-hero {
-    grid-template-columns: minmax(0, 1fr);
-    gap: 1.6rem;
-  }
-
-  /* Stacked rows are independent tracks, so the rail's height cannot
-     propagate to the copy card. One shared floor (border-box) pins BOTH
-     cards to it — the rail's natural height breathes a few px with the
-     route meter's width, and the floor absorbs that drift. Text stays
-     vertically centered in both cards. */
-  .practice-map-hero h1,
-  .practice-map-hero-note {
-    min-height: 10.5rem;
-  }
-
-  /* Stacked = full-width card: keep the headline proportionate to the
-     card, not to the viewport formula above (which undersizes it between
-     561 and 900). */
+  /* Full-width single card: keep the headline proportionate to the card,
+     not the viewport formula (which undersizes it 561–900). */
   .practice-map-hero h1 {
     font-size: clamp(1.4rem, 7.2vw, 2.6rem);
   }
