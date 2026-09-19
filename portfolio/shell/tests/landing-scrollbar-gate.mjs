@@ -1,6 +1,6 @@
 // Landing scrollbar gate — regression check for the main-menu scrollbar.
 //
-// Bug history (3 device verdicts from the owner, one bug, three passes):
+// Bug history (4 device verdicts from the owner, one bug, four passes):
 //   P1: a bar "appeared" on the landing (the quicknotes card's inner bar went
 //       quiet; the host bar became the only visible one). First fix: hide it.
 //   P2: on iOS the bar stayed AND went big — the fine-pointer scoping never
@@ -11,22 +11,34 @@
 //       Safari 18+/Chrome 121+ ignore every webkit pseudo and draw the
 //       engine default — the light bar. And iOS forces the root indicator to
 //       exist regardless.
-//   P3 final (owner's direct ask: "why didn't you just make it black?"): the
-//       landing renders its bar in the INK register — the practice-map
-//       reader's approved treatment (8px, transparent track, translucent
-//       paper thumb, 999px radius, literal rgba because custom properties do
-//       not resolve inside scrollbar pseudos), unconditional, and WITHOUT
-//       scrollbar-width (the interop poison).
+//   P4: "it is not dark" — the webkit thumb is a NO-OP on the iOS ROOT
+//       scroller (the indicator is a native overlay webkit pseudos cannot
+//       touch), and color-scheme: dark still paints it light (contrast law:
+//       dark scheme ⇒ LIGHT indicator — the instant P3 added the dark scheme
+//       the bar turned white). The black the owner wants is a LIGHT scheme on
+//       the landing root, never a webkit thumb.
+//
+// P5 (picker pass): the landing root drives data-landing-scroll via
+// resolveScrollBarTreatment() — ?bar=light|none|dark persisted in
+// localStorage["shell:bar"]; default "light" (light scheme ⇒ native DARK
+// indicator). "none" matches Raft Cluster (no override). "dark" is today's
+// P4 look, the never-worse degrade. One device round settles the winner.
 //
 // This gate loads the BUILT site and asserts, per context:
-//   G1 desktop landing — attribute set, NO scrollbar-width (interop law:
-//      the engine must actually apply the webkit pseudos), color-scheme dark
-//      (Firefox fallback), page still scrolls;
-//   G2 touch landing — same contract (the styled bar applies on iOS too);
-//   G3 route-local — a project page clears the attribute and keeps its bar;
-//   G4 static — the ink webkit rules exist unconditionally (not inside any
-//      fine-pointer media), and no scrollbar-width:none is attached to the
-//      attribute (the interop poison that resurrected the white bar).
+//   G1 desktop landing, no param — attribute defaults to "light", computed
+//      color-scheme "light" (assertion 6), no scrollbar-width, scroll intact;
+//   G2 touch landing — same default contract (iOS is the owner's engine);
+//   G3 picker round — each ?bar= value sets the attribute AND persists
+//      (assertions 3–4); a reload without the param keeps the treatment;
+//      invalid ?bar=zzz is ignored and NOT persisted (assertion 5); the
+//      computed color-scheme differs across treatments (assertion 6, the
+//      staleness canary: identical values ⇒ stale bundle, not CSS);
+//   G4 route-local — a project page carries no attribute and keeps the
+//      global dark scheme (assertion 9);
+//   G5 static — only the "dark" treatment emits root webkit rules (7), and
+//      no scrollbar-width/scrollbar-color anywhere on this path (8).
+//      resolveScrollBarTreatment()'s guarded storage/URL fallbacks
+//      (assertion 10) are runtime code paths, asserted by review not gate.
 //
 //   node shell/tests/landing-scrollbar-gate.mjs     (from portfolio/)
 //   node tests/landing-scrollbar-gate.mjs           (from shell/)
@@ -133,11 +145,23 @@ const waitFor = async (page, fn, timeout) => {
     await page.waitForFunction(fn, { timeout });
   }
 };
+// Selector waits pass the selector as an ARGUMENT (the closure is serialized
+// into the page, where local bindings do not exist).
+const waitForSelector = async (page, selector, timeout) => {
+  if (typeof page.setViewportSize === "function") {
+    await page.waitForFunction((sel) => Boolean(document.querySelector(sel)), selector, { timeout });
+  } else {
+    await page.waitForFunction((sel) => Boolean(document.querySelector(sel)), { timeout }, selector);
+  }
+};
 
 const readState = () => ({
-  attr: document.documentElement.hasAttribute("data-ink-scroll-bar"),
+  attr: document.documentElement.getAttribute("data-landing-scroll"),
   sbWidth: getComputedStyle(document.documentElement).scrollbarWidth,
   colorScheme: getComputedStyle(document.documentElement).colorScheme,
+  stored: (() => {
+    try { return window.localStorage.getItem("shell:bar"); } catch { return null; }
+  })(),
 });
 
 // Instant scroll only: html{scroll-behavior:smooth} animates plain scrollTo.
@@ -154,62 +178,111 @@ const probeScroll = () =>
     );
   });
 
-// ---------------------------------------------------------------------------
-// G1 — desktop landing (1440×900, fine pointer): ink bar wired, scroll intact.
-{
+const openLanding = async (url, viewport, waitSelector = ".signal-index", waitTimeout = 20000) => {
   const page = await browser.newPage();
-  await setViewport(page, { width: 1440, height: 900, touch: false });
-  await page.goto(`${base}/`, { waitUntil: "load", timeout: 60000 });
+  await setViewport(page, viewport);
+  await page.goto(url, { waitUntil: "load", timeout: 60000 });
+  await waitForSelector(page, waitSelector, waitTimeout);
+  await wait(600);
+  return page;
+};
+
+// Fresh storage, then reload: the default contract must be judged with empty
+// persistence (assertion 2 — "empty localStorage ⇒ light").
+const freshLanding = async (viewport) => {
+  const page = await openLanding(`${base}/`, viewport);
+  await page.evaluate(() => { try { window.localStorage.clear(); } catch {} });
+  await page.reload({ waitUntil: "load", timeout: 60000 });
   await waitFor(page, () => Boolean(document.querySelector(".signal-index")), 20000);
   await wait(600);
+  return page;
+};
+
+// ---------------------------------------------------------------------------
+// G1 — desktop landing (1440×900, fine pointer), no param: default "light".
+{
+  const page = await freshLanding({ width: 1440, height: 900, touch: false });
   const s = await page.evaluate(readState);
-  check(s.attr, "desktop landing sets html[data-ink-scroll-bar]");
+  check(
+    ["light", "none", "dark"].includes(s.attr ?? ""),
+    `desktop landing carries data-landing-scroll (got ${s.attr})`,
+  );
+  check(s.attr === "light", `no param + empty storage resolves to "light" (got ${s.attr})`);
   // The interop law: a non-auto scrollbar-width would make Safari 18+ ignore
   // every webkit pseudo and resurrect the engine-default light bar.
   check(s.sbWidth === "auto", `no scrollbar-width poison on the landing (${s.sbWidth})`);
-  check(
-    /dark/.test(s.colorScheme),
-    `root color-scheme covers the Firefox fallback (${s.colorScheme})`,
-  );
+  check(s.colorScheme === "light", `light treatment computes color-scheme "light" (${s.colorScheme})`);
   const scrolls = await page.evaluate(probeScroll);
-  check(scrolls, "landing still scrolls with the ink bar");
+  check(scrolls, "landing still scrolls with the picker in place");
   await page.close();
 }
 
-// G2 — touch landing (390×844 coarse pointer): the styled bar applies on iOS
-// too (the owner accepts the forced indicator — it must be the ink one).
+// G2 — touch landing (390×844 coarse pointer): same default contract.
 {
-  const page = await browser.newPage();
-  await setViewport(page, { width: 390, height: 844, touch: true });
+  const page = await freshLanding({ width: 390, height: 844, touch: true });
+  const s = await page.evaluate(readState);
+  check(s.attr === "light", `mobile: default resolves to "light" (got ${s.attr})`);
+  check(s.sbWidth === "auto", `mobile: no scrollbar-width poison (${s.sbWidth})`);
+  check(s.colorScheme === "light", `mobile: light treatment computes "light" (${s.colorScheme})`);
+  await page.close();
+}
+
+// G3 — the picker round (desktop): every treatment sets + persists; the
+// invalid value is ignored; the schemes actually differ (staleness canary).
+{
+  const page = await openLanding(`${base}/?bar=none`, { width: 1440, height: 900, touch: false });
+  let s = await page.evaluate(readState);
+  check(s.attr === "none" && s.stored === "none", `?bar=none sets the attribute and persists (${s.attr}, stored ${s.stored})`);
+  check(s.colorScheme === "normal", `none treatment computes "normal" (${s.colorScheme})`);
+
   await page.goto(`${base}/`, { waitUntil: "load", timeout: 60000 });
   await waitFor(page, () => Boolean(document.querySelector(".signal-index")), 20000);
   await wait(600);
-  const s = await page.evaluate(readState);
-  check(s.attr, "mobile landing sets html[data-ink-scroll-bar]");
-  check(s.sbWidth === "auto", `mobile: no scrollbar-width poison (${s.sbWidth})`);
-  check(
-    /dark/.test(s.colorScheme),
-    `mobile root color-scheme covers the fallback (${s.colorScheme})`,
-  );
-  await page.close();
-}
+  s = await page.evaluate(readState);
+  check(s.attr === "none", `reload without the param keeps the persisted treatment (${s.attr})`);
 
-// G3 — route-local: a project page clears the attribute (engine default bar).
-{
-  const page = await browser.newPage();
-  await setViewport(page, { width: 1440, height: 900, touch: false });
-  await page.goto(`${base}/projects/practice-map`, { waitUntil: "load", timeout: 60000 });
-  await waitFor(page, () => Boolean(document.querySelector(".pg-card")), 25000);
+  await page.goto(`${base}/?bar=dark`, { waitUntil: "load", timeout: 60000 });
+  await waitFor(page, () => Boolean(document.querySelector(".signal-index")), 20000);
   await wait(600);
-  const s = await page.evaluate(readState);
-  check(!s.attr, "project page clears the landing attribute (route-local)");
-  check(s.sbWidth === "auto", `project page keeps its engine bar (${s.sbWidth})`);
+  s = await page.evaluate(readState);
+  check(s.attr === "dark" && s.stored === "dark", `?bar=dark sets + persists "dark" (${s.attr}, stored ${s.stored})`);
+  check(s.colorScheme === "dark", `dark treatment computes "dark" (${s.colorScheme})`);
+
+  await page.goto(`${base}/?bar=light`, { waitUntil: "load", timeout: 60000 });
+  await waitFor(page, () => Boolean(document.querySelector(".signal-index")), 20000);
+  await wait(600);
+  s = await page.evaluate(readState);
+  check(s.attr === "light" && s.stored === "light", `?bar=light sets + persists "light" (${s.attr}, stored ${s.stored})`);
+
+  await page.goto(`${base}/?bar=zzz`, { waitUntil: "load", timeout: 60000 });
+  await waitFor(page, () => Boolean(document.querySelector(".signal-index")), 20000);
+  await wait(600);
+  s = await page.evaluate(readState);
+  check(s.attr === "light", `invalid ?bar=zzz falls back to the persisted value (${s.attr})`);
+  check(s.stored === "light", `invalid ?bar=zzz is not written to storage (stored ${s.stored})`);
   await page.close();
 }
 
-// G4 — static law in the BUILT css: the ink webkit rules for the attribute
-// exist UNCONDITIONALLY (not inside any fine-pointer media), and no
-// scrollbar-width:none is attached to the attribute (interop poison).
+// G4 — route-local: a project page clears the attribute (engine default bar)
+// and keeps the global dark scheme on documentElement (assertion 9).
+{
+  // The practice-map chunk is ~1.5 MB: cold first load needs the old gate's
+  // generous 25s window (a fresh profile has no warm caches).
+  const page = await openLanding(
+    `${base}/projects/practice-map`,
+    { width: 1440, height: 900, touch: false },
+    ".pg-card",
+    25000,
+  );
+  const s = await page.evaluate(readState);
+  check(s.attr === null, "project page carries no data-landing-scroll (route-local)");
+  check(s.sbWidth === "auto", `project page keeps its engine bar (${s.sbWidth})`);
+  check(/dark/.test(s.colorScheme), `project page keeps the global dark scheme (${s.colorScheme})`);
+  await page.close();
+}
+
+// G5 — static law in the BUILT css: only "dark" emits root webkit rules; the
+// html rule and every treatment carry no scrollbar-width/scrollbar-color.
 {
   let built = "";
   try {
@@ -219,44 +292,58 @@ const probeScroll = () =>
     }
   } catch {}
   if (built) {
-    let unscoped = 0;
-    let scoped = 0;
-    for (
-      let at = built.indexOf("data-ink-scroll-bar]::-webkit-scrollbar");
-      at !== -1;
-      at = built.indexOf("data-ink-scroll-bar]::-webkit-scrollbar", at + 1)
-    ) {
+    // Minifiers may drop the quotes around attribute values — compare both.
+    const norm = built.replaceAll('"', "");
+    check(norm.includes('data-landing-scroll=light]{color-scheme:light'), 'light treatment ships color-scheme:light');
+    check(norm.includes('data-landing-scroll=none]{color-scheme:normal'), 'none treatment ships color-scheme:normal');
+    check(norm.includes('data-landing-scroll=dark]{color-scheme:dark'), 'dark treatment ships color-scheme:dark');
+    check(
+      !norm.includes('data-landing-scroll=light]::-webkit-scrollbar') &&
+        !norm.includes('data-landing-scroll=none]::-webkit-scrollbar'),
+      "light/none treatments emit no root webkit rules (only dark does)",
+    );
+    // The dark thumb must be UNCONDITIONAL (not inside a fine-pointer @media)
+    // and a LITERAL color (vars do not resolve inside scrollbar pseudos).
+    const thumbAt = norm.indexOf('data-landing-scroll=dark]::-webkit-scrollbar-thumb');
+    const thumbBlock = thumbAt === -1 ? "" : norm.slice(thumbAt, thumbAt + 220).split("}")[0];
+    let unscoped = thumbBlock.length > 0;
+    if (unscoped) {
       // Walk backwards through brace depth to the enclosing block's opening
-      // brace; if that block is a @media with hover/pointer:fine in its
-      // condition, the occurrence is scoped (and would NOT apply on iOS).
+      // brace; a @media hover/pointer:fine head would mean iOS never applies.
       let depth = 0;
-      let fine = false;
-      for (let j = at; j >= 0; j -= 1) {
-        const ch = built[j];
+      for (let j = thumbAt; j >= 0; j -= 1) {
+        const ch = norm[j];
         if (ch === "}") depth += 1;
         else if (ch === "{") {
           if (depth === 0) {
-            const head = built.slice(Math.max(0, built.lastIndexOf(";", j) + 1), j);
-            if (/@media/.test(head) && (/hover/.test(head) || /pointer\s*:\s*fine/.test(head))) fine = true;
+            const head = norm.slice(Math.max(0, norm.lastIndexOf(";", j) + 1), j);
+            if (/@media/.test(head) && (/hover/.test(head) || /pointer\s*:\s*fine/.test(head))) unscoped = false;
             break;
           }
           depth -= 1;
         }
       }
-      if (fine) scoped += 1;
-      else unscoped += 1;
     }
-    check(unscoped >= 3 && scoped === 0, `ink webkit rules unconditional (unscoped ${unscoped}, fine-pointer-scoped ${scoped})`);
-    check(!built.includes("data-ink-scroll-bar]{scrollbar-width"), "no scrollbar-width poison attached to the attribute");
-    // The thumb must be a LITERAL color (vars do not resolve inside scrollbar
-    // pseudos — an invalid background falls back to the engine's light thumb;
-    // esbuild may minify the rgba literal to hex — accept either form).
-    const thumbAt = built.indexOf("data-ink-scroll-bar]::-webkit-scrollbar-thumb");
-    const thumbBlock = thumbAt === -1 ? "" : built.slice(thumbAt, thumbAt + 220).split("}")[0];
-    const literalThumb = thumbBlock.length > 0 && !thumbBlock.includes("var(") && (/#eeeae0|rgba\(/.test(thumbBlock));
-    check(literalThumb, `thumb pinned to a literal ink color (${thumbBlock.slice(0, 80)})`);
+    check(
+      unscoped && !thumbBlock.includes("var(") && /#eeeae0|rgba\(/.test(thumbBlock),
+      `dark thumb unconditional + literal ink color (${thumbBlock.slice(0, 80)})`,
+    );
+    // No interop poison on this path: scan every treatment block AND the
+    // plain html rule for scrollbar-width/scrollbar-color declarations.
+    let poison = false;
+    for (let at = norm.indexOf("data-landing-scroll="); at !== -1; ) {
+      const open = norm.indexOf("{", at);
+      const close = norm.indexOf("}", open);
+      const block = open === -1 || close === -1 ? "" : norm.slice(open + 1, close);
+      if (/scrollbar-(width|color)\s*:/.test(block)) poison = true;
+      at = norm.indexOf("data-landing-scroll=", at + 1);
+    }
+    const htmlAt = norm.indexOf("html{");
+    const htmlBlock = htmlAt === -1 ? "" : norm.slice(htmlAt, norm.indexOf("}", htmlAt));
+    if (/scrollbar-(width|color)\s*:/.test(htmlBlock)) poison = true;
+    check(!poison, "no scrollbar-width/scrollbar-color on the landing path (interop law)");
   } else {
-    console.log("ok   (built css not found — G4 static checks skipped)");
+    console.log("ok   (built css not found — G5 static checks skipped)");
   }
 }
 

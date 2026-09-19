@@ -13,6 +13,7 @@ import {
   clearProjectReturnIntent,
   readProjectReturnScrollY,
 } from "./project-return-intent";
+import { resolveScrollBarTreatment } from "./scrollbarTreatment";
 import "./realm.css";
 
 type LandingPageProps = {
@@ -182,20 +183,25 @@ export default function LandingPage({
     };
   }, []);
 
-  // The main menu renders its document scrollbar in the ink register — the
-  // owner device verdicts (pass 3) settled on a styled bar: iOS Safari forces
-  // the root indicator to exist, and the owner asked for it black, in the
-  // practice-map reader's approved register. Route-local like
-  // data-signal-index: project pages keep their engine bars.
+  // The main menu drives its ROOT document-scrollbar treatment via
+  // data-landing-scroll (renamed from data-ink-scroll-bar: it now carries a
+  // treatment value, not a boolean). iOS Safari forces the native root
+  // indicator to exist and its colour follows color-scheme — so the owner's
+  // "make it black" is a LIGHT-scheme root, resolved here. Route-local like
+  // data-signal-index: project pages keep the global dark scheme untouched.
+  // Treatment is picker-driven (?bar=light|none|dark, persisted) so the real
+  // device settles it in one round; default = "light".
   useLayoutEffect(() => {
     const root = document.documentElement;
-    const previous = root.hasAttribute("data-ink-scroll-bar");
+    const previous = root.getAttribute("data-landing-scroll");
 
-    root.setAttribute("data-ink-scroll-bar", "");
+    root.setAttribute("data-landing-scroll", resolveScrollBarTreatment());
 
     return () => {
-      if (!previous) {
-        root.removeAttribute("data-ink-scroll-bar");
+      if (previous === null) {
+        root.removeAttribute("data-landing-scroll");
+      } else {
+        root.setAttribute("data-landing-scroll", previous);
       }
     };
   }, []);
