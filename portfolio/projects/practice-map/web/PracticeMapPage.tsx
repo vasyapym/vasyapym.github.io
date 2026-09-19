@@ -178,19 +178,19 @@ export default function PracticeMapPage() {
             <ol className="hero-ledger">
               <li className="rec">
                 <span className="rec-no">01</span>
-                <span className="rec-out">sure — here are ten ways to refactor this…</span>
+                <span className="rec-out">try wrapping that fetch in a try/catch…</span>
               </li>
               <li className="rec">
                 <span className="rec-no">02</span>
-                <span className="rec-out">the capital of australia is sydney</span>
+                <span className="rec-out">git rebase deletes your commits for good…</span>
               </li>
               <li className="rec">
                 <span className="rec-no">03</span>
-                <span className="rec-out">def solve(n): return dp[n] if n in dp else…</span>
+                <span className="rec-out">for i, row in enumerate(rows): yield…</span>
               </li>
               <li className="rec">
                 <span className="rec-no">04</span>
-                <span className="rec-out">as an ai language model, i cannot help with…</span>
+                <span className="rec-out">as an ai model i can't advise on that…</span>
               </li>
             </ol>
           </div>

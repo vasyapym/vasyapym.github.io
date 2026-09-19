@@ -39,23 +39,43 @@
   align-items:start;
 }
 
-/* tier list — considered model index: ordinal anchor, air between rows, no separators */
-.pg-tier-list{grid-area:list; margin-top:1rem; display:flex; flex-direction:column; gap:.4rem}
+/* tier list — considered model index: ruled records, ordinal anchor.
+   RULED-RECORD FAMILY (F033): the body joins the hero's voice — a strong
+   opening rule on the group (--ink-line, matching .hero-ledger) and a soft
+   hairline between records (--ink-line-soft, matching .rec). no radius,
+   no fill, no side walls; the field shows through under the grain. pill
+   controls keep 999px — pills are the control language, records are the
+   container language. extendable: folders, crumb, and other containers
+   may adopt the same two-rule recipe later. */
+.pg-tier-list{
+  grid-area:list; margin-top:1rem;
+  display:flex; flex-direction:column; gap:0;
+  border-top:1px solid var(--ink-line);
+}
 .pg-tier-row{
   width:100%; display:grid;
   grid-template-columns:auto minmax(0,1fr) auto;
   align-items:baseline; column-gap:.6rem; row-gap:.4rem;
-  padding:.85rem 1rem; text-align:left;
-  border:1px solid transparent; border-radius:var(--panel-radius);
-  background:transparent; color:rgba(238,234,224,.68); cursor:pointer;
-  transition:border-color 180ms ease, color 180ms ease, background 180ms ease, box-shadow 180ms ease;
+  padding:.85rem 0; text-align:left;               /* flush to the field, like .rec */
+  border:0; border-bottom:1px solid var(--ink-line-soft);
+  border-radius:0; background:transparent;
+  color:rgba(238,234,224,.68); cursor:pointer;
+  transition:border-color 180ms ease, color 180ms ease, background 180ms ease;
 }
-.pg-tier-row:hover{border-color:var(--ink-line); color:var(--ink-text); background:rgba(238,234,224,.03)}
-/* active: the open record is the only fully-legible row — ordinal + sample
-   lift to full read, no ochre / no fill / no spine / no reflow. hover lights
-   the name and washes the row; only active brightens ordinal AND sample. */
+.pg-tier-row:hover{
+  border-bottom-color:var(--ink-line);
+  color:var(--ink-text);
+  background:rgba(238,234,224,.03);
+}
+.pg-tier-row:focus-visible{outline:1px solid var(--ink-accent); outline-offset:2px}
+/* active: the open record is the only fully-legible row — ordinal AND
+   sample lift to full read. hover washes the row and lights the name;
+   only active brightens ordinal AND sample. no ochre / no fill jump /
+   no reflow — the R013 lit-record device survives the container swap. */
 .pg-tier-row.is-active{
-  color:var(--ink-text); border-color:var(--ink-line-soft);
+  color:var(--ink-text);
+  border-bottom-color:var(--ink-line-soft);
+  background:rgba(238,234,224,.02);
 }
 .pg-tier-index{
   grid-column:1; font-family:var(--mono); font-size:.68rem; letter-spacing:.04em;
@@ -114,14 +134,27 @@
   margin:0; font-family:var(--sans); font-weight:600;
   text-transform:none; letter-spacing:0; font-size:1.15rem; line-height:1.1; color:var(--ink-text);
 }
-.pg-cards{display:flex; flex-direction:column; gap:1.15rem}
-.pg-card{
-  border:1px solid var(--ink-line-soft); border-radius:var(--panel-radius);
-  padding:30px; background:#0b1317; min-width:0;
-  transition:transform 180ms ease-out, box-shadow 180ms ease-out, background 180ms ease-out;
+/* lesson cards: same ruled-record family — no box, no float.
+   flash (palette jump) colors its rule ochre and washes faintly; the rule
+   COLOR (ochre vs hover's neutral) is the tell, placed after :hover so it
+   wins. ochre is the card's standing accent (topline/count/pill). */
+.pg-cards{
+  display:flex; flex-direction:column; gap:0;
+  border-top:1px solid var(--ink-line);
 }
-.pg-card:hover{transform:translateY(-6px); box-shadow:0 18px 40px rgba(0,0,0,.32); background:#0f171c}
-.pg-card.is-flash{border-color:var(--ink-accent)}
+.pg-card{
+  border:0; border-bottom:1px solid var(--ink-line-soft);
+  border-radius:0; padding:1.6rem 0; background:transparent; min-width:0;
+  transition:border-color 180ms ease, background 180ms ease;
+}
+.pg-card:hover{
+  border-bottom-color:var(--ink-line);
+  background:rgba(238,234,224,.03);
+}
+.pg-card.is-flash{
+  border-bottom-color:var(--ink-accent);
+  background:rgba(211,155,97,.06);
+}
 .pg-topline{
   display:flex; align-items:center; justify-content:space-between; gap:1rem;
   margin-bottom:.8rem;
@@ -232,20 +265,20 @@
 }
 @media (max-width:700px){
   .pg-layout{margin-top:24px; grid-template-columns:1fr; grid-template-areas:"list" "search" "panel"; gap:18px}
-  .pg-tier-row{grid-template-columns:auto minmax(0,1fr) auto; padding:.75rem .85rem; min-height:44px}
+  .pg-tier-row{grid-template-columns:auto minmax(0,1fr) auto; padding:.75rem 0; min-height:44px}
   .pg-tier-count{justify-self:end}
-  .pg-card{padding:20px}
+  .pg-card{padding:1.15rem 0}
   .pg-tier-head{padding-bottom:.8rem; margin-bottom:.9rem}
   .pg-crumb{padding-bottom:.8rem; margin-bottom:.9rem}
   .pg-face-head{padding:14px 16px; min-height:44px}
   .pg-faces{gap:1.1rem}
-  .pg-cards{gap:.95rem}
+  .pg-cards{gap:0}
   .pg-pal{top:0; left:0; transform:none; width:100%; border-radius:0 0 var(--panel-radius) var(--panel-radius); border-left:0; border-right:0; border-top:0}
   .pg-pal-list{max-height:64vh}
 }
 @media (max-width:560px){
   .pg-layout{margin-top:18px; gap:14px}
-  .pg-card{padding:16px}
+  .pg-card{padding:1rem 0}
   .pg-tier-head{padding-bottom:.7rem; margin-bottom:.75rem}
   .pg-crumb{padding-bottom:.7rem; margin-bottom:.75rem; gap:.7em}
   .pg-card-foot{gap:.5rem}
