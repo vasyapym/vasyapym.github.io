@@ -1,0 +1,30 @@
+<!doctype html><html lang="en"><head><meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1"><title>playground — tokenfold</title>
+<style>
+:root{--ink:#141412;--paper:#f3f0e9;--och:#c8801e}
+*{margin:0;box-sizing:border-box}
+body{background:var(--ink);color:var(--paper);font:400 15px/1.5 ui-monospace,Menlo,monospace;text-transform:lowercase}
+a{color:inherit;text-decoration:none}
+header{padding:1.2rem 2rem;border-bottom:1px solid var(--paper);display:flex;justify-content:space-between}
+.wrap{max-width:60ch;margin:0 auto;padding:3rem 2rem}
+h1{font-weight:400;font-size:2rem;margin-bottom:2rem}h1 span{color:var(--och)}
+textarea{width:100%;background:none;border:1px solid var(--paper);color:var(--paper);font:inherit;padding:1rem;min-height:6rem;resize:vertical}
+textarea:focus{outline:2px solid var(--och)}
+#out{margin-top:2rem;line-height:2.2}
+#out i{font-style:normal;border:1px solid var(--och);padding:.15rem .35rem;margin:.15rem}
+#count{color:var(--och);margin-top:1rem;display:block}
+</style></head><body>
+<header><a href="index.html">tokenfold</a><span>toy no. 01 — chopper</span></header>
+<div class="wrap">
+<h1>the token <span>chopper</span></h1>
+<textarea id="in" placeholder="type something…">machines read in pieces</textarea>
+<div id="out"></div><span id="count"></span>
+</div>
+<script>
+const i=document.getElementById('in'),o=document.getElementById('out'),c=document.getElementById('count');
+function chop(){const t=i.value.match(/[a-z]{1,4}|[^a-z\s]|\s/gi)||[];
+o.innerHTML=t.filter(x=>x.trim()).map(x=>`<i>${x}</i>`).join('');
+c.textContent=`≈ ${t.filter(x=>x.trim()).length} tokens (crude approximation)`}
+i.addEventListener('input',chop);chop();
+</script>
+</body></html>

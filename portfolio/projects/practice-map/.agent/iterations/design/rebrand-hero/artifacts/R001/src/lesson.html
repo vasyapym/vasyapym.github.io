@@ -1,0 +1,29 @@
+<!doctype html><html lang="en"><head><meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1"><title>lesson 013 — tokenfold</title>
+<style>
+:root{--ink:#141412;--paper:#f3f0e9;--och:#c8801e}
+*{margin:0;box-sizing:border-box}
+body{background:var(--paper);color:var(--ink);font:400 15px/1.6 ui-monospace,Menlo,monospace;text-transform:lowercase}
+a{color:inherit;text-decoration:none}
+header{padding:1.2rem 2rem;border-bottom:2px solid var(--ink)}
+.wrap{max-width:64ch;margin:0 auto;padding:4rem 2rem}
+.kicker{color:var(--och);letter-spacing:.2em;font-size:.8rem}
+h1{font-size:clamp(1.8rem,5vw,3rem);font-weight:400;margin:.5rem 0 3rem;line-height:1.1}
+.step{display:grid;grid-template-columns:4rem 1fr;gap:1rem;padding:1.5rem 0;border-top:1px solid var(--ink)}
+.step b{color:var(--och);font-weight:400;font-size:1.5rem}
+.step p{max-width:52ch}
+mark{background:none;color:var(--och)}
+.next{display:block;margin-top:3rem;border:2px solid var(--ink);padding:1rem;text-align:center}
+.next:hover{background:var(--ink);color:var(--och)}
+</style></head><body>
+<header><a href="index.html">tokenfold</a> / <a href="syllabus.html">lessons</a> / 013</header>
+<div class="wrap">
+<span class="kicker">lesson 013</span>
+<h1>what a token actually is</h1>
+<div class="step"><b>01</b><p>a model never sees words. text is chopped into <mark>tokens</mark> — frequent chunks of characters, learned from data.</p></div>
+<div class="step"><b>02</b><p>each token maps to a number. "the" might be 262. the model works only on these integers.</p></div>
+<div class="step"><b>03</b><p>rare words split apart: "tokenfold" becomes <mark>token</mark> + <mark>fold</mark>. this is why models miscount letters.</p></div>
+<div class="step"><b>04</b><p>everything downstream — cost, context length, speed — is measured in tokens, not words.</p></div>
+<a class="next" href="playground.html">try it in the playground →</a>
+</div>
+</body></html>
