@@ -54,16 +54,17 @@
   transition:border-color 180ms ease, color 180ms ease, background 180ms ease, box-shadow 180ms ease;
 }
 .pg-tier-row:hover{border-color:var(--ink-line); color:var(--ink-text); background:rgba(238,234,224,.03)}
-/* active: quiet ochre spine (no reflow) + ochre ordinal, no fill */
+/* active: the open record is the only fully-legible row — ordinal + sample
+   lift to full read, no ochre / no fill / no spine / no reflow. hover lights
+   the name and washes the row; only active brightens ordinal AND sample. */
 .pg-tier-row.is-active{
   color:var(--ink-text); border-color:var(--ink-line-soft);
-  box-shadow:inset 2px 0 0 0 var(--ink-accent);
 }
 .pg-tier-index{
   grid-column:1; font-family:var(--mono); font-size:.68rem; letter-spacing:.04em;
   color:var(--ink-faint); font-variant-numeric:tabular-nums; line-height:1.15;
 }
-.pg-tier-row.is-active .pg-tier-index{color:var(--ink-accent)}
+.pg-tier-row.is-active .pg-tier-index{color:var(--ink-text)}
 .pg-tier-name{
   grid-column:2; min-width:0;
   font-family:var(--sans); font-size:1rem; font-weight:600;
@@ -80,6 +81,7 @@
   grid-column:2 / -1; font-size:.72rem; line-height:1.4; color:var(--ink-faint);
   overflow:hidden; text-overflow:ellipsis; display:-webkit-box; -webkit-line-clamp:1; -webkit-box-orient:vertical;
 }
+.pg-tier-row.is-active .pg-tier-sample{color:var(--ink-muted)}
 
 /* ---------- 5a. search — one machined bar with the ⌘k pill ---------- */
 .pg-search{grid-area:search; display:flex; gap:10px; align-items:center}
