@@ -919,10 +919,13 @@ el.search.addEventListener("focus", () => setHeaderHidden(false));
 // ---------- boot ----------
 switchUser(null);
 el.sort.value = state.sort;
-// ---- N027 (P3): bulletproof debug meter — ?debug=1 or #debug turns it on and
-// PERSISTS in localStorage (survives standalone launches and param-stripping);
-// ?debug=0 clears it. Mounted FIRST, own try/catch, top z-index, safe-area
-// offset so the notch/header can never hide it.
+// ---- N027 (P3)/N033: bulletproof debug meter — the URL forms (?debug=1,
+// #debug; ?debug=0 clears) persist in localStorage, AND the owner-proof
+// trigger: SIX TAPS on the footer count line toggle it in any context
+// (standalone, card, private tab) — the URL forms never showed on the
+// owner's iPhone Safari, so the gesture bypasses URL/cache entirely.
+// Mounted FIRST, own try/catch, top z-index, safe-area offset so the
+// notch/header can never hide it.
 function debugRequested() {
   try {
     const u = new URL(location.href);
@@ -968,10 +971,24 @@ function mountDebugMeter() {
         `body ${Math.round(r.top)}/${Math.round(r.bottom)}/${Math.round(r.height)}\n` +
         `kb ${sty.getPropertyValue("--kb-h").trim() || "0"}  app-v ${sty.getPropertyValue("--app-v").trim() || "-"}`;
     } catch (e) { m.textContent = "meter err: " + e.message; }
+    if (!document.getElementById("qn-vv-meter")) return; // N033: unmounted by the toggle → stop the loop
     requestAnimationFrame(tick);
   };
   requestAnimationFrame(tick);
 }
+function toggleDebugMeter() {
+  const had = !!document.getElementById("qn-vv-meter");
+  try { had ? localStorage.removeItem("qn:debug") : localStorage.setItem("qn:debug", "1"); } catch (_) {}
+  document.getElementById("qn-vv-meter")?.remove();
+  try { if (!had) mountDebugMeter(); } catch (_) {}
+}
+// N033: six taps on the footer count line within 2.5s — the iOS-proof switch
+let meterTaps = 0, meterTapTimer = 0;
+el.status?.addEventListener("click", () => {
+  clearTimeout(meterTapTimer);
+  if (++meterTaps >= 6) { meterTaps = 0; toggleDebugMeter(); }
+  else meterTapTimer = setTimeout(() => { meterTaps = 0; }, 2500);
+});
 try { mountDebugMeter(); } catch (_) { /* the meter must never block boot */ }
 try { pinBodyHeight(); onVV(); } catch (e) {
   const x = document.getElementById("qn-vv-meter");

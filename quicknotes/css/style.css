@@ -301,8 +301,16 @@ dialog::backdrop{background:rgba(0,0,0,.55)}
    scrollbar-color here — any non-auto value makes Safari 18+/Chrome 121+
    ignore the webkit pseudos below and draw the engine default (the exact
    white-bar bug practice-map fixed). Firefox falls back to the dark
-   color-scheme default declared at :root. */
-#tree::-webkit-scrollbar,#body::-webkit-scrollbar,.preview::-webkit-scrollbar,#pal-list::-webkit-scrollbar,.preview pre::-webkit-scrollbar{width:8px;height:8px}
-#tree::-webkit-scrollbar-track,#body::-webkit-scrollbar-track,.preview::-webkit-scrollbar-track,#pal-list::-webkit-scrollbar-track,.preview pre::-webkit-scrollbar-track{background:transparent}
-#tree::-webkit-scrollbar-thumb,#body::-webkit-scrollbar-thumb,.preview::-webkit-scrollbar-thumb,#pal-list::-webkit-scrollbar-thumb,.preview pre::-webkit-scrollbar-thumb{background:rgba(215,218,224,.25);border-radius:999px}
-#tree::-webkit-scrollbar-corner,#body::-webkit-scrollbar-corner{background:transparent}
+   color-scheme default declared at :root.
+   N033: the webkit pseudos are DESKTOP-ONLY (hover:hover + pointer:fine).
+   Owner device verdict: on iOS Safari the styled pseudo switched the
+   scrollers to the classic scrollbar mode — the big desktop bar sometimes
+   rendered over the native overlay indicator ("two scroll toggles"). On
+   touch devices the pseudos no longer apply at all → WebKit keeps its
+   native thin auto-hiding indicator; desktop keeps the quiet 8px thumb. */
+@media (hover:hover) and (pointer:fine){
+  #tree::-webkit-scrollbar,#body::-webkit-scrollbar,.preview::-webkit-scrollbar,#pal-list::-webkit-scrollbar,.preview pre::-webkit-scrollbar{width:8px;height:8px}
+  #tree::-webkit-scrollbar-track,#body::-webkit-scrollbar-track,.preview::-webkit-scrollbar-track,#pal-list::-webkit-scrollbar-track,.preview pre::-webkit-scrollbar-track{background:transparent}
+  #tree::-webkit-scrollbar-thumb,#body::-webkit-scrollbar-thumb,.preview::-webkit-scrollbar-thumb,#pal-list::-webkit-scrollbar-thumb,.preview pre::-webkit-scrollbar-thumb{background:rgba(215,218,224,.25);border-radius:999px}
+  #tree::-webkit-scrollbar-corner,#body::-webkit-scrollbar-corner{background:transparent}
+}
