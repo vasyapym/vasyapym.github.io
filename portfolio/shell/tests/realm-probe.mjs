@@ -74,15 +74,33 @@ const open = async (page, url = BASE) => {
   await wait(800); // settle: reveal callbacks, chip mount
 };
 
-// poll until fn() is truthy (page.evaluate wrapper) — immune to commit/anim timing
-const until = async (page, fn, ms = 2500) => {
+// poll until fn() is truthy (page.evaluate wrapper) — immune to commit/anim
+// timing. An optional arg is passed into the page context (closures do NOT
+// cross into evaluate — inlining one throws and the poll never resolves).
+const until = async (page, fn, ms = 2500, arg) => {
   const t0 = Date.now();
   while (Date.now() - t0 < ms) {
-    try { if (await page.evaluate(fn)) return true; } catch {}
+    try { if (await page.evaluate(fn, arg)) return true; } catch {}
     await wait(100);
   }
   return false;
 };
+
+// derive a creature's on-screen anchor from the scene's live anchors (r13 dev
+// snapshot) — tap fixtures must not hard-code geography: the 8-door anchor
+// rewrite staled every (0.25·vw, 0.26·2vh) tap point in this file at once.
+const creatureTapPoint = (page, sel) => page.evaluate((s) => {
+  const d = window.__r13?.getDepthSnapshot();
+  if (!d) return null;
+  const id = typeof s === "number" ? Object.keys(d.anchors)[s] ?? null : s;
+  const a = id ? d.anchors[id] : null;
+  if (!id || !a) return null;
+  return {
+    id,
+    x: a.fx * window.innerWidth,
+    y: a.fy * d.anchorH - d.camYState,
+  };
+}, sel);
 
 let failures = 0;
 const check = (name, ok, detail = "") => {
@@ -440,7 +458,7 @@ try {
   await r17c.keyboard.press("Escape");
   await wait(300);
   await r17c.evaluate(() =>
-    document.querySelectorAll(".realm-legend-btn")[2]?.click()); // explosion
+    document.querySelectorAll(".realm-legend-btn")[2]?.click()); // any third door
   check("r17: opening a panel yields the bar (no double overlay)",
     await until(r17c, () =>
       document.querySelector(".realm-prompt") === null &&
@@ -471,8 +489,14 @@ try {
   check("realm opens over the landing", await desktop.$(".realm-layer") !== null);
   check("gl + overlay canvases present",
     (await desktop.$$(".realm-layer canvas")).length === 2);
-  check("legend has 7 door buttons",
-    (await desktop.$$(".realm-legend-btn")).length === 7);
+  // door count derives from the live catalogue — a hard-coded count stales
+  // on every added project (the 8th door shipped as exactly such a stale gate)
+  const legendCount = (await desktop.$$(".realm-legend-btn")).length;
+  const cardCount = await desktop.evaluate(
+    () => document.querySelectorAll(".signal-index-card").length);
+  check("legend has one door per catalogue card",
+    legendCount === cardCount && legendCount > 0,
+    `${legendCount} doors / ${cardCount} cards`);
   check("caption names the technique",
     await desktop.$eval(".realm-layer .realm-caption", (el) => /the deep/.test(el.textContent)));
 
@@ -504,8 +528,9 @@ try {
 
   // focused legend button + Enter must open THAT project (native click wins)
   await desktop.evaluate(() => {
-    const btn = document.querySelectorAll(".realm-legend-btn")[2]; // explosion
-    btn.focus();
+    const btn = document.querySelector(
+      ".realm-legend-btn[data-project-id='explosion']"); // select by id — reorders must not swap the fixture
+    btn?.focus();
   });
   await desktop.keyboard.press("Enter");
   await wait(500);
@@ -665,12 +690,14 @@ try {
       window.__holdProbe.after = { ...s.getLanternSnapshot() };
     };
   });
-  await dive.mouse.move(360, 468); // creature 0 anchor: (0.25·vw, 0.26·2vh) at zoom 1, cam 0
+  const tapPoint = await creatureTapPoint(dive, 0);
+  if (!tapPoint) throw new Error("no dev anchor snapshot — cannot place the tap fixture");
+  await dive.mouse.move(tapPoint.x, tapPoint.y); // creature 0 anchor, derived live
   await wait(600); // settle: hover before the tap, past any entering-frame under load
   // fast out-and-back sweep: the light builds chasing speed without leaving
   // the pick band; the press itself stays still
-  await dive.mouse.move(430, 560, { steps: 3 });
-  await dive.mouse.move(360, 468, { steps: 3 });
+  await dive.mouse.move(tapPoint.x + 70, tapPoint.y + 92, { steps: 3 });
+  await dive.mouse.move(tapPoint.x, tapPoint.y, { steps: 3 });
   await dive.mouse.down();
   await dive.mouse.up();
   check("canvas tap-select opens the tapped creature's panel",
@@ -732,7 +759,7 @@ try {
     }));
 
   // ── desktop: dive → SPA handoff ──
-  await dive.click(".realm-legend-btn:nth-child(3)"); // explosion
+  await dive.click(".realm-legend-btn[data-project-id='explosion']");
   await wait(400);
   // the dive CTA follows the panel content (owner law): no flex auto-margin
   // may pin it to the bottom of the sheet.
@@ -786,14 +813,35 @@ try {
       return !!f && f.settled === true &&
         document.querySelector(".realm-panel")?.getAttribute("data-side") === "right";
     }, 3000));
-  check("r13: framed camY puts door 1 at the chrome-free band centre",
+  // r13 law: the framing retargets camY toward the band centre, clamped to the
+  // world — a centreable creature lands exactly at the band centre; a shallow
+  // anchor (the deliberate zigzag puts door 1 at fy 0.14) clamps at 0 and must
+  // still sit inside the clear band. Derived from the live anchors, so a
+  // geography tweak cannot stale it.
+  check("r13: framed camY follows the clamp law — door 1 stays inside the clear band",
     await r13.evaluate(() => {
       const d = window.__r13?.getDepthSnapshot();
       const f = window.__r13?.getFrameSnapshot();
-      if (!d || !f) return false;
-      const sy13 = 0.26 * d.anchorH - d.camYState;
-      return Math.abs(sy13 - (f.bandTop + f.bandBottom) / 2) < 5;
-    }));
+      if (!d || !f || !f.doorId) return false;
+      const a = d.anchors[f.doorId];
+      if (!a) return false;
+      const bandCy = (f.bandTop + f.bandBottom) / 2;
+      const expected = Math.min(Math.max(0, a.fy * d.anchorH - bandCy), d.range);
+      const sy13 = a.fy * d.anchorH - d.camYState;
+      return f.settled && Math.abs(d.camYState - expected) < 2 &&
+        sy13 > f.bandTop && sy13 < f.bandBottom;
+    }),
+    `settled/camY=${JSON.stringify(await r13.evaluate(() => {
+      const d = window.__r13?.getDepthSnapshot();
+      const f = window.__r13?.getFrameSnapshot();
+      if (!d || !f || !f.doorId) return null;
+      const a = d.anchors[f.doorId];
+      return {
+        doorId: f.doorId, settled: f.settled, camYState: d.camYState,
+        sy: a ? a.fy * d.anchorH - d.camYState : null,
+        band: [f.bandTop, f.bandBottom],
+      };
+    }).catch(() => null))}`);
   await r13.evaluate(() => {
     window.__r13park = { ...window.__realmScene.getLanternSnapshot() };
   });
@@ -821,7 +869,7 @@ try {
         layer?.getAttribute("data-panel-side") === null;
     }, 2500));
 
-  await r13.evaluate(() => document.querySelectorAll(".realm-legend-btn")[3]?.click()); // spine fx 0.8
+  await r13.evaluate(() => document.querySelectorAll(".realm-legend-btn")[3]?.click()); // right-half creature (explosion)
   check("r13: right-half creature flips the sheet to the left edge",
     await until(r13, () => {
       const panel = document.querySelector(".realm-panel");
@@ -841,40 +889,85 @@ try {
       const p = document.querySelector(".realm-panel")?.getBoundingClientRect();
       return !!l && !!p && l.left >= p.right - 1;
     }));
-  check("r13: door 4's greeting core sits inside the clear band",
+  check("r13: the framed creature's greeting core sits inside the clear band",
     await until(r13, () => {
       const f = window.__r13?.getFrameSnapshot();
       const d = window.__r13?.getDepthSnapshot();
       if (!f || !d || !f.settled) return false;
+      const a = d.anchors[f.doorId];
+      if (!a) return false;
       const r = Math.min(window.innerWidth, window.innerHeight) * 0.28;
-      const sy13 = 0.55 * d.anchorH - d.camYState;
+      const sy13 = a.fy * d.anchorH - d.camYState;
       return sy13 - r > f.bandTop && sy13 + r < f.bandBottom;
     }, 3000));
 
   await r13.keyboard.press("Escape");
   await wait(600);
-  await r13.keyboard.press("7"); // warp to door 7 (fy 0.9)
+  // warp to the LAST door — the deep-floor creature, wherever the live
+  // geography puts it (door 8 / quicknotes since the 8th project joined;
+  // hard-coding "7" staled the moment the count grew)
+  const r13DoorCount = await r13.evaluate(() =>
+    Object.keys(window.__r13?.getDepthSnapshot()?.anchors ?? {}).length);
+  await r13.keyboard.press(String(r13DoorCount)); // warp to the deep floor
   await wait(300);
-  check("r13: warp to door 7 reaches the deep floor (camY 1170, was capped at vh)",
+  check("r13: warp to the deep-floor door reaches past the old vh cap",
     await r13.evaluate(() => {
       const d = window.__r13?.getDepthSnapshot();
-      return !!d && Math.abs(d.camYState - 1170) < 3;
-    }));
+      if (!d) return false;
+      const ids = Object.keys(d.anchors);
+      const last = d.anchors[ids[ids.length - 1]];
+      const expected = Math.min(last.fy * d.anchorH - d.vh * 0.5, d.range);
+      return expected > d.vh && Math.abs(d.camYState - expected) < 3;
+    }),
+    `camY=${JSON.stringify(await r13.evaluate(() => {
+      const d = window.__r13?.getDepthSnapshot();
+      if (!d) return null;
+      const ids = Object.keys(d.anchors);
+      const last = d.anchors[ids[ids.length - 1]];
+      return { camYState: d.camYState, last: ids[ids.length - 1], lastFy: last?.fy, range: d.range };
+    }).catch(() => null))}`);
+  // the light must be able to travel below the anchor band — hold "s" and
+  // poll for the crossing (a fixed 1.2s budget was load-sensitive; the LAW
+  // is reachability past the anchor span, not a speed record)
   await r13.keyboard.down("s");
-  await wait(1200);
-  await r13.keyboard.up("s");
-  check("r13: light travels below the anchor band (owner's deep-floor ask)",
-    await r13.evaluate(() => {
+  let lightBelow = false;
+  for (let i = 0; i < 30; i += 1) {
+    await wait(100);
+    lightBelow = await r13.evaluate(() => {
       const d = window.__r13?.getDepthSnapshot();
       const g = window.__realmScene?.getLanternSnapshot();
       return !!d && !!g && g.y > d.anchorH;
-    }));
+    }).catch(() => false);
+    if (lightBelow) break;
+  }
+  await r13.keyboard.up("s");
+  check("r13: light travels below the anchor band (owner's deep-floor ask)",
+    lightBelow,
+    `lanternY=${JSON.stringify(await r13.evaluate(() => {
+      const d = window.__r13?.getDepthSnapshot();
+      const g = window.__realmScene?.getLanternSnapshot();
+      return d && g ? { y: g.y, anchorH: d.anchorH, camYState: d.camYState } : null;
+    }).catch(() => null))}`);
 
-  await r13.evaluate(() => document.querySelectorAll(".realm-legend-btn")[2]?.click()); // explosion fx 0.46
+  await r13.evaluate(() => document.querySelectorAll(".realm-legend-btn")[2]?.click()); // left-half creature (kitty-run)
   await wait(600);
   check("r13: door 3 keeps the sheet on the right edge",
     await r13.evaluate(() =>
       document.querySelector(".realm-panel")?.getAttribute("data-side") === "right"));
+  // the centring half of the law: a centreable anchor (fy 0.36, well past the
+  // clamp) must land exactly at the band centre — the tween comes from the
+  // deep floor (camY ~1170), so poll past the exponential settle
+  check("r13: framed camY centres a centreable creature at the band centre",
+    await until(r13, () => {
+      const d = window.__r13?.getDepthSnapshot();
+      const f = window.__r13?.getFrameSnapshot();
+      if (!d || !f || !f.doorId || !f.settled) return false;
+      const a = d.anchors[f.doorId];
+      if (!a) return false;
+      const bandCy = (f.bandTop + f.bandBottom) / 2;
+      const sy13 = a.fy * d.anchorH - d.camYState;
+      return Math.abs(sy13 - bandCy) < 5;
+    }, 3000));
   await r13.evaluate(() => document.querySelector(".realm-panel-dive")?.click());
   check("r13: dive clears the frame state",
     await r13.evaluate(() => {
@@ -1034,6 +1127,19 @@ try {
     window.scrollTo({ top: bottom + 80, behavior: "instant" });
   });
   await wait(400);
+  // record every scrollTo during the whole r16 chain: the S restore must be
+  // the ONLY viewport move the exit makes — the log names the loser otherwise
+  await retScroll.evaluate(() => {
+    window.__scrollLog = [];
+    const orig = window.scrollTo.bind(window);
+    window.scrollTo = (...args) => {
+      window.__scrollLog.push({
+        top: JSON.stringify(args[0]?.top ?? args[0]),
+        src: (new Error().stack ?? "").split("\n").slice(2, 5).join(" <- ").slice(0, 220),
+      });
+      return orig(...args);
+    };
+  });
   const entryScrollS = await retScroll.evaluate(() => {
     window.__sivCalls = 0;
     const orig = Element.prototype.scrollIntoView;
@@ -1048,25 +1154,90 @@ try {
   await wait(500);
   await retScroll.evaluate(() => document.querySelector(".realm-panel-dive")?.click());
   await until(retScroll, () => window.location.pathname.includes("projects"), 5000);
+  // r16 root cause: the dive commits through App.openProject, which used to
+  // write the MENU-return intent too — with the body position:fixed the
+  // captured scrollY is ≈0, and on the surface exit the fresh landing
+  // consumed that stale intent and zeroed the viewport, clobbering the
+  // realm's own restore to the original landing offset (r16).
+  check("r16: the realm dive writes no project-return intent",
+    await retScroll.evaluate(() =>
+      window.sessionStorage.getItem("portfolio.project.return.v1") === null));
   await armProjectBacked(retScroll);
+  // instrument from the goBack through the settlement: the sampler pins the
+  // beat where the S restore target is lost (path/threshold/body beats)
+  await retScroll.evaluate(() => {
+    window.__r16log = [];
+    const log = (tag) => window.__r16log.push(
+      `${tag} y=${window.scrollY} p=${location.pathname} fixed=${getComputedStyle(document.body).position === "fixed"} land=${document.querySelector(".realm-threshold-enter") !== null} proj=${document.querySelector(".project-frame") !== null} shHold=${(() => { const s = document.scrollingElement ?? document.documentElement; return s.scrollHeight - window.innerHeight; })()}`);
+    log("pre-goback");
+    window.addEventListener("popstate", () => log("popstate"), { once: true });
+    new MutationObserver(() => log("mut"))
+      .observe(document.body, { childList: true, subtree: true });
+    let n = 0;
+    const tick = () => {
+      log(`t${n++}`);
+      if (n < 14) setTimeout(tick, 250);
+    };
+    setTimeout(tick, 250);
+  });
   await retScroll.goBack();
   check("r16: deep-return restores the realm over the project",
     await until(retScroll, () =>
       document.querySelector(".realm-layer") !== null &&
       window.__pbRecorder?.saw === true, 5000));
-  await wait(1700); // the re-entry flood must reach the active phase
-  // exit to surface — the landing must come back at S, not the hero (≈0)
+  // settlement-synchronous (relay-integrated): the r12 opaque swap must
+  // complete — pathname "/", settled landing mounted, project frame gone —
+  // BEFORE the exit is legal. A fixed 1700ms beat let the probe exit DURING
+  // settlement, where every scrollTo(S) clamps into a short document.
+  check("r16: the r12 settlement completes before the exit",
+    await until(retScroll, () =>
+      window.location.pathname === "/" &&
+      document.querySelector(".realm-threshold-enter") !== null &&
+      document.querySelector(".project-frame") === null, 12000));
+  // exit to surface — the landing must come back at S, not the hero (≈0).
+  // Instrumented: scrollY + landing-mount evidence at every beat of the exit,
+  // so a 0-restore localizes itself (restore-with-fallback vs post-swap reset).
   await retScroll.evaluate(() => {
+    const log = (tag) => window.__r16log.push(
+      `${tag} y=${window.scrollY} p=${location.pathname} fixed=${getComputedStyle(document.body).position === "fixed"} land=${document.querySelector(".realm-threshold-enter") !== null} proj=${document.querySelector(".project-frame") !== null} shHold=${(() => { const s = document.scrollingElement ?? document.documentElement; return s.scrollHeight - window.innerHeight; })()}`);
+    const layer = document.querySelector(".realm-layer");
+    if (layer) {
+      new MutationObserver(() => log(`stage:${layer.dataset.realmExitStage ?? "?"}`))
+        .observe(layer, { attributes: true, attributeFilter: ["data-realm-exit-stage"] });
+    }
+    const unmountObs = new MutationObserver(() => {
+      if (document.querySelector(".realm-layer") === null) {
+        log("layer-unmounted");
+        unmountObs.disconnect();
+      }
+    });
+    unmountObs.observe(document.body, { childList: true, subtree: true });
     document.querySelector(".realm-btn--leave")?.click();
+    log("leave-clicked");
   });
   check("r16: surface exit completes the staged teardown",
     await until(retScroll, () =>
       document.querySelector(".realm-layer") === null &&
       window.location.pathname === "/", 8000));
+  // premise for the restore law: the settled landing's document must be able
+  // to HOLD S (while the body was fixed it reads ≈0 by construction — the
+  // measurement is only meaningful once the body is unfixed)
+  check("r16: the restored document can hold S",
+    await retScroll.evaluate((t) => {
+      const s = document.scrollingElement ?? document.documentElement;
+      return s.scrollHeight - window.innerHeight >= t - 1;
+    }, entryScrollS));
   await wait(900); // the focus-restore effect + its settle rAFs land here
   const restoredY = await retScroll.evaluate(() => window.scrollY);
+  const r16Intents = await retScroll.evaluate(() => ({
+    project: window.sessionStorage.getItem("portfolio.project.return.v1"),
+    realm: window.sessionStorage.getItem("portfolio.realm.return.v1"),
+    log: window.__r16log ?? [],
+    scrolls: window.__scrollLog ?? [],
+  }));
   check("r16: deep-return exit lands at the original landing offset (no hero flash)",
-    Math.abs(restoredY - entryScrollS) <= 2, `S=${entryScrollS} restoredY=${restoredY}`);
+    Math.abs(restoredY - entryScrollS) <= 2,
+    `S=${entryScrollS} restoredY=${restoredY} intents=${JSON.stringify(r16Intents)}`);
   check("r16: no scrollIntoView yank on the deep-return exit",
     await retScroll.evaluate(() => window.__sivCalls === 0));
   check("r16: focus returns to the threshold control",
@@ -1076,11 +1247,12 @@ try {
 
   // r19: the deep-return spawns the lantern near the EXITED project's door.
   // Before the fix the fresh realm respawned at the top-centre default
-  // (vw·0.5, vh·0.1, camYState 0) — door 7's creature sat ~1.3 viewports out
-  // of view. Expected values follow the warpTo anchor-framing law at
-  // 1440×900 (anchorH 1800, world.h 2250, range 1350, interactR 252):
-  //   door 7 (idx 6, fx .76, fy .90): lantern (1094.4, 1468.8), camYState 1170
-  //   door 1 (idx 0, fx .25, fy .26): lantern (360, 316.8), camYState 18
+  // (vw·0.5, vh·0.1, camYState 0) — the exited creature sat out of view.
+  // Expected values follow the warpTo anchor-framing law, derived from the
+  // scene's live anchors: lantern (fx·vw, fy·anchorH − 0.6·interactR),
+  // camYState = clamp(fy·anchorH − vh·0.5). Hard-coding door coordinates
+  // staled with the 8-door geography rewrite (practice fy 0.9→0.8, door 7
+  // became quicknotes) — the law is what this gate protects.
   const retSpawn = await browser.newPage();
   await retSpawn.setViewport({ width: 1440, height: 900, deviceScaleFactor: 1 });
   collectErrors(retSpawn);
@@ -1097,7 +1269,7 @@ try {
     normalSpawn.depth !== null &&
     normalSpawn.depth.camYState === 0,
     `lan=(${normalSpawn.lan?.x.toFixed(1)},${normalSpawn.lan?.y.toFixed(1)}) camYState=${normalSpawn.depth?.camYState}`);
-  await retSpawn.evaluate(() => document.querySelectorAll(".realm-legend-btn")[6]?.click()); // practice-map, door 7
+  await retSpawn.evaluate(() => document.querySelectorAll(".realm-legend-btn")[6]?.click()); // door 7
   await wait(500);
   await retSpawn.evaluate(() => document.querySelector(".realm-panel-dive")?.click());
   check("r19: door-7 dive hands off to the project page",
@@ -1113,15 +1285,28 @@ try {
     const s = window.__realmScene;
     return { lan: s?.getLanternSnapshot?.() ?? null, depth: s?.getDepthSnapshot?.() ?? null };
   });
+  const door7Expected = await retSpawn.evaluate(() => {
+    const id = document.querySelectorAll(".realm-legend-btn")[6]?.dataset.projectId;
+    const d = window.__r13?.getDepthSnapshot();
+    const a = id ? d?.anchors[id] : null;
+    if (!a || !d) return null;
+    const r = Math.min(window.innerWidth, window.innerHeight) * 0.28;
+    return {
+      id,
+      x: a.fx * window.innerWidth,
+      y: Math.min(a.fy * d.anchorH - r * 0.6, d.h),
+      camY: Math.min(Math.max(0, a.fy * d.anchorH - d.vh * 0.5), d.range),
+    };
+  });
   check("r19: deep-return spawns the lantern near the exited door (door 7)",
-    door7Spawn.lan !== null &&
-    Math.abs(door7Spawn.lan.x - 1094.4) <= 1 &&
-    Math.abs(door7Spawn.lan.y - 1468.8) <= 1,
-    `lan=(${door7Spawn.lan?.x.toFixed(1)},${door7Spawn.lan?.y.toFixed(1)})`);
+    door7Spawn.lan !== null && door7Expected !== null &&
+    Math.abs(door7Spawn.lan.x - door7Expected.x) <= 1 &&
+    Math.abs(door7Spawn.lan.y - door7Expected.y) <= 1,
+    `lan=(${door7Spawn.lan?.x.toFixed(1)},${door7Spawn.lan?.y.toFixed(1)}) expected=(${door7Expected?.x.toFixed(1)},${door7Expected?.y.toFixed(1)}) ${door7Expected?.id}`);
   check("r19: deep-return camera frames the exited anchor (door 7)",
-    door7Spawn.depth !== null &&
-    Math.abs(door7Spawn.depth.camYState - 1170) <= 1,
-    `camYState=${door7Spawn.depth?.camYState}`);
+    door7Spawn.depth !== null && door7Expected !== null &&
+    Math.abs(door7Spawn.depth.camYState - door7Expected.camY) <= 1,
+    `camYState=${door7Spawn.depth?.camYState} expected=${door7Expected?.camY.toFixed(1)}`);
   check("r19: spawned lantern is parked (zero velocity)",
     door7Spawn.lan !== null &&
     door7Spawn.lan.vx === 0 && door7Spawn.lan.vy === 0);
@@ -1132,7 +1317,7 @@ try {
   collectErrors(retSpawn1);
   await open(retSpawn1);
   await enterRealm(retSpawn1);
-  await retSpawn1.evaluate(() => document.querySelectorAll(".realm-legend-btn")[0]?.click()); // raft-cluster, door 1
+  await retSpawn1.evaluate(() => document.querySelectorAll(".realm-legend-btn")[0]?.click()); // door 1
   await wait(500);
   await retSpawn1.evaluate(() => document.querySelector(".realm-panel-dive")?.click());
   check("r19: door-1 dive hands off to the project page",
@@ -1147,13 +1332,26 @@ try {
     const s = window.__realmScene;
     return { lan: s?.getLanternSnapshot?.() ?? null, depth: s?.getDepthSnapshot?.() ?? null };
   });
+  const door1Expected = await retSpawn1.evaluate(() => {
+    const id = document.querySelectorAll(".realm-legend-btn")[0]?.dataset.projectId;
+    const d = window.__r13?.getDepthSnapshot();
+    const a = id ? d?.anchors[id] : null;
+    if (!a || !d) return null;
+    const r = Math.min(window.innerWidth, window.innerHeight) * 0.28;
+    return {
+      id,
+      x: a.fx * window.innerWidth,
+      y: Math.min(a.fy * d.anchorH - r * 0.6, d.h),
+      camY: Math.min(Math.max(0, a.fy * d.anchorH - d.vh * 0.5), d.range),
+    };
+  });
   check("r19: door-1 deep-return spawns near the shallow door",
-    door1Spawn.lan !== null &&
-    Math.abs(door1Spawn.lan.x - 360) <= 1 &&
-    Math.abs(door1Spawn.lan.y - 316.8) <= 1 &&
+    door1Spawn.lan !== null && door1Expected !== null &&
+    Math.abs(door1Spawn.lan.x - door1Expected.x) <= 1 &&
+    Math.abs(door1Spawn.lan.y - door1Expected.y) <= 1 &&
     door1Spawn.depth !== null &&
-    Math.abs(door1Spawn.depth.camYState - 18) <= 1,
-    `lan=(${door1Spawn.lan?.x.toFixed(1)},${door1Spawn.lan?.y.toFixed(1)}) camYState=${door1Spawn.depth?.camYState}`);
+    Math.abs(door1Spawn.depth.camYState - door1Expected.camY) <= 1,
+    `lan=(${door1Spawn.lan?.x.toFixed(1)},${door1Spawn.lan?.y.toFixed(1)}) camYState=${door1Spawn.depth?.camYState} expected=(${door1Expected?.x.toFixed(1)},${door1Expected?.y.toFixed(1)}) camY ${door1Expected?.camY.toFixed(1)} ${door1Expected?.id}`);
   await retSpawn1.close();
 
   // reload legs: session storage must survive a fresh boot on the project page
@@ -1249,7 +1447,9 @@ try {
   collectErrors(direct);
   await open(direct);
   await enterRealm(direct);
-  await direct.mouse.move(360, 468); // creature 0 anchor: (0.25·vw, 0.26·2vh)
+  const directTap = await creatureTapPoint(direct, 0);
+  if (!directTap) throw new Error("no dev anchor snapshot — cannot place the tap fixture");
+  await direct.mouse.move(directTap.x, directTap.y); // creature 0 anchor, derived live
   await wait(600);
   // single quick click still selects (selection timing unchanged)
   await direct.mouse.down();
@@ -1266,7 +1466,7 @@ try {
     }, 2500));
   await wait(200);
   // double-click dive: two qualified quick releases on the same creature
-  await direct.mouse.move(360, 468); // back on creature 0
+  await direct.mouse.move(directTap.x, directTap.y); // back on creature 0
   await wait(400); // hover settles; pair history reset by the close interaction
   await direct.mouse.down();
   await direct.mouse.up();
@@ -1310,24 +1510,35 @@ try {
   collectErrors(bug7);
   await open(bug7);
   await enterRealm(bug7);
-  await bug7.mouse.move(360, 468); // creature 0 anchor: (0.25·vw, 0.26·2vh)
+  const bug7Tap = await creatureTapPoint(bug7, 0);
+  if (!bug7Tap) throw new Error("no dev anchor snapshot — cannot place the tap fixture");
+  await bug7.mouse.move(bug7Tap.x, bug7Tap.y); // creature 0 anchor, derived live
   await wait(600);
   await bug7.mouse.down();
   await bug7.mouse.up(); // single quick click selects; the panel opens
   check("bug 7: selection opens the panel",
     await until(bug7, () => document.querySelector(".realm-panel.is-open") !== null, 2500));
-  check("bug 7: the selected creature is raft-cluster",
-    await until(bug7, () =>
-      (document.querySelector(".realm-panel-title")?.textContent ?? "").includes("Raft Cluster"), 2500));
+  check("bug 7: the selected creature is the first door's project",
+    await until(bug7, () => {
+      const title = (document.querySelector(".realm-panel-title")?.textContent ?? "").trim().toLowerCase();
+      const btn = document.querySelector(".realm-legend-btn");
+      return title === (btn?.textContent.split("—").pop() ?? "").trim().toLowerCase();
+    }, 2500));
   // the hijack precondition: the entrance auto-focus has landed on the close button
   check("bug 7: entrance auto-focus lands on the close button",
     await until(bug7, () =>
       document.activeElement?.classList.contains("realm-panel-close") === true, 3000));
+  // capture the door id BEFORE the Enter — the dive's SPA swap unmounts the
+  // realm, so reading it inside the pathname poll reads nothing
+  const bug7DoorId = await bug7.evaluate(() =>
+    document.querySelector(".realm-legend-btn")?.dataset.projectId ?? null);
   await bug7.keyboard.press("Enter");
   check("bug 7: Enter after the auto-focus landed dives (iris)",
     await until(bug7, () => document.querySelector(".realm-iris") !== null, 2500));
-  check("bug 7: Enter after selection hands off to the selected project",
-    await until(bug7, () => window.location.pathname === "/projects/raft-cluster/", 5000));
+  check("bug 7: Enter after selection hands off to the first door's project",
+    await until(bug7, (id) =>
+      id !== null && window.location.pathname === `/projects/${id}/`, 9000, bug7DoorId),
+    `door=${bug7DoorId} pathname=${await bug7.evaluate(() => window.location.pathname).catch(() => "?")}`);
   await bug7.close();
 
   // ── mobile: viewport hygiene ──
@@ -1344,10 +1555,13 @@ try {
   check("mobile legend strip reachable", await mobile.$(".realm-legend-btn") !== null);
 
   // r8 D2 touch law: a quick double-tap on empty canvas must never dive.
-  await mobile.touchscreen.touchStart(98, 300);
+  // (195, 320) sits off every creature's touch pick radius at 390×844 — the
+  // 8-door geography moved creature 0 to (0.22·vw, 0.14·2vh) ≈ (86, 236),
+  // which the old (98, 300) point now falls inside.
+  await mobile.touchscreen.touchStart(195, 320);
   await mobile.touchscreen.touchEnd();
   await wait(120);
-  await mobile.touchscreen.touchStart(98, 300);
+  await mobile.touchscreen.touchStart(195, 320);
   await mobile.touchscreen.touchEnd();
   await wait(700);
   check("r8 d2: touch double-tap never dives",
@@ -1357,7 +1571,9 @@ try {
 
   // first tap on a creature must open the BOTTOM-SHEET panel (item 8: it used to
   // only surface a mid-screen canvas label; the sheet must come on tap one)
-  await mobile.touchscreen.touchStart(98, 439); // creature 0 anchor at 390×844
+  const mobileTap = await creatureTapPoint(mobile, 0);
+  if (!mobileTap) throw new Error("no dev anchor snapshot — cannot place the tap fixture");
+  await mobile.touchscreen.touchStart(mobileTap.x, mobileTap.y); // creature 0 anchor, derived live
   await mobile.touchscreen.touchEnd();
   check("mobile first tap opens the bottom-sheet panel",
     await until(mobile, () => {
@@ -1378,7 +1594,7 @@ try {
     return b ? { top: Math.round(b.top), left: Math.round(b.left) } : null;
   });
   await mobile.evaluate(() =>
-    document.querySelectorAll(".realm-legend-btn")[2]?.click()); // explosion: longest copy
+    document.querySelectorAll(".realm-legend-btn")[2]?.click()); // longest copy door
   await wait(700);
   const closeRest = await closeRectAt();
   // Emulate the real device's 34px safe-area inset (Blink reports 0): shrink
@@ -1439,11 +1655,15 @@ try {
       const body = document.querySelector(".realm-panel-body");
       return !!body && body.scrollTop === 0;
     }, 2500));
-  // r13 mobile: the bottom-sheet law stands; the frame lifts door 7 above it
+  // r13 mobile: the bottom-sheet law stands; the frame lifts the deep-floor
+  // creature above it (last door, live-derived — practice-map's fy moved 0.9→0.8
+  // in the 8-door geography and quicknotes took the floor)
   await mobile.keyboard.press("Escape");
   await wait(400);
-  await mobile.evaluate(() =>
-    document.querySelectorAll(".realm-legend-btn")[6]?.click()); // practice-map fy 0.9
+  await mobile.evaluate(() => {
+    const btns = document.querySelectorAll(".realm-legend-btn");
+    btns[btns.length - 1]?.click();
+  });
   check("r13 mobile: sheet keeps its r9 geometry regardless of side",
     await until(mobile, () => {
       const el = document.querySelector(".realm-panel");
@@ -1453,13 +1673,15 @@ try {
         Math.abs(r.top - window.innerHeight * 0.52) < 6 &&
         el.getAttribute("data-side") === "right";
     }, 3000));
-  check("r13 mobile: frame lifts door 7's core above the sheet",
+  check("r13 mobile: frame lifts the deep-floor creature's core above the sheet",
     await until(mobile, () => {
       const d = window.__r13?.getDepthSnapshot();
       const f = window.__r13?.getFrameSnapshot();
       if (!d || !f || !f.settled) return false;
+      const a = d.anchors[f.doorId];
+      if (!a) return false;
       const r = Math.min(window.innerWidth, window.innerHeight) * 0.28;
-      const sy13 = 0.9 * d.anchorH - d.camYState;
+      const sy13 = a.fy * d.anchorH - d.camYState;
       const panel = document.querySelector(".realm-panel")?.getBoundingClientRect();
       return sy13 - r > f.bandTop && sy13 + r <= (panel?.top ?? 0) + 2;
     }, 3000));
@@ -1481,10 +1703,14 @@ try {
   await enterRealm(bug8);
   const bug8Doors = await bug8.evaluate(() =>
     [...document.querySelectorAll(".realm-legend-btn")].length);
-  check("bug 8: legend has 7 doors on the device-like page", bug8Doors === 7);
+  const bug8Cards = await bug8.evaluate(
+    () => document.querySelectorAll(".signal-index-card").length);
+  check("bug 8: legend has one door per catalogue card on the device-like page",
+    bug8Doors === bug8Cards && bug8Doors > 0,
+    `${bug8Doors} doors / ${bug8Cards} cards`);
   let bug8Overflowing = 0;
   let bug8Clipped = [];
-  for (let i = 0; i < 7; i++) {
+  for (let i = 0; i < bug8Doors; i++) {
     await bug8.evaluate((idx) => {
       document.querySelectorAll(".realm-legend-btn")[idx]?.click();
     }, i);
@@ -1537,10 +1763,12 @@ try {
   check("reduced: realm opens with the reduced class",
     await reduced.$eval(".realm-layer", (el) => el.className.includes("realm-reduced")));
   check("reduced: legend intact",
-    (await reduced.$$(".realm-legend-btn")).length === 7);
+    (await reduced.$$(".realm-legend-btn")).length === cardCount);
   // r10 d1: reduced motion parks the lantern too — the held branch precedes
   // the softened-follow branch, so no follow or thrust can move it.
-  await reduced.mouse.click(360, 468); // creature 0 anchor: (0.25·vw, 0.26·2vh)
+  const reducedTap = await creatureTapPoint(reduced, 0);
+  if (!reducedTap) throw new Error("no dev anchor snapshot — cannot place the tap fixture");
+  await reduced.mouse.click(reducedTap.x, reducedTap.y); // creature 0 anchor, derived live
   await wait(500);
   check("reduced: canvas tap opens the panel",
     await reduced.$eval(".realm-panel-title", (el) => el.textContent.length > 0, { timeout: 2000 }).catch(() => false));

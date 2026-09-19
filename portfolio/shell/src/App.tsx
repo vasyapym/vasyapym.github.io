@@ -61,8 +61,14 @@ export default function App() {
   const openProject = useCallback((id: string) => {
     // Capture the landing's offset while it is still on screen (a realm
     // chain captures its own intent instead — the viewport then belongs to
-    // the project page beneath the realm, not the catalogue).
-    if (realmReturnRef.current === null) {
+    // the project page beneath the realm, not the catalogue). The realm
+    // intent must guard this too, not just the restored-return ref: a
+    // landing-owned realm's first dive passes through here while the body
+    // is position:fixed, so window.scrollY reads ≈0 — a project intent
+    // written then is garbage, and on a later deep-return surface exit the
+    // fresh landing consumes it and scrolls to 0, clobbering the realm's
+    // own restore to the original landing offset (r16).
+    if (realmReturnRef.current === null && !readRealmReturnIntent()) {
       rememberProjectReturnIntent(window.scrollY);
     }
     window.history.pushState({}, "", `/projects/${id}/`);

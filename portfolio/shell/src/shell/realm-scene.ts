@@ -69,6 +69,7 @@ export interface RealmScene {
     camY: number;
     camYState: number;
     range: number;
+    anchors: Record<string, { fx: number; fy: number }>;
   }> | null;
   /** r13 dev-only: selection framing snapshot; null in production. */
   getFrameSnapshot(): Readonly<{
@@ -276,9 +277,15 @@ export function createRealmScene(
   // selection framing state (r13): one active frame target at a time
   const framing = { active: false, target: 0, settled: false, doorId: null as string | null };
 
-  // dev-only snapshot buffers (mutated in place; prod keeps them null)
+  // dev-only snapshot buffers (mutated in place; prod keeps them null).
+  // anchors mirrors the live ANCHORS table so probe gates derive geometry
+  // expectations instead of hard-coding fy values that every geography or
+  // catalogue-count change would silently stale.
   const depthSnap = import.meta.env.DEV
-    ? { anchorH: 0, deep: 0, h: 0, vh: 0, camY: 0, camYState: 0, range: 0 }
+    ? {
+        anchorH: 0, deep: 0, h: 0, vh: 0, camY: 0, camYState: 0, range: 0,
+        anchors: {} as Record<string, { fx: number; fy: number }>,
+      }
     : null;
   const frameSnap = import.meta.env.DEV
     ? { active: false, target: 0, settled: false, doorId: null as string | null, bandTop: 0, bandBottom: 0, camDelta: 0 }
@@ -1503,6 +1510,9 @@ export function createRealmScene(
       depthSnap.camY = cam.camY;
       depthSnap.camYState = camYState;
       depthSnap.range = Math.max(0, world.h - vh);
+      for (const d of doors) {
+        depthSnap.anchors[d.id] = { ...anchorFor(d.id) };
+      }
       return depthSnap;
     },
 

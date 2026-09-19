@@ -371,6 +371,11 @@ export default function RealmMode({ projects, onOpenProject, onExit, onEntered, 
     let landingScrollRestored = false;
     let exitSent = false;
 
+    // r16 residual: the intent-carried restore re-asserts across frames until
+    // the document can hold S — loop identity + settle bookkeeping.
+    let restoreLoopToken: { cancelled: boolean } | null = null;
+    let restoreLoopSettled = false;
+
     let exitTimer: ReturnType<typeof setTimeout> | null = null;
     let watchdogTimer: ReturnType<typeof setTimeout> | null = null;
     let cancelExitBeat: (() => void) | null = null;
@@ -385,22 +390,104 @@ export default function RealmMode({ projects, onOpenProject, onExit, onEntered, 
     // This remains the sole body/scroll restoration implementation.
     // Normal surface exit calls it between rendering stages.
     // Effect cleanup calls it as the fallback for every other teardown.
+    //
+    // r16 residual (relay-integrated, chat-model diagnosis): on the
+    // deep-return surface exit the r12 opaque settlement swap can complete
+    // LATE — the restore then fires while the document is still
+    // project-frame-tall, and Blink silently CLAMPS scrollTo(S) to
+    // scrollHeight − innerHeight ≈ 0. The call carries S (invisible to a
+    // patched scrollTo logger); when the tall settled landing finally
+    // mounts, nothing re-asserted the offset, so the landing came back at 0.
+    // Fix: for the intent-carried (r16) target, re-assert across frames
+    // until the document can hold S and the offset sticks — bounded, and
+    // cancelled by the first user input (the r15 law: once the visitor
+    // scrolls, the viewport is theirs). The fallback path (no intent) stays
+    // single-shot: it must not re-assert the landing's entry offset onto the
+    // project page a dive just mounted.
     const restoreLandingScroll = (): void => {
-      if (landingScrollRestored) return;
-      landingScrollRestored = true;
+      const target = restoreScrollYRef.current ?? scrollY;
+      // a restart supersedes any live re-assert loop
+      if (restoreLoopToken !== null) {
+        restoreLoopToken.cancelled = true;
+        restoreLoopToken = null;
+      }
+      if (landingScrollRestored) {
+        // A later caller (the unmount cleanup after the leave's begin) must
+        // NOT re-scroll: the first restore already ran, and a user wheel
+        // during the fade owns the viewport from that frame (r15). Only the
+        // r16 residual may re-drive here — and only while its earlier
+        // re-assert loop expired without the document ever holding S.
+        if (restoreLoopSettled || restoreScrollYRef.current === undefined) {
+          return;
+        }
+      } else {
+        landingScrollRestored = true;
 
-    document.body.style.position = prev.position;
-    document.body.style.top = prev.top;
-    document.body.style.width = prev.width;
-    document.body.style.overflow = prev.overflow;
-    // Deep-return: restore to the landing's ORIGINAL pre-realm offset (the
-    // intent-carried S) — the captured scrollY belongs to the project page
-    // this realm sat over, and restoring it flashes the hero at ≈0.
-    window.scrollTo({
-      top: restoreScrollYRef.current ?? scrollY,
-      behavior: "instant",
-    });
-  };
+        document.body.style.position = prev.position;
+        document.body.style.top = prev.top;
+        document.body.style.width = prev.width;
+        document.body.style.overflow = prev.overflow;
+        // Deep-return: restore to the landing's ORIGINAL pre-realm offset (the
+        // intent-carried S) — the captured scrollY belongs to the project page
+        // this realm sat over, and restoring it flashes the hero at ≈0.
+        window.scrollTo({
+          top: target,
+          behavior: "instant",
+        });
+        if (restoreScrollYRef.current === undefined || target <= 0) {
+          restoreLoopSettled = true; // single-shot path: nothing to re-assert
+          return;
+        }
+      }
+
+      const token: { cancelled: boolean } = { cancelled: false };
+      restoreLoopToken = token;
+      const scroller = document.scrollingElement ?? document.documentElement;
+      const prevRestoration = window.history.scrollRestoration;
+      try { window.history.scrollRestoration = "manual"; } catch {}
+      const cancelWheel = () => { token.cancelled = true; };
+      const cancelTouch = () => { token.cancelled = true; };
+      const cancelKey = () => { token.cancelled = true; };
+      const stopListening = () => {
+        window.removeEventListener("wheel", cancelWheel);
+        window.removeEventListener("touchstart", cancelTouch);
+        window.removeEventListener("keydown", cancelKey);
+      };
+      window.addEventListener("wheel", cancelWheel, { passive: true });
+      window.addEventListener("touchstart", cancelTouch, { passive: true });
+      window.addEventListener("keydown", cancelKey);
+      let frames = 0;
+      const MAX_FRAMES = 240; // ~4s @60fps; a slow rAF stream stretches wall time, not the budget
+      const assert = () => {
+        if (token.cancelled) {
+          restoreLoopSettled = true; // user input won — never re-assert (r15)
+          restoreLoopToken = null;
+          stopListening();
+          try { window.history.scrollRestoration = prevRestoration; } catch {}
+          return;
+        }
+        window.scrollTo({ top: target, behavior: "instant" });
+        const canHold = scroller.scrollHeight - window.innerHeight >= target - 1;
+        const reached = Math.abs(window.scrollY - target) <= 1;
+        if (canHold && reached) {
+          restoreLoopSettled = true;
+          restoreLoopToken = null;
+          stopListening();
+          try { window.history.scrollRestoration = prevRestoration; } catch {}
+          return;
+        }
+        if (frames++ >= MAX_FRAMES) {
+          // expired without holding: stay restartable so a later caller
+          // (the leave's begin) can try again once the document is tall
+          restoreLoopToken = null;
+          stopListening();
+          try { window.history.scrollRestoration = prevRestoration; } catch {}
+          return;
+        }
+        requestAnimationFrame(assert);
+      };
+      requestAnimationFrame(assert);
+    };
 
     // A bounded rendering opportunity, not a GPU-commit assertion.
     // Two nested callbacks leave an opportunity to paint between stages.
@@ -1176,7 +1263,9 @@ export default function RealmMode({ projects, onOpenProject, onExit, onEntered, 
         scene.setThrust(x, y);
         return;
       }
-      if (k >= "1" && k <= "7") {
+      // digit warps: 1..9, clamped to the live door count by the scene's own
+      // warpTo guard — a hard "7" cap staled when the 8th project joined
+      if (k >= "1" && k <= "9") {
         ev.preventDefault();
         tryResume();
         const idx = Number(k) - 1;
@@ -1581,6 +1670,7 @@ export default function RealmMode({ projects, onOpenProject, onExit, onEntered, 
             key={p.id}
             type="button"
             className="realm-legend-btn"
+            data-project-id={p.id}
             onClick={() => openProjectPanel(p.id)}
           >
             <span

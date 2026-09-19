@@ -41,3 +41,43 @@ chat model per the relay protocol; orchestrator integrated.
   exercised by all shots).
 - Open question: owner verdict on the composition (zigzag order + spacing)
   and the two derived-count copy fixes.
+
+## Round R002 — post-integration gates (bug-iteration pass)
+
+R001 shipped without the probe suite (tsc+build only); the first full
+realm-probe run failed 28 gates. Triage against the pre-change tree
+(2bcbea2, detached worktree) split them: 8 pre-existing, 20 from the
+anchor/count changes' hard-coded fixtures, and 2 real integration gaps.
+
+- **Probe re-coupling (the staleness class killed)**: counts derive from the
+  live catalogue (legend buttons == `.signal-index-card` count); legend
+  targets select by new `data-project-id` on the buttons; tap fixtures and
+  r13/r19 geometry expectations derive from the scene's own anchors via an
+  extended dev-only `getDepthSnapshot().anchors` — a future reorder touches
+  zero probe lines. The r13 framing gates now assert the clamp LAW (a
+  centreable creature at band centre, a shallow anchor clamped at 0 and
+  inside the band) instead of hard-coded fy values.
+- **Warp keys 1..7 → 1..9** (RealmMode keydown): the hard cap made the 8th
+  door unreachable by keyboard; warpTo's own index guard clamps.
+- **App.openProject intent collision** (pre-existing, surfaced by the
+  triage): a landing-owned realm's first dive wrote the MENU-return intent
+  with the body-locked scrollY≈0; on a later deep-return surface exit the
+  fresh landing consumed it and zeroed the viewport. Guarded additionally
+  on `readRealmReturnIntent()`. Repro-verified (portfolio/probes/
+  intent-repro.mjs): intent written pre-fix, absent post-fix.
+- **r16 residual (relayed, chat-model diagnosis integrated)**: even with
+  the intent fixed, the suite leg restored 0. The scrollTo log proved every
+  restore carried S while scrollY stayed 0 — Blink silently CLAMPS
+  scrollTo(S) when the document cannot hold it: in suite context the r12
+  settlement completed late, so the leave's restore fired into the still
+  mounted project page (scrollHeight − innerHeight = 0). Fix: the
+  intent-carried restore re-asserts across frames (bounded 240 rAF) until
+  the document can hold S and the offset sticks; cancelled by the first
+  user input (r15 law kept); fallback path stays single-shot; a later
+  caller never re-scrolls (that variant clobbered a user wheel — caught by
+  the r15 gate, fixed before the suite runs). Probe: the r16 leg now waits
+  for the settlement synchronously + asserts the restored document can
+  hold S; `__r16log`/`__scrollLog` instrumentation kept.
+- Suite: realm-probe ALL CHECKS PASSED ×3 (165→170 gates: +settlement,
+  +canHold, +centring, +intent); tsc --noEmit + build pass. Device checks
+  still pending for the r19 spawn-per-door feel (unchanged from R001).
