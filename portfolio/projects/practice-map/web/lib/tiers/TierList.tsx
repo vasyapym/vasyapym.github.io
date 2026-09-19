@@ -12,7 +12,7 @@ type TierListProps = {
 export function TierList({ tiers, activeTierId, onSelect, lessonCount, sampleTitle }: TierListProps) {
   return (
     <nav className="pg-tier-list" aria-label="model tiers">
-      {tiers.map((tier) => {
+      {tiers.map((tier, i) => {
         const active = tier.id === activeTierId;
         return (
           <button
@@ -22,6 +22,7 @@ export function TierList({ tiers, activeTierId, onSelect, lessonCount, sampleTit
             aria-pressed={active}
             onClick={() => onSelect(tier.id)}
           >
+            <span className="pg-tier-index" aria-hidden="true">{String(i + 1).padStart(2, "0")}</span>
             <span className="pg-tier-name">{tier.name}</span>
             <span className="pg-tier-count">{plural(lessonCount(tier.id), "lesson")}</span>
             <span className="pg-tier-sample">{sampleTitle(tier.id)}</span>
