@@ -7,19 +7,22 @@
 import { useEffect } from "react";
 
 export default function QuicknotesPage() {
-  // Host-side pin: a stranded pan can live on the TOP window and the iframe's
-  // own vv may not fire for it. This page has zero scrollable overflow, so
-  // re-pinning on offsetTop>0 can never fight a legitimate scroll.
+  // N030: the per-event scrollTo(0,0) pin is REMOVED — N028 proved it cannot
+  // undo a keyboard-held visual-viewport pan (the slide persisted with the
+  // pin live) and it is the rejected "fight" pattern. Prevention now lives
+  // in the app (pre-focus tap pipeline). This keeps only a ONE-SHOT restore
+  // for a stranded pan after keyboard dismissal (vv height grows back).
   useEffect(() => {
     const vv = window.visualViewport;
     if (!vv) return;
-    const pin = () => { if (vv.offsetTop > 1) window.scrollTo(0, 0); };
-    vv.addEventListener("scroll", pin);
-    vv.addEventListener("resize", pin);
-    return () => {
-      vv.removeEventListener("scroll", pin);
-      vv.removeEventListener("resize", pin);
+    let lastH = vv.height;
+    const onResize = () => {
+      const grew = vv.height - lastH > 80; // keyboard just dismissed
+      lastH = vv.height;
+      if (grew && vv.offsetTop > 1) window.scrollTo(0, 0);
     };
+    vv.addEventListener("resize", onResize);
+    return () => vv.removeEventListener("resize", onResize);
   }, []);
 
   return (

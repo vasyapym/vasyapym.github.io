@@ -476,13 +476,42 @@ function layoutHeight() {
   return document.documentElement.clientHeight || window.innerHeight;
 }
 
+// ================= N030: viewport source unification =================
+// In the same-origin card the keyboard is only visible on the TOP window's
+// visualViewport — the iframe's own vv can stay silent (N028). Same-origin
+// by design; try/catch future-proofs a cross-origin host.
+function vvWin() {
+  try { if (window.top !== window && window.top.visualViewport) return window.top; }
+  catch (_) {}
+  return window;
+}
 function currentKbHeight() {
-  const vv = window.visualViewport;
+  const w = vvWin(), vv = w.visualViewport;
   if (!vv) return 0;
-  return Math.max(0, Math.round(layoutHeight() - vv.height));
+  const lh = w.document.documentElement.clientHeight || w.innerHeight;
+  // iframe bottom == page bottom (host: 100dvh column, iframe flex:1),
+  // so the top-window keyboard delta IS the app's keyboard overlap.
+  return Math.max(0, Math.round(lh - vv.height));
 }
 function setKbHeight(px) {
   document.documentElement.style.setProperty("--kb-h", (px || 0) + "px");
+}
+
+// ---- N030: remembered keyboard height (exact after the first ever open;
+// keyed to layout height so rotation can't poison it) ----
+const KB_KEY = "qn.kbmemo";
+function rememberKb(kb) {
+  if (kb < 120) return;
+  try { localStorage.setItem(KB_KEY, JSON.stringify({ h: layoutHeight(), kb })); } catch (_) {}
+}
+function estimateKb() {
+  const real = currentKbHeight();
+  if (real > 120) return real;
+  try {
+    const m = JSON.parse(localStorage.getItem(KB_KEY) || "null");
+    if (m && Math.abs(m.h - layoutHeight()) <= 2) return m.kb;
+  } catch (_) {}
+  return Math.round(layoutHeight() * 0.45); // first-ever tap: OVERestimate = caret never under the keyboard
 }
 
 // ---- N024: rigid container height ("make it just static" — Obsidian ask) ----
@@ -517,6 +546,7 @@ function readViewport() {
   pinBodyHeight();
   if (narrow.matches && fieldFocused()) {
     const kb = currentKbHeight();
+    rememberKb(kb); // N030: memo the real height for the next first-ever open
     setKbHeight(kb);
     // N027 (P2): one-shot re-aim only when the keyboard first lands (0 → up);
     // never per-frame, never during an active pan/momentum — a per-frame
@@ -536,6 +566,15 @@ function onVV() {
 }
 window.visualViewport?.addEventListener("resize", onVV);
 window.visualViewport?.addEventListener("scroll", onVV);
+// N030: listen where the keyboard is actually reported — in the card that is
+// the TOP window's visualViewport (the iframe's own vv can stay silent).
+try {
+  const tw = vvWin();
+  if (tw !== window) {
+    tw.visualViewport.addEventListener("resize", onVV);
+    tw.visualViewport.addEventListener("scroll", onVV);
+  }
+} catch (_) {}
 narrow.addEventListener?.("change", onVV);
 
 // ---- N022: pre-reveal the caret INSIDE the textarea ----
@@ -577,9 +616,8 @@ function tweenScrollTo(elm, to) {
 function revealCaret() {
   if (!narrow.matches || document.activeElement !== el.body) return;
   const ta = el.body;
-  // N027: the fallback estimate uses layoutHeight too (innerHeight tracks the
-  // visual viewport on this build — the relay's diagnosis applies to every use)
-  const kb = currentKbHeight() || Math.round(layoutHeight() * 0.4);
+  // N030: the fallback estimate uses the remembered height (see estimateKb)
+  const kb = currentKbHeight() || estimateKb();
   const visible = ta.clientHeight - kb; // the area that stays above the keyboard
   if (visible <= 0) return;
   const caretY = caretContentY();
@@ -602,11 +640,107 @@ document.addEventListener("selectionchange", () => {
   });
 });
 
+// ================= N030: pre-focus tap pipeline for #body =================
+// N022/N024 evidence: iOS computes the tap-point reveal AT TAP TIME and it
+// cannot be cancelled afterwards (adding scroll room and post-tap pre-reveal
+// both failed on device). So for clean single taps we never let iOS compute
+// it: preventDefault the touchend (no native focus → no queued reveal),
+// place the caret ourselves, scroll the TEXTAREA so the caret already sits
+// ~20px above the keyboard line, then focus({preventScroll:true})
+// synchronously inside the gesture so the keyboard still opens. Nothing is
+// left to reveal — in BOTH contexts, because the caret is above the keyboard
+// in absolute screen coordinates too (the iframe bottom == the page bottom).
+// Kill switch: ?notap=1 disables (persisted), ?notap=0 re-enables — the
+// disabled state is exactly the N027 shipped behavior.
+{
+  const q = new URLSearchParams(location.search);
+  if (q.has("notap")) {
+    try { localStorage.setItem("qn.notap", q.get("notap") === "0" ? "" : "1"); } catch (_) {}
+  }
+}
+const interceptOn = () => {
+  try { return narrow.matches && localStorage.getItem("qn.notap") !== "1"; }
+  catch (_) { return narrow.matches; }
+};
+
+function rangeToIndex(root, range) {
+  let idx = 0;
+  const walker = document.createTreeWalker(root, NodeFilter.SHOW_TEXT);
+  let n;
+  while ((n = walker.nextNode())) {
+    if (n === range.startContainer) return idx + range.startOffset;
+    idx += n.nodeValue.length;
+  }
+  return idx;
+}
+// Overlay a transparent, hit-testable style-mirror on the textarea for one
+// synchronous call; caretRangeFromPoint on it maps the tap to a text index.
+function caretIndexFromPoint(clientX, clientY) {
+  const ta = el.body, r = ta.getBoundingClientRect(), cs = getComputedStyle(ta);
+  const m = caretMirror;
+  m.style.cssText = "position:fixed;z-index:2147483647;color:transparent;background:transparent;"
+    + "user-select:none;-webkit-user-select:none;box-sizing:border-box;overflow:hidden;"
+    + `left:${r.left}px;top:${r.top}px;width:${ta.clientWidth}px;height:${ta.clientHeight}px;`
+    + `padding:${cs.paddingTop} ${cs.paddingRight} ${cs.paddingBottom} ${cs.paddingLeft};`
+    + `font-family:${cs.fontFamily};font-size:${cs.fontSize};font-weight:${cs.fontWeight};`
+    + `line-height:${cs.lineHeight};letter-spacing:${cs.letterSpacing};white-space:pre-wrap;`
+    + `overflow-wrap:${cs.overflowWrap};word-break:${cs.wordBreak};tab-size:${cs.tabSize}`;
+  m.textContent = ta.value;
+  if (!m.parentNode) document.body.appendChild(m);
+  m.scrollTop = ta.scrollTop; // align mirror coords with the textarea's scroll
+  let idx = ta.value.length;
+  const range = document.caretRangeFromPoint(clientX, clientY);
+  if (range && m.contains(range.startContainer)) idx = rangeToIndex(m, range);
+  m.style.cssText = "position:absolute;visibility:hidden;top:0;left:0;z-index:-1"; // park
+  return Math.max(0, Math.min(idx, ta.value.length));
+}
+
+let tapT0 = 0, tapX = 0, tapY = 0, tapOk = false, lastTapAt = 0, lastTapX = 0, lastTapY = 0;
+el.body.addEventListener("touchstart", e => {
+  tapOk = e.touches.length === 1;
+  if (!tapOk) return;
+  tapT0 = performance.now();
+  tapX = e.touches[0].clientX; tapY = e.touches[0].clientY;
+}, { passive: true });
+el.body.addEventListener("touchmove", e => {
+  if (tapOk && Math.hypot(e.touches[0].clientX - tapX, e.touches[0].clientY - tapY) > 8)
+    tapOk = false;                                   // pan/drag-select: native
+}, { passive: true });
+el.body.addEventListener("touchend", e => {
+  if (!interceptOn() || !tapOk || !document.caretRangeFromPoint) return;
+  tapOk = false;
+  if (performance.now() - tapT0 > 350) return;       // long-press: native loupe/menu
+  const dbl = performance.now() - lastTapAt < 350
+           && Math.hypot(tapX - lastTapX, tapY - lastTapY) < 30;
+  lastTapAt = performance.now(); lastTapX = tapX; lastTapY = tapY;
+  if (dbl) return;                                   // double tap: native word-select
+  e.preventDefault();                                // ← no native focus, no queued reveal
+  bodyTapAt = Date.now();                            // N017 window: reveal scroll ≠ user pan
+  const ta = el.body;
+  const kb = estimateKb();
+  setKbHeight(kb);                                   // scroll range must exist BEFORE we scroll
+  document.body.classList.add("kb");
+  lastKb = 0;                                        // arm the one-shot re-aim at kb landing
+  const idx = caretIndexFromPoint(tapX, tapY);
+  ta.setSelectionRange(idx, idx);
+  const visible = ta.clientHeight - kb;              // strip above the keyboard
+  if (visible > 0) {
+    const caretY = caretContentY();
+    const to = Math.max(0, Math.min(Math.round(caretY - visible + 20),
+                                    ta.scrollHeight - ta.clientHeight));
+    if (to > ta.scrollTop + 2) { cancelAnimationFrame(tweenRaf); ta.scrollTop = to; }
+  }                                                  // only-scroll-down: high taps stay perfectly still
+  focusEl(ta);                                       // sync in the gesture → keyboard opens
+}, { passive: false });
+
+// engine-gate hook (mechanism wiring only)
+window.__qn = Object.assign(window.__qn || {}, { caretIndexFromPoint, estimateKb, revealCaret });
+
 // ---- field focus: give textarea scroll room; blur: undo, flush ----
 document.addEventListener("focusin", e => {
   if (!narrow.matches || !FIELD.test(e.target.tagName)) return;
   // estimate first (robust to late/absent vv resize), onVV refines to the real value
-  setKbHeight(currentKbHeight() || Math.round(layoutHeight() * 0.4));
+  setKbHeight(estimateKb()); // N030: remembered height (was a raw 0.4·layoutHeight)
   document.body.classList.add("kb");
   lastKb = 0; // allow the next vv frame to fire the one-shot re-aim
   requestAnimationFrame(revealCaret);
@@ -700,10 +834,18 @@ function mountDebugMeter() {
   const tick = () => {
     try {
       const r = (el.body || document.body).getBoundingClientRect();
+      // N030: top-window vv lines — in the card the keyboard is only reported
+      // there; ta.scrollTop is the textarea-internal caret motion discriminator
+      let topLine = "top -";
+      try {
+        const tvv = window.top !== window && window.top.visualViewport;
+        if (tvv) topLine = `top.vv ${Math.round(tvv.height)}  top.off ${Math.round(tvv.offsetTop)}`;
+      } catch (_) {}
       m.textContent =
         `iH ${window.innerHeight}  cH ${document.documentElement.clientHeight}\n` +
         `vv ${vv ? Math.round(vv.height) : "-"}  off ${vv ? Math.round(vv.offsetTop) : "-"}  sc ${vv ? vv.scale.toFixed(2) : "-"}\n` +
-        `scrollY ${Math.round(window.scrollY)}  scroll ${userScrolling ? 1 : 0}\n` +
+        `${topLine}\n` +
+        `ta.scroll ${el.body ? Math.round(el.body.scrollTop) : "-"}  scrollY ${Math.round(window.scrollY)}  scroll ${userScrolling ? 1 : 0}\n` +
         `body ${Math.round(r.top)}/${Math.round(r.bottom)}/${Math.round(r.height)}\n` +
         `kb ${sty.getPropertyValue("--kb-h").trim() || "0"}  app-v ${sty.getPropertyValue("--app-v").trim() || "-"}`;
     } catch (e) { m.textContent = "meter err: " + e.message; }
