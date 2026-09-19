@@ -10,7 +10,7 @@ const el = {
   search: $("#search"), sync: $("#sync"), user: $("#user"), authBtn: $("#auth-btn"),
   newBtn: $("#new-btn"), exportBtn: $("#export-btn"), tree: $("#tree"), sort: $("#sort"),
   empty: $("#empty"), editor: $("#editor"), title: $("#title"), path: $("#path"),
-  delBtn: $("#delete-btn"), viewToggle: $("#view-toggle"),
+  delBtn: $("#delete-btn"), viewToggle: $("#view-toggle"), copyBtn: $("#copy-btn"),
   panes: $("#panes"), body: $("#body"), preview: $("#preview"),
   count: $("#count"), palette: $("#palette"), palInput: $("#pal-input"), palList: $("#pal-list"),
   exportDlg: $("#export-dlg"), exportScope: $("#export-scope"),
@@ -377,12 +377,38 @@ function toggleMobileView() {
   localStorage.setItem("view", state.view); renderEditor();
 }
 
+// ---------- copy note content ----------
+// Copies the active note's markdown body (the .md file content). The button
+// flashes "Copied ✓" for a beat; the execCommand fallback covers non-secure
+// contexts (plain http) where navigator.clipboard is unavailable.
+let copyTimer = 0;
+async function copyActive() {
+  const n = active(); if (!n) return;
+  let ok = false;
+  try {
+    await navigator.clipboard.writeText(n.body);
+    ok = true;
+  } catch {
+    const ta = document.createElement("textarea");
+    ta.value = n.body;
+    ta.style.cssText = "position:fixed;top:0;left:0;opacity:0";
+    document.body.appendChild(ta);
+    focusEl(ta); ta.select();
+    try { ok = document.execCommand("copy"); } catch {}
+    ta.remove();
+  }
+  el.copyBtn.textContent = ok ? "Copied ✓" : "Copy failed";
+  clearTimeout(copyTimer);
+  copyTimer = setTimeout(() => { el.copyBtn.textContent = "Copy"; }, 1200);
+}
+
 // ---------- events ----------
 el.authBtn.onclick = () => state.user ? logout() : login().catch(e => alert(e.message));
 el.newBtn.onclick = () => createNote();
 el.exportBtn.onclick = openExport;
 el.delBtn.onclick = deleteActive;
 el.viewToggle.onclick = toggleMobileView;
+el.copyBtn.onclick = copyActive;
 el.sort.onchange = () => {
   state.sort = SORTS.has(el.sort.value) ? el.sort.value : "updated";
   localStorage.setItem("sort", state.sort);

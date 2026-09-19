@@ -47,3 +47,32 @@ reader was done.
 - Open question: owner verdict on (a) the restyled SORT field and (b) the
   quiet 8px thumb — visible-but-quiet per the practice-map law, confirmed on
   real macOS Safari (headless cannot paint the thumb).
+
+## Round R002
+- Goal: add a copy button — click/tap copies the note content (the .md body)
+  to the clipboard, consistent with the existing chrome.
+- Preserved preferences: F002 (embed full-bleed); R001 chrome (themed
+  selects, quiet scrollbar, color-scheme:dark) must stay untouched; meta-row
+  discipline from the N-series (title never wraps, ✕ stays on row 1).
+- Changes: `#copy-btn` (.btn) in the meta row between the view toggle and
+  the path field; `copyActive()` in app.js — `navigator.clipboard.writeText`
+  with an `execCommand("copy")` fallback for non-secure contexts; button
+  flashes "Copied ✓" (or "Copy failed") for 1.2 s, then restores. No CSS
+  change (inherits .btn). Small task — implemented directly, no chat-model
+  relay (owner pre-approved relay only if it weren't small).
+- Before: artifacts/R002/copy-before-meta.png
+- After: artifacts/R002/copy-flash-meta.png · copy-mobile-meta.png ·
+  copy-mobile-full.png
+- Visual inspection:
+  - Desktop 1440×800@2x: button sits between the path field and ✕, same
+    bg/border/radius as the other buttons; flash state verified in shot
+    ("Copied ✓" with focus ring from the click itself — same as any .btn).
+  - Mobile 390×844: row 1 = title + Preview + Copy + ✕, path wraps below,
+    zero horizontal overflow, ≥40px targets preserved (coarse .btn block).
+- Code verification (Chromium headless + granted clipboard permissions):
+  click → flash "Copied ✓" → restore "Copy"; clipboard read-back equals the
+  active note body exactly (2809/2809 chars, eq:true).
+- Open question: owner verdict on the button (label "Copy", flash feedback,
+  placement between view toggle and path). Clipboard content = note body
+  only (no title heading) — flag if a `# Title` prefix is wanted.
+
