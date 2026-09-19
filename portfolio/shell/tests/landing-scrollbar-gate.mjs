@@ -33,6 +33,16 @@
 // scheme-driven native indicator — the owner confirms the bar is "still
 // there" on iOS, which is the mechanism, not a regression.
 //
+// P7 (recurrence pass, owner report Sep 20): the ghost CAME BACK on the
+// owner's macOS Safari — scrollbar-width:none is their only hiding layer,
+// and their Safari drops it (same WebKit lineage as their iOS 18.x, which
+// device-provably lacks scrollbar-width; Safari shipped it in 18.2). With no
+// hiding layer the light-scheme engine bar paints again. Fix: the light
+// treatment also carries the pre-P4 fine-pointer webkit kill
+// (@media hover+pointer:fine — touch never sees a styled root pseudo, the
+// P2/N033 classic-bar lesson). Engines honoring scrollbar-width have the
+// interop law delete the pseudo there, so the two layers never fight.
+//
 // This gate loads the BUILT site and asserts, per context:
 //   G1 desktop landing, no param — attribute defaults to "light", computed
 //      color-scheme "light" (assertion 6), scrollbar-width none (the macOS
@@ -45,11 +55,15 @@
 //      staleness canary: identical values ⇒ stale bundle, not CSS);
 //   G4 route-local — a project page carries no attribute and keeps the
 //      global dark scheme (assertion 9);
-//   G5 static — only the "dark" treatment emits root webkit rules (7), and
+//   G5 static — only the "dark" treatment emits UNscoped root webkit rules (7);
 //      the only scrollbar-width allowed is light's `none` (macOS no-bar
-//      restoration — the light block ships no root webkit pseudos, so the
-//      interop law is defeated there ON PURPOSE and scoped to that block;
-//      none/dark/html stay clean) (8).
+//      restoration — P7: the light treatment ALSO carries the pre-P4
+//      fine-pointer webkit kill as its second hiding layer, because the
+//      owner's Safari drops scrollbar-width on the root; the kill must be
+//      SCOPED to hover+pointer:fine so touch never engages the classic bar
+//      (P2/N033), and the interop law deletes it on engines honoring
+//      scrollbar-width, so the two layers never fight); none stays
+//      webkit-clean (8).
 //      resolveScrollBarTreatment()'s guarded storage/URL fallbacks
 //      (assertion 10) are runtime code paths, asserted by review not gate.
 //
@@ -316,10 +330,34 @@ const freshLanding = async (viewport) => {
     check(norm.includes('data-landing-scroll=light]{color-scheme:light;scrollbar-width:none'), 'light treatment ships color-scheme:light + scrollbar-width:none (macOS no-bar restoration)');
     check(norm.includes('data-landing-scroll=none]{color-scheme:normal'), 'none treatment ships color-scheme:normal');
     check(norm.includes('data-landing-scroll=dark]{color-scheme:dark'), 'dark treatment ships color-scheme:dark');
+    // P7: the light kill must EXIST (a second hiding layer for engines that
+    // drop scrollbar-width — the owner's macOS Safari) and must be SCOPED to
+    // hover+pointer:fine (touch never sees a styled root pseudo — the P2/N033
+    // classic-bar lesson). An unscoped light kill is a FAIL, same as absent.
+    const lightKillAt = norm.indexOf("data-landing-scroll=light]::-webkit-scrollbar");
+    check(lightKillAt !== -1, "light treatment ships the scoped root webkit kill (second macOS layer)");
+    let lightKillScoped = false;
+    if (lightKillAt !== -1) {
+      // Walk backwards through brace depth to the enclosing block's opening
+      // brace; the head must be a hover/pointer:fine @media, not bare.
+      let depth = 0;
+      for (let j = lightKillAt; j >= 0; j -= 1) {
+        const ch = norm[j];
+        if (ch === "}") depth += 1;
+        else if (ch === "{") {
+          if (depth === 0) {
+            const head = norm.slice(Math.max(0, norm.lastIndexOf(";", j) + 1), j);
+            lightKillScoped = /@media/.test(head) && (/hover/.test(head) || /pointer\s*:\s*fine/.test(head));
+            break;
+          }
+          depth -= 1;
+        }
+      }
+    }
+    check(lightKillScoped, "the light root webkit kill is scoped to hover/fine pointers (touch never sees it)");
     check(
-      !norm.includes('data-landing-scroll=light]::-webkit-scrollbar') &&
-        !norm.includes('data-landing-scroll=none]::-webkit-scrollbar'),
-      "light/none treatments emit no root webkit rules (only dark does)",
+      !norm.includes('data-landing-scroll=none]::-webkit-scrollbar'),
+      "none treatment emits no root webkit rules (dark unscoped, light scoped)",
     );
     // The dark thumb must be UNCONDITIONAL (not inside a fine-pointer @media)
     // and a LITERAL color (vars do not resolve inside scrollbar pseudos).
