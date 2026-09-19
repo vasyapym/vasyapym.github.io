@@ -836,7 +836,6 @@ el.body.addEventListener("touchend", e => {
   lastTapAt = performance.now(); lastTapX = tapX; lastTapY = tapY;
   if (dbl) return;                                   // double tap: native word-select
   e.preventDefault();                                // ← no native focus, no queued reveal
-  bodyTapAt = Date.now();                            // N017 window: reveal scroll ≠ user pan
   const ta = el.body;
   const kb = estimateKb();
   setKbHeight(kb);                                   // scroll range must exist BEFORE we scroll
@@ -893,9 +892,6 @@ const lastScroll = new WeakMap();
 // scrolls up when you click text in edit mode"). A real pan scrolls WHILE
 // the finger is down, so #body toggles are suppressed only inside the short
 // reveal window (250ms after a tap/keystroke) when no finger is down.
-let bodyTapAt = 0, bodyInputAt = 0;
-el.body.addEventListener("pointerup", () => { bodyTapAt = Date.now(); }, { passive: true });
-el.body.addEventListener("input", () => { bodyInputAt = Date.now(); }, { passive: true });
 function setHeaderHidden(hidden) {
   if (!narrow.matches) hidden = false;
   // measure BEFORE the class collapses the grid row to 0 (post-collapse
@@ -909,7 +905,14 @@ function onHeaderScroll(e) {
   if (!lastScroll.has(sc)) { lastScroll.set(sc, sc.scrollTop); return; } // first event: no direction yet
   const delta = sc.scrollTop - lastScroll.get(sc);
   lastScroll.set(sc, sc.scrollTop);
-  if (sc === el.body && !pointerDown && Date.now() - Math.max(bodyTapAt, bodyInputAt) < 250) return; // caret reveal, not a pan (N017)
+  // N034 (device meter verdict): finger-up scroll events are iOS MOMENTUM,
+  // never a user pan — the owner's ?debug readout caught the TEXTAREA box
+  // (top 142→90, height 465→516 ≈ --top-h) resizing mid-coast: the header
+  // collapse animation rode the fling and read as the end-of-scroll jerk.
+  // A toggle now requires a finger down (a real pan). This SUBSUMES the old
+  // 250ms tap-reveal window (N017): caret-reveal scrolls fire with the
+  // finger already up and are suppressed here too. Search focus still shows.
+  if (!pointerDown) return;
   if (delta > 2 && sc.scrollTop > 60) setHeaderHidden(true);
   else if (delta < -2) setHeaderHidden(false);
 }
@@ -968,7 +971,7 @@ function mountDebugMeter() {
         `vv ${vv ? Math.round(vv.height) : "-"}  off ${vv ? Math.round(vv.offsetTop) : "-"}  sc ${vv ? vv.scale.toFixed(2) : "-"}\n` +
         `${topLine}\n` +
         `ta.scroll ${el.body ? Math.round(el.body.scrollTop) : "-"} room ${el.body?.classList.contains("caret-room") ? 1 : 0}  scrollY ${Math.round(window.scrollY)}  scroll ${userScrolling ? 1 : 0}\n` +
-        `body ${Math.round(r.top)}/${Math.round(r.bottom)}/${Math.round(r.height)}\n` +
+        `ta.box ${Math.round(r.top)}/${Math.round(r.bottom)}/${Math.round(r.height)}\n` +
         `kb ${sty.getPropertyValue("--kb-h").trim() || "0"}  app-v ${sty.getPropertyValue("--app-v").trim() || "-"}`;
     } catch (e) { m.textContent = "meter err: " + e.message; }
     if (!document.getElementById("qn-vv-meter")) return; // N033: unmounted by the toggle → stop the loop
