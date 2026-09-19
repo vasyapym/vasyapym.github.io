@@ -1,0 +1,83 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>Attention Is All You Need — Field Register</title>
+  <link rel="stylesheet" href="styles.css">
+  <script src="app.js" defer></script>
+</head>
+<body>
+<a class="skip" href="#main">Skip to content</a>
+<header class="mast wrap">
+  <a class="brand" href="index.html"><span>[FR]</span> FIELD REGISTER</a>
+  <nav class="nav" aria-label="Primary">
+    <a class="active" href="archive.html">Archive</a><a href="course.html">Lesson</a>
+    <a href="prompt.html">Playground</a><a href="notebook.html">Notebook</a>
+  </nav>
+</header>
+<main class="wrap" id="main" tabindex="-1">
+  <nav class="tabs" aria-label="Archive views">
+    <a href="archive.html">← Accession ledger</a><a href="timeline.html">Chronology</a>
+  </nav>
+  <div class="page-head">
+    <div class="stack">
+      <p class="eyebrow">Record 001 / architecture / primary paper</p>
+      <h1 class="record-title">Attention Is All You Need.</h1>
+      <p class="lead">The transformer, before it became a catch-all word.</p>
+    </div>
+    <span class="tag">Filed / 2017</span>
+  </div>
+
+  <div class="dossier">
+    <aside>
+      <div class="record-number" aria-hidden="true">001</div>
+      <dl>
+        <dt>Authors</dt><dd>Ashish Vaswani et al.</dd>
+        <dt>First submitted</dt><dd>12 June 2017</dd>
+        <dt>Identifier</dt><dd>arXiv:1706.03762</dd>
+        <dt>Venue</dt><dd>NeurIPS 2017</dd>
+        <dt>Read for</dt><dd>Attention, position, encoder–decoder structure</dd>
+      </dl>
+      <div class="stack">
+        <a class="button primary" href="https://arxiv.org/abs/1706.03762">Read original ↗</a>
+        <a class="button" href="notebook.html?source=Attention%20Is%20All%20You%20Need%20%282017%29">Annotate this source →</a>
+      </div>
+    </aside>
+
+    <article>
+      <div class="prose">
+        <h2>Editorial summary</h2>
+        <p>The paper introduces a sequence-to-sequence architecture built around attention rather than recurrence or convolution. Its original system has an encoder and a decoder, each composed of repeated attention and feed-forward blocks.</p>
+        <p>Multi-head attention mixes information through several learned projections. Positional encodings provide information about sequence order. These components make more of the training computation parallel than a recurrent architecture permits.</p>
+
+        <div class="callout">Core distinction: attention is a learned information-mixing operation. It is not, by itself, a claim about understanding, truth, or consciousness.</div>
+
+        <h2>What to notice</h2>
+        <p><strong>Queries, keys, values.</strong> Similarity scores between queries and keys become weights over value vectors. Track the matrix shapes before trying to interpret individual numbers.</p>
+        <p><strong>Masking.</strong> The decoder’s self-attention prevents a position from attending to future positions during autoregressive training.</p>
+        <p><strong>Architecture versus family.</strong> This paper’s transformer is encoder–decoder. Many later language models use decoder-only variants; “transformer” does not always mean this exact arrangement.</p>
+
+        <h2>A useful reading question</h2>
+        <p>Which parts of the system mix information across positions, and which parts transform each position independently?</p>
+      </div>
+
+      <details>
+        <summary>Citation / compact BibTeX</summary>
+        <pre>@inproceedings{vaswani2017attention,
+  title     = {Attention Is All You Need},
+  author    = {Vaswani, Ashish and others},
+  booktitle = {Advances in Neural Information Processing Systems},
+  year      = {2017}
+}</pre>
+      </details>
+      <div class="actions" style="margin-top:1.5rem">
+        <a class="button" href="lesson.html#attention">Study the mechanism →</a>
+        <a class="button" href="sampling.html">Inspect softmax →</a>
+      </div>
+    </article>
+  </div>
+</main>
+<footer class="footer wrap"><span>SUMMARY IS EDITORIAL / ORIGINAL PAPER LINKED</span><span>03 / DOSSIER</span></footer>
+</body>
+</html>

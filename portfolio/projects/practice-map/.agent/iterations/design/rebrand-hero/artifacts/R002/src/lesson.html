@@ -1,0 +1,99 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>Inside One Attention Step — Field Register</title>
+  <link rel="stylesheet" href="styles.css">
+  <script src="app.js" defer></script>
+</head>
+<body>
+<a class="skip" href="#main">Skip to content</a>
+<header class="mast wrap">
+  <a class="brand" href="index.html"><span>[FR]</span> FIELD REGISTER</a>
+  <nav class="nav" aria-label="Primary">
+    <a href="archive.html">Archive</a><a class="active" href="course.html">Lesson</a>
+    <a href="prompt.html">Playground</a><a href="notebook.html">Notebook</a>
+  </nav>
+</header>
+<main class="wrap" id="main" tabindex="-1">
+  <div class="page-head">
+    <div class="stack">
+      <p class="eyebrow">Guided reader / lesson 01</p>
+      <h1>Inside one<br>attention step.</h1>
+      <p class="lead">A mechanism, not a metaphor.</p>
+    </div>
+    <div>
+      <output data-progress-label aria-live="polite">0 / 4 reviewed</output>
+      <progress data-course-progress max="4" value="0" aria-label="Reviewed lesson sections"></progress>
+      <a class="help" href="course.html">← Learning route</a>
+    </div>
+  </div>
+
+  <div class="reading-grid">
+    <nav class="toc" aria-label="On this page">
+      <a href="#tokens">01 / Tokens</a>
+      <a href="#position">02 / Position</a>
+      <a href="#attention">03 / Attention</a>
+      <a href="#check">04 / Check</a>
+    </nav>
+
+    <article class="reader prose">
+      <section id="tokens">
+        <h2>01 / Start with pieces.</h2>
+        <p>A tokenizer maps text into a sequence of token IDs. Depending on the tokenizer, a token may represent a word, part of a word, punctuation, whitespace, or another byte sequence.</p>
+        <div class="token-strip" aria-label="Illustrative text pieces"><span>The</span><span>red</span><span>book</span></div>
+        <p class="help" style="font-family:monospace">Toy pieces only—not the output of a particular model tokenizer.</p>
+        <p>An embedding lookup maps each ID to a vector. The ID is a discrete label; the vector is a learned numerical representation. Later layers transform these vectors using surrounding context.</p>
+        <label class="checkline"><input type="checkbox" data-section="tokens"> Mark reviewed</label>
+      </section>
+
+      <section id="position">
+        <h2>02 / Add order.</h2>
+        <p>“The book is red” and “Red is the book” contain similar pieces in different arrangements. Attention needs access to positional information to distinguish such arrangements appropriately.</p>
+        <p>Transformer families introduce position in different ways: some add positional vectors to embeddings; others alter attention computations. The original transformer uses sinusoidal positional encodings.</p>
+        <label class="checkline"><input type="checkbox" data-section="position"> Mark reviewed</label>
+      </section>
+
+      <section id="attention">
+        <h2>03 / Form a weighted mixture.</h2>
+        <p>Within an attention head, learned linear projections produce queries, keys, and values. Query–key comparisons produce scores. After scaling and any required masking, softmax converts those scores into weights.</p>
+        <div class="callout">
+          scores = QKᵀ / √dₖ<br>
+          weights = softmax(scores + mask)<br>
+          output = weights · V
+        </div>
+        <p>For each query position, the output is a weighted combination of value vectors. Multiple heads perform related operations in different learned projection spaces.</p>
+        <p>In causal self-attention, future positions are masked out. A position can mix information from allowed earlier positions and itself, not from future tokens.</p>
+        <label class="checkline"><input type="checkbox" data-section="attention"> Mark reviewed</label>
+      </section>
+
+      <section id="check">
+        <h2>04 / Make the distinction.</h2>
+        <form id="quiz" class="quiz">
+          <fieldset>
+            <legend>What does an attention weight describe most directly?</legend>
+            <label class="option"><input type="radio" name="answer" value="truth" required><span>The probability that a sentence is factually correct.</span></label>
+            <label class="option"><input type="radio" name="answer" value="mixture"><span>A value vector’s contribution to a weighted mixture in this attention operation.</span></label>
+            <label class="option"><input type="radio" name="answer" value="permanent"><span>A permanent importance score attached to a word.</span></label>
+          </fieldset>
+          <button class="primary" type="submit">Check understanding →</button>
+          <output class="status" id="quiz-feedback" aria-live="polite" style="margin-top:1rem"></output>
+        </form>
+      </section>
+      <a class="button" href="notebook.html?source=Lesson%2001%20%2F%20Attention">Record what changed in your understanding →</a>
+    </article>
+
+    <aside class="margin-notes stack">
+      <p class="eyebrow">Margin notes</p>
+      <p><span class="accent">dₖ</span><br>The key-vector dimension used to scale the dot products.</p>
+      <p><span class="accent">Softmax</span><br>Turns real-valued scores into nonnegative weights that sum to one.</p>
+      <p><span class="accent">Caution</span><br>Attention weights are not automatically a faithful explanation of a model’s answer.</p>
+      <a href="sampling.html">Inspect a toy softmax →</a>
+      <a href="record.html">Return to the paper →</a>
+    </aside>
+  </div>
+</main>
+<footer class="footer wrap"><span>SIMPLIFIED EXPLANATION / NOT A COMPLETE IMPLEMENTATION</span><span>06 / GUIDED READER</span></footer>
+</body>
+</html>

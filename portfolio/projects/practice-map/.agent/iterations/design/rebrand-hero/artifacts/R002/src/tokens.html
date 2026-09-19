@@ -1,0 +1,73 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>Segmentation Inspector — Field Register</title>
+  <link rel="stylesheet" href="styles.css">
+  <script src="app.js" defer></script>
+</head>
+<body>
+<a class="skip" href="#main">Skip to content</a>
+<header class="mast wrap">
+  <a class="brand" href="index.html"><span>[FR]</span> FIELD REGISTER</a>
+  <nav class="nav" aria-label="Primary">
+    <a href="archive.html">Archive</a><a href="course.html">Lesson</a>
+    <a class="active" href="prompt.html">Playground</a><a href="notebook.html">Notebook</a>
+  </nav>
+</header>
+<main class="wrap" id="main" tabindex="-1">
+  <nav class="tabs" aria-label="Playground benches">
+    <a href="prompt.html">01 / Prompt assembly</a>
+    <a href="tokens.html" aria-current="page">02 / Segmentation</a>
+    <a href="sampling.html">03 / Sampling</a>
+  </nav>
+  <div class="page-head">
+    <div class="stack">
+      <p class="eyebrow">Bench 02 / text inspection</p>
+      <h1>Inspect the pieces.</h1>
+      <p class="lead">Letters, numbers, whitespace, symbols. A visible segmentation exercise—not a production model tokenizer.</p>
+    </div>
+    <span class="tag">Illustrative splitter</span>
+  </div>
+
+  <section aria-labelledby="input-title">
+    <label class="field-label" id="input-title" for="token-input">Text to inspect / maximum 2,000 UTF-16 code units</label>
+    <textarea class="token-input" id="token-input" maxlength="2000" spellcheck="false">A model reads pieces, not necessarily whole words.</textarea>
+    <div class="actions" style="margin-top:1rem">
+      <span class="help">Load a specimen:</span>
+      <button type="button" data-sample="sentence">Sentence</button>
+      <button type="button" data-sample="code">Code</button>
+      <button type="button" data-sample="multilingual">Multilingual</button>
+    </div>
+  </section>
+
+  <section class="token-stats" aria-label="Text statistics" aria-live="polite">
+    <div><strong id="piece-count">—</strong><small>segmented pieces</small></div>
+    <div><strong id="point-count">—</strong><small>Unicode code points</small></div>
+    <div><strong id="byte-count">—</strong><small>UTF-8 bytes</small></div>
+  </section>
+
+  <section aria-labelledby="pieces-title" style="margin-top:2rem">
+    <div class="catalogue-count">
+      <h2 id="pieces-title" style="font-size:1rem">Piece register</h2>
+      <span class="dim">ZERO-BASED INDEX / · SPACE / ↵ NEWLINE</span>
+    </div>
+    <div class="piece-board" id="piece-board"></div>
+  </section>
+
+  <div class="two" style="border-top:1px solid var(--line);padding-top:1.5rem">
+    <div class="stack">
+      <p class="eyebrow">What this does</p>
+      <p class="help">Groups consecutive letters, numbers, and whitespace. Other symbols become individual pieces. Whitespace receives a dashed outline; numbers use ochre.</p>
+    </div>
+    <div class="stack">
+      <p class="eyebrow">What this does not do</p>
+      <p class="help">It does not implement BPE, SentencePiece, or any model’s vocabulary. Real tokenizers may split a word or merge its leading space. These counts are not model-token or billing estimates.</p>
+      <a class="help" href="lesson.html#tokens">Read the distinction between tokens and vectors →</a>
+    </div>
+  </div>
+</main>
+<footer class="footer wrap"><span>OBSERVE THE REPRESENTATION / DO NOT CONFUSE IT WITH MEANING</span><span>08 / SEGMENTATION BENCH</span></footer>
+</body>
+</html>

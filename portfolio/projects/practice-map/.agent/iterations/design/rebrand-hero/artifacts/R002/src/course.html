@@ -1,0 +1,71 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>Read a Transformer — Field Register</title>
+  <link rel="stylesheet" href="styles.css">
+  <script src="app.js" defer></script>
+</head>
+<body>
+<a class="skip" href="#main">Skip to content</a>
+<header class="mast wrap">
+  <a class="brand" href="index.html"><span>[FR]</span> FIELD REGISTER</a>
+  <nav class="nav" aria-label="Primary">
+    <a href="archive.html">Archive</a><a href="course.html" aria-current="page">Lesson</a>
+    <a href="prompt.html">Playground</a><a href="notebook.html">Notebook</a>
+  </nav>
+</header>
+<main class="wrap course" id="main" tabindex="-1">
+  <section class="course-overview stack" aria-labelledby="course-title">
+    <p class="eyebrow">Lesson route / conceptual primer</p>
+    <div class="course-mark" aria-hidden="true">01</div>
+    <h1 id="course-title">Read a transformer.</h1>
+    <p class="lead">Four sections. One useful mental model. Enough structure to read the original paper with better questions.</p>
+    <div class="panel">
+      <p class="eyebrow">Your review log</p>
+      <progress data-course-progress max="4" value="0" aria-label="Reviewed lesson sections"></progress>
+      <output data-progress-label aria-live="polite">0 / 4 reviewed</output>
+      <p class="help">Checkmarks record review, not mastery. Saved in this browser when storage is available.</p>
+    </div>
+    <a class="button primary" href="lesson.html">Open the guided reader →</a>
+    <p class="help">Useful prerequisites: vectors, weighted averages, and willingness to pause at an unfamiliar symbol.</p>
+  </section>
+
+  <section aria-label="Lesson sections">
+    <ol class="steps">
+      <li class="step" data-step="01">
+        <span class="tag">Represent</span>
+        <h2>Pieces before meaning.</h2>
+        <p>Distinguish text, token IDs, and vector representations. They are related, but not interchangeable.</p>
+        <a href="lesson.html#tokens">Read: tokens and vectors →</a>
+        <label class="checkline"><input type="checkbox" data-section="tokens"> Reviewed this section</label>
+      </li>
+      <li class="step" data-step="02">
+        <span class="tag">Order</span>
+        <h2>Position needs a signal.</h2>
+        <p>Understand why a collection of token representations is not yet an ordered sequence.</p>
+        <a href="lesson.html#position">Read: positional information →</a>
+        <label class="checkline"><input type="checkbox" data-section="position"> Reviewed this section</label>
+      </li>
+      <li class="step" data-step="03">
+        <span class="tag">Mix</span>
+        <h2>Context is a computation.</h2>
+        <p>Follow queries, keys, scores, weights, and values through one attention operation.</p>
+        <a href="lesson.html#attention">Read: attention step by step →</a>
+        <label class="checkline"><input type="checkbox" data-section="attention"> Reviewed this section</label>
+      </li>
+      <li class="step" data-step="04">
+        <span class="tag">Check</span>
+        <h2>Test the mental model.</h2>
+        <p>Separate what an attention weight does from what we might be tempted to claim it means.</p>
+        <a href="lesson.html#check">Take the concept check →</a>
+        <label class="checkline"><input type="checkbox" data-section="check"> Reviewed this section</label>
+      </li>
+    </ol>
+    <div class="callout">Next step: read <a href="record.html">record 001</a>, then write down one claim you can support and one question you cannot yet answer.</div>
+  </section>
+</main>
+<footer class="footer wrap"><span>UNDERSTANDING BEFORE COMPLETION METRICS</span><span>05 / LEARNING ROUTE</span></footer>
+</body>
+</html>

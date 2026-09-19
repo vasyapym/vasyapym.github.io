@@ -1,0 +1,84 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>Prompt Assembly — Field Register</title>
+  <link rel="stylesheet" href="styles.css">
+  <script src="app.js" defer></script>
+</head>
+<body>
+<a class="skip" href="#main">Skip to content</a>
+<header class="mast wrap">
+  <a class="brand" href="index.html"><span>[FR]</span> FIELD REGISTER</a>
+  <nav class="nav" aria-label="Primary">
+    <a href="archive.html">Archive</a><a href="course.html">Lesson</a>
+    <a href="prompt.html" aria-current="page">Playground</a><a href="notebook.html">Notebook</a>
+  </nav>
+</header>
+<main class="wrap" id="main" tabindex="-1">
+  <nav class="tabs" aria-label="Playground benches">
+    <a href="prompt.html" aria-current="page">01 / Prompt assembly</a>
+    <a href="tokens.html">02 / Segmentation</a>
+    <a href="sampling.html">03 / Sampling</a>
+  </nav>
+  <div class="page-head">
+    <div class="stack">
+      <p class="eyebrow">Bench 01 / instruction design</p>
+      <h1>A prompt is<br>a specification.</h1>
+      <p class="lead">Separate role, task, evidence, and output format. This tool assembles text; it does not run a model.</p>
+    </div>
+    <span class="tag">Local / no inference</span>
+  </div>
+
+  <div class="workbench">
+    <form id="prompt-form" class="builder">
+      <div class="builder-settings">
+        <p class="eyebrow">01 / Constraints</p>
+        <div class="field" style="margin-top:1rem">
+          <label class="field-label" for="prompt-role">Role</label>
+          <textarea id="prompt-role" name="role" rows="5" maxlength="1200">You are a careful research assistant.</textarea>
+        </div>
+        <div class="field">
+          <label class="field-label" for="prompt-format">Response format</label>
+          <select id="prompt-format" name="format">
+            <option value="bullets">Three bullets</option>
+            <option value="json">Structured JSON</option>
+            <option value="paragraph">Short paragraph</option>
+          </select>
+        </div>
+        <label class="checkline"><input type="checkbox" name="guard" checked> Include evidence rules</label>
+        <p class="help" style="margin-top:1rem">Clarity is useful. Delimiters alone are not a security boundary.</p>
+      </div>
+
+      <div class="builder-edit">
+        <p class="eyebrow">02 / Task + source</p>
+        <div class="field" style="margin-top:1rem">
+          <label class="field-label" for="prompt-task">Task</label>
+          <textarea id="prompt-task" name="task" rows="5" maxlength="3000" required>Explain the central architectural change in the source. Separate what the text states from any interpretation.</textarea>
+        </div>
+        <div class="field">
+          <label class="field-label" for="prompt-source">Source material</label>
+          <textarea id="prompt-source" name="source" rows="8" maxlength="8000">The original transformer uses attention-based encoder and decoder blocks rather than recurrence. Positional encodings supply information about sequence order. Attention forms weighted mixtures of value vectors.</textarea>
+        </div>
+        <div class="actions">
+          <button class="primary" type="submit">Assemble prompt →</button>
+          <button type="reset">Restore example</button>
+        </div>
+      </div>
+    </form>
+
+    <section class="preview" aria-labelledby="preview-title">
+      <h2 class="panel-head" id="preview-title">03 / COMPILED PROMPT</h2>
+      <pre id="prompt-output" tabindex="0" aria-label="Assembled prompt">Enable JavaScript to assemble the prompt locally.</pre>
+      <div class="actions">
+        <button id="copy-prompt" type="button">Copy prompt</button>
+        <output class="help" id="prompt-count"></output>
+      </div>
+    </section>
+  </div>
+  <output class="status" id="prompt-status" aria-live="polite" style="margin-top:1rem"></output>
+</main>
+<footer class="footer wrap"><span>YOUR TEXT STAYS IN THIS PAGE / NOTHING IS SENT</span><span>07 / PROMPT BENCH</span></footer>
+</body>
+</html>

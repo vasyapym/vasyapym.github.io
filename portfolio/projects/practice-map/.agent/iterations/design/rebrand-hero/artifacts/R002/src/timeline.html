@@ -1,0 +1,87 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>A Partial Chronology — Field Register</title>
+  <link rel="stylesheet" href="styles.css">
+  <script src="app.js" defer></script>
+</head>
+<body>
+<a class="skip" href="#main">Skip to content</a>
+<header class="mast wrap">
+  <a class="brand" href="index.html"><span>[FR]</span> FIELD REGISTER</a>
+  <nav class="nav" aria-label="Primary">
+    <a class="active" href="archive.html">Archive</a><a href="course.html">Lesson</a>
+    <a href="prompt.html">Playground</a><a href="notebook.html">Notebook</a>
+  </nav>
+</header>
+<main class="wrap" id="main" tabindex="-1">
+  <div class="page-head">
+    <div class="stack">
+      <p class="eyebrow">Archive / chronological index / 2017–2022</p>
+      <h1>Not one invention.<br>A sequence of shifts.</h1>
+      <p class="lead">A partial chronology of this collection. Publication order is not a ranking, and a milestone is not the whole field.</p>
+    </div>
+    <a class="button" href="archive.html">Return to ledger →</a>
+  </div>
+
+  <ol class="timeline">
+    <li>
+      <span class="timeline-year">2017</span>
+      <div class="timeline-event">
+        <span class="tag">001 / Architecture</span>
+        <h2>Attention becomes the organizing principle.</h2>
+        <p>The transformer replaces recurrence in its sequence-to-sequence design with attention-based blocks. Position still needs an explicit signal.</p>
+        <a href="record.html">Attention Is All You Need / open dossier →</a>
+      </div>
+    </li>
+    <li>
+      <span class="timeline-year">2018</span>
+      <div class="timeline-event">
+        <span class="tag">002 / Representation</span>
+        <h2>Read with context on both sides.</h2>
+        <p>BERT uses masked-token pretraining to develop bidirectional representations, then adapts them to downstream tasks.</p>
+        <a href="https://arxiv.org/abs/1810.04805">BERT / primary source ↗</a>
+      </div>
+    </li>
+    <li>
+      <span class="timeline-year">2020</span>
+      <div class="two">
+        <div class="timeline-event">
+          <span class="tag">003 / Scale</span>
+          <h2>Examples move into the context.</h2>
+          <p>GPT-3 studies few-shot task performance using examples supplied in the prompt, without task-specific gradient updates in that setup.</p>
+          <a href="https://arxiv.org/abs/2005.14165">Few-Shot Learners ↗</a>
+        </div>
+        <div class="timeline-event">
+          <span class="tag">004 / Retrieval</span>
+          <h2>The model consults a collection.</h2>
+          <p>RAG combines retrieval with generation for knowledge-intensive tasks. Retrieved material adds evidence; it does not guarantee correctness.</p>
+          <a href="https://arxiv.org/abs/2005.11401">Retrieval-Augmented Generation ↗</a>
+        </div>
+      </div>
+    </li>
+    <li>
+      <span class="timeline-year">2021</span>
+      <div class="timeline-event">
+        <span class="tag">005 / Adaptation</span>
+        <h2>Update fewer parameters.</h2>
+        <p>LoRA represents adaptation updates through low-rank matrices while keeping the pretrained weights frozen, reducing the number of trainable parameters.</p>
+        <a href="https://arxiv.org/abs/2106.09685">LoRA / primary source ↗</a>
+      </div>
+    </li>
+    <li>
+      <span class="timeline-year">2022</span>
+      <div class="timeline-event">
+        <span class="tag">006 / Alignment</span>
+        <h2>Preferences shape the response.</h2>
+        <p>InstructGPT combines supervised demonstrations and human-feedback-based training to improve instruction following. Helpfulness and factual reliability remain distinct concerns.</p>
+        <a href="https://arxiv.org/abs/2203.02155">InstructGPT / primary source ↗</a>
+      </div>
+    </li>
+  </ol>
+</main>
+<footer class="footer wrap"><span>SIX SOURCES / FIVE YEARS / NO CLAIM OF COMPLETENESS</span><span>04 / CHRONOLOGY</span></footer>
+</body>
+</html>

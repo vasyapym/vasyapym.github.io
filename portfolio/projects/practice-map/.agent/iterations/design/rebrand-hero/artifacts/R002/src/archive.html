@@ -1,0 +1,114 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>Archive Ledger — Field Register</title>
+  <link rel="stylesheet" href="styles.css">
+  <script src="app.js" defer></script>
+</head>
+<body>
+<a class="skip" href="#main">Skip to content</a>
+<header class="mast wrap">
+  <a class="brand" href="index.html"><span>[FR]</span> FIELD REGISTER</a>
+  <nav class="nav" aria-label="Primary">
+    <a href="archive.html" aria-current="page">Archive</a><a href="course.html">Lesson</a>
+    <a href="prompt.html">Playground</a><a href="notebook.html">Notebook</a>
+  </nav>
+</header>
+<main class="wrap" id="main" tabindex="-1">
+  <div class="page-head">
+    <div class="stack">
+      <p class="eyebrow">Archive / accession ledger</p>
+      <h1>Sources, not slogans.</h1>
+      <p class="lead">Six selected papers. A small, inspectable collection—not a comprehensive history.</p>
+    </div>
+    <a class="button" href="timeline.html">Chronological view →</a>
+  </div>
+
+  <div class="catalogue">
+    <form class="filter-box" id="archive-filters">
+      <p class="eyebrow">Narrow the register</p>
+      <div class="field" style="margin-top:1rem">
+        <label class="field-label" for="archive-query">Search title, topic, year</label>
+        <input id="archive-query" type="search" placeholder="e.g. retrieval">
+      </div>
+      <div class="field">
+        <label class="field-label" for="archive-topic">Focus</label>
+        <select id="archive-topic">
+          <option value="all">All subjects</option>
+          <option value="architecture">Architecture</option>
+          <option value="representation">Representation</option>
+          <option value="scale">Scale</option>
+          <option value="retrieval">Retrieval</option>
+          <option value="adaptation">Adaptation</option>
+          <option value="alignment">Alignment</option>
+        </select>
+      </div>
+      <div class="field">
+        <label class="field-label" for="archive-sort">Order</label>
+        <select id="archive-sort">
+          <option value="id">Accession number</option>
+          <option value="new">Newest first</option>
+          <option value="old">Oldest first</option>
+        </select>
+      </div>
+      <button type="reset">Clear filters</button>
+      <p class="help" style="margin-top:1.5rem">Scope: language systems.<br>Dates indicate first arXiv release years.</p>
+    </form>
+
+    <section aria-label="Archive records">
+      <div class="catalogue-count">
+        <output id="archive-count" aria-live="polite">6 of 6 records</output>
+        <span class="dim">REGISTER 001–006</span>
+      </div>
+      <div class="table-scroll" role="region" aria-label="Source ledger" tabindex="0">
+        <table class="data-table">
+          <thead><tr><th scope="col">ID</th><th scope="col">Record</th><th scope="col">Year</th><th scope="col">Focus</th><th scope="col">Read</th></tr></thead>
+          <tbody id="archive-rows">
+            <tr data-id="1" data-year="2017" data-topic="architecture">
+              <td class="accent">001</td>
+              <td><strong>Attention Is All You Need</strong><small>Vaswani et al. / Transformer architecture</small></td>
+              <td>2017</td><td><span class="tag">Architecture</span></td>
+              <td><a href="record.html">Dossier →</a></td>
+            </tr>
+            <tr data-id="2" data-year="2018" data-topic="representation">
+              <td class="accent">002</td>
+              <td><strong>BERT</strong><small>Devlin et al. / Bidirectional pretraining</small></td>
+              <td>2018</td><td><span class="tag">Representation</span></td>
+              <td><a href="https://arxiv.org/abs/1810.04805" aria-label="Read the BERT paper on arXiv">Source ↗</a></td>
+            </tr>
+            <tr data-id="3" data-year="2020" data-topic="scale">
+              <td class="accent">003</td>
+              <td><strong>Language Models are Few-Shot Learners</strong><small>Brown et al. / GPT-3 and in-context examples</small></td>
+              <td>2020</td><td><span class="tag">Scale</span></td>
+              <td><a href="https://arxiv.org/abs/2005.14165" aria-label="Read the GPT-3 paper on arXiv">Source ↗</a></td>
+            </tr>
+            <tr id="rag" data-id="4" data-year="2020" data-topic="retrieval">
+              <td class="accent">004</td>
+              <td><strong>Retrieval-Augmented Generation</strong><small>Lewis et al. / Retrieval for knowledge-intensive tasks</small></td>
+              <td>2020</td><td><span class="tag">Retrieval</span></td>
+              <td><a href="https://arxiv.org/abs/2005.11401" aria-label="Read the RAG paper on arXiv">Source ↗</a></td>
+            </tr>
+            <tr data-id="5" data-year="2021" data-topic="adaptation">
+              <td class="accent">005</td>
+              <td><strong>LoRA</strong><small>Hu et al. / Low-rank adaptation</small></td>
+              <td>2021</td><td><span class="tag">Adaptation</span></td>
+              <td><a href="https://arxiv.org/abs/2106.09685" aria-label="Read the LoRA paper on arXiv">Source ↗</a></td>
+            </tr>
+            <tr data-id="6" data-year="2022" data-topic="alignment">
+              <td class="accent">006</td>
+              <td><strong>Training language models to follow instructions with human feedback</strong><small>Ouyang et al. / InstructGPT</small></td>
+              <td>2022</td><td><span class="tag">Alignment</span></td>
+              <td><a href="https://arxiv.org/abs/2203.02155" aria-label="Read the InstructGPT paper on arXiv">Source ↗</a></td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+      <p class="empty" id="archive-empty" hidden>No records match. Try a broader query or clear the filters.</p>
+    </section>
+  </div>
+</main>
+<footer class="footer wrap"><span>PRIMARY SOURCES / EDITORIAL SELECTION</span><span>02 / LEDGER</span></footer>
+</body>
+</html>

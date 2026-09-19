@@ -1,0 +1,78 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>Temperature Experiment — Field Register</title>
+  <link rel="stylesheet" href="styles.css">
+  <script src="app.js" defer></script>
+</head>
+<body>
+<a class="skip" href="#main">Skip to content</a>
+<header class="mast wrap">
+  <a class="brand" href="index.html"><span>[FR]</span> FIELD REGISTER</a>
+  <nav class="nav" aria-label="Primary">
+    <a href="archive.html">Archive</a><a href="course.html">Lesson</a>
+    <a class="active" href="prompt.html">Playground</a><a href="notebook.html">Notebook</a>
+  </nav>
+</header>
+<main class="wrap" id="main" tabindex="-1">
+  <nav class="tabs" aria-label="Playground benches">
+    <a href="prompt.html">01 / Prompt assembly</a>
+    <a href="tokens.html">02 / Segmentation</a>
+    <a href="sampling.html" aria-current="page">03 / Sampling</a>
+  </nav>
+  <div class="page-head">
+    <div class="stack">
+      <p class="eyebrow">Bench 03 / controlled experiment</p>
+      <h1>Change the distribution.<br>Not the knowledge.</h1>
+      <p class="lead">Rescale five fixed toy logits, then draw from the resulting distribution. No language model is running.</p>
+    </div>
+    <span class="tag">Actual local sampling</span>
+  </div>
+
+  <div class="sampling">
+    <section class="stack" aria-labelledby="distribution-title">
+      <p class="eyebrow">Illustrative next-word context</p>
+      <h2 id="distribution-title">“The archive is a place to <span class="accent">_____</span>.”</h2>
+      <table class="prob-table">
+        <thead><tr><th scope="col">Word</th><th scope="col" colspan="2">Probability</th><th scope="col">Draws</th></tr></thead>
+        <tbody>
+          <tr data-candidate="0"><th scope="row">learn</th><td class="bar-cell"><span class="track" aria-hidden="true"><span class="prob-bar"></span></span></td><td class="prob-value">—</td><td class="draw-count">0</td></tr>
+          <tr data-candidate="1"><th scope="row">build</th><td class="bar-cell"><span class="track" aria-hidden="true"><span class="prob-bar"></span></span></td><td class="prob-value">—</td><td class="draw-count">0</td></tr>
+          <tr data-candidate="2"><th scope="row">explore</th><td class="bar-cell"><span class="track" aria-hidden="true"><span class="prob-bar"></span></span></td><td class="prob-value">—</td><td class="draw-count">0</td></tr>
+          <tr data-candidate="3"><th scope="row">forget</th><td class="bar-cell"><span class="track" aria-hidden="true"><span class="prob-bar"></span></span></td><td class="prob-value">—</td><td class="draw-count">0</td></tr>
+          <tr data-candidate="4"><th scope="row">wait</th><td class="bar-cell"><span class="track" aria-hidden="true"><span class="prob-bar"></span></span></td><td class="prob-value">—</td><td class="draw-count">0</td></tr>
+        </tbody>
+      </table>
+      <p class="help">Fixed logits, in row order: [2.8, 2.2, 1.6, 0.4, −0.2]. These are chosen for demonstration, not produced by a model.</p>
+      <div class="actions">
+        <button class="primary" id="draw-one" type="button">Draw one word →</button>
+        <button id="draw-many" type="button">Draw 50</button>
+        <button id="clear-draws" type="button">Clear draws</button>
+      </div>
+    </section>
+
+    <aside class="sampling-controls stack">
+      <label class="eyebrow" for="temperature">Temperature / T</label>
+      <output class="temperature" id="temperature-value" for="temperature">0.70</output>
+      <input id="temperature" type="range" min="0" max="2" step="0.1" value="0.7">
+      <div class="catalogue-count"><span>0 / greedy</span><span>2 / flatter</span></div>
+      <p class="help">For T &gt; 0:<br><code>pᵢ = softmax(zᵢ / T)</code></p>
+      <p class="help">At T = 0, this bench uses greedy selection. Higher temperatures flatten the distribution without changing the candidates’ rank.</p>
+      <p class="help">Changing T clears previous draws so the observed counts belong to one distribution.</p>
+    </aside>
+  </div>
+
+  <section class="log-section stack" aria-labelledby="draw-log-title">
+    <div class="catalogue-count">
+      <h2 id="draw-log-title" style="font-size:1rem">Draw log / latest 60</h2>
+      <output id="sample-total" aria-live="polite">0 draws</output>
+    </div>
+    <output class="sample-log" id="sample-log" aria-live="polite">No draws yet.</output>
+    <p class="help">Random samples vary. More draws tend to make the observed frequencies resemble the selected probabilities; exact agreement is not guaranteed.</p>
+  </section>
+</main>
+<footer class="footer wrap"><span>FIXED INPUTS / ONE VARIABLE / VISIBLE CONSEQUENCES</span><span>09 / SAMPLING BENCH</span></footer>
+</body>
+</html>

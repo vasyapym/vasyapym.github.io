@@ -1,0 +1,68 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>Research Notebook — Field Register</title>
+  <link rel="stylesheet" href="styles.css">
+  <script src="app.js" defer></script>
+</head>
+<body>
+<a class="skip" href="#main">Skip to content</a>
+<header class="mast wrap">
+  <a class="brand" href="index.html"><span>[FR]</span> FIELD REGISTER</a>
+  <nav class="nav" aria-label="Primary">
+    <a href="archive.html">Archive</a><a href="course.html">Lesson</a>
+    <a href="prompt.html">Playground</a><a href="notebook.html" aria-current="page">Notebook</a>
+  </nav>
+</header>
+<main class="wrap" id="main" tabindex="-1">
+  <div class="page-head">
+    <div class="stack">
+      <p class="eyebrow">Personal register / observations + open questions</p>
+      <h1>Keep the evidence.<br>Keep the doubt.</h1>
+      <p class="lead">A notebook for claims worth checking, experiments worth repeating, and questions that remain open.</p>
+    </div>
+    <button id="export-notes" type="button" disabled>Export Markdown ↓</button>
+  </div>
+
+  <div class="notebook">
+    <form id="note-form" class="note-form panel">
+      <p class="eyebrow">New entry</p>
+      <div class="field" style="margin-top:1rem">
+        <label class="field-label" for="note-title">Title</label>
+        <input id="note-title" name="title" maxlength="120" required placeholder="What is worth keeping?">
+      </div>
+      <div class="field">
+        <label class="field-label" for="note-kind">Entry type</label>
+        <select id="note-kind" name="kind">
+          <option>Observation</option><option>Question</option><option>Experiment</option>
+        </select>
+      </div>
+      <div class="field">
+        <label class="field-label" for="note-source">Source / optional</label>
+        <input id="note-source" name="source" maxlength="500" placeholder="Paper, lesson, URL, or bench">
+      </div>
+      <div class="field">
+        <label class="field-label" for="note-body">Observation and uncertainty</label>
+        <textarea id="note-body" name="body" rows="7" maxlength="6000" required placeholder="What did you observe? What supports it? What remains uncertain?"></textarea>
+      </div>
+      <button class="primary" type="submit">Append to register →</button>
+      <output class="status" id="notes-status" aria-live="polite" style="margin-top:1rem"></output>
+      <p class="help" style="margin-top:1rem">Stored in this browser when permitted. No account or cloud sync. Export a copy for backup.</p>
+    </form>
+
+    <section aria-labelledby="notes-heading">
+      <div class="catalogue-count">
+        <h2 id="notes-heading" style="font-size:1rem">Your entries</h2>
+        <output id="notes-count" aria-live="polite">0 entries</output>
+      </div>
+      <div id="note-list">
+        <p class="empty">Nothing recorded yet. Start with one observation and one reason to question it.</p>
+      </div>
+    </section>
+  </div>
+</main>
+<footer class="footer wrap"><span>WRITING IS PART OF THE EXPERIMENT</span><span>10 / PERSONAL REGISTER</span></footer>
+</body>
+</html>
