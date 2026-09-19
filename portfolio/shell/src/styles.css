@@ -46,18 +46,19 @@ html {
 
 /* The main menu (html[data-no-scroll-bar], set by LandingPage) never paints
    its document scrollbar — the page stays scrollable, the bar just never
-   renders. Touch devices must NOT get styled webkit pseudos: a styled pseudo
-   switches WebKit to the classic bar mode (the quicknotes N033 lesson), so
-   the webkit kill is scoped to fine pointers; scrollbar-width covers
-   Firefox and the modern engines. */
+   renders. Two layers: scrollbar-width covers Firefox and Safari 18.2+; the
+   webkit kill is UNCONDITIONAL because the owner's device check proved
+   scrollbar-width alone leaves the big classic bar on iOS Safari (older 18.x
+   lacks scrollbar-width, and the root scroller then keeps painting) —
+   display:none is the mechanism that hides the bar in BOTH modes on every
+   WebKit version. Scope note: the quicknotes N033 fine-pointer law applies to
+   the app's INNER scrollers (where the native thin indicator is wanted); the
+   owner's verdict here is the opposite — no bar at all on the document. */
 html[data-no-scroll-bar] {
   scrollbar-width: none;}
 
-@media (hover: hover) and (pointer: fine) {
-  html[data-no-scroll-bar]::-webkit-scrollbar {
-    display: none;
-  }
-}
+html[data-no-scroll-bar]::-webkit-scrollbar {
+  display: none;}
 
 
 body {

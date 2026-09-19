@@ -8,17 +8,20 @@
 // menu never paints its scrollbar, but the page must keep scrolling.
 //
 // Fix: LandingPage sets html[data-no-scroll-bar] (route-local, restored on
-// unmount); styles.css hides the bar via scrollbar-width:none plus a
-// fine-pointer-scoped webkit display:none — the quicknotes N033 law (a styled
-// webkit pseudo on touch switches WebKit to the classic bar mode).
+// unmount); styles.css hides the bar via scrollbar-width:none PLUS an
+// UNCONDITIONAL webkit display:none — the owner device check proved the
+// fine-pointer scoping left the big classic bar on iOS Safari (older 18.x
+// lacks scrollbar-width), so for the document scroller the webkit kill
+// applies in every context: it is the mechanism that hides the bar in both
+// classic and overlay WebKit modes.
 //
 // This gate loads the BUILT site and asserts, per context:
 //   G1 desktop landing — attribute set, bar hidden (where the engine supports
 //      scrollbar-width), page still scrolls;
-//   G2 touch landing — attribute set (no fine-pointer-only hiding here);
+//   G2 touch landing — attribute set (WebKit touch contexts included);
 //   G3 route-local — a project page clears the attribute and keeps its bar;
-//   G4 static — every webkit kill rule in the built CSS sits inside a
-//      (hover:hover)/(pointer:fine) media block; zero unscoped occurrences.
+//   G4 static — the webkit kill in the built CSS is unconditional (not inside
+//      any fine-pointer-only media block).
 //
 //   node shell/tests/landing-scrollbar-gate.mjs     (from portfolio/)
 //   node tests/landing-scrollbar-gate.mjs           (from shell/)
@@ -196,9 +199,12 @@ const probeScroll = () =>
   await page.close();
 }
 
-// G4 — the N033 law in the BUILT css: every
-// html[data-no-scroll-bar]::-webkit-scrollbar rule sits inside a media block
-// whose condition mentions hover and/or pointer:fine; zero unscoped ones.
+// G4 — the owner device check (iOS Safari: the bar survived the fine-pointer
+// scoping and stayed big) inverted the scoping: for the DOCUMENT scroller the
+// webkit kill must be UNCONDITIONAL — it is the only mechanism that hides the
+// bar in both classic and overlay modes on every WebKit version. Assert: every
+// html[data-no-scroll-bar]::-webkit-scrollbar rule in the built CSS sits OUTSIDE
+// any fine-pointer-only media block.
 {
   let built = "";
   try {
@@ -217,9 +223,7 @@ const probeScroll = () =>
     ) {
       // Walk backwards through brace depth to the enclosing block's opening
       // brace; if that block is a @media with hover/pointer:fine in its
-      // condition, the occurrence is scoped. Walk outward until an unmatched
-      // "{" resolves — for minified output this resolves to the nearest
-      // enclosing block, which is the media block itself.
+      // condition, the occurrence is scoped (and would NOT apply on iOS).
       let depth = 0;
       let fine = false;
       for (let j = at; j >= 0; j -= 1) {
@@ -237,7 +241,7 @@ const probeScroll = () =>
       if (fine) scoped += 1;
       else unscoped += 1;
     }
-    check(scoped > 0 && unscoped === 0, `webkit kill scoped to fine pointers (scoped ${scoped}, unscoped ${unscoped})`);
+    check(unscoped > 0 && scoped === 0, `webkit kill unconditional on the document (unscoped ${unscoped}, fine-pointer-scoped ${scoped})`);
   } else {
     console.log("ok   (built css not found — G4 static scoping check skipped)");
   }
