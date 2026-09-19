@@ -386,7 +386,7 @@ function MatrixCenterMark() {
       <ellipse className="gem-halo" style={haloVar(0.12)} cx="124" cy="86" rx="62" ry="44" fill="url(#gem-matrix-halo)" opacity="0.12" />
 
       {/* WALL W-2 — 4 tier rows × 7 month columns */}
-      <rect x="34" y="38" width="180" height="100" fill="none" stroke="#7d7669" strokeWidth="1" opacity="0.7" />
+      <rect x="34" y="38" width="180" height="100" fill="none" stroke="#b6ac95" strokeWidth="2.5" opacity="0.9" />
       <path d="M58 38V138M82 38V138M106 38V138M130 38V138M154 38V138M178 38V138" fill="none" stroke="#7d7669" strokeWidth="0.8" opacity="0.28" />
       <path d="M34 64H214M34 90H214M34 116H214" fill="none" stroke="#7d7669" strokeWidth="0.8" opacity="0.28" />
 

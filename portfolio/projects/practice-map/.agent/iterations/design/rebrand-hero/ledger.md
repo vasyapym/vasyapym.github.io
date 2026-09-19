@@ -121,3 +121,20 @@ mobile top 390).
 - Visual inspection: both shots read. Desktop card: mark smaller and airier over the copy block, title "Waste of tokens" sets cleanly; mobile: 204px mark inside the 150px stage, title fits, description clamps by the existing line clamp. Card index now reads "08 · tokens" (list position shifted since R004 — positional, not ours).
 - Code verification: `tsc --noEmit` + `vite build` clean; headless svg width measured 221px desktop / 204px mobile; no console/page errors
 - Open question: hero band copy/energy rework (F002 + F005) — next round; owner hasn't briefed the new hero copy yet
+
+## Feedback F008
+- Round: R005
+- Verdict: LIKED + adjust (three asks)
+- Scope: matrix card wall frame; card tag; card description
+- Decision: (1) the big containing rectangle needs a bigger, more prominent outline so the mark reads consistent with the other project illustrations — the mark is "too detailed, but i like it", only the outline lacked weight; (2) tag "tokens" → "playground"; (3) description drops "generated lessons with an"
+- User source: «make the edges of the big rectangular (which contains within itself squares) bigger/prominent... also change tag from "tokens" to "playground". also remove from project description "...generated lessons with an..."»
+
+## Round R006
+- Goal: F008 follow-through — wall frame weight, tag, description trim
+- Preserved preferences: F005 (hero band rework stays a separate round), F006 (221/204px mark size kept), F007 ("Waste of tokens" name)
+- Changes: MatrixCenterMark wall rect `stroke="#7d7669" strokeWidth="1" opacity="0.7"` → `stroke="#b6ac95" strokeWidth="2.5" opacity="0.9"` — the paper-tone bold outline the house marks use (Spine vertebrae 2.5, Trail main line 2); project.ts tag "playground"; description "Model-tiered archive with an experimental lesson space and an open ai playground."
+- Before: artifacts/R005/after-card-1440.png
+- After: artifacts/R006/after-card-1440.png
+- Visual inspection: desktop shot read. The wall frame now carries the card — the bold warm outline groups the hatch cells the way Spine/Trail marks group their subjects; cell density and the blue front stay untouched (owner asked outline only). Card reads "08 · playground / Waste of tokens / Model-tiered archive with an experimental lesson space and an open ai playground." on one line at 1440.
+- Code verification: `tsc --noEmit` clean; card rendered headlessly with no console/page errors
+- Open question: hero band copy/energy rework (F002 + F005) — next round; owner hasn't briefed the new hero copy yet

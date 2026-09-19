@@ -3,10 +3,10 @@ import type { ProjectModule } from "../../contracts/project-module";
 const practiceMap: ProjectModule = {
   id: "practice-map",
   title: "Waste of tokens",
-  tag: "tokens",
+  tag: "playground",
   eyebrow: "an archive of ai outputs, a lesson space, an open playground",
   description:
-    "Model-tiered archive of generated lessons with an experimental lesson space and an open ai playground.",
+    "Model-tiered archive with an experimental lesson space and an open ai playground.",
   technologies: ["React", "TypeScript", "Local state"],
   status: "available",
   accent: "blue",
