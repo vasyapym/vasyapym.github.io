@@ -284,6 +284,19 @@
       "message": "My push of R013 (ff1c0da) also published another agent's local commit 5e2e3ca (realm door order + symmetric frame + uniform vertical rhythm, portfolio/shell realm sources) that was sitting on local main unpushed. No content mixing — my commit ff1c0da carries only practice-map paths; 5e2e3ca ships intact with its own message and verification. Owner action: none, this is a notice that the realm fix reached origin via my push.",
       "ackBy": null,
       "ackAt": null
+    },
+    {
+      "id": "2026-09-20T01-00Z-sweep-report-2f26435-realm-r14-pushed-by-relay-session",
+      "ts": "2026-09-20T01:00:00Z",
+      "kind": "sweep-report",
+      "agent": "opencode (practice-map R015 design-iteration relay session)",
+      "commit": "2f26435",
+      "files": [
+        "portfolio/shell/src/"
+      ],
+      "message": "My push of R015 (c395644) also published another agent's local commit 2f26435 (realm r14 rhythm + raft re-seat + spine card mark red, portfolio/shell realm sources), sitting unpushed on local main. No content mixing — my commit carries only practice-map paths; 2f26435 ships intact with its own verification. Owner action: none.",
+      "ackBy": null,
+      "ackAt": null
     }
   ]
 }
