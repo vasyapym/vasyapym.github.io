@@ -255,6 +255,18 @@ textarea:focus-visible {
   border-radius: var(--panel-radius);}
 
 
+.signal-index-hero-kicker {
+  margin: 0 0 clamp(0.7rem, 1.6vw, 1.1rem);
+  font-family: var(--mono);
+  font-size: 0.7rem;
+  font-weight: 500;
+  letter-spacing: 0.34em;
+  text-transform: lowercase;
+  color: var(--ink-accent-bright);
+  opacity: 0;
+  animation: signal-index-type-kicker 0.7s cubic-bezier(0.22, 1, 0.36, 1) 0.1s both;}
+
+
 /* Editorial headline — pulled back from viewport-filling display type (the
    named attempt-2 failure). IBM Plex Sans, confident but restrained, so the
    fluid carries the impression. Three masked lines still rise on entrance. */
@@ -814,11 +826,13 @@ textarea:focus-visible {
     justify-self: stretch;
     max-width: none;
     align-self: start;
-    /* +0.4rem top / +0.3rem bottom vs the pre-kicker 1rem block: the removed
-       'currents' kicker took its own line + margin (~18px) out of the panel
-       and the type read condensed on iOS; ~+15px (~9%) restores the air
-       without bringing the word back. Note margin-top 1rem → 1.2rem. */
-    padding: 1.4rem 1rem 1.4rem;
+    padding: 1rem 1rem 1.1rem;
+  }
+
+  .signal-index-hero-kicker {
+    margin-bottom: 0.7rem;
+    font-size: 0.62rem;
+    letter-spacing: 0.3em;
   }
 
   .signal-index-hero-headline {
@@ -828,7 +842,7 @@ textarea:focus-visible {
   }
 
   .signal-index-hero-note {
-    margin-top: 1.2rem;
+    margin-top: 1rem;
     font-size: 0.62rem;
   }
 
@@ -849,6 +863,7 @@ textarea:focus-visible {
   }
 
   .signal-index-hero-line-in,
+  .signal-index-hero-kicker,
   .signal-index-hero-note {
     animation: none;
   }
@@ -857,6 +872,7 @@ textarea:focus-visible {
     transform: none;
   }
 
+  .signal-index-hero-kicker,
   .signal-index-hero-note {
     opacity: 1;
   }}

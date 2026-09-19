@@ -6,7 +6,7 @@ const spine: ProjectModule = {
   tag: "layout engine",
   eyebrow: "live layout · Go → WebAssembly",
   description:
-    "Drag, nest and retune Flexbox and Grid containers in real time. The layout engine runs in Go compiled to WebAssembly — with undo/redo history, clean HTML/CSS export and shareable URLs.",
+    "Drag, nest and retune Flexbox and Grid containers in real time — a Go-to-WebAssembly engine with undo/redo and clean HTML/CSS export.",
   technologies: ["Go", "WebAssembly", "Flexbox & Grid", "syscall/js"],
   status: "available",
   accent: "steel",

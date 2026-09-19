@@ -6,7 +6,7 @@ const quicknotes: ProjectModule = {
   tag: "notes",
   eyebrow: "local-first markdown · Firebase sync",
   description:
-    "Fast markdown notes that live on the device first and sync across devices through Firebase. Virtual folders with context menus, [[wiki-links]], live preview, command palette and one-button zip export — a static no-build app you can host anywhere.",
+    "Fast markdown notes that live on-device and sync through Firebase — [[wiki-links]], live preview, command palette, one-button zip export.",
   technologies: ["Firebase", "Firestore", "Vanilla ES modules", "Static hosting"],
   status: "available",
   accent: "blue",
