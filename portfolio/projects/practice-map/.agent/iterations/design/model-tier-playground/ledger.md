@@ -116,3 +116,20 @@ Owner decisions fixed into the brief (mode 2 — design owned by the orchestrato
 - User source: "ok for now. we will improve later"
 - Artifact: artifacts/R003/*
 - Supersedes: none
+
+## Round R004 — IMPLEMENTED (React salvage of the approved R003 design)
+- Goal: integrate the chat model's port of the approved design into the live Practice Map page. Delegated implementation (brief: docs/briefs/BRIEF-practice-map-model-tier-implementation.md — R003 artifact embedded as the porting reference), integrated by the orchestrator.
+- Preserved preferences: everything owner-liked — lesson window internals, concept graph, free reading, scroll progress, status editing in the window, chip grace law (n196), Linux volumes 4/3/6/4/3, tier order = data order.
+- Changes:
+  - New `web/lib/tiers/`: `tiers.ts` (TIERS data mapping + orderedTopicsForTier; the model's local TopicCard mirror replaced with an import of the repo's real type; the helper collects ALL topics of a tier's areas so lessons added later still surface), `TierList.tsx`, `TierPanel.tsx` (cards with the n196 chip law restored + aria-expanded, volume view with crumb, flash scroll), `Palette.tsx` (verbatim scorer), `tiers.css` (scoped: repo --ink-* tokens, artifact's global resets/dropped rules removed per brief).
+  - `PracticeMapPage.tsx`: hero copy → `tier by tier. / model by model.` + computed kicker (`playground · N models · M lessons`); rail = graph pill + hint, centered (F006); RouteProgress and the flat areas nav removed; PracticeAreaView/old TopicCard replaced by TierList + TierPanel; LessonOverlay now mounted at page level keyed by openLessonId; palette state + global ⌘K toggle; volume view + flash wired per the integration notes.
+  - `practice-map.css`: hero rail align-content space-between → center.
+  - `tests/practice-map.check.mjs`: retargeted to the tier surface — map renders on .pg-card; the thinking tier (last row) asserts 5 volume faces + "20 lessons" count; vol 01 renders its 4 cards; fragment lesson reached via vol 02 card 2; the Go flagship reached via its tier (fable-5.1-low, 4th row); mobile 390/320 legs reach the tuned Linux deep reader through the tier + face path. Two new volume gates added; no gate removed.
+  - Overlay key ownership: the global handler skips ⌘K/Esc while a lesson or graph overlay is open (they own Escape) — caught via the check's graph legs.
+- Before: artifacts/R003/* (approved artifact) + the live pre-integration page.
+- After: artifacts/R004/int-desktop-hero.png (1440: hero + tier list + real DDoS card with +41 more), int-desktop-faces.png (5 real faces), int-desktop-vol03.png, int-desktop-lesson.png (lesson window unchanged, tier-wide numbering "lesson 08"), int-desktop-palette.png, int-desktop-jump.png (palette jump → vol 01 + flash), int-mobile.png.
+- Visual inspection: performed — the real curriculum data renders in the approved structure; lesson overlay, free reading (271/271 real-lesson flow), graph, scroll progress all intact.
+- Code verification: typecheck PASS, build PASS; full practice-map.check.mjs 95 ok / 1 documented pre-existing environment fail (ArrowRight advances sections, chromium-1134 — reproduces on the pre-change tree).
+- Data rule recorded: lessons keep arriving via the lesson script pipeline into curriculum areas; a NEW area requires a one-line TIERS append (tier = data).
+- Open question: none — implementation shipped; deferred polish stays in F008.
+- Shipped: commit at round close per the owner's always-current-repo setting.

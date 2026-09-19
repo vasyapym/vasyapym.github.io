@@ -1,4 +1,5 @@
 import {
+  useCallback,
   useEffect,
   useLayoutEffect,
   useMemo,
@@ -14,7 +15,6 @@ import {
   curriculum,
   type LessonExample,
   type LessonSection,
-  type PracticeArea,
   type TopicCard as TopicCardDefinition,
   type TopicStatus,
 } from "./curriculum";
@@ -27,6 +27,11 @@ import {
   type PracticeState,
 } from "./progress";
 import "./practice-map.css";
+import { TIERS, orderedTopicsForTier, plural } from "./lib/tiers/tiers";
+import { TierList } from "./lib/tiers/TierList";
+import { TierPanel } from "./lib/tiers/TierPanel";
+import { Palette, type PaletteItem } from "./lib/tiers/Palette";
+import "./lib/tiers/tiers.css";
 import { Blocks, InlineText } from "./lib/format";
 import { FreeReadingControls } from "./lib/freeReading/FreeReadingControls";
 import { FreeReadingText } from "./lib/freeReading/FreeReadingText";
@@ -60,290 +65,204 @@ const LESSON_TABS = [
 type LessonTabKey = (typeof LESSON_TABS)[number]["key"];
 
 export default function PracticeMapPage() {
-  const [activeAreaId, setActiveAreaId] = useState(curriculum[0]?.id ?? "");
+  const [activeTierId, setActiveTierId] = useState(TIERS[0]?.id ?? "");
   const [state, setState] = useState<PracticeState>(() => loadPracticeState(curriculum));
   const [query, setQuery] = useState("");
+  const [activeVolume, setActiveVolume] = useState<string | null>(null);
+  const [flashTopicId, setFlashTopicId] = useState<string | null>(null);
+  const [openLessonId, setOpenLessonId] = useState<string | null>(null);
+  const [paletteOpen, setPaletteOpen] = useState(false);
   const [graphOpen, setGraphOpen] = useState(false);
 
-  const activeArea = useMemo(
-    () => curriculum.find((area) => area.id === activeAreaId) ?? curriculum[0],
-    [activeAreaId],
-  );
   const summary = summarizePractice(curriculum, state);
 
   useEffect(() => {
     savePracticeState(state);
   }, [state]);
 
-  const updateState = (nextState: PracticeState) => {
-    setState(nextState);
+  const topicsById = useMemo(() => {
+    const map: Record<string, TopicCardDefinition> = {};
+    for (const area of curriculum) {
+      for (const topic of area.topics) map[topic.id] = topic;
+    }
+    return map;
+  }, []);
+
+  const activeTier = TIERS.find((tier) => tier.id === activeTierId) ?? TIERS[0];
+  const tierTopics = useMemo(
+    () => (activeTier ? orderedTopicsForTier(activeTier, topicsById).map(({ topic, index }) => ({ ...topic, index })) : []),
+    [activeTier, topicsById],
+  );
+
+  const lessonCount = useCallback((tierId: string) => {
+    const tier = TIERS.find((t) => t.id === tierId);
+    return tier ? orderedTopicsForTier(tier, topicsById).length : 0;
+  }, [topicsById]);
+
+  const sampleTitle = useCallback((tierId: string) => {
+    const tier = TIERS.find((t) => t.id === tierId);
+    return tier ? (orderedTopicsForTier(tier, topicsById)[0]?.topic.title ?? "") : "";
+  }, [topicsById]);
+
+  const paletteItems = useMemo<PaletteItem[]>(() => {
+    const items: PaletteItem[] = [];
+    for (const tier of TIERS) {
+      const ordered = orderedTopicsForTier(tier, topicsById);
+      items.push({
+        kind: "tier",
+        title: tier.name,
+        sub: tier.band + " · " + plural(ordered.length, "lesson"),
+        tierId: tier.id,
+        topicId: null,
+        hay: tier.name + " " + tier.band,
+      });
+      for (const { topic } of ordered) {
+        items.push({
+          kind: "lesson",
+          title: topic.title,
+          sub: tier.name,
+          tierId: tier.id,
+          topicId: topic.id,
+          hay: topic.title + " " + topic.summary + " " + tier.name,
+        });
+      }
+    }
+    return items;
+  }, [topicsById]);
+
+  const flashTimerRef = useRef<number | undefined>(undefined);
+  const flashThenClear = (topicId: string | null) => {
+    if (!topicId) return;
+    window.clearTimeout(flashTimerRef.current);
+    setFlashTopicId(topicId);
+    flashTimerRef.current = window.setTimeout(() => setFlashTopicId(null), 1400);
   };
+
+  // Global chrome: cmd/ctrl+K toggles the palette; Esc leaves the volume view
+  // when the palette is closed (the palette owns its own Esc while open).
+  // While a lesson or graph overlay is up, the overlay owns every key — the
+  // palette stays out of its way and Esc does not exit the volume beneath.
+  useEffect(() => {
+    const onKey = (event: globalThis.KeyboardEvent) => {
+      if (openLessonId || graphOpen) return;
+      if ((event.metaKey || event.ctrlKey) && event.key.toLowerCase() === "k") {
+        event.preventDefault();
+        setPaletteOpen((v) => !v);
+        return;
+      }
+      if (event.key === "Escape" && !paletteOpen && activeVolume) {
+        setActiveVolume(null);
+      }
+    };
+    window.addEventListener("keydown", onKey);
+    return () => window.removeEventListener("keydown", onKey);
+  }, [paletteOpen, activeVolume, openLessonId, graphOpen]);
+
+  const jump = useCallback((tierId: string, topicId: string | null) => {
+    setActiveTierId(tierId);
+    const tier = TIERS.find((t) => t.id === tierId);
+    if (topicId && tier?.volumes) {
+      const vol = tier.volumes.find((v) => v.topicIds.includes(topicId));
+      setActiveVolume(vol ? vol.name : null);
+    } else {
+      setActiveVolume(null);
+    }
+    setQuery("");
+    flashThenClear(topicId);
+  }, []);
+
+  const openTopic = openLessonId ? topicsById[openLessonId] : null;
+  const openTopicIndex = openTopic
+    ? tierTopics.findIndex((entry) => entry.id === openTopic.id)
+    : -1;
 
   return (
     <div className="practice-map-field">
       <section className="practice-map-page section-shell" aria-labelledby="practice-map-title">
+        <p className="pg-kicker">
+          playground · {TIERS.length} models · {curriculum.reduce((n, area) => n + area.topics.length, 0)} lessons
+        </p>
+
         <header className="practice-map-hero">
           <h1 id="practice-map-title">
-            deep lessons.
-            <span>local notes.</span>
+            tier by tier.
+            <span>model by model.</span>
           </h1>
           <div className="practice-map-hero-note">
-            <RouteProgress done={summary.applied} total={summary.total} />
             <button className="practice-graph-open" type="button" onClick={() => setGraphOpen(true)}>
               explore concept graph <span aria-hidden="true">↗</span>
             </button>
+            <p className="pg-hint">граф понятий собирается отдельно</p>
           </div>
         </header>
 
-        <div className="practice-map-layout">
-          <aside className="practice-area-nav" aria-label="Practice areas">
-            <div className="practice-area-nav-heading practice-map-notation">
-              <span>areas</span>
-              <span>{curriculum.length}</span>
-            </div>
-          <div className="practice-area-list">
-            {curriculum.map((area) => (
-              <button
-                aria-pressed={area.id === activeArea?.id}
-                className={area.id === activeArea?.id ? "is-active" : ""}
-                key={area.id}
-                type="button"
-                onClick={() => setActiveAreaId(area.id)}
-              >
-                <span>
-                  <strong>{area.title}</strong>
-                  <small>{area.description}</small>
-                </span>
-                <em>{area.topics.length}</em>
-              </button>
-            ))}
-          </div>
-        </aside>
+        <div className="pg-layout">
+          <TierList
+            tiers={TIERS}
+            activeTierId={activeTier?.id ?? ""}
+            onSelect={(tierId) => {
+              setActiveTierId(tierId);
+              setActiveVolume(null);
+            }}
+            lessonCount={lessonCount}
+            sampleTitle={sampleTitle}
+          />
+          {activeTier && (
+            <TierPanel
+              tier={activeTier}
+              topics={tierTopics}
+              query={query}
+              onQueryChange={setQuery}
+              activeVolume={activeVolume}
+              onEnterVolume={setActiveVolume}
+              onExitVolume={() => setActiveVolume(null)}
+              onOpenLesson={setOpenLessonId}
+              flashTopicId={flashTopicId}
+              onOpenPalette={() => setPaletteOpen(true)}
+            />
+          )}
+        </div>
 
-        {activeArea && (
-          <PracticeAreaView
-            area={activeArea}
-            state={state}
-            onChange={updateState}
-            query={query}
-            onQueryChange={setQuery}
+        {graphOpen && <ConceptGraph onClose={() => setGraphOpen(false)} />}
+
+        {paletteOpen && (
+          <Palette
+            open
+            onClose={() => setPaletteOpen(false)}
+            onJump={jump}
+            items={paletteItems}
           />
         )}
-      </div>
 
-      {graphOpen && <ConceptGraph onClose={() => setGraphOpen(false)} />}
+        {openTopic && openTopic.lesson && (
+          <LessonOverlay
+            index={openTopicIndex}
+            topic={openTopic}
+            status={state.topics[openTopic.id].status}
+            onStatusChange={(status) => setState(setTopicStatus(state, openTopic.id, status))}
+            onClose={() => setOpenLessonId(null)}
+          />
+        )}
 
-      <footer className="practice-map-footer">
-        <span>local notes · no account</span>
-        <span className="practice-map-footer-meta">
-          <span>{summary.queued} queued</span>
-          <button
-            className="practice-map-reset"
-            type="button"
-            onClick={() => {
-              if (window.confirm("Reset all statuses, feedback, and notes?")) {
-                setState(createInitialState(curriculum));
-              }
-            }}
-          >
-            reset progress
-          </button>
-        </span>
-      </footer>
+        <footer className="practice-map-footer">
+          <span>local notes · no account</span>
+          <span className="practice-map-footer-meta">
+            <span>{summary.queued} queued</span>
+            <button
+              className="practice-map-reset"
+              type="button"
+              onClick={() => {
+                if (window.confirm("Reset all statuses, feedback, and notes?")) {
+                  setState(createInitialState(curriculum));
+                }
+              }}
+            >
+              reset progress
+            </button>
+          </span>
+        </footer>
       </section>
     </div>
-  );
-}
-
-function RouteProgress({ done, total }: { done: number; total: number }) {
-  const pathRef = useRef<SVGPathElement>(null);
-  const [pathLength, setPathLength] = useState(0);
-  const pct = total === 0 ? 0 : Math.round((done / total) * 100);
-
-  useEffect(() => {
-    if (pathRef.current) {
-      setPathLength(pathRef.current.getTotalLength());
-    }
-  }, []);
-
-  return (
-    <div
-      aria-label={`${done} of ${total} topics applied`}
-      className="practice-route"
-      role="img"
-    >
-      <div className="practice-route-heading">
-        <span>route</span>
-        <strong>{pct}%</strong>
-      </div>
-      <svg aria-hidden="true" viewBox="0 0 320 36">
-        <path
-          className="practice-route-track"
-          d="M4 28 C 52 8, 96 34, 148 20 S 244 2, 268 18 S 306 30, 316 12"
-          fill="none"
-        />
-        <path
-          className="practice-route-fill"
-          d="M4 28 C 52 8, 96 34, 148 20 S 244 2, 268 18 S 306 30, 316 12"
-          fill="none"
-          ref={pathRef}
-          strokeDasharray={pathLength || 1}
-          strokeDashoffset={(1 - pct / 100) * (pathLength || 1)}
-        />
-        <circle className={`practice-route-end${pct === 100 ? " is-complete" : ""}`} cx="316" cy="12" r="4" />
-      </svg>
-      <span className="practice-route-caption">
-        {done}/{total} applied
-      </span>
-    </div>
-  );
-}
-
-function PracticeAreaView({
-  area,
-  state,
-  onChange,
-  query,
-  onQueryChange,
-}: {
-  area: PracticeArea;
-  state: PracticeState;
-  onChange: (state: PracticeState) => void;
-  query: string;
-  onQueryChange: (query: string) => void;
-}) {
-  const visibleTopics = useMemo(() => {
-    const needle = query.trim().toLowerCase();
-    if (!needle) {
-      return area.topics;
-    }
-    return area.topics.filter((topic) =>
-      [topic.title, topic.summary, ...topic.concepts]
-        .join(" ")
-        .toLowerCase()
-        .includes(needle),
-    );
-  }, [area, query]);
-
-  return (
-    <section className="practice-area-view" aria-labelledby="practice-area-title">
-      <div className="practice-area-heading">
-        <h2 id="practice-area-title">{area.title}</h2>
-      </div>
-
-      <div className="practice-toolbar">
-        <label className="practice-search">
-          <span aria-hidden="true">⌕</span>
-          <input
-            aria-label="Search topics"
-            placeholder="search…"
-            type="search"
-            value={query}
-            onChange={(event) => onQueryChange(event.target.value)}
-          />
-          {query && (
-            <button aria-label="Clear search" className="practice-search-clear" type="button" onClick={() => onQueryChange("")}>
-              ✕
-            </button>
-          )}
-        </label>
-      </div>
-
-      {visibleTopics.length > 0 ? (
-        <div className="practice-topic-grid">
-          {visibleTopics.map((topic) => (
-            <TopicCard
-              key={topic.id}
-              index={area.topics.indexOf(topic)}
-              progress={state.topics[topic.id]}
-              topic={topic}
-              onChange={onChange}
-              state={state}
-            />
-          ))}
-        </div>
-      ) : (
-        <div className="practice-topic-empty">
-          <strong>nothing here</strong>
-          <button
-            type="button"
-            onClick={() => onQueryChange("")}
-          >
-            clear search
-          </button>
-        </div>
-      )}
-    </section>
-  );
-}
-
-function TopicCard({
-  index,
-  progress,
-  state,
-  topic,
-  onChange,
-}: {
-  index: number;
-  progress: PracticeState["topics"][string];
-  state: PracticeState;
-  topic: TopicCardDefinition;
-  onChange: (state: PracticeState) => void;
-}) {
-  const [lessonOpen, setLessonOpen] = useState(false);
-  const [chipsExpanded, setChipsExpanded] = useState(false);
-
-  const CHIP_CAP = 8;
-  const shouldCap = topic.concepts.length > CHIP_CAP + 2;
-  const visibleConcepts =
-    shouldCap && !chipsExpanded
-      ? topic.concepts.slice(0, CHIP_CAP)
-      : topic.concepts;
-  const hiddenCount = topic.concepts.length - CHIP_CAP;
-
-  return (
-    <article className="practice-topic-card">
-      <div className="practice-topic-topline">
-        <span>{String(index + 1).padStart(2, "0")}</span>
-        <span className={`practice-topic-status status-${progress.status}`}>
-          {STATUS_LABELS[progress.status]}
-        </span>
-      </div>
-
-      <h3>{topic.title}</h3>
-      <p className="practice-topic-summary">{topic.summary}</p>
-
-      <div className="practice-concepts" aria-label="Concepts">
-        {visibleConcepts.map((concept) => <span key={concept}>{concept}</span>)}
-        {shouldCap && (
-          <button
-            className="practice-concepts-toggle"
-            type="button"
-            aria-expanded={chipsExpanded}
-            onClick={() => setChipsExpanded((v) => !v)}
-          >
-            {chipsExpanded ? "fewer" : `+${hiddenCount} more`}
-          </button>
-        )}
-      </div>
-
-      {topic.lesson && (
-        <button className="practice-lesson-open" type="button" onClick={() => setLessonOpen(true)}>
-          open lesson
-          <span aria-hidden="true">→</span>
-        </button>
-      )}
-
-      {lessonOpen && topic.lesson && (
-        <LessonOverlay
-          index={index}
-          topic={topic}
-          status={progress.status}
-          onStatusChange={(status) => onChange(setTopicStatus(state, topic.id, status))}
-          onClose={() => setLessonOpen(false)}
-        />
-      )}
-    </article>
   );
 }
 

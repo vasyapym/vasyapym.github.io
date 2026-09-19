@@ -89,9 +89,9 @@
   display: grid;
   justify-items: start;
   gap: 1rem;
-  /* Route block top, explore chip pinned to the bottom line: the rail fills
-     its equal-height track without interior slack. */
-  align-content: space-between;
+  /* Rail content rides centered in its equal-height track (F006/R003):
+     the pill + hint hug the middle, no dead top/bottom runs. */
+  align-content: center;
   padding: clamp(1.05rem, 2vw, 1.55rem) 1.25rem clamp(1.2rem, 2.2vw, 1.7rem);
   background: rgba(9, 15, 18, 0.78);
   border: 1px solid var(--ink-line-soft);

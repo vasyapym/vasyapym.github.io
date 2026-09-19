@@ -100,19 +100,23 @@ try {
   // networkidle0 never settles on this dev app, and 45s of it times out.
   await page.goto(`${BASE}/projects/practice-map`, { waitUntil: "domcontentloaded", timeout: 150000 });
 
-  check(await appears(".practice-topic-card"), "map renders");
+  check(await appears(".pg-card"), "map renders");
 
-  // The map opens on the first curriculum area (Go, one deep-lesson card).
-  // Select the Linux area for the long-standing 20-card flow below.
-  // Linux sorts LAST in the areas nav (owner's order: flagship deep lessons
-  // first, the practical course last) — target it from the end so future
-  // area additions cannot renumber the selector.
-  await page.click(".practice-area-list button:nth-last-child(1)");
+  // The map opens on the first tier (astra-6-max, two lesson cards).
+  // The thinking tier (opus-4.8-thinking) sorts LAST in the tier list — the
+  // owner's fixed data order — and folds its 20 lessons into 5 volume faces.
+  await page.click(".pg-tier-list button:nth-last-child(1)");
   await wait(400);
-  const cardCount = await page.$$eval(".practice-topic-card", (cards) => cards.length);
-  check(cardCount === 20, `20 topic cards render in the Linux area (${cardCount})`);
+  const faceCount = await page.$$eval(".pg-face-head", (faces) => faces.length);
+  check(faceCount === 5, `the thinking tier folds into 5 volume faces (${faceCount})`);
+  const tierCount = await page.$eval(".pg-tier-row:nth-last-child(1) .pg-tier-count", (el) => el.textContent.trim());
+  check(tierCount === "20 lessons", `thinking tier counts its 20 lessons (${tierCount})`);
+  await page.click(".pg-face-head");
+  await wait(400);
+  const cardCount = await page.$$eval(".pg-card", (cards) => cards.length);
+  check(cardCount === 4, `vol 01 renders its 4 lessons (${cardCount})`);
 
-  await page.click(".practice-topic-card .practice-lesson-open");
+  await page.click(".pg-card .pg-pill");
   check(await appears(".practice-reader"), "deep reader opens for lesson 01");
   check(await appears(".practice-lesson-progress span"), "progress hairline mounts");
 
@@ -217,7 +221,7 @@ try {
 
   // --- desktop: free reading (note-style sections) ----------------------------
 
-  const freeCards = await page.$$(".practice-topic-card .practice-lesson-open");
+  const freeCards = await page.$$(".pg-card .pg-pill");
   await freeCards[0].click();
   check(await appears(".practice-reader"), "reader reopens for the free-reading leg");
   check(await appears(".fr-controls"), "free reading controls render in the bar");
@@ -336,8 +340,15 @@ try {
 
   // card 6 (linux-users-groups) is the first remaining fragment card — Linux
   // cards 1-5 are deep lessons since the long-form md course landed.
-  const cards = await page.$$(".practice-topic-card .practice-lesson-open");
-  await cards[5].click();
+  // vol 01 holds the four deep lessons; the first fragment (linux-users-groups)
+  // lives at index 1 of vol 02 — exit, enter vol 02, open its second card.
+  await page.click(".pg-crumb-back");
+  await wait(300);
+  const facesAfter = await page.$$(".pg-face-head");
+  await facesAfter[1].click();
+  await wait(400);
+  const cards = await page.$$(".pg-card .pg-pill");
+  await cards[1].click();
   check(await appears(".practice-lesson-tabs"), "fragment lesson still uses tabs");
   check((await page.$(".practice-reader")) === null, "fragment lesson renders no reader");
   await page.keyboard.press("Escape");
@@ -347,11 +358,12 @@ try {
 
   // curriculum[0] is the Go area: one flagship card whose deep lesson carries
   // the full 19-section course.
-  await page.click(".practice-area-list button:nth-child(1)");
+  // The Go flagship lives in the fable-5.1-low tier (4th row of TIERS data order).
+  await page.click(".pg-tier-list button:nth-child(4)");
   await wait(400);
-  const goCardCount = await page.$$eval(".practice-topic-card", (cards) => cards.length);
+  const goCardCount = await page.$$eval(".pg-card", (cards) => cards.length);
   check(goCardCount === 1, `Go area renders its single flagship card (${goCardCount})`);
-  await page.click(".practice-topic-card .practice-lesson-open");
+  await page.click(".pg-card .pg-pill");
   check(await appears(".practice-reader"), "Go deep reader opens");
   const goOverlayCovers = await page.evaluate(() => {
     const r = document.querySelector(".practice-lesson-overlay").getBoundingClientRect();
@@ -367,7 +379,7 @@ try {
   check((await page.$(".practice-lesson-overlay")) === null, "Escape closes the Go lesson");
 
   // Back to the Linux area (last in the nav) for the concept-graph leg.
-  await page.click(".practice-area-list button:nth-last-child(1)");
+  await page.click(".pg-tier-list button:nth-last-child(1)");
   await wait(400);
 
   // --- desktop: concept graph ------------------------------------------------
@@ -473,8 +485,14 @@ try {
 
   // domcontentloaded returns before React mounts — wait for the map first
   // (networkidle0 used to buy this implicitly).
-  check(await appears(".practice-topic-card"), "map renders at 390px");
-  await page.tap(".practice-topic-card .practice-lesson-open");
+  check(await appears(".pg-card"), "map renders at 390px");
+  // The pinned-close / copy-button laws were tuned on the Linux deep reader:
+  // reach it the way the tier design does — thinking tier (last row), vol 01.
+  await page.tap(".pg-tier-list button:nth-last-child(1)");
+  await wait(400);
+  await page.tap(".pg-face-head");
+  await wait(400);
+  await page.tap(".pg-card .pg-pill");
   check(await appears(".practice-reader"), "deep reader opens on mobile");
 
   const fitsMobile = await page.evaluate(() => {
@@ -633,8 +651,12 @@ try {
   );
   check(noOverflowNarrow, "no horizontal overflow on the map at 320px");
 
-  check(await appears(".practice-topic-card"), "map renders at 320px");
-  await page.tap(".practice-topic-card .practice-lesson-open");
+  check(await appears(".pg-card"), "map renders at 320px");
+  await page.tap(".pg-tier-list button:nth-last-child(1)");
+  await wait(400);
+  await page.tap(".pg-face-head");
+  await wait(400);
+  await page.tap(".pg-card .pg-pill");
   check(await appears(".practice-reader"), "deep reader opens at 320px");
 
   const fitsNarrow = await page.evaluate(() => {
@@ -690,7 +712,7 @@ try {
 
   // --- narrow phone: free reading stays inside the panel ---------------------
 
-  await page.tap(".practice-topic-card .practice-lesson-open");
+  await page.tap(".pg-card .pg-pill");
   check(await appears(".practice-reader"), "reader opens at 320px for the free-reading leg");
   await page.tap(".fr-controls button");
   check(await appears(".fr .fr-area"), "free reading mounts at 320px");
