@@ -411,3 +411,34 @@ mobile top 390).
 - Visual inspection: eight shots read. The page reads as ONE continuous ruled archive: the register, the model index and the cards share the opening-rule + hairline-separator recipe, content flush to the field; active row reads lit without ochre; cards discrete via rule + hierarchy, not walls; flash distinguishable by the ochre rule color; volume/crumb views unaffected (out of scope); the register's fresh entries read as logged outputs (the false rebase claim sits unjudged next to the generator idiom — the premise at work)
 - Code verification: `tsc --noEmit` clean; `practice-map.check.mjs` green except the pre-existing "ArrowRight advances sections" failure; headless probe: docΔ=0 everywhere, 4 fresh entries, ratio 0.40 desktop / 0.46 mobile (known disclosed proportion)
 - Open question: owner verdict on the ruled-record unification (F033) + the fresh register copy (F031); the family recipe (group top rule + member separators, no radius/fill/walls) is deliberately extendable — folders (F022) and Go Back (F023) are the natural next adopters if the owner re-opens them
+
+## Feedback F034
+- Round: none (owner batch, 2026-09-20, post-R015 review)
+- Verdict: REJECTED (removal)
+- Scope: the accession register block — caption + all four specimen entries (`.hero-log`, `.hero-ledger`, `.rec*`)
+- Decision: remove the text whatsoever; add enough breathing space instead so the hero section is prominent enough on its own
+- User source: «"accession register — outputs preserved as received / 01 … 04 …" let's remove this text whatsoever. add enough breathing space instead of it so that hero section would be prominent enough.»
+
+## Feedback F035
+- Round: none (owner batch, 2026-09-20, post-R015 review)
+- Verdict: REJECTED (tap-highlight bug)
+- Scope: model rows + lesson cards — tap/click highlight geometry
+- Decision: the highlight reads buggy — records have no left/right walls, yet the focus outline draws a full rectangle and text/figures touch the container edges; keep the highlighting but inset the content so text/figures never touch the edge of the container
+- User source: «clicking model/lesson is not working great because it highlights corners of them. but they don't have cornes in their leeft and right side. it looks buggy because of that. … maybe we should keep the highlighting but maake it so that the text/figures dont touch the edge of the container»
+
+## Feedback F036
+- Round: none (owner batch, 2026-09-20, post-R013 review)
+- Verdict: REJECTED (mobile search size)
+- Scope: search bar (`.pg-search`) — mobile width
+- Decision: ~25% smaller on mobile, with enough breathing room from both sides
+- User source: «search bar should be smaller around 25% on mobile and with enough breathing room from both sides.»
+
+## Round R016
+- Goal: direct leg of the post-R015 batch — F034 (register text removed, hero breathing) + F035 (highlight inset fix) + F036 (mobile search sizing) — orchestrator-direct: deletion + geometry arithmetic; no design exploration to delegate
+- Preserved preferences: F019/F025 masthead scale, the ruled-record family recipe, lit-record active device, register laws, pill controls at 999px, class names + click targets (check-driven)
+- Changes: `PracticeMapPage.tsx` — the whole `.hero-log` block (caption + ol + four entries) deleted; `practice-map.css` — every register rule deleted (`.hero-log`, `.hero-log-cap` + .k/.c, `.hero-ledger`, `.rec`, `.rec-no`, `.rec-out`); hero becomes the masthead alone — `padding: clamp(0.5rem,1.5vw,1.1rem) 0 clamp(3rem,7vw,5.5rem)` (single grid child; dead gap removed), ≤900 padding 0.5rem 0 2.5rem, ≤560 0.4rem 0 2rem. `tiers.css` — rows and cards get content insets: rows `padding: .85rem 1rem` (≤700: `.75rem .85rem`, min-height 44 kept), cards `padding: 1.6rem` (≤700 1.15rem, ≤560 1rem) — text/figures inset from the open sides, the full-width wash now breathes around content; keyboard focus swaps the four-sided outline for the family device (record's own separator turns ochre, outline none; `.pg-tier-row` dropped from the shared outline selector); tier-head + crumb bottom hairlines dropped — each ruled group now carries ONE opening rule (the unification completion the relay disclosed); search bar ≤700: `width:100%; max-width:75%; margin-inline:auto` (definite width keeps the flex row filling — the auto-margin fit-content trap measured 58.7% before the fix)
+- Before: artifacts/R015 lineage (ruled records with flush text + outlined focus)
+- After: artifacts/R016/ (same eight views) + probes/pm-r016-fix shots (list-focus-1440, search-390, local)
+- Visual inspection: ten shots read. Hero = the verdict alone over generous field — prominent, quiet, no dead weight beneath; the layout opens with clear rhythm. Tap highlights: wash spans full width, text sits 16px/25.6px inside — no phantom corners; keyboard focus = the ochre separator (computed rgb(211,155,97), outline none); mobile bar measured 269px = exactly 75% of the 358px section, centered, ~45px field each side
+- Code verification: `tsc --noEmit` clean; `practice-map.check.mjs` green except the pre-existing "ArrowRight advances sections" failure; headless probe: docΔ=0 everywhere, register count 0, insets verified, search share verified against the section
+- Open question: owner verdict on the breathing hero (F034), the inset highlight (F035), and the mobile search sizing (F036); folders (F022) and Go Back (F023) remain parked pending owner steer

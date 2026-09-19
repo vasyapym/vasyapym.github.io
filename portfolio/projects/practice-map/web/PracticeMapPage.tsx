@@ -168,32 +168,6 @@ export default function PracticeMapPage() {
             <span className="hero-title">archive of ai outputs.</span>
             <span className="hero-sub">not all of these are good.</span>
           </h1>
-          {/* accession register: sample outputs preserved verbatim, no verdict.
-              decorative evidence for the h1 — not announced; the h1 carries the
-              meaning. nothing is discarded, so no row differs from another. */}
-          <div className="hero-log" aria-hidden="true">
-            <p className="hero-log-cap">
-              accession register — outputs preserved as received
-            </p>
-            <ol className="hero-ledger">
-              <li className="rec">
-                <span className="rec-no">01</span>
-                <span className="rec-out">try wrapping that fetch in a try/catch…</span>
-              </li>
-              <li className="rec">
-                <span className="rec-no">02</span>
-                <span className="rec-out">git rebase deletes your commits for good…</span>
-              </li>
-              <li className="rec">
-                <span className="rec-no">03</span>
-                <span className="rec-out">for i, row in enumerate(rows): yield…</span>
-              </li>
-              <li className="rec">
-                <span className="rec-no">04</span>
-                <span className="rec-out">as an ai model i can't advise on that…</span>
-              </li>
-            </ol>
-          </div>
         </header>
 
         <div className="pg-layout">

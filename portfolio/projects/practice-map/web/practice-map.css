@@ -45,15 +45,12 @@
   letter-spacing: 0.04em;
   text-transform: lowercase;
 }
-/* Hero = an archival accession register: a plain serif masthead over a
-   hairline-ruled ledger of preserved specimens. Sits on the field — NO panel
-   skin. No ochre, no entrance, no weight games: the theatrics are off; the
-   size statement (line 1) survives, the subtext recedes to ~40%. Nothing in
-   the ledger is discarded, so no row differs from another. */
+/* Hero = the masthead alone on the field. The accession register was
+   removed by owner decision; the prominence comes from the type scale and
+   the breathing space beneath the verdict. No panel skin, no ochre, no
+   entrance, no weight games. */
 .practice-map-hero {
-  display: grid;
-  gap: clamp(1.4rem, 3vw, 2.4rem);
-  padding: clamp(0.5rem, 1.5vw, 1.1rem) 0 clamp(0.75rem, 1.8vw, 1.35rem);
+  padding: clamp(0.5rem, 1.5vw, 1.1rem) 0 clamp(3rem, 7vw, 5.5rem);
 }
 
 /* --- the masthead: one face, set plainly --- */
@@ -80,57 +77,6 @@
      a small rem floor keeps it legible where the title bottoms out at 320 */
   font-size: max(0.68rem, 0.4em);
   color: var(--ink-text);
-}
-
-/* --- the register (decorative evidence, non-interactive) --- */
-.practice-map-hero .hero-log {
-  pointer-events: none;
-  display: grid;
-  gap: clamp(0.6rem, 1.2vw, 0.9rem);
-}
-
-.practice-map-hero .hero-log-cap {
-  margin: 0;
-  font-family: var(--mono);
-  font-size: clamp(0.64rem, 1.1vw, 0.74rem);
-  letter-spacing: 0.16em; /* tracked mono eyebrow */
-  text-transform: lowercase;
-  color: var(--ink-muted);
-}
-
-.practice-map-hero .hero-ledger {
-  list-style: none;
-  margin: 0;
-  padding: 0;
-  /* the one structural rule that must survive 6% soft-light grain */
-  border-top: 1px solid var(--ink-line);
-  font-family: var(--mono);
-}
-
-.practice-map-hero .rec {
-  display: grid;
-  grid-template-columns: auto minmax(0, 1fr); /* accession | specimen */
-  align-items: baseline;
-  column-gap: clamp(0.75rem, 1.8vw, 1.5rem);
-  padding: clamp(0.6rem, 1.3vw, 0.95rem) 0;
-  border-bottom: 1px solid var(--ink-line-soft);
-  font-size: clamp(0.78rem, 1.05vw, 0.95rem);
-  line-height: 1.25;
-}
-
-.practice-map-hero .rec-no {
-  font-size: 0.82em;
-  letter-spacing: 0.08em;
-  font-variant-numeric: tabular-nums;
-  color: var(--ink-faint); /* uniform accession no. — no per-row difference */
-}
-
-.practice-map-hero .rec-out {
-  min-width: 0;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  white-space: nowrap; /* clipped specimen — the fragment, logged as-is */
-  color: var(--ink-muted); /* every specimen identical: nothing is discarded */
 }
 
 .practice-route {
@@ -1145,10 +1091,9 @@
 }
 
 @media (max-width: 900px) {
-  /* record-sheet on the field: real vertical presence without a panel */
+  /* masthead on the field: real vertical presence without a panel */
   .practice-map-hero {
-    gap: 1.3rem;
-    padding: 0.5rem 0 1rem;
+    padding: 0.5rem 0 2.5rem;
   }
   .practice-map-hero h1 {
     font-size: clamp(1.9rem, 8vw, 2.9rem);
@@ -1178,8 +1123,7 @@
   }
 
   .practice-map-hero {
-    gap: 1.05rem;
-    padding: 0.4rem 0 0.85rem;
+    padding: 0.4rem 0 2rem;
   }
   .practice-map-hero h1 {
     font-size: clamp(1.4rem, 7.2vw, 2.2rem);
