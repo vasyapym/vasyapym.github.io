@@ -252,6 +252,16 @@ export default function ExplosionLunaPage() {
       <div className="explosion-room">
         {renderStage()}
 
+        {active ? (
+          <ul className="explosion-techniques" aria-label="Techniques inside">
+            {techniques.map((t) => (
+              <li key={t} className="explosion-technique">
+                {t}
+              </li>
+            ))}
+          </ul>
+        ) : null}
+
         {view.kind === "mode" ? (
           <>
             <div className="explosion-controls">
@@ -288,16 +298,6 @@ export default function ExplosionLunaPage() {
           </>
         ) : null}
       </div>
-
-      {active ? (
-        <ul className="explosion-techniques" aria-label="Techniques inside">
-          {techniques.map((t) => (
-            <li key={t} className="explosion-technique">
-              {t}
-            </li>
-          ))}
-        </ul>
-      ) : null}
     </div>
   );
 }
