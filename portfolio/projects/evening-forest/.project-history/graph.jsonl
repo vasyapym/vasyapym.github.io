@@ -70,3 +70,5 @@
 {"type":"edge.added","id":"e29","ts":"2026-09-18T07:14:35.117Z","from":"n38","to":"n39","rel":"continues"}
 {"type":"node.added","id":"n40","ts":"2026-09-19T11:45:48.621Z","kind":"decision","actor":"user","title":"intro lede removed on owner verdict — title-only header","summary":"owner asked to delete 'An 8-bit woodland at dusk. Walk, look, listen — you may not be alone.'; lede paragraph + its css rule removed, header keeps just the h1","artifacts":[{"kind":"git-commit","ref":"fbd50b5"}]}
 {"type":"edge.added","id":"e30","ts":"2026-09-19T11:45:48.751Z","from":"n39","to":"n40","rel":"continues"}
+{"type":"node.added","id":"n41","ts":"2026-09-19T11:53:30.927Z","kind":"decision","actor":"user","title":"intro header removed entirely on owner verdict — stage starts at the top","summary":"the h1 'Evening Forest' header band took vertical space for nothing; whole header element + intro/title css rules deleted, 100dvh-61px fallback math untouched (61px is the shell nav)","artifacts":[{"kind":"git-commit","ref":"69ad3e9"}]}
+{"type":"edge.added","id":"e31","ts":"2026-09-19T11:53:30.931Z","from":"n40","to":"n41","rel":"continues"}
