@@ -96,3 +96,28 @@ mobile top 390).
 - Visual inspection: card shot at 1440 read. Matrix reads clean at card scale: 8 columns × 4 tier rows hold, filled/pending cells legible, single blue frontier cell + dashed next-slot is the one accent moment, halo glow sits on the lit cell without collisions; no cramping at the right edge. Card copy still says the old metaphors (eyebrow "07 · map", note "Practice route", motionLabel "the route unfolds") — intentionally untouched, tied to the open rename (F001).
 - Code verification: `tsc --noEmit` + `vite build` in portfolio/shell — clean; card rendered headlessly with no console/page errors
 - Open question: owner verdict — (a) keep the matrix card as-is, (b) tune density/marks, and the name decision (still blocking card copy + page rename)
+
+## Feedback F006
+- Round: R004
+- Verdict: LIKED + adjust
+- Scope: the matrix card mark — size
+- Decision: keep the occupancy-matrix mark but make it smaller, around 15%
+- User source: «i like it. make it smaller, around 15%»
+
+## Feedback F007
+- Round: R004
+- Verdict: DECIDED
+- Scope: product name (F001 resolved)
+- Decision: rename the product to "Waste of tokens" — card copy and module metadata follow through now
+- User source: «rename to 'Waste of tokens'»
+- Supersedes: F001
+
+## Round R005
+- Goal: R004 follow-through — mark −15% and the "Waste of tokens" rename on every visible surface
+- Preserved preferences: F005 (hero band rework stays a separate round), F006 (mark smaller), F007 (new name)
+- Changes: `styles.css` — scoped caps `.project-artwork-center.center-matrix` max-width 221px desktop (260 → 221 = −15%; the percentage route was dead because the 260px cap binds first) and 204px mobile (240 cap); `project.ts` — title "Waste of tokens", tag "tokens", eyebrow "an archive of ai outputs, a lesson space, an open playground", description rewritten to the real scope, centerLabel "W / T", note "Occupancy ledger", motionLabel "the wall fills up", instruction re-worded to the wall metaphor; `progress.ts` review-notes export header "Waste of tokens / review notes"
+- Before: artifacts/R004/after-card-1440.png (260px mark, "Practice Map")
+- After: artifacts/R005/ (after-card-1440.png = 221px mark + new copy; after-card-390.png mobile)
+- Visual inspection: both shots read. Desktop card: mark smaller and airier over the copy block, title "Waste of tokens" sets cleanly; mobile: 204px mark inside the 150px stage, title fits, description clamps by the existing line clamp. Card index now reads "08 · tokens" (list position shifted since R004 — positional, not ours).
+- Code verification: `tsc --noEmit` + `vite build` clean; headless svg width measured 221px desktop / 204px mobile; no console/page errors
+- Open question: hero band copy/energy rework (F002 + F005) — next round; owner hasn't briefed the new hero copy yet

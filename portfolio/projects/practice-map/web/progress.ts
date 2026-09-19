@@ -189,7 +189,7 @@ export function formatFeedback(
   state: PracticeState,
   labels: Readonly<Record<FeedbackKind, string>>,
 ): string {
-  const lines = ["Practice Map / review notes", ""];
+  const lines = ["Waste of tokens / review notes", ""];
   let feedbackCount = 0;
 
   for (const area of areas) {

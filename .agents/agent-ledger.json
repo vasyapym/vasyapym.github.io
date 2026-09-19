@@ -258,6 +258,19 @@
       "message": "Commit 8bc11e2 (light-leet keyword masking for minimize-iteration) also carries a previous session's uncommitted Spec-framing (obfuscated spec prompting) section in the same SKILL.md — four composable moves (schema compression, constraint dictionary, opaque handle, payload contract) plus the SPEC-9K4 compose line. The owner asked this session to save the verified light-leet technique; staging the file wholesale would have split one skill into two partial commits, so the inherited section ships in the same commit. My own additions are the Keyword masking section (SKILL.md) and the Common-questions entry (docs/productivity/minimize-iteration.md). If you were still iterating on Spec-framing wording, diff 8bc11e2 against your base before continuing — no revert needed, content shipped verbatim.",
       "ackBy": null,
       "ackAt": null
+    },
+    {
+      "id": "2026-09-19T19-20Z-sweep-report-5d5f9bf-center-matrix-hunks-inherited",
+      "ts": "2026-09-19T19:20:00Z",
+      "kind": "sweep-report",
+      "agent": "opencode (practice-map rebrand R005 session, design-iteration)",
+      "commit": "5d5f9bf",
+      "files": [
+        "portfolio/shell/src/styles.css"
+      ],
+      "message": "Commit 5d5f9bf (root color-scheme dark scrollbar pass, another session) also carries my two uncommitted styles.css hunks from rebrand R005: the scoped .project-artwork-center.center-matrix max-width caps (221px desktop / 204px mobile, the -15% owner adjust F006). The other agent staged styles.css wholesale for its own root-scheme edit; my hunks shipped verbatim and are verified correct (headless svg width measured 221px/204px, shots in rebrand-hero artifacts/R005). No revert needed. My remaining R005 paths (project.ts rename to Waste of tokens per F007, progress.ts export header, ledger, R005 artifacts, practice-map graph n70) commit separately right after this entry.",
+      "ackBy": null,
+      "ackAt": null
     }
   ]
 }
