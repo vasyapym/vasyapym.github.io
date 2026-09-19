@@ -45,30 +45,26 @@
   letter-spacing: 0.04em;
   text-transform: lowercase;
 }
-
-/* Hero = an archivist's record: verdict (h1) over a hairline-ruled log of
-   sample model outputs — two kept (ochre pip), two cut (struck). Keeps the
-   old copy-card skin (flat scrim, hairline, ochre-deep left rule, radius). */
+/* Hero = an archival record sheet: an oversized verdict masthead over a
+   hairline-ruled disposition ledger of sample outputs (two kept, two cut).
+   Sits directly on the field — NO panel skin (no scrim / border / radius /
+   left rule) — so it reads as a record, not "the biggest card". Ochre is
+   spent only on the verdict line and the "kept" dispositions. */
 .practice-map-hero {
   display: grid;
-  gap: clamp(0.85rem, 1.7vw, 1.25rem);
-  padding: clamp(1.15rem, 2.2vw, 1.75rem) clamp(1.15rem, 2.2vw, 1.75rem)
-    clamp(1.3rem, 2.4vw, 1.9rem);
-  background: rgba(9, 15, 18, 0.62);
-  border: 1px solid var(--ink-line-soft);
-  border-left: 2px solid var(--ink-accent-deep);
-  border-radius: var(--panel-radius);
-  overflow: hidden; /* guards the radius + backstops strata truncation */
+  gap: clamp(1.4rem, 3vw, 2.4rem);
+  padding: clamp(0.5rem, 1.5vw, 1.1rem) 0 clamp(0.75rem, 1.8vw, 1.35rem);
 }
 
+/* --- the verdict masthead --- */
 .practice-map-hero h1 {
   margin: 0;
-  display: flex;
-  flex-direction: column;
+  display: grid; /* two stacked line-masks */
   font-family: var(--display);
-  /* divisor 26: the 22-char line + full-width run needs slow growth to reach
-     the 3.2rem cap near 1440 without breaking the band */
-  font-size: clamp(1.15rem, calc((100vw - 72px) / 26), 3.2rem);
+  /* slow-growth clamp continuous with the landing headline; divisor ~19
+     grows like it and caps a touch past it (3.9 vs 3.68) — this project's
+     one sanctioned bold moment */
+  font-size: clamp(1.5rem, calc((100vw - 72px) / 19), 3.9rem);
   font-weight: 600;
   letter-spacing: -0.02em;
   line-height: 0.98;
@@ -76,23 +72,34 @@
   color: var(--ink-text);
 }
 
-.practice-map-hero h1 span {
+.practice-map-hero .hero-line {
   display: block;
+  overflow: hidden; /* line mask for the rise */
+  padding-bottom: 0.1em; /* descender room inside the mask (p, g, y) */
+  margin-bottom: -0.1em; /* net-zero: no added gap between lines */
+}
+.practice-map-hero .hero-line-in {
+  display: block;
+}
+/* the single ochre emphasis — the landing hero's weight-700 ochre law,
+   applied to the whole verdict line */
+.practice-map-hero .hero-verdict {
   color: var(--ink-accent-bright);
+  font-weight: 700;
 }
 
-/* the log — decorative evidence, non-interactive */
+/* --- the ledger (decorative evidence, non-interactive) --- */
 .practice-map-hero .hero-log {
   pointer-events: none;
-  border-top: 1px solid var(--ink-line-soft);
-  padding-top: clamp(0.7rem, 1.4vw, 1rem);
+  display: grid;
+  gap: clamp(0.6rem, 1.2vw, 0.9rem);
 }
 
 .practice-map-hero .hero-log-cap {
-  margin: 0 0 0.55rem;
+  margin: 0;
   font-family: var(--mono);
-  font-size: clamp(0.62rem, 1.3vw, 0.72rem);
-  letter-spacing: 0.03em;
+  font-size: clamp(0.64rem, 1.1vw, 0.74rem);
+  letter-spacing: 0.16em; /* tracked mono eyebrow / column legend */
   text-transform: lowercase;
   color: var(--ink-muted);
 }
@@ -105,66 +112,111 @@
   text-decoration-color: var(--ink-accent-deep);
 }
 
-.practice-map-hero .hero-strata {
+.practice-map-hero .hero-ledger {
   list-style: none;
   margin: 0;
   padding: 0;
-  display: grid;
-  gap: 0.4rem;
-  max-width: 52ch;
+  /* stronger than -soft: this is the one structural rule that must survive
+     6% soft-light grain */
+  border-top: 1px solid var(--ink-line);
   font-family: var(--mono);
-  font-size: clamp(0.66rem, 1.3vw, 0.82rem);
-  line-height: 1.3;
+}
+
+.practice-map-hero .rec {
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr) auto; /* accession | specimen | disposition */
+  align-items: baseline;
+  column-gap: clamp(0.75rem, 1.8vw, 1.5rem);
+  padding: clamp(0.6rem, 1.3vw, 0.95rem) 0;
+  border-bottom: 1px solid var(--ink-line-soft);
+  font-size: clamp(0.78rem, 1.05vw, 0.95rem); /* promoted out of a whisper */
+  line-height: 1.25;
+}
+
+.practice-map-hero .rec-no {
+  font-size: 0.82em;
+  letter-spacing: 0.08em;
+  font-variant-numeric: tabular-nums;
   color: var(--ink-faint);
 }
 
-.practice-map-hero .hero-strata li {
-  display: flex;
-  align-items: baseline;
-  gap: 0.55rem;
-  min-width: 0;
-}
-.practice-map-hero .hero-strata li span {
+.practice-map-hero .rec-out {
   min-width: 0;
   overflow: hidden;
-  text-overflow: ellipsis; /* clipped output — truncation is the concept */
+  text-overflow: ellipsis;
+  white-space: nowrap; /* clipped specimen — truncation is the concept */
+  color: var(--ink-muted);
+}
+
+.practice-map-hero .rec-disp {
+  justify-self: end;
+  text-align: right;
   white-space: nowrap;
+  letter-spacing: 0.14em;
+  color: var(--ink-accent); /* kept disposition */
 }
-.practice-map-hero .hero-strata li::before {
+
+/* kept: ochre disposition + ochre lead pip + ochre-deep record no. */
+.practice-map-hero .rec.keep .rec-no {
+  color: var(--ink-accent-deep);
+}
+.practice-map-hero .rec.keep .rec-disp::before {
   content: "";
-  flex: none;
-  width: 0.62rem;
-  height: 2px;
-  transform: translateY(-0.18em);
-  background: var(--ink-accent); /* kept */
+  display: inline-block;
+  width: 0.42rem;
+  height: 0.42rem;
+  margin-right: 0.5rem;
+  transform: translateY(-0.02em);
+  background: var(--ink-accent);
 }
-.practice-map-hero .hero-strata .cut {
-  color: var(--ink-line);
+
+/* cut: struck-faint specimen + struck-faint disposition (multi-channel,
+   grain-robust: word + strike + colour, no reliance on a hairline pip) */
+.practice-map-hero .rec.cut .rec-out {
+  color: var(--ink-faint);
   text-decoration: line-through;
   text-decoration-color: var(--ink-accent-deep);
 }
-.practice-map-hero .hero-strata .cut::before {
-  background: var(--ink-line);
+.practice-map-hero .rec.cut .rec-disp {
+  color: var(--ink-faint);
+  text-decoration: line-through;
+  text-decoration-color: var(--ink-accent-deep);
 }
 
-/* quiet one-shot: outputs log in on entry; final state stands without it */
+/* --- quiet, gated, non-load-bearing entrance --- */
 @media (prefers-reduced-motion: no-preference) {
-  .practice-map-hero .hero-strata li {
-    animation: hero-log-in 0.5s ease both;
+  /* masked line-rise, borrowed from the landing hero */
+  .practice-map-hero .hero-line-in {
+    transform: translateY(110%);
+    animation: hero-line-rise 0.7s cubic-bezier(0.22, 1, 0.36, 1) both;
   }
-  .practice-map-hero .hero-strata li:nth-child(2) {
-    animation-delay: 0.07s;
+  .practice-map-hero .hero-line:nth-child(2) .hero-line-in {
+    animation-delay: 0.12s;
   }
-  .practice-map-hero .hero-strata li:nth-child(3) {
-    animation-delay: 0.14s;
+  @keyframes hero-line-rise {
+    to {
+      transform: translateY(0);
+    }
   }
-  .practice-map-hero .hero-strata li:nth-child(4) {
-    animation-delay: 0.21s;
+
+  /* ledger rows log in after the masthead settles */
+  .practice-map-hero .rec {
+    animation: hero-rec-in 0.5s ease both;
+    animation-delay: 0.24s;
   }
-  @keyframes hero-log-in {
+  .practice-map-hero .rec:nth-child(2) {
+    animation-delay: 0.31s;
+  }
+  .practice-map-hero .rec:nth-child(3) {
+    animation-delay: 0.38s;
+  }
+  .practice-map-hero .rec:nth-child(4) {
+    animation-delay: 0.45s;
+  }
+  @keyframes hero-rec-in {
     from {
       opacity: 0;
-      transform: translateY(4px);
+      transform: translateY(5px);
     }
   }
 }
@@ -1235,14 +1287,14 @@
 }
 
 @media (max-width: 900px) {
-  /* liked mobile presence: bigger type + real vertical padding (R006) */
+  /* record-sheet on the field: real vertical presence without a panel */
   .practice-map-hero {
-    padding: 1.7rem 1.4rem 1.9rem;
-    gap: 1.05rem;
+    gap: 1.3rem;
+    padding: 0.5rem 0 1rem;
   }
   .practice-map-hero h1 {
-    font-size: clamp(1.7rem, 8vw, 2.7rem);
-    line-height: 1.02;
+    font-size: clamp(1.9rem, 8vw, 2.9rem);
+    line-height: 1;
   }
 }
 
@@ -1264,11 +1316,20 @@
   }
 
   .practice-map-hero {
-    padding: 1.45rem 1.1rem 1.55rem;
-    gap: 0.85rem;
+    gap: 1.05rem;
+    padding: 0.4rem 0 0.85rem;
   }
   .practice-map-hero h1 {
-    font-size: clamp(1.45rem, 7.4vw, 2.15rem);
+    font-size: clamp(1.4rem, 7.2vw, 2.2rem);
+  }
+  /* drop the accession gutter; keep specimen + disposition so kept/cut
+     never loses its column */
+  .practice-map-hero .rec {
+    grid-template-columns: minmax(0, 1fr) auto;
+    column-gap: 0.8rem;
+  }
+  .practice-map-hero .rec-no {
+    display: none;
   }
 
   .practice-area-list {

@@ -182,28 +182,44 @@ export default function PracticeMapPage() {
 
         <header className="practice-map-hero">
           <h1 id="practice-map-title">
-            archive of ai outputs.
-            <span>not all of these are good.</span>
+            <span className="hero-line">
+              <span className="hero-line-in">archive of ai outputs.</span>
+            </span>
+            <span className="hero-line">
+              <span className="hero-line-in hero-verdict">
+                not all of these are good.
+              </span>
+            </span>
           </h1>
           {/* review-log: sample outputs, kept vs cut — decorative evidence for
-              the verdict above; not announced, the h1 carries the meaning */}
+              the verdict above; not announced, the h1 carries the meaning.
+              per-row kept/cut are the visual application of the fixed caption
+              legend, inside this aria-hidden region (announced text unchanged) */}
           <div className="hero-log" aria-hidden="true">
             <p className="hero-log-cap">
               from the archive — <span className="k">kept</span> /{" "}
               <span className="c">cut</span>
             </p>
-            <ol className="hero-strata">
-              <li className="keep">
-                <span>sure — here are ten ways to refactor this…</span>
+            <ol className="hero-ledger">
+              <li className="rec keep">
+                <span className="rec-no">01</span>
+                <span className="rec-out">sure — here are ten ways to refactor this…</span>
+                <span className="rec-disp">kept</span>
               </li>
-              <li className="cut">
-                <span>the capital of australia is sydney</span>
+              <li className="rec cut">
+                <span className="rec-no">02</span>
+                <span className="rec-out">the capital of australia is sydney</span>
+                <span className="rec-disp">cut</span>
               </li>
-              <li className="keep">
-                <span>def solve(n): return dp[n] if n in dp else…</span>
+              <li className="rec keep">
+                <span className="rec-no">03</span>
+                <span className="rec-out">def solve(n): return dp[n] if n in dp else…</span>
+                <span className="rec-disp">kept</span>
               </li>
-              <li className="cut">
-                <span>as an ai language model, i cannot help with…</span>
+              <li className="rec cut">
+                <span className="rec-no">04</span>
+                <span className="rec-out">as an ai language model, i cannot help with…</span>
+                <span className="rec-disp">cut</span>
               </li>
             </ol>
           </div>

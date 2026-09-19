@@ -250,3 +250,57 @@ mobile top 390).
 - Visual inspection: six shots read. Left column visibly narrower at 1440/1024, cards and folder groups airier (18.4/22.4px desktop, 15.2/17.6px ≤700), hierarchy faces>cards preserved; at 1024 the single clipped row ellipsizes cleanly ("opus-4.8-thinki…"), samples keep their existing clamp; no cramped or floating band anywhere.
 - Code verification: `tsc --noEmit` clean; `practice-map.check.mjs` green except the pre-existing "ArrowRight advances sections" failure; headless probe across 1440/1024/700/560/390/320: no horizontal overflow, zero wrapped name rows, name clipping only at 1024 (1 row, by design), list column 339/267/628/528/358/288px, faces gap 22.4px with 13.4px tab clearance
 - Open question: owner verdict on the whole batch (R007a hero concept, R008 quality pass, R010 rhythm); the original six-item task list is now fully worked
+
+## Feedback F019
+- Round: none (owner batch, 2026-09-20)
+- Verdict: REJECTED (execution only)
+- Scope: hero section — typography, layout, visual treatment; all viewports
+- Decision: the hero remains generic despite R007a; the underlying sentiment (verdict + kept/cut review-log) is right — the copy block tone is confirmed — but the execution needs a full re-imagination; typography, layout, and visual treatment all open
+- User source: task item 1: «The hero section remains generic despite recent iterations. The underlying sentiment is right, but the concept needs a rethink. The current copy block — [caption + 4 strata lines quoted verbatim] — captures the right tone, but let's reimagine the execution entirely. Typography, layout, and visual treatment should all be on the table.»
+- Supersedes: none (refines F010: concept survived, execution reopens)
+
+## Feedback F020
+- Round: none (owner batch, 2026-09-20)
+- Verdict: REJECTED (rationale level)
+- Scope: model list, left panel — design rationale, not mechanics
+- Decision: the list is solid and the selected-model state improved, but it lacks the deliberateness of a senior-level design — a unifying rationale connecting it to the broader system is missing
+- User source: task item 2: «The model list is solid. The selected-model state has improved, but it still lacks the deliberateness expected at a senior design level. It feels professionally executed — yet absent of a unifying design rationale connecting it to the broader system.»
+
+## Feedback F021
+- Round: none (owner batch, 2026-09-20)
+- Verdict: REJECTED (spacing)
+- Scope: mobile — vertical spacing between model list and search bar, and between search bar and lesson cards / folders
+- Decision: increase both zones by approximately 20%
+- User source: task item 3: «On mobile, increase vertical spacing in two areas: between the model list and the search bar; between the search bar and the lesson cards / folders. Target approximately a 20% increase in both zones.»
+
+## Feedback F022
+- Round: none (owner batch, 2026-09-20)
+- Verdict: REJECTED (design level)
+- Scope: folder design & spacing (`.pg-face` groups)
+- Decision: increase spacing between folders; current design reads as templated — subtle refinements in shape, shadow, or typographic hierarchy would add distinction without overcomplicating
+- User source: task item 4: «Increase spacing between folders. The current design is functional but reads as templated — subtle refinements in shape, shadow, or typographic hierarchy would add distinction without overcomplicating things.»
+
+## Feedback F023
+- Round: none (owner batch, 2026-09-20)
+- Verdict: REJECTED
+- Scope: "Go Back" button (`.pg-crumb-back`)
+- Decision: underdesigned relative to the rest of the interface; needs a treatment reflecting the same craft and intentionality found elsewhere (supersedes the R008 resting treatment; F015's core complaint stands)
+- User source: task item 5: «This element feels underdesigned relative to the rest of the interface. It needs a treatment that reflects the same level of craft and intentionality found elsewhere in the layout.»
+
+## Feedback F024
+- Round: none (owner batch, 2026-09-20)
+- Verdict: REJECTED (direction)
+- Scope: the whole Waste of tokens page register
+- Decision: visually continuous with the main page — same design language, same polish; divergence only in confidence: selective moments of boldness and creative risk, anchored by minimalist restraint. Benchmark: a senior developer's portfolio — precise, opinionated, quietly assertive (binding for this whole batch; supersedes F018's narrower phrasing)
+- User source: task item 6: «The practice map (Waste of tokens) should be visually continuous with the main page — same design language, same level of polish. Where it should diverge is in confidence: selective moments of boldness and creative risk, always anchored by minimalist restraint. The benchmark is a senior developer's portfolio — precise, opinionated, and quietly assertive.»
+- Supersedes: F018 (aesthetic bar restated and widened)
+
+## Round R011
+- Goal: hero execution re-imagination (F019 under F024's widened bar) — the review-log sentiment kept, the "big text card" execution replaced by a full re-think of typography/layout/visual treatment (chat-model relay, brief docs/briefs/BRIEF-practice-map-r011-hero-execution.md)
+- Preserved preferences: F009 (h1 copy verbatim), F019's confirmed tone (caption + four strata lines verbatim), F010 lift (quiet composed graphics, zero interactive furniture), register laws (lowercase, mono chrome, ochre discipline, grain), mobile presence law (proportionate h1 at 390/320, real vertical presence)
+- Changes (chat model's spec, "the record sheet" — masthead + ruled disposition ledger on the bare field): hero JSX rebuilt — h1 split into two overflow-masked lines (landing hero's masked line-rise device), verdict line gains the landing's 700-ochre emphasis law; `.hero-strata` → `.hero-ledger` (accession | specimen | disposition 3-col grid, 01–04 record numbers, right-aligned kept/cut disposition column with ochre pip + strike encoding — multi-channel, grain-robust); panel skin deleted entirely (scrim/border/left-rule/radius gone — hero sits on the field like the landing hero); h1 clamp divisor 26→19, cap 3.2→3.9rem (the one sanctioned bold moment, just past the landing's 3.68); log type promoted 0.66–0.82→0.78–0.95rem; caption tracked 0.03→0.16em; entrance = masked line-rise (0.7s, 0.12s stagger) + ledger row stagger (0.24–0.45s), all gated `no-preference`, non-load-bearing; ≤560 drops the accession gutter (specimen|disposition survives, kept/cut never loses its column)
+- Before: artifacts/R000-r011-baseline/ (a-desktop-hero-1440, b-desktop-full-1440, d/e volume views, f-mobile-390, g-mobile-320, h-tablet-1024)
+- After: artifacts/R011/ (same eight views + i-band-700, j-band-560)
+- Visual inspection: eight shots read. 1440: verdict/ledger share one measure, disposition column answers the dead right field, masthead ascenders unclipped inside the masks; body hierarchy faces>cards>list intact below the bare-field hero. 1024: verdict ~50px, ledger full-width. 700: 3-col ledger holds, specimens near-full. 560: accession dropped cleanly, kept/cut column retained. 390: h1 proportionate untruncated, specimens ellipsis (clipped-output concept), dispositions legible. 320: h1 wraps inside its masks (no clipping), truncation flags on specimens only, zero overflow
+- Code verification: `tsc --noEmit` clean; `practice-map.check.mjs` green except the pre-existing "ArrowRight advances sections" failure (unchanged baseline); headless probe at 1440/1024/700/560/390/320: docΔ=0, heroΔ=0, 4 rec + 4 disp rows everywhere, zero console/page errors
+- Open question: owner verdict on the record-sheet execution (F019); the model's one logged interpretation — "panel keeps real vertical presence" read as "hero keeps real vertical presence" (panel skin deleted by design) — stands unless the owner wants a literal panel back. Next: R012 element-craft brief (F020 model-list rationale, F022 folders, F023 Go Back), then R013 mobile spacing (F021, orchestrator-direct)
