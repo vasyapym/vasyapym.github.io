@@ -42,23 +42,6 @@
   }
 }
 
-.evening-forest-intro {
-  display: flex;
-  align-items: baseline;
-  gap: 1.4rem;
-  flex-wrap: wrap;
-  padding-top: 0.9rem;
-  padding-bottom: 0.9rem;
-}
-
-.evening-forest-title {
-  margin: 0;
-  font-family: var(--display);
-  font-size: 1.05rem;
-  font-weight: 600;
-  letter-spacing: 0.01em;
-}
-
 /* --- stage ------------------------------------------------------------- */
 
 .evening-forest-stage {

@@ -215,9 +215,6 @@ export default function EveningForestPage() {
 
   return (
     <article className="evening-forest-page">
-      <header className="evening-forest-intro section-shell">
-        <h1 className="evening-forest-title">Evening Forest</h1>
-      </header>
       <section className="evening-forest-stage">{stage}</section>
     </article>
   );
