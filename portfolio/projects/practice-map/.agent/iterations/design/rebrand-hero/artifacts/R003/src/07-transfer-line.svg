@@ -1,0 +1,45 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 600 400">
+<defs><pattern id="g" width="20" height="20" patternUnits="userSpaceOnUse"><path d="M20 0H0V20" fill="none" stroke="#cfc9b8" stroke-width=".3" opacity=".1"/></pattern></defs>
+<rect width="600" height="400" fill="#0b0c0e"/><rect width="600" height="400" fill="url(#g)"/>
+<g fill="none" stroke="#d8d2c2" stroke-width=".6">
+<rect x="40" y="170" width="60" height="60"/><path d="M40 190H100M40 210H100" opacity=".5"/>
+<path d="M100 200H160"/>
+<path d="M160 190L180 200L160 210Z"/><path d="M180 200H220"/>
+<circle cx="240" cy="200" r="20"/><path d="M226 186L254 214M226 214L254 186" opacity=".5"/>
+<path d="M260 200H300"/>
+<circle cx="300" cy="200" r="3"/>
+<path d="M300 200V90H360M300 200V130H360M300 200H360M300 200V270H360M300 200V330H360"/>
+<circle cx="300" cy="90" r="2"/><circle cx="300" cy="130" r="2"/><circle cx="300" cy="270" r="2"/><circle cx="300" cy="330" r="2"/>
+<path d="M360 85V95L370 90Z M360 125V135L370 130Z M360 195V205L370 200Z M360 265V275L370 270Z M360 325V335L370 330Z"/>
+<path d="M370 90H420M370 130H420M370 200H420M370 270H420M370 330H420"/>
+<rect x="420" y="70" width="120" height="40"/><rect x="420" y="115" width="120" height="30"/><rect x="420" y="180" width="120" height="40"/><rect x="420" y="255" width="120" height="30"/><rect x="420" y="320" width="120" height="20"/>
+<path d="M425 78H535M425 86H535M425 94H535M425 102H535" opacity=".4"/>
+<path d="M425 122H535M425 130H535M425 138H535" opacity=".4"/>
+<path d="M425 188H535M425 196H535M425 204H535M425 212H535" opacity=".4"/>
+<path d="M425 262H535M425 270H535M425 278H535" opacity=".4"/>
+<path d="M425 326H535M425 334H535" opacity=".4"/>
+<path d="M540 90H570V330H540" stroke-dasharray="4 2"/>
+<path d="M570 210L580 200L570 190" />
+<path d="M395 90V70M395 66V60M395 200V180M395 176V170"/><circle cx="395" cy="60" r="0"/>
+<rect x="388" y="52" width="14" height="10"/><rect x="388" y="162" width="14" height="10"/>
+<circle cx="240" cy="150" r="10"/><path d="M240 160V180" stroke-dasharray="2 2"/>
+<path d="M120 200L120 260L200 260" stroke-dasharray="4 2"/><path d="M200 265L208 260L200 255"/>
+<rect x="208" y="245" width="50" height="30" stroke-dasharray="1 2"/>
+</g>
+<g font-family="monospace" font-size="7" fill="#d8d2c2">
+<text x="42" y="164">ingest</text><text x="42" y="244">queue</text>
+<text x="222" y="236">classifier</text>
+<text x="226" y="152" font-size="6">FT</text>
+<text x="212" y="262" font-size="6">reject</text>
+<text x="428" y="64">T-I  MDL/A  — vault, sealed</text>
+<text x="428" y="158">T-II MDL/B</text>
+<text x="428" y="174">T-III MDL/C  — open racks</text>
+<text x="428" y="298">T-IV  legacy</text>
+<text x="428" y="352">purge holding</text>
+<text x="380" y="50" font-size="5">HS</text><text x="380" y="160" font-size="5">HS</text>
+<text x="575" y="260" font-size="6" transform="rotate(90 575 260)">return line</text>
+<text x="40" y="380">single-line: — item path   ▷ check gate   HS hand seal   FT fill transmitter</text>
+</g>
+<g fill="none" stroke="#d8d2c2" stroke-width=".5"><rect x="460" y="330" width="0" height="0"/><rect x="40" y="300" width="130" height="60"/><path d="M40 315H170M40 345H170M100 315V360"/></g>
+<g font-family="monospace" font-size="6" fill="#d8d2c2"><text x="44" y="310">OUTPUT ARCHIVE — TRANSFER</text><text x="44" y="330">SINGLE-LINE</text><text x="104" y="330">NTS</text><text x="44" y="355">SHT 07</text><text x="104" y="355">REV B</text></g>
+</svg>

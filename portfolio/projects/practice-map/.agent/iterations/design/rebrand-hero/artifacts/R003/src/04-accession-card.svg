@@ -1,0 +1,38 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 600 400">
+<defs><pattern id="g" width="20" height="20" patternUnits="userSpaceOnUse"><path d="M20 0H0V20" fill="none" stroke="#cfc9b8" stroke-width=".3" opacity=".1"/></pattern></defs>
+<rect width="600" height="400" fill="#0b0c0e"/><rect width="600" height="400" fill="url(#g)"/>
+<g fill="none" stroke="#d8d2c2" stroke-width=".6">
+<rect x="70" y="60" width="340" height="220"/>
+<path d="M70 90H410M70 120H410M70 150H410M70 180H410M70 210H410M70 240H410"/>
+<path d="M190 90V280M300 90V210"/>
+<circle cx="85" cy="75" r="3"/><circle cx="395" cy="75" r="3"/>
+<rect x="300" y="215" width="105" height="60"/>
+<path d="M305 225H400M305 231H370M305 237H395M305 243H360M305 249H400M305 255H385M305 261H400M305 267H340" opacity=".55"/>
+<path d="M70 280L70 300L410 300L410 280" stroke-dasharray="2 2"/>
+<path d="M90 300L90 320M120 300L120 320M150 300L150 320M180 300L180 320" opacity=".6"/>
+<path d="M440 60H560V280H440Z"/>
+<path d="M440 60L470 40H590V260L560 280"/><path d="M560 60L590 40"/>
+<path d="M455 90H545M455 92H545M455 120H545M455 122H545M455 150H545M455 152H545" opacity=".5"/>
+<rect x="455" y="95" width="90" height="25" stroke-dasharray="1 2"/>
+<path d="M500 60V40" stroke-dasharray="2 2"/>
+<path d="M30 60H50M30 280H50M40 60V280M37 70L40 60L43 70M37 270L40 280L43 270"/>
+<path d="M70 340H410M70 335V345M410 335V345"/>
+</g>
+<g font-family="monospace" font-size="7" fill="#d8d2c2">
+<text x="100" y="79">ACCESSION</text><text x="330" y="79">TIER</text>
+<text x="75" y="110">model</text><text x="195" y="110">MDL/B-2</text><text x="305" y="110">T-II</text>
+<text x="75" y="140">run id</text><text x="195" y="140">b2-0419-773</text><text x="305" y="140">ctx 8k</text>
+<text x="75" y="170">tokens out</text><text x="195" y="170">1 482</text><text x="305" y="170">temp .7</text>
+<text x="75" y="200">prompt hash</text><text x="195" y="200">3f9a…c1</text><text x="305" y="200">seed —</text>
+<text x="75" y="230">retention</text><text x="195" y="230">36 mo → T-IV</text>
+<text x="75" y="260">location</text><text x="195" y="260">R-07 / B-04 / 12</text>
+<text x="305" y="223" font-size="5">excerpt</text>
+<text x="92" y="316" font-size="6">001</text><text x="122" y="316" font-size="6">002</text><text x="152" y="316" font-size="6">003</text>
+<text x="240" y="355" text-anchor="middle">148 mm card, 3-hole</text>
+<text x="22" y="170" transform="rotate(-90 22 170)">105 mm</text>
+<text x="444" y="55" font-size="6">drawer tab, side elev.</text>
+<text x="457" y="112" font-size="6">tab insert</text>
+</g>
+<g fill="none" stroke="#d8d2c2" stroke-width=".5"><rect x="460" y="330" width="130" height="60"/><path d="M460 345H590M460 375H590M520 345V390"/></g>
+<g font-family="monospace" font-size="6" fill="#d8d2c2"><text x="464" y="340">OUTPUT ARCHIVE — CARD</text><text x="464" y="360">ACCESSION FORM</text><text x="524" y="360">1:1</text><text x="464" y="385">SHT 04</text><text x="524" y="385">REV D</text></g>
+</svg>

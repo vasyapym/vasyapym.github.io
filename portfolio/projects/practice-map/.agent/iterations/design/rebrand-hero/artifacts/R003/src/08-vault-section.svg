@@ -1,0 +1,40 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 600 400">
+<defs><pattern id="g" width="20" height="20" patternUnits="userSpaceOnUse"><path d="M20 0H0V20" fill="none" stroke="#cfc9b8" stroke-width=".3" opacity=".1"/></pattern></defs>
+<rect width="600" height="400" fill="#0b0c0e"/><rect width="600" height="400" fill="url(#g)"/>
+<g fill="none" stroke="#d8d2c2" stroke-width=".6">
+<path d="M60 340H540"/>
+<path d="M60 340L52 348M80 340L72 348M100 340L92 348M120 340L112 348M140 340L132 348M160 340L152 348M180 340L172 348M200 340L192 348M220 340L212 348M240 340L232 348M260 340L252 348M280 340L272 348M300 340L292 348M320 340L312 348M340 340L332 348M360 340L352 348M380 340L372 348M400 340L392 348M420 340L412 348M440 340L432 348M460 340L452 348M480 340L472 348M500 340L492 348M520 340L512 348M540 340L532 348" opacity=".5"/>
+<rect x="100" y="60" width="380" height="280"/>
+<path d="M100 130H480M100 200H480M100 270H480"/>
+<path d="M100 126H480M100 196H480M100 266H480M100 64H480"/>
+<rect x="400" y="60" width="40" height="280"/>
+<path d="M400 60L440 340M440 60L400 340" opacity=".3"/>
+<rect x="405" y="150" width="30" height="40"/><path d="M405 155L435 185M405 185L435 155" opacity=".6"/>
+<path d="M420 60V40" /><path d="M416 46L420 40L424 46"/>
+<rect x="110" y="80" width="30" height="46"/><rect x="150" y="80" width="30" height="46"/><rect x="190" y="80" width="30" height="46"/>
+<path d="M112 92H138M112 100H138M112 108H138M112 116H138" opacity=".5"/>
+<path d="M300 80V126M310 80V126"/><path d="M300 80L310 90M300 100L310 110" opacity=".6"/>
+<path d="M110 150V196M130 150V196M150 150V196M170 150V196M190 150V196M210 150V196M230 150V196M250 150V196M270 150V196M290 150V196M310 150V196M330 150V196M350 150V196"/>
+<path d="M110 160H350M110 175H350" opacity=".5"/>
+<path d="M110 220V266M110 235H380M110 250H380M380 220V266" /><path d="M140 220V266M170 220V266M200 220V266M230 220V266M260 220V266M290 220V266M320 220V266M350 220V266" opacity=".5"/>
+<path d="M110 290H380M110 300H380M110 310H380M110 320H380M110 330H380" opacity=".4"/>
+<rect x="110" y="288" width="270" height="46" stroke-dasharray="3 2"/>
+<path d="M500 60H520M500 130H520M500 200H520M500 270H520M500 340H520"/>
+<path d="M510 60V340"/>
+<path d="M240 20L240 60" stroke-dasharray="2 2"/><path d="M60 100L100 100" stroke-dasharray="2 2"/>
+<path d="M60 60H80M60 340H80M70 60V340M67 70L70 60L73 70M67 330L70 340L73 330"/>
+</g>
+<g font-family="monospace" font-size="7" fill="#d8d2c2">
+<text x="524" y="63">+12.0</text><text x="524" y="133">+9.0  L3  T-I  sealed vault</text><text x="524" y="203">+6.0  L2  T-II</text><text x="524" y="273">+3.0  L1  T-III open stack</text><text x="524" y="343">±0.0  B   T-IV cold / purge</text>
+<text x="112" y="76">A-vol</text><text x="292" y="76">seal door</text>
+<text x="112" y="146">B  mobile aisles</text>
+<text x="112" y="216">C  fixed bays</text>
+<text x="112" y="284">D  palletised, 36 mo hold</text>
+<text x="404" y="52" font-size="6">hoist</text>
+<text x="240" y="16" text-anchor="middle" font-size="6">section A–A</text>
+<text x="52" y="200" transform="rotate(-90 52 200)">12.0 m</text>
+<text x="62" y="97" font-size="6">grade</text>
+</g>
+<g fill="none" stroke="#d8d2c2" stroke-width=".5"><rect x="460" y="352" width="130" height="44"/><path d="M460 366H590M460 384H590M520 366V396"/></g>
+<g font-family="monospace" font-size="6" fill="#d8d2c2"><text x="464" y="362">OUTPUT ARCHIVE — VAULT</text><text x="464" y="378">SECTION A–A</text><text x="524" y="378">1:100</text><text x="464" y="393">SHT 08</text><text x="524" y="393">REV A</text></g>
+</svg>

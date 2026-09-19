@@ -1,0 +1,33 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 600 400">
+<defs><pattern id="g" width="20" height="20" patternUnits="userSpaceOnUse"><path d="M20 0H0V20" fill="none" stroke="#cfc9b8" stroke-width=".3" opacity=".1"/></pattern></defs>
+<rect width="600" height="400" fill="#0b0c0e"/><rect width="600" height="400" fill="url(#g)"/>
+<g fill="none" stroke="#d8d2c2" stroke-width=".6">
+<rect x="120" y="60" width="420" height="240"/>
+<path d="M155 60V300M190 60V300M225 60V300M260 60V300M295 60V300M330 60V300M365 60V300M400 60V300M435 60V300M470 60V300M505 60V300"/>
+<path d="M120 120H540M120 180H540M120 240H540"/>
+<path d="M120 90H540M120 150H540M120 210H540M120 270H540" opacity=".35"/>
+<path d="M112 60H120M112 300H120M112 60V300"/>
+<path d="M120 308H540M120 300V308M540 300V308"/>
+</g>
+<g fill="none" stroke="#d8d2c2" stroke-width=".5" opacity=".7">
+<path d="M120 60L155 120M120 90L155 120M120 60L155 90" /><path d="M155 60L190 120M155 90L190 120M155 60L190 90"/><path d="M190 60L225 120M190 90L225 120M190 60L225 90"/><path d="M225 60L260 120M225 90L260 120M225 60L260 90"/><path d="M260 60L295 120M260 90L295 120M260 60L295 90"/><path d="M295 60L330 120M295 90L330 120M295 60L330 90"/><path d="M330 60L365 120M330 90L365 120M330 60L365 90"/>
+<path d="M365 60L400 120M365 90L400 120M365 60L400 90"/><path d="M400 60L435 120M400 90L435 120M400 60L435 90"/><path d="M435 60L470 120" />
+<path d="M120 120L155 180M120 150L155 180M120 120L155 150"/><path d="M155 120L190 180M155 150L190 180M155 120L190 150"/><path d="M190 120L225 180M190 150L225 180M190 120L225 150"/><path d="M225 120L260 180M225 150L260 180M225 120L260 150"/><path d="M260 120L295 180M260 150L295 180M260 120L295 150"/><path d="M295 120L330 180M295 150L330 180M295 120L330 150"/><path d="M330 120L365 180"/>
+<path d="M120 180L155 240M120 210L155 240M120 180L155 210"/><path d="M155 180L190 240M155 210L190 240M155 180L190 210"/><path d="M190 180L225 240M190 210L225 240M190 180L225 210"/><path d="M225 180L260 240M225 210L260 240"/>
+<path d="M120 240L155 300M120 270L155 300M120 240L155 270"/><path d="M155 240L190 300M155 270L190 300M155 240L190 270"/><path d="M190 240L225 300M190 270L225 300M190 240L225 270"/><path d="M225 240L260 300M225 270L260 300M225 240L260 270"/><path d="M260 240L295 300M260 270L295 300M260 240L295 270"/><path d="M295 240L330 300M295 270L330 300M295 240L330 270"/><path d="M330 240L365 300M330 270L365 300M330 240L365 270"/><path d="M365 240L400 300M365 270L400 300M365 240L400 270"/><path d="M400 240L435 300M400 270L435 300M400 240L435 270"/><path d="M435 240L470 300M435 270L470 300M435 240L470 270"/><path d="M470 240L505 300M470 270L505 300M470 240L505 270"/><path d="M505 240L540 300M505 270L540 300M505 240L540 270"/>
+</g>
+<g fill="none" stroke="#d8d2c2" stroke-width=".6">
+<path d="M470 62V118" stroke-dasharray="2 2"/><path d="M365 122V178" stroke-dasharray="2 2"/><path d="M260 182V238" stroke-dasharray="2 2"/>
+<circle cx="487" cy="90" r="8"/><path d="M487 82V98M479 90H495" opacity=".5"/>
+<circle cx="452" cy="150" r="8"/><circle cx="347" cy="210" r="8"/>
+</g>
+<g font-family="monospace" font-size="7" fill="#d8d2c2">
+<text x="60" y="94">T-I  A</text><text x="60" y="154">T-II B</text><text x="60" y="214">T-III C</text><text x="60" y="274">T-IV  —</text>
+<text x="137" y="320" text-anchor="middle" font-size="6">01</text><text x="172" y="320" text-anchor="middle" font-size="6">02</text><text x="207" y="320" text-anchor="middle" font-size="6">03</text><text x="242" y="320" text-anchor="middle" font-size="6">04</text><text x="277" y="320" text-anchor="middle" font-size="6">05</text><text x="312" y="320" text-anchor="middle" font-size="6">06</text><text x="347" y="320" text-anchor="middle" font-size="6">07</text><text x="382" y="320" text-anchor="middle" font-size="6">08</text><text x="417" y="320" text-anchor="middle" font-size="6">09</text><text x="452" y="320" text-anchor="middle" font-size="6">10</text><text x="487" y="320" text-anchor="middle" font-size="6">11</text><text x="522" y="320" text-anchor="middle" font-size="6">12</text>
+<text x="330" y="332" text-anchor="middle" font-size="6">month of accession</text>
+<text x="120" y="50" font-size="6">occupancy, wall W-2  //  hatched = full   ○ = next open cell   ┆ = fill front</text>
+<text x="60" y="362" font-size="6">note: T-IV row fills from transfers, not intake; see SHT 06</text>
+</g>
+<g fill="none" stroke="#d8d2c2" stroke-width=".5"><rect x="460" y="340" width="130" height="52"/><path d="M460 354H590M460 378H590M520 354V392"/></g>
+<g font-family="monospace" font-size="6" fill="#d8d2c2"><text x="464" y="350">OUTPUT ARCHIVE — WALL W-2</text><text x="464" y="368">OCCUPANCY</text><text x="524" y="368">NTS</text><text x="464" y="388">SHT 10</text><text x="524" y="388">REV F</text></g>
+</svg>

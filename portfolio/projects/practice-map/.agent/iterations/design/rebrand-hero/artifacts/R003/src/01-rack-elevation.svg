@@ -1,0 +1,30 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 600 400">
+<defs><pattern id="g" width="20" height="20" patternUnits="userSpaceOnUse"><path d="M20 0H0V20" fill="none" stroke="#cfc9b8" stroke-width=".3" opacity=".1"/></pattern></defs>
+<rect width="600" height="400" fill="#0b0c0e"/><rect width="600" height="400" fill="url(#g)"/>
+<g fill="none" stroke="#d8d2c2" stroke-width=".6">
+<rect x="90" y="50" width="360" height="290"/>
+<path d="M90 120H450M90 190H450M100 260H450M90 300H450"/>
+<path d="M100 50V340M440 50V340"/>
+<rect x="110" y="70" width="60" height="50"/><rect x="180" y="70" width="60" height="50"/><rect x="250" y="70" width="60" height="50"/><rect x="320" y="70" width="60" height="50"/>
+<rect x="110" y="150" width="40" height="40"/><rect x="158" y="150" width="40" height="40"/><rect x="206" y="150" width="40" height="40"/><rect x="254" y="150" width="40" height="40"/><rect x="302" y="150" width="40" height="40"/><rect x="350" y="150" width="40" height="40"/>
+<path d="M110 260V230H430V260M130 230V260M150 230V260M170 230V260M190 230V260M210 230V260M230 230V260M250 230V260M270 230V260M290 230V260M310 230V260M330 230V260M350 230V260M370 230V260M390 230V260M410 230V260"/>
+<path d="M110 300V280H430V300" stroke-dasharray="2 2"/>
+<path d="M110 285L430 295M110 295L430 285" opacity=".5"/>
+<path d="M60 50H80M60 340H80M70 50V340M67 60L70 50L73 60M67 330L70 340L73 330"/>
+<path d="M90 360V375M450 360V375M90 368H450M100 365L90 368L100 371M440 365L450 368L440 371"/>
+<path d="M460 120H480M460 190H480M460 260H480M460 300H480" stroke-dasharray="3 2"/>
+<circle cx="110" cy="340" r="4"/><circle cx="430" cy="340" r="4"/>
+</g>
+<g font-family="monospace" font-size="7" fill="#d8d2c2">
+<text x="484" y="88">T-I  MDL/A  4 vol</text>
+<text x="484" y="158">T-II MDL/B  6 vol</text>
+<text x="484" y="228">T-III MDL/C  16 vol</text>
+<text x="484" y="283">T-IV LEGACY  cold</text>
+<text x="52" y="200" transform="rotate(-90 52 200)">2900 mm o/a</text>
+<text x="250" y="384" text-anchor="middle">3600 mm bay</text>
+<text x="112" y="66">A-01</text><text x="182" y="66">A-02</text><text x="252" y="66">A-03</text><text x="322" y="66">A-04</text>
+<text x="112" y="147">B-01</text><text x="256" y="147">B-04</text>
+</g>
+<g fill="none" stroke="#d8d2c2" stroke-width=".5"><rect x="460" y="330" width="130" height="60"/><path d="M460 345H590M460 375H590M520 345V390"/></g>
+<g font-family="monospace" font-size="6" fill="#d8d2c2"><text x="464" y="340">OUTPUT ARCHIVE — RACK R-07</text><text x="464" y="360">ELEVATION</text><text x="524" y="360">1:20</text><text x="464" y="385">SHT 01</text><text x="524" y="385">REV C</text></g>
+</svg>

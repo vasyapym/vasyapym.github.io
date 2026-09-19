@@ -1,0 +1,38 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 600 400">
+<defs><pattern id="g" width="20" height="20" patternUnits="userSpaceOnUse"><path d="M20 0H0V20" fill="none" stroke="#cfc9b8" stroke-width=".3" opacity=".1"/></pattern></defs>
+<rect width="600" height="400" fill="#0b0c0e"/><rect width="600" height="400" fill="url(#g)"/>
+<g fill="none" stroke="#d8d2c2" stroke-width=".6">
+<path d="M100 320L300 220L340 240L140 340Z"/><path d="M100 320V300L300 200V220M140 340V320L340 220V240M300 200L340 220"/>
+<path d="M120 330L120 312M160 310L160 292M200 290L200 272M240 270L240 252M280 250L280 232" opacity=".5"/>
+<ellipse cx="240" cy="200" rx="30" ry="15"/><ellipse cx="240" cy="160" rx="30" ry="15"/><path d="M210 200V160M270 200V160"/>
+<ellipse cx="240" cy="180" rx="30" ry="15" stroke-dasharray="2 2" opacity=".6"/>
+<ellipse cx="240" cy="120" rx="30" ry="15"/><ellipse cx="240" cy="110" rx="30" ry="15"/><path d="M210 120V110M270 120V110"/>
+<ellipse cx="240" cy="115" rx="8" ry="4"/>
+<ellipse cx="240" cy="70" rx="34" ry="17"/><ellipse cx="240" cy="62" rx="34" ry="17"/><path d="M206 70V62M274 70V62"/>
+<path d="M240 60L240 30" stroke-dasharray="4 2"/><path d="M240 225L240 340" stroke-dasharray="4 2" opacity=".6"/>
+<path d="M330 90L330 280"/><path d="M330 90L340 100M330 280L340 270"/>
+<path d="M380 60L440 60L440 340L380 340"/>
+<path d="M380 100L440 100M380 130L440 130M380 160L440 160M380 200L440 200M380 240L440 240M380 290L440 290"/>
+<path d="M395 62L395 98" stroke-dasharray="2 2"/>
+<path d="M400 100V130M410 100V130M420 100V130" opacity=".6"/>
+<path d="M385 165L435 195M385 195L435 165" opacity=".5"/>
+<path d="M385 205H435M385 215H435M385 225H435M385 235H435" opacity=".6"/>
+<path d="M385 250L435 250M385 260H435M385 270H435M385 280H435" stroke-dasharray="3 3" opacity=".6"/>
+</g>
+<g font-family="monospace" font-size="7" fill="#d8d2c2">
+<text x="290" y="66">1 cap, keyed</text>
+<text x="290" y="115">2 seal ring</text>
+<text x="290" y="180">3 spool, 1 run</text>
+<text x="350" y="295">4 tray</text>
+<text x="450" y="64">label band, unrolled</text>
+<text x="450" y="118">tier notch: I II III</text>
+<text x="450" y="150">model code</text>
+<text x="450" y="183">void if T-IV</text>
+<text x="450" y="222">run id / hash</text>
+<text x="450" y="265">retention marks</text>
+<text x="450" y="318">blank</text>
+<text x="60" y="380">cartridge CX-2, single output unit; tray holds 5 × CX-2 per shelf slot</text>
+</g>
+<g fill="none" stroke="#d8d2c2" stroke-width=".5"><rect x="460" y="330" width="130" height="60"/><path d="M460 345H590M460 375H590M520 345V390"/></g>
+<g font-family="monospace" font-size="6" fill="#d8d2c2"><text x="464" y="340">OUTPUT ARCHIVE — CX-2</text><text x="464" y="360">EXPLODED VIEW</text><text x="524" y="360">1:2</text><text x="464" y="385">SHT 05</text><text x="524" y="385">REV A</text></g>
+</svg>

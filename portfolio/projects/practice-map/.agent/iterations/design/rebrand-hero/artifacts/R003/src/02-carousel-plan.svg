@@ -1,0 +1,29 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 600 400">
+<defs><pattern id="g" width="20" height="20" patternUnits="userSpaceOnUse"><path d="M20 0H0V20" fill="none" stroke="#cfc9b8" stroke-width=".3" opacity=".1"/></pattern></defs>
+<rect width="600" height="400" fill="#0b0c0e"/><rect width="600" height="400" fill="url(#g)"/>
+<g fill="none" stroke="#d8d2c2" stroke-width=".6" transform="translate(240 200)">
+<circle r="150"/><circle r="120"/><circle r="85"/><circle r="50"/><circle r="12"/><circle r="4"/>
+<path d="M-170 0H170M0 -170V170" stroke-dasharray="6 3" opacity=".6"/>
+<g id="s"><path d="M0 -150V-120M0 -85V-50"/></g>
+<use href="#s" transform="rotate(15)"/><use href="#s" transform="rotate(30)"/><use href="#s" transform="rotate(45)"/><use href="#s" transform="rotate(60)"/><use href="#s" transform="rotate(75)"/><use href="#s" transform="rotate(90)"/><use href="#s" transform="rotate(105)"/><use href="#s" transform="rotate(120)"/><use href="#s" transform="rotate(135)"/><use href="#s" transform="rotate(150)"/><use href="#s" transform="rotate(165)"/><use href="#s" transform="rotate(180)"/><use href="#s" transform="rotate(195)"/><use href="#s" transform="rotate(210)"/><use href="#s" transform="rotate(225)"/><use href="#s" transform="rotate(240)"/><use href="#s" transform="rotate(255)"/><use href="#s" transform="rotate(270)"/><use href="#s" transform="rotate(285)"/><use href="#s" transform="rotate(300)"/><use href="#s" transform="rotate(315)"/><use href="#s" transform="rotate(330)"/><use href="#s" transform="rotate(345)"/>
+<g id="m"><path d="M0 -120V-85"/></g>
+<use href="#m" transform="rotate(30)"/><use href="#m" transform="rotate(60)"/><use href="#m" transform="rotate(90)"/><use href="#m" transform="rotate(120)"/><use href="#m" transform="rotate(150)"/><use href="#m" transform="rotate(180)"/><use href="#m" transform="rotate(210)"/><use href="#m" transform="rotate(240)"/><use href="#m" transform="rotate(270)"/><use href="#m" transform="rotate(300)"/><use href="#m" transform="rotate(330)"/>
+<path d="M0 -50V-12" transform="rotate(45)"/><path d="M0 -50V-12" transform="rotate(135)"/><path d="M0 -50V-12" transform="rotate(225)"/><path d="M0 -50V-12" transform="rotate(315)"/>
+<path d="M-8 -8L8 8M-8 8L8 -8" opacity=".6"/>
+<path d="M120 -170A170 170 0 0 1 170 -100" /><path d="M165 -108L170 -100L162 -100"/>
+<path d="M0 -150L0 -200M150 0L200 0"/>
+<rect x="-6" y="-190" width="12" height="20" fill="#0b0c0e"/>
+<path d="M-6 -190V-170M6 -190V-170M-6 -170L-14 -160H14L6 -170"/>
+</g>
+<g font-family="monospace" font-size="7" fill="#d8d2c2">
+<text x="445" y="204">ø 300 outer ring — T-III / 24 cells</text>
+<text x="445" y="216">ø 240 — T-II / 12 cells</text>
+<text x="445" y="228">ø 170 — T-I / 4 cells</text>
+<text x="445" y="240">ø 100 hub / index drum</text>
+<text x="380" y="52">rotation: cw, 15° detent</text>
+<text x="208" y="22">access gate G-1</text>
+<text x="40" y="380">carousel C-3, plan section @ +900</text>
+</g>
+<g fill="none" stroke="#d8d2c2" stroke-width=".5"><rect x="460" y="330" width="130" height="60"/><path d="M460 345H590M460 375H590M520 345V390"/></g>
+<g font-family="monospace" font-size="6" fill="#d8d2c2"><text x="464" y="340">OUTPUT ARCHIVE — CAROUSEL</text><text x="464" y="360">PLAN SECTION</text><text x="524" y="360">1:10</text><text x="464" y="385">SHT 02</text><text x="524" y="385">REV A</text></g>
+</svg>

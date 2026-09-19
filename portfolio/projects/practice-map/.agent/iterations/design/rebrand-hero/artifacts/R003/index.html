@@ -1,0 +1,40 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>rebrand R003 — ten schematic plates</title>
+<style>
+:root{--bg:#0b0c0e;--ink:#d8d2c2;--dim:#8b877b;--line:#26282c}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--ink);font:14px/1.5 ui-monospace,Menlo,monospace}
+header{padding:2.5rem 2rem 1rem;max-width:1000px;margin:0 auto}
+header h1{font-size:1.1rem;font-weight:400;margin:0}
+header p{color:var(--dim);font-size:.78rem;margin:.4rem 0 0}
+.grid{max-width:1000px;margin:0 auto;padding:1rem 1rem 4rem;display:grid;grid-template-columns:repeat(auto-fill,minmax(440px,1fr));gap:1.2rem}
+figure{margin:0;border:1px solid var(--line);background:#0e0f12}
+figure img{display:block;width:100%;height:auto}
+figcaption{display:flex;justify-content:space-between;gap:1rem;padding:.6rem .8rem;border-top:1px solid var(--line);font-size:.72rem;color:var(--dim)}
+figcaption b{color:var(--ink);font-weight:400}
+@media(max-width:500px){.grid{grid-template-columns:1fr}}
+</style>
+</head>
+<body>
+<header>
+<h1>rebrand R003 — ten schematic plates</h1>
+<p>near-black stock · hairline paper strokes · monospace annotations · corner title block · tiers T-I → T-IV. одна карточка = одна пластина; выбор владельца.</p>
+</header>
+<main class="grid">
+<figure><img src="src/01-rack-elevation.svg" alt="plate 01 — rack elevation, tiered shelving"><figcaption><b>01 · rack elevation</b><span>T-I..T-IV по полкам</span></figcaption></figure>
+<figure><img src="src/02-carousel-plan.svg" alt="plate 02 — rotary carousel file, plan section"><figcaption><b>02 · carousel plan</b><span>кольца по тирам</span></figcaption></figure>
+<figure><img src="src/03-sorting-chute.svg" alt="plate 03 — sorting chute, diverter schematic"><figcaption><b>03 · sorting chute</b><span>сортировка потока по тирам</span></figcaption></figure>
+<figure><img src="src/04-accession-card.svg" alt="plate 04 — catalog plate, accession card"><figcaption><b>04 · accession card</b><span>карточка выдачи: модель, run, retention</span></figcaption></figure>
+<figure><img src="src/05-cartridge-exploded.svg" alt="plate 05 — output cartridge, exploded axonometric"><figcaption><b>05 · cartridge exploded</b><span>один выход = один картридж</span></figcaption></figure>
+<figure><img src="src/06-retention-schedule.svg" alt="plate 06 — retention schedule, tier lifecycle bars"><figcaption><b>06 · retention schedule</b><span>жизненный цикл тиера</span></figcaption></figure>
+<figure><img src="src/07-transfer-line.svg" alt="plate 07 — transfer line, single-line diagram"><figcaption><b>07 · transfer line</b><span>однострочная схема передачи</span></figcaption></figure>
+<figure><img src="src/08-vault-section.svg" alt="plate 08 — vault stack, building section"><figcaption><b>08 · vault section</b><span>этажи-тиры в разрезе</span></figcaption></figure>
+<figure><img src="src/09-log-reel.svg" alt="plate 09 — continuous log reel, hub detail"><figcaption><b>09 · log reel</b><span>рулон: 1 run = 1 виток</span></figcaption></figure>
+<figure><img src="src/10-occupancy-matrix.svg" alt="plate 10 — pigeonhole wall, occupancy matrix"><figcaption><b>10 · occupancy matrix</b><span>стена ячеек: tier × месяц</span></figcaption></figure>
+</main>
+</body>
+</html>

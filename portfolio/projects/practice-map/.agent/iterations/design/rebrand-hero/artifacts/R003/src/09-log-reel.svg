@@ -1,0 +1,44 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 600 400">
+<defs><pattern id="g" width="20" height="20" patternUnits="userSpaceOnUse"><path d="M20 0H0V20" fill="none" stroke="#cfc9b8" stroke-width=".3" opacity=".1"/></pattern></defs>
+<rect width="600" height="400" fill="#0b0c0e"/><rect width="600" height="400" fill="url(#g)"/>
+<g fill="none" stroke="#d8d2c2" stroke-width=".6">
+<g transform="translate(180 200)">
+<circle r="130"/><circle r="126" opacity=".5"/><circle r="100"/><circle r="70"/><circle r="40"/><circle r="20"/><circle r="6"/>
+<path d="M-6 0H6M0 -6V6"/>
+<path d="M0 -20V-40M0 40V20M-20 0H-40M40 0H20" stroke-dasharray="2 2"/>
+<path d="M20 0A20 20 0 0 1 14 14" stroke-width="1.2"/>
+<path d="M-150 0H150M0 -150V150" stroke-dasharray="6 3" opacity=".5"/>
+<path d="M0 0L92 -92" /><path d="M0 0L-49 49"/>
+<path d="M0 0L125 -32"/>
+<path d="M130 0L160 0M100 0L100 60M130 0L130 70M40 0L40 80M70 0L70 90"/>
+<path d="M40 78H130M43 75L40 78L43 81M127 75L130 78L127 81"/>
+<path d="M0 -130V-160M0 -140H130M-4 -137L0 -140L4 -137" opacity=".7"/>
+</g>
+<path d="M400 60H560V300H400Z"/>
+<path d="M400 90H560M400 100H560M400 120H560M400 130H560M400 160H560M400 170H560M400 210H560M400 220H560M400 270H560M400 280H560"/>
+<path d="M410 100V120M420 100V120M430 100V120M440 100V120M450 100V120M460 100V120M470 100V120M480 100V120M490 100V120M500 100V120M510 100V120M520 100V120M530 100V120M540 100V120M550 100V120" opacity=".6"/>
+<path d="M410 130V160M430 130V160M450 130V160M470 130V160M490 130V160M510 130V160M530 130V160M550 130V160" opacity=".6"/>
+<path d="M410 170V210M450 170V210M490 170V210M530 170V210" opacity=".6"/>
+<path d="M410 220V270M480 220V270M550 220V270" opacity=".6"/>
+<path d="M400 280L560 300M400 300L560 280" opacity=".4"/>
+<path d="M580 60V300M576 70L580 60L584 70M576 290L580 300L584 290"/>
+</g>
+<g font-family="monospace" font-size="7" fill="#d8d2c2">
+<text x="230" y="112" font-size="6">r=100  T-I band</text>
+<text x="200" y="146" font-size="6">r=70  T-II</text>
+<text x="200" y="176" font-size="6">r=40  T-III</text>
+<text x="156" y="198" font-size="6">hub</text>
+<text x="180" y="42" text-anchor="middle" font-size="6">ø 260 full reel</text>
+<text x="264" y="292" font-size="6">wind: 1 run = 1 turn</text>
+<text x="340" y="205" font-size="6">outer lap: T-IV</text>
+<text x="404" y="80">band profile — unwound, to scale</text>
+<text x="404" y="97" font-size="6">leader</text>
+<text x="404" y="128" font-size="6">T-III  fine pitch</text>
+<text x="404" y="168" font-size="6">T-II</text>
+<text x="404" y="218" font-size="6">T-I  coarse pitch</text>
+<text x="404" y="278" font-size="6">T-IV  void band</text>
+<text x="590" y="180" font-size="6" transform="rotate(90 590 180)">240 mm</text>
+</g>
+<g fill="none" stroke="#d8d2c2" stroke-width=".5"><rect x="400" y="330" width="190" height="60"/><path d="M400 345H590M400 375H590M500 345V390"/></g>
+<g font-family="monospace" font-size="6" fill="#d8d2c2"><text x="404" y="340">OUTPUT ARCHIVE — LOG REEL</text><text x="404" y="360">HUB DETAIL / BAND PROFILE</text><text x="504" y="360">1:2</text><text x="404" y="385">SHT 09</text><text x="504" y="385">REV C</text></g>
+</svg>
