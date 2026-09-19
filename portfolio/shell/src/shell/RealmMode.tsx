@@ -46,8 +46,20 @@ interface RealmModeProps {
 
 type Phase = "entering" | "active" | "leaving" | "diving";
 
-// door hues, catalogue order (index-aligned to the seven ids)
-const DOOR_HUES = ["#86aed4", "#dc7f95", "#ff8a3c", "#9fb0bd", "#ffb45e", "#ffd9a0", "#7fa8c9", "#7aa2f7"] as const;
+// signature door hues, keyed by project id — index alignment silently broke
+// when the catalogue order changed (spine pinned first): four doors swapped
+// hues with their neighbours. Ids are the stable key; the hexes are unchanged.
+const DOOR_HUES: Record<string, string> = {
+  "raft-cluster": "#86aed4",
+  "kitty-run": "#dc7f95",
+  "explosion": "#ff8a3c",
+  "spine": "#9fb0bd",
+  "evening-forest": "#ffb45e",
+  "planck-to-now": "#ffd9a0",
+  "practice-map": "#7fa8c9",
+  "quicknotes": "#7aa2f7",
+};
+const FALLBACK_HUE = "#9fb0bd";
 
 // wasd / arrows → unit thrust vector
 const DIR: Record<string, readonly [number, number]> = {
@@ -167,14 +179,14 @@ export default function RealmMode({ projects, onOpenProject, onExit, onEntered, 
   openIdRef.current = openId;
   mutedRef.current = muted;
 
-  // door descriptors, catalogue order → hue by index
+  // door descriptors, catalogue order → hue by id
   const doors = useMemo(
-    () => projects.map((p, i) => ({ id: p.id, hue: DOOR_HUES[i] ?? "#9fb0bd" })),
+    () => projects.map((p) => ({ id: p.id, hue: DOOR_HUES[p.id] ?? FALLBACK_HUE })),
     [projects],
   );
   const names = useMemo(() => projects.map((p) => p.title), [projects]);
   const hueOf = useCallback(
-    (id: string) => doors.find((d) => d.id === id)?.hue ?? "#9fb0bd",
+    (id: string) => doors.find((d) => d.id === id)?.hue ?? FALLBACK_HUE,
     [doors],
   );
   const projectOf = useCallback(
@@ -1567,7 +1579,7 @@ export default function RealmMode({ projects, onOpenProject, onExit, onEntered, 
       </p>
 
       <nav className="realm-legend" aria-label="creatures">
-        {projects.map((p, i) => (
+        {projects.map((p) => (
           <button
             key={p.id}
             type="button"
@@ -1577,7 +1589,7 @@ export default function RealmMode({ projects, onOpenProject, onExit, onEntered, 
             <span
               className="realm-legend-dot"
               aria-hidden="true"
-              style={{ background: DOOR_HUES[i] ?? "#9fb0bd" }}
+              style={{ background: DOOR_HUES[p.id] ?? FALLBACK_HUE }}
             />
             door — {p.title}
           </button>
