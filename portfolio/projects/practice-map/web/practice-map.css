@@ -1154,6 +1154,10 @@
     font-size: clamp(1.9rem, 8vw, 2.9rem);
     line-height: 1.05;
   }
+  /* mobile legibility: subtext rides ~15% above the desktop proportion */
+  .practice-map-hero .hero-sub {
+    font-size: max(0.78rem, 0.46em);
+  }
 }
 
 @media (max-width: 700px) {

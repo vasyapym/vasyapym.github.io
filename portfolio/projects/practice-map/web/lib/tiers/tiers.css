@@ -12,12 +12,9 @@
 .practice-map-field{ --pill-radius:999px; }
 
 /* ---------- shared chrome ---------- */
-.pg-kicker,.pg-tier-count,.pg-pill,
+.pg-tier-count,.pg-pill,
 .pg-face-count,.pg-search input,.pg-pal input,.pg-pal-kind,.pg-hint,.pg-empty{
   font-family:"IBM Plex Mono",ui-monospace,monospace; text-transform:lowercase; letter-spacing:.04em;
-}
-.pg-kicker{
-  font-size:.74rem; color:var(--ink-faint); margin:0 0 14px;
 }
 .pg-hint{
   font-size:.66rem; color:var(--ink-faint); line-height:1.7; margin:0;

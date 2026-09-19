@@ -363,3 +363,41 @@ mobile top 390).
 - Visual inspection: eight shots read. Masthead sets plainly at 62.4px serif with no ascender/descender clipping; subtext 24.96px at 1440 (measured ratio 0.40); register uniform, no review semantics; active model row reads as the only fully-lit record (ordinal + sample), zero ochre; footer clean of queued counts (R012). Known disclosed behavior: at 320 the legibility floor lifts the ratio to 0.47 (10.88px subtext) — the floor working as specced
 - Code verification: `tsc --noEmit` clean; `practice-map.check.mjs` green except the pre-existing "ArrowRight advances sections" failure; headless probe at 1440/1024/700/560/390/320: docΔ=0, heroΔ=0 everywhere, 4 rec rows, 0 rec-disp, h1 face resolves IBM Plex Serif, subtext ratio 0.40 at all widths ≥390
 - Open question: owner verdict on the quiet accession register + serif masthead + lit-record active state (F025–F027); the item-2 caption is owner-picked, not the model's own — recorded as the integration note
+
+## Feedback F030
+- Round: none (owner batch, 2026-09-20, post-R013 review)
+- Verdict: REJECTED (mobile size)
+- Scope: hero subtext line (`.hero-sub`) — mobile breakpoints
+- Decision: undersized on mobile; increase its font size by ~15% at smaller breakpoints for legibility (desktop proportion untouched)
+- User source: item 1: «The hero section headline — "not all of these are good." — is undersized on mobile. Increase its font size by ~15% to improve legibility at smaller breakpoints.»
+
+## Feedback F031
+- Round: none (owner batch, 2026-09-20, post-R013 review)
+- Verdict: REJECTED (copy)
+- Scope: accession register specimen entries (`.hero-ledger .rec-out` — the four placeholder output fragments)
+- Decision: replace with fresh, concise text (same indiscriminate-preservation premise — the quality spread stays)
+- User source: item 2: «The accession register block requires new copy. The current placeholder entries … should be replaced with fresh, concise text.»
+
+## Feedback F032
+- Round: none (owner batch, 2026-09-20, post-R013 review)
+- Verdict: REJECTED (removal)
+- Scope: the kicker line "playground · 5 models · 29 lessons" (`.pg-kicker`)
+- Decision: remove entirely — it draws too much visual attention relative to its importance
+- User source: item 3: «The "playground · 5 models · 29 lessons" label draws too much visual attention relative to its importance. Remove it entirely.»
+
+## Feedback F033
+- Round: none (owner batch, 2026-09-20, post-R013 review)
+- Verdict: LIKED (hero) + REJECTED (body containers)
+- Scope: container treatments — model selector rows + lesson cards (rounded 20px panels)
+- Decision: the revised hero is strong; the model selector and lesson cards use rounded rectangles that don't feel like the same design system — explore alternative container treatments to establish a unified visual language across both components (hero itself stays)
+- User source: item 4: «The revised hero section is strong. That said, there's a visual inconsistency between that and the model selector, the lesson cards — they currently use rounded rectangles and don't feel like they belong to the same design system. Consider exploring alternative container treatments to establish a more unified visual language across both components.»
+
+## Round R014
+- Goal: direct leg of the post-R013 batch — F030 (mobile subtext +15%) + F032 (kicker removal) — orchestrator-direct: arithmetic + deletion; items F031 + F033 are design work and go to the chat-model relay (Brief C)
+- Preserved preferences: F019/F025 desktop proportion (0.40 ratio survives at ≥1024), the accession register structure, register laws
+- Changes: `PracticeMapPage.tsx` — the `.pg-kicker` paragraph deleted; `tiers.css` — `.pg-kicker` dropped from the shared mono-chrome selector and its own rule deleted; `practice-map.css` — ≤900 block gains `.hero-sub { font-size: max(0.78rem, 0.46em) }` (floor 0.68→0.78rem, proportion 0.4→0.46em — both +15%; inherits into the ≤560 band)
+- Before: artifacts/R013 lineage (the shipped quiet register)
+- After: artifacts/R014/ (same eight views)
+- Visual inspection: eight shots read. Kicker gone — hero opens the page directly, top rhythm intact; mobile subtext 12.9px@390 / 12.48px@320 (measured +15.0% / +14.7%), desktop untouched (24.96px@1440, ratio 0.40); model list/cards/folders unchanged (containers are the chat-model leg's scope)
+- Code verification: `tsc --noEmit` clean; `practice-map.check.mjs` green except the pre-existing "ArrowRight advances sections" failure; headless probe: docΔ=0 everywhere, kicker count 0, subtext 21.34px@700 / 16.19px@560 / 12.92px@390 / 12.48px@320
+- Open question: none on this leg; F031 (register copy) + F033 (container unification) briefed to the chat model next (Brief C, docs/briefs/BRIEF-practice-map-r015-unified-voice.md)

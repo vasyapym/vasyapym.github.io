@@ -163,10 +163,6 @@ export default function PracticeMapPage() {
   return (
     <div className="practice-map-field">
       <section className="practice-map-page section-shell" aria-labelledby="practice-map-title">
-        <p className="pg-kicker">
-          playground · {TIERS.length} models · {curriculum.reduce((n, area) => n + area.topics.length, 0)} lessons
-        </p>
-
         <header className="practice-map-hero">
           <h1 id="practice-map-title">
             <span className="hero-title">archive of ai outputs.</span>
