@@ -48,3 +48,5 @@
 {"type":"edge.added","id":"e21","ts":"2026-09-18T09:40:13.133Z","from":"n23","to":"n24","rel":"continues"}
 {"type":"node.added","id":"n25","ts":"2026-09-18T09:47:26.769Z","kind":"decision","actor":"design-iteration","title":"Owner verdict: R007 DATUM register LIKED — ui-overhaul thread closed, F009 parked thread resolved by scroll mode","summary":"R007 approved; floored DATUM moves stay parked as Go-engine candidates","artifacts":[{"kind":"git-commit","ref":"54438a9"}]}
 {"type":"edge.added","id":"e22","ts":"2026-09-18T09:47:26.773Z","from":"n24","to":"n25","rel":"continues"}
+{"type":"node.added","id":"n26","ts":"2026-09-19T11:37:04.729Z","kind":"decision","actor":"user","title":"card description halved on owner verdict — 34 → 19 words","summary":"less verbose: real-time Flexbox/Grid retune, Go-to-WASM engine, undo/redo, HTML/CSS export kept; second sentence merged, shareable URLs dropped","artifacts":[{"kind":"git-commit","ref":"ec90920"}]}
+{"type":"edge.added","id":"e23","ts":"2026-09-19T11:37:04.731Z","from":"n25","to":"n26","rel":"continues"}
