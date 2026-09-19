@@ -550,16 +550,25 @@ function pinBodyHeight() {
   document.documentElement.style.setProperty("--app-v", layoutHeight() + "px");
 }
 
-// ---- N027 (P2): touch-scroll gate — an external scrollTop write during iOS
+// ---- N027/N031: touch-scroll gate — an external scrollTop write during iOS
 // momentum cancels the momentum (the "rapid and chaotic" feel). revealCaret
-// must never write scrollTop while the user is panning (incl. the 400ms
-// momentum window after touchend).
+// must never write scrollTop while the user is panning OR coasting. N031:
+// the tail is a QUIET window, not the old fixed 400ms guess — a real iOS
+// fling coasts longer than 400ms; every scroll event of the coast pushes the
+// quiet timer, so the flag survives until the coast truly ends.
 let userScrolling = false, scrollIdle = 0;
 function beginUserScroll() { userScrolling = true; clearTimeout(scrollIdle); }
-function endUserScroll() { clearTimeout(scrollIdle); scrollIdle = setTimeout(() => { userScrolling = false; }, 400); }
+function endUserScroll() { clearTimeout(scrollIdle); scrollIdle = setTimeout(coastSettled, 140); }
+// N031: after the coast settles, one deferred reveal re-aims a caret that
+// moved (typed / loupe-dropped) while the coast was in progress.
+function coastSettled() {
+  userScrolling = false;
+  if (narrow.matches && document.activeElement === el.body) revealCaret();
+}
 document.addEventListener("touchmove", beginUserScroll, { passive: true, capture: true });
 document.addEventListener("touchend", endUserScroll, { passive: true, capture: true });
 document.addEventListener("touchcancel", endUserScroll, { passive: true, capture: true });
+el.body.addEventListener("scroll", () => { if (userScrolling) endUserScroll(); }, { passive: true });
 
 // N025 (S2 closed by owner): the in-app Done bar is REMOVED — iOS always
 // shows the standard keyboard accessory bar with Done on this device (owner
@@ -639,20 +648,49 @@ function tweenScrollTo(elm, to) {
   };
   tweenRaf = requestAnimationFrame(step);
 }
+// ---- N031: gated caret room (relay-salvaged policy on our machinery) ----
+// Default ON. ?noscroll=1 reverts to the legacy always-void focus padding
+// (?noscroll=0 re-enables) — the off state is exactly the N030-approved
+// behavior, implemented with the SAME CSS pair (legacy = room always armed).
+{
+  const q = new URLSearchParams(location.search);
+  if (q.has("noscroll")) {
+    try { localStorage.setItem("qn.noscroll", q.get("noscroll") === "0" ? "" : "1"); } catch (_) {}
+  }
+}
+const roomGated = () => {
+  try { return localStorage.getItem("qn.noscroll") !== "1"; }
+  catch (_) { return true; }
+};
+
+// Shared target math for BOTH reveal paths (instant pipeline + tweened).
+// The room is armed only when the desired position exceeds the NORMAL extent
+// (the void appears exactly when the caret needs it); arming never clamps
+// (the extent only grows) and de-arming happens only when the resting
+// scrollTop survives it (no visible jump).
+function caretScrollTarget(kb) {
+  const ta = el.body;
+  const visible = ta.clientHeight - kb;
+  if (visible <= 0) return null;
+  const desired = Math.round(caretContentY() - visible + 20);
+  const room = ta.classList.contains("caret-room");
+  let needs = true, normalMax = Infinity; // Infinity: de-arm guard can't block when legacy
+  if (roomGated()) {
+    normalMax = Math.max(0, ta.scrollHeight - (room ? kb : 0) - ta.clientHeight);
+    needs = desired > normalMax + 1;
+  }
+  if (needs !== room && (needs || ta.scrollTop <= normalMax))
+    ta.classList.toggle("caret-room", needs); // de-arm only without a clamp
+  const max = Math.max(0, ta.scrollHeight - ta.clientHeight); // re-reads the (maybe) armed extent
+  return { to: Math.max(0, Math.min(desired, max)) };
+}
 function revealCaret() {
   if (!narrow.matches || document.activeElement !== el.body) return;
   const ta = el.body;
-  // N030: the fallback estimate uses the remembered height (see estimateKb)
   const kb = currentKbHeight() || estimateKb();
-  const visible = ta.clientHeight - kb; // the area that stays above the keyboard
-  if (visible <= 0) return;
-  const caretY = caretContentY();
-  // minimal movement: lift the caret only as far as the keyboard zone demands,
-  // +20px margin (≈ one line) so a slightly-off mirror measure can't re-pan
-  const desired = Math.round(caretY - visible + 20);
-  const max = Math.max(0, ta.scrollHeight - ta.clientHeight);
-  const to = Math.max(0, Math.min(desired, max));
-  if (to > ta.scrollTop + 2) tweenScrollTo(ta, to); // high taps: no-op
+  const target = caretScrollTarget(kb);
+  if (!target) return;
+  if (target.to > ta.scrollTop + 2) tweenScrollTo(ta, target.to); // only-scroll-down: high taps no-op
 }
 let caretQueued = false;
 document.addEventListener("selectionchange", () => {
@@ -723,6 +761,16 @@ function caretIndexFromPoint(clientX, clientY) {
 
 let tapT0 = 0, tapX = 0, tapY = 0, tapOk = false, lastTapAt = 0, lastTapX = 0, lastTapY = 0;
 el.body.addEventListener("touchstart", e => {
+  // N031: drop the caret room at gesture start so a coast can never run
+  // through the void — but ONLY when the resting scrollTop survives the
+  // smaller extent (else the browser would clamp-jump ~kb px under the
+  // finger; the room then self-heals on the first quiet scroll end).
+  const ta = el.body;
+  if (roomGated() && ta.classList.contains("caret-room")) {
+    const kb = currentKbHeight() || estimateKb();
+    if (ta.scrollTop <= Math.max(0, ta.scrollHeight - kb - ta.clientHeight))
+      ta.classList.remove("caret-room");
+  }
   tapOk = e.touches.length === 1;
   if (!tapOk) return;
   tapT0 = performance.now();
@@ -749,13 +797,10 @@ el.body.addEventListener("touchend", e => {
   lastKb = 0;                                        // arm the one-shot re-aim at kb landing
   const idx = caretIndexFromPoint(tapX, tapY);
   ta.setSelectionRange(idx, idx);
-  const visible = ta.clientHeight - kb;              // strip above the keyboard
-  if (visible > 0) {
-    const caretY = caretContentY();
-    const to = Math.max(0, Math.min(Math.round(caretY - visible + 20),
-                                    ta.scrollHeight - ta.clientHeight));
-    if (to > ta.scrollTop + 2) { cancelAnimationFrame(tweenRaf); ta.scrollTop = to; }
-  }                                                  // only-scroll-down: high taps stay perfectly still
+  const target = caretScrollTarget(kb);
+  if (target && target.to > ta.scrollTop + 2) { // instant, in-gesture (N030 order kept: room → scroll → focus)
+    cancelAnimationFrame(tweenRaf); ta.scrollTop = target.to;
+  }
   focusEl(ta);                                       // sync in the gesture → keyboard opens
 }, { passive: false });
 
@@ -776,6 +821,7 @@ document.addEventListener("focusout", () => {
   setTimeout(() => { // debounce so field→field moves don't flicker
     if (fieldFocused()) return;
     document.body.classList.remove("kb");
+    el.body.classList.remove("caret-room"); // N031: the void never survives the keyboard
     setKbHeight(0);
     pinBodyHeight(); // N027 (P1): re-pin NOW that the field is blurred
     setTimeout(pinBodyHeight, 300); // belt: re-pin after the close animation settles
@@ -871,7 +917,7 @@ function mountDebugMeter() {
         `iH ${window.innerHeight}  cH ${document.documentElement.clientHeight}\n` +
         `vv ${vv ? Math.round(vv.height) : "-"}  off ${vv ? Math.round(vv.offsetTop) : "-"}  sc ${vv ? vv.scale.toFixed(2) : "-"}\n` +
         `${topLine}\n` +
-        `ta.scroll ${el.body ? Math.round(el.body.scrollTop) : "-"}  scrollY ${Math.round(window.scrollY)}  scroll ${userScrolling ? 1 : 0}\n` +
+        `ta.scroll ${el.body ? Math.round(el.body.scrollTop) : "-"} room ${el.body?.classList.contains("caret-room") ? 1 : 0}  scrollY ${Math.round(window.scrollY)}  scroll ${userScrolling ? 1 : 0}\n` +
         `body ${Math.round(r.top)}/${Math.round(r.bottom)}/${Math.round(r.height)}\n` +
         `kb ${sty.getPropertyValue("--kb-h").trim() || "0"}  app-v ${sty.getPropertyValue("--app-v").trim() || "-"}`;
     } catch (e) { m.textContent = "meter err: " + e.message; }

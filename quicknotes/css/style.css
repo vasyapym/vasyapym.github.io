@@ -242,10 +242,16 @@ dialog::backdrop{background:rgba(0,0,0,.55)}
   /* N021: keyboard-proof via body RESIZE is gone — the layout viewport is
      stable (meta interactive-widget=resizes-visual; body stays 100vh/100dvh
      from the base rule). The keyboard OVERLAPS the page; while a field is
-     focused (body.kb) the textarea gets keyboard-height bottom scroll room so
-     iOS reveals the caret by scrolling the TEXTAREA, not by panning the page.
-     --kb-h is written by app.js (real vv delta, focus-time estimate first). */
-  body.kb #body{padding-bottom:calc(16px + env(safe-area-inset-bottom) + var(--kb-h,0px))}
+     focused (body.kb) the textarea gets bottom scroll room so iOS reveals
+     the caret by scrolling the TEXTAREA, not by panning the page.
+     --kb-h is written by app.js (real vv delta, focus-time estimate first).
+     N031: the keyboard-height VOID is GATED — plain body.kb keeps only the
+     normal 16px+safe-area end (the scroll stops cleanly at the last line);
+     app.js arms #body.caret-room exactly when the caret needs the room
+     (typing/tap near the note end), and never arms or de-arms mid-coast.
+     ?noscroll=1 reverts to the always-void behavior via the same class. */
+  body.kb #body{padding-bottom:calc(16px + env(safe-area-inset-bottom))}
+  body.kb #body.caret-room{padding-bottom:calc(16px + env(safe-area-inset-bottom) + var(--kb-h,0px))}
   /* N024: "make it just static" (Obsidian-shell ask) — the container height is
      pinned to the keyboard-independent layout height and FROZEN while a field
      is focused (app.js writes --app-v and skips updates mid-focus). If this
