@@ -727,36 +727,82 @@ const interceptOn = () => {
   catch (_) { return narrow.matches; }
 };
 
-function rangeToIndex(root, range) {
-  let idx = 0;
-  const walker = document.createTreeWalker(root, NodeFilter.SHOW_TEXT);
-  let n;
-  while ((n = walker.nextNode())) {
-    if (n === range.startContainer) return idx + range.startOffset;
-    idx += n.nodeValue.length;
-  }
-  return idx;
+// ================= N032: geometric tap→caret resolver =================
+// Device verdict on the old mapping (overlay mirror + caretRangeFromPoint):
+// on iOS Safari the returned range is evidently never inside the mirror (the
+// hit-tester resolves the textarea underneath / skips the non-hittable
+// overlay), so the fallback fired on EVERY tap → caret at value.length → the
+// view jumped to the note end. The fix drops hit-testing entirely:
+// Range.getClientRects() works on visibility:hidden content (layout exists,
+// paint doesn't), so a per-character binary search over the synced mirror
+// gives true closestPosition(toPoint:) semantics — explicit MISS (−1) instead
+// of whatever the hit-tester feels like. Never depends on the mirror being
+// paintable or hit-testable.
+function charRectAt(node, i) { // rect of character i (widest of split rects at wraps)
+  const rng = document.createRange();
+  rng.setStart(node, i); rng.setEnd(node, i + 1);
+  const rs = rng.getClientRects();
+  if (!rs.length) return rng.getBoundingClientRect();
+  let best = rs[0];
+  for (const r of rs) if (r.width > best.width) best = r;
+  if (best.width === 0 && rs.length > 1) best = rs[rs.length - 1];
+  return best;
 }
-// Overlay a transparent, hit-testable style-mirror on the textarea for one
-// synchronous call; caretRangeFromPoint on it maps the tap to a text index.
+// closestPosition(toPoint:) over the mirror's laid-out text. Returns the
+// insertion index, or −1 on MISS (tap outside the text band → caller must
+// NOT move the caret — the fail-safe that replaces the end-of-text fallback).
+function resolveCaretIndex(m, value, x, y, slop) {
+  const node = m.firstChild;
+  const n = node.data.length;
+  const realLen = value.length;
+  if (realLen === 0) return 0;
+  const rF = charRectAt(node, 0), rL = charRectAt(node, n - 1);
+  if (y < rF.top - slop || y > rL.bottom + slop) return -1; // MISS: caret stays
+  // 1) any char on the target visual line: first i with bottom >= y
+  let lo = 0, hi = n - 1;
+  while (lo < hi) { const md = (lo + hi) >> 1;
+    if (charRectAt(node, md).bottom < y) lo = md + 1; else hi = md; }
+  const anch = charRectAt(node, lo);
+  const mid = (anch.top + anch.bottom) / 2;
+  // 2) line start a: first i with bottom > mid
+  let l = 0, h = lo;
+  while (l < h) { const md = (l + h) >> 1;
+    if (charRectAt(node, md).bottom <= mid) l = md + 1; else h = md; }
+  const a = l;
+  // 3) line end b: last i with top < mid
+  l = lo; h = n - 1;
+  while (l < h) { const md = (l + h + 1) >> 1;
+    if (charRectAt(node, md).top >= mid) h = md - 1; else l = md; }
+  const b = l;
+  // 4) nearest caret boundary in [a, b+1] by x (LTR-monotonic)
+  const bx = j => j <= b ? charRectAt(node, j).left : charRectAt(node, b).right;
+  l = a; h = b + 1;
+  while (l < h) { const md = (l + h) >> 1;
+    if (bx(md) < x) l = md + 1; else h = md; }
+  let idx = (l === a) ? a
+          : (l > b + 1 || bx(l) - x > x - bx(l - 1)) ? l - 1 : l;
+  if (idx === b + 1 && b < realLen && value[b] === "\n") idx = b; // stay before hard \n
+  return Math.min(idx, realLen); // strips the sentinel
+}
 function caretIndexFromPoint(clientX, clientY) {
-  const ta = el.body, r = ta.getBoundingClientRect(), cs = getComputedStyle(ta);
-  const m = caretMirror;
-  m.style.cssText = "position:fixed;z-index:2147483647;color:transparent;background:transparent;"
-    + "user-select:none;-webkit-user-select:none;box-sizing:border-box;overflow:hidden;"
-    + `left:${r.left}px;top:${r.top}px;width:${ta.clientWidth}px;height:${ta.clientHeight}px;`
-    + `padding:${cs.paddingTop} ${cs.paddingRight} ${cs.paddingBottom} ${cs.paddingLeft};`
+  const ta = el.body, cs = getComputedStyle(ta), m = caretMirror;
+  m.style.cssText = "position:absolute;visibility:hidden;top:0;left:0;z-index:-1;box-sizing:border-box;"
+    + `width:${ta.clientWidth}px;padding:${cs.paddingTop} ${cs.paddingRight} ${cs.paddingBottom} ${cs.paddingLeft};`
     + `font-family:${cs.fontFamily};font-size:${cs.fontSize};font-weight:${cs.fontWeight};`
     + `line-height:${cs.lineHeight};letter-spacing:${cs.letterSpacing};white-space:pre-wrap;`
     + `overflow-wrap:${cs.overflowWrap};word-break:${cs.wordBreak};tab-size:${cs.tabSize}`;
-  m.textContent = ta.value;
+  // sentinel keeps a trailing-\n empty last line measurable; clamped away later
+  m.textContent = ta.value === "" ? "\u200b"
+    : ta.value.endsWith("\n") ? ta.value + "\u200b" : ta.value;
   if (!m.parentNode) document.body.appendChild(m);
-  m.scrollTop = ta.scrollTop; // align mirror coords with the textarea's scroll
-  let idx = ta.value.length;
-  const range = document.caretRangeFromPoint(clientX, clientY);
-  if (range && m.contains(range.startContainer)) idx = rangeToIndex(m, range);
+  // touch point → mirror content coords (READS ta.scrollTop, never writes it)
+  const tr = ta.getBoundingClientRect(), mr = m.getBoundingClientRect();
+  const x = mr.left + (clientX - tr.left - (parseFloat(cs.borderLeftWidth) || 0) + ta.scrollLeft);
+  const y = mr.top + (clientY - tr.top - (parseFloat(cs.borderTopWidth) || 0) + ta.scrollTop);
+  const lineH = parseFloat(cs.lineHeight) || parseFloat(cs.fontSize) * 1.2;
+  const idx = resolveCaretIndex(m, ta.value, x, y, lineH * 0.6);
   m.style.cssText = "position:absolute;visibility:hidden;top:0;left:0;z-index:-1"; // park
-  return Math.max(0, Math.min(idx, ta.value.length));
+  return idx; // −1 = miss (caller must not move the caret)
 }
 
 let tapT0 = 0, tapX = 0, tapY = 0, tapOk = false, lastTapAt = 0, lastTapX = 0, lastTapY = 0;
@@ -781,8 +827,9 @@ el.body.addEventListener("touchmove", e => {
     tapOk = false;                                   // pan/drag-select: native
 }, { passive: true });
 el.body.addEventListener("touchend", e => {
-  if (!interceptOn() || !tapOk || !document.caretRangeFromPoint) return;
+  if (!interceptOn() || !tapOk) return;
   tapOk = false;
+  if (userScrolling) return;       // N032: tap during a coast = native scroll-stopper, we write nothing
   if (performance.now() - tapT0 > 350) return;       // long-press: native loupe/menu
   const dbl = performance.now() - lastTapAt < 350
            && Math.hypot(tapX - lastTapX, tapY - lastTapY) < 30;
@@ -796,7 +843,7 @@ el.body.addEventListener("touchend", e => {
   document.body.classList.add("kb");
   lastKb = 0;                                        // arm the one-shot re-aim at kb landing
   const idx = caretIndexFromPoint(tapX, tapY);
-  ta.setSelectionRange(idx, idx);
+  if (idx >= 0) ta.setSelectionRange(idx, idx);      // N032 fail-safe: miss → caret stays where it was
   const target = caretScrollTarget(kb);
   if (target && target.to > ta.scrollTop + 2) { // instant, in-gesture (N030 order kept: room → scroll → focus)
     cancelAnimationFrame(tweenRaf); ta.scrollTop = target.to;
