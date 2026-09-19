@@ -12,7 +12,7 @@
 .practice-map-field{ --pill-radius:999px; }
 
 /* ---------- shared chrome ---------- */
-.pg-kicker,.pg-tier-count,.pg-pill,.pg-chip,
+.pg-kicker,.pg-tier-count,.pg-pill,
 .pg-face-count,.pg-search input,.pg-pal input,.pg-pal-kind,.pg-hint,.pg-empty{
   font-family:"IBM Plex Mono",ui-monospace,monospace; text-transform:lowercase; letter-spacing:.04em;
 }
@@ -135,36 +135,19 @@
   margin:0; color:var(--ink-muted); font-size:14px; line-height:1.5;
   display:-webkit-box; -webkit-line-clamp:2; line-clamp:2; -webkit-box-orient:vertical; overflow:hidden;
 }
-.pg-chips{display:flex; flex-wrap:wrap; gap:.35rem; margin-top:.9rem}
-.pg-chip{
-  border:1px solid var(--ink-line-soft); border-radius:var(--pill-radius);
-  padding:.28rem .4rem; color:var(--ink-faint);
-  font-family:var(--mono); font-size:.68rem; letter-spacing:.03em; text-transform:lowercase;
-}
-.pg-chip.is-more{
-  color:var(--ink-faint); background:none; cursor:pointer;
-  text-decoration:underline; text-decoration-color:rgba(238,234,224,.29); text-underline-offset:2px;
-}
-
-/* Foot holds up to two outlined pills; .pg-pill stays the "open lesson"
-   control, .pg-card-graph is the new per-lesson graph control (outlined,
-   not solid), both floored at 44px. */
+/* Foot holds the outlined "open lesson" pill, floored at 44px. */
 .pg-card-foot{
   margin-top:.9rem; display:flex; flex-wrap:wrap; align-items:center; gap:.6rem;
 }
-.pg-card-foot .pg-pill,
-.pg-card-graph{
+.pg-card-foot .pg-pill{
   display:inline-flex; align-items:center; gap:.5rem; min-height:44px;
   border:1px solid var(--ink-line-soft); border-radius:var(--pill-radius);
   padding:.45rem .9rem; background:transparent; cursor:pointer;
   font-family:var(--mono); font-size:.72rem; letter-spacing:.04em; text-transform:lowercase;
+  color:var(--ink-accent);
   transition:border-color 180ms ease, color 180ms ease, background 180ms ease, gap 180ms ease;
 }
-.pg-card-foot .pg-pill{color:var(--ink-accent)}
 .pg-card-foot .pg-pill:hover{gap:.75rem; border-color:var(--ink-accent); color:var(--ink-accent-bright); background:var(--ink-panel)}
-.pg-card-graph{color:var(--ink-muted)}
-.pg-card-graph:hover{gap:.75rem; border-color:var(--ink-accent); color:var(--ink-accent-bright); background:rgba(211,155,97,.07)}
-.pg-card-graph:focus-visible{outline:1px solid var(--ink-accent); outline-offset:2px}
 
 /* ---------- 4. folders ---------- */
 .pg-faces{display:flex; flex-direction:column; gap:1.1rem}

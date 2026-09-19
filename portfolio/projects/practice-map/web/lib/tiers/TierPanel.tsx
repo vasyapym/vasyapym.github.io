@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useRef } from "react";
 import type { ReactElement, ReactNode } from "react";
 import type { TierBand, TopicCard, Volume } from "./tiers";
 import { pad, plural } from "./tiers";
@@ -17,7 +17,6 @@ type TierPanelProps = {
   onEnterVolume: (name: string) => void;
   onExitVolume: () => void;
   onOpenLesson: (topicId: string) => void;
-  onOpenGraph: (topic: TierTopic) => void;
   flashTopicId: string | null;
   onOpenPalette: () => void;
 };
@@ -26,21 +25,11 @@ function Card({
   topic,
   isFlash,
   onOpenLesson,
-  onOpenGraph,
 }: {
   topic: TierTopic;
   isFlash: boolean;
   onOpenLesson: (topicId: string) => void;
-  onOpenGraph: (topic: TierTopic) => void;
 }) {
-  const [expanded, setExpanded] = useState(false);
-  // Repo law (n196): <=10 concepts all shown with no expander, >=11 capped
-  // at 8 + toggle — same grace band as the previous card.
-  const cap = 8;
-  const shouldCap = topic.concepts.length > cap + 2;
-  const shown = shouldCap && !expanded ? topic.concepts.slice(0, cap) : topic.concepts;
-  const hiddenCount = topic.concepts.length - cap;
-
   return (
     <article className={`pg-card${isFlash ? " is-flash" : ""}`} data-topic-id={topic.id}>
       <div className="pg-topline">
@@ -48,36 +37,14 @@ function Card({
       </div>
       <h3>{topic.title}</h3>
       <p>{topic.summary}</p>
-      <div className="pg-chips">
-        {shown.map((c) => (
-          <span key={c} className="pg-chip">
-            {c}
-          </span>
-        ))}
-        {shouldCap && (
-          <button
-            type="button"
-            className="pg-chip is-more"
-            aria-expanded={expanded}
-            onClick={() => setExpanded((e) => !e)}
-          >
-            {expanded ? "fewer" : `+${hiddenCount} more`}
-          </button>
-        )}
-      </div>
-      {/* Foot always renders: every card qualifies for the graph control
-          (concepts exist regardless of topic.lesson); "open lesson" only
-          when a reader exists. */}
-      <div className="pg-card-foot">
-        {topic.lesson && (
+      {/* Foot renders only when a reader exists. */}
+      {topic.lesson && (
+        <div className="pg-card-foot">
           <button className="pg-pill" type="button" onClick={() => onOpenLesson(topic.id)}>
             open lesson →
           </button>
-        )}
-        <button className="pg-card-graph" type="button" onClick={() => onOpenGraph(topic)}>
-          concept graph ↗
-        </button>
-      </div>
+        </div>
+      )}
     </article>
   );
 }
@@ -91,7 +58,6 @@ export function TierPanel({
   onEnterVolume,
   onExitVolume,
   onOpenLesson,
-  onOpenGraph,
   flashTopicId,
   onOpenPalette,
 }: TierPanelProps) {
@@ -133,7 +99,6 @@ export function TierPanel({
                 topic={tp}
                 isFlash={tp.id === flashTopicId}
                 onOpenLesson={onOpenLesson}
-                onOpenGraph={onOpenGraph}
               />
             ))}
           </div>
@@ -199,7 +164,6 @@ export function TierPanel({
                   topic={tp}
                   isFlash={tp.id === flashTopicId}
                   onOpenLesson={onOpenLesson}
-                  onOpenGraph={onOpenGraph}
                 />
               ))}
             </div>
