@@ -37,7 +37,7 @@
 /* ---------- 2. layout ---------- */
 .pg-layout{
   margin-top:40px; display:grid; gap:28px 30px;
-  grid-template-columns:minmax(0,0.80fr) minmax(0,1.40fr);
+  grid-template-columns:minmax(0,0.57fr) minmax(0,1.40fr); /* ~20% narrower list; row anatomy verified at 1440/1024 */
   grid-template-areas:"list search" "list panel";
   align-items:start;
 }
@@ -47,7 +47,7 @@
 .pg-tier-row{
   width:100%; display:grid;
   grid-template-columns:auto minmax(0,1fr) auto;
-  align-items:baseline; column-gap:.85rem; row-gap:.4rem;
+  align-items:baseline; column-gap:.6rem; row-gap:.4rem;
   padding:.85rem 1rem; text-align:left;
   border:1px solid transparent; border-radius:var(--panel-radius);
   background:transparent; color:rgba(238,234,224,.68); cursor:pointer;
@@ -68,6 +68,9 @@
   grid-column:2; min-width:0;
   font-family:var(--sans); font-size:1rem; font-weight:600;
   letter-spacing:0; line-height:1.15; color:inherit; text-transform:none;
+  /* one-line names in the narrowed column: the 701-1024 band cannot hold the
+     longest name + count on the fr arithmetic alone — clip, never wrap */
+  overflow:hidden; text-overflow:ellipsis; white-space:nowrap;
 }
 .pg-tier-count{
   grid-column:3; font-family:var(--mono); font-size:.72rem; color:var(--ink-accent);
@@ -111,7 +114,7 @@
   margin:0; font-family:var(--sans); font-weight:600;
   text-transform:none; letter-spacing:0; font-size:1.15rem; line-height:1.1; color:var(--ink-text);
 }
-.pg-cards{display:flex; flex-direction:column; gap:.9rem}
+.pg-cards{display:flex; flex-direction:column; gap:1.15rem}
 .pg-card{
   border:1px solid var(--ink-line-soft); border-radius:var(--panel-radius);
   padding:30px; background:#0b1317; min-width:0;
@@ -150,7 +153,7 @@
 .pg-card-foot .pg-pill:hover{gap:.75rem; border-color:var(--ink-accent); color:var(--ink-accent-bright); background:var(--ink-panel)}
 
 /* ---------- 4. folders ---------- */
-.pg-faces{display:flex; flex-direction:column; gap:1.1rem}
+.pg-faces{display:flex; flex-direction:column; gap:1.4rem} /* gap > folder-tab (top:-9px) so groups clear */
 .pg-face{position:relative; border:1px solid var(--ink-line-soft); border-radius:var(--panel-radius); background:#0b1317}
 .pg-face::before{
   content:''; position:absolute; top:-9px; left:20px; width:92px; height:10px;
@@ -235,8 +238,8 @@
   .pg-tier-head{padding-bottom:.8rem; margin-bottom:.9rem}
   .pg-crumb{padding-bottom:.8rem; margin-bottom:.9rem}
   .pg-face-head{padding:14px 16px; min-height:44px}
-  .pg-faces{gap:.9rem}
-  .pg-cards{gap:.75rem}
+  .pg-faces{gap:1.1rem}
+  .pg-cards{gap:.95rem}
   .pg-pal{top:0; left:0; transform:none; width:100%; border-radius:0 0 var(--panel-radius) var(--panel-radius); border-left:0; border-right:0; border-top:0}
   .pg-pal-list{max-height:64vh}
 }

@@ -239,3 +239,14 @@ mobile top 390).
 - Visual inspection: both shots read. Cards are quieter: topline, title, summary, single outlined "open lesson →" pill; no chips row, no graph control; list/search/crumb from R008 unaffected.
 - Code verification: `tsc --noEmit` clean; `practice-map.check.mjs` green except the pre-existing "ArrowRight advances sections" failure (unchanged since R007a); headless probe at 1440/390: zero `.pg-chip/.pg-chips/.pg-card-graph` elements, no horizontal overflow
 - Open question: none for this pass (owner decided the removal); R010 rhythm brief (F016 spacing + F017 width) is next
+
+## Round R010
+- Goal: rhythm pass (F016 + F017 under F018's bar) — card/folder breathing + left panel narrowed ~20% (chat-model relay, brief docs/briefs/BRIEF-practice-map-r010-rhythm.md)
+- Preserved preferences: F018 aesthetic line, R008 row anatomy (ordinal/name/count baseline grid), liked `.pg-layout` margin-top 40px, folder-tab ornament clearance
+- Changes (chat model's spec): `.pg-layout` left fr 0.80 → 0.57 (~20.4% narrower; right absorbs freed width), `.pg-cards` gap .9 → 1.15rem, `.pg-faces` gap 1.1 → 1.4rem (tab clearance 8.6 → 13.4px), 700px steps .75→.95rem / .9→1.1rem
+- Integration corrections (orchestrator, measured): the model's one-line claim failed at 1024 — headless measure: name "opus-4.8-thinking" needs 134px, count "20 lessons" 74px, ordinal 20px → left column would need ~282px, i.e. below-band narrowing; fixed by (1) row `column-gap` .85 → .6rem (frees 8px; gap still reads), (2) `.pg-tier-name` ellipsis+nowrap (the durable fix the chat model itself flagged in Notes; clip, never wrap — names are identifiers, the register already speaks "clipped output" on the hero log). Result: 20.4% narrowing kept AND zero wrapped names at every matrix width
+- Before: artifacts/R008/after-top-1440.png lineage (0.80fr list, .9rem/.1.1rem gaps)
+- After: artifacts/R010/rhythm-{1440,1024,700,560,390,320}.png
+- Visual inspection: six shots read. Left column visibly narrower at 1440/1024, cards and folder groups airier (18.4/22.4px desktop, 15.2/17.6px ≤700), hierarchy faces>cards preserved; at 1024 the single clipped row ellipsizes cleanly ("opus-4.8-thinki…"), samples keep their existing clamp; no cramped or floating band anywhere.
+- Code verification: `tsc --noEmit` clean; `practice-map.check.mjs` green except the pre-existing "ArrowRight advances sections" failure; headless probe across 1440/1024/700/560/390/320: no horizontal overflow, zero wrapped name rows, name clipping only at 1024 (1 row, by design), list column 339/267/628/528/358/288px, faces gap 22.4px with 13.4px tab clearance
+- Open question: owner verdict on the whole batch (R007a hero concept, R008 quality pass, R010 rhythm); the original six-item task list is now fully worked
