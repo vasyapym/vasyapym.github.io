@@ -182,6 +182,23 @@ export default function LandingPage({
     };
   }, []);
 
+  // The main menu never paints its document scrollbar (owner verdict after
+  // the quicknotes card's inner bar went quiet and the host bar became the
+  // only visible one). The page stays scrollable; the bar just never renders.
+  // Route-local like data-signal-index: project pages keep their own bars.
+  useLayoutEffect(() => {
+    const root = document.documentElement;
+    const previous = root.hasAttribute("data-no-scroll-bar");
+
+    root.setAttribute("data-no-scroll-bar", "");
+
+    return () => {
+      if (!previous) {
+        root.removeAttribute("data-no-scroll-bar");
+      }
+    };
+  }, []);
+
   // A plain back-to-menu trip returns the visitor to the catalogue row they
   // left: consume the project-return intent before first paint. The realm's
   // own return path restores its offset elsewhere — never double-drive it.
