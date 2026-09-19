@@ -138,3 +138,84 @@ mobile top 390).
 - Visual inspection: desktop shot read. The wall frame now carries the card — the bold warm outline groups the hatch cells the way Spine/Trail marks group their subjects; cell density and the blue front stay untouched (owner asked outline only). Card reads "08 · playground / Waste of tokens / Model-tiered archive with an experimental lesson space and an open ai playground." on one line at 1440.
 - Code verification: `tsc --noEmit` clean; card rendered headlessly with no console/page errors
 - Open question: hero band copy/energy rework (F002 + F005) — next round; owner hasn't briefed the new hero copy yet
+
+## Feedback F009
+- Round: none (owner batch, 2026-09-19)
+- Verdict: REJECTED
+- Scope: hero h1 copy (both lines), all viewports
+- Decision: the heading becomes "archive of ai outputs. not all of these are good." (page renders lowercase; the copy answers R006's open question — the owner has now briefed the hero copy)
+- User source: task item 1: «Replace heading with: "Archive of AI outputs. Not all of these are good."»
+
+## Feedback F010
+- Round: none (owner batch, 2026-09-19)
+- Verdict: REJECTED
+- Scope: hero visual direction — the whole hero band, all viewports
+- Decision: the hero renders "polished but generic"; it must immediately signal an AI experimentation space and needs a distinct concept — not just a layout adjustment
+- User source: task item 2: «The hero currently renders as a polished but generic section. It should immediately signal that this is an AI experimentation space. Needs a distinct concept — not just a layout adjustment.»
+- Supersedes: F005 (within hero scope only — the "copy band only, no new modules" constraint is lifted for this round; the hero may carry quiet composed graphics, not functional/interactive furniture)
+
+## Feedback F011
+- Round: none (owner batch, 2026-09-19)
+- Verdict: REJECTED
+- Scope: concept graphs everywhere (the per-lesson graph overlay opened from each card's "concept graph ↗" control, introduced when the hero rail died in R004) + lesson-card tags (the `.pg-chip` concept chips)
+- Decision: remove all concept graphs; strip tags from lesson cards as well
+- User source: task item 3: «Remove all concept graphs. Strip tags from lesson cards as well.»
+
+## Feedback F012
+- Round: none (owner batch, 2026-09-19)
+- Verdict: REJECTED
+- Scope: search bar (`.pg-search`) — typography and styling
+- Decision: the bar "feels unrefined"; restyle toward the batch's target aesthetic
+- User source: task item 4: «Search bar — typography and styling feel unrefined.»
+
+## Feedback F013
+- Round: none (owner batch, 2026-09-19)
+- Verdict: REJECTED
+- Scope: model list, left panel (`.pg-tier-list` / `.pg-tier-row`)
+- Decision: too dense, no whitespace, visually undifferentiated — needs breathing room and row differentiation
+- User source: task item 4: «Model list (left panel) — too dense, no whitespace, visually undifferentiated.»
+
+## Feedback F014
+- Round: none (owner batch, 2026-09-19)
+- Verdict: REJECTED
+- Scope: active model row highlight (`.pg-tier-row.is-active`)
+- Decision: yellow (the ochre 9% fill) is heavy-handed; use something quieter — a muted accent or subtle weight shift
+- User source: task item 4: «Active model highlight — yellow is heavy-handed; use something quieter — a muted accent or subtle weight shift.»
+
+## Feedback F015
+- Round: none (owner batch, 2026-09-19)
+- Verdict: REJECTED
+- Scope: "Go Back" button (`.pg-crumb-back`, volume view)
+- Decision: reads as an unstyled default; restyle it into the page's language (this supersedes the "liked stylistically" part of the model-tier ledger's F024, which only scaled it down ~15% — the scale correction stands)
+- User source: task item 4: «"Go Back" button — reads as unstyled default.»
+
+## Feedback F016
+- Round: none (owner batch, 2026-09-19)
+- Verdict: REJECTED
+- Scope: vertical spacing between lesson cards (`.pg-cards` gap) and folder groups (`.pg-faces` gap)
+- Decision: increase both so the layout breathes
+- User source: task item 5: «Increase vertical spacing between lesson cards and folder groups. Let the layout breathe.»
+
+## Feedback F017
+- Round: none (owner batch, 2026-09-19)
+- Verdict: REJECTED
+- Scope: left panel (model list) width (`.pg-layout` column ratio)
+- Decision: narrow the model list panel by ~20–30%; pair with F016's added whitespace for balance
+- User source: task item 6: «Narrow the model list panel by ~20–30%. Pair with the added whitespace from item 6 to maintain visual balance.»
+
+## Feedback F018
+- Round: none (owner batch, 2026-09-19)
+- Verdict: REJECTED
+- Scope: overall register of the listed surfaces (search, model list, active highlight, back button, cards)
+- Decision: multiple elements read as default or template-driven; the target is "a senior developer's personal site — restrained, intentional, zero template energy" (binding aesthetic constraint for F012–F017)
+- User source: task item 4: «Target aesthetic: a senior developer's personal site — restrained, intentional, zero template energy.»
+
+## Round R007 (part A — hero, per docs/briefs/BRIEF-practice-map-r007-hero.md)
+- Goal: F009 + F010 follow-through — h1 becomes "archive of ai outputs." / "not all of these are good." and the hero gets one distinct non-interactive concept: an archivist's review-log (the h1 is the verdict, the log below is the evidence — sample model outputs, two kept, two cut)
+- Preserved preferences: F010 (distinct concept, zero interactive furniture), mobile presence law (≤900/≤560 padding + big type), no crowding of `.pg-layout` (its margin-top untouched), register laws (lowercase, hairlines, ochre family, --panel-radius, grain untouched)
+- Changes: `PracticeMapPage.tsx` hero region — h1 copy swapped, aria-hidden `.hero-log` added (mono caption "from the archive — kept / cut" + `.hero-strata` of four sample outputs: two keep, two cut); `practice-map.css` hero block rewritten wholesale — panel becomes a grid with padding + `overflow: hidden`, `.hero-log` gets a top hairline, strata rows carry ochre pips (kept) vs struck rows (`--ink-accent-deep` line-through, `--ink-line` text/pip), 320-bound ellipsis truncation via `min-width: 0` + `text-overflow`, one-shot staggered `hero-log-in` gated by `prefers-reduced-motion: no-preference`; ≤900/≤560 padding moved from the h1 to the panel, type clamps kept verbatim
+- Before: artifacts/R007/before-desktop-full.png, before-mobile-top.png
+- After: artifacts/R007/after-hero-{1440,1024,900,560,390,320}.png
+- Visual inspection: all six shots read. Verdict + log compose cleanly at every width; strata stay full-width until 390; at 320 three lines truncate to ellipsis (by design — "clipped output" reinforces the concept) and the h1 wraps rather than truncates; no collision with the kicker or `.pg-layout`; kept/cut marks and strike-throughs read at all sizes.
+- Code verification: `tsc --noEmit` clean; `practice-map.check.mjs` passes except the pre-existing "ArrowRight advances sections" failure — confirmed failing identically on the unmodified tree (stash-verified) before this round's splice; headless probe at all six widths: zero console/page errors, no document or hero horizontal overflow, log height stable, truncation flags only at 320
+- Open question: owner verdict on the review-log concept; F011–F018 batch (graphs/tags removal, search bar, model list, spacing, column ratio) is separate work, not this round

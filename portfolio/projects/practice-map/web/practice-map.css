@@ -46,30 +46,28 @@
   text-transform: lowercase;
 }
 
-/* Hero is now a single full-width copy card (the concept-graph rail moved
-   into each lesson card's foot). No grid — the card fills the run. */
+/* Hero = an archivist's record: verdict (h1) over a hairline-ruled log of
+   sample model outputs — two kept (ochre pip), two cut (struck). Keeps the
+   old copy-card skin (flat scrim, hairline, ochre-deep left rule, radius). */
 .practice-map-hero {
-  display: block;
-}
-
-/* Copy panel — the .signal-index-hero-copy language (Reference 3): flat scrim,
-   soft hairline, ochre-deep left rule, rounded to the shared panel radius. */
-.practice-map-hero h1 {
-  display: flex;
-  flex-direction: column;
-  justify-content: center;
-  margin: 0;
-  padding: clamp(1.05rem, 2vw, 1.55rem) clamp(1.05rem, 2vw, 1.55rem)
-    clamp(1.2rem, 2.2vw, 1.7rem);
+  display: grid;
+  gap: clamp(0.85rem, 1.7vw, 1.25rem);
+  padding: clamp(1.15rem, 2.2vw, 1.75rem) clamp(1.15rem, 2.2vw, 1.75rem)
+    clamp(1.3rem, 2.4vw, 1.9rem);
   background: rgba(9, 15, 18, 0.62);
   border: 1px solid var(--ink-line-soft);
   border-left: 2px solid var(--ink-accent-deep);
   border-radius: var(--panel-radius);
+  overflow: hidden; /* guards the radius + backstops strata truncation */
+}
+
+.practice-map-hero h1 {
+  margin: 0;
+  display: flex;
+  flex-direction: column;
   font-family: var(--display);
-  /* Divisor 22→26: the new copy ("archive of ai outputs" = 21 chars) is far
-     longer than the old 15-char line, and the hero is now full-width, so a
-     slower growth rate keeps both lines inside the band while still reaching
-     the 3.2rem cap near 1440. */
+  /* divisor 26: the 22-char line + full-width run needs slow growth to reach
+     the 3.2rem cap near 1440 without breaking the band */
   font-size: clamp(1.15rem, calc((100vw - 72px) / 26), 3.2rem);
   font-weight: 600;
   letter-spacing: -0.02em;
@@ -81,6 +79,94 @@
 .practice-map-hero h1 span {
   display: block;
   color: var(--ink-accent-bright);
+}
+
+/* the log — decorative evidence, non-interactive */
+.practice-map-hero .hero-log {
+  pointer-events: none;
+  border-top: 1px solid var(--ink-line-soft);
+  padding-top: clamp(0.7rem, 1.4vw, 1rem);
+}
+
+.practice-map-hero .hero-log-cap {
+  margin: 0 0 0.55rem;
+  font-family: var(--mono);
+  font-size: clamp(0.62rem, 1.3vw, 0.72rem);
+  letter-spacing: 0.03em;
+  text-transform: lowercase;
+  color: var(--ink-muted);
+}
+.practice-map-hero .hero-log-cap .k {
+  color: var(--ink-accent);
+}
+.practice-map-hero .hero-log-cap .c {
+  color: var(--ink-faint);
+  text-decoration: line-through;
+  text-decoration-color: var(--ink-accent-deep);
+}
+
+.practice-map-hero .hero-strata {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: grid;
+  gap: 0.4rem;
+  max-width: 52ch;
+  font-family: var(--mono);
+  font-size: clamp(0.66rem, 1.3vw, 0.82rem);
+  line-height: 1.3;
+  color: var(--ink-faint);
+}
+
+.practice-map-hero .hero-strata li {
+  display: flex;
+  align-items: baseline;
+  gap: 0.55rem;
+  min-width: 0;
+}
+.practice-map-hero .hero-strata li span {
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis; /* clipped output — truncation is the concept */
+  white-space: nowrap;
+}
+.practice-map-hero .hero-strata li::before {
+  content: "";
+  flex: none;
+  width: 0.62rem;
+  height: 2px;
+  transform: translateY(-0.18em);
+  background: var(--ink-accent); /* kept */
+}
+.practice-map-hero .hero-strata .cut {
+  color: var(--ink-line);
+  text-decoration: line-through;
+  text-decoration-color: var(--ink-accent-deep);
+}
+.practice-map-hero .hero-strata .cut::before {
+  background: var(--ink-line);
+}
+
+/* quiet one-shot: outputs log in on entry; final state stands without it */
+@media (prefers-reduced-motion: no-preference) {
+  .practice-map-hero .hero-strata li {
+    animation: hero-log-in 0.5s ease both;
+  }
+  .practice-map-hero .hero-strata li:nth-child(2) {
+    animation-delay: 0.07s;
+  }
+  .practice-map-hero .hero-strata li:nth-child(3) {
+    animation-delay: 0.14s;
+  }
+  .practice-map-hero .hero-strata li:nth-child(4) {
+    animation-delay: 0.21s;
+  }
+  @keyframes hero-log-in {
+    from {
+      opacity: 0;
+      transform: translateY(4px);
+    }
+  }
 }
 
 .practice-graph-overlay {
@@ -1444,13 +1530,14 @@
 }
 
 @media (max-width: 900px) {
-  /* Full-width single card: keep the headline proportionate to the card,
-     not the viewport formula (which undersizes it 561–900). Deliberate
-     presence: bigger type + real vertical padding, per R006. */
+  /* liked mobile presence: bigger type + real vertical padding (R006) */
+  .practice-map-hero {
+    padding: 1.7rem 1.4rem 1.9rem;
+    gap: 1.05rem;
+  }
   .practice-map-hero h1 {
     font-size: clamp(1.7rem, 8vw, 2.7rem);
     line-height: 1.02;
-    padding: 1.7rem 1.4rem 1.9rem;
   }
 }
 
@@ -1471,9 +1558,12 @@
     padding-bottom: 4rem;
   }
 
+  .practice-map-hero {
+    padding: 1.45rem 1.1rem 1.55rem;
+    gap: 0.85rem;
+  }
   .practice-map-hero h1 {
     font-size: clamp(1.45rem, 7.4vw, 2.15rem);
-    padding: 1.45rem 1.1rem 1.55rem;
   }
 
   .practice-area-list {

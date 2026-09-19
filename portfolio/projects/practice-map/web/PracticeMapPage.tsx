@@ -185,9 +185,31 @@ export default function PracticeMapPage() {
 
         <header className="practice-map-hero">
           <h1 id="practice-map-title">
-            archive of ai outputs
-            <span>teaching concepts.</span>
+            archive of ai outputs.
+            <span>not all of these are good.</span>
           </h1>
+          {/* review-log: sample outputs, kept vs cut — decorative evidence for
+              the verdict above; not announced, the h1 carries the meaning */}
+          <div className="hero-log" aria-hidden="true">
+            <p className="hero-log-cap">
+              from the archive — <span className="k">kept</span> /{" "}
+              <span className="c">cut</span>
+            </p>
+            <ol className="hero-strata">
+              <li className="keep">
+                <span>sure — here are ten ways to refactor this…</span>
+              </li>
+              <li className="cut">
+                <span>the capital of australia is sydney</span>
+              </li>
+              <li className="keep">
+                <span>def solve(n): return dp[n] if n in dp else…</span>
+              </li>
+              <li className="cut">
+                <span>as an ai language model, i cannot help with…</span>
+              </li>
+            </ol>
+          </div>
         </header>
 
         <div className="pg-layout">
