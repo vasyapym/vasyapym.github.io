@@ -217,7 +217,7 @@ export function TierPanel({
           type="search"
           autoComplete="off"
           spellCheck={false}
-          placeholder="фильтр уроков — название и описание"
+          placeholder="filter lessons — name and description"
           aria-label="filter lessons"
           value={query}
           onChange={(e) => onQueryChange(e.target.value)}

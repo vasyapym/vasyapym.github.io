@@ -394,9 +394,13 @@ try {
   const nodeCount = await page.$$eval(".practice-graph-node", (n) => n.length);
   check(nodeCount >= 2, `lesson-scoped graph renders its focus set (${nodeCount})`);
 
-  const scopeReadout = await page.$eval(".practice-graph-readout", (el) => el.textContent);
-  check(scopeReadout.includes("source lesson"), `readout names the source lesson (${scopeReadout.slice(0, 60)})`);
-  check((await page.$(".practice-graph-ranklist")) !== null, "ranked list renders for the lesson scope");
+  // R006: the readout block is gone — the overlay is a pure visual graph, so
+  // the gate inverts: no stats line, no ranklist, no hint strings anywhere.
+  check((await page.$(".practice-graph-readout")) === null, "readout block removed");
+  check((await page.$(".practice-graph-ranklist")) === null, "ranked list removed");
+  const overlayText = await page.$eval(".practice-graph-overlay", (el) => el.textContent);
+  check(!overlayText.includes("source lesson"), "no source-lesson stats line");
+  check(!overlayText.includes("drag"), "no drag/tap hint text in the overlay");
 
   const nodesInside = await page.evaluate(() => {
     const canvas = document.querySelector(".practice-graph-canvas").getBoundingClientRect();
@@ -409,8 +413,8 @@ try {
   });
   check(nodesInside, "all node centers sit inside the canvas");
 
-  const emptyReadout = await page.$eval(".practice-graph-readout", (el) => el.textContent);
-  check(emptyReadout.includes("drag a node"), "readout shows the empty hint first");
+  // Hard node cap (R006): the visible set never exceeds the layout ceiling.
+  check(nodeCount <= 14, `visible nodes hold the hard cap (${nodeCount} <= 14)`);
 
   // Hover node 0: connections light up.
   const pipeBox = await page.$eval(".practice-graph-node", (n) => {
@@ -423,10 +427,8 @@ try {
   check(edgeCount >= 1, `hovering a node draws its edges (${edgeCount})`);
   const edgeStroke = await page.$eval(".practice-graph-edges line", (l) => getComputedStyle(l).stroke);
   check(edgeStroke !== "none" && edgeStroke !== "", `edge stroke resolves (${edgeStroke})`);
-  const activeReadout = await page.$eval(".practice-graph-readout", (el) => el.textContent);
-  check(activeReadout.includes("topics"), `readout inspects the active concept (${activeReadout.slice(0, 60)})`);
 
-  // Drag the node: it moves, edges follow, readout stays.
+  // Drag the node: it moves, edges follow.
   await page.mouse.down();
   await page.mouse.move(pipeBox.x + 160, pipeBox.y + 90, { steps: 8 });
   await page.mouse.up();
@@ -436,7 +438,14 @@ try {
   const edgesAfterDrag = await page.$$eval(".practice-graph-edges line", (l) => l.length);
   check(edgesAfterDrag >= 1, "edges follow the dragged node");
   if (nodeCount >= 5) {
-    check(await appears(".practice-graph-node.is-dimmed"), "unrelated nodes dim while a node is active");
+    // R006: the capped focus set (strongest 14) can be fully connected —
+    // dimming only applies to nodes that are neither active nor neighbors.
+    const nonNeighbors = nodeCount - 1 - (await page.$$eval(".practice-graph-node.is-neighbor", (n) => n.length));
+    if (nonNeighbors > 0) {
+      check(await appears(".practice-graph-node.is-dimmed"), "unrelated nodes dim while a node is active");
+    } else {
+      console.log("ok   dim gate skipped — capped focus set is fully connected");
+    }
   }
 
   await page.keyboard.press("Escape");
@@ -608,11 +617,11 @@ try {
   );
   check(noOverflowGraph, "no horizontal overflow inside the graph sheet");
 
-  // Tap a node: it activates and the readout inspects it.
+  // Tap a node: it activates (R006: no readout — the connection lines render).
   await page.tap(".practice-graph-node");
   await wait(400);
-  const mobileReadout = await page.$eval(".practice-graph-readout", (el) => el.textContent);
-  check(mobileReadout.includes("topics") || mobileReadout.includes("topic"), `tap inspects a concept (${mobileReadout.slice(0, 50)})`);
+  const activeEdges = await page.$$eval(".practice-graph-edges line", (l) => l.length);
+  check(activeEdges >= 1, `tap activates a node and lights its edges (${activeEdges})`);
 
   const canvasStable = await page.$eval(
     ".practice-graph-canvas",
@@ -722,7 +731,14 @@ try {
 
   // --- narrow phone: free reading stays inside the panel ---------------------
 
-  await page.tap(".pg-card .pg-pill");
+  // page.tap's scrollIntoView→touch race after the graph's scroll restore can
+  // land ~50px off the pill; tap at the element's live coordinates instead.
+  const narrowPill = await page.$eval(".pg-card .pg-pill", (el) => {
+    const r = el.getBoundingClientRect();
+    return { x: r.left + r.width / 2, y: r.top + r.height / 2 };
+  });
+  await page.touchscreen.touchStart(narrowPill.x, narrowPill.y);
+  await page.touchscreen.touchEnd();
   check(await appears(".practice-reader"), "reader opens at 320px for the free-reading leg");
   await page.tap(".fr-controls button");
   check(await appears(".fr .fr-area"), "free reading mounts at 320px");

@@ -37,7 +37,7 @@
 /* ---------- 2. layout ---------- */
 .pg-layout{
   margin-top:40px; display:grid; gap:28px 30px;
-  grid-template-columns:minmax(0,0.92fr) minmax(0,1.28fr);
+  grid-template-columns:minmax(0,0.80fr) minmax(0,1.40fr);
   grid-template-areas:"list search" "list panel";
   align-items:start;
 }
@@ -99,11 +99,12 @@
 .pg-card.is-flash{border-color:var(--ink-accent)}
 .pg-topline{
   display:flex; align-items:center; justify-content:space-between; gap:1rem;
+  margin-bottom:.8rem;
   color:var(--ink-accent); font-family:var(--mono); font-size:12px; font-weight:500;
   letter-spacing:.02em;
 }
 .pg-card h3{
-  margin:0; font-family:var(--sans);
+  margin:0 0 .55rem; font-family:var(--sans);
   font-size:clamp(20px,1.6vw,24px); font-weight:700; line-height:1.2; color:var(--ink-text);
 }
 /* Preview only: the full summary lives on in the lesson reader, so the card
@@ -114,7 +115,8 @@
 }
 .pg-chips{display:flex; flex-wrap:wrap; gap:.35rem; margin-top:.9rem}
 .pg-chip{
-  border:1px solid var(--ink-line-soft); padding:.28rem .4rem; color:var(--ink-faint);
+  border:1px solid var(--ink-line-soft); border-radius:var(--pill-radius);
+  padding:.28rem .4rem; color:var(--ink-faint);
   font-family:var(--mono); font-size:.68rem; letter-spacing:.03em; text-transform:lowercase;
 }
 .pg-chip.is-more{
@@ -174,11 +176,15 @@
 /* Back joins the outlined pill family (donor proportions in OUR language,
    not a solid fill), now the row's dominant control at 44px. */
 .pg-crumb-back{
-  display:inline-flex; align-items:center; gap:.5rem; min-height:44px;
+  display:inline-flex; align-items:center; gap:.45rem; min-height:44px;
   border:1px solid var(--ink-line); border-radius:var(--pill-radius);
-  padding:.5rem 1rem; background:transparent; cursor:pointer; color:var(--ink-accent);
-  font-family:var(--mono); font-size:.95rem; letter-spacing:.03em; text-transform:lowercase;
+  padding:.42rem .85rem; background:transparent; cursor:pointer; color:var(--ink-accent);
+  font-family:var(--mono); font-size:.8rem; letter-spacing:.03em; text-transform:lowercase;
   transition:border-color 180ms ease, color 180ms ease, background 180ms ease, gap 180ms ease;
+}
+/* fine pointers (mouse) may step below the 44px floor; touch stays >=44px */
+@media (pointer: fine){
+  .pg-crumb-back{min-height:40px}
 }
 .pg-crumb-back:hover{gap:.7rem; border-color:var(--ink-accent); color:var(--ink-accent-bright); background:rgba(211,155,97,.07)}
 .pg-crumb-back:focus-visible{outline:1px solid var(--ink-accent); outline-offset:2px}

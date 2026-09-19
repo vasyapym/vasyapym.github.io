@@ -232,3 +232,94 @@ Owner decisions fixed into the brief (mode 2 — design owned by the orchestrato
 - User source: "i like it. there are some improvements needed but i will do it in next session"
 - Artifact: artifacts/R005/*
 - Supersedes: none
+
+## Feedback F018
+- Round: R005
+- Verdict: REJECTED
+- Scope: concept-graph overlay — visible node count + status copy, all viewports
+- Decision: enforce a hard cap on visible nodes; remove the metadata strings (the "source lesson · … · N lesson concepts + M strongest neighbors · K links" readout line and its family) and the UI hint overlays ("drag node", "tap to inspect" — the footer line and the empty-state readout line)
+- User source: task item 1: "The graph surfaces too many concepts per lesson. Enforce a hard cap on the number of visible nodes. Remove all metadata strings (e.g., 'source lesson · Go с нуля до глубокого понимания · 30 lesson concepts + 2 strongest neighbors · 438 links') — these fall outside the graph's intended scope. Similarly, strip UI hint overlays such as 'drag node' and 'tap to inspect.'"
+- Artifact: artifacts/R005/a-desktop-graph-lesson.png
+- Supersedes: none
+
+## Feedback F019
+- Round: R005
+- Verdict: REJECTED
+- Scope: hero headline wording, all viewports
+- Decision: "teaching stuff" becomes "teaching concepts"
+- User source: task item 2: "Change 'teaching stuff' to 'teaching concepts' in the header copy."
+- Artifact: artifacts/R005/a-desktop-hero.png
+- Supersedes: refines F009's copy ("archive of ai outputs / teaching stuff.")
+
+## Feedback F020
+- Round: R005
+- Verdict: REJECTED
+- Scope: tier-list (left model list) column width, desktop two-column layout
+- Decision: narrow the left panel — its current width serves no functional purpose and compresses the main content area
+- User source: task item 3: "Narrow the left-panel model list. Its current width serves no functional purpose and unnecessarily compresses the main content area."
+- Artifact: artifacts/R005/a-desktop-list-cards.png
+- Supersedes: none
+
+## Feedback F021
+- Round: R005
+- Verdict: REJECTED
+- Scope: search input placeholder copy, all viewports
+- Decision: translate "фильтр уроков — название и описание" to English to match the interface language
+- User source: task item 4: "Translate the placeholder text 'фильтр уроков — название и описание' to English to match the rest of the interface language."
+- Artifact: artifacts/R005/a-desktop-list-cards.png
+- Supersedes: none
+
+## Feedback F022
+- Round: R005
+- Verdict: REJECTED
+- Scope: lesson-card concept chips (tag corners), all viewports
+- Decision: apply rounded corners to the tag elements for visual consistency
+- User source: task item 5: "Apply rounded corners to tag elements within lesson cards for visual consistency."
+- Artifact: artifacts/R005/a-desktop-list-cards.png
+- Supersedes: none
+
+## Feedback F023
+- Round: R005
+- Verdict: REJECTED
+- Scope: lesson-card internal rhythm (number / title / description), all viewports
+- Decision: increase the spacing between the lesson number ("01"), the title, and the description — they currently collide visually
+- User source: task item 6: "Increase padding between the lesson number (e.g., '01'), title, and description. These elements currently collide visually — each needs clear separation."
+- Artifact: artifacts/R005/a-desktop-list-cards.png
+- Supersedes: none
+
+## Feedback F024
+- Round: R005
+- Verdict: REJECTED
+- Scope: volume-view back control (.pg-crumb-back) size, all viewports
+- Decision: the "← go back" treatment is liked stylistically; shrink the control and its font ~15% so it sits proportionally
+- User source: task item 7: "The '← go back · vol 01 — first contact' treatment works well stylistically. Reduce both the button dimensions and its font size by ~15% so it sits proportionally with the surrounding UI."
+- Artifact: artifacts/R005/a-desktop-volume-crumb.png
+- Supersedes: refines F012 (inversion kept; scale corrected)
+
+## Feedback F025
+- Round: R005
+- Verdict: REJECTED
+- Scope: mobile hero (archive of ai outputs / teaching concepts), ≤700/≤560 viewports
+- Decision: give the hero presence — more padding, larger type, deliberate vertical space so it reads as an intentional heading
+- User source: task item 8: "On mobile, the hero block ('archive of ai outputs / teaching concepts') lacks presence. Add padding, increase the type size, and give it deliberate vertical space so it reads as an intentional heading rather than orphaned text."
+- Artifact: artifacts/R005/a-mobile-top.png
+- Supersedes: none
+
+## Round R006
+- Goal: the owner's deferred-improvements batch (F018–F025) — 8 asks implemented through the chat-model relay (brief: docs/briefs/BRIEF-practice-map-r006-feedback-batch.md, full autonomy granted, reasoning-first contract), integrated by the orchestrator.
+- Preserved preferences: F017 (R005 accepted as presented) — two-column tier IA, card skin, chip law, inverted crumb (F012), pill family, mobile rhythm; overlay key ownership; Linux volumes; lowercase mono chrome.
+- Changes:
+  - F018: hard node cap in the lesson-scoped focus set — seeds win first (sorted by strength), neighbors fill the remainder, ceiling `Math.min(14, layout.count)` (phone scopes fall to ~10); the readout block dies entirely (source-lesson stats line, ranked list, active-node inspection text, empty-state "drag a node…" hint) and the footer hint line dies — the overlay is now a pure visual graph under the lesson title (header kicker + title + close kept); CSS: readout/ranklist/footer rules and their ≤700/≤400 rules deleted.
+  - F019: h1 second line → "teaching concepts." (desktop clamp untouched).
+  - F020: `.pg-layout` columns 0.92/1.28fr → 0.80/1.40fr (~13% narrower model list, wider panel; sample line holds at ~1024).
+  - F021: search placeholder → "filter lessons — name and description" (input font-size untouched, iOS zoom guard).
+  - F022: `.pg-chip` gains `border-radius: var(--pill-radius)` (joins the pill family; `.is-more` inherits).
+  - F023: card rhythm — `.pg-topline` margin-bottom .8rem, `.pg-card h3` margin-bottom .55rem (graded; description's 2-line clamp untouched).
+  - F024: `.pg-crumb-back` scaled ~15% — font .95→.8rem, padding .5/1rem→.42/.85rem; base min-height 44px kept, `@media (pointer: fine)` steps to 40px (touch floor preserved).
+  - F025: mobile hero presence — ≤900: clamp(1.7rem, 8vw, 2.7rem), line-height 1.02, padding 1.7/1.4/1.9rem; ≤560: clamp(1.45rem, 7.4vw, 2.15rem), padding 1.45/1.1/1.55rem; 320 held overflow-free (vw-capped type).
+- Before: artifacts/R005/a-*.png (the approved R005 state)
+- After: artifacts/R006/a-desktop-hero.png, a-desktop-list-cards.png, a-desktop-volume-crumb.png, a-desktop-graph-lesson.png (pure visual graph, 14 nodes, no text chrome), a-mobile-top.png, a-mobile-graph.png
+- Visual inspection: performed — hero copy + spacing read correctly at 1440; back pill visibly smaller and still row-dominant; graph overlay clean (no stats/ranklist/hints, larger canvas); mobile hero reads as an intentional heading; English placeholder; 320 no horizontal overflow.
+- Code verification: typecheck PASS, build PASS; practice-map.check.mjs 98 ok / 1 documented pre-existing environment fail (ArrowRight advances sections, chromium-1134 — reproduces on the pre-change tree). Test retargets: readout gates inverted (readout/ranklist/stats/hint strings asserted absent; cap gate `≤14`); dim gate now conditional (capped focus set can be fully connected — skipped with a note); 320 free-reading tap switched to live-coordinate touch. Root-cause fix found via that flake: the shell styles `html { scroll-behavior: smooth }`, so the graph overlay's body-lock cleanup `window.scrollTo(0, scrollY)` animated and the page kept gliding under the next tap after the overlay closed (reproduced with an event log: pointerdown on the pill, mid-tap document scroll, click landing on the graph button 52px below; worse after this round because the taller mobile hero lengthens the restore glide) — the graph's restore is now `behavior: "instant"`. The reader overlay's identical restore has the same latent quirk but its internals are out of scope (noted, not touched).
+- Open question: owner verdict per element — the one open tradeoff: the node cap value (14) and the seeds-first survival ranking are the model's picks; the pure-visual graph (no ranked list, no inspection text) was the model's read of "outside the graph's intended scope".
+- Shipped: commit at round close per the owner's always-current-repo setting.

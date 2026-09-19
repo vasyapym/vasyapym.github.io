@@ -186,7 +186,7 @@ export default function PracticeMapPage() {
         <header className="practice-map-hero">
           <h1 id="practice-map-title">
             archive of ai outputs
-            <span>teaching stuff.</span>
+            <span>teaching concepts.</span>
           </h1>
         </header>
 
@@ -424,7 +424,8 @@ function ConceptGraph({ topic, onClose }: { topic: TopicCardDefinition | null; o
   // Focus set. Global scope (no topic): today's top-slice behavior. Lesson
   // scope: seeds = this lesson's concepts present in the graph; focus = seeds
   // + up to 2 strongest neighbors per seed (neighbor strength = summed edge
-  // weight), deduplicated; sorted by strength.
+  // weight), deduplicated; then a hard node cap keeps the overlay quiet —
+  // seeds win first (by strength), neighbors fill the remainder.
   const focus = useMemo(() => {
     const strengthOf = (name: string): number => {
       const m = graphAll.edges.get(name);
@@ -453,13 +454,22 @@ function ConceptGraph({ topic, onClose }: { topic: TopicCardDefinition | null; o
         .map(([n]) => n);
       for (const n of strongest) picked.add(n);
     }
-    const names = Array.from(picked).sort(
-      (a, b) => strengthOf(b) - strengthOf(a) || a.localeCompare(b),
-    );
+
+    const byStrength = (a: string, b: string) =>
+      strengthOf(b) - strengthOf(a) || a.localeCompare(b);
+    // Hard node cap: seeds win first, neighbors fill the remainder. Ceiling is
+    // tied to the responsive layout count so phone scopes stay legible.
+    const cap = Math.min(14, layout.count);
+    const rankedSeeds = seeds.slice().sort(byStrength);
+    const rankedNeighbors = Array.from(picked)
+      .filter((n) => !seedSet.has(n))
+      .sort(byStrength);
+    const names = [...rankedSeeds, ...rankedNeighbors].slice(0, cap);
+    const survivingSeeds = names.filter((n) => seedSet.has(n)).length;
     return {
       names,
-      seedCount: seeds.length,
-      neighborCount: names.length - seeds.length,
+      seedCount: survivingSeeds,
+      neighborCount: names.length - survivingSeeds,
       lessonScope: true,
     };
   }, [topic, graphAll, dims, layout.count]);
@@ -539,7 +549,10 @@ function ConceptGraph({ topic, onClose }: { topic: TopicCardDefinition | null; o
       body.style.top = prev.top;
       body.style.left = prev.left;
       body.style.right = prev.right;
-      window.scrollTo(0, scrollY);
+      // Instant restore: the shell styles html { scroll-behavior: smooth }, and
+      // an animated restore keeps the page moving under the next tap after the
+      // overlay closes (the touch point outruns the glide and lands elsewhere).
+      window.scrollTo({ top: scrollY, behavior: "instant" });
     };
   }, []);
 
@@ -725,68 +738,6 @@ function ConceptGraph({ topic, onClose }: { topic: TopicCardDefinition | null; o
             map
           </span>
         </div>
-        <div className="practice-graph-readout" aria-live="polite">
-          {focus.lessonScope && topic && (
-            <>
-              <p className="practice-graph-readout-head">
-                source lesson · {topic.title} · {focus.seedCount}{" "}
-                {focus.seedCount === 1 ? "lesson concept" : "lesson concepts"} +{" "}
-                {focus.neighborCount} strongest{" "}
-                {focus.neighborCount === 1 ? "neighbor" : "neighbors"} ·{" "}
-                {graphModel.linkCount} {graphModel.linkCount === 1 ? "link" : "links"}
-              </p>
-              <ul className="practice-graph-ranklist">
-                {graphModel.nodes.map((node, i) => (
-                  <li key={node.name}>
-                    <span className="rl-idx">{String(i + 1).padStart(2, "0")}</span>
-                    <span className="rl-name">{node.name}</span>
-                    <span className="rl-strength">×{node.strength}</span>
-                    <span className="rl-lessons">
-                      {node.topicCount} {node.topicCount === 1 ? "lesson" : "lessons"}
-                    </span>
-                  </li>
-                ))}
-              </ul>
-            </>
-          )}
-          {activeNode ? (
-            <>
-              <p className="practice-graph-readout-head">
-                {activeNode.name} · {activeNode.topicCount}{" "}
-                {activeNode.topicCount === 1 ? "topic" : "topics"}
-              </p>
-              <p className="practice-graph-readout-links">
-                {activeNode.mapLinks.length > 0
-                  ? `on the map: ${activeNode.mapLinks
-                      .slice(0, 6)
-                      .map((link) => `${link.name} ×${link.weight}`)
-                      .join(" · ")}${activeNode.mapLinks.length > 6 ? ` · +${activeNode.mapLinks.length - 6} more` : ""}`
-                  : "no links on this map"}
-              </p>
-              {activeNode.sideLinks.length > 0 && (
-                <p className="practice-graph-readout-side">
-                  also appears with:{" "}
-                  {activeNode.sideLinks
-                    .map((link) => `${link.name} ×${link.weight}`)
-                    .join(" · ")}
-                  {activeNode.sideLinkCount > activeNode.sideLinks.length
-                    ? ` · +${activeNode.sideLinkCount - activeNode.sideLinks.length} more`
-                    : ""}
-                </p>
-              )}
-              <p className="practice-graph-readout-topics">
-                {activeNode.topicTitles.join(" · ")}
-              </p>
-            </>
-          ) : (
-            <p className="practice-graph-readout-empty">
-              drag a node · its connections light up
-            </p>
-          )}
-        </div>
-        <footer className="practice-graph-footer">
-          drag nodes · tap to inspect · connections light up · a curriculum as a system
-        </footer>
       </section>
     </div>,
     document.body,
