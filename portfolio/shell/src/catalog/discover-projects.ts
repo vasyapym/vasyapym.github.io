@@ -15,11 +15,10 @@ const alphabetized = Object.values(entries)
 
 // Curated display order: pinned projects first, the rest keep alphabetical order.
 const pinnedOrder = [
+  "quicknotes",
   "spine",
-  "raft-cluster",
+  "practice-map",
   "kitty-run",
-  "explosion",
-  "evening-forest",
 ];
 
 const discoveredProjects = [...alphabetized].sort((left, right) => {

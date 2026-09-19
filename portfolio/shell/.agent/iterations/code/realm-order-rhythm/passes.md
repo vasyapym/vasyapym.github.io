@@ -1,0 +1,63 @@
+# Passes — realm order + symmetric frame + uniform rhythm (relay, chat-model design)
+
+Task: owner feedback, scoped "Main Page — Realm Mode" — (1) project order
+quicknotes → spine → practice-map → kitty-run → remaining; (2) symmetric
+vertical edge padding above first / below last door; (3) uniform gap between
+all doors across the anchor span. Delegated to the chat model per the relay
+protocol (deep-reasoning brief with the R001/R002 laws and the probe's
+hard-coded fixtures baked in); orchestrator integrated.
+
+## Pass C001 — VERIFIED
+- Objective and scope: realm tour order follows the requested sequence; door
+  fy values form an exact arithmetic sequence (uniform gap); top/bottom edge
+  margins mirror each other; landing surfaces follow the catalogue reorder.
+- Acceptance criteria: A1 tour/legend/warp order = quicknotes, spine,
+  practice-map, kitty-run, evening-forest, explosion, planck-to-now,
+  raft-cluster; A2 constant fy gap; A3 first fy == 1 − last fy; A4 probe
+  suite green.
+- Chat-model decisions (relay): D1 ordering lands via `pinnedOrder`
+  (catalogue = single source of truth, precedent n10/e5b9ab2; landing
+  beneath-list + grid follow — consequence stated); D2 spacing law
+  `fy = 0.15 + 0.10·i` (m=0.15, g=0.10 → 270px symmetric margins, 180px gap
+  at 1440×900; terminating decimals, no float dust); D3 fx pool reused,
+  L/R alternated, central pair 0.4/0.58 kept non-adjacent.
+- Changes: `portfolio/shell/src/catalog/discover-projects.ts` (pinnedOrder
+  → quicknotes, spine, practice-map, kitty-run; remainder alphabetical),
+  `portfolio/shell/src/shell/realm-scene.ts` (ANCHORS reassigned id-keyed in
+  tour order + header comment rewritten to the new composition law),
+  `portfolio/shell/tests/realm-probe.mjs` (4 stale door-name comments only —
+  all gates derive from live anchors, zero assertion edits).
+- Probe-fixture compatibility (chat-model arithmetic, confirmed by suite):
+  G1 quicknotes fx 0.22 ≤0.42 → sheet right; G2 quicknotes fy 0.15 → framed
+  camY clamps 0 (close-gate window 18±30 ✓); G3 practice-map fx 0.34 left +
+  fy 0.35 > 0.25 centreable; G4 raft-cluster fy 0.85 > 0.75, warp camY 1080.
+- Baseline: tsc --noEmit exit 0; full realm-probe suite ALL CHECKS PASSED
+  (pre-change tree, Chromium via CHROME_PATH).
+- Verification:
+  - Command: `npm run build` (portfolio/shell)
+    Result: PASS — tsc --noEmit + vite build, exit 0 (chunk-size warnings
+    pre-existing).
+  - Command: `CHROME_PATH=…Chromium node tests/realm-probe.mjs <outDir>`
+    Result: PASS ×2 independent full-suite runs — "realm-probe: all checks
+    passed"; 169 PASS lines, 0 FAIL/SKIP.
+  - Command: `node ../probes/realm-anchor-shots.mjs` (dev server :5199,
+    1440×900@2x)
+    Result: PASS — legend order read back exactly as requested; door 00
+    (Quicknotes) sheet docks right, door 02 (Waste of tokens) centred in the
+    clear band sheet right, door 07 (Raft Cluster) deep floor + sheet left
+    as designed. Evidence:
+    /var/folders/8x/yls1cw1d6s3fmbrxhqg0y17w0000gp/T/opencode/quicknotes-r001/realm-door-0{0,2,7}.png
+    (scratch, local-only).
+- Final diff review: performed — 3 files, 25+/20−; no stray edits, no
+  secrets, no debug scaffolding; DOOR_HUES/FALLBACK_ANCHOR/species/world
+  constants untouched; no assertion changes in the probe.
+- Design constraints: realm-anchor-geography ledger R001 (id-keyed
+  geography law) preserved — values reassigned by design, record stays
+  id-keyed; R001's "descending zigzag in catalogue order" composition is
+  superseded by the owner's ordered-rhythm request (reported here, ledger
+  left to the design skill).
+- Remaining risks/blockers: visual verdict on the new rhythm belongs to the
+  owner (design-iteration); warp digit→door map changed with the order
+  (key 8 = Raft Cluster now) — owner-facing, no code impact.
+- Next action: task complete on the code side; offer design-iteration round
+  if the owner wants a visual feedback pass on the rhythm.

@@ -815,7 +815,7 @@ try {
     }, 3000));
   // r13 law: the framing retargets camY toward the band centre, clamped to the
   // world — a centreable creature lands exactly at the band centre; a shallow
-  // anchor (the deliberate zigzag puts door 1 at fy 0.14) clamps at 0 and must
+  // anchor (the deliberate rhythm puts door 1 at fy 0.15) clamps at 0 and must
   // still sit inside the clear band. Derived from the live anchors, so a
   // geography tweak cannot stale it.
   check("r13: framed camY follows the clamp law — door 1 stays inside the clear band",
@@ -904,8 +904,8 @@ try {
   await r13.keyboard.press("Escape");
   await wait(600);
   // warp to the LAST door — the deep-floor creature, wherever the live
-  // geography puts it (door 8 / quicknotes since the 8th project joined;
-  // hard-coding "7" staled the moment the count grew)
+  // geography puts it (door 8 / raft-cluster since the quicknotes-first
+  // reorder; hard-coding "7" staled the moment the count grew)
   const r13DoorCount = await r13.evaluate(() =>
     Object.keys(window.__r13?.getDepthSnapshot()?.anchors ?? {}).length);
   await r13.keyboard.press(String(r13DoorCount)); // warp to the deep floor
@@ -949,7 +949,7 @@ try {
       return d && g ? { y: g.y, anchorH: d.anchorH, camYState: d.camYState } : null;
     }).catch(() => null))}`);
 
-  await r13.evaluate(() => document.querySelectorAll(".realm-legend-btn")[2]?.click()); // left-half creature (kitty-run)
+  await r13.evaluate(() => document.querySelectorAll(".realm-legend-btn")[2]?.click()); // left-half creature (practice-map)
   await wait(600);
   check("r13: door 3 keeps the sheet on the right edge",
     await r13.evaluate(() =>
@@ -1656,8 +1656,8 @@ try {
       return !!body && body.scrollTop === 0;
     }, 2500));
   // r13 mobile: the bottom-sheet law stands; the frame lifts the deep-floor
-  // creature above it (last door, live-derived — practice-map's fy moved 0.9→0.8
-  // in the 8-door geography and quicknotes took the floor)
+  // creature above it (last door, live-derived — raft-cluster took the floor
+  // when quicknotes moved to the top in the ordered-rhythm geography)
   await mobile.keyboard.press("Escape");
   await wait(400);
   await mobile.evaluate(() => {

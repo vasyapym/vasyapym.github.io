@@ -107,18 +107,24 @@ type Phase = "idle" | "entering" | "active" | "leaving" | "diving" | "done";
 
 type Anchor = { readonly fx: number; readonly fy: number };
 
-// id-keyed like DOOR_HUES — reorders must not swap geography. Balanced
-// top-left→bottom-right tour across the two-viewport anchor span, sides
-// alternated for pairwise separation, first anchor below the hud band.
+// id-keyed like DOOR_HUES — a reorder reassigns VALUES here; it never swaps
+// geography by index (R001). Rows are written top->bottom in tour order.
+// Vertical rhythm is a single arithmetic sequence: fy = 0.15 + 0.10*i for
+// i = 0..7. That yields symmetric edge margins (0.15*anchorH above the first
+// door == 0.15*anchorH below the last) and one uniform gap (g = 0.10*anchorH)
+// between every consecutive pair. fx alternates left/right each row for
+// pairwise separation; the two central values (0.4 / 0.58) are kept
+// non-adjacent, and the first/third doors sit in the left half so their sheets
+// dock right. The deep floor stays additive below the frozen anchor span.
 const ANCHORS: Record<string, Anchor> = {
-  "spine": { fx: 0.22, fy: 0.14 },
-  "raft-cluster": { fx: 0.66, fy: 0.24 },
-  "kitty-run": { fx: 0.4, fy: 0.36 },
-  "explosion": { fx: 0.78, fy: 0.47 },
-  "evening-forest": { fx: 0.24, fy: 0.58 },
-  "planck-to-now": { fx: 0.58, fy: 0.68 },
-  "practice-map": { fx: 0.34, fy: 0.8 },
-  "quicknotes": { fx: 0.72, fy: 0.9 },
+  "quicknotes": { fx: 0.22, fy: 0.15 },
+  "spine": { fx: 0.72, fy: 0.25 },
+  "practice-map": { fx: 0.34, fy: 0.35 },
+  "kitty-run": { fx: 0.66, fy: 0.45 },
+  "evening-forest": { fx: 0.4, fy: 0.55 },
+  "explosion": { fx: 0.78, fy: 0.65 },
+  "planck-to-now": { fx: 0.24, fy: 0.75 },
+  "raft-cluster": { fx: 0.58, fy: 0.85 },
 };
 
 // center fallback so an unmapped door (or a null return door) never crashes
