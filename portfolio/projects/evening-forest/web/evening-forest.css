@@ -59,13 +59,6 @@
   letter-spacing: 0.01em;
 }
 
-.evening-forest-lede {
-  margin: 0;
-  color: var(--index-muted);
-  font-family: var(--sans);
-  font-size: 0.82rem;
-}
-
 /* --- stage ------------------------------------------------------------- */
 
 .evening-forest-stage {

@@ -217,10 +217,6 @@ export default function EveningForestPage() {
     <article className="evening-forest-page">
       <header className="evening-forest-intro section-shell">
         <h1 className="evening-forest-title">Evening Forest</h1>
-        <p className="evening-forest-lede">
-          An 8-bit woodland at dusk. Walk, look, listen — you may not be
-          alone.
-        </p>
       </header>
       <section className="evening-forest-stage">{stage}</section>
     </article>
