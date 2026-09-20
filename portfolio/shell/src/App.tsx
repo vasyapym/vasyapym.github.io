@@ -72,7 +72,11 @@ export default function App() {
       rememberProjectReturnIntent(window.scrollY);
     }
     window.history.pushState({}, "", `/projects/${id}/`);
-    window.scrollTo({ top: 0 });
+    // behavior is NOT inherited from html{scroll-behavior:smooth}: "auto"
+    // resolves to smooth and the reset becomes a ~0.3s animated scroll-up
+    // (owner-reported jerk on every card click). Every other reset in the
+    // shell scrolls instant; these two were the outliers.
+    window.scrollTo({ top: 0, behavior: "instant" });
     setPathname(`/projects/${id}/`);
   }, []);
 
@@ -128,7 +132,7 @@ export default function App() {
     // never inherit the project page's scroll. A plain back without an
     // intent — a direct project boot, a realm-exit landing — starts at the
     // top as before.
-    window.scrollTo({ top: 0 });
+    window.scrollTo({ top: 0, behavior: "instant" });
     window.history.pushState({}, "", "/");
     setPathname("/");
   }, [beginRealmReturn]);
