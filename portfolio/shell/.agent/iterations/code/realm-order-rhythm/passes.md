@@ -231,3 +231,50 @@ hard-coded fixtures baked in); orchestrator integrated.
   clamp is asserted by the r19 spawn gate) — suite-coverage note, accepted
   by the relay design.
 - Next action: task complete on the code side.
+
+## Pass C005 — VERIFIED
+- Objective and scope: owner round 5 (after the discussion round) — the
+  mobile insets felt too empty on iPhone 11 (top and the breathing space
+  after the last creature); desktop "a bit distant too"; after the shared-fy
+  discussion the owner approved one shared change: "верх −20% / низ −14%".
+- Design (discussed with the owner, no relay needed — constants only): the
+  fy table is shared across viewports, so one grid serves both. Structural
+  finding (delivered to the owner before the change): the bottom inset is
+  floored at 0.48vh + the creature radius — it IS the mobile lift's fuel
+  (the r13 greeting-clears-sheet contract), so the asked −35%/−20% bottom
+  is unreachable; the honest ceiling ≈ −13%. Approved.
+- Law: `fy = 0.164 + 0.114·i` (0.164…0.962), K/DEEP/fx/order unchanged.
+  Top inset 0.574·vh: 655→517px @1440×900 (−21%), ~514px @414×896 (−21%).
+  Bottom inset 0.633·vh: 652→570px @1440×900 (−13%), @414×896 −13%. Gaps
+  327.6→359px. Clean terminating grid (0.114·7 = 0.798; the +2 gate slack
+  bounds fy_last ≤ 0.9646 at 390×725, so 0.962 keeps 4.2px margin).
+- Behavioral change (documented in-code): the LAST door's mobile framing
+  now clamps at max scroll (the core sits ~53px below the band centre and
+  still clears the sheet by the gate's own bounds — within the shipped
+  r13 law's clamp branch); desktop centring stays exact.
+- Verification:
+  - Command: `npm run build` (portfolio/shell)
+    Result: PASS — tsc --noEmit + vite build, exit 0.
+  - Command: `CHROME_PATH=…Chromium node tests/realm-probe.mjs <outDir>`
+    Result: PASS — "realm-probe: all checks passed" (the final state).
+    Two earlier runs this round FAILED on unrelated landing gates and
+    overran the timeout — machine-load flakiness (load average 114–278
+    from another agent's typecheck; different gates failed each run and
+    the geography-independent session-storage gate failed once, then
+    green twice on a calmer machine). Not a regression from this change.
+  - Command: `node ../probes/realm-mobile-shots.mjs` (one-off, gitignored;
+    dev server :5199, 390×725@2x touch)
+    Result: PASS — the entry view shows the first creature at ~57%
+    viewport height (was ~73%); the last door's greeting clears the
+    bottom sheet with the full description visible. Evidence:
+    /var/folders/8x/yls1cw1d6s3fmbrxhqg0y17w0000gp/T/opencode/quicknotes-r001/mobile-entry.png,
+    mobile-last-door.png (scratch, local-only).
+- Final diff review: performed — 2 files (constants + comments only); no
+  probe edits needed (all gates derive from live anchors); no stray edits.
+- Design constraints: R001 id-keyed geography; the r13 mobile lift (gate
+  slack 4.2px @390×725); the r13 light travel (deep 0.5vh unchanged); the
+  r4 race-free gate forms untouched; fx slots/order/hues untouched.
+- Remaining risks/blockers: visual verdict = owner (the in-span mirror is
+  now intentionally unequal: top 0.574vh vs bottom 0.633vh — the owner's
+  trade); the last door's mobile framing is off-centre by design.
+- Next action: task complete on the code side.

@@ -109,21 +109,22 @@ type Anchor = { readonly fx: number; readonly fy: number };
 
 // id-keyed like DOOR_HUES — a reorder re-seats projects into fixed slots; it
 // never swaps geography by index (R001). Rows are written top->bottom in tour
-// order (= catalogue order). fy = 0.208 + i·0.104 over the 3.5-viewport span
-// (r14 r4): a symmetric two-cell frame — top inset 0.208·anchorH balances the
-// bottom inset (tail 0.064·anchorH + the 0.5vh deep) at every resolution;
-// uniform 327.6px gaps @1440×900. fx = the 8 fixed L/R-alternating slots
-// (unchanged geometry). First/third doors left-half so their sheets dock
-// right; the two central fx (0.4 @slot4, 0.58 @slot7) stay non-adjacent.
+// order (= catalogue order). fy = 0.164 + 0.114·i over the 3.5-viewport span
+// (r14 r5): the owner-trimmed frame — top inset 0.574·vh (−21% vs r4),
+// bottom inset 0.633·vh (−13%, floored by the mobile lift's fuel law
+// bottom ≥ 0.48vh + r), uniform 359px gaps @1440×900. fx = the 8 fixed
+// L/R-alternating slots (unchanged geometry). First/third doors left-half
+// so their sheets dock right; the two central fx (0.4 @slot4, 0.58 @slot7)
+// stay non-adjacent.
 const ANCHORS: Record<string, Anchor> = {
-  "quicknotes": { fx: 0.22, fy: 0.208 },
-  "spine": { fx: 0.72, fy: 0.312 },
-  "practice-map": { fx: 0.34, fy: 0.416 },
-  "kitty-run": { fx: 0.66, fy: 0.52 },
-  "raft-cluster": { fx: 0.4, fy: 0.624 },
-  "evening-forest": { fx: 0.78, fy: 0.728 },
-  "explosion": { fx: 0.24, fy: 0.832 },
-  "planck-to-now": { fx: 0.58, fy: 0.936 },
+  "quicknotes": { fx: 0.22, fy: 0.164 },
+  "spine": { fx: 0.72, fy: 0.278 },
+  "practice-map": { fx: 0.34, fy: 0.392 },
+  "kitty-run": { fx: 0.66, fy: 0.506 },
+  "raft-cluster": { fx: 0.4, fy: 0.62 },
+  "evening-forest": { fx: 0.78, fy: 0.734 },
+  "explosion": { fx: 0.24, fy: 0.848 },
+  "planck-to-now": { fx: 0.58, fy: 0.962 },
 };
 
 // center fallback so an unmapped door (or a null return door) never crashes
@@ -168,6 +169,16 @@ const DEGRADED_DIVE_DISC = 0.9;
 //   No door frames into the camY clamp-at-0 branch anymore (entry still
 //   clamps and the r19 spawn gate asserts it); the close-hold gate is
 //   re-expressed to the real snapshot-hold law (door-agnostic).
+// r14 r5: the owner trims the frame insets (mobile felt too empty top and
+//   bottom; desktop "a bit distant too" — one shared fy table). fy_0
+//   0.208→0.164: top 655→517px @1440×900 (−21%; ~−21% on the phone).
+//   fy_last 0.936→0.962: bottom 652→570px (−13%) — the structural floor is
+//   0.48vh + the creature radius (the space below the last door IS the
+//   mobile lift's fuel: the greeting must clear the description sheet), so
+//   deeper cuts regress the r13 sheet-overlap fix. The LAST door's mobile
+//   framing now clamps at max scroll (the core sits ~53px below the band
+//   centre and still clears the sheet by the gate's own bounds); desktop
+//   centring stays exact. Gaps grow 327.6→359px (the grid widens).
 const ANCHOR_SPAN_K = 3.5;
 const DEEP_K = 0.5;          // r13 travel floor, additive below the span —
                              // load-bearing for the mobile lift; kept minimal.
