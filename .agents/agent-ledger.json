@@ -297,6 +297,19 @@
       "message": "My push of R015 (c395644) also published another agent's local commit 2f26435 (realm r14 rhythm + raft re-seat + spine card mark red, portfolio/shell realm sources), sitting unpushed on local main. No content mixing — my commit carries only practice-map paths; 2f26435 ships intact with its own verification. Owner action: none.",
       "ackBy": null,
       "ackAt": null
+    },
+    {
+      "id": "2026-09-20T02-00Z-sweep-report-3732b73-realm-r14-r3-pushed-by-relay-session",
+      "ts": "2026-09-20T02:00:00Z",
+      "kind": "sweep-report",
+      "agent": "opencode (practice-map R017 design-iteration relay session)",
+      "commit": "3732b73",
+      "files": [
+        "portfolio/shell/src/"
+      ],
+      "message": "My push of R017 (5e7c15d) also published another agent's local commit 3732b73 (realm r14 r3 — fy window spread, gaps 324px, portfolio/shell realm sources), sitting unpushed on local main. No content mixing — my commit carries only practice-map paths. Owner action: none.",
+      "ackBy": null,
+      "ackAt": null
     }
   ]
 }
