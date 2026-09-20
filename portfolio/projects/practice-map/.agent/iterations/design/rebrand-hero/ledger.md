@@ -452,3 +452,59 @@ mobile top 390).
 - Visual inspection: eight shots read. Faces view: records identical in grammar to the lesson cards under the same h2 — one strong opening rule, hairline separators, card-scale insets, ochre marks right-aligned; no tab, no box, no fill. Volume view: crumb reads as one composed instrument (pill │ divider │ title) above the cards' opening rule; hover states carry the family devices. The last rounded-box dialect is gone — the whole page now speaks ruled records
 - Code verification: `tsc --noEmit` clean; `practice-map.check.mjs` — one run showed a new "close button stays pinned" failure at 2px magnitude (324,99 → 324,97) which did NOT reproduce on rerun (scroll-timing flake in the lesson-overlay leg, unrelated to this round's folders/crumb CSS; the overlay was not touched); steady-state: green except the pre-existing "ArrowRight advances sections" failure; probe docΔ=0 everywhere
 - Open question: owner verdict on the tab-less folder records + the welded crumb instrument (F022/F023); with this round the owner's original six-item list and every follow-up batch are fully worked
+
+## Feedback F037
+- Round: none (owner batch, 2026-09-20, post-R017 review)
+- Verdict: REJECTED (spacing amount)
+- Scope: hero breathing room below the masthead (.practice-map-hero padding-bottom, all viewports)
+- Decision: reduce by approximately 30% — the field beneath the verdict is too generous (F034's register-removal premise stands; only the amount is retuned)
+- User source: item 1: «Hero Section Spacing — Reduce the breathing room below the hero section text by approximately 30%.»
+
+## Feedback F038
+- Round: none (owner batch, 2026-09-20, post-R017 review)
+- Verdict: REJECTED (design)
+- Scope: search bar (.pg-search) — overall resting treatment
+- Decision: improved but still reads template-driven; explore a cleaner, more stripped-back approach
+- User source: item 2: «The search bar has improved but still feels template-driven. Consider a cleaner, more stripped-back approach.»
+- Refines: F028 (the focus-quiet law stays in force; the bar's resting design reopens)
+
+## Feedback F039
+- Round: none (owner batch, 2026-09-20, post-R017 review)
+- Verdict: REJECTED (bug)
+- Scope: search bar (.pg-search) — iOS Safari rendering
+- Decision: renders incorrectly on iOS Safari — appears narrow and centered; must render correctly there
+- User source: item 2: «Additionally, on iOS Safari, it renders incorrectly — appearing narrow and centered.»
+- Tension note: F036 asked for a ~25%-narrower, centered mobile bar; the same look now reads as an iOS defect — folded into the F038 redesign mandate (the redesign supersedes F036's sizing device within the search scope); flagged here rather than silently resolved
+
+## Feedback F040
+- Round: none (owner batch, 2026-09-20, post-R017 review)
+- Verdict: REJECTED (mobile rhythm)
+- Scope: mobile (≤700) — separation between the page sections (model list / search / lesson panel stack)
+- Decision: sections lack spacing — they read compressed into a single continuous block; needs clear inter-section separation
+- User source: item 2: «On mobile overall, the sections lack sufficient spacing as previously requested; they currently feel compressed into a single continuous block.»
+- Re-raises: F021 (the earlier two-zone ~+20% ask, planned for an "R013 mobile spacing" leg that never ran)
+
+## Feedback F041
+- Round: none (owner batch, 2026-09-20, post-R017 review)
+- Verdict: REJECTED (highlight treatment)
+- Scope: hover/highlight treatment on the model rows + lesson cards (.pg-tier-row, .pg-card) — the quiet wash device
+- Decision: the lighter highlight treatment feels slightly off; explore an alternative approach within the family language
+- User source: item 3: «The current design direction is solid, but it's missing that refined, senior-developer minimalism. It's difficult to articulate precisely. The lighter highlight treatment on model/lesson elements feels slightly off. Worth exploring an alternative approach there.»
+- Preserves: F035 (keep highlighting; content inset from the open sides)
+
+## Feedback F042
+- Round: none (owner batch, 2026-09-20, post-R017 review)
+- Verdict: REJECTED (scale)
+- Scope: lesson cards (.pg-card) — overall visual weight
+- Decision: scale down ~20%; too much visual weight relative to the rest of the layout, especially on mobile
+- User source: item 4: «Lesson Cards — Scale the lesson cards down by roughly 20%. They currently carry too much visual weight relative to the rest of the layout (especially for mobile).»
+
+## Round R018
+- Goal: direct leg of the post-R017 batch — F037 (hero breathing −30%) — orchestrator-direct: three breakpoint arithmetic edits; the design asks (F038–F042, incl. F021's re-raise) go to the chat-model relay next
+- Preserved preferences: F034 (the register stays gone; only the amount retuned), F019/F025 masthead scale and register laws untouched
+- Changes: `practice-map.css` — `.practice-map-hero` bottom padding −30% at all three stops: desktop clamp(3rem,7vw,5.5rem) → clamp(2.1rem,4.9vw,3.85rem), ≤900 2.5rem → 1.75rem, ≤560 2rem → 1.4rem; comment notes the retune
+- Before: artifacts/R018/before-* (hero-1440, full-1440, hero-700, full-390)
+- After: artifacts/R018/after-* (same four views)
+- Visual inspection: before/after shots read at 1440/700/390. The dead field beneath the verdict tightens visibly; the masthead keeps its scale and the body starts earlier without crowding (computed: 88 → 61.6px @1440, 40 → 28px @700, 32 → 22.4px @390 — all exactly −30%)
+- Code verification: `tsc --noEmit` clean; `practice-map.check.mjs` (with CHROME_PATH): two failures, BOTH pre-existing baseline — the long-known "ArrowRight advances sections" flake, and "Go area renders its single flagship card (2)" which broke in the other agent's commit 2813f48 (spirit-of-time area wired into fable-5.1-low; that agent's own check run was skipped as no-Chrome, so it shipped unverified). Neither touches this round's change; disclosed, not fixed here
+- Open question: none on this leg; next: R019 relay brief (F038+039 search redesign incl. iOS Safari, F040+F021 mobile section rhythm, F041 highlight alternative, F042 cards −20%)

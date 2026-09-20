@@ -48,9 +48,10 @@
 /* Hero = the masthead alone on the field. The accession register was
    removed by owner decision; the prominence comes from the type scale and
    the breathing space beneath the verdict. No panel skin, no ochre, no
-   entrance, no weight games. */
+   entrance, no weight games. F037: the field is retuned −30% — generous,
+   no longer vast. */
 .practice-map-hero {
-  padding: clamp(0.5rem, 1.5vw, 1.1rem) 0 clamp(3rem, 7vw, 5.5rem);
+  padding: clamp(0.5rem, 1.5vw, 1.1rem) 0 clamp(2.1rem, 4.9vw, 3.85rem);
 }
 
 /* --- the masthead: one face, set plainly --- */
@@ -1093,7 +1094,7 @@
 @media (max-width: 900px) {
   /* masthead on the field: real vertical presence without a panel */
   .practice-map-hero {
-    padding: 0.5rem 0 2.5rem;
+    padding: 0.5rem 0 1.75rem;
   }
   .practice-map-hero h1 {
     font-size: clamp(1.9rem, 8vw, 2.9rem);
@@ -1123,7 +1124,7 @@
   }
 
   .practice-map-hero {
-    padding: 0.4rem 0 2rem;
+    padding: 0.4rem 0 1.4rem;
   }
   .practice-map-hero h1 {
     font-size: clamp(1.4rem, 7.2vw, 2.2rem);
