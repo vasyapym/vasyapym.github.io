@@ -187,23 +187,40 @@
 }
 .pg-card-foot .pg-pill:hover{gap:.75rem; border-color:var(--ink-accent); color:var(--ink-accent-bright); background:var(--ink-panel)}
 
-/* ---------- 4. folders ---------- */
-.pg-faces{display:flex; flex-direction:column; gap:1.4rem} /* gap > folder-tab (top:-9px) so groups clear */
-.pg-face{position:relative; border:1px solid var(--ink-line-soft); border-radius:var(--panel-radius); background:#0b1317}
-.pg-face::before{
-  content:''; position:absolute; top:-9px; left:20px; width:92px; height:10px;
-  border:1px solid var(--ink-line-soft); border-bottom:0; border-radius:9px 9px 0 0;
-  background:#101a1f;
+/* ---------- 4. folders — ruled records (folder box + tab retired) ---------- */
+.pg-faces{
+  display:flex; flex-direction:column;
+  border-top:1px solid var(--ink-line);          /* group opens with one strong rule */
 }
 .pg-face-head{
-  width:100%; text-align:left; background:transparent; border:0; color:inherit; cursor:pointer;
-  padding:16px 20px; display:block; min-height:56px; border-radius:var(--panel-radius);
+  width:100%; text-align:left; display:block; cursor:pointer;
+  background:transparent; border:0; color:inherit;
+  border-bottom:1px solid var(--ink-line-soft);  /* soft hairline separates each record */
+  padding:1.6rem; min-height:44px;               /* card-scale inset from the open sides */
+  transition:background 180ms ease, border-color 180ms ease;
 }
-.pg-face-top{display:flex; align-items:baseline; gap:.7em; flex-wrap:wrap}
-.pg-face-label{font-family:var(--sans); font-size:1rem; font-weight:600; color:var(--ink-text); text-transform:none}
-.pg-face-count{font-family:var(--mono); font-size:.64rem; color:var(--ink-faint)}
-.pg-face-mark{margin-left:auto; font-family:var(--mono); font-size:.66rem; color:var(--ink-faint)}
-.pg-peek{margin:.7em 0 0; padding:0; list-style:none; display:flex; flex-direction:column; gap:5px}
+.pg-face-head:hover{
+  background:rgba(238,234,224,.03);              /* quiet full-width wash */
+  border-bottom-color:var(--ink-line);           /* separator brightens */
+}
+.pg-face-head:focus-visible{
+  outline:none;                                  /* records have no walls to outline */
+  border-bottom-color:var(--ink-accent);         /* record's own separator turns ochre */
+}
+.pg-face-top{display:flex; align-items:baseline; gap:.7em; flex-wrap:nowrap}
+.pg-face-label{
+  font-family:var(--sans); font-size:1.05rem; font-weight:600; color:var(--ink-text);
+  text-transform:none; flex:0 1 auto; min-width:0;
+  white-space:nowrap; overflow:hidden; text-overflow:ellipsis;
+}
+.pg-face-count{font-family:var(--mono); font-size:.64rem; color:var(--ink-faint); flex:none; white-space:nowrap}
+.pg-face-mark{
+  margin-left:auto; flex:none;
+  font-family:var(--mono); font-size:.8rem; color:var(--ink-accent);  /* ochre directional instrument */
+  transition:transform 180ms ease, color 180ms ease;
+}
+.pg-face-head:hover .pg-face-mark{transform:translateX(3px); color:var(--ink-accent-bright)}
+.pg-peek{margin:.85em 0 0; padding:0; list-style:none; display:flex; flex-direction:column; gap:5px}
 .pg-peek li{
   font-size:.8rem; line-height:1.45; color:var(--ink-faint); padding-left:16px; position:relative;
   overflow:hidden; text-overflow:ellipsis; white-space:nowrap;
@@ -211,27 +228,30 @@
 .pg-peek li::before{content:'—'; position:absolute; left:0; color:var(--ink-line)}
 .pg-empty{font-size:.7rem; color:var(--ink-faint); padding:12px 2px; font-family:var(--mono); letter-spacing:.04em; text-transform:lowercase}
 
-/* ---------- 4b. volume-view crumb — back is a seated, dominant control ---------- */
+/* ---------- 4b. volume-view crumb — one composed instrument ---------- */
 .pg-crumb{
-  display:flex; align-items:center; gap:.9em; flex-wrap:wrap;
-  padding-bottom:1rem; margin-bottom:1.1rem; /* the cards' opening rule replaces the old hairline */
+  display:flex; align-items:center; flex-wrap:nowrap; gap:0;
+  padding-bottom:1rem; margin-bottom:1.1rem;      /* cards' opening rule replaces old hairline */
 }
 .pg-crumb-back{
-  display:inline-flex; align-items:center; gap:.5rem; min-height:44px;
+  display:inline-flex; align-items:center; gap:.55rem; min-height:44px; flex:none;
   border:1px solid var(--ink-line); border-radius:var(--pill-radius);
-  padding:.5rem 1.05rem; background:var(--ink-panel); cursor:pointer; color:var(--ink-text);
+  padding:.5rem 1.1rem; background:transparent; cursor:pointer; color:var(--ink-text);
   font-family:var(--mono); font-size:.8rem; font-weight:500; letter-spacing:.02em; text-transform:lowercase;
   transition:border-color 180ms ease, color 180ms ease, background 180ms ease;
 }
 @media (pointer:fine){ .pg-crumb-back{min-height:40px} }
-.pg-crumb-arrow{color:var(--ink-accent); font-size:.9rem; line-height:1; transition:transform 180ms ease, color 180ms ease}
+.pg-crumb-arrow{color:var(--ink-accent); font-size:1rem; line-height:1; transition:transform 180ms ease, color 180ms ease}
 .pg-crumb-back:hover{border-color:var(--ink-accent); color:var(--ink-accent-bright); background:rgba(211,155,97,.07)}
-.pg-crumb-back:hover .pg-crumb-arrow{transform:translateX(-2px); color:var(--ink-accent-bright)}
+.pg-crumb-back:hover .pg-crumb-arrow{transform:translateX(-3px); color:var(--ink-accent-bright)}
 .pg-crumb-back:focus-visible{outline:1px solid var(--ink-accent); outline-offset:2px}
-/* title steps below the back control */
+/* the family hairline welds back-control → title into one breadcrumb instrument */
 .pg-crumb-title{
+  flex:1 1 auto; min-width:0;
+  margin-left:.95rem; padding-left:.95rem; border-left:1px solid var(--ink-line);
   font-family:var(--mono); font-size:.78rem; font-weight:400;
   letter-spacing:.04em; text-transform:lowercase; line-height:1.2; color:var(--ink-muted);
+  white-space:nowrap; overflow:hidden; text-overflow:ellipsis;
 }
 
 /* ---------- 5b. palette ---------- */
@@ -275,8 +295,7 @@
   .pg-card{padding:1.15rem}
   .pg-tier-head{padding-bottom:.8rem; margin-bottom:.9rem}
   .pg-crumb{padding-bottom:.8rem; margin-bottom:.9rem}
-  .pg-face-head{padding:14px 16px; min-height:44px}
-  .pg-faces{gap:1.1rem}
+  .pg-face-head{padding:1.2rem 1rem}          /* card-scale inset at mobile; base min-height 44px holds */
   .pg-cards{gap:0}
   .pg-pal{top:0; left:0; transform:none; width:100%; border-radius:0 0 var(--panel-radius) var(--panel-radius); border-left:0; border-right:0; border-top:0}
   .pg-pal-list{max-height:64vh}
@@ -285,6 +304,7 @@
   .pg-layout{margin-top:18px; gap:14px}
   .pg-card{padding:1rem}
   .pg-tier-head{padding-bottom:.7rem; margin-bottom:.75rem}
-  .pg-crumb{padding-bottom:.7rem; margin-bottom:.75rem; gap:.7em}
+  .pg-crumb{padding-bottom:.7rem; margin-bottom:.75rem}
+  .pg-crumb-title{margin-left:.7rem; padding-left:.7rem}  /* tighten the divider rhythm */
   .pg-card-foot{gap:.5rem}
 }
