@@ -1,14 +1,9 @@
-/* tiers.css — ported from the approved artifact (R003).
-   Scope repairs for the repo: the artifact's :root token block becomes a
-   .practice-map-field var alias block (the shell owns the real values);
-   global resets (box-sizing/html/body/::selection) are dropped; the hero
-   (.pg-hero/.pg-head/.pg-rail) and the field/page shells stay in
-   practice-map.css, which already carries the same geometry. */
+/* tiers.css — R019 refinement pass over the R003 port.
+   Changes: search → bare ledger field (F038/F039), hover wash → type-wakes
+   device across rows/cards/faces (F041), cards & faces −~20% weight (F042),
+   mobile section rhythm as three ruled bands with real air (F040/F021).
+   Hero, crumb row, footer, practice-map.css remain out of scope. */
 
-/* --pill-radius was defined in the source artifact but lost when only
-   --panel-radius was aliased onto the field shell, so var(--pill-radius)
-   resolved to nothing and the pill controls rendered square. Restore it on
-   the field wrapper; it cascades to every control below. */
 .practice-map-field{ --pill-radius:999px; }
 
 /* ---------- shared chrome ---------- */
@@ -34,19 +29,12 @@
 /* ---------- 2. layout ---------- */
 .pg-layout{
   margin-top:40px; display:grid; gap:28px 30px;
-  grid-template-columns:minmax(0,0.57fr) minmax(0,1.40fr); /* ~20% narrower list; row anatomy verified at 1440/1024 */
+  grid-template-columns:minmax(0,0.57fr) minmax(0,1.40fr);
   grid-template-areas:"list search" "list panel";
   align-items:start;
 }
 
-/* tier list — considered model index: ruled records, ordinal anchor.
-   RULED-RECORD FAMILY (F033): the body joins the hero's voice — a strong
-   opening rule on the group (--ink-line, matching .hero-ledger) and a soft
-   hairline between records (--ink-line-soft, matching .rec). no radius,
-   no fill, no side walls; the field shows through under the grain. pill
-   controls keep 999px — pills are the control language, records are the
-   container language. extendable: folders, crumb, and other containers
-   may adopt the same two-rule recipe later. */
+/* tier list — ruled records (F033), unchanged geometry. */
 .pg-tier-list{
   grid-area:list; margin-top:1rem;
   display:flex; flex-direction:column; gap:0;
@@ -56,28 +44,29 @@
   width:100%; display:grid;
   grid-template-columns:auto minmax(0,1fr) auto;
   align-items:baseline; column-gap:.6rem; row-gap:.4rem;
-  padding:.85rem 1rem; text-align:left;            /* content inset from the open sides */
+  padding:.85rem 1rem; text-align:left;            /* content inset (F035) */
   border:0; border-bottom:1px solid var(--ink-line-soft);
   border-radius:0; background:transparent;
   color:rgba(238,234,224,.68); cursor:pointer;
-  transition:border-color 180ms ease, color 180ms ease, background 180ms ease;
+  transition:border-color 180ms ease, color 180ms ease;
 }
+/* F041 device — type wakes, surface stays: the muted row steps to full read
+   and its separator brightens; NO wash, so the grain over the field stays
+   clean. one language across rows, cards, and faces below. */
 .pg-tier-row:hover{
   border-bottom-color:var(--ink-line);
   color:var(--ink-text);
-  background:rgba(238,234,224,.03);
 }
 /* keyboard focus rides the family device: the record's own separator turns
-   ochre — no four-sided outline, the record has no side walls to outline. */
+   ochre — no four-sided outline, records have no side walls. */
 .pg-tier-row:focus-visible{outline:none; border-bottom-color:var(--ink-accent)}
-/* active: the open record is the only fully-legible row — ordinal AND
-   sample lift to full read. hover washes the row and lights the name;
-   only active brightens ordinal AND sample. no ochre / no fill jump /
-   no reflow — the R013 lit-record device survives the container swap. */
+/* active is the ONE settled surface — a definite --ink-panel fill (not the
+   old .02/.03 smudge) plus ordinal + sample lift. distinct from hover, which
+   has no surface at all. no reflow, no ochre. */
 .pg-tier-row.is-active{
   color:var(--ink-text);
   border-bottom-color:var(--ink-line-soft);
-  background:rgba(238,234,224,.02);
+  background:var(--ink-panel);
 }
 .pg-tier-index{
   grid-column:1; font-family:var(--mono); font-size:.68rem; letter-spacing:.04em;
@@ -88,8 +77,6 @@
   grid-column:2; min-width:0;
   font-family:var(--sans); font-size:1rem; font-weight:600;
   letter-spacing:0; line-height:1.15; color:inherit; text-transform:none;
-  /* one-line names in the narrowed column: the 701-1024 band cannot hold the
-     longest name + count on the fr arithmetic alone — clip, never wrap */
   overflow:hidden; text-overflow:ellipsis; white-space:nowrap;
 }
 .pg-tier-count{
@@ -102,24 +89,34 @@
 }
 .pg-tier-row.is-active .pg-tier-sample{color:var(--ink-muted)}
 
-/* ---------- 5a. search — one machined bar with the ⌘k pill ---------- */
-.pg-search{grid-area:search; display:flex; gap:10px; align-items:center}
+/* ---------- 5a. search — a bare ledger field, not a widget (F038/F039) ----
+   the rounded fill + adjacent button silhouette IS the template; drop the
+   box entirely. the input becomes a mono register line over ONE bottom
+   hairline (family grammar). the ⌘k pill stays a pill (control language,
+   discoverable). explicit width chain (flex:1 1 auto + width:100% +
+   min-width:0, no margin-inline:auto, no fit-content) makes the iOS
+   narrow/centered collapse class structurally impossible. */
+.pg-search{grid-area:search; display:flex; gap:12px; align-items:center; width:100%}
 .pg-search input{
-  flex:1 1 auto; min-width:0; min-height:44px;
+  flex:1 1 auto; width:100%; min-width:0; min-height:44px;
   font-family:var(--mono); font-size:.74rem; letter-spacing:.05em; text-transform:lowercase;
   color:var(--ink-text); caret-color:var(--ink-accent);
-  background:var(--ink-panel); border:1px solid var(--ink-line-soft); border-radius:var(--pill-radius);
-  padding:0 1.15em; appearance:none; -webkit-appearance:none; outline:none;
+  background:transparent;                      /* fill dropped */
+  border:0; border-bottom:1px solid var(--ink-line-soft);  /* single ledger rule */
+  border-radius:0;                             /* no pill box */
+  padding:0 .2em;
+  appearance:none; -webkit-appearance:none; outline:none;
   transition:border-color .18s ease;
 }
 .pg-search input::placeholder{color:var(--ink-faint); letter-spacing:.05em}
-/* strip browser search-field chrome (cancel button, decoration) */
 .pg-search input::-webkit-search-cancel-button,
 .pg-search input::-webkit-search-decoration{-webkit-appearance:none; appearance:none}
-.pg-search input:hover{border-color:var(--ink-line)}
-/* focus is a whisper: border steps one opacity notch; no colour, no glow */
-.pg-search input:focus{border-color:var(--ink-line)}
-.pg-search input:focus-visible{outline:1px solid var(--ink-line); outline-offset:2px}
+.pg-search input:hover{border-bottom-color:var(--ink-line)}
+/* pointer focus is a whisper — border steps one opacity notch, no colour (F028) */
+.pg-search input:focus{border-bottom-color:var(--ink-line)}
+/* keyboard focus stays clearly visible via the family device: the hairline
+   turns ochre (same instrument records use) — visible, still no glow */
+.pg-search input:focus-visible{border-bottom-color:var(--ink-accent)}
 .pg-search .pg-pill{flex:0 0 auto; min-height:44px; letter-spacing:.05em}
 @media (pointer:fine){
   .pg-search input{min-height:40px}
@@ -130,55 +127,50 @@
 .pg-tier-panel{grid-area:panel; min-width:0}
 .pg-tier-head{
   display:flex; align-items:center; gap:.8em; flex-wrap:wrap;
-  padding-bottom:1rem; margin-bottom:1.1rem; /* the group's opening rule replaces the old hairline */
+  padding-bottom:1rem; margin-bottom:1.1rem;
 }
 .pg-tier-head h2{
   margin:0; font-family:var(--sans); font-weight:600;
   text-transform:none; letter-spacing:0; font-size:1.15rem; line-height:1.1; color:var(--ink-text);
 }
-/* lesson cards: same ruled-record family — no box, no float.
-   flash (palette jump) colors its rule ochre and washes faintly; the rule
-   COLOR (ochre vs hover's neutral) is the tell, placed after :hover so it
-   wins. ochre is the card's standing accent (topline/count/pill). */
 .pg-cards{
   display:flex; flex-direction:column; gap:0;
   border-top:1px solid var(--ink-line);
 }
+/* lesson cards — F042: ~20% lighter, weight taken off the two carriers
+   (pad 1.6→1.25rem, h3 24→20 cap). F041 device: hover brightens the rule
+   and wakes the summary; no wash. flash (out of scope) keeps its ochre. */
 .pg-card{
   border:0; border-bottom:1px solid var(--ink-line-soft);
-  border-radius:0; padding:1.6rem; background:transparent; min-width:0;
-  transition:border-color 180ms ease, background 180ms ease;
+  border-radius:0; padding:1.25rem; background:transparent; min-width:0;
+  transition:border-color 180ms ease;
 }
-.pg-card:hover{
-  border-bottom-color:var(--ink-line);
-  background:rgba(238,234,224,.03);
-}
+.pg-card:hover{border-bottom-color:var(--ink-line)}
+.pg-card:hover p{color:var(--ink-text)}       /* summary wakes; surface stays */
 .pg-card.is-flash{
   border-bottom-color:var(--ink-accent);
   background:rgba(211,155,97,.06);
 }
 .pg-topline{
   display:flex; align-items:center; justify-content:space-between; gap:1rem;
-  margin-bottom:.8rem;
-  color:var(--ink-accent); font-family:var(--mono); font-size:12px; font-weight:500;
+  margin-bottom:.65rem;
+  color:var(--ink-accent); font-family:var(--mono); font-size:11px; font-weight:500;
   letter-spacing:.02em;
 }
 .pg-card h3{
-  margin:0 0 .55rem; font-family:var(--sans);
-  font-size:clamp(20px,1.6vw,24px); font-weight:700; line-height:1.2; color:var(--ink-text);
+  margin:0 0 .45rem; font-family:var(--sans);
+  font-size:clamp(17px,1.35vw,20px); font-weight:700; line-height:1.2; color:var(--ink-text);
 }
-/* Preview only: the full summary lives on in the lesson reader, so the card
-   clamps to two lines. */
 .pg-card p{
-  margin:0; color:var(--ink-muted); font-size:14px; line-height:1.5;
+  margin:0; color:var(--ink-muted); font-size:13px; line-height:1.5;
   display:-webkit-box; -webkit-line-clamp:2; line-clamp:2; -webkit-box-orient:vertical; overflow:hidden;
+  transition:color 180ms ease;
 }
-/* Foot holds the outlined "open lesson" pill, floored at 44px. */
 .pg-card-foot{
-  margin-top:.9rem; display:flex; flex-wrap:wrap; align-items:center; gap:.6rem;
+  margin-top:.7rem; display:flex; flex-wrap:wrap; align-items:center; gap:.6rem;
 }
 .pg-card-foot .pg-pill{
-  display:inline-flex; align-items:center; gap:.5rem; min-height:44px;
+  display:inline-flex; align-items:center; gap:.5rem; min-height:44px;  /* touch floor untouched */
   border:1px solid var(--ink-line-soft); border-radius:var(--pill-radius);
   padding:.45rem .9rem; background:transparent; cursor:pointer;
   font-family:var(--mono); font-size:.72rem; letter-spacing:.04em; text-transform:lowercase;
@@ -187,51 +179,50 @@
 }
 .pg-card-foot .pg-pill:hover{gap:.75rem; border-color:var(--ink-accent); color:var(--ink-accent-bright); background:var(--ink-panel)}
 
-/* ---------- 4. folders — ruled records (folder box + tab retired) ---------- */
+/* ---------- 4. folders — ruled records, co-adopting the −20% + F041 device ---------- */
 .pg-faces{
   display:flex; flex-direction:column;
-  border-top:1px solid var(--ink-line);          /* group opens with one strong rule */
+  border-top:1px solid var(--ink-line);
 }
 .pg-face-head{
   width:100%; text-align:left; display:block; cursor:pointer;
   background:transparent; border:0; color:inherit;
-  border-bottom:1px solid var(--ink-line-soft);  /* soft hairline separates each record */
-  padding:1.6rem; min-height:44px;               /* card-scale inset from the open sides */
-  transition:background 180ms ease, border-color 180ms ease;
+  border-bottom:1px solid var(--ink-line-soft);
+  padding:1.25rem; min-height:44px;             /* card-scale inset, lightened */
+  transition:border-color 180ms ease;
 }
-.pg-face-head:hover{
-  background:rgba(238,234,224,.03);              /* quiet full-width wash */
-  border-bottom-color:var(--ink-line);           /* separator brightens */
-}
+.pg-face-head:hover{border-bottom-color:var(--ink-line)}      /* type wakes below; no wash */
+.pg-face-head:hover .pg-face-count{color:var(--ink-muted)}
+.pg-face-head:hover .pg-peek li{color:var(--ink-muted)}
 .pg-face-head:focus-visible{
-  outline:none;                                  /* records have no walls to outline */
-  border-bottom-color:var(--ink-accent);         /* record's own separator turns ochre */
+  outline:none;
+  border-bottom-color:var(--ink-accent);
 }
 .pg-face-top{display:flex; align-items:baseline; gap:.7em; flex-wrap:nowrap}
 .pg-face-label{
-  font-family:var(--sans); font-size:1.05rem; font-weight:600; color:var(--ink-text);
+  font-family:var(--sans); font-size:.98rem; font-weight:600; color:var(--ink-text);
   text-transform:none; flex:0 1 auto; min-width:0;
   white-space:nowrap; overflow:hidden; text-overflow:ellipsis;
 }
-.pg-face-count{font-family:var(--mono); font-size:.64rem; color:var(--ink-faint); flex:none; white-space:nowrap}
+.pg-face-count{font-family:var(--mono); font-size:.64rem; color:var(--ink-faint); flex:none; white-space:nowrap; transition:color 180ms ease}
 .pg-face-mark{
   margin-left:auto; flex:none;
-  font-family:var(--mono); font-size:.8rem; color:var(--ink-accent);  /* ochre directional instrument */
+  font-family:var(--mono); font-size:.8rem; color:var(--ink-accent);
   transition:transform 180ms ease, color 180ms ease;
 }
 .pg-face-head:hover .pg-face-mark{transform:translateX(3px); color:var(--ink-accent-bright)}
-.pg-peek{margin:.85em 0 0; padding:0; list-style:none; display:flex; flex-direction:column; gap:5px}
+.pg-peek{margin:.8em 0 0; padding:0; list-style:none; display:flex; flex-direction:column; gap:5px}
 .pg-peek li{
-  font-size:.8rem; line-height:1.45; color:var(--ink-faint); padding-left:16px; position:relative;
-  overflow:hidden; text-overflow:ellipsis; white-space:nowrap;
+  font-size:.78rem; line-height:1.45; color:var(--ink-faint); padding-left:16px; position:relative;
+  overflow:hidden; text-overflow:ellipsis; white-space:nowrap; transition:color 180ms ease;
 }
 .pg-peek li::before{content:'—'; position:absolute; left:0; color:var(--ink-line)}
 .pg-empty{font-size:.7rem; color:var(--ink-faint); padding:12px 2px; font-family:var(--mono); letter-spacing:.04em; text-transform:lowercase}
 
-/* ---------- 4b. volume-view crumb — one composed instrument ---------- */
+/* ---------- 4b. volume-view crumb (out of scope structurally; untouched) ---------- */
 .pg-crumb{
   display:flex; align-items:center; flex-wrap:nowrap; gap:0;
-  padding-bottom:1rem; margin-bottom:1.1rem;      /* cards' opening rule replaces old hairline */
+  padding-bottom:1rem; margin-bottom:1.1rem;
 }
 .pg-crumb-back{
   display:inline-flex; align-items:center; gap:.55rem; min-height:44px; flex:none;
@@ -245,7 +236,6 @@
 .pg-crumb-back:hover{border-color:var(--ink-accent); color:var(--ink-accent-bright); background:rgba(211,155,97,.07)}
 .pg-crumb-back:hover .pg-crumb-arrow{transform:translateX(-3px); color:var(--ink-accent-bright)}
 .pg-crumb-back:focus-visible{outline:1px solid var(--ink-accent); outline-offset:2px}
-/* the family hairline welds back-control → title into one breadcrumb instrument */
 .pg-crumb-title{
   flex:1 1 auto; min-width:0;
   margin-left:.95rem; padding-left:.95rem; border-left:1px solid var(--ink-line);
@@ -254,7 +244,7 @@
   white-space:nowrap; overflow:hidden; text-overflow:ellipsis;
 }
 
-/* ---------- 5b. palette ---------- */
+/* ---------- 5b. palette (out of scope; untouched) ---------- */
 .pg-palette{
   position:fixed; inset:0; z-index:40;
   background:rgba(7,12,15,.72); backdrop-filter:blur(6px);
@@ -281,30 +271,35 @@
 .pg-pal-sub{margin-left:auto; font-family:var(--mono); font-size:.6rem; letter-spacing:.04em; color:var(--ink-faint); white-space:nowrap}
 .pg-pal-foot{border-top:1px solid var(--ink-line-soft); padding:11px 22px; font-family:var(--mono); font-size:.6rem; letter-spacing:.04em; color:var(--ink-faint)}
 
-/* ---------- 6. mobile (stepped token-shrink, one rhythm; ≥44px floors) ---------- */
+/* ---------- 6. mobile — three ruled bands, real air (F040/F021) ---------- */
 @media (max-width:900px){
   .pg-layout{margin-top:32px; gap:26px 26px}
 }
 @media (max-width:700px){
-  .pg-layout{margin-top:24px; grid-template-columns:1fr; grid-template-areas:"list" "search" "panel"; gap:18px}
-  /* search bar rides ~25% narrower, centered — field breathing on both sides
-     (width:100% keeps the flex row definite so the input fills it) */
-  .pg-search{width:100%; max-width:75%; margin-inline:auto}
+  .pg-layout{
+    margin-top:24px; grid-template-columns:1fr;
+    grid-template-areas:"list" "search" "panel";
+    gap:34px;                                  /* was 18px — sections get distance */
+  }
+  /* the bare-field search now carries its own hairline: it is its own quiet
+     band, full-width, no centering trick (iOS-safe). */
+  .pg-search{width:100%; max-width:none; margin-inline:0; padding-block:.35rem}
   .pg-tier-row{grid-template-columns:auto minmax(0,1fr) auto; padding:.75rem .85rem; min-height:44px}
   .pg-tier-count{justify-self:end}
-  .pg-card{padding:1.15rem}
+  .pg-card{padding:.95rem}
+  .pg-face-head{padding:1rem}
   .pg-tier-head{padding-bottom:.8rem; margin-bottom:.9rem}
   .pg-crumb{padding-bottom:.8rem; margin-bottom:.9rem}
-  .pg-face-head{padding:1.2rem 1rem}          /* card-scale inset at mobile; base min-height 44px holds */
   .pg-cards{gap:0}
   .pg-pal{top:0; left:0; transform:none; width:100%; border-radius:0 0 var(--panel-radius) var(--panel-radius); border-left:0; border-right:0; border-top:0}
   .pg-pal-list{max-height:64vh}
 }
 @media (max-width:560px){
-  .pg-layout{margin-top:18px; gap:14px}
-  .pg-card{padding:1rem}
+  .pg-layout{margin-top:18px; gap:28px}       /* still clearly > internal rhythm */
+  .pg-card{padding:.85rem}
+  .pg-face-head{padding:.9rem}
   .pg-tier-head{padding-bottom:.7rem; margin-bottom:.75rem}
   .pg-crumb{padding-bottom:.7rem; margin-bottom:.75rem}
-  .pg-crumb-title{margin-left:.7rem; padding-left:.7rem}  /* tighten the divider rhythm */
+  .pg-crumb-title{margin-left:.7rem; padding-left:.7rem}
   .pg-card-foot{gap:.5rem}
 }
