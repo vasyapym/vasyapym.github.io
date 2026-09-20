@@ -109,20 +109,21 @@ type Anchor = { readonly fx: number; readonly fy: number };
 
 // id-keyed like DOOR_HUES — a reorder re-seats projects into fixed slots; it
 // never swaps geography by index (R001). Rows are written top->bottom in tour
-// order (= catalogue order). fy = 0.08 + i·0.12 over the 3-viewport anchor
-// span (r14 r3): m=0.08 top inset, g=0.12 uniform gap, last=0.92; the 0.5vh
-// r13 deep stays additive below. fx = the 8 fixed L/R-alternating slots
+// order (= catalogue order). fy = 0.208 + i·0.104 over the 3.5-viewport span
+// (r14 r4): a symmetric two-cell frame — top inset 0.208·anchorH balances the
+// bottom inset (tail 0.064·anchorH + the 0.5vh deep) at every resolution;
+// uniform 327.6px gaps @1440×900. fx = the 8 fixed L/R-alternating slots
 // (unchanged geometry). First/third doors left-half so their sheets dock
 // right; the two central fx (0.4 @slot4, 0.58 @slot7) stay non-adjacent.
 const ANCHORS: Record<string, Anchor> = {
-  "quicknotes": { fx: 0.22, fy: 0.08 },
-  "spine": { fx: 0.72, fy: 0.2 },
-  "practice-map": { fx: 0.34, fy: 0.32 },
-  "kitty-run": { fx: 0.66, fy: 0.44 },
-  "raft-cluster": { fx: 0.4, fy: 0.56 },
-  "evening-forest": { fx: 0.78, fy: 0.68 },
-  "explosion": { fx: 0.24, fy: 0.8 },
-  "planck-to-now": { fx: 0.58, fy: 0.92 },
+  "quicknotes": { fx: 0.22, fy: 0.208 },
+  "spine": { fx: 0.72, fy: 0.312 },
+  "practice-map": { fx: 0.34, fy: 0.416 },
+  "kitty-run": { fx: 0.66, fy: 0.52 },
+  "raft-cluster": { fx: 0.4, fy: 0.624 },
+  "evening-forest": { fx: 0.78, fy: 0.728 },
+  "explosion": { fx: 0.24, fy: 0.832 },
+  "planck-to-now": { fx: 0.58, fy: 0.936 },
 };
 
 // center fallback so an unmapped door (or a null return door) never crashes
@@ -151,25 +152,25 @@ const DEGRADED_DIVE_DISC = 0.9;
 
 // r13 deepfloor-frame: selection framing retargets camY — a view-only move
 // that never touches the r10-parked lantern — so the greeting core clears the
-// panel, legend, hud and caption.
-// r14 r1–r2: requested order + symmetric frame + uniform gap; absorbed the
-//   r13 deep into the span (ANCHOR_SPAN_K 2→2.5, fresh 0.5vh deep
-//   re-provisioned below). gaps 180→225px @1440×900.
-// r14 r3: r1–r2 only SCALED — the fy window stayed at 0.15…0.85 (70% of
-//   span), so the doors stayed condensed in the upper span with ~337px of
-//   unused span + the 450px deep sitting empty below. Fix: span grows
-//   2.5→3.0 (absorbs another r13 deep-floor's worth), fresh 0.5vh deep
-//   re-provisioned below, and the fy window SPREADS to 0.08…0.92 (84% of
-//   span). Tour run fills 72% of the world (was 58%); the LAST door lands
-//   at y=2484 @1440×900 — inside where the old r13 deep floor used to be.
-//   gaps 225→324px (+44%). r13 contract intact: the 0.5vh deep still
-//   supplies the range surplus that lifts the bottom creature clear of the
-//   mobile sheet / desktop band (24.5px slack @390×725), and the light
-//   still travels below the anchor band.
-const ANCHOR_SPAN_K = 3.0;
-const DEEP_K = 0.5;          // travel floor, additive below the span — kept
-                             // minimal on purpose: it must read as r13
-                             // travel, not as slack to be filled.
+// panel, legend, hud and caption. The 0.5vh deep floor (additive below the
+// span) is load-bearing: it supplies the camera-range surplus that lifts the
+// bottom creature clear of the mobile sheet.
+// r14 r1–r3: requested order + symmetric frame + uniform gap; the span
+//   absorbed the r13 deep (2→2.5→3.0) and the fy window spread into the
+//   former deep band (0.15…0.85 → 0.08…0.92). Gaps 180→324px @1440×900.
+// r14 r4: balance the frame — the deep is additive BELOW the span only, so
+//   the bottom inset carried tail+deep (666px) vs the top's tail (216px),
+//   ratio 3.08. Identity: top = fy_0·K·vh; the bottom floors at 0.707·vh
+//   when fy_last rides the mobile-lift ceiling (mobile bandCy/vh = 0.293 →
+//   1−0.293 = 0.707) — both pure vh multiples, so fy_0 = 0.707/K balances
+//   top==bottom at EVERY resolution. K 3.0→3.5 buys balance without
+//   shrinking the r3 gaps (→327.6px): top 655px, bottom 652px, ratio 1.006.
+//   No door frames into the camY clamp-at-0 branch anymore (entry still
+//   clamps and the r19 spawn gate asserts it); the close-hold gate is
+//   re-expressed to the real snapshot-hold law (door-agnostic).
+const ANCHOR_SPAN_K = 3.5;
+const DEEP_K = 0.5;          // r13 travel floor, additive below the span —
+                             // load-bearing for the mobile lift; kept minimal.
 const FRAME_K = 3.2;
 const FRAME_EPS = 0.5;
 const CHROME = { hudD: 64, capD: 64, hudM: 56, sheetTopM: 0.52, padM: 8 } as const;

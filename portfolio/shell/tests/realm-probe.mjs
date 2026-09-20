@@ -791,10 +791,11 @@ try {
   const frameOf = (p) => p.evaluate(() => window.__r13?.getFrameSnapshot());
 
   const ds13 = await depthOf(r13);
-  // depth model — the span constant tracks r14 r3 (K 2.5 → 3.0, the fy
-  // window spreads to 0.08…0.92); deep + the additive relations unchanged
+  // depth model — the span constant tracks r14 r4 (K 3.0 → 3.5, the frame
+  // balances: top inset = bottom inset at every resolution); deep + the
+  // additive relations unchanged
   check("r13: depth model = frozen anchor span + additive deep",
-    !!ds13 && ds13.anchorH === 3 * ds13.vh && ds13.deep === Math.round(ds13.vh * 0.5) &&
+    !!ds13 && ds13.anchorH === 3.5 * ds13.vh && ds13.deep === Math.round(ds13.vh * 0.5) &&
     ds13.h === ds13.anchorH + ds13.deep && ds13.range === ds13.h - ds13.vh,
     JSON.stringify(ds13));
   check("r13: frame idle before any selection",
@@ -817,9 +818,11 @@ try {
     }, 3000));
   // r13 law: the framing retargets camY toward the band centre, clamped to the
   // world — a centreable creature lands exactly at the band centre; a shallow
-  // anchor (the deliberate rhythm puts door 1 at fy 0.08) clamps at 0 and must
-  // still sit inside the clear band. Derived from the live anchors, so a
-  // geography tweak cannot stale it.
+  // anchor clamps at 0 and must still sit inside the clear band (the r14 r4
+  // balanced law leaves no door shallow, so door 1 now exercises the centre
+  // branch; the clamp branch stays live at entry — the r19 spawn gate asserts
+  // camYState === 0 there). Derived from the live anchors, so a geography
+  // tweak cannot stale it.
   check("r13: framed camY follows the clamp law — door 1 stays inside the clear band",
     await r13.evaluate(() => {
       const d = window.__r13?.getDepthSnapshot();
@@ -856,13 +859,29 @@ try {
         Math.abs(g.x - b.x) < 0.5 && Math.abs(g.y - b.y) < 0.5;
     }));
 
-  await r13.keyboard.press("Escape"); // close door 1
+  // r14 r4: under the balanced law no door frames into the camY clamp branch
+  // (door 1 centres now), so the hold is asserted against the live framed
+  // value itself — the actual r13 law (closePanel: "camY stays where the
+  // frame left it"). The close must not RETARGET camY; the parked-lantern
+  // dead band resumes its ambient sweep afterwards by design (it was
+  // invisible while door 1 was shallow — framed 0 == dead-band 0). The esc
+  // chain is owned by the layer's onKeyDown, so the synthetic key dispatches
+  // on the focused element and bubbles through the layer — same evaluate
+  // reads the camY, so not a single ambient frame can slip between the
+  // close and the sample.
   check("r13: framed camY held at the close moment (no snap)",
-    await until(r13, () => {
-      if (document.querySelector(".realm-panel.is-open") !== null) return false;
-      const d = window.__r13?.getDepthSnapshot();
-      return !!d && Math.abs(d.camYState - 18) < 30;
-    }, 2500));
+    await r13.evaluate(() => {
+      const before = window.__r13?.getDepthSnapshot();
+      if (!before) return false;
+      const held = before.camYState;
+      const target = document.activeElement ?? document.querySelector(".realm-layer");
+      target?.dispatchEvent(new KeyboardEvent("keydown", {
+        key: "Escape", bubbles: true, cancelable: true,
+      }));
+      const after = window.__r13?.getDepthSnapshot();
+      return document.querySelector(".realm-panel.is-open") === null &&
+        !!after && Math.abs(after.camYState - held) < 3;
+    }));
   check("r13: side attributes clear after the close fade",
     await until(r13, () => {
       const panel = document.querySelector(".realm-panel");
@@ -908,25 +927,32 @@ try {
   // warp to the LAST door — the deep-floor creature, wherever the live
   // geography puts it (door 8 / planck-to-now since the raft-after-kitty
   // reorder; hard-coding "7" staled the moment the count grew)
-  const r13DoorCount = await r13.evaluate(() =>
-    Object.keys(window.__r13?.getDepthSnapshot()?.anchors ?? {}).length);
-  await r13.keyboard.press(String(r13DoorCount)); // warp to the deep floor
-  await wait(300);
+  // r14 r4: the warp law is synchronous (warpTo sets camYState to the
+  // creature's anchor frame); the ambient dead band may drift the view
+  // afterwards (the live core leans around its anchor by design), so the
+  // law is sampled in the same evaluate as the key dispatch — no ambient
+  // frame between the warp and the assertion.
   check("r13: warp to the deep-floor door reaches past the old vh cap",
     await r13.evaluate(() => {
+      const before = window.__r13?.getDepthSnapshot();
+      if (!before) return false;
+      const ids = Object.keys(before.anchors);
+      const lastId = ids[ids.length - 1];
+      window.dispatchEvent(new KeyboardEvent("keydown", {
+        key: String(ids.length), bubbles: true,
+      }));
       const d = window.__r13?.getDepthSnapshot();
-      if (!d) return false;
-      const ids = Object.keys(d.anchors);
-      const last = d.anchors[ids[ids.length - 1]];
+      const last = d?.anchors?.[lastId];
+      if (!d || !last) return false;
       const expected = Math.min(last.fy * d.anchorH - d.vh * 0.5, d.range);
-      return expected > d.vh && Math.abs(d.camYState - expected) < 3;
+      return expected > d.vh && Math.abs(d.camYState - expected) < 0.5;
     }),
     `camY=${JSON.stringify(await r13.evaluate(() => {
       const d = window.__r13?.getDepthSnapshot();
       if (!d) return null;
       const ids = Object.keys(d.anchors);
-      const last = d.anchors[ids[ids.length - 1]];
-      return { camYState: d.camYState, last: ids[ids.length - 1], lastFy: last?.fy, range: d.range };
+      const last = ids[ids.length - 1];
+      return { camYState: d.camYState, last, lastFy: d.anchors[last]?.fy, range: d.range };
     }).catch(() => null))}`);
   // the light must be able to travel below the anchor band — hold "s" and
   // poll for the crossing (a fixed 1.2s budget was load-sensitive; the LAW
@@ -1467,8 +1493,13 @@ try {
       return el === null;
     }, 2500));
   await wait(200);
-  // double-click dive: two qualified quick releases on the same creature
-  await direct.mouse.move(directTap.x, directTap.y); // back on creature 0
+  // double-click dive: two qualified quick releases on the same creature.
+  // r14 r4: the balanced law centres EVERY door, so the first selection panned
+  // camY (the r13 close-hold keeps it there) and the pre-selection tap point
+  // staled by exactly the framed delta — re-derive the fixture from live state.
+  const diveTap = await creatureTapPoint(direct, 0);
+  if (!diveTap) throw new Error("no dev anchor snapshot — cannot place the dive tap fixture");
+  await direct.mouse.move(diveTap.x, diveTap.y); // back on creature 0
   await wait(400); // hover settles; pair history reset by the close interaction
   await direct.mouse.down();
   await direct.mouse.up();

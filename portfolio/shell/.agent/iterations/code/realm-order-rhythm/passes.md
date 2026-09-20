@@ -166,3 +166,68 @@ hard-coded fixtures baked in); orchestrator integrated.
 - Next action: task complete on the code side.
 
 
+
+
+## Pass C004 — VERIFIED
+- Objective and scope: owner round 4 — "quicknotes is closer to the top than
+  planck to now to the bottom. can it be fixed?" — balance the vertical
+  frame (top inset 216px vs bottom inset 666px, ratio 3.08).
+- Chat-model law (relay round 4): the asymmetry is entirely the r13 deep
+  floor (additive below the span only). Identity: top = fy_0·K·vh; the
+  bottom floors at 0.707·vh when fy_last rides the mobile-lift ceiling —
+  both pure vh multiples, so fy_0 = 0.707/K balances top==bottom at EVERY
+  resolution. K 3.0→3.5 buys balance without shrinking the r3 gaps.
+  `ANCHOR_SPAN_K = 3.5`, `DEEP_K = 0.5`, `fy = 0.208 + 0.104·i`
+  (0.208…0.936): top 655px, bottom 652px, ratio 1.006, gaps 327.6px
+  @1440×900; mobile insets 528/525, G5 lift slack 12.9px. No door frames
+  into the camY clamp branch anymore (entry still clamps; the r19 spawn
+  gate asserts camYState === 0 there) — the close-hold gate re-expressed
+  door-agnostically.
+- Integration corrections beyond the delivered patch (documented):
+  1. The delivered G2 pseudo-code read `frameSnapshot.camY`, which the dev
+     snapshot does not expose — re-expressed to the real r13 law
+     (closePanel: "camY stays where the frame left it"): the synthetic
+     Escape dispatches on the focused element and bubbles through the layer
+     (the esc chain is owned by the layer's onKeyDown — a window dispatch
+     never reaches it; the first attempt left the panel open and knocked
+     out the side-clear + r11 gates), and the camY is read in the same
+     evaluate — race-free, door-agnostic, no numeric window.
+  2. The r8 double-click fixture staled: the tap point was captured once at
+     camY=0 and reused after a select+close cycle — valid only while
+     creature 0 was shallow (framed camY clamped at 0); under the balanced
+     law the first selection pans camY by 205px and the second pick misses.
+     Fix: re-derive the tap point from live state after the close (the
+     suite's own live-derived principle; two gates were failing).
+  3. The r13 warp gate raced the ambient dead-band follower: warpTo freezes
+     camY on the creature's ANCHOR while the lantern lands on the LIVE core
+     (which leans/wanders ±60px by design), so the post-warp view drifts;
+     rounds 1–3 won the 300ms race, round 4 lost it. Fix: the law is
+     sampled in the same evaluate as the key dispatch (race-free, exact).
+- Changes: realm-scene.ts (ANCHOR_SPAN_K 3.5 + law-history comment, ANCHORS
+  fy re-grid + header comment), realm-probe.mjs (G0 3→3.5; the close-hold
+  and warp gates re-expressed to race-free live-state forms; the stale
+  shallow-branch comment updated; the double-click fixture re-derivation).
+- Verification:
+  - Command: `npm run build` (portfolio/shell)
+    Result: PASS — tsc --noEmit + vite build, exit 0.
+  - Command: `CHROME_PATH=…Chromium node tests/realm-probe.mjs <outDir>`
+    Result: PASS ×2 independent full-suite runs ("realm-probe: all checks
+    passed"); two intermediate runs FAILED (the fixture staleness + the
+    window-vs-layer dispatch) and were repaired — records kept above.
+  - Command: `node ../probes/realm-anchor-shots.mjs` (dev server :5199)
+    Result: PASS — door 00 (Quicknotes) framed at ~73% of the viewport in
+    the balanced sky; the symmetric margin reads. Evidence:
+    /var/folders/8x/yls1cw1d6s3fmbrxhqg0y17w0000gp/T/opencode/quicknotes-r001/realm-door-00.png.
+- Final diff review: performed — probe assertion edits are limited to the
+  two legitimately re-expressed laws (close-hold, warp sampling) + the
+  fixture re-derivation; no assertions weakened (the numeric windows were
+  coincidence proxies under the old shallow geometry; the new forms test
+  the actual laws against live state).
+- Design constraints: r13 mobile lift (G5 slack 12.9px), r13 light travel
+  (G6, deep 0.5vh real), r13 close-no-retarget (now tested exactly), R001
+  id-keyed geography, fx slots/order/hues untouched.
+- Remaining risks/blockers: visual verdict = owner; the clamp-at-0 framing
+  branch has no live door representative under the balanced law (the entry
+  clamp is asserted by the r19 spawn gate) — suite-coverage note, accepted
+  by the relay design.
+- Next action: task complete on the code side.
