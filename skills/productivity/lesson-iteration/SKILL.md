@@ -134,6 +134,8 @@ Write the approved essay as `<NNN>-<topic>.md`. Recheck availability before writ
 ### Migrate without inventing a schema
 Use the real card schema and stable IDs. Update the exact matching topic card; otherwise add a card/area using existing repository conventions. Preserve unrelated content, short lessons, exercises, and references unless an intentional source-backed change is needed. Do not broaden the data model or redesign the reader as a shortcut.
 
+Do not author `concepts`: the field is schema-only and lesson cards never display it — write `"concepts": []`.
+
 The expected target is `DeepLesson = { sections: readonly LessonSection[] }`.
 A `LessonSection` has required `heading: string | null` and optional `paragraphs`, `blocks`, and `examples`.
 
