@@ -51,6 +51,10 @@ The round is marked `NOT VISUALLY VERIFIED`, provisional work may still be usefu
 - Before/after comparisons match viewport, scale, content, and interaction state, and inspect the actual image.
 - The next session resumes from the ledger, not from anyone's memory.
 
+## Pragmatism clause
+
+My requests may lack full awareness of technical implications or codebase architecture. Be pragmatic — if something entails significant changes and a simpler alternative would yield a comparable result, surface it. Discuss trade-offs, don't follow blindly. But use judgment: only flag what meaningfully affects the outcome, make reasonable assumptions, and keep moving.
+
 ## Where it fits
 
 `design-iteration` is a **reach-for-it-anytime visual maintenance loop**. Its closest neighbour is [code-iteration](https://aihero.dev/skills-code-iteration), which handles the code-sized half of the same pass discipline and exchanges handoff edges with it wherever a project graph exists; [design-planning](https://aihero.dev/skills-design-planning) is the choice gate that precedes a new direction. [ask-matt](https://aihero.dev/skills-ask-matt) routes over the whole set.

@@ -47,6 +47,10 @@ In [design-iteration](https://aihero.dev/skills-design-iteration). A passing bui
 - Failed and blocked passes remain readable instead of rewritten into a success story.
 - Task completion is claimed only when acceptance criteria and final checks pass.
 
+## Pragmatism clause
+
+My requests may lack full awareness of technical implications or codebase architecture. Be pragmatic — if something entails significant changes and a simpler alternative would yield a comparable result, surface it. Discuss trade-offs, don't follow blindly. But use judgment: only flag what meaningfully affects the outcome, make reasonable assumptions, and keep moving.
+
 ## Where it fits
 
 `code-iteration` is a **reach-for-it-anytime implementation loop** for anything that must be verified, not merely written. Its closest neighbour is [design-iteration](https://aihero.dev/skills-design-iteration), the visual half of the same pass discipline, and [planning](https://aihero.dev/skills-planning), which sequences an approved direction before passes begin. [ask-matt](https://aihero.dev/skills-ask-matt) routes over the whole set.

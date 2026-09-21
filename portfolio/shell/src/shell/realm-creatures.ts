@@ -1,4 +1,4 @@
-// realm-creatures.ts — "The Deep", module 3 of 3: the seven bioluminescent organisms.
+// realm-creatures.ts — "The Deep", module 3 of 3: the bioluminescent organisms.
 // architecture: primitive utils, the common creature law, seven species, emitter/factory.
 // regularized anchor-relative lean removes coincidence feedback; bounded local clocks,
 // eased scatter and time-based dodges survive throttled frames without catch-up jumps.
@@ -222,7 +222,7 @@ abstract class Creature implements RealmCreature {
   protected abstract emitBody(c: CreatureContext, cam: CameraView, out: Emitter): void;
 }
 
-// -- layer 3: the seven creatures -------------------------------------------------------
+// -- layer 3: the creatures -------------------------------------------------------------
 
 // 1. raft-cluster — five orbiting nodes, elected leader, laggard and commit pulse.
 //    sweep scatter and the greeting row both settle without placement steps.
@@ -760,118 +760,306 @@ class PlanckCreature extends Creature {
   }
 }
 
-// 7. practice-map — persistent constellation, changing routes and travelling pulses.
-//    greeting threads all stars; emit is read-only, even when culled or drawn twice.
-//    budget: 22 points, 16 lines.
-class MapCreature extends Creature {
-  private readonly S = 9;
-  private stx = new Float32Array(this.S); private sty = new Float32Array(this.S);
-  private readonly R = 3;
-  private ra = new Int32Array(this.R); private rb = new Int32Array(this.R);
-  private rp = new Float32Array(this.R);
-  private rf = new Float32Array(this.R);
-  private rl = new Float32Array(this.R);
-  private spawn = 0;
-  private starPulse = new Float32Array(this.S);
+// 7. quicknotes — a caret types glyphs into a note card, line by line,
+//    clears, and retypes; a corner dot pulses as the on-device sync beat.
+//    greeting: wipes blank and rapid-writes a full note to answer the lantern.
+//    budget: 2 points, 32 lines.
+class QuicknotesCreature extends Creature {
+  private readonly COLS = 6;
+  private readonly ROWS = 4;
+  private readonly N = 24;
+  private fill = new Float32Array(24);   // per-cell brightness 0..1
+  private isSpace = new Uint8Array(24);  // word gaps
+  private caret = 0;                      // float cell index of the cursor
+  private phase = 0;                      // 0 typing, 1 hold, 2 clear
+  private holdT = 0;
+  private noteSeed = 0;
+  private typeSpeed = 7.5;
+  private blink = 1;
 
   constructor(id: string, hue: readonly [number, number, number], fx: number, fy: number, r: number, s: number) {
     super(id, hue, fx, fy, r, s);
-    for (let i = 0; i < this.S; i++) {
-      const a = rnd((s + i) | 0) * TAU;
-      const d = (0.25 + rnd((s + i + 40) | 0) * 0.7) * r * 0.6;
-      this.stx[i] = Math.cos(a) * d; this.sty[i] = Math.sin(a) * d;
+    this.leanSign = 1;
+    this.noteSeed = s | 0;
+    this.typeSpeed = 7 + rnd(s) * 2;
+    this.reseed();
+  }
+
+  private reseed(): void {
+    this.noteSeed = (this.noteSeed + 101) | 0;
+    let prev = true;
+    for (let i = 0; i < this.N; i++) {
+      const col = i % this.COLS;
+      let sp = false;
+      if (col !== 0 && col !== this.COLS - 1 && !prev && rnd((this.noteSeed + i * 7) | 0) < 0.24) sp = true;
+      this.isSpace[i] = sp ? 1 : 0;
+      prev = sp;
     }
-    for (let k = 0; k < this.R; k++) {
-      this.ra[k] = k; this.rb[k] = (k + 3) % this.S;
-      this.rp[k] = 1; this.rf[k] = 0;
-    }
+  }
+
+  protected greetStart(_c: CreatureContext): void {
+    // greet from a clean sheet, fresh word pattern
+    for (let i = 0; i < this.N; i++) this.fill[i] = 0;
+    this.reseed();
+    this.caret = 0;
+    this.phase = 0;
   }
 
   protected updateMotion(c: CreatureContext): void {
     this.x = this.cx; this.y = this.cy;
     if (c.reduced) {
-      for (let i = 0; i < this.S; i++) this.starPulse[i] = 0;
+      for (let i = 0; i < this.N; i++) this.fill[i] = this.isSpace[i] ? 0 : 1;
+      this.caret = this.N; this.blink = 1;
       return;
     }
-    for (let i = 0; i < this.S; i++) {
-      this.starPulse[i] = Math.max(0, this.starPulse[i] - this.step * 2);
-    }
-    if (this.greetTime > 0) {
-      const reached = clamp((this.greetTime / 0.55) | 0, 0, this.S - 1);
-      for (let i = 0; i <= reached; i++) this.starPulse[i] = 1;
+    const dt = this.step, g = this.greetTime;
+    this.blink = 0.5 + 0.5 * Math.sin(this.motionTime * Math.PI * 1.7);
+
+    if (g > 0) {
+      // greeting: rapid full write, then hold lit
+      const upto = clamp(g / 2.0, 0, 1) * this.N;
+      for (let i = 0; i < this.N; i++) {
+        const goal = this.isSpace[i] ? 0 : (i < upto ? 1 : 0);
+        this.fill[i] += (goal - this.fill[i]) * (1 - Math.exp(-16 * dt));
+      }
+      this.caret = clamp(upto, 0, this.N);
       return;
     }
 
-    this.spawn -= this.step;
-    if (this.spawn <= 0) {
-      this.spawn += 1.3;
-      let worst = 0;
-      for (let k = 1; k < this.R; k++) {
-        if (this.rf[k] > this.rf[worst]) worst = k;
+    if (this.phase === 0) {                    // typing
+      this.caret += dt * this.typeSpeed;
+      const upto = Math.min(this.N, Math.floor(this.caret));
+      for (let i = 0; i < upto; i++) {
+        const goal = this.isSpace[i] ? 0 : 1;
+        this.fill[i] += (goal - this.fill[i]) * (1 - Math.exp(-20 * dt));
       }
-      const seed = (this.seed + (this.motionTime * 30 | 0)) | 0;
-      this.ra[worst] = (rnd(seed) * this.S) | 0;
-      this.rb[worst] = (this.ra[worst] + 1
-        + ((rnd(seed + 1) * (this.S - 1)) | 0)) % this.S;
-      this.rp[worst] = 0; this.rf[worst] = 0; this.rl[worst] = 0;
-    }
-    for (let k = 0; k < this.R; k++) {
-      if (this.rp[k] < 1) {
-        this.rp[k] = Math.min(1, this.rp[k] + this.step * 0.8);
-        this.rl[k] = 1;
-        if (this.rp[k] >= 1) this.starPulse[this.rb[k]] = 1;
-      } else this.rl[k] = Math.max(0, this.rl[k] - this.step * 0.4);
-      this.rf[k] = Math.min(1, this.rf[k] + this.step * 0.25);
+      if (this.caret >= this.N) { this.phase = 1; this.holdT = 1.8; }
+    } else if (this.phase === 1) {             // holding a finished note
+      this.holdT -= dt;
+      if (this.holdT <= 0) this.phase = 2;
+    } else {                                    // clearing
+      let sum = 0;
+      for (let i = 0; i < this.N; i++) { this.fill[i] *= Math.exp(-8 * dt); sum += this.fill[i]; }
+      if (sum < 0.04) { this.reseed(); this.caret = 0; this.phase = 0; }
     }
   }
 
   protected emitBody(c: CreatureContext, cam: CameraView, out: Emitter): void {
-    const g = c.reduced ? 0 : this.greetTime;
-    // static skeleton keeps the constellation readable when every live route is stale.
-    for (let i = 0; i < this.S - 1; i++) {
-      this.seg(cam, out, this.cx + this.stx[i], this.cy + this.sty[i],
-        this.cx + this.stx[i + 1], this.cy + this.sty[i + 1],
-        1.5, 0.035, 0.18 + this.glow * 0.06);
+    const r = this.radius, gl = this.glow, pulse = this.redPulse(c);
+    const bob = c.reduced ? 0 : (this.breath - 0.5) * r * 0.03;
+    const ox = this.x, oy = this.y + bob;
+    const halfW = r * 0.46, halfH = r * 0.34;
+    const cw = (halfW * 2) / this.COLS, ch = (halfH * 2) / this.ROWS;
+
+    // note-card frame
+    const fx0 = ox - halfW - cw * 0.35, fx1 = ox + halfW + cw * 0.35;
+    const fy0 = oy - halfH - ch * 0.4, fy1 = oy + halfH + ch * 0.4;
+    const fa = 0.12 + gl * 0.06;
+    this.seg(cam, out, fx0, fy0, fx1, fy0, 1.4, 0.04, fa);
+    this.seg(cam, out, fx0, fy1, fx1, fy1, 1.4, 0.04, fa);
+    this.seg(cam, out, fx0, fy0, fx0, fy1, 1.4, 0.04, fa * 0.85);
+    this.seg(cam, out, fx1, fy0, fx1, fy1, 1.4, 0.04, fa * 0.85);
+
+    // ambient body glow
+    this.dot(cam, out, ox, oy, 12, 0.01, 0.06 + gl * 0.06);
+
+    // typed glyphs (dashes = words)
+    for (let i = 0; i < this.N; i++) {
+      if (this.isSpace[i] || this.fill[i] <= 0.03) continue;
+      const col = i % this.COLS, row = (i / this.COLS) | 0;
+      const gx = ox - halfW + (col + 0.5) * cw;
+      const gy = oy - halfH + (row + 0.5) * ch;
+      const a = clamp(this.fill[i] * (0.55 + gl * 0.2 + pulse * 0.18), 0, 1);
+      this.seg(cam, out, gx - cw * 0.31, gy, gx + cw * 0.31, gy, 2.2, 0.14, a);
     }
-    if (g > 0) {
-      const progress = clamp(g / 0.55, 0, this.S - 1);
-      for (let i = 0; i < this.S - 1; i++) {
-        const f = clamp(progress - i, 0, 1);
-        if (f <= 0) break;
-        this.seg(cam, out, this.cx + this.stx[i], this.cy + this.sty[i],
-          this.cx + this.stx[i] + (this.stx[i + 1] - this.stx[i]) * f,
-          this.cy + this.sty[i] + (this.sty[i + 1] - this.sty[i]) * f,
-          2.4, 0.22, 0.58);
+
+    // caret
+    const ci = clamp(this.caret, 0, this.N);
+    let crow = (ci / this.COLS) | 0, ccol = ci - crow * this.COLS;
+    if (crow >= this.ROWS) { crow = this.ROWS - 1; ccol = this.COLS; }
+    const cxp = ox - halfW + ccol * cw;
+    const cyp = oy - halfH + (crow + 0.5) * ch;
+    const ca = (c.reduced ? 0.25 : this.blink) * (0.55 + gl * 0.25) + pulse * 0.2;
+    this.seg(cam, out, cxp, cyp - ch * 0.35, cxp, cyp + ch * 0.35, 2.0, 0.22, clamp(ca, 0, 1));
+
+    // on-device sync heartbeat (corner)
+    const sp = c.reduced ? 0 : Math.max(0, Math.sin(this.motionTime * 0.9));
+    this.dot(cam, out, fx1, fy1, 2.6, 0.25, 0.18 + sp * 0.42 * (0.5 + gl * 0.5));
+  }
+}
+
+// 8. waste-of-tokens (practice-map) — a tiered occupancy ledger: token
+//    fireflies drift in a hopper and file themselves into empty cells; fresh
+//    cells flare then age to a dim floor; once full it recycles the oldest
+//    cell — a perpetually filling archive. greeting: a wave of light sweeps
+//    the whole wall to answer the lantern.
+//    budget: 35 points, 11 lines.
+class LedgerCreature extends Creature {
+  private readonly COLS = 6;
+  private readonly ROWS = 4;
+  private readonly N = 24;
+  private readonly TK = 3;
+  private occ = new Float32Array(24);
+  private age = new Float32Array(24);
+  private filled = new Uint8Array(24);
+  private fileT = 0;
+  private flx = new Float32Array(3);   // firefly local x offset
+  private fly = new Float32Array(3);   // firefly local y offset
+  private fsx = new Float32Array(3);   // flight start x
+  private fsy = new Float32Array(3);   // flight start y
+  private fprog = new Float32Array(3);
+  private ftar = new Int32Array(3);    // target cell, -1 = none
+  private fstate = new Uint8Array(3);  // 0 dormant/hover, 1 flying
+
+  constructor(id: string, hue: readonly [number, number, number], fx: number, fy: number, r: number, s: number) {
+    super(id, hue, fx, fy, r, s);
+    this.leanSign = -1;
+    this.fileT = 0.4 + rnd(s) * 0.4;
+    for (let k = 0; k < this.TK; k++) { this.ftar[k] = -1; this.fstate[k] = 0; }
+  }
+
+  private cellLX(i: number): number {
+    const col = i % this.COLS;
+    return this.radius * (-0.55 + (col + 0.5) * (1.1 / this.COLS));
+  }
+  private cellLY(i: number): number {
+    const row = (i / this.COLS) | 0;
+    return this.radius * (0.42 - (row + 0.5) * (0.84 / this.ROWS));
+  }
+  private nextEmpty(): number { for (let i = 0; i < this.N; i++) if (!this.filled[i]) return i; return -1; }
+  private oldestFilled(): number {
+    let best = -1, ba = -1;
+    for (let i = 0; i < this.N; i++) if (this.filled[i] && this.age[i] > ba) { ba = this.age[i]; best = i; }
+    return best;
+  }
+  private firstDormant(): number { for (let k = 0; k < this.TK; k++) if (this.fstate[k] === 0) return k; return -1; }
+
+  protected updateMotion(c: CreatureContext): void {
+    this.x = this.cx; this.y = this.cy;
+    const dt = this.step;
+
+    if (c.reduced) {
+      const half = (this.N * 0.66) | 0;
+      for (let i = 0; i < this.N; i++) {
+        if (i < half) { this.filled[i] = 1; this.age[i] = i * 0.6; this.occ[i] = clamp(0.5 + 0.4 * (1 - i / this.N), 0, 1); }
+        else { this.filled[i] = 0; this.age[i] = 0; this.occ[i] = 0; }
       }
-    } else {
-      for (let k = 0; k < this.R; k++) {
-        const ax = this.cx + this.stx[this.ra[k]], ay = this.cy + this.sty[this.ra[k]];
-        const bx = this.cx + this.stx[this.rb[k]], by = this.cy + this.sty[this.rb[k]];
-        const base = 0.18 * (1 - this.rf[k]) + this.rl[k] * 0.35;
-        this.seg(cam, out, ax, ay, bx, by, 2.1, 0.07, base);
-        if (!c.reduced && this.rp[k] < 1) {
-          const px = ax + (bx - ax) * this.rp[k], py = ay + (by - ay) * this.rp[k];
-          this.dot(cam, out, px, py, 4, 0.3, 0.72);
+      for (let k = 0; k < this.TK; k++) {
+        this.fstate[k] = 0; this.ftar[k] = -1;
+        this.flx[k] = this.radius * (-0.5 + (k + 0.5) * (1.0 / this.TK));
+        this.fly[k] = -this.radius * 0.58;
+      }
+      return;
+    }
+
+    const g = this.greetTime;
+    if (g > 0) {
+      // greeting: sweep of light fills the whole wall
+      const prog = clamp(g / 2.2, 0, 1) * this.N;
+      for (let i = 0; i < this.N; i++) {
+        if (i < prog) {
+          if (!this.filled[i]) { this.filled[i] = 1; this.age[i] = 0; }
+          this.occ[i] += (1 - this.occ[i]) * (1 - Math.exp(-16 * dt));
+        }
+      }
+      for (let k = 0; k < this.TK; k++) {                 // park fireflies at hopper
+        this.fstate[k] = 0;
+        this.flx[k] = this.radius * (-0.5 + (k + 0.5) * (1.0 / this.TK)) + Math.sin(this.motionTime * 2 + k) * this.radius * 0.04;
+        this.fly[k] = -this.radius * 0.58;
+      }
+      return;
+    }
+
+    // age filled cells: fresh = bright, old drifts to a dim floor
+    for (let i = 0; i < this.N; i++) {
+      if (this.filled[i]) {
+        this.age[i] += dt;
+        const target = clamp(1 - this.age[i] * 0.05, 0.42, 1);
+        this.occ[i] += (target - this.occ[i]) * (1 - Math.exp(-4 * dt));
+      }
+    }
+
+    // fireflies: hover in the hopper or fly a token down into a cell
+    for (let k = 0; k < this.TK; k++) {
+      if (this.fstate[k] === 1) {
+        this.fprog[k] += dt * 2.1;
+        const t = smooth(clamp(this.fprog[k], 0, 1));
+        const cell = this.ftar[k];
+        const txx = this.cellLX(cell), tyy = this.cellLY(cell);
+        this.flx[k] = this.fsx[k] + (txx - this.fsx[k]) * t;
+        this.fly[k] = this.fsy[k] + (tyy - this.fsy[k]) * t - Math.sin(t * Math.PI) * this.radius * 0.06;
+        if (this.fprog[k] >= 1) {                          // file it
+          this.filled[cell] = 1; this.age[cell] = 0; this.occ[cell] = 1;
+          this.fstate[k] = 0; this.ftar[k] = -1;
+        }
+      } else {
+        const bx = this.radius * (-0.5 + (k + 0.5) * (1.0 / this.TK));
+        this.flx[k] = bx + Math.sin(this.motionTime * (1.3 + 0.2 * k) + this.seed + k) * this.radius * 0.05;
+        this.fly[k] = -this.radius * 0.58 + Math.cos(this.motionTime * (1.1 + 0.17 * k) + k) * this.radius * 0.03;
+      }
+    }
+
+    // filing schedule: dispatch a dormant firefly to the next slot (recycle oldest when full)
+    this.fileT -= dt;
+    if (this.fileT <= 0) {
+      this.fileT += 0.5 + rnd((this.seed + (this.motionTime * 20 | 0)) | 0) * 0.4;
+      const k = this.firstDormant();
+      if (k >= 0) {
+        let cell = this.nextEmpty();
+        if (cell < 0) cell = this.oldestFilled();
+        if (cell >= 0) {
+          this.ftar[k] = cell; this.fprog[k] = 0; this.fstate[k] = 1;
+          this.fsx[k] = this.flx[k]; this.fsy[k] = this.fly[k];
         }
       }
     }
-    const pulse = this.redPulse(c);
-    for (let i = 0; i < this.S; i++) {
-      const pl = this.starPulse[i];
-      const br = clamp(0.72 + pl * 0.18 + this.glow * 0.18 + pulse * 0.2, 0, 1);
-      this.dot(cam, out, this.cx + this.stx[i], this.cy + this.sty[i],
-        4.8 + pl * 1.8, 0.22 + pl * 0.12, 0.8 * br);
-      this.dot(cam, out, this.cx + this.stx[i], this.cy + this.sty[i],
-        8.5 + pl, 0.015, 0.12 + pl * 0.08);
+  }
+
+  protected emitBody(c: CreatureContext, cam: CameraView, out: Emitter): void {
+    const reduced = c.reduced, gl = this.glow, pulse = this.redPulse(c);
+    const ox = this.x, oy = this.y, r = this.radius;
+
+    // ledger frame
+    const hw = r * 0.6, hh = r * 0.48;
+    this.seg(cam, out, ox - hw, oy - hh, ox + hw, oy - hh, 1.4, 0.03, 0.12 + gl * 0.05);
+    this.seg(cam, out, ox - hw, oy + hh, ox + hw, oy + hh, 1.4, 0.03, 0.12 + gl * 0.05);
+    this.seg(cam, out, ox - hw, oy - hh, ox - hw, oy + hh, 1.4, 0.03, 0.10 + gl * 0.05);
+    this.seg(cam, out, ox - hw, oy - hh, ox - hw, oy + hh, 1.4, 0.03, 0.10 + gl * 0.05);
+
+    // tier baselines (model-tiered wall)
+    for (let row = 0; row < this.ROWS; row++) {
+      const by = oy + r * (0.42 - (row + 1) * (0.84 / this.ROWS));
+      this.seg(cam, out, ox - r * 0.55, by, ox + r * 0.55, by, 1, 0.02, 0.07 + gl * 0.03);
+    }
+
+    // cells: dark slot when empty, glow scaled by occupancy, halo when fresh
+    for (let i = 0; i < this.N; i++) {
+      const gx = ox + this.cellLX(i), gy = oy + this.cellLY(i);
+      if (this.occ[i] > 0.03) {
+        const fresh = (this.filled[i] && this.age[i] < 0.7) ? (0.7 - this.age[i]) / 0.7 : 0;
+        const br = clamp(this.occ[i] * (0.72 + gl * 0.2 + pulse * 0.2), 0, 1);
+        this.dot(cam, out, gx, gy, 3.2 + this.occ[i] * 2.0 + fresh * 1.6, 0.18 + fresh * 0.14, br);
+        if (fresh > 0.02) this.dot(cam, out, gx, gy, 7 + fresh * 3, 0.02, 0.10 * fresh);
+      } else {
+        this.dot(cam, out, gx, gy, 2.0, 0.0, 0.09 + gl * 0.04);
+      }
+    }
+
+    // token fireflies (queued in hopper / in flight)
+    for (let k = 0; k < this.TK; k++) {
+      const fxw = ox + this.flx[k], fyw = oy + this.fly[k];
+      const flying = this.fstate[k] === 1 && !reduced;
+      const a = (flying ? 0.85 : 0.32) * (0.8 + gl * 0.2);
+      this.dot(cam, out, fxw, fyw, flying ? 4.2 : 2.6, flying ? 0.32 : 0.12, a);
+      if (flying) this.dot(cam, out, fxw, fyw, 8, 0.02, 0.12);
     }
   }
 }
 
 // -- layer 4: Emitter (contract-verbatim) + factory -------------------------------------
-
 export class Emitter {
   readonly points: Float32Array; readonly lines: Float32Array;
-  pointCount: number; lineCount: number;             // reset to 0 by the scene each frame; SHARED across all 7
+  pointCount: number; lineCount: number;             // reset to 0 by the scene each frame; SHARED across all creatures
   private readonly pCap: number; private readonly lCap: number;
 
   constructor(pointCap: number, lineCap: number) {
@@ -899,7 +1087,7 @@ export class Emitter {
 }
 
 // known id order maps to the hue table + a concrete class; unknown ids fall back by position
-const ORDER = ['raft-cluster', 'kitty-run', 'explosion', 'spine', 'evening-forest', 'planck-to-now', 'practice-map'];
+const ORDER = ['raft-cluster', 'kitty-run', 'explosion', 'spine', 'evening-forest', 'planck-to-now', 'quicknotes', 'practice-map'];
 
 function build(id: string, idx: number, hue: readonly [number, number, number],
   fx: number, fy: number, r: number, seed: number): Creature {
@@ -911,7 +1099,8 @@ function build(id: string, idx: number, hue: readonly [number, number, number],
     case 3: return new SpineCreature(id, hue, fx, fy, r, seed);
     case 4: return new ForestCreature(id, hue, fx, fy, r, seed);
     case 5: return new PlanckCreature(id, hue, fx, fy, r, seed);
-    default: return new MapCreature(id, hue, fx, fy, r, seed);
+    case 6: return new QuicknotesCreature(id, hue, fx, fy, r, seed);
+    default: return new LedgerCreature(id, hue, fx, fy, r, seed);
   }
 }
 

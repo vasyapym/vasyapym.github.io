@@ -829,3 +829,79 @@
     animation: none !important;
   }
 }
+
+/* ---- wasm boot overlay (pure ink; ochre stays reserved for "live") ---- */
+/* .spine-workspace is already position:relative — the overlay anchors there. */
+.spine-boot {
+  position: absolute;
+  inset: 0;
+  display: grid;
+  place-items: center;
+  pointer-events: none;        /* never intercept the sheet */
+  background: transparent;      /* DATUM: ink only, no fills */
+  z-index: 4;
+  animation: spine-boot-in 240ms ease-out;
+}
+
+.spine-boot__frame {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  width: min(320px, 62%);
+  font-family: var(--code-font);
+  font-size: 12px;
+  line-height: 1.4;
+  letter-spacing: 0.02em;
+  text-transform: lowercase;
+  color: var(--muted);
+}
+
+.spine-boot__line {
+  display: flex;
+  align-items: baseline;
+  gap: 8px;
+  color: var(--stroke-strong);
+}
+
+.spine-boot__tick { color: var(--stroke); }
+
+.spine-boot__rule {
+  position: relative;
+  height: 1px;
+  width: 100%;
+  background: var(--line);
+  overflow: hidden;
+}
+
+.spine-boot__sweep {
+  position: absolute;
+  top: 0;
+  left: 0;
+  height: 1px;
+  width: 38%;
+  background: var(--stroke-strong);
+  transform: translateX(-120%);
+  animation: spine-boot-sweep 1.15s cubic-bezier(0.4, 0, 0.2, 1) infinite;
+}
+
+.spine-boot__sub { opacity: 0.8; }
+
+@keyframes spine-boot-in {
+  from { opacity: 0; }
+  to   { opacity: 1; }
+}
+@keyframes spine-boot-sweep {
+  0%   { transform: translateX(-120%); }
+  100% { transform: translateX(360%); }
+}
+
+/* motion-safe fallback: a static rule reads as "in progress" without sweep */
+@media (prefers-reduced-motion: reduce) {
+  .spine-boot { animation: none; }
+  .spine-boot__sweep {
+    animation: none;
+    width: 100%;
+    transform: none;
+    background: var(--line-soft);
+  }
+}

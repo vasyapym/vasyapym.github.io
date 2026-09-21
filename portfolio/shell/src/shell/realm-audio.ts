@@ -39,7 +39,9 @@ type VoiceStyle =
   | "ratchet"
   | "bowed"
   | "rising"
-  | "pluck";
+  | "pluck"
+  | "tick"
+  | "file";
 
 interface VoiceSpec {
   readonly id: string;
@@ -59,7 +61,8 @@ const SPECS: readonly VoiceSpec[] = [
   { id: "spine", style: "ratchet", type: "square", freq: 520, attack: 0.002, decay: 0.03, period: 1.0, filter: 3000 },
   { id: "evening-forest", style: "bowed", type: "sawtooth", freq: 196, attack: 0.45, decay: 1.40, period: 4.2, filter: 1200 },
   { id: "planck-to-now", style: "rising", type: "sine", freq: 180, attack: 0.02, decay: 0.10, period: 3.0 },
-  { id: "practice-map", style: "pluck", type: "triangle", freq: 294, attack: 0.002, decay: 0.30, period: 1.4, filter: 1800 },
+  { id: "practice-map", style: "file", type: "triangle", freq: 262, attack: 0.003, decay: 0.22, period: 1.6, filter: 2000 },
+  { id: "quicknotes", style: "tick", type: "square", freq: 1150, attack: 0.001, decay: 0.035, period: 0.85, filter: 4200 },
 ];
 
 const NOMINAL = 0.9;
@@ -266,6 +269,23 @@ function makeVoice(
       case "pluck":
         note(ctx, cleanups, pan, spec.type, spec.freq,
           t, spec.attack, spec.decay, p * 0.7, spec.filter);
+        break;
+
+      case "tick":
+        // soft typewriter tick: two near-unison grains, the second lower
+        note(ctx, cleanups, pan, spec.type, spec.freq,
+          t, spec.attack, spec.decay, p * 0.5, spec.filter);
+        note(ctx, cleanups, pan, spec.type, spec.freq * 0.61,
+          t + 0.028, spec.attack, spec.decay * 1.3, p * 0.34, spec.filter);
+        break;
+
+      case "file":
+        // a token filed away: short falling blip, like a card slotting home
+        note(ctx, cleanups, pan, spec.type, spec.freq * 1.26,
+          t, spec.attack, spec.decay * 0.7, p * 0.62, spec.filter,
+          spec.freq * 0.79);
+        note(ctx, cleanups, pan, spec.type, spec.freq * 0.5,
+          t + 0.07, spec.attack, spec.decay, p * 0.4, spec.filter);
         break;
     }
   };

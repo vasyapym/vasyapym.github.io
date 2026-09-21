@@ -174,3 +174,6 @@ Report:
 - Pass-record location.
 
 Keep command proposals visibly separate from executed verification evidence.
+
+
+My requests may lack full awareness of technical implications or codebase architecture. Be pragmatic — if something entails significant changes and a simpler alternative would yield a comparable result, surface it. Discuss trade-offs, don't follow blindly. But use judgment: only flag what meaningfully affects the outcome, make reasonable assumptions, and keep moving.

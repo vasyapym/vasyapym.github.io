@@ -50,10 +50,10 @@ type Phase = "entering" | "active" | "leaving" | "diving";
 // when the catalogue order changed (spine pinned first): four doors swapped
 // hues with their neighbours. Ids are the stable key; the hexes are unchanged.
 const DOOR_HUES: Record<string, string> = {
-  "raft-cluster": "#86aed4",
+  "raft-cluster": "#ff6a5f",
   "kitty-run": "#dc7f95",
   "explosion": "#ff8a3c",
-  "spine": "#9fb0bd",
+  "spine": "#c56b52",
   "evening-forest": "#ffb45e",
   "planck-to-now": "#ffd9a0",
   "practice-map": "#7fa8c9",

@@ -181,3 +181,6 @@ Report:
 - Checks actually performed and limitations.
 - The specific feedback needed, or explicit approval and handoff status.
 - Ledger location when created or updated.
+
+
+My requests may lack full awareness of technical implications or codebase architecture. Be pragmatic — if something entails significant changes and a simpler alternative would yield a comparable result, surface it. Discuss trade-offs, don't follow blindly. But use judgment: only flag what meaningfully affects the outcome, make reasonable assumptions, and keep moving.

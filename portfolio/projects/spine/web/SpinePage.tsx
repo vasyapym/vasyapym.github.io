@@ -35,6 +35,26 @@ type Measure = { ratio: number; median: number };
 
 const DISMISS_KEY = "spine-scroll-dismissed";
 
+// Boot overlay: pure ink (no ochre — ochre means "live", and the engine is
+// not live yet). Sits over the empty workspace only; the Go engine binds the
+// panes by id, so they always stay mounted beneath it.
+function SpineBootIndicator() {
+  return (
+    <div className="spine-boot" role="status" aria-live="polite">
+      <div className="spine-boot__frame">
+        <div className="spine-boot__line">
+          <span className="spine-boot__tick" aria-hidden="true">┌─</span>
+          <span className="spine-boot__label">booting engine</span>
+        </div>
+        <div className="spine-boot__rule" aria-hidden="true">
+          <span className="spine-boot__sweep" />
+        </div>
+        <div className="spine-boot__sub">go → wasm · compiling layout</div>
+      </div>
+    </div>
+  );
+}
+
 export default function SpinePage() {
   // Pane-level chrome only: which mode is visible on narrow viewports.
   // The Go engine is blind to this — both panes stay mounted so its id
@@ -49,8 +69,36 @@ export default function SpinePage() {
   const rootRef = useRef<HTMLDivElement>(null);
   const canvasRef = useRef<HTMLDivElement>(null);
 
+  // Boot state: initialised from the loader's session-level ready flag, so an
+  // SPA re-entry after the first boot never flashes the indicator. Observed
+  // via rAF (pauses on hidden tabs) — loader.ts stays frozen; if it ever
+  // returns bootPromise, swap this loop for a .then().
+  const [booting, setBooting] = useState(() => !window.spineReady);
+
   useEffect(() => {
     mountSpine();
+
+    if (window.spineReady) {
+      setBooting(false);
+      return;
+    }
+
+    let raf = 0;
+    let cancelled = false;
+    const tick = () => {
+      if (cancelled) return;
+      if (window.spineReady) {
+        setBooting(false);
+        return;
+      }
+      raf = requestAnimationFrame(tick);
+    };
+    raf = requestAnimationFrame(tick);
+
+    return () => {
+      cancelled = true;
+      cancelAnimationFrame(raf);
+    };
   }, []);
 
   // Read-only context pass over the engine-projected tree. Runs one
@@ -340,6 +388,10 @@ export default function SpinePage() {
         <span className="spine-scale" aria-hidden>
           └─ 100px
         </span>
+
+        {/* Wasm boot overlay — covers only the empty canvas region; the
+            engine-bound panes stay mounted underneath. */}
+        {booting && <SpineBootIndicator />}
 
         {/* Adaptive scroll-mode prompt (F012) — never a modal, never over
             the canvas center; slides away the moment it is irrelevant. */}

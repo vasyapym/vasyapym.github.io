@@ -1,35 +1,29 @@
-# Selected Experiments
+# Portfolio
 
-A portfolio shell for small experiments and self-contained projects.
+React 19 + Vite 7 + TypeScript portfolio. Deployed to GitHub Pages on push to main (Node 22). The landing page includes an opt-in interactive layer (realm mode) — see `shell/` for implementation.
 
-The shell discovers project modules from `projects/*/project.ts`. A new project can add its own descriptor and page without adding a project-specific branch to the shell. Shared contracts live in `contracts/`, while each project's implementation stays under its own directory.
+## Projects
 
-## Run the projects
+- **practice-map** — Waste of tokens: AI output archive and lesson space
+- **spine** — Spine: draggable Flexbox/Grid layout engine (Go/WASM)
+- **quicknotes** — Quicknotes: local-first markdown notes with Firebase sync
+- **kitty-run** — Cat Runner: pastel endless runner (R3F)
+- **raft-cluster** — Raft Cluster: interactive Raft consensus (Rust/WASM)
+- **evening-forest** — Evening Forest: 8-bit first-person dusk walk (R3F)
+- **explosion** — Explosion: paper-lantern moon shard simulation (Rust/WASM, GPGPU)
+- **planck-to-now** — Planck to Now: cosmic history on a log-time scale (three.js)
 
-In a terminal, start the React shell:
+## Development
 
-```bash
-npm --prefix portfolio install
-npm --prefix portfolio run dev
+```sh
+npm install
+npm run dev        # dev server
+npm run typecheck  # type-check
+npm run build      # production build
 ```
 
-Open <http://localhost:5173>. The solid field index is the main route; Planck to Now, Practice Map, Raft Cluster, Evening Forest, Cat Runner, and Spine are available from the project list. Direct routes are <http://localhost:5173/projects/planck-to-now>, <http://localhost:5173/projects/practice-map>, <http://localhost:5173/projects/raft-cluster>, <http://localhost:5173/projects/evening-forest>, <http://localhost:5173/projects/kitty-run>, and <http://localhost:5173/projects/spine>. Quicknotes is embedded from the sibling static app at <http://localhost:5173/quicknotes/> (route `/projects/quicknotes`). The older Assembly field comparison remains available at `/?prototype=room` and `/?prototype=field`. The shell runs on port `5173`.
+To add a project, create a directory under `projects/` with a `project.ts` exporting a `ProjectModule` (see `contracts/`). The shell discovers it automatically via `import.meta.glob` — no other changes needed.
 
-Raft Cluster is fully client-side: its Rust consensus core is compiled to WebAssembly (`projects/raft-cluster/core`, see `core/ABI.md`) and committed as a build artifact next to the page, so no service process is needed. Spine follows the same pattern with a Go core: its layout engine is compiled to WebAssembly (`projects/spine/web/spine.wasm`) and committed next to the page.
+## Agentic workflow
 
-## Structure
-
-```text
-portfolio/
-├── contracts/       shared module interfaces
-├── projects/        self-contained pet projects
-│   ├── evening-forest/ 8-bit woodland walking simulator
-│   ├── explosion/     click-to-detonate specimen room
-│   ├── kitty-run/     procedural vector-animation runner game
-│   ├── planck-to-now/ GPU-accelerated cosmology simulation
-│   ├── practice-map/  deep lessons and local progress for engineering patterns
-│   ├── quicknotes/    static no-build markdown notes with Firebase sync
-│   ├── raft-cluster/  Raft consensus core (Rust → WASM) with a live browser demo
-│   └── spine/         draggable Flexbox/Grid layout engine (Go → WASM)
-└── shell/           React/Vite landing page and project host
-```
+All agentic orchestration, repository management, testing, and implementation is handled by GLM 5.3-Flash, which distributes scoped tasks and briefs to Claude Opus 4.8/5, Fable 5/5.1, and GPT Sol/6 Astra, then reconciles their outputs.
