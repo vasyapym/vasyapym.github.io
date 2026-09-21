@@ -856,3 +856,29 @@ mobile top 390).
 - Open question: owner pick — which variant ships
 
 - R030 correction: the first comparison sheet stacked the injected variants (each addStyleTag persisted into later shots — v4 carried v3's pointer); re-shot with a fresh page per variant, all five clips verified isolated and faithful to the relay's CSS
+
+## Feedback F071 (resolved)
+- Round: R030 (owner pick)
+- Verdict: LIKED (two variants chosen)
+- Scope: active model-row selection carrier
+- Decision: BOTH variant 1 (hanging entry — persistent .25rem outdent of name+sample) AND variant 2 (warm locator — the ordinal rests deep ochre), on the relay's shared foundation (selection reset: active = muted name + soft separator, all bundled lifts removed; focus footer locks keyboard focus at full ochre + full ink)
+- User source: «i want them both - 1 · hanging entry; 2 · warm locator»
+- Artifact: artifacts/R030/ (comparison.png + v1/v2 clips)
+
+## Feedback F071 (integration record)
+- Round: R031
+- Verdict: LIKED (owner pick: v1 + v2 combined)
+- Scope: active model-row selection carrier
+- Decision: hanging entry (persistent .25rem outdent of the chosen name+sample) + warm locator (the ordinal rests deep ochre) on the relay's shared foundation — selection reset (active = muted name, soft separator, faint ordinal/sample; no bundled lifts) + focus footer (keyboard focus = full-bright ochre hairline + full-ink name, outranking the reset) + reduced-motion guard
+- User source: «i want them both - 1 · hanging entry; 2 · warm locator»
+- Supersedes: the R027 deep-ochre-line trial within the active-row scope (F068's "too prominent" verdict is answered by the two carriers + de-emphasised baseline, not by a quieter line alone)
+
+## Round R031
+- Goal: F071 integration — the owner's picked pair (v1 + v2) written into `tiers.css`
+- Preserved preferences: F068 (liked the minimalistic device; less prominent), F027 (no fills), hover grammar (ink line + full type) and keyboard focus grammar (full ochre + full ink) unchanged
+- Changes: `tiers.css` — the R027 trial active block replaced by: shared selection reset (is-active = muted name + soft separator, ordinal/sample faint, color transitions added to index/sample); v1 hanging entry (name+sample transform transition + is-active translateX(-.25rem)); v2 warm locator (is-active ordinal = --ink-accent-deep); focus footer (`.pg-tier-row:focus-visible, .pg-tier-row.is-active:focus-visible` = ochre + full ink — explicit, so the reset can never bury focus); reduced-motion guard for the new transitions. The old ordinal/sample lift rules removed
+- Before: artifacts/R030/ (the five-variant comparison)
+- After: artifacts/R031/after/ (list-active-1440)
+- Visual inspection: element shot read — the chosen row reads as: warm ordinal + outdented entry over a resting separator, name at muted; rows 02–05 untouched; hover/focus states verified computed (hover = ink line + full name + outdent persists; keyboard focus = full ochre + full ink)
+- Code verification: audits — active name 0.68, transform matrix(-4px), ordinal rgb(185,127,69), sample 0.48, separator 0.13, bg transparent; active+hover full/ink/outdent-persists; active+focus full ochre/full ink (fv verified — one probe lesson: the 180ms border transition must settle before reading computed styles, the false "focus broken" was mid-transition); overflow 0px at 1440/1024/700/560/390/320; `tsc --noEmit` clean; `practice-map.check.mjs` green except the pre-existing Go-card count drift (other agent, count 3)
+- Open question: whether the picked carriers extend to lesson cards/folder faces (v2 needs an identifier there; v1's outdent ports directly) — owner's call, not assumed

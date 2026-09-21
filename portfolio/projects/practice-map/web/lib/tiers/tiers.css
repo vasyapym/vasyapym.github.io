@@ -64,22 +64,65 @@
    ochre — no four-sided outline, records have no side walls. type wakes for
    keyboard users too. */
 .pg-tier-row:focus-visible{outline:none; border-bottom-color:var(--ink-accent); color:var(--ink-text)}
-/* active is no longer a plane — the register line itself rests ochre and the
-   persistent ordinal/sample lift says "chosen". hover stays at the ink line, so
-   ochre = the point of attention (chosen OR keyboard), hover = woken (R021). */
+/* F071 (owner pick: v1 hanging entry + v2 warm locator) — the shared
+   selection reset first: the chosen record carries NO bundled lifts. its
+   carriers are the outdent (v1) and the warm ordinal (v2); the separator
+   stays at rest, the name stays muted until hover or keyboard focus. */
 .pg-tier-row.is-active{
-  color:var(--ink-text);
-  border-bottom-color:var(--ink-accent-deep);  /* F068 trial: the settled line recedes to the ornament ochre */
+  color:var(--ink-muted);
+  border-bottom-color:var(--ink-line-soft);
   background:transparent;
 }
 .pg-tier-row.is-active:hover{
-  border-bottom-color:var(--ink-accent-deep);  /* the settled line holds under the pointer */
+  color:var(--ink-text);
+  border-bottom-color:var(--ink-line);
+}
+.pg-tier-row.is-active .pg-tier-index,
+.pg-tier-row.is-active .pg-tier-sample{
+  color:var(--ink-faint);
+}
+.pg-tier-index,
+.pg-tier-sample{
+  transition:color 180ms ease;
+}
+/* v1 · hanging entry — selection through registration: the chosen name and
+   sample outdent by .25rem (the existing .6rem column gap leaves clearance).
+   nothing brightens; the PERSISTENT outdent says "chosen", not the motion. */
+.pg-tier-name,
+.pg-tier-sample{
+  transition:transform 180ms ease, color 180ms ease;
+}
+.pg-tier-row.is-active .pg-tier-name,
+.pg-tier-row.is-active .pg-tier-sample{
+  transform:translateX(-.25rem);
+}
+/* v2 · warm locator — the record number warms to the ornament ochre; title,
+   sample and resting separator stay unaccented. hover wakes the name but
+   never warms an unselected ordinal. */
+.pg-tier-row.is-active .pg-tier-index{
+  color:var(--ink-accent-deep);
+}
+/* keyboard focus stays the loudest moment (approved grammar): full-bright
+   ochre hairline + full-ink name — explicitly outranking the reset */
+.pg-tier-row:focus-visible,
+.pg-tier-row.is-active:focus-visible{
+  outline:none;
+  border-bottom-color:var(--ink-accent);
+  color:var(--ink-text);
+}
+@media (prefers-reduced-motion: reduce){
+  .pg-tier-row,
+  .pg-tier-row::before,
+  .pg-tier-index,
+  .pg-tier-name,
+  .pg-tier-sample{
+    transition:none;
+  }
 }
 .pg-tier-index{
   grid-column:1; font-family:var(--mono); font-size:.68rem; letter-spacing:.04em;
   color:var(--ink-faint); font-variant-numeric:tabular-nums; line-height:1.15;
 }
-.pg-tier-row.is-active .pg-tier-index{color:var(--ink-muted)}  /* F068 trial: the ordinal stops shouting */
 .pg-tier-name{
   grid-column:2; min-width:0;
   font-family:var(--sans); font-size:1rem; font-weight:600;
@@ -94,7 +137,7 @@
   grid-column:2 / -1; font-size:.72rem; line-height:1.4; color:var(--ink-faint);
   overflow:hidden; text-overflow:ellipsis; display:-webkit-box; -webkit-line-clamp:1; -webkit-box-orient:vertical;
 }
-.pg-tier-row.is-active .pg-tier-sample{color:var(--ink-muted)}
+
 
 /* ---------- 5a. search — a bare ledger field, not a widget (F038/F039) ----
    the rounded fill + adjacent button silhouette IS the template; drop the
