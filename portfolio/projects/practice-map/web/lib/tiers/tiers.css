@@ -1,8 +1,9 @@
-/* tiers.css — R019 refinement pass over the R003 port.
-   Changes: search → bare ledger field (F038/F039), hover wash → type-wakes
-   device across rows/cards/faces (F041), cards & faces −~20% weight (F042),
-   mobile section rhythm as three ruled bands with real air (F040/F021).
-   Hero, crumb row, footer, practice-map.css remain out of scope. */
+/* tiers.css — R021 over the R019 pass: everything states itself through the
+   one line (F044/F045). Active model row gives up its surface fill — its
+   register line rests ochre + the persistent ordinal/sample lift; "open
+   lesson" and "go back" leave the pill box for the same resting soft hairline
+   (soft → ink → ochre). Search, cards' hover device, is-flash, faces,
+   palette untouched. */
 
 .practice-map-field{ --pill-radius:999px; }
 
@@ -58,15 +59,19 @@
   color:var(--ink-text);
 }
 /* keyboard focus rides the family device: the record's own separator turns
-   ochre — no four-sided outline, records have no side walls. */
-.pg-tier-row:focus-visible{outline:none; border-bottom-color:var(--ink-accent)}
-/* active is the ONE settled surface — a definite --ink-panel fill (not the
-   old .02/.03 smudge) plus ordinal + sample lift. distinct from hover, which
-   has no surface at all. no reflow, no ochre. */
+   ochre — no four-sided outline, records have no side walls. type wakes for
+   keyboard users too. */
+.pg-tier-row:focus-visible{outline:none; border-bottom-color:var(--ink-accent); color:var(--ink-text)}
+/* active is no longer a plane — the register line itself rests ochre and the
+   persistent ordinal/sample lift says "chosen". hover stays at the ink line, so
+   ochre = the point of attention (chosen OR keyboard), hover = woken (R021). */
 .pg-tier-row.is-active{
   color:var(--ink-text);
-  border-bottom-color:var(--ink-line-soft);
-  background:var(--ink-panel);
+  border-bottom-color:var(--ink-accent);
+  background:transparent;
+}
+.pg-tier-row.is-active:hover{
+  border-bottom-color:var(--ink-accent);  /* the settled line holds under the pointer */
 }
 .pg-tier-index{
   grid-column:1; font-family:var(--mono); font-size:.68rem; letter-spacing:.04em;
@@ -169,15 +174,29 @@
 .pg-card-foot{
   margin-top:.7rem; display:flex; flex-wrap:wrap; align-items:center; gap:.6rem;
 }
+/* "open lesson" joins the register (R021): no pill box — a resting soft
+   hairline is the instrument (soft → ink → ochre on keyboard), matching the
+   field and the card record it sits under. accent label + → glyph + the
+   resting line carry pressability on touch; nothing hides behind :hover. */
 .pg-card-foot .pg-pill{
-  display:inline-flex; align-items:center; gap:.5rem; min-height:44px;  /* touch floor untouched */
-  border:1px solid var(--ink-line-soft); border-radius:var(--pill-radius);
-  padding:.45rem .9rem; background:transparent; cursor:pointer;
+  display:inline-flex; align-items:center; gap:.5rem; min-height:44px;
+  border:0; border-bottom:1px solid var(--ink-line-soft); border-radius:0;
+  padding:.5rem .3em; background:transparent; cursor:pointer;
   font-family:var(--mono); font-size:.72rem; letter-spacing:.04em; text-transform:lowercase;
   color:var(--ink-accent);
-  transition:border-color 180ms ease, color 180ms ease, background 180ms ease, gap 180ms ease;
+  transition:border-color 180ms ease, color 180ms ease;
 }
-.pg-card-foot .pg-pill:hover{gap:.75rem; border-color:var(--ink-accent); color:var(--ink-accent-bright); background:var(--ink-panel)}
+.pg-card-foot .pg-pill:hover{
+  border-bottom-color:var(--ink-line);
+  color:var(--ink-accent-bright);
+  background:transparent;                 /* kills the inherited .pg-pill wash */
+}
+.pg-card-foot .pg-pill:focus-visible{
+  outline:none;                           /* overrides the generic 4-sided pill outline */
+  border-bottom-color:var(--ink-accent);  /* the visible substitute — wall-less action */
+  color:var(--ink-accent-bright);
+}
+@media (pointer:fine){ .pg-card-foot .pg-pill{min-height:40px} }
 
 /* ---------- 4. folders — ruled records, co-adopting the −20% + F041 device ---------- */
 .pg-faces{
@@ -226,19 +245,27 @@
 }
 .pg-crumb-back{
   display:inline-flex; align-items:center; gap:.55rem; min-height:44px; flex:none;
-  border:1px solid var(--ink-line); border-radius:var(--pill-radius);
-  padding:.5rem 1.1rem; background:transparent; cursor:pointer; color:var(--ink-text);
+  border:0; border-bottom:1px solid var(--ink-line-soft); border-radius:0;
+  padding:.5rem .3em; background:transparent; cursor:pointer; color:var(--ink-text);
   font-family:var(--mono); font-size:.8rem; font-weight:500; letter-spacing:.02em; text-transform:lowercase;
-  transition:border-color 180ms ease, color 180ms ease, background 180ms ease;
+  transition:border-color 180ms ease, color 180ms ease;
 }
 @media (pointer:fine){ .pg-crumb-back{min-height:40px} }
 .pg-crumb-arrow{color:var(--ink-accent); font-size:1rem; line-height:1; transition:transform 180ms ease, color 180ms ease}
-.pg-crumb-back:hover{border-color:var(--ink-accent); color:var(--ink-accent-bright); background:rgba(211,155,97,.07)}
+.pg-crumb-back:hover{
+  border-bottom-color:var(--ink-line);
+  color:var(--ink-text);
+  background:transparent;
+}
 .pg-crumb-back:hover .pg-crumb-arrow{transform:translateX(-3px); color:var(--ink-accent-bright)}
-.pg-crumb-back:focus-visible{outline:1px solid var(--ink-accent); outline-offset:2px}
+.pg-crumb-back:focus-visible{
+  outline:none;
+  border-bottom-color:var(--ink-accent);
+}
+.pg-crumb-back:focus-visible .pg-crumb-arrow{color:var(--ink-accent-bright)}
 .pg-crumb-title{
   flex:1 1 auto; min-width:0;
-  margin-left:.95rem; padding-left:.95rem; border-left:1px solid var(--ink-line);
+  margin-left:.95rem; padding-left:.95rem; border-left:1px solid var(--ink-line-soft); /* member-level separation (R021) */
   font-family:var(--mono); font-size:.78rem; font-weight:400;
   letter-spacing:.04em; text-transform:lowercase; line-height:1.2; color:var(--ink-muted);
   white-space:nowrap; overflow:hidden; text-overflow:ellipsis;
