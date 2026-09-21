@@ -677,7 +677,9 @@
   border-bottom: 1px solid var(--ink-line-soft);
   border-radius: 0;
   background: transparent;
-  color: var(--ink-faint);
+  /* F069: the "off" label reads like the "on" label — the ochre line keeps
+     carrying the state distinction */
+  color: var(--ink-muted);
   transition: border-color 180ms ease, color 180ms ease;
 }
 .practice-lesson-tools .fr-controls button:hover {

@@ -751,3 +751,48 @@ mobile top 390).
 - Visual inspection: computed-only this leg (pure scale arithmetic; the surfaces were visually inspected in R022/R025) — mobile lesson text visibly step down vs the R025 fr shot when compared live
 - Code verification: audits — reader p 18.24px @390 (19.36×0.94), h2 16.48px (1.03rem floor), docΔ 0; desktop UNCHANGED (p 21.3px, h2 25.12px); `tsc --noEmit` clean; `practice-map.check.mjs` green except the pre-existing Go-card count drift (other agent, count 3)
 - Open question: none — the batch (F060–F064) is fully worked
+
+## Feedback F065
+- Round: none (owner batch, 2026-09-21, post-R026 review)
+- Verdict: REJECTED (spacing)
+- Scope: desktop — hero text ↔ search bar / model list
+- Decision: reduce breathing space ~4% (compounds on F053 −10% / F055 −5%)
+- User source: item 1: «on desktop - reduce breathing space between hero section text and search bar/model list by around 4%.»
+
+## Feedback F066
+- Round: none (owner batch, 2026-09-21)
+- Verdict: REJECTED (alignment)
+- Scope: desktop — the search field's text top (ascenders f/l/d) vs the model list's highest text point (the digit '6' in "astra-6-max")
+- Decision: align them VISUALLY — proportionally, NOT with hardcoded pixel nudges («i don't want hardcode some values. just to make it look proportional visually»)
+- User source: item 2: «search bar's top highest points (f/l/d i guess) should be alligned with model list highest point (right now it is i think "6" in "astra-6-max" model name...). it doesn't have to be super accurate...»
+
+## Feedback F067
+- Round: none (owner batch, 2026-09-21)
+- Verdict: REJECTED (width)
+- Scope: desktop — model cards' (rows') width in the model list
+- Decision: reduce by ~4%
+- User source: item 3: «reduce the model cards' width in model list by around 4%.»
+
+## Feedback F068
+- Round: none (owner batch, 2026-09-21)
+- Verdict: REJECTED (prominence) — device LIKED
+- Scope: active model-row highlight (the resting ochre line + type lift)
+- Decision: the minimalistic highlighting is liked but a notch too prominent — find a way to make it less prominent (exploration delegated to a trial this round; owner verdict on the result)
+- User source: item 4: «though i like current minimalistic highlighting of model cards when selecting on model list, it is a bit more prominent than i want. let's find a way to make it less prominent.»
+
+## Feedback F069
+- Round: none (owner batch, 2026-09-21)
+- Verdict: REJECTED (tone)
+- Scope: the "free reading: off" toggle label in the lesson header
+- Decision: the faint text is uncomfortable to read — bring it closer to the "on" label's comfort (the ochre line keeps carrying the on/off distinction)
+- User source: item 5: «on "reading mode: off" the text is not very comfortable to read. make it more like text in "reading mode: on"»
+
+## Round R027
+- Goal: direct leg of the post-R026 batch — F065 (hero gap −4%), F066 (search↔list top alignment, proportional), F067 (list width −4%), F068 TRIAL (active highlight de-prominent), F069 (fr off-label brightness) — orchestrator-direct: arithmetic + alignment primitive + one trial
+- Preserved preferences: F062/F063 scale+tone lineage, F058 flush groups, F059/F061 crumb geometry, the single-line state grammar (hover=ink, keyboard focus=full ochre — unchanged)
+- Changes: `tiers.css` — margin-top 34→32.6px (−4.0%); grid 0.515fr→0.488fr (fr-share math: naive ×0.96 under-delivers; measured share 0.26893→0.2585 = −3.9% width, list 315→302px); F066 — `.pg-search` gains margin-top:1rem, the SAME breath primitive as `.pg-tier-list`'s margin-top (no magic pixels; the two must stay in lockstep — comment says so; measured text-top delta 16px→0 before/after); F068 trial — the settled active line steps down to `--ink-accent-deep` (#b97f45, the ornament ochre from R022's ladder) and the ordinal's lift softens ink-text→muted (hover keeps the ink line, keyboard focus keeps the full ochre — transient focus stays louder than the settled state, per F028's visibility law); `practice-map.css` — fr toggle resting color faint→muted (the "off" label reads like "on"; the ochre line keeps the state distinction)
+- Before: artifacts/R026 lineage (R025/R026 page state)
+- After: artifacts/R027/after/ (top-1440)
+- Visual inspection: shot read. The search's text now sits exactly level with "astra-6-max" (delta 0 measured); the active row's deep-ochre line reads a notch quieter while still unmistakably the settled record; list narrower, hero gap tighter; fr "off" label legible at a glance
+- Code verification: audits — mt 32.6px, share 0.2585, active line rgb(185,127,69), ordinal muted, active name full ink, fr toggle 0.68; alignment probe delta 0 (was −16px); `tsc --noEmit` clean; `practice-map.check.mjs` green except the pre-existing Go-card count drift (other agent, count 3)
+- Open question: owner verdict on the F068 trial (deep ochre + softened ordinal); if still too prominent, the next dial is dropping the type lift entirely (line-only state)

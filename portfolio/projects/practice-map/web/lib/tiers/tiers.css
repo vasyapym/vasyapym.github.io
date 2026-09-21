@@ -29,9 +29,9 @@
 
 /* ---------- 2. layout ---------- */
 .pg-layout{
-  /* F053+F055: hero→body breathing −10% then −5% on desktop (40→36→34px); mobile bands keep theirs */
-  margin-top:34px; display:grid; gap:28px 30px;
-  grid-template-columns:minmax(0,0.515fr) minmax(0,1.40fr);  /* F056: 0.57→0.515 ≈ −7% column width (0.53 gave only −5.1% of the share) */
+  /* F053+F055+F065: hero→body −10% / −5% / −4% (40→36→34→32.6px); mobile bands keep theirs */
+  margin-top:32.6px; display:grid; gap:28px 30px;
+  grid-template-columns:minmax(0,0.488fr) minmax(0,1.40fr);  /* F056 −7% + F067 −4% (0.57→0.515→0.488; fr-share math, not naive ×0.96) */
   grid-template-areas:"list search" "list panel";
   align-items:start;
 }
@@ -69,17 +69,17 @@
    ochre = the point of attention (chosen OR keyboard), hover = woken (R021). */
 .pg-tier-row.is-active{
   color:var(--ink-text);
-  border-bottom-color:var(--ink-accent);
+  border-bottom-color:var(--ink-accent-deep);  /* F068 trial: the settled line recedes to the ornament ochre */
   background:transparent;
 }
 .pg-tier-row.is-active:hover{
-  border-bottom-color:var(--ink-accent);  /* the settled line holds under the pointer */
+  border-bottom-color:var(--ink-accent-deep);  /* the settled line holds under the pointer */
 }
 .pg-tier-index{
   grid-column:1; font-family:var(--mono); font-size:.68rem; letter-spacing:.04em;
   color:var(--ink-faint); font-variant-numeric:tabular-nums; line-height:1.15;
 }
-.pg-tier-row.is-active .pg-tier-index{color:var(--ink-text)}
+.pg-tier-row.is-active .pg-tier-index{color:var(--ink-muted)}  /* F068 trial: the ordinal stops shouting */
 .pg-tier-name{
   grid-column:2; min-width:0;
   font-family:var(--sans); font-size:1rem; font-weight:600;
@@ -103,7 +103,10 @@
    discoverable). explicit width chain (flex:1 1 auto + width:100% +
    min-width:0, no margin-inline:auto, no fit-content) makes the iOS
    narrow/centered collapse class structurally impossible. */
-.pg-search{grid-area:search; display:flex; gap:12px; align-items:center; width:100%}
+.pg-search{grid-area:search; display:flex; gap:12px; align-items:center; width:100%;
+  /* F066: the field's text top aligns with the list's first name — same breath
+     primitive as .pg-tier-list's margin-top; keep the two in lockstep */
+  margin-top:1rem}
 .pg-search input{
   flex:1 1 auto; width:100%; min-width:0; min-height:44px;
   font-family:var(--mono); font-size:.74rem; letter-spacing:.05em; text-transform:lowercase;
