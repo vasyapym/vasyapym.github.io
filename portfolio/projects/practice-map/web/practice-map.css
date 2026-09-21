@@ -879,6 +879,25 @@
   padding-top: 1.5rem;
 }
 
+/* F077: OFF mode adopts the fr stream's geometry, so toggling free reading
+   moves no paragraph. Three deltas were measured: (1) the stream's first line
+   sits where the fr-row's slot ends — h3 + [1.6rem row + 0.4rem margin +
+   the section gap]; (2) the stream separates blocks by one blank line =
+   1.72em of the prose voice, vs the grid's 0.95em gap; (3) the shared left
+   gutter is handled above. These rules apply ONLY when the section shows
+   paragraphs (no .fr-row inside) — fr mode is untouched. */
+.practice-reader-section:not(:has(.fr-row)) > h3 {
+  padding-bottom: calc(1.6rem + 0.4rem + 0.95rem);
+}
+.practice-reader-section:not(:has(.fr-row)) > :first-child:not(h3) {
+  margin-top: calc(1.6rem + 0.4rem + 0.95rem);
+}
+.practice-reader-section:not(:has(.fr-row))
+  > :not(h3):not(.practice-reader-examples)
+  + :not(h3):not(.practice-reader-examples) {
+  margin-top: calc(1.72em - 0.95rem);
+}
+
 .practice-reader-section h3,
 .practice-reader-section p {
   /* `anywhere`, not `break-word`: it must affect min-content sizing, so a
@@ -910,8 +929,10 @@
 }
 
 .practice-reader-section > p {
-  /* flush column: no stray indent — the measure itself is the focus */
-  padding-left: 0;
+  /* F077: the 0.75rem gutter is the SHARED text edge with the fr surface —
+     toggling free reading never shifts paragraphs sideways (fr mode is the
+     reference; its 0.75rem gutter stays, the reader joins it) */
+  padding-left: 0.75rem;
   margin: 0;
   color: rgba(238, 234, 224, 0.84);  /* F074: one reading voice in both modes */
   /* F062: mobile prose ×0.94 (dialing back F052's +10% on phones) */

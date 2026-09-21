@@ -927,3 +927,20 @@ mobile top 390).
 - Visual inspection: two shots read. The wide measure holds (the contents index wraps in 4 rows, prose spans edge to edge of the panel's gutters at 0.84, line-length comfortable at 1.72 leading); fr focus shows no bar; go-back arrow sits exactly on the cards' text edge
 - Code verification: audits — prose AND fr rgba(...,0.84) @1440; reader width 1118px = panel inner width (caps gone); fr focused shadow none; crumb arrowLeft == cardTextLeft @1440 (472.4 = 472.4) and @390 (29.6 = 29.6); `tsc --noEmit` clean; `practice-map.check.mjs` green except the pre-existing Go-card count drift (other agent, count 3)
 - Open question: none — the batch is fully worked
+
+## Feedback F077
+- Round: none (owner batch, 2026-09-21, post-R032 review)
+- Verdict: LIKED (R032 state) + REJECTED (toggle shift)
+- Scope: lesson text geometry — free reading off ↔ on
+- Decision: the OFF mode's text formatting must equal the ON mode's — toggling must not move paragraphs; fr mode's look is the reference
+- User source: «make the "free reading: off" mode formatting of the text the same as "free reading: on" mode. i don't want that when you change mode paragraphs move. i like how it is in "free reading: on" mode»
+
+## Round R033
+- Goal: F077 — toggle parity: the reader (OFF) adopts the fr stream's geometry — orchestrator-direct (measured geometry, three deltas)
+- Preserved preferences: F072-F076 lineage; fr mode is the untouched reference (all rules gated `:not(:has(.fr-row))`)
+- Changes: `practice-map.css` — (1) `.practice-reader-section > p` gains the fr surface's 0.75rem left gutter (the shared text edge; toggling never shifts paragraphs sideways); (2) the stream's slot reserved in OFF: `h3 { padding-bottom: calc(1.6rem + 0.4rem + 0.95rem) }` (fr-row height + its margin + the section gap = 47.2px), no-h3 sections get the same slot as first-child margin-top; (3) the stream's blank-line block rhythm: sibling text blocks (excluding .practice-reader-examples, which sits at the plain grid gap in both modes) get margin-top calc(1.72em − 0.95rem) — 15.2 + 21.4 = 36.6px = one blank line of the prose voice
+- Before: measured toggle deltas — first text at h3+44.6 (off) vs h3+91.8 (on); text edge 161 vs 173; block gaps 15.2 vs the stream's blank line
+- After: measured — first-text delta −0.4px (h3-relative), text edge 173 both (off's box + its 0.75rem padding = on's box+padding), block gaps 36.6 = the blank line; no shots (geometry verified by measure; surfaces visually inspected in R032)
+- Visual inspection: NOT RUN as shots (toggle-delta arithmetic verified empirically; the reader's new airier rhythm under headings should be eyeballed live — flagged to the owner)
+- Code verification: `tsc --noEmit` clean; `practice-map.check.mjs` green except the pre-existing Go-card count drift (other agent, count 3); overflow sweep untouched surfaces
+- Open question: the OFF mode's heading-to-text gap now carries the fr-row's reserved slot (47px of air under every h3 when free reading is off) — that IS the ask (zero toggle movement), but eyeball it live; the fr-row chrome still materializes into its reserved slot, and lists keep their own inset (only paragraphs were in scope)
