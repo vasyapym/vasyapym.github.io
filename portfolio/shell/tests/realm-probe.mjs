@@ -700,11 +700,15 @@ try {
   await dive.mouse.move(tapPoint.x, tapPoint.y, { steps: 3 });
   await dive.mouse.down();
   await dive.mouse.up();
+  // approach-then-greet law: a far tap starts a travel; the panel AND the r10
+  // park land on ARRIVAL (the wrapped setLanternHold fires there) — wait out
+  // the journey itself before asserting the post-arrival state.
+  await until(dive, () => window.__holdProbe.after !== null, 9000);
   check("canvas tap-select opens the tapped creature's panel",
     await until(dive, () =>
       document.querySelector(".realm-panel-title")?.textContent.trim().toLowerCase() ===
       document.querySelector(".realm-legend-btn")?.textContent.split("—").pop().trim().toLowerCase()));
-  check("r10 d1: canvas tap parks the lantern at its pre-selection point",
+  check("r10 d1: canvas tap parks the lantern on arrival",
     await dive.evaluate(() => {
       const p = window.__holdProbe;
       return p.before !== null && p.after !== null &&
@@ -1479,11 +1483,12 @@ try {
   if (!directTap) throw new Error("no dev anchor snapshot — cannot place the tap fixture");
   await direct.mouse.move(directTap.x, directTap.y); // creature 0 anchor, derived live
   await wait(600);
-  // single quick click still selects (selection timing unchanged)
+  // single quick click still selects — but from a fresh entry the light is
+  // far, so the panel lands on the approach's arrival (up to ~9s of travel)
   await direct.mouse.down();
   await direct.mouse.up();
   check("r8 d2: single quick click still selects",
-    await until(direct, () => document.querySelector(".realm-panel-title") !== null, 2500));
+    await until(direct, () => document.querySelector(".realm-panel-title") !== null, 9000));
   await wait(400); // the entrance settles; focus lands on the close button
   // the close button keeps its box while open: a real click must close the panel
   await direct.mouse.click(1408, 32); // close glyph center: right 1rem + 1rem half
@@ -1548,9 +1553,9 @@ try {
   await bug7.mouse.move(bug7Tap.x, bug7Tap.y); // creature 0 anchor, derived live
   await wait(600);
   await bug7.mouse.down();
-  await bug7.mouse.up(); // single quick click selects; the panel opens
+  await bug7.mouse.up(); // single quick click selects; the panel opens on arrival
   check("bug 7: selection opens the panel",
-    await until(bug7, () => document.querySelector(".realm-panel.is-open") !== null, 2500));
+    await until(bug7, () => document.querySelector(".realm-panel.is-open") !== null, 9000));
   check("bug 7: the selected creature is the first door's project",
     await until(bug7, () => {
       const title = (document.querySelector(".realm-panel-title")?.textContent ?? "").trim().toLowerCase();

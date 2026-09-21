@@ -211,9 +211,25 @@ export default function RealmMode({ projects, onOpenProject, onExit, onEntered, 
   }, []);
   // latest-value ref so the empty-deps input effect can select without re-binding
   const openPanelRef = useRef(openProjectPanel);
-  openPanelRef.current = openProjectPanel;
+  // arrival callback target: the scene fires this when an approach travel
+  // reaches its creature; it routes into today's immediate open (greeting
+  // animation + sound + panel + framing all fire in that one moment).
+  const openImmediateRef = useRef<((id: string) => void) | null>(null);
+  // scene-click entry — the light travels to the creature first; the panel,
+  // greeting, and sound fire on arrival. Doors/keyboard keep the immediate
+  // open, as do reduced motion, in-range clicks, and clicks with a panel
+  // already up (browsing mode: the lantern is parked, travel would fight it).
+  const approachClick = useCallback((id: string) => {
+    if (phaseRef.current !== "active") return;
+    if (openIdRef.current || !sceneRef.current?.beginApproach(id)) {
+      openProjectPanel(id);
+    }
+  }, [openProjectPanel]);
+  openPanelRef.current = approachClick;
+  openImmediateRef.current = openProjectPanel;
 
   const closePanel = useCallback(() => {
+    sceneRef.current?.cancelApproach(); // an Esc-during-travel must not land late
     resetDirectInputRef.current?.();
     sceneRef.current?.setLanternHold(false);
     sceneRef.current?.frameSelection(null); // camY stays where the frame left it
@@ -779,6 +795,10 @@ export default function RealmMode({ projects, onOpenProject, onExit, onEntered, 
           lastAria.current = msg;
           ariaRef.current.textContent = msg;
         }
+      },
+      onApproachArrive: (id) => {
+        if (!alive) return;
+        openImmediateRef.current?.(id); // panel + greet animation + greet sound, once
       },
     });
     sceneRef.current = scene;

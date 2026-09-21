@@ -41,7 +41,9 @@ type VoiceStyle =
   | "rising"
   | "pluck"
   | "tick"
-  | "file";
+  | "file"
+  | "jot"
+  | "ember";
 
 interface VoiceSpec {
   readonly id: string;
@@ -61,8 +63,8 @@ const SPECS: readonly VoiceSpec[] = [
   { id: "spine", style: "ratchet", type: "square", freq: 520, attack: 0.002, decay: 0.03, period: 1.0, filter: 3000 },
   { id: "evening-forest", style: "bowed", type: "sawtooth", freq: 196, attack: 0.45, decay: 1.40, period: 4.2, filter: 1200 },
   { id: "planck-to-now", style: "rising", type: "sine", freq: 180, attack: 0.02, decay: 0.10, period: 3.0 },
-  { id: "practice-map", style: "file", type: "triangle", freq: 262, attack: 0.003, decay: 0.22, period: 1.6, filter: 2000 },
-  { id: "quicknotes", style: "tick", type: "square", freq: 1150, attack: 0.001, decay: 0.035, period: 0.85, filter: 4200 },
+  { id: "practice-map", style: "ember", type: "sine", freq: 130, attack: 0.012, decay: 0.60, period: 6.5, filter: 2400 },
+  { id: "quicknotes", style: "jot", type: "triangle", freq: 1244, attack: 0.004, decay: 0.10, period: 4.2, filter: 5200 },
 ];
 
 const NOMINAL = 0.9;
@@ -287,6 +289,26 @@ function makeVoice(
         note(ctx, cleanups, pan, spec.type, spec.freq * 0.5,
           t + 0.07, spec.attack, spec.decay, p * 0.4, spec.filter);
         break;
+
+      case "jot": {
+        // three feather-light keystrokes, then the [[link]] closes as a bright dyad
+        note(ctx, cleanups, pan, "triangle", 1244, t, 0.003, 0.050, p * 0.50, 5200);
+        note(ctx, cleanups, pan, "triangle", 1108, t + 0.05, 0.003, 0.050, p * 0.40, 5200);
+        note(ctx, cleanups, pan, "triangle", 1318, t + 0.10, 0.003, 0.060, p * 0.50, 5200);
+        note(ctx, cleanups, pan, "sine", 1568, t + 0.19, 0.004, 0.220, p * 0.70, 6000);
+        note(ctx, cleanups, pan, "sine", 2349, t + 0.19, 0.004, 0.300, p * 0.55, 6000);
+        break;
+      }
+
+      case "ember": {
+        // a low furnace breath gliding down, then tokens crackle as they burn
+        note(ctx, cleanups, pan, "sine", 130, t, 0.020, 0.600, p * 0.90, 900, 62);
+        note(ctx, cleanups, pan, "square", 2100, t + 0.10, 0.002, 0.030, p * 0.16, 3600);
+        note(ctx, cleanups, pan, "square", 1500, t + 0.21, 0.002, 0.035, p * 0.14, 3200);
+        note(ctx, cleanups, pan, "square", 1780, t + 0.34, 0.002, 0.030, p * 0.12, 3400, 1400);
+        note(ctx, cleanups, pan, "sine", 196, t + 0.30, 0.020, 0.450, p * 0.35, 800, 98);
+        break;
+      }
     }
   };
 

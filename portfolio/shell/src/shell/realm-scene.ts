@@ -37,6 +37,8 @@ export interface RealmSceneOptions {
   readonly onPhaseDone: (phase: "entering" | "leaving") => void;
   readonly onDiveCommit: (id: string) => void;
   readonly onNearest: (id: string | null) => void;
+  /** approach-then-greet: fires once when an autopilot travel reaches its creature */
+  readonly onApproachArrive: (id: string) => void;
 }
 
 export interface RealmScene {
@@ -44,6 +46,10 @@ export interface RealmScene {
   startLeave(chipX: number, chipY: number): void;
   startDive(id: string): void;
   startGreeting(id: string): void;
+  /** begin autopilot travel to a creature; false => caller should open immediately */
+  beginApproach(id: string): boolean;
+  /** cancel any in-flight approach travel (harmless when idle) */
+  cancelApproach(): void;
   setPointer(x: number, y: number, active: boolean): void;
   setThrust(x: number, y: number): void;
   setLanternHold(hold: boolean): void;
@@ -345,6 +351,12 @@ export function createRealmScene(
   let lure = 0;
   let inputAccum = 0;
   let lanternHeld = false;
+
+  // ── approach-then-greet (scene click on a far creature) ──
+  let approachIdx = -1;        // creature the lantern is autopiloting to; -1 = idle
+  let approachT = 0;           // s elapsed on the current approach
+  let pendingArrive = -1;      // creature whose arrival dispatches after the tick
+  const APPROACH_TIMEOUT = 6;  // s — a steered-away trip ends quietly, never hangs
 
   // ── phosphor trail + motion continuity ──
   let breathTarget = 0.75;
@@ -711,6 +723,34 @@ export function createRealmScene(
     ptrActive = false;
     thrustX = 0;
     thrustY = 0;
+    if (hold) approachIdx = -1; // a parked lantern cancels any in-flight approach
+  }
+
+  // arrival gate: a couple of glow-radii so the light reads as "at" the
+  // creature, floored for a dim lantern, capped inside the pick radius.
+  function approachRadius(): number {
+    return Math.max(lan.r * 2.4, interactR * 0.35);
+  }
+
+  // begin autopilot travel to a creature; false => caller should open
+  // immediately (today's path: reduced motion, already in range, bad phase).
+  function beginApproach(id: string): boolean {
+    if (destroyed || phase !== "active" || reduced) return false;
+    const idx = findIdx(id);
+    if (idx < 0) return false;
+    const c = creatures[idx];
+    if (Math.hypot(c.x - lan.x, c.y - lan.y) <= approachRadius()) return false;
+    approachIdx = idx;
+    approachT = 0;
+    pendingArrive = -1;
+    lanternHeld = false; // travel needs a free lantern (a selection may have parked it)
+    return true;
+  }
+
+  // cancel any in-flight approach (door/keyboard open, Esc, close, phase change)
+  function cancelApproach(): void {
+    approachIdx = -1;
+    pendingArrive = -1;
   }
 
   function updateLantern(dt: number): void {
@@ -724,8 +764,21 @@ export function createRealmScene(
       lvx = 0;
       lvy = 0;
     } else if (controllable && !reduced) {
-      const tx = (ptrX - vw * 0.5) / cam.zoom + cam.camX + vw * 0.5;
-      const ty = (ptrY - vh * 0.5) / cam.zoom + cam.camY + vh * 0.5;
+      // approach-then-greet: while travelling, the live creature position owns
+      // the spring target — the pointer's world point would recede with the
+      // camera (deadband follow) and the trip would never arrive. Pointer
+      // control resumes the moment the trip ends or is cancelled.
+      const travelling = approachIdx >= 0;
+      let tx: number, ty: number;
+      if (travelling) {
+        const c = creatures[approachIdx];
+        tx = c.x;
+        ty = c.y;
+      } else {
+        tx = (ptrX - vw * 0.5) / cam.zoom + cam.camX + vw * 0.5;
+        ty = (ptrY - vh * 0.5) / cam.zoom + cam.camY + vh * 0.5;
+      }
+      const steer = ptrActive || travelling; // spring driven; else coast on drag
       const k = small ? 121 : 132.25;
       const c = small ? 22 : 23; // unit mass: c = 2 * sqrt(k).
       const maxSpeed = small ? 900 : 1200;
@@ -736,7 +789,7 @@ export function createRealmScene(
       for (let i = 0; i < steps; i++) {
         let ax = thrustX * 1100;
         let ay = thrustY * 1100;
-        if (ptrActive) {
+        if (steer) {
           ax += (tx - lan.x) * k - lvx * c;
           ay += (ty - lan.y) * k - lvy * c;
         } else {
@@ -754,6 +807,20 @@ export function createRealmScene(
         }
         lan.x += lvx * h;
         lan.y += lvy * h;
+      }
+
+      // arrival check is distance-only: after a mouse release ptrActive stays
+      // true, so the check must not care which source owns the spring target.
+      // A steered-away trip (thrust/drag/door) is cancelled elsewhere; the
+      // timeout only catches degenerate geometry, and it ends quietly.
+      if (approachIdx >= 0) {
+        approachT += dt;
+        const c = creatures[approachIdx];
+        if (Math.hypot(c.x - lan.x, c.y - lan.y) <= approachRadius()) {
+          pendingArrive = approachIdx; // dispatched post-tick; keep the latch suppression
+        } else if (approachT >= APPROACH_TIMEOUT) {
+          approachIdx = -1; // degenerate trip; no panel from afar
+        }
       }
     } else if (controllable) {
       // reduced motion: direct, softened follow — no overshoot
@@ -794,6 +861,12 @@ export function createRealmScene(
       // world coordinates are untouched — only the view recomposes.
       target = framing.target;
       rate = FRAME_K;
+    } else if (approachIdx >= 0) {
+      // approach travel: hold the frame still — the light glides across a
+      // steady view to its creature; the pointer's world point must not
+      // recede under the camera or the trip could never converge.
+      target = camYState;
+      rate = 8;
     } else {
       const calmTouch = small && phase === "active" && !reduced;
       const half = small ? (calmTouch ? vh * 0.12 : 0) : vh * 0.18;
@@ -883,7 +956,8 @@ export function createRealmScene(
       // Consume this approach even if busy, reduced, or being lured.
       // There is no queue: departure beyond the outer band re-arms it.
       proximityLatched.add(nearestIdx);
-      if (greetIdx < 0 && lure === 0 && !ctx.reduced) {
+      // while autopiloting, arrival owns the single greet — suppress here
+      if (greetIdx < 0 && lure === 0 && !ctx.reduced && approachIdx < 0) {
         startGreeting(creatures[nearestIdx].id);
       }
     }
@@ -1080,6 +1154,15 @@ export function createRealmScene(
     } else {
       wakeOn = false;
       drawOverlay(dt, true);
+    }
+
+    // arrival dispatch runs after updateCreatures so the proximity latch can
+    // never fire a same-frame greet against the approach's own.
+    if (pendingArrive >= 0) {
+      const idx = pendingArrive;
+      pendingArrive = -1;
+      approachIdx = -1; // stop autopilot before handing off
+      if (phase === "active") opts.onApproachArrive(creatures[idx].id);
     }
   }
 
@@ -1434,6 +1517,7 @@ export function createRealmScene(
 
     startLeave(cx, cy) {
       if (destroyed || phase !== "active") return;
+      cancelApproach(); // no travel survives departure
       applyLanternHold(false);
       framing.active = false;
       chipX = cx;
@@ -1452,6 +1536,7 @@ export function createRealmScene(
     startDive(id) {
       framing.active = false;
       if (destroyed || phase !== "active") return;
+      cancelApproach(); // the dive takes over from any approach
       const idx = findIdx(id);
       if (idx < 0) return;
       applyLanternHold(false);
@@ -1470,6 +1555,14 @@ export function createRealmScene(
       startGreeting(id);
     },
 
+    beginApproach(id) {
+      return beginApproach(id);
+    },
+
+    cancelApproach() {
+      cancelApproach();
+    },
+
     setPointer(x, y, active) {
       ptrX = x;
       ptrY = y;
@@ -1477,6 +1570,7 @@ export function createRealmScene(
     },
 
     setThrust(x, y) {
+      if (x !== 0 || y !== 0) approachIdx = -1; // keyboard thrust takes over
       thrustX = clamp(x, -1, 1);
       thrustY = clamp(y, -1, 1);
     },
@@ -1561,6 +1655,7 @@ export function createRealmScene(
     },
 
     setCalling(c) {
+      if (c) approachIdx = -1; // press-and-hold lure takes over from autopilot
       calling = c;
       if (c) idleT = 0;
     },
@@ -1586,6 +1681,7 @@ export function createRealmScene(
 
     warpTo(index) {
       if (phase !== "active") return;
+      approachIdx = -1; // teleport cancels any approach
       const i = Math.trunc(index);
       if (i < 0 || i >= creatures.length) return;
       const c = creatures[i];
