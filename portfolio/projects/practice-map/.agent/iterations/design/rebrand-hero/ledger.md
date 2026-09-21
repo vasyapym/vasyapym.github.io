@@ -644,3 +644,48 @@ mobile top 390).
 - Visual inspection: three shots read. Volume view: ← flies free above the hairline, the underline sits under "go back" alone — reads as label + free glyph; free-reading ON: the editable surface sets at the reader's size, toggle carries its ochre line; desktop top: the body sits visibly closer to the masthead (108px hero-bottom→list measured incl. the 36px margin)
 - Code verification: computed audits — pg-layout margin-top 36px (−10.0%), crumb arrow 0px/label 1px soft/button 0px, lesson h2 25.12px (1.57rem cap = 22.88×1.1), reader p 21.3px, h3 22.88px, fr-area 21.3px desktop / 19.36px mobile, mobile gaps 29px @390/320 (28×1.05; 390 sits in the ≤560 band), 36px @561–700; `tsc --noEmit` clean; `practice-map.check.mjs` green except the pre-existing Go-card count drift (other agent, count 3); overflow sweep 0px at all six widths
 - Open question: none — owner-supplied arithmetic; the batch is fully worked
+
+## Feedback F055
+- Round: none (owner batch, 2026-09-21, post-R023 review)
+- Verdict: REJECTED (spacing)
+- Scope: desktop — hero text ↔ model list / search bar breathing space
+- Decision: reduce by ~5% (compounds on F053's −10%)
+- User source: item 1: «on desktop - reduce breathing space between hero section text and model list, search bar by 5%.»
+
+## Feedback F056
+- Round: none (owner batch, 2026-09-21)
+- Verdict: REJECTED (width)
+- Scope: desktop — model list (left column) width
+- Decision: reduce by ~7%
+- User source: item 2: «model list width should be reduced by around 7%.»
+
+## Feedback F057
+- Round: none (owner batch, 2026-09-21)
+- Verdict: REJECTED (spacing)
+- Scope: model rows (.pg-tier-row) — breathing space, mobile AND desktop
+- Decision: increase by ~8%
+- User source: item 3: «model card in model list breathing space should be increased by around 8%.»
+
+## Feedback F058
+- Round: none (owner batch, 2026-09-21)
+- Verdict: REJECTED (trial — owner flagged uncertainty)
+- Scope: record groups' opening rules — model list (.pg-tier-list), lesson cards (.pg-cards), folder faces (.pg-faces)
+- Decision: records should NOT carry an upper edge/line; trial it («let's try this (i am not sure about this)») — the groups' strong top rules are removed; member bottom hairlines stay (they carry the R021 state device and read as between-record separators, not per-record edges)
+- User source: item 4: «model cards in model list should not have upper edge/border/line (currently there's line on the upper side and bottom side of the model card). i want the same for lesson cards and folder cards.»
+
+## Feedback F059
+- Round: none (owner batch, 2026-09-21)
+- Verdict: REJECTED (two details)
+- Scope: "Go Back" button — underline + vertical alignment with the folder title
+- Decision: (1) remove the underline entirely (withdraws R023's label hairline within crumb scope); (2) the button must sit at the same height level as the folder/volume title (the R023 label padding pushed its text a notch above the title line)
+- User source: item 5: «remove underline in "go back" button. also it should be at the same height level/position as the folder name (currently it is bit above folder name text)»
+
+## Round R024
+- Goal: direct leg of the post-R023 batch — F055 (desktop hero→body −5%), F056 (model list width −7%), F057 (model rows +8% breathing, both viewports), F058 (TRIAL: no upper edges on model/lesson/folder records), F059 (go back: underline removed + level with the title) — orchestrator-direct: arithmetic + one trial
+- Preserved preferences: F049–F054 lineage, F035 content inset, the R021 single-line state device (bottom hairlines stay as its carrier), touch floors
+- Changes: `tiers.css` — `.pg-layout` margin-top 36→34px desktop (mobile bands untouched); grid-template-columns 0.57fr→0.515fr (integration correction: the naive 0.53fr gave only −5.1% of the column share because the fr pool shrank with it — 0.515 lands the asked −7% width, measured 339→315px); `.pg-tier-row` padding .85→.92rem vertical ×1.08 (horizontal inset kept; ≤700 .75→.81rem); F058 trial — the strong opening top rules REMOVED from `.pg-tier-list`, `.pg-cards`, `.pg-faces` (records carry no upper edge; member bottom hairlines stay as separators + the state device's carrier — interior rows still show the previous record's line above, the first record is flush; flagged to the owner since the ask was uncertain); F059 — `.pg-crumb-label` underline + padding withdrawn (vestigial span kept), hover = color lift + arrow slide, focus-visible = ochre ring (the button has no line left to ochre)
+- Before: artifacts/R023/after/ lineage
+- After: artifacts/R024/after/ (top-1440, faces-1440, volume-1440, top-390)
+- Visual inspection: four shots read. Model list opens flush — no rule above record 01; active row's ochre line + separators intact; rows visibly airier (14.72px vertical @1440, 12.96px @390); list narrower (315px); volume crumb: ← go back carries no underline and its text mid-line sits EXACTLY at the title's (391=391 measured); cards/faces groups open flush the same way
+- Code verification: computed audits — mt 34px (36×0.95), share 0.2689 (−7.0% width), list/cards/faces border-top 0px, row bottom hairline 1px intact, row padding 14.72/12.96px, mobile gap 29px + mt 18px untouched, crumb label/back underline 0px + text mids equal within 0px; `tsc --noEmit` clean; `practice-map.check.mjs` green except the pre-existing Go-card count drift (other agent, count 3)
+- Open question: owner verdict on the F058 TRIAL especially — whether flush-open groups (no opening rule) hold, or the interior records' inherited upper lines (the previous record's separator) still bother them — in which case the next trial is dropping member separators too, which would need a new carrier for the ochre state device

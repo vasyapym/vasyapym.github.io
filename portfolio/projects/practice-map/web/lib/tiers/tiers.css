@@ -29,9 +29,9 @@
 
 /* ---------- 2. layout ---------- */
 .pg-layout{
-  /* F053: hero→body breathing −10% on desktop (40→36px); mobile bands keep theirs */
-  margin-top:36px; display:grid; gap:28px 30px;
-  grid-template-columns:minmax(0,0.57fr) minmax(0,1.40fr);
+  /* F053+F055: hero→body breathing −10% then −5% on desktop (40→36→34px); mobile bands keep theirs */
+  margin-top:34px; display:grid; gap:28px 30px;
+  grid-template-columns:minmax(0,0.515fr) minmax(0,1.40fr);  /* F056: 0.57→0.515 ≈ −7% column width (0.53 gave only −5.1% of the share) */
   grid-template-areas:"list search" "list panel";
   align-items:start;
 }
@@ -40,13 +40,14 @@
 .pg-tier-list{
   grid-area:list; margin-top:1rem;
   display:flex; flex-direction:column; gap:0;
-  border-top:1px solid var(--ink-line);
+  /* F058 trial: no opening rule — records carry no upper edge; separators
+     below each record stay (the state device's carrier) */
 }
 .pg-tier-row{
   width:100%; display:grid;
   grid-template-columns:auto minmax(0,1fr) auto;
   align-items:baseline; column-gap:.6rem; row-gap:.4rem;
-  padding:.85rem 1rem; text-align:left;            /* content inset (F035) */
+  padding:.92rem 1rem; text-align:left;            /* content inset (F035); F057 vertical ×1.08 */
   border:0; border-bottom:1px solid var(--ink-line-soft);
   border-radius:0; background:transparent;
   color:rgba(238,234,224,.68); cursor:pointer;
@@ -141,7 +142,7 @@
 }
 .pg-cards{
   display:flex; flex-direction:column; gap:0;
-  border-top:1px solid var(--ink-line);
+  /* F058 trial: no opening rule (same as the model list) */
 }
 /* lesson cards — F042: ~20% lighter, weight taken off the two carriers
    (pad 1.6→1.25rem, h3 24→20 cap). F041 device: hover brightens the rule
@@ -202,7 +203,7 @@
 /* ---------- 4. folders — ruled records, co-adopting the −20% + F041 device ---------- */
 .pg-faces{
   display:flex; flex-direction:column;
-  border-top:1px solid var(--ink-line);
+  /* F058 trial: no opening rule (same as the model list) */
 }
 .pg-face-head{
   width:100%; text-align:left; display:block; cursor:pointer;
@@ -250,20 +251,14 @@
   display:inline-flex; align-items:center; gap:.55rem; min-height:44px; flex:none;
   border:0; padding:0 .3em; background:transparent; cursor:pointer; color:var(--ink-text);
   font-family:var(--mono); font-size:.8rem; font-weight:500; letter-spacing:.02em; text-transform:lowercase;
-  transition:color 180ms ease;
+  transition:color 180ms ease; /* F059: no underline anywhere */
 }
 @media (pointer:fine){ .pg-crumb-back{min-height:40px} }
 .pg-crumb-arrow{color:var(--ink-accent); font-size:1rem; line-height:1; transition:transform 180ms ease, color 180ms ease}
-.pg-crumb-label{
-  padding-bottom:.45rem;
-  border-bottom:1px solid var(--ink-line-soft);
-  transition:border-color 180ms ease;
-}
+.pg-crumb-label{ /* F059: underline withdrawn; the span is vestigial, kept for a possible return */ }
 .pg-crumb-back:hover{color:var(--ink-text)}
-.pg-crumb-back:hover .pg-crumb-label{border-bottom-color:var(--ink-line)}
 .pg-crumb-back:hover .pg-crumb-arrow{transform:translateX(-3px); color:var(--ink-accent-bright)}
-.pg-crumb-back:focus-visible{outline:none}
-.pg-crumb-back:focus-visible .pg-crumb-label{border-bottom-color:var(--ink-accent)}
+.pg-crumb-back:focus-visible{outline:1px solid var(--ink-accent); outline-offset:2px}
 .pg-crumb-back:focus-visible .pg-crumb-arrow{color:var(--ink-accent-bright)}
 .pg-crumb-title{
   flex:1 1 auto; min-width:0;
@@ -313,7 +308,7 @@
   /* the bare-field search now carries its own hairline: it is its own quiet
      band, full-width, no centering trick (iOS-safe). */
   .pg-search{width:100%; max-width:none; margin-inline:0; padding-block:.35rem}
-  .pg-tier-row{grid-template-columns:auto minmax(0,1fr) auto; padding:.75rem .85rem; min-height:44px}
+  .pg-tier-row{grid-template-columns:auto minmax(0,1fr) auto; padding:.81rem .85rem; min-height:44px}  /* F057 ×1.08 */
   .pg-tier-count{justify-self:end}
   .pg-card{padding:.95rem}
   .pg-face-head{padding:1rem}
