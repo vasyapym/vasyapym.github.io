@@ -103,8 +103,9 @@
   /* iOS Safari auto-zooms the viewport when focusing a field below 16px
      (an accessibility behavior, not a bug to defeat with maximum-scale).
      Keep the reader's scale on any device whose root is 16px. F052: the
-     free-reading surface rides the lesson window's +10% (both modes). */
-  font-size: max(1.21rem, 19.36px);
+     free-reading surface rides the lesson window's +10% (both modes).
+     F062: mobile ×0.94 (the desktop step below keeps its own size). */
+  font-size: max(1.14rem, 18.2px);
   line-height: 1.72;
   white-space: pre-wrap;
   overflow-wrap: anywhere;

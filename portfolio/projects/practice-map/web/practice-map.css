@@ -638,8 +638,8 @@
   margin: 0.15rem 0 0;
   color: var(--ink-text); /* the title is the brightest header voice */
   font-family: var(--display);
-  /* F052: base scale ×1.1 again (the desktop override rides on top) */
-  font-size: clamp(1.1rem, 1.98vw, 1.43rem);
+  /* F052 ×1.1, F062 mobile ×0.94 (the desktop override rides on top) */
+  font-size: clamp(1.03rem, 1.86vw, 1.34rem);
   font-weight: 550;
   letter-spacing: 0;
   line-height: 1.15;
@@ -722,7 +722,7 @@
   padding: 0;
   list-style: none;
   color: var(--ink-muted);
-  font-size: 0.97rem;
+  font-size: 0.91rem;  /* F062 ×0.94 */
   line-height: 1.55;
 }
 
@@ -839,7 +839,7 @@
   max-width: 62ch;
   margin-top: 1.2rem;
   color: var(--ink-text);
-  font-size: 1.01rem;
+  font-size: 0.95rem;  /* F062 ×0.94 */
   line-height: 1.65;
   text-wrap: pretty;
 }
@@ -901,7 +901,7 @@
   margin: 0.35rem 0 0.15rem;
   color: var(--ink-text);
   font-family: var(--display);
-  font-size: 1.3rem;
+  font-size: 1.22rem;  /* F062 ×0.94 */
   font-weight: 600;
   letter-spacing: -0.01em;
   line-height: 1.18;
@@ -922,7 +922,8 @@
   padding-left: 0;
   margin: 0;
   color: var(--ink-text);
-  font-size: max(1.21rem, 19.36px);
+  /* F062: mobile prose ×0.94 (dialing back F052's +10% on phones) */
+  font-size: max(1.14rem, 18.2px);
   line-height: 1.72;
   text-wrap: pretty;
 }
@@ -984,7 +985,7 @@
 .practice-reader-section li,
 .practice-lesson-body li {
   color: var(--ink-text);
-  font-size: max(1.21rem, 19.36px);
+  font-size: max(1.14rem, 18.2px);  /* F062 ×0.94 */
   line-height: 1.72;
   /* `anywhere`, not `break-word`: inline `code` inherits it; min-content
      sizing must allow the break so long tokens cannot overflow the panel. */
@@ -1022,7 +1023,7 @@
 .practice-callout p {
   margin: 0;
   color: var(--ink-muted);
-  font-size: 1.01rem;
+  font-size: 0.95rem;  /* F062 ×0.94 */
   line-height: 1.62;
 }
 
@@ -1196,14 +1197,14 @@
   overflow-x: auto;
   color: var(--ink-text);
   font-family: var(--mono);
-  font-size: 0.86rem;
+  font-size: 0.81rem;  /* F062 ×0.94 */
   line-height: 1.55;
 }
 
 .practice-example p {
   margin: 0;
   color: var(--ink-muted);
-  font-size: 0.9rem;
+  font-size: 0.85rem;  /* F062 ×0.94 */
   line-height: 1.55;
 }
 

@@ -734,3 +734,20 @@ mobile top 390).
 - Visual inspection: four shots read. Free-reading prose visibly brighter at 390 and 1440; crumb arrow↔text gap reads airier; tier name sits closer to its cards; mobile after-search zone 31px measured
 - Code verification: computed audits — head pb/mb 14.88/16.32px, crumb gap 9.44px, fr-area rgba(...,0.73) at 1440 AND 390, after-search zone 31px, row padding + panel margins untouched; `tsc --noEmit` clean; `practice-map.check.mjs` green except the pre-existing Go-card count drift (other agent, count 3); probe found one false alarm — the 390 fr measure "absent" was the shared-localStorage toggle racing itself (1440 run left fr ON; the toggle click turned it off), clean-context re-run measures 0.73
 - Open question: F062 — WHICH text on mobile should shrink ~6%? (lesson window prose / model list names / card titles+summaries / page-wide). Parked, awaiting the owner's one-line answer
+
+## Feedback F062 (resolved)
+- Round: none (owner clarification, 2026-09-21)
+- Verdict: REJECTED (scale) — target confirmed
+- Scope: lesson window text on MOBILE
+- Decision: reduce ~6% (×0.94) — net of F052's +10% this is 17.6 → 19.36 → ~18.2px on phones
+- User source: clarification answer: «Lesson window text»
+
+## Round R026
+- Goal: F062 follow-through after the owner's clarification — lesson-window text on mobile ×0.94 (~6% down) — orchestrator-direct arithmetic
+- Preserved preferences: desktop scale untouched (min-width:901 block keeps F052's ×1.1 values); fr-area stays matched to the reader prose on both axes
+- Changes: `practice-map.css` base rules ×0.94 (mobile) — reader p+li / body li max(1.21rem,19.36px)→max(1.14rem,18.2px), body 1.01→0.95rem, callout p 1.01→0.95, objectives 0.97→0.91, example p 0.9→0.85, pre 0.86→0.81, h2 clamp cap 1.43→1.34 (floor 1.1→1.03rem), h3 1.3→1.22rem; `freeReading.css` .fr-area base → max(1.14rem,18.2px) (its min-width:901 step stays 1.33rem)
+- Before: artifacts/R025/after/lesson-fr-390.png lineage
+- After: no new shots needed (mobile typography only; R025 shots show the unchanged surfaces)
+- Visual inspection: computed-only this leg (pure scale arithmetic; the surfaces were visually inspected in R022/R025) — mobile lesson text visibly step down vs the R025 fr shot when compared live
+- Code verification: audits — reader p 18.24px @390 (19.36×0.94), h2 16.48px (1.03rem floor), docΔ 0; desktop UNCHANGED (p 21.3px, h2 25.12px); `tsc --noEmit` clean; `practice-map.check.mjs` green except the pre-existing Go-card count drift (other agent, count 3)
+- Open question: none — the batch (F060–F064) is fully worked
