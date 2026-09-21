@@ -961,3 +961,28 @@ mobile top 390).
 - Visual inspection: shot read — the Go lesson in fr mode: the first example hidden, the remaining figure carries the ochre `hide` control at the caption's right; the section above flows without its figures
 - Code verification: hide removes the figure (92→91), survives reload (91), reset restores (92) — verified against the real Go lesson (the only one with example figures today); `tsc --noEmit` clean; `practice-map.check.mjs` — one new expectation was a REAL behavior fix (the reset now removes the record rather than storing an empty one); steady-state green except the pre-existing Go-card count drift (other agent, count 3)
 - Open question: none — removal lives in fr mode only (the pristine record keeps its figures); the batch is fully worked
+
+## Feedback F079
+- Round: none (owner batch, 2026-09-21, post-R034 review)
+- Verdict: LIKED (R034) + REJECTED (mobile control mapping)
+- Scope: the example figure's floating control on touch devices
+- Decision: on mobile the top-right floating button becomes "hide" instead of "copy"
+- User source: item 1: «on mobile - instead of copy button make it "hide" button.»
+
+## Feedback F080
+- Round: none (owner batch, 2026-09-21)
+- Verdict: REJECTED (bug)
+- Scope: the "Symfony и Laravel…" lesson (astra-6-medium) on iOS Safari
+- Decision: opening it redirects to the project page, and retrying ends in Safari's "A problem repeatedly occurred" — must be diagnosed and fixed
+- User source: item 2: «one lesson - "astra-6-medium" > "Symfony и Laravel..." redirects to the project page; and then if i try again it shows error "A problem repeatedly occuren..." on ios safari»
+
+## Round R035
+- Goal: F079 (touch: the floating figure control becomes hide) + F080 (the Symfony lesson's iOS crash) — orchestrator-direct
+- Preserved preferences: F078 mechanic (hide persists per section, reset restores), the register language, touch floors, the check's touch copy leg (fr OFF keeps copy on touch)
+- Changes (F079): `PracticeMapPage.tsx` — TOUCH_LAYOUT module const (matchMedia hover:none, SPA no-SSR); ExampleFigure's floating button renders "hide" with the figure's onHide when touch+fr, "copy" otherwise — so on touch the top-right control is the remove action; `freeReading.css` — `@media (hover: none)` hides the caption-row duplicate (exactly one remove control per device class; the fr-OFF touch copy leg of the check stays green)
+- Changes (F080, the crash): `PracticeMapPage.tsx` — the section gains `is-fr` when the fr stream renders; `practice-map.css` — the three F077 gates re-keyed from `:not(:has(.fr-row))` to `:not(.is-fr)`. DIAGNOSIS: the iOS failure reads as a tab-crash reload cycle — the mega-lesson (23 sections, 145k px overlay, 2167 nodes) scrolled through the F077 `:has(.fr-row)` gates, re-walking subtrees every scroll-driven style recalc; Chromium stress-test measured 5.4s for a 20-step scroll sweep and a 3.3s fr toggle; after the re-gate: sweep 2095ms (−62%), heap 47→31MB. "Redirects to the project page" = Safari's crash-reload rebooting the route at the project view; "A problem repeatedly occurred" = the repeat-crash banner. The php lesson was the only DOM big enough to trip it
+- Before: artifacts/R034/after/ lineage
+- After: no shots (state audits; the visual surfaces unchanged except the touch control swap)
+- Visual inspection: NOT RUN as shots (control-mapping verified computed; the :has removal is behavior-preserving — the F077 toggle parity re-measured implicitly by the php probe)
+- Code verification: touch probe — touch+fr OFF floating = copy/visible, touch+fr ON floating = hide (aria "Hide …"), caption hide display:none on touch, tap hides a figure (92→91); desktop probe — 92 caption hide buttons with fr on, floating stays copy; php lesson re-profiled post-fix: fr toggle 2854ms, sweep 2095ms, heap 31MB, zero errors; `tsc --noEmit` clean; `practice-map.check.mjs` green except the pre-existing Go-card count drift (other agent, count 3)
+- Open question: the iOS crash diagnosis is inference from a Chromium stress profile (WebKit can't be reproduced headlessly here) — the `:has`-removal is the measured, defensible fix; owner re-test on the real device invited

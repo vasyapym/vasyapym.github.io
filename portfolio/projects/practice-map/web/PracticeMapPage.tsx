@@ -28,6 +28,13 @@ import { Palette, type PaletteItem } from "./lib/tiers/Palette";
 import "./lib/tiers/tiers.css";
 import { Blocks, InlineText } from "./lib/format";
 import { FreeReadingControls } from "./lib/freeReading/FreeReadingControls";
+
+// Touch devices never hover: their example figures carry the remove control
+// on the code itself (F079). Evaluated once at bundle load — a SPA, no SSR.
+const TOUCH_LAYOUT =
+  typeof window !== "undefined" &&
+  typeof window.matchMedia === "function" &&
+  window.matchMedia("(hover: none)").matches;
 import { FreeReadingText } from "./lib/freeReading/FreeReadingText";
 import {
   freeSectionKey,
@@ -731,7 +738,7 @@ function InteractiveSection({
 
   return (
     <section
-      className="practice-reader-section"
+      className={`practice-reader-section${settings.enabled && prose ? " is-fr" : ""}`}
       data-section-index={sectionIndex}
     >
       {section.heading && (
@@ -825,6 +832,10 @@ function ExampleFigure({
   hideable?: boolean;
   onHide?: () => void;
 }) {
+  // F079: on touch the figure's floating button is the REMOVE control (the
+  // caption-row hide would be redundant); copy stays a fine-pointer tool.
+  const touchHide =
+    TOUCH_LAYOUT && hideable && typeof onHide === "function";
   const [copied, setCopied] = useState(false);
   const codeRef = useRef<HTMLPreElement>(null);
   const [scrollable, setScrollable] = useState(false);
@@ -869,12 +880,12 @@ function ExampleFigure({
       </figcaption>
       <div className={`practice-example-code${scrollable ? " is-scrollable" : ""}`}>
         <button
-          aria-label="Copy code"
+          aria-label={touchHide ? `Hide ${example.title}` : "Copy code"}
           className={`practice-example-copy${copied ? " is-copied" : ""}`}
           type="button"
-          onClick={handleCopy}
+          onClick={touchHide ? onHide : handleCopy}
         >
-          {copied ? "copied" : "copy"}
+          {touchHide ? "hide" : copied ? "copied" : "copy"}
         </button>
         <pre ref={codeRef}><code>{example.code}</code></pre>
       </div>

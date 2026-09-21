@@ -172,6 +172,14 @@
   }
 }
 
+@media (hover: none) {
+  /* F079: on touch the floating button on the code is the remove control —
+     the caption-row duplicate steps aside */
+  .practice-example figcaption .practice-example-hide {
+    display: none;
+  }
+}
+
 .practice-example-hide:hover {
   color: var(--ink-accent-bright);
 }

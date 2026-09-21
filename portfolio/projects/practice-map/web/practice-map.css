@@ -879,20 +879,20 @@
   padding-top: 1.5rem;
 }
 
-/* F077: OFF mode adopts the fr stream's geometry, so toggling free reading
-   moves no paragraph. Three deltas were measured: (1) the stream's first line
-   sits where the fr-row's slot ends — h3 + [1.6rem row + 0.4rem margin +
-   the section gap]; (2) the stream separates blocks by one blank line =
-   1.72em of the prose voice, vs the grid's 0.95em gap; (3) the shared left
-   gutter is handled above. These rules apply ONLY when the section shows
-   paragraphs (no .fr-row inside) — fr mode is untouched. */
-.practice-reader-section:not(:has(.fr-row)) > h3 {
+/* F077 (R035 re-gated): OFF mode adopts the fr stream's geometry, so toggling
+   free reading moves no paragraph. The stream's first line sits where the
+   fr-row's slot ends — h3 + [1.6rem row + 0.4rem margin + the section gap];
+   the stream separates blocks by one blank line = 1.72em of the prose voice.
+   Gated on the section's own is-fr class (React knows the mode; the previous
+   :has(.fr-row) gates made WebKit choke on the mega-lesson's scroll — every
+   frame re-walked subtrees). fr mode is untouched by these rules. */
+.practice-reader-section:not(.is-fr) > h3 {
   padding-bottom: calc(1.6rem + 0.4rem + 0.95rem);
 }
-.practice-reader-section:not(:has(.fr-row)) > :first-child:not(h3) {
+.practice-reader-section:not(.is-fr) > :first-child:not(h3) {
   margin-top: calc(1.6rem + 0.4rem + 0.95rem);
 }
-.practice-reader-section:not(:has(.fr-row))
+.practice-reader-section:not(.is-fr)
   > :not(h3):not(.practice-reader-examples)
   + :not(h3):not(.practice-reader-examples) {
   margin-top: calc(1.72em - 0.95rem);
