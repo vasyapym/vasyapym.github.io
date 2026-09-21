@@ -4,6 +4,12 @@ export type FreeReadingSettings = {
   readonly updatedAt: number;
 };
 
+/** Which of a section's code examples the reader removed while reading. */
+export type FreeHiddenExamples = {
+  readonly v: 1;
+  readonly hidden: readonly number[];
+};
+
 /** A section's edited text as the reader left it (original is hashed, not stored). */
 export type FreeReadingText = {
   readonly v: 2;

@@ -1,5 +1,5 @@
 import { useSyncExternalStore } from "react";
-import type { FreeReadingSettings, FreeReadingText } from "./types";
+import type { FreeHiddenExamples, FreeReadingSettings, FreeReadingText } from "./types";
 
 const PREFIX = "practice-map:free:v2:";
 
@@ -83,6 +83,16 @@ function subscribe(cb: () => void) {
 // useSyncExternalStore doesn't unsubscribe/resubscribe on every render.
 const stableSubscribe = (cb: () => void) => subscribe(cb);
 
+export function isHiddenExamplesRecord(x: unknown): x is FreeHiddenExamples {
+  if (!x || typeof x !== "object") return false;
+  const o = x as Record<string, unknown>;
+  return (
+    o.v === 1 &&
+    Array.isArray(o.hidden) &&
+    o.hidden.every((n) => typeof n === "number")
+  );
+}
+
 export function isSettingsRecord(x: unknown): x is FreeReadingSettings {
   if (!x || typeof x !== "object") return false;
   const o = x as Record<string, unknown>;
@@ -140,4 +150,19 @@ export function writeFreeText(
 
 export function removeFreeText(sectionKey: string) {
   removeRecord(sectionKey);
+}
+
+export function useHiddenExamples(sectionKey: string) {
+  return useStoredRecord(`${sectionKey}:examples`, isHiddenExamplesRecord);
+}
+
+export function writeHiddenExamples(
+  sectionKey: string,
+  hidden: readonly number[],
+) {
+  writeRecord(`${sectionKey}:examples`, { v: 1, hidden });
+}
+
+export function removeHiddenExamples(sectionKey: string) {
+  removeRecord(`${sectionKey}:examples`);
 }

@@ -32,7 +32,10 @@ import { FreeReadingText } from "./lib/freeReading/FreeReadingText";
 import {
   freeSectionKey,
   useFreeSettings,
+  useHiddenExamples,
+  removeHiddenExamples,
   writeFreeSettings,
+  writeHiddenExamples,
 } from "./lib/freeReading/storage";
 import { useFreeReading } from "./lib/freeReading/useFreeReading";
 import {
@@ -716,11 +719,15 @@ function InteractiveSection({
   settings: { enabled: boolean };
 }) {
   const prose = sectionProse(section);
+  const sectionKey = freeSectionKey(topicId, sectionIndex);
   const fr = useFreeReading({
-    sectionKey: freeSectionKey(topicId, sectionIndex),
+    sectionKey,
     original: prose,
     enabled: settings.enabled,
   });
+  // F078: code examples join the free-reading mechanic — the reader can
+  // remove long figures from the reading surface; reset section restores them.
+  const hiddenExamples = useHiddenExamples(sectionKey).value?.hidden ?? [];
 
   return (
     <section
@@ -745,7 +752,15 @@ function InteractiveSection({
               max={fr.totalWords}
               value={fr.consumedWords}
             />
-            <button className="fr-mini" disabled={fr.pristine} type="button" onClick={fr.reset}>
+            <button
+              className="fr-mini"
+              disabled={fr.pristine && hiddenExamples.length === 0}
+              type="button"
+              onClick={() => {
+                fr.reset();
+                removeHiddenExamples(sectionKey);
+              }}
+            >
               reset section
             </button>
           </div>
@@ -777,16 +792,39 @@ function InteractiveSection({
       )}
       {section.examples && section.examples.length > 0 && (
         <div className="practice-reader-examples">
-          {section.examples.map((example) => (
-            <ExampleFigure example={example} key={example.title} />
-          ))}
+          {section.examples.map((example, exampleIndex) => {
+            if (settings.enabled && hiddenExamples.includes(exampleIndex)) {
+              return null;
+            }
+            return (
+              <ExampleFigure
+                example={example}
+                key={example.title}
+                hideable={settings.enabled}
+                onHide={() =>
+                  writeHiddenExamples(sectionKey, [
+                    ...hiddenExamples,
+                    exampleIndex,
+                  ])
+                }
+              />
+            );
+          })}
         </div>
       )}
     </section>
   );
 }
 
-function ExampleFigure({ example }: { example: LessonExample }) {
+function ExampleFigure({
+  example,
+  hideable,
+  onHide,
+}: {
+  example: LessonExample;
+  hideable?: boolean;
+  onHide?: () => void;
+}) {
   const [copied, setCopied] = useState(false);
   const codeRef = useRef<HTMLPreElement>(null);
   const [scrollable, setScrollable] = useState(false);
@@ -816,7 +854,19 @@ function ExampleFigure({ example }: { example: LessonExample }) {
 
   return (
     <figure className="practice-example">
-      <figcaption>{example.title}</figcaption>
+      <figcaption>
+        <span>{example.title}</span>
+        {hideable && onHide && (
+          <button
+            aria-label={`Hide ${example.title}`}
+            className="practice-example-hide"
+            type="button"
+            onClick={onHide}
+          >
+            hide
+          </button>
+        )}
+      </figcaption>
       <div className={`practice-example-code${scrollable ? " is-scrollable" : ""}`}>
         <button
           aria-label="Copy code"

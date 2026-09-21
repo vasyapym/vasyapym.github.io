@@ -944,3 +944,20 @@ mobile top 390).
 - Visual inspection: NOT RUN as shots (toggle-delta arithmetic verified empirically; the reader's new airier rhythm under headings should be eyeballed live — flagged to the owner)
 - Code verification: `tsc --noEmit` clean; `practice-map.check.mjs` green except the pre-existing Go-card count drift (other agent, count 3); overflow sweep untouched surfaces
 - Open question: the OFF mode's heading-to-text gap now carries the fr-row's reserved slot (47px of air under every h3 when free reading is off) — that IS the ask (zero toggle movement), but eyeball it live; the fr-row chrome still materializes into its reserved slot, and lists keep their own inset (only paragraphs were in scope)
+
+## Feedback F078
+- Round: none (owner batch, 2026-09-21, post-R033 review)
+- Verdict: LIKED (R033 parity) + REJECTED (missing capability)
+- Scope: code-example figures in the free-reading surface
+- Decision: the reader can REMOVE code examples from the reading surface (long text + figures demanded scrolling); removal persists per section; "reset section" restores everything
+- User source: «i want the ability to remove code blocks too. currently if the text is long and with codes they get long and you have to scroll a bit»
+
+## Round R034
+- Goal: F078 — per-figure `hide` control in free reading (fr mode only) — orchestrator-direct (small stateful feature; the free-reading storage family extended)
+- Preserved preferences: F077 parity (fr mode is the reference; the control renders ONLY when the mode is on), the register language, touch floors, F035-style tap targets
+- Changes: `types.ts` — FreeHiddenExamples record { v:1, hidden:number[] }; `storage.ts` — `:examples` per-section key + isHiddenExamplesRecord + useHiddenExamples + writeHiddenExamples + removeHiddenExamples (pristine = record removed, not an empty record — one check leg caught exactly that: "resetting to pristine removes the section record" failed when reset wrote an empty hidden list; the check's intent is right and the behavior now follows it); `PracticeMapPage.tsx` — sectionKey hoisted, hidden indices read per section, ExampleFigure gains hideable/onHide (the `hide` bare mono label in the caption row, right-aligned; figures unmount when hidden), the reset button clears hidden indices + restores figures and is now enabled when either prose is edited OR figures are hidden; `freeReading.css` — the caption row becomes flex space-between and the hide control carries the 44/40 touch floors + ochre hover + focus-visible ring
+- Before: artifacts/R033 lineage
+- After: artifacts/R034/after/ (fr-hidden-1440)
+- Visual inspection: shot read — the Go lesson in fr mode: the first example hidden, the remaining figure carries the ochre `hide` control at the caption's right; the section above flows without its figures
+- Code verification: hide removes the figure (92→91), survives reload (91), reset restores (92) — verified against the real Go lesson (the only one with example figures today); `tsc --noEmit` clean; `practice-map.check.mjs` — one new expectation was a REAL behavior fix (the reset now removes the record rather than storing an empty one); steady-state green except the pre-existing Go-card count drift (other agent, count 3)
+- Open question: none — removal lives in fr mode only (the pristine record keeps its figures); the batch is fully worked

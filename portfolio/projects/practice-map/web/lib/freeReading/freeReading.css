@@ -137,6 +137,50 @@
   letter-spacing: 0.04em;
 }
 
+/* F078: the per-figure remove control (free reading only) — a bare register
+   label in the caption row; touch floors match the overlay's other controls. */
+.practice-example figcaption {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.75rem;
+}
+
+.practice-example-hide {
+  flex: 0 0 auto;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 44px;
+  min-width: 44px;
+  padding: 0 0.4rem;
+  border: 0;
+  color: var(--ink-faint);
+  background: transparent;
+  cursor: pointer;
+  font-family: var(--mono);
+  font-size: 0.64rem;
+  letter-spacing: 0.06em;
+  text-transform: lowercase;
+  transition: color 180ms ease;
+}
+
+@media (pointer: fine) {
+  .practice-example-hide {
+    min-height: 40px;
+    min-width: 40px;
+  }
+}
+
+.practice-example-hide:hover {
+  color: var(--ink-accent-bright);
+}
+
+.practice-example-hide:focus-visible {
+  outline: 1px solid var(--ink-accent-bright);
+  outline-offset: 2px;
+}
+
 .fr-visually-hidden {
   position: absolute;
   width: 1px;
