@@ -107,3 +107,19 @@ approaches on a far click (greeting + sound fire at click time instead).
   no product bug.
 - Open question: greeting intensity/taste = owner's verdict; audio not
   audibly verified (headless, muted).
+
+## Feedback F001
+- Round: R001, R002
+- Verdict: LIKED
+- Scope: the realm interaction + creature round as presented — approach-then-
+  greet including the deferred (arrival) panel timing, wiki-link web, token
+  pyre, Term N+1 election, and the three greeting choreographies
+- Decision: approved as shipped; no changes requested
+- User source: "it looks good" (owner, immediately after the R001+R002
+  presentation)
+- Artifact: artifacts/R002/{quicknotes,waste-of-tokens,raft-cluster}.png;
+  artifacts/R001/1-arrived-panel.png
+- Supersedes: none
+- Note: the sound verdict is NOT covered — audio remains unverified by ear
+  (headless synthesis); owner ear-check on a real device is the standing
+  open item.
