@@ -986,3 +986,20 @@ mobile top 390).
 - Visual inspection: NOT RUN as shots (control-mapping verified computed; the :has removal is behavior-preserving — the F077 toggle parity re-measured implicitly by the php probe)
 - Code verification: touch probe — touch+fr OFF floating = copy/visible, touch+fr ON floating = hide (aria "Hide …"), caption hide display:none on touch, tap hides a figure (92→91); desktop probe — 92 caption hide buttons with fr on, floating stays copy; php lesson re-profiled post-fix: fr toggle 2854ms, sweep 2095ms, heap 31MB, zero errors; `tsc --noEmit` clean; `practice-map.check.mjs` green except the pre-existing Go-card count drift (other agent, count 3)
 - Open question: the iOS crash diagnosis is inference from a Chromium stress profile (WebKit can't be reproduced headlessly here) — the `:has`-removal is the measured, defensible fix; owner re-test on the real device invited
+
+## Feedback F081
+- Round: none (owner batch, 2026-09-21, post-R035 discussion)
+- Verdict: REJECTED (lesson size)
+- Scope: the Symfony mega-lesson (php-frameworks-zero-to-depth) — still crashing iOS Safari after R035
+- Decision: shorten the lesson editorially — remove the code blocks mostly, plus whatever I judge not-so-relevant; the Rust lesson's size is the working ceiling (it renders on iOS)
+- User source: «let's just make it shorter - "Symfony (crashes iOS)". remove code blocks mostly. and what you think is not so relevant. i guess we can consider Rust size for limitation (because it works)»
+
+## Round R036
+- Goal: F081 — the phpSections content cut — orchestrator-direct (owner-delegated editorial removal in the lesson data)
+- Preserved preferences: the lesson's conceptual spine (each part keeps: problem, mechanism, the «Вывод примера» principle line, trap, conventions + callout), the card summary's promises (exercises + 8-week plan in parts 19/Заключение — untouched), parts 0/17/18/19/20's own 3.x rubrics (real content, not figure lead-ins — verified before cutting)
+- Changes: `curriculum.ts` — removed all 17 `examples: [...]` figure arrays (150.6k chars) AND each build part's (1–16) «N.3. Минимальный пример…» run (the figure lead-in paragraphs, 26.4k chars), keeping the «Вывод» paragraph as the principle summary. The N.3 rubric disappears consistently across parts 1–16 (N.1/N.2/N.4/N.5 remain; trap numbers still match part numbers). Two implementation failures were caught and fixed before a valid write: segment-relative offsets applied file-absolute (ate parts 1–6 — restored from git), and a keep-marker using the Вывод block's end instead of its start (dangling commas + lost summaries — restored, fixed)
+- Before: 267,928 chars, 17 example arrays, 145k px rendered, 2,167 overlay nodes — crashed iOS
+- After: 90,940 chars source (~78k rendered chars), 53,838 px rendered, 1,168 overlay nodes — BELOW the proven-OK Rust size (96,524 px / 129k chars) with ~45% headroom; 320px fit verified (zero overflow, panel 0…568×full)
+- Visual inspection: computed (size/fit audits); the trimmed lesson's reading flow should be eyeballed once by the owner
+- Code verification: `tsc --noEmit` clean after the corrected write (two failed attempts disclosed — both restored from git before any valid write); `vite build` clean; `practice-map.check.mjs` green except the pre-existing Go-card count drift (other agent, count 3); php lesson opens at 320 with zero overflow
+- Open question: owner re-test on iOS (the height is now ~45% under the proven-OK size — the crash should be gone; if it still crashes, the threshold is lower than Rust and the paged reader becomes the fix); some «приведённый пример» phrasings in the kept theory now refer to omitted experiments — light editorial smoothing available on request
