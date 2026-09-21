@@ -844,3 +844,15 @@ mobile top 390).
 - Visual inspection: NOT RUN as shots (arithmetically verified; surfaces visually inspected in R027/R028)
 - Code verification: headless measure — hGap 30, vGap 30, name↔cards 27px @1440; 36/36(≈), 19px @390; `tsc --noEmit` clean; `practice-map.check.mjs` green except the pre-existing Go-card count drift (other agent, count 3)
 - Open question: none — F071 relay (5 highlight variants) pending the owner's pick
+
+## Round R030
+- Goal: F071 relay integration — the chat model's five selection-carrier variants (hanging entry / warm locator / reading pointer / editorial underline / residual rule) rendered side-by-side for the owner's pick; integration of the CHOSEN variant is the next round
+- Preserved preferences: F068 (liked: minimalistic highlight; too prominent), F027 lineage (no fills), the single-line grammar (hover = ink line + full type; keyboard focus = full ochre + full type — the relay's shared footer locks this against active overrides)
+- Changes (probe-side only this round): the relay's shared foundation (selection reset: active = muted name + soft separator, lifts removed) + focus footer + reduced-motion guard were rendered via injected CSS over the shipped R027 state, one variant per shot — the file itself stays at the R027 deep-ochre trial until the owner picks
+- Before: artifacts/R027/after/top-1440.png (the shipped trial)
+- After: artifacts/R030/ (v1-hanging-entry.png … v5-residual-rule.png + comparison.png — five clips of the rail, row 01 settled-active)
+- Visual inspection: five clips read (see the round report)
+- Code verification: NOT RUN (comparison artifact; the relay's state audit covers the hover/focus collision logic; integration verification follows the pick)
+- Open question: owner pick — which variant ships
+
+- R030 correction: the first comparison sheet stacked the injected variants (each addStyleTag persisted into later shots — v4 carried v3's pointer); re-shot with a fresh page per variant, all five clips verified isolated and faithful to the relay's CSS
