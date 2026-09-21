@@ -901,16 +901,16 @@
 
 /* F077 (R035 re-gated): OFF mode adopts the fr stream's geometry, so toggling
    free reading moves no paragraph. The stream's first line sits where the
-   fr-row's slot ends — h3 + [1.6rem row + 0.4rem margin + the section gap];
+   fr-row's slot ends — h3 + [1.1rem row + 0.15rem margin + the section gap];
    the stream separates blocks by one blank line = 1.72em of the prose voice.
    Gated on the section's own is-fr class (React knows the mode; the previous
    :has(.fr-row) gates made WebKit choke on the mega-lesson's scroll — every
    frame re-walked subtrees). fr mode is untouched by these rules. */
 .practice-reader-section:not(.is-fr) > h3 {
-  padding-bottom: calc(1.6rem + 0.4rem + 0.95rem);
+  padding-bottom: calc(1.1rem + 0.15rem + 0.95rem);
 }
 .practice-reader-section:not(.is-fr) > :first-child:not(h3) {
-  margin-top: calc(1.6rem + 0.4rem + 0.95rem);
+  margin-top: calc(1.1rem + 0.15rem + 0.95rem);
 }
 .practice-reader-section:not(.is-fr)
   > :not(h3):not(.practice-reader-examples)
@@ -946,6 +946,16 @@
   font-weight: 500;
   letter-spacing: 0.05em;
   font-variant-numeric: tabular-nums;
+}
+
+/* owner 2026-09-21: the fr chrome reads quieter — while free reading is on,
+   the section title drops a step (and its number a further one); the reader's
+   OFF look is untouched (F062/F074 lineage) */
+.practice-reader-section.is-fr > h3 {
+  color: var(--ink-muted);
+}
+.practice-reader-section.is-fr > h3 span {
+  color: var(--ink-faint);
 }
 
 .practice-reader-section > p {

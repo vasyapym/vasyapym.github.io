@@ -780,9 +780,6 @@ function InteractiveSection({
               the lesson text changed since this note was last edited, so the saved text was reset
             </p>
           )}
-          {fr.consumedWords >= fr.totalWords && fr.totalWords > 0 && (
-            <p className="fr-done">✓ read through — what you keep here is yours</p>
-          )}
         </>
       ) : (
         <>

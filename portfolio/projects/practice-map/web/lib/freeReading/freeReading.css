@@ -39,13 +39,16 @@
   display: flex;
   align-items: center;
   flex-wrap: wrap;
-  gap: 0.6rem;
-  min-height: 1.6rem;
-  margin-bottom: 0.4rem;
+  /* owner 2026-09-21: the fr chrome reads quieter and takes less room —
+     tighter row, smaller slot; the F077 slot in practice-map.css re-derived
+     to these numbers so toggle parity holds. */
+  gap: 0.45rem;
+  min-height: 1.1rem;
+  margin-bottom: 0.15rem;
 }
 
 .fr-count {
-  color: var(--ink-accent);
+  color: var(--ink-muted);
   font-family: var(--mono);
   font-size: 0.72rem;
   letter-spacing: 0.05em;
@@ -127,14 +130,6 @@
   color: var(--ink-faint);
   font-size: 0.78rem;
   line-height: 1.5;
-}
-
-.fr-done {
-  margin: 0.9rem 0 0;
-  color: var(--ink-accent-bright);
-  font-family: var(--mono);
-  font-size: 0.78rem;
-  letter-spacing: 0.04em;
 }
 
 /* F078: the per-figure remove control (free reading only) — a bare register
