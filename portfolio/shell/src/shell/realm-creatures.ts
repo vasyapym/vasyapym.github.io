@@ -940,215 +940,408 @@ class PlanckCreature extends Creature {
   }
 }
 
-// 7. quicknotes — a living wiki-link web: nine note-motes strung on
-//    [[link]] filaments; a capture spark sprints the graph, flaring each
-//    note it lands on — the scratch buffer never sleeps.
-//    greeting: the web inhales to a point, blooms into a nine-spoke
-//    mandala with a spoke-by-spoke ignition and a rim chase, then eases
-//    back onto the live idle pose.
-//    budget: 24 points, 12 lines (+1 hub point, +9 spoke lines in greet).
+// 7. quicknotes — a lantern-shy link-medusa: nine "notes" (hub + squashed ring)
+//    strung on 12 filaments; a capture spark and a few link beads walk the web
+//    tip-to-tip, a tether of hairlines breathes upward from the hub, two orphan
+//    dots wait to be adopted — one hard-snaps in every ~9s, re-soldering a
+//    chord. greeting "palette summon": the tether fires, the web goes dark in
+//    ONE frame, notes teleport one by one onto a meridian arc, a caret-comb
+//    reads them down throwing hairlines at the lantern, all collapse in 4 hard
+//    steps onto one seeded match note that detonates a 9-spoke starburst, then
+//    every note flies home along its own spoke while filaments relight
+//    centre-out. All choreography derives from greetTime; the final pose IS the
+//    idle pose (no crossfade).
+//    budget (worst case): idle ~21 pts / ~21 lines · greet ~30 pts / ~38 lines.
 class NoteWebCreature extends Creature {
-  private readonly N = 9;
-  private readonly E = 12;
-  private hx = new Float32Array(9);    // home pose, fractions of radius
-  private hy = new Float32Array(9);
-  private wf = new Float32Array(9);    // wobble freq / phase / amplitude
-  private wp = new Float32Array(9);
-  private wr = new Float32Array(9);
-  private ea = new Int32Array(12);     // filament endpoints
-  private eb = new Int32Array(12);
-  private px = new Float32Array(9);    // rendered world pose
-  private py = new Float32Array(9);
-  private flare = new Float32Array(9); // spark-landing afterglow
-  private gx0 = new Float32Array(9);   // greet snapshot, local offsets
-  private gy0 = new Float32Array(9);
-  private se = 0;                      // spark: edge, param, direction
-  private st = 0;
-  private sdir = 1;
-  private sspd = 0.9;
-  private hops = 0;                    // deterministic route counter
+  private static readonly N = 9;
+  private static readonly E = 12;
+  private static readonly G = 3.2;
 
-  constructor(id: string, hue: readonly [number, number, number], fx: number, fy: number, r: number, s: number) {
-    super(id, hue, fx, fy, r, s);
+  // ── idle web ──
+  private readonly nA: Float32Array; private readonly nR: Float32Array;
+  private readonly wF: Float32Array; private readonly wP: Float32Array; private readonly wR: Float32Array;
+  private readonly hx: Float32Array; private readonly hy: Float32Array;   // live idle home (r-fractions)
+  private readonly lx: Float32Array; private readonly ly: Float32Array;   // current local pose (r-fractions)
+  private readonly wx: Float32Array; private readonly wy: Float32Array;   // world px scratch
+  private readonly eA: Int32Array;   private readonly eB: Int32Array;
+  private readonly flare: Float32Array;
+  private spE = 0; private spT = 0; private spD = 1; private hops = 0; private readonly spS: number;
+  private readonly bN: number; private readonly bE: Int32Array; private readonly bT: Float32Array;
+  private readonly bD: Int32Array; private readonly bS: Float32Array;
+  private tUp = -1; private tDown = -1; private tAckAt = -1; private tNext: number; private tCount = 0; private flashFr = 0;
+  private readonly oX: Float32Array; private readonly oY: Float32Array;
+  private oNext: number; private oSnaps = 0; private oSnapFr = 0;
+  private oFx = 0; private oFy = 0; private oTx = 0; private oTy = 0;
+
+  // ── greet ──
+  private readonly sx: Float32Array; private readonly sy: Float32Array;     // greetStart snapshot
+  private readonly arcX: Float32Array; private readonly arcY: Float32Array;
+  private readonly eKey: Float32Array; private readonly eRank: Int32Array;
+  private readonly streak: Int32Array; private readonly lanFr: Int32Array; private readonly persist: Int32Array;
+  private readonly tele: Int32Array; private readonly pass: Int32Array;
+  private greets = 0; private match = 1; private held = false; private flashed = false; private ackFired = false;
+  private burstAt = -1; private combY = -.5;
+
+  constructor(id: string, hue: readonly [number, number, number], fx: number, fy: number, r: number, seed: number) {
+    super(id, hue, fx, fy, r, seed);
     this.leanSign = 1;
-    // hub note at the centre, eight notes scattered on a squashed ring
-    this.hx[0] = 0; this.hy[0] = 0;
-    for (let i = 1; i < this.N; i++) {
-      const a = ((i - 1) / 8) * TAU + rnd((s + i * 17) | 0) * 0.9;
-      const rad = 0.38 + rnd((s + i * 31 + 5) | 0) * 0.42;
-      this.hx[i] = Math.cos(a) * rad;
-      this.hy[i] = Math.sin(a) * rad * 0.82;
+    const N = NoteWebCreature.N, E = NoteWebCreature.E, s = seed | 0;
+
+    this.nA = new Float32Array(N); this.nR = new Float32Array(N);
+    this.wF = new Float32Array(N); this.wP = new Float32Array(N); this.wR = new Float32Array(N);
+    this.hx = new Float32Array(N); this.hy = new Float32Array(N);
+    this.lx = new Float32Array(N); this.ly = new Float32Array(N);
+    this.wx = new Float32Array(N); this.wy = new Float32Array(N);
+    this.eA = new Int32Array(E);   this.eB = new Int32Array(E);
+    this.flare = new Float32Array(N);
+    this.bE = new Int32Array(6); this.bT = new Float32Array(6); this.bD = new Int32Array(6); this.bS = new Float32Array(6);
+    this.oX = new Float32Array(2); this.oY = new Float32Array(2);
+    this.sx = new Float32Array(N); this.sy = new Float32Array(N);
+    this.arcX = new Float32Array(N); this.arcY = new Float32Array(N);
+    this.eKey = new Float32Array(E); this.eRank = new Int32Array(E);
+    this.streak = new Int32Array(N); this.lanFr = new Int32Array(N); this.persist = new Int32Array(3);
+    this.tele = new Int32Array(N); this.pass = new Int32Array(N);
+
+    // hub (i=0) breathes with the same seed law as the ring
+    for (let i = 0; i < N; i++) {
+      this.wF[i] = .5 + rnd((s + i * 43 + 7) | 0) * .7;
+      this.wP[i] = rnd((s + i * 71 + 3) | 0) * TAU;
+      this.wR[i] = .03 + rnd((s + i * 97 + 11) | 0) * .035;
     }
-    for (let i = 0; i < this.N; i++) {
-      this.wf[i] = 0.5 + rnd((s + i * 43 + 7) | 0) * 0.7;
-      this.wp[i] = rnd((s + i * 71 + 3) | 0) * TAU;
-      this.wr[i] = 0.03 + rnd((s + i * 97 + 11) | 0) * 0.035;
+    for (let i = 1; i < N; i++) {
+      this.nA[i] = ((i - 1) / 8) * TAU + rnd((s + i * 17) | 0) * .9;
+      this.nR[i] = .38 + rnd((s + i * 31 + 5) | 0) * .42;
     }
-    // spanning tree keeps the graph connected; four chords are the cross-refs
-    let e = 0;
-    for (let i = 1; i < this.N; i++) {
-      this.ea[e] = i === 1 ? 0 : (rnd((s + i * 53) | 0) * i) | 0;
-      this.eb[e] = i; e++;
+    // spanning tree + 4 seeded chords
+    for (let i = 1; i < N; i++) {
+      this.eA[i - 1] = i === 1 ? 0 : ((rnd((s + i * 53) | 0) * i) | 0);
+      this.eB[i - 1] = i;
     }
-    for (let k = 0; k < 4; k++) {
-      const a = 1 + ((rnd((s + 211 + k * 37) | 0) * 8) | 0);
-      let b = 1 + ((rnd((s + 401 + k * 61) | 0) * 8) | 0);
-      if (b === a) b = 1 + (b % 8);
-      this.ea[e] = a < b ? a : b; this.eb[e] = a < b ? b : a; e++;
+    for (let k = 0; k < 4; k++) this.rewire(8 + k, s + 1000 + k * 91);
+
+    // spark
+    this.spS = .8 + rnd((s + 9) | 0) * .5;
+    this.spE = (rnd((s + 12) | 0) * E) | 0;
+    // beads 4..6
+    this.bN = 4 + ((rnd((s + 77) | 0) * 3) | 0);
+    for (let j = 0; j < 6; j++) {
+      this.bE[j] = (rnd((s + j * 19 + 2) | 0) * E) | 0;
+      this.bT[j] = rnd((s + j * 19 + 4) | 0);
+      this.bD[j] = rnd((s + j * 19 + 6) | 0) < .5 ? -1 : 1;
+      this.bS[j] = .5 + rnd((s + j * 19 + 8) | 0) * .5;
     }
-    this.st = rnd((s + 5) | 0);
-    this.sspd = 0.8 + rnd((s + 9) | 0) * 0.5;
+    // tether + orphans
+    this.tNext = 3 + rnd((s + 5) | 0) * 6;
+    this.oNext = 5 + rnd((s + 6) | 0) * 8;
+    for (let j = 0; j < 2; j++) this.placeOrphan(j, s + j * 23 + 40);
+    // initial pose = idle home
+    this.homes(0);
+    for (let i = 0; i < N; i++) { this.lx[i] = this.hx[i]; this.ly[i] = this.hy[i]; }
   }
 
-  protected greetStart(_c: CreatureContext): void {
-    // snapshot as local offsets so leans/resizes can't tear the choreography
-    for (let i = 0; i < this.N; i++) {
-      this.gx0[i] = this.px[i] - this.cx;
-      this.gy0[i] = this.py[i] - this.cy;
-      this.flare[i] = 0;
+  // ── helpers (no allocation) ──
+  private q(v: number): number { v = clamp(v, 0, 1); return ((v * 5 + .5) | 0) / 5; }   // 5 brightness rungs
+
+  private homes(T: number): void {
+    const N = NoteWebCreature.N;
+    this.hx[0] = Math.cos(T * this.wF[0] + this.wP[0]) * this.wR[0];
+    this.hy[0] = Math.sin(T * this.wF[0] * .83 + this.wP[0] * 1.7) * this.wR[0];
+    for (let i = 1; i < N; i++) {
+      const a = this.nA[i], rad = this.nR[i], ph = T * this.wF[i] + this.wP[i];
+      this.hx[i] = Math.cos(a) * rad + Math.cos(ph) * this.wR[i];
+      this.hy[i] = Math.sin(a) * rad * .82 + Math.sin(ph * .83 + this.wP[i] * 1.7) * this.wR[i];
     }
+  }
+
+  // swap one chord for a fresh seeded pair; duplicate-checked, tree untouched
+  private rewire(e: number, k: number): void {
+    const N = NoteWebCreature.N, E = NoteWebCreature.E;
+    for (let t = 0; t < 12; t++) {
+      const a = (rnd((k + t * 7) | 0) * N) | 0, b = (rnd((k + t * 7 + 3) | 0) * N) | 0;
+      if (a === b) continue;
+      let dup = false;
+      for (let j = 0; j < E; j++) {
+        if (j === e) continue;
+        if ((this.eA[j] === a && this.eB[j] === b) || (this.eA[j] === b && this.eB[j] === a)) { dup = true; break; }
+      }
+      if (!dup) { this.eA[e] = a; this.eB[e] = b; return; }
+    }
+  }
+
+  private adj(node: number, k: number): number {
+    const E = NoteWebCreature.E;
+    let c = 0;
+    for (let e = 0; e < E; e++) if (this.eA[e] === node || this.eB[e] === node) c++;
+    if (c === 0) return (rnd(k | 0) * E) | 0;
+    let pick = (rnd(k | 0) * c) | 0;
+    for (let e = 0; e < E; e++) if (this.eA[e] === node || this.eB[e] === node) { if (pick === 0) return e; pick--; }
+    return 0;
+  }
+
+  private placeOrphan(j: number, k: number): void {
+    const a = rnd(k | 0) * TAU, rad = 1 + rnd((k + 1) | 0) * .2;
+    this.oX[j] = Math.cos(a) * rad; this.oY[j] = Math.sin(a) * rad * .85;
+  }
+
+  private snapOrphan(): void {
+    const N = NoteWebCreature.N, s = this.seed | 0, j = this.oSnaps & 1;
+    let best = 0, bd = 1e9;
+    for (let i = 0; i < N; i++) {
+      const dx = this.lx[i] - this.oX[j], dy = this.ly[i] - this.oY[j], d = dx * dx + dy * dy;
+      if (d < bd) { bd = d; best = i; }
+    }
+    this.oFx = this.oX[j]; this.oFy = this.oY[j]; this.oTx = this.lx[best]; this.oTy = this.ly[best];
+    this.oSnapFr = 2;
+    if (this.flare[best] < .8) this.flare[best] = .8;
+    this.rewire(8 + (this.oSnaps & 3), s + 500 + this.oSnaps * 37);   // swap one chord, count constant
+    this.oSnaps++;
+    this.placeOrphan(j, s + 40 + this.oSnaps * 23 + j * 5);
+  }
+
+  // ── hooks ──
+  protected greetStart(_c: CreatureContext): void {
+    const N = NoteWebCreature.N, s = this.seed | 0, T = this.motionTime;
+    this.greets++;
+    this.match = 1 + ((rnd((s + 313 + this.greets * 17) | 0) * 8) | 0);
+    let n = 0;
+    for (let t = 0; n < 3 && t < 40; t++) {
+      const p = (rnd((s + 900 + this.greets * 31 + t * 13) | 0) * N) | 0;
+      let dup = false;
+      for (let j = 0; j < n; j++) if (this.persist[j] === p) dup = true;
+      if (!dup) this.persist[n++] = p;
+    }
+    // snapshot poses as local offsets; arc slots
+    for (let i = 0; i < N; i++) {
+      this.sx[i] = this.lx[i]; this.sy[i] = this.ly[i];
+      const p = i / (N - 1);
+      this.arcY[i] = -.5 + p;
+      this.arcX[i] = .15 + Math.sin(p * Math.PI) * .12;
+    }
+    // relight order: centre-out by filament midpoint distance from hub home
+    for (let e = 0; e < NoteWebCreature.E; e++) {
+      const a = this.eA[e], b = this.eB[e];
+      const mx = (this.hx[a] + this.hx[b]) * .5 - this.hx[0], my = (this.hy[a] + this.hy[b]) * .5 - this.hy[0];
+      this.eKey[e] = mx * mx + my * my;
+    }
+    for (let e = 0; e < NoteWebCreature.E; e++) {
+      let rk = 0;
+      for (let f = 0; f < NoteWebCreature.E; f++)
+        if (this.eKey[f] < this.eKey[e] || (this.eKey[f] === this.eKey[e] && f < e)) rk++;
+      this.eRank[e] = rk;
+    }
+    this.streak.fill(0); this.lanFr.fill(0); this.tele.fill(0); this.pass.fill(0);
+    this.burstAt = -1; this.flashed = false; this.ackFired = false; this.held = false;
+    this.tUp = -1; this.tDown = -1; this.tAckAt = -1; this.flashFr = 0;
+    this.tNext = T + NoteWebCreature.G + 3 + rnd((s + 60 + this.greets) | 0) * 3;
+    this.oNext = T + NoteWebCreature.G + 5 + rnd((s + 61 + this.greets) | 0) * 6;
   }
 
   protected updateMotion(c: CreatureContext): void {
+    const N = NoteWebCreature.N, G = NoteWebCreature.G, s = this.seed | 0;
+    const dt = this.step, T = this.motionTime, g = this.greetTime;
+    const inG = g > 0 && g < G;
     this.x = this.cx; this.y = this.cy;
-    const r = this.radius, dt = this.step, t = this.motionTime;
+    this.homes(T);
 
-    if (c.reduced) {
-      for (let i = 0; i < this.N; i++) {
-        this.px[i] = this.cx + this.hx[i] * r;
-        this.py[i] = this.cy + this.hy[i] * r;
-        this.flare[i] = i === 0 ? 0.5 : 0;
+    // frame counters + idle flare decay
+    const dk = Math.exp(-2.6 * dt);
+    for (let i = 0; i < N; i++) {
+      this.flare[i] *= dk;
+      if (this.streak[i] > 0) this.streak[i]--;
+      if (this.lanFr[i] > 0) this.lanFr[i]--;
+    }
+    if (this.flashFr > 0) this.flashFr--;
+    if (this.oSnapFr > 0) this.oSnapFr--;
+
+    if (c.reduced) {                        // reduced law: static held form
+      this.held = inG;
+      for (let i = 0; i < N; i++) {
+        if (inG) { this.lx[i] = this.arcX[i]; this.ly[i] = this.arcY[i]; }
+        else { this.lx[i] = this.hx[i]; this.ly[i] = this.hy[i]; }
       }
-      this.st = 0.5;
+      if (inG) {
+        this.flare[this.match] = 1;
+        for (let j = 0; j < 3; j++) this.lanFr[this.persist[j]] = 99;
+      }
+      this.tUp = -1; this.tDown = -1;
       return;
     }
 
-    for (let i = 0; i < this.N; i++) this.flare[i] *= Math.exp(-2.6 * dt);
-
-    const g = this.greetTime, G = 3.4;
-    if (g > 0 && g < G) {
-      // contract -> bloom -> spin -> blend onto the live idle pose
-      const spin = g > 1.5 ? (g - 1.5) * 0.55 : 0;
-      for (let i = 0; i < this.N; i++) {
-        const ma = (i / this.N) * TAU - Math.PI * 0.5 + spin;
-        const mr = i === 0 ? 0 : 0.70 * r;
-        const mx = this.cx + Math.cos(ma) * mr;
-        const my = this.cy + Math.sin(ma) * mr * 0.92;
-        const qx = this.cx + this.hx[i] * r * 0.10;  // pinch pose
-        const qy = this.cy + this.hy[i] * r * 0.10;
-        if (g < 0.45) {
-          const k = smooth(g / 0.45);
-          this.px[i] = this.cx + this.gx0[i] + (qx - this.cx - this.gx0[i]) * k;
-          this.py[i] = this.cy + this.gy0[i] + (qy - this.cy - this.gy0[i]) * k;
-        } else if (g < 1.5) {
-          const k = smooth((g - 0.45) / 1.05);
-          this.px[i] = qx + (mx - qx) * k;
-          this.py[i] = qy + (my - qy) * k;
-        } else if (g < 2.4) {
-          this.px[i] = mx; this.py[i] = my;
-        } else {
-          const k = smooth((g - 2.4) / 1.0);
-          const ix = this.cx + (this.hx[i] + Math.cos(t * this.wf[i] + this.wp[i]) * this.wr[i]) * r;
-          const iy = this.cy + (this.hy[i] + Math.sin(t * this.wf[i] * 0.83 + this.wp[i] * 1.7) * this.wr[i]) * r;
-          this.px[i] = mx + (ix - mx) * k;
-          this.py[i] = my + (iy - my) * k;
+    if (!inG) {
+      this.held = false;
+      for (let i = 0; i < N; i++) { this.lx[i] = this.hx[i]; this.ly[i] = this.hy[i]; }
+      // capture spark walks edges
+      this.spT += dt * this.spS * (1 + this.glow * .8);
+      if (this.spT >= 1) {
+        const arr = this.spD > 0 ? this.eB[this.spE] : this.eA[this.spE];
+        this.flare[arr] = 1;
+        this.hops++;
+        this.spE = this.adj(arr, s + this.hops * 29);
+        this.spD = this.eA[this.spE] === arr ? 1 : -1;
+        this.spT -= 1;
+      }
+      // link beads
+      for (let j = 0; j < this.bN; j++) {
+        this.bT[j] += dt * this.bS[j];
+        if (this.bT[j] >= 1) {
+          const e = this.bE[j], arr = this.bD[j] > 0 ? this.eB[e] : this.eA[e];
+          if (this.flare[arr] < .6) this.flare[arr] = .6;
+          const ne = (e + 1 + ((rnd((s + j * 13 + e * 5 + 2) | 0) * (NoteWebCreature.E - 2)) | 0)) % NoteWebCreature.E;
+          this.bE[j] = ne;
+          this.bD[j] = this.eA[ne] === arr ? 1 : (this.eB[ne] === arr ? -1 : (rnd((s + j * 13 + e * 5 + 9) | 0) < .5 ? -1 : 1));
+          this.bT[j] -= 1;
         }
       }
-      return; // spark waits at the hub; st/se untouched so it resumes cleanly
-    }
-
-    for (let i = 0; i < this.N; i++) {
-      this.px[i] = this.cx + (this.hx[i] + Math.cos(t * this.wf[i] + this.wp[i]) * this.wr[i]) * r;
-      this.py[i] = this.cy + (this.hy[i] + Math.sin(t * this.wf[i] * 0.83 + this.wp[i] * 1.7) * this.wr[i]) * r;
-    }
-
-    // the capture spark walks the graph; route is seeded, never Math.random
-    this.st += dt * this.sspd * (1 + this.glow * 0.8);
-    if (this.st >= 1) {
-      this.st -= 1;
-      const landed = this.sdir > 0 ? this.eb[this.se] : this.ea[this.se];
-      this.flare[landed] = 1;
-      this.hops = (this.hops + 1) | 0;
-      let count = 0;
-      for (let e = 0; e < this.E; e++) if (this.ea[e] === landed || this.eb[e] === landed) count++;
-      if (count > 0) {
-        let k = (rnd((this.seed + this.hops * 131) | 0) * count) | 0;
-        for (let e = 0; e < this.E; e++) {
-          if (this.ea[e] !== landed && this.eb[e] !== landed) continue;
-          if (k === 0) { this.se = e; this.sdir = this.ea[e] === landed ? 1 : -1; break; }
-          k--;
-        }
+      // tether: bead up every ~6s, ack down +1.4s
+      if (this.tUp < 0 && T >= this.tNext) {
+        this.tUp = 0; this.tAckAt = T + 1.4; this.tCount++;
+        this.tNext = T + 5 + rnd((s + this.tCount * 47) | 0) * 2;
       }
+      if (this.tUp >= 0) { this.tUp += dt / .7; if (this.tUp >= 1) this.tUp = -1; }
+      if (this.tAckAt > 0 && T >= this.tAckAt) { this.tDown = 0; this.tAckAt = -1; }
+      if (this.tDown >= 0) { this.tDown += dt / .7; if (this.tDown >= 1) this.tDown = -1; }
+      // orphan adoption ~9s cycle
+      if (T >= this.oNext) {
+        this.snapOrphan();
+        this.oNext = T + 7.5 + rnd((s + 80 + this.oSnaps * 41) | 0) * 3;
+      }
+      return;
+    }
+
+    // ── greeting ──
+    const m = this.match;
+    this.held = false;
+    // 0-.12 tether bead fires up, flash at far end
+    if (g < .12) { this.tUp = g / .12; }
+    else if (!this.flashed) { this.flashed = true; this.flashFr = 2; this.tUp = -1; }
+    // node poses: teleport one by one, collapse onto the match, fly home
+    for (let i = 0; i < N; i++) {
+      const t0 = .30 + i * .05;
+      if (g < t0) { this.lx[i] = this.sx[i]; this.ly[i] = this.sy[i]; }
+      else if (g < 1.6) {
+        if (this.tele[i] === 0) { this.tele[i] = 1; this.streak[i] = 2; }
+        this.lx[i] = this.arcX[i]; this.ly[i] = this.arcY[i];
+      } else if (g < 2.1) {
+        const st = clamp((((g - 1.6) / .125) | 0) + 1, 1, 4) / 4;
+        this.lx[i] = this.arcX[i] + (this.arcX[m] - this.arcX[i]) * st;
+        this.ly[i] = this.arcY[i] + (this.arcY[m] - this.arcY[i]) * st;
+      } else {
+        const u = smooth(clamp((g - (2.1 + i * .022)) / .5, 0, 1));
+        this.lx[i] = this.arcX[this.match] + (this.hx[i] - this.arcX[this.match]) * u;
+        this.ly[i] = this.arcY[this.match] + (this.hy[i] - this.arcY[this.match]) * u;
+      }
+    }
+    // .85-1.6 caret-comb walks down the arc
+    if (g >= .85 && g < 1.6) {
+      this.combY = -.5 + (g - .85) / .75;
+      for (let i = 0; i < N; i++) {
+        if (this.pass[i] !== 0 || this.arcY[i] > this.combY) continue;
+        this.pass[i] = 1; this.flare[i] = 1;
+        let keep = false;
+        for (let j = 0; j < 3; j++) if (this.persist[j] === i) keep = true;
+        this.lanFr[i] = keep ? 9999 : 2;
+      }
+    }
+    if (g >= 1.6) for (let i = 0; i < N; i++) if (this.lanFr[i] > 2) this.lanFr[i] = 0;   // persist ends at jump
+    // match detonates at the last hard step
+    if (g >= 1.975 && this.burstAt < 0) { this.burstAt = 1.975; this.flare[m] = 1; }
+    // 2.86-3.2 tether ack drops, one orphan snaps in
+    if (g >= 2.86) {
+      this.tDown = (g - 2.86) / .34;
+      if (!this.ackFired) { this.ackFired = true; this.snapOrphan(); }
     }
   }
 
   protected emitBody(c: CreatureContext, cam: CameraView, out: Emitter): void {
-    const gl = this.glow, pulse = this.redPulse(c), g = this.greetTime, G = 3.4;
-    const inG = g > 0 && g < G && !c.reduced;
-    const fadeOut = inG && g > 2.4 ? 1 - smooth((g - 2.4) / 1.0) : 1;
+    const N = NoteWebCreature.N, E = NoteWebCreature.E, G = NoteWebCreature.G;
+    const r = this.radius, cx = this.cx, cy = this.cy, g = this.greetTime, T = this.motionTime, gl = this.glow;
+    const inG = g > 0 && g < G, held = this.held, m = this.match;
+    const pulse = this.redPulse(c);
+    const wx = this.wx, wy = this.wy;
+    for (let i = 0; i < N; i++) { wx[i] = cx + this.lx[i] * r; wy[i] = cy + this.ly[i] * r; }
 
-    // filaments
-    for (let e = 0; e < this.E; e++) {
-      const a = this.ea[e], b = this.eb[e];
-      const shim = c.reduced ? 0.5 : 0.5 + 0.5 * Math.sin(this.motionTime * 1.4 + e * 1.9 + this.seed);
-      let la = 0.09 + shim * 0.07 + gl * 0.08;
-      if (e === this.se && !inG && !c.reduced) la += 0.10; // the spark's live link glows
-      this.seg(cam, out, this.px[a], this.py[a], this.px[b], this.py[b], 1.3, 0.06, clamp(la, 0, 1));
+    // filaments (house width/ink; relight centre-out; dark in one frame)
+    for (let e = 0; e < E; e++) {
+      let vis = true;
+      if (inG) { if (held) vis = false; else if (g >= .12) vis = g >= 2.1 + (this.eRank[e] / (E - 1)) * .7; }
+      if (!vis) continue;
+      const sh = .5 + .5 * Math.sin(T * 1.4 + e * 1.9 + this.seed);
+      let al = .09 + sh * .07 + gl * .08;
+      if (!inG && e === this.spE) al += .10;
+      const a = this.eA[e], b = this.eB[e];
+      this.seg(cam, out, wx[a], wy[a], wx[b], wy[b], 1.3, .06, clamp(al, 0, 1));
     }
 
-    // greet: spokes ignite hub->rim, hub burns, all of it fades in the handback
-    if (inG) {
-      for (let i = 1; i < this.N; i++) {
-        const ig = clamp((g - 0.5) * 3.2 - (i - 1) * 0.24, 0, 1);
-        if (ig <= 0.02) continue;
-        this.seg(cam, out, this.cx, this.cy, this.px[i], this.py[i], 1.6, 0.16,
-          clamp(ig * fadeOut * (0.34 + pulse * 0.25), 0, 1));
+    // spark + halo, beads (live web only)
+    if (!inG) {
+      const a = this.eA[this.spE], b = this.eB[this.spE], u = this.spD > 0 ? this.spT : 1 - this.spT;
+      const px = wx[a] + (wx[b] - wx[a]) * u, py = wy[a] + (wy[b] - wy[a]) * u;
+      this.dot(cam, out, px, py, 8, .04, .13 + gl * .08);
+      this.dot(cam, out, px, py, 3.4, .34, clamp(.7 + gl * .2 + pulse * .2, 0, 1));
+      for (let j = 0; j < this.bN; j++) {
+        const e = this.bE[j], ba = this.eA[e], bb = this.eB[e], bu = this.bD[j] > 0 ? this.bT[j] : 1 - this.bT[j];
+        this.dot(cam, out, wx[ba] + (wx[bb] - wx[ba]) * bu, wy[ba] + (wy[bb] - wy[ba]) * bu, 1.6, .2, .45 + gl * .15);
       }
-      this.dot(cam, out, this.cx, this.cy, 5 + pulse * 3, 0.26,
-        clamp((0.5 + gl * 0.2) * Math.min(1, g * 3) * fadeOut + pulse * 0.2, 0, 1));
     }
 
-    // notes
-    for (let i = 0; i < this.N; i++) {
-      let br = 0.38 + gl * 0.22 + this.flare[i] * 0.5;
-      let sz = 2.5 + this.flare[i] * 2.2 + (i === 0 ? 0.6 : 0);
-      if (inG) {
-        const ig = i === 0 ? 0 : clamp((g - 0.5) * 3.2 - (i - 1) * 0.24, 0, 1);
-        const flash = ig * (1 - ig) * 4;             // bell as each spoke lands
-        let cgp = 0;
-        if (g > 1.5) {                                // rim chase while spinning
-          const chase = ((g - 1.5) * 3.2) % this.N;
-          let d = Math.abs(i - chase); if (d > this.N * 0.5) d = this.N - d;
-          cgp = clamp(1 - d * 0.85, 0, 1) * fadeOut;
+    // tether: 9 rising hairlines from hub, traveling crest, far end fades
+    const tx = wx[0], ty = wy[0], seg9 = (.95 * r) / 9;
+    const crest = held ? -1 : ((((T * 1.4) % 1) * 9) | 0);
+    for (let k = 0; k < 9; k++) {
+      const y0 = ty - k * seg9, y1 = y0 - seg9 * .78, fade = 1 - (k / 9) * .75, cr = k === crest;
+      this.seg(cam, out, tx, y0, tx, y1, cr ? .8 : .4, cr ? .2 : .06,
+        clamp((.07 + gl * .05) * fade + (cr ? .12 : 0), 0, 1));
+    }
+    if (this.tUp >= 0) this.dot(cam, out, tx, ty - this.tUp * .95 * r, 2.2, .3, .8);
+    if (this.tDown >= 0) this.dot(cam, out, tx, ty - (1 - clamp(this.tDown, 0, 1)) * .95 * r, 2.2, .3, .8);
+    if (this.flashFr > 0) this.dot(cam, out, tx, ty - .95 * r, 4, .38, 1);
+
+    // notes — arrival flares ride the same dot; hub carries the extra mass
+    for (let i = 0; i < N; i++) {
+      let fl = this.flare[i];
+      if (inG && i === 0 && g >= .12 && fl < .6) fl = .6;                 // glowing hub
+      const br = .38 + gl * .22 + fl * .5 + pulse * .2;
+      const sz = 2.5 + fl * 2.2 + (i === 0 ? .6 : 0);
+      this.dot(cam, out, wx[i], wy[i], sz, clamp(.10 + fl * .18, 0, .38), inG ? this.q(clamp(br, 0, 1)) : clamp(br, 0, 1));
+    }
+
+    // orphan drifters + the hard-snap afterimage
+    for (let j = 0; j < 2; j++)
+      this.dot(cam, out, cx + this.oX[j] * r, cy + this.oY[j] * r, 1.6, .05, .3 + gl * .1);
+    if (this.oSnapFr > 0) {
+      const fx = cx + this.oFx * r, fy = cy + this.oFy * r, txx = cx + this.oTx * r, tyy = cy + this.oTy * r;
+      this.seg(cam, out, fx, fy, txx, tyy, .6, .3, .7);
+      this.dot(cam, out, txx, tyy, 3, .38, 1);
+    }
+
+    if (!inG) return;
+
+    // teleport streaks (2 frames at the departure point)
+    for (let i = 0; i < N; i++) if (this.streak[i] > 0)
+      this.seg(cam, out, cx + this.sx[i] * r, cy + this.sy[i] * r, wx[i], wy[i], .8, .3, .6);
+    // caret-comb
+    if (!held && g >= .85 && g < 1.6) {
+      const p = clamp(this.combY + .5, 0, 1), ax = cx + (.15 + Math.sin(p * Math.PI) * .12) * r, ay = cy + this.combY * r;
+      this.seg(cam, out, ax - .06 * r, ay, ax + .06 * r, ay, 1.3, .38, 1);
+    }
+    // hairlines thrown to the lantern (3 seeded persist until the jump)
+    const L = c.lantern, li = clamp(L.intensity, 0, 1);
+    for (let i = 0; i < N; i++) if (this.lanFr[i] > 0)
+      this.seg(cam, out, wx[i], wy[i], L.x, L.y, .5, .25, this.q(this.lanFr[i] > 2 ? .35 + li * .3 : .8));
+    // 9-spoke starburst at the detonation point, ~.3s, rung-decayed
+    if (!held && this.burstAt >= 0) {
+      const age = g - this.burstAt;
+      if (age >= 0 && age < .3) {
+        const k5 = this.q(1 - age / .3), len = (.1 + .3 * (1 - k5)) * r;
+        const bx = cx + this.arcX[m] * r, by = cy + this.arcY[m] * r;
+        for (let k = 0; k < 9; k++) {
+          const a = (k / 9) * TAU + rnd((this.seed + k * 7 + 3) | 0) * .3;
+          this.seg(cam, out, bx, by, bx + Math.cos(a) * len, by + Math.sin(a) * len, 1.0, .35, k5);
         }
-        const hot = flash > cgp ? flash : cgp;
-        br = Math.max(br, 0.45 + hot * 0.55 + pulse * 0.2);
-        sz += hot * 2.6;
-      }
-      this.dot(cam, out, this.px[i], this.py[i], sz, 0.10 + this.flare[i] * 0.18, clamp(br, 0, 1));
-      if (this.flare[i] > 0.08)
-        this.dot(cam, out, this.px[i], this.py[i], 6.5 + this.flare[i] * 4, 0.03, 0.12 * this.flare[i]);
-    }
-
-    // the capture spark + short comet tail along its link
-    const ta = this.ea[this.se], tb = this.eb[this.se];
-    const tt = this.sdir > 0 ? this.st : 1 - this.st;
-    const sx = inG ? this.cx : this.px[ta] + (this.px[tb] - this.px[ta]) * tt;
-    const sy = inG ? this.cy : this.py[ta] + (this.py[tb] - this.py[ta]) * tt;
-    this.dot(cam, out, sx, sy, 3.4, 0.34, clamp(0.7 + gl * 0.2 + pulse * 0.2, 0, 1));
-    this.dot(cam, out, sx, sy, 8, 0.04, 0.13 + gl * 0.08);
-    if (!inG && !c.reduced) {
-      for (let k = 1; k <= 3; k++) {
-        const bt = clamp(tt - this.sdir * k * 0.07, 0, 1);
-        this.dot(cam, out,
-          this.px[ta] + (this.px[tb] - this.px[ta]) * bt,
-          this.py[ta] + (this.py[tb] - this.py[ta]) * bt,
-          2.2 - k * 0.4, 0.10, 0.26 / k);
       }
     }
   }
 }
-
 // 8. waste-of-tokens (practice-map) — a token pyre: stray token-motes sink
 //    into a glowing maw and burn; every burn pushes a fresh ember onto a
 //    slowly turning spiral archive, bright lessons cooling into dim history

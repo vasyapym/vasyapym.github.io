@@ -161,3 +161,44 @@ approaches on a far click (greeting + sound fire at click time instead).
   (R004) is opened to raise the ceiling. Four chat-model outputs are under
   evaluation (link-medusa / kodama nymph / markdown siphonophore / cold
   siphonophore).
+
+## Round R004
+- Goal: raise quicknotes' creature to "brilliant" (owner directive F002) —
+  redesign on the approved MARGINALIA direction (link-medusa + palette-summon
+  greeting), replacing the mandala bloom.
+- Preserved preferences: F001 (approach-then-greet law, wiki-link identity),
+  idle web geometry kept (hub + squashed ring, wobble seeds, 12 filaments,
+  capture spark), reduced-motion static forms, door hues, door/keyboard paths.
+- Delegation + routing experiment: compressed self-contained brief (~430
+  words, SPEC-QN7 telegraphic) run twice on the randomized-routing endpoint;
+  two different models answered (owner-echoed "smartest" and "good"). Owner
+  chose the smartest-model class as the salvage base (creative-ceiling call);
+  orchestrator merged in the good-model class' ideas where stronger.
+- Changes: `realm-creatures.ts` — NoteWebCreature rewritten. Idle keeps the
+  approved web + spark, adds ≤6 link beads (blink-hop seeded rotation,
+  arrival flares), a 9-segment tether rising ≤0.95r with traveling crest +
+  bead up every ~6s / ack down +1.4s, 2 orphan dots with ~9s hard-snap
+  adoption (duplicate-checked chord swap, count constant — from the good-
+  model reply). Greeting 3.2s "palette summon": links dark in one frame →
+  50ms-staggered teleports onto a meridian arc (2-frame departure streaks) →
+  caret-comb walks the arc, each note flares + throws a hairline to the
+  lantern (3 seeded persist until the jump) → 4-hard-step collapse onto the
+  match → 9-spoke starburst (~.3s, rung-decayed) → return along spokes
+  staggered 22ms, filaments relight centre-out → tether ack + orphan snap-in,
+  final pose IS the idle pose. Salvage repairs: id string (was number),
+  protected typed hooks, reduced-motion law restored (idle freezes; held
+  mid-summon pose in greet), house wobble formula (was ×3 speed drift),
+  house filament width 1.3 + white .06, house spark/note alphas, redPulse
+  wired back in.
+- Before: artifacts/R003/after-seq (mandala greet) + baseline-seq.
+- After: artifacts/R004/after-seq/greet-{0900,1700,2700}.png.
+- Visual inspection: all three phases read as images — 900ms: web dark,
+  notes on the arc, caret-comb + lantern hairlines legible; 1700ms: collapse
+  + 9-spoke starburst detonation at the match; 2700ms: relit web, notes home,
+  handback clean. Tether reads as a thin rising filament, no neighbour
+  collisions. 900ms comb line sits close under the lantern — minor.
+- Code verification: `npm --prefix portfolio run typecheck` PASS; `npm run
+  build` PASS; `tests/realm-probe.mjs` PASS (169 checks, CHROME_PATH).
+- Open question: owner verdict on the palette-summon greeting (legibility of
+  the arc phase, starburst size, tether prominence) and on the idle additions
+  (beads/tether/orphans). Audio untouched ('jot' stays; ear-check still open).
