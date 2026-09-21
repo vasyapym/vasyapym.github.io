@@ -202,3 +202,18 @@ approaches on a far click (greeting + sound fire at click time instead).
 - Open question: owner verdict on the palette-summon greeting (legibility of
   the arc phase, starburst size, tether prominence) and on the idle additions
   (beads/tether/orphans). Audio untouched ('jot' stays; ear-check still open).
+
+## Feedback F003
+- Round: R004 + prominence pass (tier 1)
+- Verdict: ACCEPTED (mild — "it is ok")
+- Scope: the MARGINALIA palette-summon creature as shipped, and the ×1.2
+  material prominence bump (quicknotes + waste-of-tokens)
+- Decision: accepted as shipped; owner ambivalent — "not sure" whether the
+  prominence bump is enough; tier 2 (DPR/viewport ink floor, interact-ring /
+  star-field contrast) parked for a next session by owner instruction
+- User source: "i am not sure. but it is ok. lets finish" (owner, 2026-09-21)
+- Artifact: /tmp/opencode/prom/{baseline,after}/ (session-scratch shots);
+  pass record portfolio/shell/.agent/iterations/code/creature-prominence/
+- Supersedes: none
+- Note: on-device iOS Safari ear/eye checks remain the standing open items
+  (audio from R002, mobile prominence from this pass)
