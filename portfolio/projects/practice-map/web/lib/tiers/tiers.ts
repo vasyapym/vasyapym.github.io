@@ -19,7 +19,7 @@ export type Tier = {
 export type { TopicCard };
 
 export const TIERS: readonly Tier[] = [
-  { id: "astra-6-max", name: "astra-6-max", band: "max", areas: ["ddos", "lanthimos", "zeitgeist"] },
+  { id: "astra-6-max", name: "astra-6-max", band: "max", areas: ["ddos", "lanthimos", "zeitgeist", "japan"] },
   { id: "fable-5.1-high", name: "fable-5.1-high", band: "high", areas: ["kubernetes", "hitchcock", "agentic-programming", "agi"] },
   { id: "astra-6-medium", name: "astra-6-medium", band: "medium", areas: ["rust", "php-frameworks"] },
   { id: "fable-5.1-low", name: "fable-5.1-low", band: "low", areas: ["go", "spirit-of-time", "darwin"] },
