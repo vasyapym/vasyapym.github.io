@@ -518,3 +518,55 @@ mobile top 390).
 - Visual inspection: four shots read. Desktop: search reads as a register line over a hairline (not a widget), active row = definite surface, cards visibly lighter yet hierarchy intact (topline → title → summary → foot). Faces: same 1.25rem scale, one grammar with cards. Volume view: crumb instrument intact, cards lighter. Mobile 390: three distinct bands — list │ air │ search band │ air │ h2+cards — the one-block read is gone. Overflow 0px at 1440/1024/700/560/390/320
 - Code verification: computed audits — search bg transparent/radius 0/hairline 1px @0.13α, card h3 19.44px @1440 (1.35vw mid-clamp, cap engages >1482px), p 13px, topline 11px, active bg = --ink-panel (computed 0.043), hover = full-text lift with NO surface wash, mobile search full content width (358px = 390vw − page padding), gaps 34px (≤700) / 28px (≤560); `tsc --noEmit` clean; `practice-map.check.mjs` — the same two pre-existing baseline failures (ArrowRight flake; Go-card count now reads 3 — the other agent's in-flight lesson wiring keeps drifting, unrelated to this round's CSS)
 - Open question: owner verdict on the four refinements — especially the bare-ledger search (F038/F039) and the type-wake highlight device (F041). iOS Safari width behavior is structurally fixed but unverified on a real device — owner device check invited
+
+## Feedback F043
+- Round: none (owner batch, 2026-09-20, post-R019 review)
+- Verdict: REJECTED (scale + spacing)
+- Scope: hero section (masthead) — text size + surrounding whitespace, DESKTOP
+- Decision: reduce the text size by ~10% and tighten the surrounding whitespace by a similar margin
+- User source: item 1: «Hero section (desktop): Reduce the text size by approximately 10% and tighten the surrounding whitespace by a similar margin.»
+
+## Feedback F044
+- Round: none (owner batch, 2026-09-20, post-R019 review)
+- Verdict: REJECTED (treatment) + LIKED (the reference device)
+- Scope: model selection styling (.pg-tier-row active state) — reference: the search bar's single-line highlight
+- Decision: LIKED: the single-line highlight effect used for the search bar selection. Apply the same treatment to the model choice options — the current full-card (full-row surface) highlight feels inconsistent with the archival aesthetic
+- User source: item 2: «Model selection styling: I like the single-line highlight effect used for the search bar selection. Apply the same treatment to the model choice options — the current full-card highlight feels inconsistent with the archival aesthetic.»
+
+## Feedback F045
+- Round: none (owner batch, 2026-09-20, post-R019 review)
+- Verdict: REJECTED (inconsistency)
+- Scope: "Open Lesson" (.pg-card-foot .pg-pill) and "Go Back" (.pg-crumb-back) buttons
+- Decision: extend that same single-line highlight effect and visual style to these buttons for consistency
+- User source: item 3: «Button styling: Extend that same highlight effect and visual style to the "Open Lesson" and "Go Back" buttons for consistency.»
+
+## Feedback F046
+- Round: none (owner batch, 2026-09-20, post-R019 review)
+- Verdict: REJECTED (alignment)
+- Scope: the opened lesson view (.practice-lesson-overlay/.practice-lesson-panel and its contents)
+- Decision: the opened lesson view doesn't align with the archival look — apply the necessary adjustments to bring it in line with the rest of the design
+- User source: item 4: «Lesson view: The opened lesson view doesn't align with the archival look. Apply the necessary adjustments to bring it in line with the rest of the design.»
+
+## Feedback F047
+- Round: none (owner batch, 2026-09-20, post-R019 review)
+- Verdict: REJECTED (scale)
+- Scope: lesson window typography — DESKTOP
+- Decision: increase font sizes by ~10% within the lesson window
+- User source: item 5: «Lesson typography (desktop): Increase font sizes by approximately 10% within the lesson window.»
+
+## Feedback F048
+- Round: none (owner batch, 2026-09-20, post-R019 review)
+- Verdict: REJECTED (focus)
+- Scope: lesson window overall — reading focus
+- Decision: the lesson window should evoke a more focused, distraction-free reading experience — the content and text should be the sole point of attention
+- User source: item 6: «Focused reading mode: Overall, the lesson window should evoke a more focused, distraction-free reading experience — the content and text should be the sole point of attention.»
+
+## Round R020
+- Goal: direct leg of the post-R019 batch — F043 (hero desktop: text −10% + surrounding whitespace −10%) + F047 (lesson window type +10%, desktop) — orchestrator-direct: pure clamp/divisor arithmetic, no design choices to delegate; the design asks (F044 model-row highlight, F045 buttons, F046 lesson-view alignment, F048 focused reading) go to the chat-model relay next
+- Preserved preferences: F009 (h1 copy verbatim), F030 (mobile subtext floor — mobile hero bands untouched), F019/F025 masthead register, lesson mono chrome (kicker/footer/figcaption/section numbers) deliberately untouched to keep the hierarchy's voices
+- Changes: `practice-map.css` — hero padding ×0.9 (clamp(0.5,1.5vw,1.1rem)→clamp(0.45,1.35vw,0.99rem) top; clamp(2.1,4.9vw,3.85rem)→clamp(1.89,4.41vw,3.47rem) bottom), h1 clamp divisor 19→21 + cap 3.9→3.51rem (subtext em-proportion rides along); new `@media (min-width: 901px)` lesson-type block — h2 clamp cap 1.3→1.43rem (1.8→1.98vw), reader h3 1.18→1.3rem, reader/lesson body p+li max(1.1,17.6px)→max(1.21rem,19.36px), objectives ul 0.88→0.97rem, callout p 0.92→1.01rem, example pre 0.78→0.86rem, example p 0.82→0.9rem
+- Before: artifacts/R020/before/ (hero-1440, hero-1024, lesson-1440)
+- After: artifacts/R020/after/ (same three views)
+- Visual inspection: before/after shots at 1440 read. Masthead visibly smaller over a tighter field (computed 62.4→56.16px = −10.0%; padding 17.6→15.84 / 61.6→55.52 = −10.0% both); lesson window body text visibly larger (body 17.6→19.36px = +10.0%, h2 20.8→22.88, h3 18.88→20.8 — all +10.0%); layout rhythm below the hero unaffected
+- Code verification: `tsc --noEmit` clean; `practice-map.check.mjs` — the same two pre-existing baseline failures (ArrowRight flake; Go-card count now reads 3, other agent's drift, unrelated); headless probe: docΔ overflow 0px at 1440/1024/700/560/390/320, zero console/page errors
+- Open question: none on this leg (owner-supplied arithmetic); next: R021 relay brief (F044+F045 single-line highlight language), then R022 relay (F046+F048 lesson-window archival redesign)

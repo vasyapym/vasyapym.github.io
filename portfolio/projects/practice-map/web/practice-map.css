@@ -49,9 +49,10 @@
    removed by owner decision; the prominence comes from the type scale and
    the breathing space beneath the verdict. No panel skin, no ochre, no
    entrance, no weight games. F037: the field is retuned −30% — generous,
-   no longer vast. */
+   no longer vast. F043: text + surrounding whitespace both −10% (desktop;
+   the mobile bands below keep their own overrides). */
 .practice-map-hero {
-  padding: clamp(0.5rem, 1.5vw, 1.1rem) 0 clamp(2.1rem, 4.9vw, 3.85rem);
+  padding: clamp(0.45rem, 1.35vw, 0.99rem) 0 clamp(1.89rem, 4.41vw, 3.47rem);
 }
 
 /* --- the masthead: one face, set plainly --- */
@@ -65,9 +66,9 @@
   line-height: 1.04;
   text-transform: lowercase;
   color: var(--ink-text); /* no ochre, no emphasis */
-  /* the surviving scale law — same slow-growth clamp/divisor as before;
-     em on .hero-sub resolves against THIS, so the 40% is a true proportion */
-  font-size: clamp(1.5rem, calc((100vw - 72px) / 19), 3.9rem);
+  /* the surviving scale law — F043: −10% on desktop (divisor 19→21,
+      cap 3.9→3.51rem); the .hero-sub em proportion rides along unchanged */
+  font-size: clamp(1.5rem, calc((100vw - 72px) / 21), 3.51rem);
 }
 .practice-map-hero .hero-title {
   display: block; /* inherits the h1 size = 1em (line 1 unchanged in scale) */
@@ -1069,6 +1070,37 @@
   color: var(--ink-muted);
   font-size: 0.82rem;
   line-height: 1.55;
+}
+
+/* F047: the lesson window's reading matter gains ~10% on desktop only —
+   the mobile sizes below stay at their tuned floors (each +10%, mono
+   chrome — kicker, footer, figcaptions, section numbers — deliberately
+   untouched so the hierarchy keeps its voices). */
+@media (min-width: 901px) {
+  .practice-lesson-header h2 {
+    font-size: clamp(1.1rem, 1.98vw, 1.43rem);
+  }
+  .practice-lesson-objectives ul {
+    font-size: 0.97rem;
+  }
+  .practice-reader-section h3 {
+    font-size: 1.3rem;
+  }
+  .practice-reader-section > p,
+  .practice-reader-section li,
+  .practice-lesson-body li {
+    font-size: max(1.21rem, 19.36px);
+  }
+  .practice-lesson-body,
+  .practice-callout p {
+    font-size: 1.01rem;
+  }
+  .practice-example pre {
+    font-size: 0.86rem;
+  }
+  .practice-example p {
+    font-size: 0.9rem;
+  }
 }
 
 @media (max-width: 900px) {
