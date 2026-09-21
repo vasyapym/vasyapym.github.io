@@ -471,6 +471,12 @@
   color: var(--ink-accent-bright);
 }
 
+/* ==========================================================================
+   the reading room — opened lesson (R022 · F046 + F048)
+   the window is not a card over the field; it IS the field, opened on a record.
+   one strong rule opens it · members ride hairlines · nothing is filled.
+   ========================================================================== */
+
 .practice-lesson-overlay {
   /* Portaled to <body>, outside .practice-map-field's color-scheme: dark.
      Without this any native UI chrome (future scrollbars, form controls,
@@ -481,16 +487,20 @@
   inset: 0;
   z-index: 60;
   display: flex;
-  align-items: center;
   justify-content: center;
-  padding: clamp(0.75rem, 3vw, 2.5rem);
+  align-items: stretch; /* the sheet fills the field, it does not float in it */
+  padding: max(0.5rem, env(safe-area-inset-top)) 0 0;
   /* An explicit height keeps the flex centering stable while Safari's
      collapsing toolbar resizes the viewport mid-read. */
   height: 100vh;
   height: 100dvh;
-  background: rgba(4, 8, 10, 0.62);
-  /* Portaled to <body>, so the field's tokens/scopes don't reach it. */
-  --panel-radius: 20px;
+  /* the field itself; the map behind ghosts out entirely */
+  background: rgba(11, 19, 23, 0.965);
+  /* Portaled to <body>, so the field's tokens/scopes don't reach it.
+     The template's 20px radius: removed, deliberately. */
+  --panel-radius: 0;
+  /* ornament ochre — recedes, never "attention" (state rides --ink-accent) */
+  --lesson-mark: var(--ink-accent-deep, #b97f45);
   -webkit-text-size-adjust: 100%;
   text-size-adjust: 100%;
 }
@@ -498,11 +508,11 @@
 @keyframes practice-lesson-in {
   from {
     opacity: 0;
-    transform: translateY(12px) scale(0.985);
+    transform: translateY(6px);
   }
   to {
     opacity: 1;
-    transform: translateY(0) scale(1);
+    transform: translateY(0);
   }
 }
 
@@ -512,6 +522,7 @@
      Russian lines stay readable inside the wider frame. */
   width: min(1190px, 100%);
   min-width: 0;
+  height: 100%;
   max-height: 100%;
   /* Stationary frame: the panel itself never scrolls (the realm deep-reader
      repair for the iOS close-X misplacement). The header close button keeps
@@ -519,12 +530,16 @@
   display: flex;
   flex-direction: column;
   overflow: hidden;
-  border: 1px solid var(--ink-line);
-  border-radius: var(--panel-radius);
-  padding: clamp(1.25rem, 3vw, 2.25rem);
-  background: #0e161b;
-  box-shadow: 0 24px 80px rgba(0, 0, 0, 0.55);
-  animation: practice-lesson-in 220ms ease;
+  border: 0;
+  /* THE one strong rule: the record opens here */
+  border-top: 1px solid var(--ink-line);
+  border-radius: 0;
+  padding: clamp(0.7rem, 1.8vw, 1.1rem)
+    max(clamp(1rem, 4vw, 2.25rem), env(safe-area-inset-right)) 0
+    max(clamp(1rem, 4vw, 2.25rem), env(safe-area-inset-left));
+  background: transparent; /* no lighter skin: same ink as the page */
+  box-shadow: none; /* no elevation: this system has rules, not layers */
+  animation: practice-lesson-in 180ms ease;
 }
 
 /* Keyed inner scroll body: the only scrollable element in the reader. */
@@ -553,67 +568,81 @@
   /* literal rgba, not var(): custom properties do not resolve inside
      scrollbar pseudo-element rules — an invalid background falls back to
      the engine's opaque default thumb. Pinned to styles.css
-     --ink-line rgba(238, 234, 224, 0.26). */
+     --ink-line rgba(238, 234, 224, 0.26). Square now: the register has no
+     radius anywhere. */
   background: rgba(238, 234, 224, 0.26);
-  border-radius: 999px;
+  border-radius: 0;
+}
+.practice-lesson-scroll::-webkit-scrollbar-thumb:hover {
+  background: rgba(238, 234, 224, 0.4);
 }
 
+/* ---- progress: the header's own hairline, soft → ochre -------------------
+   the rule under the header IS the progress rail: 1px, visible at rest,
+   filling ochre left→right as you read (state on a single line). */
 .practice-lesson-progress {
   position: sticky;
   top: 0;
   z-index: 2;
-  height: 2px;
+  height: 1px;
   margin: 0;
   pointer-events: none;
+  background: var(--ink-line-soft);
 }
 
 .practice-lesson-progress span {
   display: block;
+  width: 100%;
   height: 100%;
   background: var(--ink-accent);
   opacity: 0;
   transform: scaleX(0);
   transform-origin: left;
+  transition: transform 180ms linear, opacity 180ms ease;
 }
 
+/* ---- header: the title is content, the kicker is chrome ------------------ */
 .practice-lesson-header {
   display: flex;
-  align-items: start;
+  align-items: flex-start;
   justify-content: space-between;
   gap: 1rem;
   flex: 0 0 auto;
-  border-bottom: 1px solid var(--ink-line-soft);
+  border-bottom: 0; /* the rule under the header is the progress rail */
   /* Minimal frame: the header is chrome, not reading matter — keep its
      vertical footprint small so the scroll body owns the panel. */
   padding-bottom: 0.6rem;
 }
 
-/* Header tools: the free-reading toggle lives beside the close button —
-   no dedicated layout row of its own. */
+/* Header tools: bare register labels on a hairline, no pills, no rings —
+   the fr toggle's RESTING skin is quieted here (freeReading.css geometry
+   untouched). */
 .practice-lesson-tools {
   display: flex;
   align-items: center;
-  gap: 0.75rem;
+  gap: 1rem;
   flex: 0 0 auto;
 }
 
 .practice-lesson-kicker {
   margin: 0;
-  color: var(--ink-accent);
+  color: var(--ink-faint);
   font-family: var(--mono);
   font-size: 0.64rem;
-  letter-spacing: 0.05em;
+  letter-spacing: 0.1em;
   text-transform: lowercase;
+  font-variant-numeric: tabular-nums;
 }
 
 .practice-lesson-header h2 {
-  margin: 0.1rem 0 0;
-  color: var(--ink-muted);
+  margin: 0.15rem 0 0;
+  color: var(--ink-text); /* the title is the brightest header voice */
   font-family: var(--display);
   font-size: clamp(1rem, 1.8vw, 1.3rem);
   font-weight: 550;
   letter-spacing: 0;
   line-height: 1.15;
+  text-wrap: balance;
 }
 
 .practice-lesson-close {
@@ -621,40 +650,74 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  padding: 0;
-  width: 2.2rem;
-  height: 2.2rem;
-  border: 1px solid var(--ink-line);
-  border-radius: 999px;
-  color: var(--ink-muted);
+  min-width: 44px;
+  height: 44px;
+  padding: 0 0.3rem;
+  border: 0;
+  border-bottom: 1px solid var(--ink-line-soft);
+  border-radius: 0;
+  color: var(--ink-faint);
   background: transparent;
   cursor: pointer;
   transition: border-color 180ms ease, color 180ms ease;
 }
 
 .practice-lesson-close:hover {
-  border-color: var(--ink-accent);
-  color: var(--ink-accent-bright);
+  border-bottom-color: var(--ink-line);
+  color: var(--ink-text);
+}
+
+/* free reading toggle (a guest button inside .fr-controls): the resting skin
+   joins the register — bare label over a soft hairline. freeReading.css
+   untouched; these selectors outrank it. */
+.practice-lesson-tools .fr-controls button {
+  min-height: 44px;
+  border: 0;
+  border-bottom: 1px solid var(--ink-line-soft);
+  border-radius: 0;
+  background: transparent;
+  color: var(--ink-faint);
+  transition: border-color 180ms ease, color 180ms ease;
+}
+.practice-lesson-tools .fr-controls button:hover {
+  border-bottom-color: var(--ink-line);
+  color: var(--ink-text);
+}
+/* free reading ON = the line is the point of attention */
+.practice-lesson-tools .fr-controls button[aria-pressed="true"] {
+  border-bottom-color: var(--ink-accent);
+  color: var(--ink-text);
+}
+
+@media (pointer: fine) {
+  .practice-lesson-close {
+    height: 40px;
+    min-width: 40px;
+  }
+  .practice-lesson-tools .fr-controls button {
+    min-height: 40px;
+  }
 }
 
 .practice-lesson-objectives {
-  margin-top: 1.25rem;
+  margin-top: 1.15rem;
 }
 
 .practice-lesson-objectives > span,
 .practice-lesson-examples h3 {
+  display: block;
   color: var(--ink-faint);
   font-family: var(--mono);
   font-size: 0.72rem;
   font-weight: 500;
-  letter-spacing: 0.05em;
+  letter-spacing: 0.14em;
   text-transform: lowercase;
 }
 
 .practice-lesson-objectives ul {
   display: grid;
   gap: 0.4rem;
-  margin: 0.6rem 0 0;
+  margin: 0.55rem 0 0;
   padding: 0;
   list-style: none;
   color: var(--ink-muted);
@@ -665,16 +728,18 @@
 .practice-lesson-objectives li::before {
   content: "—";
   margin-right: 0.6rem;
-  color: var(--ink-accent);
+  color: var(--lesson-mark);
 }
 
+/* ---- the index: a ruled contents row, not a pill rack -------------------- */
 .practice-lesson-tabs,
 .practice-reader-nav {
   display: flex;
-  gap: 0.4rem;
-  margin-top: 1.5rem;
-  border-top: 1px solid var(--ink-line-soft);
-  padding-top: 1rem;
+  column-gap: 1.3rem;
+  row-gap: 0;
+  margin-top: 1.6rem;
+  padding-top: 0.3rem;
+  border-top: 1px solid var(--ink-line); /* a group opens with one strong rule */
 }
 
 .practice-lesson-tabs {
@@ -695,57 +760,87 @@
   white-space: nowrap;
 }
 
+/* where there is room, the whole record is visible at once */
+@media (min-width: 760px) {
+  .practice-reader-nav {
+    flex-wrap: wrap;
+    overflow-x: visible;
+  }
+}
+
 .practice-lesson-tabs button,
 .practice-reader-nav button {
   display: inline-flex;
-  align-items: center;
-  gap: 0.45rem;
-  border: 1px solid var(--ink-line-soft);
-  border-radius: 999px;
-  padding: 0.4rem 0.75rem;
+  align-items: flex-end;
+  gap: 0.5rem;
+  min-height: 44px;
+  padding: 0 0 0.45rem;
+  border: 0;
+  border-bottom: 1px solid var(--ink-line-soft);
+  border-radius: 0;
   color: var(--ink-muted);
   background: transparent;
   cursor: pointer;
   font-family: var(--mono);
   font-size: 0.7rem;
-  letter-spacing: 0.04em;
+  letter-spacing: 0.05em;
   text-transform: lowercase;
-  transition: border-color 180ms ease, color 180ms ease, background 180ms ease;
+  transition: border-color 180ms ease, color 180ms ease;
 }
 
+@media (pointer: fine) {
+  .practice-lesson-tabs button,
+  .practice-reader-nav button {
+    min-height: 40px;
+  }
+}
+
+/* the number is a register index, not a chip */
 .practice-lesson-tabs button kbd,
-.practice-reader-nav button kbd,
-.practice-lesson-hint kbd {
-  padding: 0.05rem 0.32rem;
-  border-radius: 4px;
-  color: var(--ink-muted);
-  background: rgba(238, 234, 224, 0.08);
+.practice-reader-nav button kbd {
+  padding: 0;
+  border: 0;
+  border-radius: 0;
+  background: none;
+  line-height: inherit;
+  color: var(--ink-faint);
   font-family: var(--mono);
   font-size: 0.64rem;
-  line-height: 1.4;
-}
-
-.practice-lesson-tabs button.is-active kbd,
-.practice-reader-nav button.is-active kbd {
-  color: var(--ink-bg);
-  background: var(--ink-accent);
+  font-variant-numeric: tabular-nums;
+  transition: color 180ms ease;
 }
 
 .practice-lesson-tabs button:hover,
-.practice-lesson-tabs button.is-active,
-.practice-reader-nav button:hover,
-.practice-reader-nav button.is-active {
-  border-color: var(--ink-accent);
+.practice-reader-nav button:hover {
+  border-bottom-color: var(--ink-line);
   color: var(--ink-text);
-  background: var(--ink-panel);
 }
 
+/* current = resting ochre line + type lift (the map page's active law) */
+.practice-lesson-tabs button.is-active,
+.practice-reader-nav button.is-active,
+.practice-lesson-tabs button[aria-current]:not([aria-current="false"]),
+.practice-reader-nav button[aria-current]:not([aria-current="false"]) {
+  border-bottom-color: var(--ink-accent);
+  color: var(--ink-text);
+}
+
+.practice-lesson-tabs button.is-active kbd,
+.practice-reader-nav button.is-active kbd,
+.practice-lesson-tabs button[aria-current]:not([aria-current="false"]) kbd,
+.practice-reader-nav button[aria-current]:not([aria-current="false"]) kbd {
+  color: var(--ink-accent);
+  background: none;
+}
+
+/* ---- the reading column: the brightest thing in the window --------------- */
 .practice-lesson-body {
   max-width: 62ch;
-  margin-top: 1.1rem;
-  color: var(--ink-muted);
+  margin-top: 1.2rem;
+  color: var(--ink-text);
   font-size: 0.92rem;
   line-height: 1.65;
+  text-wrap: pretty;
 }
 
 .practice-lesson-body p {
@@ -762,19 +857,14 @@
   padding-left: 1.15rem;
 }
 
-.practice-lesson-body li::marker {
-  color: var(--ink-accent);
-}
-
 .practice-reader {
   display: grid;
-  gap: 2.25rem;
-  margin-top: 1.5rem;
+  gap: 1.5rem;
+  margin-top: 1.6rem;
 }
 
 /* Wider window, same centered column: the reading measure stays capped
-   (97ch ≈ the old 72ch + 35%) so Russian lines keep their length; chrome
-   (free bar, progress hairline, footer) stays full-bleed. */
+   (97ch) so Russian lines keep their length; chrome stays full-bleed. */
 .practice-lesson-objectives,
 .practice-reader-nav,
 .practice-reader,
@@ -787,7 +877,13 @@
   display: grid;
   gap: 0.95em;
   min-width: 0;
-  scroll-margin-top: 0.75rem;
+  scroll-margin-top: 1.25rem;
+}
+
+/* members of the record, separated by hairlines */
+.practice-reader-section + .practice-reader-section {
+  border-top: 1px solid var(--ink-line-soft);
+  padding-top: 1.5rem;
 }
 
 .practice-reader-section h3,
@@ -808,34 +904,35 @@
   font-weight: 600;
   letter-spacing: -0.01em;
   line-height: 1.18;
+  text-wrap: balance;
 }
 
 .practice-reader-section h3 span {
-  color: var(--ink-accent);
+  color: var(--lesson-mark);
   font-family: var(--mono);
   font-size: 0.72rem;
   font-weight: 500;
   letter-spacing: 0.05em;
+  font-variant-numeric: tabular-nums;
 }
 
 .practice-reader-section > p {
-  /* Same left gutter as the free-reading surface, so toggling the mode
-     never shifts the text's left edge. Direct children only: callout and
-     example paragraphs keep their own padding geometry. */
-  padding-left: 0.75rem;
+  /* flush column: no stray indent — the measure itself is the focus */
+  padding-left: 0;
   margin: 0;
-  color: var(--ink-muted);
+  color: var(--ink-text);
   font-size: max(1.1rem, 17.6px);
   line-height: 1.72;
+  text-wrap: pretty;
 }
 
 /* --- typographic engine: inline markup, lists, callouts -------------------- */
 
 .practice-lesson code {
-  padding: 0.08em 0.36em;
-  border: 1px solid var(--ink-line-soft);
-  background: var(--ink-panel);
-  color: var(--ink-accent-bright);
+  padding: 0;
+  border: 0;
+  background: none;
+  color: var(--ink-accent);
   font-family: var(--mono);
   font-size: 0.85em;
   font-style: normal;
@@ -845,6 +942,12 @@
   overflow-wrap: anywhere;
 }
 
+/* guard: code figures keep their own voice */
+.practice-lesson pre code {
+  color: inherit;
+  font-size: inherit;
+}
+
 .practice-lesson strong {
   color: var(--ink-text);
   font-weight: 650;
@@ -852,6 +955,7 @@
 
 .practice-lesson em {
   color: var(--ink-text);
+  font-style: italic;
 }
 
 .practice-reader-section ul,
@@ -878,7 +982,7 @@
 
 .practice-reader-section li,
 .practice-lesson-body li {
-  color: var(--ink-muted);
+  color: var(--ink-text);
   font-size: max(1.1rem, 17.6px);
   line-height: 1.72;
   /* `anywhere`, not `break-word`: inline `code` inherits it; min-content
@@ -888,26 +992,30 @@
 
 .practice-reader-section li::marker,
 .practice-lesson-body li::marker {
-  color: var(--ink-accent);
+  color: var(--lesson-mark);
   font-family: var(--mono);
   font-size: 0.8em;
 }
 
+/* ---- callout: a marginal rule, not a box --------------------------------- */
 .practice-callout {
+  --callout-mark: var(--lesson-mark);
   display: grid;
-  gap: 0.45rem;
-  border: 1px solid var(--ink-line-soft);
-  border-left: 3px solid var(--ink-accent);
-  padding: 0.8rem 0.95rem 0.9rem;
-  background: var(--ink-panel);
+  gap: 0.4rem;
   min-width: 0;
+  border: 0;
+  border-left: 2px solid var(--callout-mark);
+  border-radius: 0;
+  padding: 0.1rem 0 0.15rem 0.9rem;
+  background: none;
 }
 
 .practice-callout-title {
-  color: var(--ink-accent-bright);
+  color: var(--callout-mark);
   font-family: var(--mono);
   font-size: 0.68rem;
   letter-spacing: 0.14em;
+  text-transform: lowercase;
 }
 
 .practice-callout p {
@@ -918,21 +1026,17 @@
 }
 
 .practice-callout.is-warning {
-  border-left-color: #cf7f6b;
+  --callout-mark: #cf7f6b;
 }
 
-.practice-callout.is-warning .practice-callout-title {
-  color: #e39b87;
-}
-
-.practice-callout.is-warning code {
-  color: #e8b5a5;
+.practice-callout code {
+  color: var(--callout-mark);
 }
 
 .practice-reader-examples {
   display: grid;
-  gap: 0.9rem;
-  margin-top: 0.3rem;
+  gap: 1.4rem;
+  margin-top: 0.4rem;
   min-width: 0;
 }
 
@@ -942,17 +1046,20 @@
 
 .practice-lesson-examples {
   display: grid;
-  gap: 1rem;
-  margin-top: 1.75rem;
+  gap: 1.4rem;
+  margin-top: 1.9rem;
 }
 
+/* ---- examples: ruled figures, not cards ---------------------------------- */
 .practice-example {
   display: grid;
-  gap: 0.55rem;
+  gap: 0.5rem;
   margin: 0;
-  border: 1px solid var(--ink-line-soft);
-  padding: 0.9rem;
-  background: var(--ink-panel);
+  border: 0;
+  border-top: 1px solid var(--ink-line-soft);
+  border-radius: 0;
+  padding: 0.7rem 0 0;
+  background: none;
 }
 
 /* Code lines must never dictate the figure's width: without these the
@@ -967,50 +1074,64 @@
 }
 
 .practice-example figcaption {
-  color: var(--ink-accent);
+  color: var(--lesson-mark);
   font-family: var(--mono);
   font-size: 0.72rem;
   font-weight: 500;
-  letter-spacing: 0.04em;
+  letter-spacing: 0.12em;
+  text-transform: lowercase;
 }
 
 .practice-example-code {
   position: relative;
 }
 
-.practice-example-code::after {
+.practice-example-code.is-scrollable::after {
   content: "";
   position: absolute;
   inset: 0 0 0 auto;
-  width: 3.5rem;
-  background: linear-gradient(to left, #10191f, transparent);
-  opacity: 0;
+  width: 3rem;
+  background: linear-gradient(to left, var(--ink-bg, #0b1317), rgba(11, 19, 23, 0));
+  opacity: 1;
   pointer-events: none;
   transition: opacity 180ms ease;
 }
 
-.practice-example-code.is-scrollable::after {
-  opacity: 1;
-}
-
+/* the copy button keeps an opaque field patch — it is a mask for legibility
+   over code, not a resting surface: it exists only on hover / focus / touch. */
 .practice-example-copy {
   position: absolute;
   z-index: 1;
-  top: 0.45rem;
-  right: 0.45rem;
-  border: 1px solid var(--ink-line);
-  padding: 0.22rem 0.5rem;
+  top: 0;
+  right: 0;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 44px;
+  min-width: 44px;
+  padding: 0 0.6rem;
+  border: 0;
+  border-bottom: 1px solid var(--ink-line);
+  border-radius: 0;
   color: var(--ink-muted);
-  background: var(--ink-bg);
+  background: var(--ink-bg, #0b1317);
   cursor: pointer;
   font-family: var(--mono);
   font-size: 0.64rem;
-  letter-spacing: 0.04em;
+  letter-spacing: 0.06em;
   opacity: 0;
-  transition: opacity 160ms ease, border-color 160ms ease, color 160ms ease;
+  transition: opacity 180ms ease, border-color 180ms ease, color 180ms ease;
+}
+
+@media (pointer: fine) {
+  .practice-example-copy {
+    min-height: 40px;
+    min-width: 40px;
+  }
 }
 
 .practice-example-code:hover .practice-example-copy,
+.practice-example-code:focus-within .practice-example-copy,
 .practice-example-copy:focus-visible,
 .practice-example-copy.is-copied {
   opacity: 1;
@@ -1018,24 +1139,25 @@
 
 .practice-example-copy:hover,
 .practice-example-copy.is-copied {
-  border-color: var(--ink-accent);
-  color: var(--ink-accent-bright);
+  color: var(--ink-text);
+  border-bottom-color: var(--ink-accent);
 }
 
+/* ---- footer: the status rail --------------------------------------------- */
 .practice-lesson-footer {
   display: flex;
   flex-wrap: wrap;
   align-items: center;
   justify-content: space-between;
   gap: 0.75rem;
-  margin-top: 1.75rem;
+  margin-top: 2rem;
   border-top: 1px solid var(--ink-line-soft);
-  padding-bottom: env(safe-area-inset-bottom);
+  padding-bottom: max(1.1rem, env(safe-area-inset-bottom));
   padding-top: 0.85rem;
   color: var(--ink-faint);
   font-family: var(--mono);
   font-size: 0.7rem;
-  letter-spacing: 0.03em;
+  letter-spacing: 0.04em;
   line-height: 1.5;
 }
 
@@ -1054,6 +1176,18 @@
   align-items: center;
   gap: 0.3rem;
   white-space: nowrap;
+}
+
+.practice-lesson-hint kbd {
+  padding: 0 0.18rem;
+  border: 0;
+  border-bottom: 1px solid var(--ink-line-soft);
+  border-radius: 0;
+  color: var(--ink-muted); /* keys read brighter than the sentence around them */
+  background: none;
+  font-family: var(--mono);
+  font-size: 0.64rem;
+  line-height: 1.4;
 }
 
 .practice-example pre {
@@ -1191,31 +1325,41 @@
 
 @media (max-width: 560px) {
   .practice-lesson-overlay {
-    padding: max(0.6rem, env(safe-area-inset-top)) max(0.6rem, env(safe-area-inset-right))
-      max(0.6rem, env(safe-area-inset-bottom)) max(0.6rem, env(safe-area-inset-left));
+    padding: max(0.4rem, env(safe-area-inset-top)) 0 0;
   }
 
   .practice-lesson-panel {
-    max-height: min(100%, calc(100vh - 1.2rem));
-  }
-
-  @supports (height: 100dvh) {
-    .practice-lesson-panel {
-      max-height: min(100%, calc(100dvh - 1.2rem));
-    }
+    max-height: 100%;
+    padding-top: 0.7rem;
   }
 
   .practice-lesson-header {
-    gap: 0.9rem;
-  }
-
-  /* Narrow phones: one row cannot hold title + pill + close button without
-     starving the title — wrap the tools under the full-width heading. */
-  .practice-lesson-header {
+    gap: 0.75rem;
     flex-wrap: wrap;
   }
 
   .practice-lesson-tools {
     margin-left: auto;
+    gap: 0.9rem;
   }
+
+  .practice-lesson-tabs,
+  .practice-reader-nav {
+    column-gap: 1.05rem;
+    margin-top: 1.3rem;
+  }
+}
+
+/* ---- focus: never removed, always ochre, never rounded ------------------- */
+.practice-lesson-overlay :focus-visible {
+  outline: 1px solid var(--ink-accent-bright);
+  outline-offset: 3px;
+  border-radius: 0;
+}
+
+.practice-lesson-tabs button:focus-visible,
+.practice-reader-nav button:focus-visible,
+.practice-lesson-close:focus-visible {
+  border-bottom-color: var(--ink-accent);
+  color: var(--ink-text);
 }

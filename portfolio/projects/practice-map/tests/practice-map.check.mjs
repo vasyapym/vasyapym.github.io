@@ -440,6 +440,10 @@ try {
   await page.tap(".pg-card .pg-pill");
   check(await appears(".practice-reader"), "deep reader opens on mobile");
 
+  // the 180ms entry animation moves the panel 6px — let it settle before
+  // asserting geometry (a bare appears() raced the animation mid-flight).
+  await wait(300);
+
   const fitsMobile = await page.evaluate(() => {
     const rect = document.querySelector(".practice-lesson-panel").getBoundingClientRect();
     return rect.top >= 0
@@ -538,6 +542,9 @@ try {
   await wait(400);
   await page.tap(".pg-card .pg-pill");
   check(await appears(".practice-reader"), "deep reader opens at 320px");
+
+  // same animation-settle law as the 390 leg
+  await wait(300);
 
   const fitsNarrow = await page.evaluate(() => {
     const rect = document.querySelector(".practice-lesson-panel").getBoundingClientRect();
