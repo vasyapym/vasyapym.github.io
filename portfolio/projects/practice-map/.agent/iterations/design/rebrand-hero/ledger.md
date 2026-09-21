@@ -796,3 +796,27 @@ mobile top 390).
 - Visual inspection: shot read. The search's text now sits exactly level with "astra-6-max" (delta 0 measured); the active row's deep-ochre line reads a notch quieter while still unmistakably the settled record; list narrower, hero gap tighter; fr "off" label legible at a glance
 - Code verification: audits — mt 32.6px, share 0.2585, active line rgb(185,127,69), ordinal muted, active name full ink, fr toggle 0.68; alignment probe delta 0 (was −16px); `tsc --noEmit` clean; `practice-map.check.mjs` green except the pre-existing Go-card count drift (other agent, count 3)
 - Open question: owner verdict on the F068 trial (deep ochre + softened ordinal); if still too prominent, the next dial is dropping the type lift entirely (line-only state)
+
+## Feedback F070
+- Round: none (owner batch, 2026-09-21, post-R027 review)
+- Verdict: REJECTED (spacing)
+- Scope: tier heading (e.g. "astra-6-max") ↔ the first lesson card beneath it — all breakpoints
+- Decision: breathing space after the model name smaller by ~7% (second −7% pass on F064's gap)
+- User source: item 1: «"astra-6-max / 01 / DDoS: …" breathing space after "astra-6-max" should be smaller around 7%.»
+
+## Feedback F071
+- Round: none (owner batch, 2026-09-21)
+- Verdict: REJECTED (premise of the single trial) + exploration mandate
+- Scope: active model-row highlight treatment
+- Decision: delegate the rethinking to the chat model — FIVE variants, owner picks (the R027 deep-ochre trial becomes one of the candidate directions, not a presented verdict)
+- User source: item 2: «delegate highlight rethinking to chat model. make it come up with 5 variants. we will choose»
+
+## Round R028
+- Goal: F070 — second −7% pass on the tier-name↔cards gap (F064's gap again) — orchestrator-direct arithmetic
+- Preserved preferences: F064 (first −7%), F065–F069 lineage
+- Changes: `tiers.css` — `.pg-tier-head` pb+mb ×0.93 again at every band (desktop .93/1.02 → .87/.95rem = 31.2→29.1px measured; ≤700 .74/.84 → .69/.78rem; ≤560 .65/.7 → .6/.65rem)
+- Before: artifacts/R027/after/top-1440.png lineage
+- After: audits only (pure spacing arithmetic on an inspected surface)
+- Visual inspection: NOT RUN as shots (arithmetically verified gap −6.7% desktop / −7.4% mobile; the surface was visually inspected in R027)
+- Code verification: audits — desktop pb 13.92px + mb 15.2px (gap 29px measured), mobile pb 9.6 + mb 10.4 (gap 20px); `tsc --noEmit` clean
+- Open question: none on this leg; F071 (highlight ×5 variants) goes to the chat-model relay next

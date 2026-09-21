@@ -137,7 +137,7 @@
 .pg-tier-panel{grid-area:panel; min-width:0}
 .pg-tier-head{
   display:flex; align-items:center; gap:.8em; flex-wrap:wrap;
-  padding-bottom:.93rem; margin-bottom:1.02rem;  /* F064: name↔cards −7% */
+  padding-bottom:.87rem; margin-bottom:.95rem;  /* F064 −7% + F070 −7% again (pb+mb together) */
 }
 .pg-tier-head h2{
   margin:0; font-family:var(--sans); font-weight:600;
@@ -315,7 +315,7 @@
   .pg-tier-count{justify-self:end}
   .pg-card{padding:.95rem}
   .pg-face-head{padding:1rem}
-  .pg-tier-head{padding-bottom:.74rem; margin-bottom:.84rem}  /* F064 −7% */
+  .pg-tier-head{padding-bottom:.69rem; margin-bottom:.78rem}  /* F064+F070 −7% ×2 */
   .pg-tier-panel{margin-top:2px}                             /* F060: after-search zone 36→38px ≈ +5% */
   .pg-crumb{padding-bottom:.8rem; margin-bottom:.9rem}
   .pg-cards{gap:0}
@@ -326,7 +326,7 @@
   .pg-layout{margin-top:18px; gap:29px}       /* F054: was 28px — +5%, still clearly > internal rhythm */
   .pg-card{padding:.85rem}
   .pg-face-head{padding:.9rem}
-  .pg-tier-head{padding-bottom:.65rem; margin-bottom:.7rem}  /* F064 −7% */
+  .pg-tier-head{padding-bottom:.6rem; margin-bottom:.65rem}  /* F064+F070 −7% ×2 */
   .pg-tier-panel{margin-top:1.5px}                           /* F060: after-search zone 29→30.5px ≈ +5% */
   .pg-crumb{padding-bottom:.7rem; margin-bottom:.75rem}
   .pg-crumb-title{margin-left:.7rem; padding-left:.7rem}
