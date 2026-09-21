@@ -1031,7 +1031,7 @@ class NoteWebCreature extends Creature {
       const spin = g > 1.5 ? (g - 1.5) * 0.55 : 0;
       for (let i = 0; i < this.N; i++) {
         const ma = (i / this.N) * TAU - Math.PI * 0.5 + spin;
-        const mr = i === 0 ? 0 : 0.88 * r;
+        const mr = i === 0 ? 0 : 0.70 * r;
         const mx = this.cx + Math.cos(ma) * mr;
         const my = this.cy + Math.sin(ma) * mr * 0.92;
         const qx = this.cx + this.hx[i] * r * 0.10;  // pinch pose

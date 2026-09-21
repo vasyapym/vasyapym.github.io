@@ -123,3 +123,25 @@ approaches on a far click (greeting + sound fire at click time instead).
 - Note: the sound verdict is NOT covered — audio remains unverified by ear
   (headless synthesis); owner ear-check on a real device is the standing
   open item.
+
+## Round R003
+- Goal: quicknotes' greeting (the post-click mandala bloom) read a bit wide —
+  owner asked for it ~20% smaller.
+- Preserved preferences: F001 (R001+R002 approved as shipped — approach-then-
+  greet law, wiki-link web idle, spoke ignition + rim chase choreography);
+  reduced-motion forms untouched; door/keyboard paths untouched.
+- Changes: `realm-creatures.ts` one constant — NoteWebCreature greet mandala
+  rim `0.88 * r` → `0.70 * r` (line ~1034). Ignition, rim chase, hub burn,
+  handback blend all derive from that pose, so nothing else moved. Small task
+  — no chat-model relay (R002 precedent).
+- Before: artifacts/R003/baseline/quicknotes.png · baseline-seq/greet-*.png
+  (bloom ~440px across at 1440×900)
+- After: artifacts/R003/after-seq/greet-*.png (bloom ~350px across, ≈0.80×)
+- Visual inspection: Chromium headless 1440×900, warp→greet timing sequence
+  (900/1700/2700ms) read as images — mandala legible, spokes tighter, hub
+  burn + rim chase intact, no clipping into neighbours; idle before/after
+  unchanged (greet-only constant).
+- Code verification: `npm --prefix portfolio run typecheck` PASS; `npm run
+  build` PASS; `tests/realm-probe.mjs` PASS (169 checks, CHROME_PATH set).
+- Open question: owner verdict on the tighter bloom — still legible enough as
+  a greeting?
