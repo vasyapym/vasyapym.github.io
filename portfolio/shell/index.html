@@ -8,12 +8,45 @@
       href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'%3E%3Crect width='16' height='16' rx='3' fill='%23140b20'/%3E%3Cpath d='M8 2 L12 9 H9.5 L13 14 H3 L6.5 9 H4 Z' fill='%23ffb45e'/%3E%3C/svg%3E"
     />
     <meta name="theme-color" content="#080b0e" />
+    <!-- white-flash fix (owner ask, N036): the render-blocking fonts sheet
+         below used to delay first paint ~800ms (white canvas). This inline
+         block paints at the first HTML chunk instead: beige on project
+         routes, ink on the landing — the pre-boot script route-matches the
+         landing before first paint, reusing the realm's data-signal-index
+         token so realm.css takes over at CSS arrival with no value change.
+         The body rule is insurance at (0,1,2): realm.css's own transparent
+         (0,2,1) outranks it, the base beige body (0,0,1) never does.
+         LandingPage owns the attribute from React boot and removes it
+         unconditionally on unmount (the old restore branch would re-pin the
+         pre-boot "" onto the route navigated TO). The fonts sheet is
+         deliberately async (media=print): any render-blocking sheet after
+         the inline block would withhold first paint and re-grow the white
+         window this fix exists to kill. -->
+    <style>
+      html { background-color: #e4e5e1; }
+      html[data-signal-index] { background-color: #0b1317; }
+      html[data-signal-index] body { background-color: transparent; }
+    </style>
+    <script>
+      (function (l) {
+        if (l.pathname === "/" && !/^\?\/|[?&]prototype=/.test(l.search))
+          document.documentElement.setAttribute("data-signal-index", "");
+      })(location);
+    </script>
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
     <link
       rel="stylesheet"
       href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&family=IBM+Plex+Sans:wght@400;500;600;700&family=IBM+Plex+Serif:wght@400&display=swap"
+      media="print"
+      onload="this.media='all'"
     />
+    <noscript>
+      <link
+        rel="stylesheet"
+        href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&family=IBM+Plex+Sans:wght@400;500;600;700&family=IBM+Plex+Serif:wght@400&display=swap"
+      />
+    </noscript>
     <meta name="description" content="Prototypes & small machines by Vasily Argounov." />
     <title>Vasily Argounov</title>
   </head>

@@ -169,17 +169,17 @@ export default function LandingPage({
   // Ownership is route-local, not inferred from the shared .signal-index
   // class: /art-directions retains its own palette and can opt in separately.
   // This outlives RealmMode and its fixed-body scroll-restoration cleanup.
+  // The head pre-boot script sets the attribute for the landing document
+  // before first paint (N036 white-flash fix) — this effect takes ownership
+  // from React boot and removes it unconditionally on unmount: the restore
+  // branch from the previous shape would re-pin the attribute (previous
+  // reads "" from the pre-boot setter) on the route navigated TO.
   useLayoutEffect(() => {
     const root = document.documentElement;
-    const previous = root.getAttribute("data-signal-index");
     root.setAttribute("data-signal-index", "");
 
     return () => {
-      if (previous === null) {
-        root.removeAttribute("data-signal-index");
-      } else {
-        root.setAttribute("data-signal-index", previous);
-      }
+      root.removeAttribute("data-signal-index");
     };
   }, []);
 
