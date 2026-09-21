@@ -145,3 +145,19 @@ approaches on a far click (greeting + sound fire at click time instead).
   build` PASS; `tests/realm-probe.mjs` PASS (169 checks, CHROME_PATH set).
 - Open question: owner verdict on the tighter bloom — still legible enough as
   a greeting?
+
+## Feedback F002
+- Round: R003
+- Verdict: LIKED (mild)
+- Scope: quicknotes greet bloom size (R003 change only)
+- Decision: the ~20% tighter mandala is acceptable — "current Quicknotes
+  creature is fine"; no further size change requested
+- User source: "current Quicknotes creature is fine but it is not brilliant.
+  it goes first and i need it to be brilliant" (owner, 2026-09-21)
+- Artifact: artifacts/R003/after-seq/greet-1700.png
+- Supersedes: none
+- Note: owner directive attached — the creature as a whole is not brilliant
+  enough for quicknotes' first position in the catalogue; a redesign round
+  (R004) is opened to raise the ceiling. Four chat-model outputs are under
+  evaluation (link-medusa / kodama nymph / markdown siphonophore / cold
+  siphonophore).
