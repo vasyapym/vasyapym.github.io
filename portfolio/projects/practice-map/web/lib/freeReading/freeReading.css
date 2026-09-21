@@ -100,11 +100,19 @@
   font: inherit;
   /* iOS Safari auto-zooms the viewport when focusing a field below 16px
      (an accessibility behavior, not a bug to defeat with maximum-scale).
-     Keep the reader's scale on any device whose root is 16px. */
-  font-size: max(1.1rem, 17.6px);
+     Keep the reader's scale on any device whose root is 16px. F052: the
+     free-reading surface rides the lesson window's +10% (both modes). */
+  font-size: max(1.21rem, 19.36px);
   line-height: 1.72;
   white-space: pre-wrap;
   overflow-wrap: anywhere;
+}
+
+/* desktop: match the reader prose (which carries the same ×1.1 there) */
+@media (min-width: 901px) {
+  .fr-area {
+    font-size: max(1.33rem, 21.3px);
+  }
 }
 
 .fr-area:focus {

@@ -638,7 +638,8 @@
   margin: 0.15rem 0 0;
   color: var(--ink-text); /* the title is the brightest header voice */
   font-family: var(--display);
-  font-size: clamp(1rem, 1.8vw, 1.3rem);
+  /* F052: base scale ×1.1 again (the desktop override rides on top) */
+  font-size: clamp(1.1rem, 1.98vw, 1.43rem);
   font-weight: 550;
   letter-spacing: 0;
   line-height: 1.15;
@@ -721,7 +722,7 @@
   padding: 0;
   list-style: none;
   color: var(--ink-muted);
-  font-size: 0.88rem;
+  font-size: 0.97rem;
   line-height: 1.55;
 }
 
@@ -838,7 +839,7 @@
   max-width: 62ch;
   margin-top: 1.2rem;
   color: var(--ink-text);
-  font-size: 0.92rem;
+  font-size: 1.01rem;
   line-height: 1.65;
   text-wrap: pretty;
 }
@@ -900,7 +901,7 @@
   margin: 0.35rem 0 0.15rem;
   color: var(--ink-text);
   font-family: var(--display);
-  font-size: 1.18rem;
+  font-size: 1.3rem;
   font-weight: 600;
   letter-spacing: -0.01em;
   line-height: 1.18;
@@ -921,7 +922,7 @@
   padding-left: 0;
   margin: 0;
   color: var(--ink-text);
-  font-size: max(1.1rem, 17.6px);
+  font-size: max(1.21rem, 19.36px);
   line-height: 1.72;
   text-wrap: pretty;
 }
@@ -983,7 +984,7 @@
 .practice-reader-section li,
 .practice-lesson-body li {
   color: var(--ink-text);
-  font-size: max(1.1rem, 17.6px);
+  font-size: max(1.21rem, 19.36px);
   line-height: 1.72;
   /* `anywhere`, not `break-word`: inline `code` inherits it; min-content
      sizing must allow the break so long tokens cannot overflow the panel. */
@@ -1021,7 +1022,7 @@
 .practice-callout p {
   margin: 0;
   color: var(--ink-muted);
-  font-size: 0.92rem;
+  font-size: 1.01rem;
   line-height: 1.62;
 }
 
@@ -1195,14 +1196,14 @@
   overflow-x: auto;
   color: var(--ink-text);
   font-family: var(--mono);
-  font-size: 0.78rem;
+  font-size: 0.86rem;
   line-height: 1.55;
 }
 
 .practice-example p {
   margin: 0;
   color: var(--ink-muted);
-  font-size: 0.82rem;
+  font-size: 0.9rem;
   line-height: 1.55;
 }
 
@@ -1212,28 +1213,28 @@
    untouched so the hierarchy keeps its voices). */
 @media (min-width: 901px) {
   .practice-lesson-header h2 {
-    font-size: clamp(1.1rem, 1.98vw, 1.43rem);
+    font-size: clamp(1.21rem, 2.18vw, 1.57rem);
   }
   .practice-lesson-objectives ul {
-    font-size: 0.97rem;
+    font-size: 1.07rem;
   }
   .practice-reader-section h3 {
-    font-size: 1.3rem;
+    font-size: 1.43rem;
   }
   .practice-reader-section > p,
   .practice-reader-section li,
   .practice-lesson-body li {
-    font-size: max(1.21rem, 19.36px);
+    font-size: max(1.33rem, 21.3px);
   }
   .practice-lesson-body,
   .practice-callout p {
-    font-size: 1.01rem;
+    font-size: 1.11rem;
   }
   .practice-example pre {
-    font-size: 0.86rem;
+    font-size: 0.95rem;
   }
   .practice-example p {
-    font-size: 0.9rem;
+    font-size: 0.99rem;
   }
 }
 

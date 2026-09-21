@@ -29,7 +29,8 @@
 
 /* ---------- 2. layout ---------- */
 .pg-layout{
-  margin-top:40px; display:grid; gap:28px 30px;
+  /* F053: hero→body breathing −10% on desktop (40→36px); mobile bands keep theirs */
+  margin-top:36px; display:grid; gap:28px 30px;
   grid-template-columns:minmax(0,0.57fr) minmax(0,1.40fr);
   grid-template-areas:"list search" "list panel";
   align-items:start;
@@ -243,25 +244,26 @@
   display:flex; align-items:center; flex-wrap:nowrap; gap:0;
   padding-bottom:1rem; margin-bottom:1.1rem;
 }
+/* F051: the underline lives beneath the TEXT only — the ← arrow rides free
+   above the hairline. the label span carries the register line. */
 .pg-crumb-back{
   display:inline-flex; align-items:center; gap:.55rem; min-height:44px; flex:none;
-  border:0; border-bottom:1px solid var(--ink-line-soft); border-radius:0;
-  padding:.5rem .3em; background:transparent; cursor:pointer; color:var(--ink-text);
+  border:0; padding:0 .3em; background:transparent; cursor:pointer; color:var(--ink-text);
   font-family:var(--mono); font-size:.8rem; font-weight:500; letter-spacing:.02em; text-transform:lowercase;
-  transition:border-color 180ms ease, color 180ms ease;
+  transition:color 180ms ease;
 }
 @media (pointer:fine){ .pg-crumb-back{min-height:40px} }
 .pg-crumb-arrow{color:var(--ink-accent); font-size:1rem; line-height:1; transition:transform 180ms ease, color 180ms ease}
-.pg-crumb-back:hover{
-  border-bottom-color:var(--ink-line);
-  color:var(--ink-text);
-  background:transparent;
+.pg-crumb-label{
+  padding-bottom:.45rem;
+  border-bottom:1px solid var(--ink-line-soft);
+  transition:border-color 180ms ease;
 }
+.pg-crumb-back:hover{color:var(--ink-text)}
+.pg-crumb-back:hover .pg-crumb-label{border-bottom-color:var(--ink-line)}
 .pg-crumb-back:hover .pg-crumb-arrow{transform:translateX(-3px); color:var(--ink-accent-bright)}
-.pg-crumb-back:focus-visible{
-  outline:none;
-  border-bottom-color:var(--ink-accent);
-}
+.pg-crumb-back:focus-visible{outline:none}
+.pg-crumb-back:focus-visible .pg-crumb-label{border-bottom-color:var(--ink-accent)}
 .pg-crumb-back:focus-visible .pg-crumb-arrow{color:var(--ink-accent-bright)}
 .pg-crumb-title{
   flex:1 1 auto; min-width:0;
@@ -306,7 +308,7 @@
   .pg-layout{
     margin-top:24px; grid-template-columns:1fr;
     grid-template-areas:"list" "search" "panel";
-    gap:34px;                                  /* was 18px — sections get distance */
+    gap:36px;                                  /* F054: was 34px — both stacked zones +5% */
   }
   /* the bare-field search now carries its own hairline: it is its own quiet
      band, full-width, no centering trick (iOS-safe). */
@@ -322,7 +324,7 @@
   .pg-pal-list{max-height:64vh}
 }
 @media (max-width:560px){
-  .pg-layout{margin-top:18px; gap:28px}       /* still clearly > internal rhythm */
+  .pg-layout{margin-top:18px; gap:29px}       /* F054: was 28px — +5%, still clearly > internal rhythm */
   .pg-card{padding:.85rem}
   .pg-face-head{padding:.9rem}
   .pg-tier-head{padding-bottom:.7rem; margin-bottom:.75rem}

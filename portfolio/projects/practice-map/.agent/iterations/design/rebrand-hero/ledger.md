@@ -590,3 +590,57 @@ mobile top 390).
 - Visual inspection: four shots read. Desktop: the window reads as the same register — one strong rule opens the record, ruled contents index wraps open (21 sections visible at once), prose full-ink over quiet chrome, no radius/fill/shadow anywhere; scrolled: the rail fills ochre under the header. 320: full-bleed sheet, header wraps cleanly, nav strip horizontal, prose legible, panel rect 0…320×6…568 with zero document overflow
 - Code verification: computed audits — panel radius 0/transparent/top-rule/no-shadow, kicker faint, h2+body full ink, active nav ochre line, kbd unfilled, progress 1px soft→ochre on scroll (matrix 0.418 verified), close/fr radius 0 on 44/40 floors; `tsc --noEmit` clean; `practice-map.check.mjs` — one NEW transient failure diagnosed and fixed: the fit assertions raced the 180ms entry animation (bare appears() measured mid-flight); both legs now settle 300ms before asserting (check stabilized, not weakened — repro-verified the panel fits at 320 isMobile under the exact tap flow); steady-state green except the pre-existing Go-card count drift (other agent, count 3); zero console/page errors
 - Open question: owner verdict on the reading room (F046/F048) — the 97ch measure deliberately untouched (the brief fixed it; focus was bought by removing competition, not re-typesetting)
+
+## Feedback F049
+- Round: R021 (post-R022 review)
+- Verdict: LIKED
+- Scope: the single-line language (model rows, open lesson, go back) — F044/F045 approved
+- Decision: «good. i like it.» — the single-line treatment stands
+- User source: owner message opening the follow-up batch: «good. i like it.»
+- Artifact: artifacts/R021/after/
+
+## Feedback F050
+- Round: R022 (post-R022 review)
+- Verdict: LIKED
+- Scope: the reading room (lesson window alignment + focused reading) — F046/F048 approved
+- Decision: «good. i like it.» — the reading-room treatment stands
+- User source: same message: «good. i like it.»
+- Artifact: artifacts/R022/after/
+
+## Feedback F051
+- Round: none (owner batch, 2026-09-21, post-R022 review)
+- Verdict: REJECTED (detail)
+- Scope: "Go Back" button (.pg-crumb-back) — underline geometry
+- Decision: the underline highlight must sit ONLY beneath the text; the ← arrow must not carry it (refines F045 within the go-back scope)
+- User source: «small little detail - "go back" button should have underline highlight only beneath the text. arrow should not have underline highlight.»
+
+## Feedback F052
+- Round: none (owner batch, 2026-09-21)
+- Verdict: REJECTED (scale)
+- Scope: lesson window typography — both free-reading modes
+- Decision: increase font sizes ~10% again, explicitly in BOTH free-reading on and off
+- User source: «increase font size in the lesson window (both free reading mode on and off) by around 10%.»
+
+## Feedback F053
+- Round: none (owner batch, 2026-09-21)
+- Verdict: REJECTED (spacing)
+- Scope: desktop — breathing room between the hero text and the content below (model list, search bar)
+- Decision: reduce by ~10%
+- User source: «desktop - reduce breathing room between hero section text and the below (model list, search bar) by around 10%.»
+
+## Feedback F054
+- Round: none (owner batch, 2026-09-21)
+- Verdict: REJECTED (spacing)
+- Scope: mobile — model list ↔ search bar and search bar ↔ lesson list
+- Decision: add breathing space in both zones by ~5% each
+- User source: «mobile - add breathing space between model list and seach bar by around 5%. also between search bar and lesson list by around 5%»
+
+## Round R023
+- Goal: direct leg of the post-R022 batch — F051 (go back underline beneath the text only), F052 (lesson type +10% again, BOTH free-reading modes), F053 (desktop hero→body gap −10%), F054 (mobile: both stacked zones +5%) — orchestrator-direct: arithmetic + one span wrap; no design exploration to delegate
+- Preserved preferences: F049/F050 verdicts (R021/R022 approved), F047 lineage (this round compounds on top: base AND desktop block each ×1.1), touch floors, the register language
+- Changes: `TierPanel.tsx` — crumb text wrapped in `.pg-crumb-label` span (the only JSX change, owner-directed); `tiers.css` — crumb underline moved from the button to the label span (button border 0, label padding-bottom .45rem + soft hairline; hover brightens label line + ← slides; focus-visible = ochre label line — arrow never carries the underline); `.pg-layout` margin-top 40→36px desktop (−10%; mobile bands 32/24/18 untouched) — NOTE: the first edit landed on the orphaned `.practice-map-layout` rule and was reverted (grep showed only `.pg-layout` is live); ≤700 gap 34→36px, ≤560 28→29px (+5%, rounds down at ≤560 — both zones ride the single stacked grid gap); `practice-map.css` — lesson base ×1.1 (h2 clamp→1.43 cap 1.1 base / objectives 0.97 / h3 1.3 / body+callout 1.01 / reader p+li max(1.21rem,19.36px) / example pre 0.86, p 0.9) and the min-width:901 block ×1.1 again (h2 1.57 cap, objectives 1.07, h3 1.43, p/li max(1.33rem,21.3px), body/callout 1.11, pre 0.95, example p 0.99); `freeReading.css` — .fr-area base max(1.1,17.6)→max(1.21rem,19.36px) + new desktop step max(1.33rem,21.3px) so free-reading prose matches the reader prose at last (F052's explicit both-modes ask)
+- Before: artifacts/R022/after/ lineage
+- After: artifacts/R023/after/ (top-1440, volume-1440, lesson-free-1440)
+- Visual inspection: three shots read. Volume view: ← flies free above the hairline, the underline sits under "go back" alone — reads as label + free glyph; free-reading ON: the editable surface sets at the reader's size, toggle carries its ochre line; desktop top: the body sits visibly closer to the masthead (108px hero-bottom→list measured incl. the 36px margin)
+- Code verification: computed audits — pg-layout margin-top 36px (−10.0%), crumb arrow 0px/label 1px soft/button 0px, lesson h2 25.12px (1.57rem cap = 22.88×1.1), reader p 21.3px, h3 22.88px, fr-area 21.3px desktop / 19.36px mobile, mobile gaps 29px @390/320 (28×1.05; 390 sits in the ≤560 band), 36px @561–700; `tsc --noEmit` clean; `practice-map.check.mjs` green except the pre-existing Go-card count drift (other agent, count 3); overflow sweep 0px at all six widths
+- Open question: none — owner-supplied arithmetic; the batch is fully worked

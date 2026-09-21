@@ -87,7 +87,7 @@ export function TierPanel({
         <div className="pg-crumb">
           <button className="pg-crumb-back" type="button" onClick={onExitVolume}>
             <span className="pg-crumb-arrow" aria-hidden="true">←</span>
-            go back
+            <span className="pg-crumb-label">go back</span>
           </button>
           <span className="pg-crumb-title">{activeVolume}</span>
         </div>
