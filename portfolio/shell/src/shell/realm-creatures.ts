@@ -65,6 +65,9 @@ abstract class Creature implements RealmCreature {
   protected fx: number; protected fy: number;
   protected seed: number;
   protected leanSign = 1;
+  // material prominence multiplier (owner 2026-09-21: creatures blend into
+  // the star field, worst on mobile DPR) — species that need presence set it.
+  protected prom = 1;
   protected breath = 0.5;
   protected step = 0;
   protected motionTime = 0;
@@ -161,7 +164,7 @@ abstract class Creature implements RealmCreature {
     // a local locator, not a region-sized fog bank; deliberately almost pure door hue.
     this.dot(cam, out, this.x, this.y,
       clamp(this.radius * 0.16, 16, 32) * (0.94 + this.breath * 0.1),
-      0.015, 0.10 + this.breath * 0.035 + this.glow * 0.055 + pulse * 0.04);
+      0.015, clamp((0.10 + this.breath * 0.035 + this.glow * 0.055 + pulse * 0.04) * this.prom, 0, 1));
     this.emitBody(c, cam, out);
   }
 
@@ -985,6 +988,7 @@ class NoteWebCreature extends Creature {
   constructor(id: string, hue: readonly [number, number, number], fx: number, fy: number, r: number, seed: number) {
     super(id, hue, fx, fy, r, seed);
     this.leanSign = 1;
+    this.prom = 1.2;   // owner 2026-09-21: ×1.2 material (alpha+width), lines bolder
     const N = NoteWebCreature.N, E = NoteWebCreature.E, s = seed | 0;
 
     this.nA = new Float32Array(N); this.nR = new Float32Array(N);
@@ -1041,6 +1045,16 @@ class NoteWebCreature extends Creature {
 
   // ── helpers (no allocation) ──
   private q(v: number): number { v = clamp(v, 0, 1); return ((v * 5 + .5) | 0) / 5; }   // 5 brightness rungs
+
+  // material prominence: the prom multiplier rides every primitive
+  protected override dot(cam: CameraView, out: Emitter, wx: number, wy: number, size: number,
+    white: number, a: number): void {
+    super.dot(cam, out, wx, wy, size * this.prom, white, Math.min(1, a * this.prom));
+  }
+  protected override seg(cam: CameraView, out: Emitter, x1: number, y1: number, x2: number, y2: number,
+    width: number, white: number, a: number): void {
+    super.seg(cam, out, x1, y1, x2, y2, width * this.prom, white, Math.min(1, a * this.prom));
+  }
 
   private homes(T: number): void {
     const N = NoteWebCreature.N;
@@ -1368,6 +1382,7 @@ class TokenPyreCreature extends Creature {
   constructor(id: string, hue: readonly [number, number, number], fx: number, fy: number, r: number, s: number) {
     super(id, hue, fx, fy, r, s);
     this.leanSign = -1;
+    this.prom = 1.2;   // owner 2026-09-21: ×1.2 material (alpha+width), lines bolder
     this.rot = rnd(s) * TAU;
     for (let i = 0; i < this.M; i++) {
       const f = i / (this.M - 1);
@@ -1431,6 +1446,16 @@ class TokenPyreCreature extends Creature {
     } else {
       this.ex += (1 - this.ex) * (1 - Math.exp(-5 * dt));
     }
+  }
+
+  // material prominence: the prom multiplier rides every primitive
+  protected override dot(cam: CameraView, out: Emitter, wx: number, wy: number, size: number,
+    white: number, a: number): void {
+    super.dot(cam, out, wx, wy, size * this.prom, white, Math.min(1, a * this.prom));
+  }
+  protected override seg(cam: CameraView, out: Emitter, x1: number, y1: number, x2: number, y2: number,
+    width: number, white: number, a: number): void {
+    super.seg(cam, out, x1, y1, x2, y2, width * this.prom, white, Math.min(1, a * this.prom));
   }
 
   protected emitBody(c: CreatureContext, cam: CameraView, out: Emitter): void {
