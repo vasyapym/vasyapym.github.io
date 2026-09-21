@@ -1003,3 +1003,30 @@ mobile top 390).
 - Visual inspection: computed (size/fit audits); the trimmed lesson's reading flow should be eyeballed once by the owner
 - Code verification: `tsc --noEmit` clean after the corrected write (two failed attempts disclosed — both restored from git before any valid write); `vite build` clean; `practice-map.check.mjs` green except the pre-existing Go-card count drift (other agent, count 3); php lesson opens at 320 with zero overflow
 - Open question: owner re-test on iOS (the height is now ~45% under the proven-OK size — the crash should be gone; if it still crashes, the threshold is lower than Rust and the paged reader becomes the fix); some «приведённый пример» phrasings in the kept theory now refer to omitted experiments — light editorial smoothing available on request
+
+## Feedback F082
+- Round: none (owner task, 2026-09-21: «make the lesson-window text more readable» with a design-iteration checklist)
+- Verdict: REJECTED (measure) — supersedes F075
+- Scope: lesson text measure — both fr modes, desktop (mobile rides the panel)
+- Decision: the measure cap returns — the reading column is constrained to the 60–75 characters band (owner's explicit reconsideration of the full-width span; the task names it highest priority)
+- User source: task instruction item 1: «Constrain line length (highest priority)… optimal is ~60–75 characters per line… Wrap the reading column in a centered, max-width container. Keep the header/progress UI full-width, but constrain only the prose.»
+- Supersedes: F075 (the no-caps verdict) — the owner re-opens the measure question deliberately
+
+## Feedback F083
+- Round: none (owner task, 2026-09-21, same checklist)
+- Verdict: REJECTED (background bleed)
+- Scope: lesson overlay — the field behind the reading column
+- Decision: no faint text may ghost through behind the prose; the overlay field goes solid
+- User source: task instruction item 2: «There is faint text visible behind the main content… This is visual noise. …background: solid, ensure nothing shows through.»
+- Supersedes: none
+
+## Round R037
+- Goal: F082 + F083 — the lesson text reads as a measured column again and nothing ghosts through the overlay; orchestrator-direct (two CSS edits + one grid hardening; the checklist's color/size/leading items already satisfied by owner-pinned values)
+- Preserved preferences: F074 (one reading voice, 0.84 — contrast verified 11.3:1 ≥ the checklist's 7:1, so the voice stays), F077 (toggle parity — the cap rides the shared section container), F062 (mobile ×0.94), F052 (desktop +10% type)
+- Changes: `practice-map.css` — (1) `.practice-lesson-overlay` background `rgba(11,19,23,0.965)` → solid `#0b1317` (the 3.5% translucency let the page's bright card titles ghost through behind the prose — visible in the before shot); (2) F082 cap: `.practice-reader-section` `width:100%; max-width:min(48rem,100%); margin-inline:auto` (48rem ≈ 72 cyr chars of the 21.3px desktop voice; the cap rides the section container so both fr modes share it — F077 parity holds); `.practice-lesson-body` gets the same treatment at 40rem (its own 17.8px voice); (3) `.practice-reader` gains `grid-template-columns: minmax(0,1fr)` — hardening found in verification: with the section capped, an auto track sized to the fr textarea's intrinsic width collapsed the fr column to ~264px (a grid item with auto margins is never stretched); the explicit definite track restores it (first probe caught sectionLeft delta 252px ON-vs-OFF → 0 after the fix)
+- Before: artifacts/R037/before/lesson-fullwidth-ghost-1440.png (full-width 1118px ≈ 105 cyr chars/line + ghost card titles behind the prose)
+- After: artifacts/R037/after/lesson-capped-1440.png, lesson-fr-on-capped-1440.png, lesson-capped-390.png
+- Visual inspection: performed — before/after at 1440 read (column 768px centered, ghost bleed gone in both fr modes); 390 shot read (cap does not bind, panel-bound as before; the h3 «0/2» two-line number wrap on mobile is pre-existing — stash-verified identical before the change)
+- Code verification: toggle parity measured (sectionLeft delta 0 / textLeft delta 0 OFF↔ON); mobile 390 zero overflow (doc + scroll); `tsc --noEmit` clean; `practice-map.check.mjs` 70 ok / 1 fail — the documented pre-existing Go-card count drift (other agent, fails with the change stashed too)
+- Deliberately unchanged (checklist reconciliation): color stays F074's 0.84 (contrast 11.3:1 already ≥ 7:1 — measured (202,199,192) on #0b1317); font-size 21.3px desktop / 18.2px mobile floor (≥18px ✓); line-height 1.72 (in the 1.6–1.75 band ✓); paragraph rhythm stays F077-governed (the p+p margin item would break toggle parity); no `.reader-background`/`.ghost-layer` elements exist — the grain veil (z4) already sits below the overlay (z60); the scrollbar/progress stay outside the capped column
+- Open question: none blocking — the 48rem cap sits mid-band; if the owner wants it wider/narrower the two literals are the dial

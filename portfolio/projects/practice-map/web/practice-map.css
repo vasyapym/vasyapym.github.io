@@ -494,8 +494,10 @@
      collapsing toolbar resizes the viewport mid-read. */
   height: 100vh;
   height: 100dvh;
-  /* the field itself; the map behind ghosts out entirely */
-  background: rgba(11, 19, 23, 0.965);
+  /* the field itself; the map behind ghosts out entirely — fully opaque,
+     a translucent alpha let the page's bright text ghost through behind
+     the prose (owner batch 2026-09-21: faint characters around the column) */
+  background: #0b1317;
   /* Portaled to <body>, so the field's tokens/scopes don't reach it.
      The template's 20px radius: removed, deliberately. */
   --panel-radius: 0;
@@ -836,8 +838,12 @@
   background: none;
 }
 
-/* ---- the reading column: the brightest thing in the window --------------- */
+/* ---- the reading column: the brightest thing in the window ---------------
+   F082: same measure cap as the reader sections (F075 superseded); 40rem ≈
+   72 characters of this column's own 17.8px desktop voice. */
 .practice-lesson-body {
+  max-width: min(40rem, 100%);
+  margin-inline: auto;
   margin-top: 1.2rem;
   color: rgba(238, 234, 224, 0.84);  /* F074 */
   font-size: 0.95rem;  /* F062 ×0.94 */
@@ -861,15 +867,29 @@
 
 .practice-reader {
   display: grid;
+  /* F082: an explicit definite track — an auto track sizes to the fr
+     textarea's intrinsic width when fr mode replaces the paragraphs, which
+     collapsed the capped section to ~264px and broke the toggle parity. */
+  grid-template-columns: minmax(0, 1fr);
   gap: 1.5rem;
   margin-top: 1.6rem;
 }
 
-/* F075: no additional measure caps — the text spans the panel's own width
-   (the owner lifted the 97ch/62ch caps and the auto-centering). */.practice-reader-section {
+/* F082 supersedes F075 (owner's explicit reconsideration): the measure returns.
+   Cap rides the SECTION container — both fr modes share it, so toggling free
+   reading still moves no paragraph (F077 parity). 48rem ≈ 72 characters of the
+   21.3px desktop prose voice (avg cyr ~0.5em) — inside the 60–75 optimal band;
+   the 100% leg keeps phones on the panel's own width. */
+.practice-reader-section {
   display: grid;
   gap: 0.95em;
   min-width: 0;
+  /* width:100% is required: a grid item with auto margins is never
+     stretched, and in fr mode its max-content is the textarea's intrinsic
+     width — without a definite width the column collapses to ~264px. */
+  width: 100%;
+  max-width: min(48rem, 100%);
+  margin-inline: auto;
   scroll-margin-top: 1.25rem;
 }
 
