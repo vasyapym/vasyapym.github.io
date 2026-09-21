@@ -1030,3 +1030,12 @@ mobile top 390).
 - Code verification: toggle parity measured (sectionLeft delta 0 / textLeft delta 0 OFF↔ON); mobile 390 zero overflow (doc + scroll); `tsc --noEmit` clean; `practice-map.check.mjs` 70 ok / 1 fail — the documented pre-existing Go-card count drift (other agent, fails with the change stashed too)
 - Deliberately unchanged (checklist reconciliation): color stays F074's 0.84 (contrast 11.3:1 already ≥ 7:1 — measured (202,199,192) on #0b1317); font-size 21.3px desktop / 18.2px mobile floor (≥18px ✓); line-height 1.72 (in the 1.6–1.75 band ✓); paragraph rhythm stays F077-governed (the p+p margin item would break toggle parity); no `.reader-background`/`.ghost-layer` elements exist — the grain veil (z4) already sits below the overlay (z60); the scrollbar/progress stay outside the capped column
 - Open question: none blocking — the 48rem cap sits mid-band; if the owner wants it wider/narrower the two literals are the dial
+
+## Feedback F084
+- Round: R037
+- Verdict: LIKED
+- Scope: round R037 as presented (measure cap 48rem/40rem centered + solid overlay field, both fr modes)
+- Decision: the round is accepted — «let's keep it this way»; the measure cap (superseding F075) and the opaque overlay become the standing state
+- User source: «i think this is better. let's keep it this way»
+- Artifact: artifacts/R037/after/lesson-capped-1440.png
+- Supersedes: none (F082's supersession of F075 now ratified by this approval)
