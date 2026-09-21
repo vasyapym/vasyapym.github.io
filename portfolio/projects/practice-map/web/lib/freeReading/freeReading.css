@@ -94,7 +94,9 @@
      focus/blur never shifts it. The 3px accent bar (inset box-shadow on
      focus) occupies 0–3px; the rest is clear space before the first glyph. */
   padding: 0 0 0 0.75rem;
-  color: var(--ink-muted);
+  /* F063: the free-reading text whitens ~8% (alpha .68 → .73) — it is the
+     whole content voice while the mode is on */
+  color: rgba(238, 234, 224, 0.73);
   background: transparent;
   caret-color: var(--ink-accent-bright);
   font: inherit;

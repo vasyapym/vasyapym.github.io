@@ -689,3 +689,48 @@ mobile top 390).
 - Visual inspection: four shots read. Model list opens flush — no rule above record 01; active row's ochre line + separators intact; rows visibly airier (14.72px vertical @1440, 12.96px @390); list narrower (315px); volume crumb: ← go back carries no underline and its text mid-line sits EXACTLY at the title's (391=391 measured); cards/faces groups open flush the same way
 - Code verification: computed audits — mt 34px (36×0.95), share 0.2689 (−7.0% width), list/cards/faces border-top 0px, row bottom hairline 1px intact, row padding 14.72/12.96px, mobile gap 29px + mt 18px untouched, crumb label/back underline 0px + text mids equal within 0px; `tsc --noEmit` clean; `practice-map.check.mjs` green except the pre-existing Go-card count drift (other agent, count 3)
 - Open question: owner verdict on the F058 TRIAL especially — whether flush-open groups (no opening rule) hold, or the interior records' inherited upper lines (the previous record's separator) still bother them — in which case the next trial is dropping member separators too, which would need a new carrier for the ochre state device
+
+## Feedback F060
+- Round: R024 (post-R024 review)
+- Verdict: LIKED (F058 trial verdict) + REJECTED (spacing)
+- Scope: mobile — breathing space after the search bar (search ↔ lesson cards/folders zone)
+- Decision: F058 trial approved («it is good»); the zone after the search bar grows ~5%
+- User source: «it is good. 1. on mobile - increase breathing space around 5% after search bar.»
+
+## Feedback F061
+- Round: none (owner batch, 2026-09-21)
+- Verdict: REJECTED (spacing)
+- Scope: "Go Back" button — gap between the ← arrow and the text
+- Decision: increase by ~7%
+- User source: item 2: «increase breathing space between arrow and "go back" text by around 7%.»
+
+## Feedback F062
+- Round: none (owner batch, 2026-09-21)
+- Verdict: REJECTED (scale) — TARGET AMBIGUOUS, clarification requested before implementation
+- Scope: mobile font size (unqualified)
+- Decision: reduce font size by ~6% on mobile — the element is not named (lesson window? model list? cards? page-wide?)
+- User source: item 3: «on mobile - reduce font size by around 6%.»
+
+## Feedback F063
+- Round: none (owner batch, 2026-09-21)
+- Verdict: REJECTED (tone)
+- Scope: free reading mode text colour (.fr-area) — desktop AND mobile
+- Decision: lighten/brighten/whiten by ~8% (alpha 0.68 → 0.73, ×1.08)
+- User source: item 4: «"lighten"/"brighten"/"whiten" text colour in the free reading mode by around 8%.»
+
+## Feedback F064
+- Round: none (owner addendum, 2026-09-21)
+- Verdict: REJECTED (spacing)
+- Scope: tier heading (`.pg-tier-head h2`, e.g. "fable-5.1-low") ↔ the lesson cards below it
+- Decision: reduce breathing space by ~7% (all breakpoints — no viewport qualifier)
+- User source: «in lesson card list there's a model name (a title) of the group of the lessons. for instance, "fable-5.1-low" and after that there are lesson cards. reduce breathing space between model name and lesson list by aroung 7%»
+
+## Round R025
+- Goal: direct leg of the post-R024 batch — F060 (mobile after-search zone +5%), F061 (arrow↔text gap +7%), F063 (fr text whitened 8%, both viewports), F064 (tier-name↔cards gap −7%) — orchestrator-direct arithmetic; F062 (mobile font −6%) parked pending the owner's target clarification
+- Preserved preferences: F058 approved trial (flush record groups), F057 row breathing, F059 crumb (no underline, level title)
+- Changes: `tiers.css` — `.pg-tier-panel` margin-top 2px ≤700 / 1.5px ≤560 (the after-search zone rides the grid gap: 36→38 / 29→30.5px ≈ +5%); `.pg-crumb-back` gap .55→.59rem (+7.3%); `.pg-tier-head` padding-bottom+margin-bottom ×0.93 at every band (desktop 16+17.6 → 14.88+16.32px, ≤700 12.8+14.4→11.84+13.44, ≤560 11.2+12→10.4+11.2 — the name↔cards visual gap −7%); `freeReading.css` — `.fr-area` color var(--ink-muted) → rgba(238,234,224,0.73) (alpha ×1.08; the whole content voice while the mode is on)
+- Before: artifacts/R024/after/ lineage
+- After: artifacts/R025/after/ (top-1440, volume-1440, top-390, lesson-fr-390)
+- Visual inspection: four shots read. Free-reading prose visibly brighter at 390 and 1440; crumb arrow↔text gap reads airier; tier name sits closer to its cards; mobile after-search zone 31px measured
+- Code verification: computed audits — head pb/mb 14.88/16.32px, crumb gap 9.44px, fr-area rgba(...,0.73) at 1440 AND 390, after-search zone 31px, row padding + panel margins untouched; `tsc --noEmit` clean; `practice-map.check.mjs` green except the pre-existing Go-card count drift (other agent, count 3); probe found one false alarm — the 390 fr measure "absent" was the shared-localStorage toggle racing itself (1440 run left fr ON; the toggle click turned it off), clean-context re-run measures 0.73
+- Open question: F062 — WHICH text on mobile should shrink ~6%? (lesson window prose / model list names / card titles+summaries / page-wide). Parked, awaiting the owner's one-line answer

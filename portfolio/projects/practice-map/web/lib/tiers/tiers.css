@@ -134,7 +134,7 @@
 .pg-tier-panel{grid-area:panel; min-width:0}
 .pg-tier-head{
   display:flex; align-items:center; gap:.8em; flex-wrap:wrap;
-  padding-bottom:1rem; margin-bottom:1.1rem;
+  padding-bottom:.93rem; margin-bottom:1.02rem;  /* F064: name↔cards −7% */
 }
 .pg-tier-head h2{
   margin:0; font-family:var(--sans); font-weight:600;
@@ -248,7 +248,7 @@
 /* F051: the underline lives beneath the TEXT only — the ← arrow rides free
    above the hairline. the label span carries the register line. */
 .pg-crumb-back{
-  display:inline-flex; align-items:center; gap:.55rem; min-height:44px; flex:none;
+  display:inline-flex; align-items:center; gap:.59rem; min-height:44px; flex:none;  /* F061: .55→.59 ≈ +7% */
   border:0; padding:0 .3em; background:transparent; cursor:pointer; color:var(--ink-text);
   font-family:var(--mono); font-size:.8rem; font-weight:500; letter-spacing:.02em; text-transform:lowercase;
   transition:color 180ms ease; /* F059: no underline anywhere */
@@ -312,7 +312,8 @@
   .pg-tier-count{justify-self:end}
   .pg-card{padding:.95rem}
   .pg-face-head{padding:1rem}
-  .pg-tier-head{padding-bottom:.8rem; margin-bottom:.9rem}
+  .pg-tier-head{padding-bottom:.74rem; margin-bottom:.84rem}  /* F064 −7% */
+  .pg-tier-panel{margin-top:2px}                             /* F060: after-search zone 36→38px ≈ +5% */
   .pg-crumb{padding-bottom:.8rem; margin-bottom:.9rem}
   .pg-cards{gap:0}
   .pg-pal{top:0; left:0; transform:none; width:100%; border-radius:0 0 var(--panel-radius) var(--panel-radius); border-left:0; border-right:0; border-top:0}
@@ -322,7 +323,8 @@
   .pg-layout{margin-top:18px; gap:29px}       /* F054: was 28px — +5%, still clearly > internal rhythm */
   .pg-card{padding:.85rem}
   .pg-face-head{padding:.9rem}
-  .pg-tier-head{padding-bottom:.7rem; margin-bottom:.75rem}
+  .pg-tier-head{padding-bottom:.65rem; margin-bottom:.7rem}  /* F064 −7% */
+  .pg-tier-panel{margin-top:1.5px}                           /* F060: after-search zone 29→30.5px ≈ +5% */
   .pg-crumb{padding-bottom:.7rem; margin-bottom:.75rem}
   .pg-crumb-title{margin-left:.7rem; padding-left:.7rem}
   .pg-card-foot{gap:.5rem}
