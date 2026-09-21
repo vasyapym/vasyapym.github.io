@@ -820,3 +820,27 @@ mobile top 390).
 - Visual inspection: NOT RUN as shots (arithmetically verified gap −6.7% desktop / −7.4% mobile; the surface was visually inspected in R027)
 - Code verification: audits — desktop pb 13.92px + mb 15.2px (gap 29px measured), mobile pb 9.6 + mb 10.4 (gap 20px); `tsc --noEmit` clean
 - Open question: none on this leg; F071 (highlight ×5 variants) goes to the chat-model relay next
+
+## Feedback F072
+- Round: none (owner batch, 2026-09-21, post-R028 review)
+- Verdict: REJECTED (spacing)
+- Scope: tier heading ↔ first lesson card — all breakpoints
+- Decision: breathing space smaller by ~7% again (third −7% pass on the F064/F070 gap)
+- User source: «make the gap even smaller, by around 7%.»
+
+## Feedback F073
+- Round: none (owner batch, 2026-09-21)
+- Verdict: REJECTED (rhythm equality)
+- Scope: model list ↔ search bar vs search bar ↔ model name (the heading above the card list)
+- Decision: the two gaps should be around the same
+- User source: «the gap between model list and search bar should be around the same as gap between search bar and model name (which comes before lesson card list).»
+
+## Round R029
+- Goal: F072 (name↔cards −7%, third pass) + F073 (equalize list↔search vs search↔name gaps) — orchestrator-direct arithmetic while the F071 highlight relay runs
+- Preserved preferences: F064/F070 (−7% ×2), F065–F069 lineage
+- Changes: `tiers.css` — `.pg-layout` gap 28px 30px → 30px uniform (desktop: list↔search 30px = search↔name 30px, was 30/28; mobile stacked stays as-is — already ≈equal at 36/37.5 and 29/30.5 incl. F060's +5% zone); `.pg-tier-head` pb+mb ×0.93 third pass at every band (desktop 31.2→29.1→27.0px measured gap 27; ≤700 → .64/.73rem; ≤560 → .56/.6rem)
+- Before: measured 30/28/29 (desktop) + 21.6px mobile name-gap
+- After: measured 30/30/27 (desktop) + 19px mobile name-gap; no shots (pure rhythm arithmetic on inspected surfaces)
+- Visual inspection: NOT RUN as shots (arithmetically verified; surfaces visually inspected in R027/R028)
+- Code verification: headless measure — hGap 30, vGap 30, name↔cards 27px @1440; 36/36(≈), 19px @390; `tsc --noEmit` clean; `practice-map.check.mjs` green except the pre-existing Go-card count drift (other agent, count 3)
+- Open question: none — F071 relay (5 highlight variants) pending the owner's pick
