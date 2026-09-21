@@ -882,3 +882,48 @@ mobile top 390).
 - Visual inspection: element shot read — the chosen row reads as: warm ordinal + outdented entry over a resting separator, name at muted; rows 02–05 untouched; hover/focus states verified computed (hover = ink line + full name + outdent persists; keyboard focus = full ochre + full ink)
 - Code verification: audits — active name 0.68, transform matrix(-4px), ordinal rgb(185,127,69), sample 0.48, separator 0.13, bg transparent; active+hover full/ink/outdent-persists; active+focus full ochre/full ink (fv verified — one probe lesson: the 180ms border transition must settle before reading computed styles, the false "focus broken" was mid-transition); overflow 0px at 1440/1024/700/560/390/320; `tsc --noEmit` clean; `practice-map.check.mjs` green except the pre-existing Go-card count drift (other agent, count 3)
 - Open question: whether the picked carriers extend to lesson cards/folder faces (v2 needs an identifier there; v1's outdent ports directly) — owner's call, not assumed
+
+## Feedback F072
+- Round: R031 (post-R031 review)
+- Verdict: LIKED
+- Scope: the integrated selection pair (hanging entry + warm locator)
+- Decision: «great. i like it.» — the R031 treatment stands
+- User source: «great. i like it.»
+
+## Feedback F073
+- Round: none (owner batch, 2026-09-21)
+- Verdict: REJECTED (removal)
+- Scope: free reading mode — the ochre left-edge bar on the currently-edited paragraph (.fr[data-focused] .fr-area inset shadow)
+- Decision: remove entirely
+- User source: item 1: «In reading mode, remove the orange highlight bar on the left side of the currently active (being edited) paragraph.»
+
+## Feedback F074
+- Round: none (owner batch, 2026-09-21)
+- Verdict: REJECTED (tone + consistency)
+- Scope: lesson-window reading text — BOTH modes
+- Decision: reading-mode (fr) text lighter by an additional ~15% (alpha .73 → .84), and the SAME color applies when reading mode is off — consistent text color across both modes (reader prose 1.0 → .84)
+- User source: item 2: «lighten the text color by an additional ~15% (make it whiter). This same text/font color should also apply when reading mode is off (i.e., consistent text color across both modes).»
+
+## Feedback F075
+- Round: none (owner batch, 2026-09-21)
+- Verdict: REJECTED (measure)
+- Scope: lesson text content width — both modes, desktop
+- Decision: no additional width constraints — the text spans the panel's own width (the 97ch/62ch caps and the auto-centering go; the project's outer boundaries remain)
+- User source: item 3: «increase the text content width in both reading mode on and off. It should span the full width of the project itself (i.e., no additional width constraints, while still respecting the project's outer boundaries).»
+
+## Feedback F076
+- Round: none (owner batch, 2026-09-21)
+- Verdict: REJECTED (alignment)
+- Scope: "Go Back" arrow ↔ lesson cards' left side
+- Decision: the arrow must align with the cards' left content edge (it currently sits further left than the cards' text)
+- User source: item 4: «"go back" button's arrow should be alligned with lesson cards' left side (currently it is more to the left than them (looks not proportionate)»
+
+## Round R032
+- Goal: direct leg of the post-R031 batch — F073 (fr edit bar removed), F074 (one reading voice, 0.84 both modes), F075 (measure caps lifted), F076 (go-back arrow on the cards' edge) — orchestrator-direct: deletions + arithmetic
+- Preserved preferences: F072 verdict (R031 selection pair approved), F062 mobile scale, touch floors, the reading-room frame
+- Changes: `freeReading.css` — the `.fr[data-focused] .fr-area` inset ochre bar rule deleted (F073); `.fr-area` color .73 → rgba(238,234,224,0.84). `practice-map.css` — reader prose/li/lesson-body color var(--ink-text) → rgba(238,234,224,0.84) (F074: one voice across both modes; note: the reader side steps DOWN from 1.0 — the consistency rule governs; headings keep full ink); the 97ch shared cap + 62ch body cap + margin-inline auto deleted (F075: the text spans the panel's own width). `tiers.css` — `.pg-crumb-back` padding-left 1.25rem desktop, .95rem ≤700, .85rem ≤560 (F076: the arrow rides the cards' left content edge, matching each band's card inset)
+- Before: artifacts/R031/after/ lineage
+- After: artifacts/R032/after/ (lesson-1440, lesson-fr-1440)
+- Visual inspection: two shots read. The wide measure holds (the contents index wraps in 4 rows, prose spans edge to edge of the panel's gutters at 0.84, line-length comfortable at 1.72 leading); fr focus shows no bar; go-back arrow sits exactly on the cards' text edge
+- Code verification: audits — prose AND fr rgba(...,0.84) @1440; reader width 1118px = panel inner width (caps gone); fr focused shadow none; crumb arrowLeft == cardTextLeft @1440 (472.4 = 472.4) and @390 (29.6 = 29.6); `tsc --noEmit` clean; `practice-map.check.mjs` green except the pre-existing Go-card count drift (other agent, count 3)
+- Open question: none — the batch is fully worked

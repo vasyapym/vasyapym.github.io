@@ -294,8 +294,8 @@
 /* F051: the underline lives beneath the TEXT only — the ← arrow rides free
    above the hairline. the label span carries the register line. */
 .pg-crumb-back{
-  display:inline-flex; align-items:center; gap:.59rem; min-height:44px; flex:none;  /* F061: .55→.59 ≈ +7% */
-  border:0; padding:0 .3em; background:transparent; cursor:pointer; color:var(--ink-text);
+  display:inline-flex; align-items:center; gap:.59rem; min-height:44px; flex:none;
+  border:0; padding:0 .3em 0 1.25rem; background:transparent; cursor:pointer; color:var(--ink-text);  /* F076: the arrow rides the cards' left content edge */
   font-family:var(--mono); font-size:.8rem; font-weight:500; letter-spacing:.02em; text-transform:lowercase;
   transition:color 180ms ease; /* F059: no underline anywhere */
 }
@@ -361,6 +361,7 @@
   .pg-tier-head{padding-bottom:.64rem; margin-bottom:.73rem}  /* F064+F070+F072 ×3 */
   .pg-tier-panel{margin-top:2px}                             /* F060: after-search zone 36→38px ≈ +5% */
   .pg-crumb{padding-bottom:.8rem; margin-bottom:.9rem}
+  .pg-crumb-back{padding-left:.95rem}                        /* F076: matches the ≤700 card inset */
   .pg-cards{gap:0}
   .pg-pal{top:0; left:0; transform:none; width:100%; border-radius:0 0 var(--panel-radius) var(--panel-radius); border-left:0; border-right:0; border-top:0}
   .pg-pal-list{max-height:64vh}
@@ -372,6 +373,7 @@
   .pg-tier-head{padding-bottom:.56rem; margin-bottom:.6rem}  /* F064+F070+F072 ×3 */
   .pg-tier-panel{margin-top:1.5px}                           /* F060: after-search zone 29→30.5px ≈ +5% */
   .pg-crumb{padding-bottom:.7rem; margin-bottom:.75rem}
+  .pg-crumb-back{padding-left:.85rem}                        /* F076: matches the ≤560 card inset */
   .pg-crumb-title{margin-left:.7rem; padding-left:.7rem}
   .pg-card-foot{gap:.5rem}
 }

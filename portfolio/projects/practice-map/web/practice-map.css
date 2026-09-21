@@ -838,9 +838,8 @@
 
 /* ---- the reading column: the brightest thing in the window --------------- */
 .practice-lesson-body {
-  max-width: 62ch;
   margin-top: 1.2rem;
-  color: var(--ink-text);
+  color: rgba(238, 234, 224, 0.84);  /* F074 */
   font-size: 0.95rem;  /* F062 ×0.94 */
   line-height: 1.65;
   text-wrap: pretty;
@@ -866,17 +865,8 @@
   margin-top: 1.6rem;
 }
 
-/* Wider window, same centered column: the reading measure stays capped
-   (97ch) so Russian lines keep their length; chrome stays full-bleed. */
-.practice-lesson-objectives,
-.practice-reader-nav,
-.practice-reader,
-.practice-lesson-body {
-  max-width: 97ch;
-  margin-inline: auto;
-}
-
-.practice-reader-section {
+/* F075: no additional measure caps — the text spans the panel's own width
+   (the owner lifted the 97ch/62ch caps and the auto-centering). */.practice-reader-section {
   display: grid;
   gap: 0.95em;
   min-width: 0;
@@ -923,7 +913,7 @@
   /* flush column: no stray indent — the measure itself is the focus */
   padding-left: 0;
   margin: 0;
-  color: var(--ink-text);
+  color: rgba(238, 234, 224, 0.84);  /* F074: one reading voice in both modes */
   /* F062: mobile prose ×0.94 (dialing back F052's +10% on phones) */
   font-size: max(1.14rem, 18.2px);
   line-height: 1.72;
@@ -986,7 +976,7 @@
 
 .practice-reader-section li,
 .practice-lesson-body li {
-  color: var(--ink-text);
+  color: rgba(238, 234, 224, 0.84);  /* F074 */
   font-size: max(1.14rem, 18.2px);  /* F062 ×0.94 */
   line-height: 1.72;
   /* `anywhere`, not `break-word`: inline `code` inherits it; min-content

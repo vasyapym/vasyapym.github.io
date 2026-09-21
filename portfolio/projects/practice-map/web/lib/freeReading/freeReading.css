@@ -94,9 +94,9 @@
      focus/blur never shifts it. The 3px accent bar (inset box-shadow on
      focus) occupies 0–3px; the rest is clear space before the first glyph. */
   padding: 0 0 0 0.75rem;
-  /* F063: the free-reading text whitens ~8% (alpha .68 → .73) — it is the
-     whole content voice while the mode is on */
-  color: rgba(238, 234, 224, 0.73);
+  /* F074: the reading text is ONE voice across both modes — rgba(...,0.84)
+     (the fr surface rides the reader's value; .73 → .84 = the +15%) */
+  color: rgba(238, 234, 224, 0.84);
   background: transparent;
   caret-color: var(--ink-accent-bright);
   font: inherit;
@@ -120,11 +120,6 @@
 
 .fr-area:focus {
   outline: none;
-}
-
-/* A quiet "you are editing" mark: hairline accent bar on the left edge. */
-.fr[data-focused] .fr-area {
-  box-shadow: inset 3px 0 0 color-mix(in srgb, var(--ink-accent) 55%, transparent);
 }
 
 .fr-note {
