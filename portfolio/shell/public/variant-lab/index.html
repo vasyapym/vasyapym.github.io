@@ -4,17 +4,21 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <meta name="robots" content="noindex">
-  <title>Variant lab — Tufte-restraint presentations</title>
+  <title>Variant lab</title>
+  <script>
+    document.documentElement.dataset.mode =
+      new URLSearchParams(location.search).get("v") === "measure" ? "measure" : "tufte";
+  </script>
   <link rel="stylesheet" href="./lab.css">
 </head>
 <body>
   <header class="lab-head">
-    <h1>Variant lab — Tufte-restraint presentations</h1>
+    <h1>Variant lab</h1>
     <p>
-      Five minimal, structurally different presentations of the same six
-      projects. One full-width row per project, one illustration per viewport,
-      native scroll, no theatrical motion. Cards are fake static stand-ins.
-      Switch variants below; each is a full-page mode.
+      Tufte-restraint presentations of the same six projects (one full-width
+      row per project, one illustration per viewport, native scroll), plus a
+      measure preview: the real landing sections with a narrower centered
+      content column. Cards are fake static stand-ins.
     </p>
     <nav aria-label="Variants">
       <a href="./?v=ledger">Ledger</a>
@@ -22,6 +26,7 @@
       <a href="./?v=folio">Folio</a>
       <a href="./?v=plate">Plate</a>
       <a href="./?v=index">Index</a>
+      <a href="./?v=measure">Measure (real landing)</a>
       <a href="/">← back to the site</a>
     </nav>
   </header>

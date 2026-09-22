@@ -222,3 +222,17 @@ Task: rethink how the 6 project cards are presented on the main page (desktop). 
 - Visual inspection: performed — paper bg, serif, hairline rules, oldstyle numerals, small-caps tech; Ledger figure+numbered caption; Sidenote margin text sticky; all hold one illustration per viewport.
 - Code verification: probe `portfolio/probes/variant-lab-tufte.mjs` — 6/6 sections in every variant, no console errors (favicon 404 only), Index rail marks the centred section ("4 Cat Runner").
 - Open question: owner checks the five variants by scrolling; the chosen one becomes the shell-adaptation round (palette decision — keep Tufte paper or re-tint to dark ink — happens there).
+
+## Round R018
+- Goal: owner rejected the Tufte variants too ("this are not it") and named the actual desire: breathing space — smaller width for hero, threshold, cards on desktop (more readable, not all over the place). Direction settled in speculation: a content measure on the existing sections, rails optional later. Delegated to the chat model: a CSS-only "measure patch" against the REAL shell selectors, previewed in the lab as `?v=measure` (dark mimic with real class names), ported to the main page after approval.
+- Preserved preferences: F001, F002 (as corrected by F003).
+- Key evidence gathered: `.signal-index-shell { width: min(100% - 72px, 1280px) }`; hero 100svh grid with full-bleed canvas, copy panel max 38rem justify-start, beneath rail auto-fit minmax(320px,1fr) + 900–1199 3-col override; threshold `.rt-f` full-bleed ::before/::after with `.rt-f-inner` width:100%; projects grid 2-col gap 24px, mobile 1-col <900px.
+- Changes: none yet — delegation round.
+- Open question: owner pastes the model's patch; orchestrator integrates into the lab for review.
+
+## Round R019
+- Goal: the model's measure patch integrated and live in the lab as `?v=measure` — a dark mimic of the real landing (real class names: shell, hero-fluid + copy + beneath rail, rt-f threshold, projects grid) with the patch applied verbatim, for the owner to judge before porting to the main page.
+- Patch summary (model-owned decisions): `--measure: clamp(52rem, 86vw, 65rem)` (832→1040px); ≥900px only; hero copy indents to the measure's left edge via `--measure-inset` (justify-self:start untouched — the ochre left border stays the reading spine); beneath rail capped + centered, pinned to 3 columns ≥900 (auto-fit would silently drop to 2 at 1040px) with fluid gap clamp; threshold `.rt-f-inner` capped + centered, decorations stay full-bleed; grid capped + centered, still 2 columns; mobile byte-identical (patch is ≥900 only); no motion added.
+- Lab repairs (disclosed): stand-in marks moved to CSS-var palette (one set serves paper + dark), data-mode on `<html>` (inline script prevents paper flash), global border-box mirrored into measure mode (the real shell has it globally; without it the rail inflated 1040→1090), dark card styles re-added, Unbounded display font not loaded in the lab (sans fallback).
+- Verified geometry (probe): at 1440 and 1920 — beneath rail, `.rt-f-inner`, `.signal-index-grid` all at left 440/200, width exactly 1040; hero copy left = measure left edge; grid 2 cols; rail 3 cols; Tufte modes regress clean (6/6 sections). Screenshots: artifacts/R019/measure-hero.png, measure-threshold.png, measure-cards.png, measure-cards-1920.png.
+- Open question: owner judges the measure in the lab; if liked, the same patch ports to the real shell (styles.css + deleting the folded 900–1199 override) as the next round.

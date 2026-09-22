@@ -21727,10 +21727,10 @@
   var import_react = __toESM(require_react(), 1);
   var import_client = __toESM(require_client(), 1);
   var import_jsx_runtime = __toESM(require_jsx_runtime(), 1);
-  var S = { stroke: "rgba(17,17,17,0.75)", fill: "none", strokeWidth: 1.1 };
-  var S2 = { stroke: "rgba(17,17,17,0.4)", fill: "none", strokeWidth: 1 };
-  var A = "#a8652d";
-  var P = { fill: "rgba(17,17,17,0.06)", stroke: "none" };
+  var S = { stroke: "var(--mk-ink)", fill: "none", strokeWidth: 1.1, strokeOpacity: 0.75 };
+  var S2 = { stroke: "var(--mk-ink)", fill: "none", strokeWidth: 1, strokeOpacity: 0.4 };
+  var A = "var(--mk-accent)";
+  var P = { fill: "var(--mk-soft)", stroke: "none" };
   function MarkQuicknotes() {
     return /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("svg", { viewBox: "0 0 260 160", role: "img", "aria-label": "Quicknotes mark", children: [
       /* @__PURE__ */ (0, import_jsx_runtime.jsx)("ellipse", { cx: "128", cy: "108", rx: "86", ry: "26", ...P }),
@@ -21747,7 +21747,7 @@
     return /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("svg", { viewBox: "0 0 260 160", role: "img", "aria-label": "Spine mark", children: [
       /* @__PURE__ */ (0, import_jsx_runtime.jsx)("path", { d: "M96 44 v52 h40", ...S }),
       /* @__PURE__ */ (0, import_jsx_runtime.jsx)("path", { d: "M104 52 v36 h24", ...S2 }),
-      /* @__PURE__ */ (0, import_jsx_runtime.jsx)("g", { transform: "rotate(9 168 66)", children: /* @__PURE__ */ (0, import_jsx_runtime.jsx)("rect", { x: "146", y: "44", width: "42", height: "42", fill: "rgba(17,17,17,0.06)", ...S }) }),
+      /* @__PURE__ */ (0, import_jsx_runtime.jsx)("g", { transform: "rotate(9 168 66)", children: /* @__PURE__ */ (0, import_jsx_runtime.jsx)("rect", { x: "146", y: "44", width: "42", height: "42", fill: "var(--mk-soft)", ...S }) }),
       /* @__PURE__ */ (0, import_jsx_runtime.jsx)("path", { d: "M170 56 l14 22 -9 -2 -3 9 z", fill: A })
     ] });
   }
@@ -21763,7 +21763,7 @@
               y: 44 + r * 15,
               width: "10",
               height: "10",
-              fill: r === 1 && c === 5 ? A : "rgba(17,17,17,0.35)",
+              fill: r === 1 && c === 5 ? A : "var(--mk-mid)",
               opacity: r === 1 && c === 5 ? 0.9 : 0.5 - r * 0.08
             },
             `${r}-${c}`
@@ -21781,11 +21781,11 @@
   function MarkCat() {
     return /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("svg", { viewBox: "0 0 260 160", role: "img", "aria-label": "Cat Runner mark", children: [
       /* @__PURE__ */ (0, import_jsx_runtime.jsx)("ellipse", { cx: "130", cy: "96", rx: "78", ry: "24", ...P }),
-      /* @__PURE__ */ (0, import_jsx_runtime.jsx)("path", { d: "M104 62 l8 -18 10 12 z", fill: "rgba(17,17,17,0.8)" }),
-      /* @__PURE__ */ (0, import_jsx_runtime.jsx)("path", { d: "M156 62 l-8 -18 -10 12 z", fill: "rgba(17,17,17,0.8)" }),
-      /* @__PURE__ */ (0, import_jsx_runtime.jsx)("ellipse", { cx: "130", cy: "82", rx: "34", ry: "26", fill: "rgba(17,17,17,0.82)" }),
-      /* @__PURE__ */ (0, import_jsx_runtime.jsx)("circle", { cx: "119", cy: "80", r: "2.6", fill: "#fffff8" }),
-      /* @__PURE__ */ (0, import_jsx_runtime.jsx)("circle", { cx: "141", cy: "80", r: "2.6", fill: "#fffff8" }),
+      /* @__PURE__ */ (0, import_jsx_runtime.jsx)("path", { d: "M104 62 l8 -18 10 12 z", fill: "var(--mk-strong)" }),
+      /* @__PURE__ */ (0, import_jsx_runtime.jsx)("path", { d: "M156 62 l-8 -18 -10 12 z", fill: "var(--mk-strong)" }),
+      /* @__PURE__ */ (0, import_jsx_runtime.jsx)("ellipse", { cx: "130", cy: "82", rx: "34", ry: "26", fill: "var(--mk-strong)" }),
+      /* @__PURE__ */ (0, import_jsx_runtime.jsx)("circle", { cx: "119", cy: "80", r: "2.6", fill: "var(--mk-void)" }),
+      /* @__PURE__ */ (0, import_jsx_runtime.jsx)("circle", { cx: "141", cy: "80", r: "2.6", fill: "var(--mk-void)" }),
       /* @__PURE__ */ (0, import_jsx_runtime.jsx)("line", { x1: "86", y1: "86", x2: "108", y2: "88", ...S2 }),
       /* @__PURE__ */ (0, import_jsx_runtime.jsx)("line", { x1: "86", y1: "94", x2: "108", y2: "92", ...S2 }),
       /* @__PURE__ */ (0, import_jsx_runtime.jsx)("line", { x1: "174", y1: "86", x2: "152", y2: "88", ...S2 }),
@@ -21810,7 +21810,7 @@
   function MarkRaft() {
     return /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("svg", { viewBox: "0 0 260 160", role: "img", "aria-label": "Raft Cluster mark", children: [
       /* @__PURE__ */ (0, import_jsx_runtime.jsx)("rect", { x: "84", y: "52", width: "92", height: "12", rx: "6", ...S }),
-      /* @__PURE__ */ (0, import_jsx_runtime.jsx)("rect", { x: "72", y: "70", width: "116", height: "12", rx: "6", fill: "rgba(17,17,17,0.07)", ...S }),
+      /* @__PURE__ */ (0, import_jsx_runtime.jsx)("rect", { x: "72", y: "70", width: "116", height: "12", rx: "6", fill: "var(--mk-soft)", ...S }),
       /* @__PURE__ */ (0, import_jsx_runtime.jsx)("rect", { x: "92", y: "88", width: "76", height: "12", rx: "6", ...S2 }),
       /* @__PURE__ */ (0, import_jsx_runtime.jsx)("path", { d: "M56 122 q18 -8 36 0 t36 0 t36 0 t36 0", ...S2 }),
       /* @__PURE__ */ (0, import_jsx_runtime.jsx)("path", { d: "M64 134 q18 -8 36 0 t36 0 t36 0", ...S2 }),
@@ -21820,6 +21820,7 @@
   var META = [
     {
       id: "quicknotes",
+      tag: "notes",
       title: "Quicknotes",
       desc: "Fast markdown notes that live on-device and sync through Firebase \u2014 [[wiki-links]], live preview, command palette, one-button zip export.",
       tech: ["Firebase", "Firestore", "Vanilla ES modules", "Static hosting"],
@@ -21827,6 +21828,7 @@
     },
     {
       id: "spine",
+      tag: "layout engine",
       title: "Spine",
       desc: "Drag, nest and retune Flexbox and Grid containers in real time \u2014 a Go-to-WebAssembly engine with undo/redo and clean HTML/CSS export.",
       tech: ["Go", "WebAssembly", "Flexbox & Grid", "syscall/js"],
@@ -21834,6 +21836,7 @@
     },
     {
       id: "waste-of-tokens",
+      tag: "playground",
       title: "Waste of tokens",
       desc: "A dense pixel-grid playground where prompts burn down into geometry \u2014 every token spent leaves a mark on the plate.",
       tech: ["Canvas", "Generative grid", "TypeScript"],
@@ -21841,6 +21844,7 @@
     },
     {
       id: "cat-runner",
+      tag: "game",
       title: "Cat Runner",
       desc: "An endless runner with a hand-inked cat \u2014 procedural obstacles, simple physics, and a leaderboard that survives refreshes.",
       tech: ["TypeScript", "Canvas", "Firebase"],
@@ -21848,6 +21852,7 @@
     },
     {
       id: "practice-map",
+      tag: "learning map",
       title: "Practice Map",
       desc: "Interactive practice-map reader: deep lessons wired as areas, sections and blocks, with shadow-typing drills.",
       tech: ["React", "Markdown pipeline", "Vite"],
@@ -21855,6 +21860,7 @@
     },
     {
       id: "raft-cluster",
+      tag: "systems",
       title: "Raft Cluster",
       desc: "A visualization of a Raft consensus cluster \u2014 elections, log replication and failovers, drawn as living tide lines.",
       tech: ["Go", "WebSockets", "SVG"],
@@ -21946,9 +21952,82 @@
       ] }, p.id)) })
     ] });
   }
+  function MeasurePage() {
+    return /* @__PURE__ */ (0, import_jsx_runtime.jsx)("main", { className: "signal-index", children: /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", { className: "signal-index-shell", children: [
+      /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("section", { className: "signal-index-hero signal-index-hero-fluid", children: [
+        /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("header", { className: "signal-index-header", children: [
+          /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", { className: "signal-index-identity", children: [
+            /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("a", { className: "signal-index-wordmark", href: "/variant-lab/index.html", children: [
+              /* @__PURE__ */ (0, import_jsx_runtime.jsx)("span", { className: "signal-index-mark", "aria-hidden": "true" }),
+              "Vasily Argounov"
+            ] }),
+            /* @__PURE__ */ (0, import_jsx_runtime.jsx)("span", { className: "signal-index-identity-divider", "aria-hidden": "true", children: "|" }),
+            /* @__PURE__ */ (0, import_jsx_runtime.jsx)("a", { className: "signal-index-contact", href: "mailto:vasyapym@gmail.com", children: "vasyapym@gmail.com" })
+          ] }),
+          /* @__PURE__ */ (0, import_jsx_runtime.jsx)("span", { className: "signal-index-count", children: "06" })
+        ] }),
+        /* @__PURE__ */ (0, import_jsx_runtime.jsx)("div", { className: "signal-index-hero-fluid-canvas mim", "aria-hidden": "true" }),
+        /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", { className: "signal-index-hero-copy", children: [
+          /* @__PURE__ */ (0, import_jsx_runtime.jsx)("p", { className: "signal-index-hero-kicker", children: "currents" }),
+          /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("h1", { className: "signal-index-hero-headline", "aria-label": "prototypes & small machines", children: [
+            /* @__PURE__ */ (0, import_jsx_runtime.jsx)("span", { className: "signal-index-hero-line", "aria-hidden": "true", children: /* @__PURE__ */ (0, import_jsx_runtime.jsx)("span", { className: "signal-index-hero-line-in", children: "prototypes" }) }),
+            /* @__PURE__ */ (0, import_jsx_runtime.jsx)("span", { className: "signal-index-hero-line", "aria-hidden": "true", children: /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("span", { className: "signal-index-hero-line-in", children: [
+              /* @__PURE__ */ (0, import_jsx_runtime.jsx)("span", { className: "signal-index-hero-amp", children: "&" }),
+              " small"
+            ] }) }),
+            /* @__PURE__ */ (0, import_jsx_runtime.jsx)("span", { className: "signal-index-hero-line", "aria-hidden": "true", children: /* @__PURE__ */ (0, import_jsx_runtime.jsx)("span", { className: "signal-index-hero-line-in", children: "machines" }) })
+          ] }),
+          /* @__PURE__ */ (0, import_jsx_runtime.jsx)("p", { className: "signal-index-hero-note", children: "a developer portfolio \u2014 six small machines, drawn in ink" })
+        ] }),
+        /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", { className: "signal-index-beneath", children: [
+          /* @__PURE__ */ (0, import_jsx_runtime.jsx)("p", { className: "signal-index-beneath-label", children: "beneath the surface" }),
+          META.map((m, i) => /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("a", { className: "signal-index-beneath-row", href: "#projects", children: [
+            /* @__PURE__ */ (0, import_jsx_runtime.jsx)("span", { children: String(i + 1).padStart(2, "0") }),
+            /* @__PURE__ */ (0, import_jsx_runtime.jsx)("strong", { children: m.title }),
+            /* @__PURE__ */ (0, import_jsx_runtime.jsx)("span", { children: m.tag })
+          ] }, m.id))
+        ] })
+      ] }),
+      /* @__PURE__ */ (0, import_jsx_runtime.jsx)("section", { className: "realm-threshold rt-f", "aria-labelledby": "realm-threshold-title", children: /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", { className: "rt-f-inner", children: [
+        /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("h2", { id: "realm-threshold-title", children: [
+          /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("span", { className: "rt-f-line", children: [
+            /* @__PURE__ */ (0, import_jsx_runtime.jsx)("span", { className: "rt-f-phrase", children: "the same work," }),
+            /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("span", { className: "rt-f-register", children: [
+              /* @__PURE__ */ (0, import_jsx_runtime.jsx)("span", { className: "rt-f-count", children: "08" }),
+              /* @__PURE__ */ (0, import_jsx_runtime.jsx)("span", { className: "rt-f-noun rt-f-doors", children: "works" })
+            ] })
+          ] }),
+          /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("span", { className: "rt-f-line rt-f-below", children: [
+            /* @__PURE__ */ (0, import_jsx_runtime.jsx)("span", { className: "rt-f-phrase", children: "beneath the surface." }),
+            /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("span", { className: "rt-f-register", children: [
+              /* @__PURE__ */ (0, import_jsx_runtime.jsx)("span", { className: "rt-f-count", children: "08" }),
+              /* @__PURE__ */ (0, import_jsx_runtime.jsx)("span", { className: "rt-f-noun rt-f-doors", children: "doors" })
+            ] })
+          ] })
+        ] }),
+        /* @__PURE__ */ (0, import_jsx_runtime.jsx)("button", { className: "realm-threshold-enter", type: "button", children: /* @__PURE__ */ (0, import_jsx_runtime.jsx)("span", { className: "rt-f-entry-copy", children: "enter the deep" }) })
+      ] }) }),
+      /* @__PURE__ */ (0, import_jsx_runtime.jsx)("section", { className: "signal-index-projects", id: "projects", "aria-label": "Projects", children: /* @__PURE__ */ (0, import_jsx_runtime.jsx)("div", { className: "signal-index-grid", children: META.map((m) => /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("article", { className: "lab-card", children: [
+        /* @__PURE__ */ (0, import_jsx_runtime.jsx)("div", { className: "lab-card-stage", children: /* @__PURE__ */ (0, import_jsx_runtime.jsx)(m.Mark, {}) }),
+        /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", { className: "lab-card-copy", children: [
+          /* @__PURE__ */ (0, import_jsx_runtime.jsx)("p", { className: "lab-card-topline", children: m.tag }),
+          /* @__PURE__ */ (0, import_jsx_runtime.jsx)("h3", { className: "lab-card-title", children: m.title }),
+          /* @__PURE__ */ (0, import_jsx_runtime.jsx)("p", { className: "lab-card-desc", children: m.desc }),
+          /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", { className: "lab-card-footer", children: [
+            /* @__PURE__ */ (0, import_jsx_runtime.jsx)("span", { className: "lab-card-tech", children: m.tech.join(" \xB7 ") }),
+            /* @__PURE__ */ (0, import_jsx_runtime.jsx)("span", { className: "lab-card-open", children: "open \u2197" })
+          ] })
+        ] })
+      ] }, m.id)) }) })
+    ] }) });
+  }
   var V = { ledger: Ledger, sidenote: Sidenote, folio: Folio, plate: Plate, index: Index };
   function App() {
     const key = new URLSearchParams(location.search).get("v") ?? "ledger";
+    (0, import_react.useEffect)(() => {
+      document.documentElement.dataset.mode = key === "measure" ? "measure" : "tufte";
+    }, [key]);
+    if (key === "measure") return /* @__PURE__ */ (0, import_jsx_runtime.jsx)(MeasurePage, {});
     const Variant = V[key] ?? V.ledger;
     return /* @__PURE__ */ (0, import_jsx_runtime.jsx)(Variant, { projects });
   }
