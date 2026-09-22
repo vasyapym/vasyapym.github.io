@@ -61,3 +61,22 @@ stays unchanged there. This ledger is new; numbering starts at B/R001.
   slightly empty at left, flex-wrap leans "return-key"; no banned grammar
 - Code verification: NOT RUN (no product code changed)
 - Open question: which variant to integrate (1-5)?
+
+## Round R002
+- Goal: integrate the owner-chosen R001 variant (4 · snap) as the Spine card
+  mark
+- Preserved preferences: F002; owner choice "salvage this - 4 · snap"
+  (2026-09-22)
+- Changes: ProjectArtwork.tsx — SpineCenterMark replaced with the snap mark
+  (relay geometry verbatim, JSX-cased, retinted steel #465059 / bone #b6ac95 /
+  rust #c56b52; no halo element — matches the chosen tile rendering, so
+  .presentation-spine .gem-halo simply no longer matches); the mis-headed
+  comment block restored to describe QuicknotesCenterMark; no other files
+- Before: artifacts/baseline/card-spine.png
+- After: artifacts/R002/card-spine-snap.png (+ grid-after-snap.png)
+- Visual inspection: performed — card screenshot 1440x900@2x on the dev
+  server; one bold drag gesture, unmistakable next to the Quicknotes slate
+  row; bracket-left still slightly empty (untouched — owner picked the
+  geometry as shown)
+- Code verification: shell typecheck (tsc --noEmit) clean
+- Open question: owner review on Pages — LIKED/REJECTED verdict needed
