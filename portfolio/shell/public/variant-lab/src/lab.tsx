@@ -1,11 +1,9 @@
-// Variant lab — five presentation variants for the main-page project cards.
-// Relay code (ProjectPresentation) is verbatim; the lab chrome and the six
-// fake static cards are lab-only stand-ins for the real shell cards.
+// Variant lab — scroll-driven presentations.
+// Shared scroll engine + five structurally different presentations (relay
+// output, mechanisms verbatim; lab chrome and fake static cards are lab-only).
 
 import {
   useEffect,
-  useId,
-  useMemo,
   useRef,
   useState,
   type CSSProperties,
@@ -13,476 +11,401 @@ import {
 } from "react";
 import { createRoot } from "react-dom/client";
 
-export type ProjectEntry = {
-  id: string;
-  title: string;
-  card: ReactNode; // Your existing, unchanged card JSX.
-};
+/* ---- shared engine ---- */
 
-export type PresentationVariant =
-  | "focus"
-  | "ledger"
-  | "dossiers"
-  | "chapters"
-  | "archive"
-  | "dossier"
-  | "marginalia"
-  | "spines";
+const clamp01 = (v: number) => Math.min(1, Math.max(0, v));
+const smooth = (t: number) => t * t * (3 - 2 * t);
+const enterOf = (t: number) => smooth(clamp01(t / 0.3));
+const exitOf = (t: number) => smooth(clamp01((t - 0.7) / 0.3));
+const pad = (v: number) => String(v).padStart(2, "0");
 
-type ViewProps = {
-  projects: readonly ProjectEntry[];
-};
+function useTrack(count: number, vhPerCard = 1.2) {
+  const ref = useRef<HTMLElement>(null);
+  const [s, set] = useState({ index: 0, t: 0, p: 0 }); // t = 0..1 inside current card
 
-const pad = (value: number) => String(value).padStart(2, "0");
+  useEffect(() => {
+    let raf = 0;
+    const read = () => {
+      const el = ref.current; if (!el) return;
+      const r = el.getBoundingClientRect();
+      const vh = window.innerHeight;
+      const scrollable = r.height - vh;
+      const p = Math.min(1, Math.max(0, -r.top / scrollable));
+      const f = p * count;
+      const index = Math.min(count - 1, Math.floor(f));
+      set(prev => (prev.p === p ? prev : { index, t: f - index, p }));
+    };
+    const onScroll = () => { cancelAnimationFrame(raf); raf = requestAnimationFrame(read); };
+    read();
+    addEventListener('scroll', onScroll, { passive: true });
+    addEventListener('resize', onScroll);
+    return () => { removeEventListener('scroll', onScroll); removeEventListener('resize', onScroll); cancelAnimationFrame(raf); };
+  }, [count]);
 
-function CardStage({ project }: { project: ProjectEntry }) {
-  return (
-    <div className="wp-stage" key={project.id}>
-      {project.card}
-    </div>
-  );
+  return { ref, ...s, trackHeight: `${count * vhPerCard * 100}vh` };
 }
 
-function TextIndex({
-  projects,
-  active,
-  onSelect,
-  opensDialog = false,
-}: ViewProps & {
-  active: number | null;
-  onSelect: (index: number) => void;
-  opensDialog?: boolean;
+function useMedia(query: string) {
+  const [m, setM] = useState(() => window.matchMedia(query).matches);
+  useEffect(() => {
+    const mq = window.matchMedia(query);
+    const s = () => setM(mq.matches);
+    s();
+    mq.addEventListener("change", s);
+    return () => mq.removeEventListener("change", s);
+  }, [query]);
+  return m;
+}
+
+type ViewProps = { projects: readonly ProjectEntry[] };
+
+function Track({
+  trackRef,
+  height,
+  children,
+}: {
+  trackRef: React.RefObject<HTMLElement>;
+  height: string;
+  children: ReactNode;
 }) {
   return (
-    <nav className="wp-index" aria-label="Project index">
-      {projects.map((project, index) => (
-        <button
-          type="button"
-          className="wp-row"
-          key={project.id}
-          aria-current={active === index ? "true" : undefined}
-          aria-haspopup={opensDialog ? "dialog" : undefined}
-          onClick={() => onSelect(index)}
-        >
-          <span className="wp-number">{pad(index + 1)}</span>
-          <span>{project.title}</span>
-          <span className="wp-mark" aria-hidden="true">
-            {opensDialog ? "↗" : active === index ? "—" : "→"}
-          </span>
-        </button>
-      ))}
-    </nav>
-  );
-}
-
-/* 1. A single, deliberately spacious plate. */
-function FocusFolio({ projects }: ViewProps) {
-  const [active, setActive] = useState(0);
-  const project = projects[active]!;
-
-  return (
-    <div className="wp-focus">
-      <header className="wp-topline">
-        <span className="wp-caption" aria-live="polite">
-          {pad(active + 1)} / {pad(projects.length)} — {project.title}
-        </span>
-
-        <div className="wp-controls">
-          <button
-            type="button"
-            className="wp-control"
-            disabled={active === 0}
-            onClick={() => setActive((index) => index - 1)}
-          >
-            ← Previous
-          </button>
-          <button
-            type="button"
-            className="wp-control"
-            disabled={active === projects.length - 1}
-            onClick={() => setActive((index) => index + 1)}
-          >
-            Next →
-          </button>
-        </div>
-      </header>
-
-      <CardStage project={project} />
-    </div>
-  );
-}
-
-/* 2. Typography leads; the illustration becomes an inspector. */
-function TextLedger({ projects }: ViewProps) {
-  const [active, setActive] = useState(0);
-
-  return (
-    <div className="wp-ledger">
-      <div>
-        <p className="wp-caption">Selected work / project index</p>
-        <TextIndex
-          projects={projects}
-          active={active}
-          onSelect={setActive}
-        />
-      </div>
-
-      <aside className="wp-inspector" aria-label="Selected project">
-        <p className="wp-caption">Inspection / {pad(active + 1)}</p>
-        <CardStage project={projects[active]!} />
-      </aside>
-    </div>
-  );
-}
-
-/* 3. Exclusive disclosure: never two expanded cards. */
-function InlineDossiers({ projects }: ViewProps) {
-  const [open, setOpen] = useState<number | null>(null);
-  const baseId = useId();
-
-  return (
-    <div className="wp-dossiers">
-      {projects.map((project, index) => {
-        const expanded = open === index;
-        const buttonId = `${baseId}-button-${index}`;
-        const panelId = `${baseId}-panel-${index}`;
-
-        return (
-          <section key={project.id}>
-            <h3 className="wp-dossier-heading">
-              <button
-                type="button"
-                className="wp-row"
-                id={buttonId}
-                aria-expanded={expanded}
-                aria-controls={panelId}
-                onClick={() => setOpen(expanded ? null : index)}
-              >
-                <span className="wp-number">{pad(index + 1)}</span>
-                <span>{project.title}</span>
-                <span className="wp-mark" aria-hidden="true">
-                  {expanded ? "−" : "+"}
-                </span>
-              </button>
-            </h3>
-
-            <div
-              className="wp-dossier-panel"
-              id={panelId}
-              role="region"
-              aria-labelledby={buttonId}
-              hidden={!expanded}
-            >
-              {expanded && <CardStage project={project} />}
-            </div>
-          </section>
-        );
-      })}
-    </div>
-  );
-}
-
-/* 4. Native page scrolling selects one pinned card. */
-function ScrollChapters({ projects }: ViewProps) {
-  const [active, setActive] = useState(0);
-  const [desktop, setDesktop] = useState(
-    () => window.matchMedia("(min-width: 56rem)").matches,
-  );
-  const chapterRail = useRef<HTMLDivElement>(null);
-
-  useEffect(() => {
-    const media = window.matchMedia("(min-width: 56rem)");
-    const sync = () => setDesktop(media.matches);
-
-    sync();
-    media.addEventListener("change", sync);
-    return () => media.removeEventListener("change", sync);
-  }, []);
-
-  useEffect(() => {
-    if (!desktop) return;
-
-    let frame = 0;
-
-    const update = () => {
-      frame = 0;
-
-      const chapters =
-        chapterRail.current?.querySelectorAll<HTMLElement>("[data-chapter]");
-      if (!chapters?.length) return;
-
-      const viewportCenter = window.innerHeight / 2;
-      let nearest = 0;
-      let shortestDistance = Infinity;
-
-      chapters.forEach((chapter, index) => {
-        const rect = chapter.getBoundingClientRect();
-        const distance = Math.abs(
-          (rect.top + rect.bottom) / 2 - viewportCenter,
-        );
-
-        if (distance < shortestDistance) {
-          shortestDistance = distance;
-          nearest = index;
-        }
-      });
-
-      setActive(nearest);
-    };
-
-    const schedule = () => {
-      if (!frame) frame = window.requestAnimationFrame(update);
-    };
-
-    schedule();
-    window.addEventListener("scroll", schedule, { passive: true });
-    window.addEventListener("resize", schedule);
-
-    return () => {
-      window.cancelAnimationFrame(frame);
-      window.removeEventListener("scroll", schedule);
-      window.removeEventListener("resize", schedule);
-    };
-  }, [desktop, projects.length]);
-
-  // Avoid a cramped or excessively tall sticky composition on phones.
-  if (!desktop) return <FocusFolio projects={projects} />;
-
-  return (
-    <div className="wp-chapters">
-      <div ref={chapterRail}>
-        {projects.map((project, index) => (
-          <section
-            className="wp-chapter"
-            data-chapter={index}
-            key={project.id}
-          >
-            <p className="wp-caption">
-              Chapter {pad(index + 1)} / {pad(projects.length)}
-            </p>
-            <h3 className="wp-chapter-title">{project.title}</h3>
-          </section>
-        ))}
-      </div>
-
-      <aside
-        className="wp-pinned"
-        aria-label="Current chapter project"
-        tabIndex={0}
-      >
-        <CardStage project={projects[active]!} />
-      </aside>
-    </div>
-  );
-}
-
-/* 5. No artwork on the landing until explicitly requested. */
-function ArchiveDrawer({ projects }: ViewProps) {
-  const [selected, setSelected] = useState<number | null>(null);
-  const dialog = useRef<HTMLDialogElement>(null);
-  const titleId = useId();
-  const project = selected === null ? null : projects[selected];
-
-  useEffect(() => {
-    if (selected !== null && dialog.current && !dialog.current.open) {
-      dialog.current.showModal();
-    }
-  }, [selected]);
-
-  return (
-    <>
-      <p className="wp-caption">Selected work / open a project</p>
-
-      <TextIndex
-        projects={projects}
-        active={null}
-        onSelect={setSelected}
-        opensDialog
-      />
-
-      <dialog
-        ref={dialog}
-        className="wp-drawer"
-        aria-labelledby={titleId}
-        onClose={() => setSelected(null)}
-      >
-        <header className="wp-topline">
-          <h3 className="wp-caption" id={titleId}>
-            {project?.title ?? "Project"}
-          </h3>
-          <form method="dialog">
-            <button type="submit" className="wp-control">
-              Close ×
-            </button>
-          </form>
-        </header>
-
-        {project && <CardStage project={project} />}
-      </dialog>
-    </>
-  );
-}
-
-const views = {
-  focus: FocusFolio,
-  ledger: TextLedger,
-  dossiers: InlineDossiers,
-  chapters: ScrollChapters,
-  archive: ArchiveDrawer,
-  dossier: DossierStack,
-  marginalia: Marginalia,
-  spines: Spines,
-};
-
-export function ProjectPresentation({
-  projects,
-  variant = "ledger",
-}: ViewProps & { variant?: PresentationVariant }) {
-  if (projects.length === 0) return null;
-
-  const View = views[variant];
-
-  return (
-    <section
-      className={`wp wp--${variant}`}
-      aria-label="Selected projects"
-    >
-      <View projects={projects} />
+    <section className="track" ref={trackRef} style={{ height }}>
+      <div className="stage">{children}</div>
     </section>
   );
 }
 
-/* ---- Second relay run: three genuinely new mechanisms ---- */
-
-/* Run-2 V3 — Dossier stack (folders in a drawer, tabs bring forward). */
-function DossierStack({ projects }: ViewProps) {
-  const [top, setTop] = useState(0);
-  const n = projects.length;
-  const order = useMemo(() => projects.map((_, i) => (i - top + n) % n), [top, n]); // 0 = front
-  const onKey = (e: React.KeyboardEvent) => {
-    if (e.key === "ArrowRight" || e.key === "ArrowDown") setTop(t => (t + 1) % n);
-    if (e.key === "ArrowLeft"  || e.key === "ArrowUp")   setTop(t => (t - 1 + n) % n);
-  };
+function PlainStack({ projects }: ViewProps) {
   return (
-    <div className="ds" tabIndex={0} onKeyDown={onKey} role="region" aria-roledescription="stack" aria-label="Projects">
-      {projects.map((p, i) => {
-        const depth = order[i];
-        return (
-          <div key={p.id} className="ds__folder" style={{ "--d": depth } as CSSProperties} data-front={depth === 0}>
-            <button className="ds__tab" onClick={() => setTop(i)} aria-label={`Bring ${p.title} to front`}>
-              <span>{String(i + 1).padStart(2, "0")}</span><span>{p.title}</span>
-            </button>
-            {depth === 0 && <div className="ds__body"><CardStage project={p} /></div>}
-          </div>
-        );
-      })}
+    <div className="lab-stack">
+      {projects.map((p) => (
+        <div key={p.id} className="lab-stack__item">{p.card}</div>
+      ))}
     </div>
   );
 }
 
-/* Run-2 V4 — Marginalia (projects as footnotes in prose, card in a side
-   sheet). Prose below is lab placeholder copy — the owner rewrites it. */
-function Marginalia({ projects }: ViewProps) {
-  const dlg = useRef<HTMLDialogElement>(null);
-  const [open, setOpen] = useState<ProjectEntry | null>(null);
-  const openP = (p: ProjectEntry) => { setOpen(p); dlg.current?.showModal(); };
-  const byId = Object.fromEntries(projects.map((p) => [p.id, p]));
-  const Ref = ({ id }: { id: string }) => {
-    const p = byId[id] as ProjectEntry;
+/* Cards whose SVG shapes are tagged with pathLength draw via --draw. */
+function usePathLength(ref: React.RefObject<HTMLElement>, dep: unknown) {
+  useEffect(() => {
+    ref.current
+      ?.querySelectorAll<SVGGraphicsElement>(
+        "path,line,rect,circle,polyline,ellipse",
+      )
+      .forEach((el) => el.setAttribute("pathLength", "1"));
+  }, [dep]);
+}
+
+/* ---- 1. Plotter — draw-off / draw-on ---- */
+
+function Plotter({ projects }: ViewProps) {
+  const count = projects.length;
+  const { ref, index, t, trackHeight } = useTrack(count);
+  const desktop = useMedia("(min-width: 1024px)");
+  const reduced = useMedia("(prefers-reduced-motion: reduce)");
+  const sheetRef = useRef<HTMLDivElement>(null);
+  usePathLength(sheetRef, index);
+  if (!desktop) return <PlainStack projects={projects} />;
+
+  const exit = exitOf(t);
+  const nextI = Math.min(count - 1, index + 1);
+  const cur = projects[index];
+  const nxt = projects[nextI];
+  const drawCur =
+    index === 0
+      ? enterOf(t) * (1 - exit)
+      : Math.min(1, 0.4 + 0.65 * enterOf(t)) * (1 - exit);
+  const textCur = enterOf(t) * (1 - exit);
+  const nextPre = t > 0.7 ? smooth(clamp01((t - 0.7) / 0.3)) : 0;
+  const drawNext = nextPre * 0.4;
+
+  if (reduced) {
     return (
-      <button className="mg__ref" onClick={() => openP(p)} aria-haspopup="dialog">
-        {p.title}
-        <sup>{String(projects.indexOf(p) + 1)}</sup>
-      </button>
+      <Track trackRef={ref} height={trackHeight}>
+        <div className="pt"><div className="pt__sheet"><div className="pt__card">{cur.card}</div></div></div>
+      </Track>
     );
-  };
-  const tags: Record<string, string> = {
-    quicknotes: "notes",
-    spine: "layout engine",
-    "waste-of-tokens": "playground",
-    "cat-runner": "game",
-    "practice-map": "learning map",
-    "raft-cluster": "systems",
-  };
+  }
+
   return (
-    <article className="mg">
-      <p>
-        I build tooling that stays out of the way — most recently{" "}
-        <Ref id="quicknotes" /> for offline-first notes and{" "}
-        <Ref id="spine" />, a drag-and-drop layout engine that runs on
-        WebAssembly.
-      </p>
-      <p>
-        Side quests keep the hands busy: <Ref id="waste-of-tokens" /> burns
-        prompts into pixel grids, <Ref id="cat-runner" /> is an endless runner
-        with a hand-inked cat, <Ref id="practice-map" /> wires deep lessons
-        into a map, and <Ref id="raft-cluster" /> draws a consensus cluster as
-        living tide lines.
-      </p>
-      <ol className="mg__notes">
+    <Track trackRef={ref} height={trackHeight}>
+      <div className="pt">
+        <div className="pt__rail" aria-hidden>
+          {projects.map((_, i) => (
+            <span key={i} className="pt__tick" />
+          ))}
+          <span
+            className="pt__caret"
+            style={{ transform: `translateY(${index * 28}px)` }}
+          />
+        </div>
+        <div className="pt__sheet" ref={sheetRef}>
+          <div
+            className="pt__card"
+            key={cur.id}
+            style={{ "--draw": drawCur, "--reveal": textCur } as CSSProperties}
+          >
+            {cur.card}
+          </div>
+          {nextI !== index && (
+            <div
+              className="pt__card pt__card--next"
+              key={nxt.id}
+              style={{ "--draw": drawNext, "--reveal": 0 } as CSSProperties}
+            >
+              {nxt.card}
+            </div>
+          )}
+        </div>
+      </div>
+    </Track>
+  );
+}
+
+/* ---- 2. Cut — hairline guillotine wipe ---- */
+
+function Cut({ projects }: ViewProps) {
+  const count = projects.length;
+  const { ref, index, t, trackHeight } = useTrack(count);
+  const desktop = useMedia("(min-width: 1024px)");
+  const reduced = useMedia("(prefers-reduced-motion: reduce)");
+  if (!desktop) return <PlainStack projects={projects} />;
+
+  const nextI = Math.min(count - 1, index + 1);
+  const cur = projects[index];
+  const nxt = projects[nextI];
+  const cut = reduced ? 0 : exitOf(t);
+  const down = index % 2 === 0;
+
+  const curClip = down
+    ? `inset(${cut * 100}% 0 0 0)`
+    : `inset(0 0 ${cut * 100}% 0)`;
+  const nextClip = down
+    ? `inset(0 0 ${(1 - cut) * 100}% 0)`
+    : `inset(${(1 - cut) * 100}% 0 0 0)`;
+  const ruleTop = down ? `${cut * 100}%` : `${(1 - cut) * 100}%`;
+  const moving = cut > 0 && cut < 1;
+
+  return (
+    <Track trackRef={ref} height={trackHeight}>
+      <div className="ct">
+        {nextI !== index && (
+          <div className="ct__layer" style={{ clipPath: nextClip }}>
+            <div className="ct__card" key={nxt.id}>{nxt.card}</div>
+          </div>
+        )}
+        <div className="ct__layer" style={{ clipPath: curClip }}>
+          <div className="ct__card" key={cur.id}>{cur.card}</div>
+        </div>
+        <div
+          className="ct__rule"
+          style={{ top: ruleTop, opacity: moving ? 1 : 0 }}
+        />
+        <div
+          className="ct__rule ct__rule--ghost"
+          style={{
+            top: `calc(${ruleTop} + ${down ? 12 : -12}px)`,
+            opacity: moving ? 0.4 : 0,
+          }}
+        />
+      </div>
+    </Track>
+  );
+}
+
+/* ---- 3. Approach — z-travel through frames ---- */
+
+function Approach({ projects }: ViewProps) {
+  const count = projects.length;
+  const { ref, index, t, trackHeight } = useTrack(count);
+  const desktop = useMedia("(min-width: 1024px)");
+  const reduced = useMedia("(prefers-reduced-motion: reduce)");
+  if (!desktop) return <PlainStack projects={projects} />;
+
+  const nextI = Math.min(count - 1, index + 1);
+  const cur = projects[index];
+  const nxt = projects[nextI];
+  const exit = reduced ? 0 : exitOf(t);
+  const pre = reduced ? 0 : t > 0.7 ? smooth(clamp01((t - 0.7) / 0.3)) : 0;
+  const real = pre >= 0.78;
+
+  return (
+    <Track trackRef={ref} height={trackHeight}>
+      <div className="ap">
+        {nextI !== index && (
+          <div
+            className="ap__frame ap__frame--next"
+            style={{
+              transform: `translateZ(${-900 + pre * 900}px)`,
+              opacity: real ? 0.35 + 0.65 * ((pre - 0.78) / 0.22) : 0.18,
+            }}
+          >
+            <div className="ap__inner" style={{ visibility: real ? "visible" : "hidden" }}>
+              <div key={nxt.id}>{nxt.card}</div>
+            </div>
+          </div>
+        )}
+        <div
+          className="ap__frame ap__frame--current"
+          style={{
+            transform: `translateZ(${exit * 600}px)`,
+            opacity: 1 - exit,
+          }}
+        >
+          <div key={cur.id}>{cur.card}</div>
+        </div>
+      </div>
+    </Track>
+  );
+}
+
+/* ---- 4. Lens — zoom into a detail, out into the next ---- */
+
+function Lens({ projects }: ViewProps) {
+  const count = projects.length;
+  const { ref, index, t, trackHeight } = useTrack(count);
+  const desktop = useMedia("(min-width: 1024px)");
+  const reduced = useMedia("(prefers-reduced-motion: reduce)");
+  if (!desktop) return <PlainStack projects={projects} />;
+
+  const nextI = Math.min(count - 1, index + 1);
+  const cur = projects[index];
+  const nxt = projects[nextI];
+  const curMeta = META[index];
+  const grid = reduced ? 0 : t > 0.6 ? smooth(clamp01((t - 0.6) / 0.25)) : 0;
+
+  let scale = 1;
+  let opacity = 1;
+  if (!reduced) {
+    if (t < 0.15 && index > 0) {
+      const k = smooth(clamp01(0.5 + (t / 0.15) * 0.5));
+      scale = 6 - 5 * k;
+      opacity = k;
+    } else if (t > 0.85) {
+      scale = 6;
+      opacity = 0;
+    } else if (t > 0.6) {
+      scale = 1 + 5 * smooth(clamp01((t - 0.6) / 0.25));
+      opacity = t < 0.78 ? 1 : 1 - smooth(clamp01((t - 0.78) / 0.07));
+    }
+  }
+
+  // next card mounts at current t > 0.85 and pulls out toward the reader
+  let nScale = 6;
+  let nOpacity = 0;
+  if (!reduced && t > 0.85) {
+    const k = smooth(clamp01(((t - 0.85) / 0.15) * 0.5));
+    nScale = 6 - 5 * k;
+    nOpacity = k;
+  }
+
+  return (
+    <Track trackRef={ref} height={trackHeight}>
+      <div className="ln">
+        <div className="ln__grid" style={{ opacity: grid }} aria-hidden />
+        {t > 0.85 && nextI !== index && (
+          <div
+            className={`ln__card${nScale > 1.2 ? " is-far" : ""}`}
+            key={nxt.id}
+            style={{
+              transform: `scale(${nScale})`,
+              transformOrigin: `${META[nextI].focal.x * 100}% ${META[nextI].focal.y * 100}%`,
+              opacity: nOpacity,
+            }}
+          >
+            {nxt.card}
+          </div>
+        )}
+        <div
+          className={`ln__card${scale > 1.2 ? " is-far" : ""}`}
+          key={cur.id}
+          style={{
+            transform: `scale(${scale})`,
+            transformOrigin: `${curMeta.focal.x * 100}% ${curMeta.focal.y * 100}%`,
+            opacity,
+          }}
+        >
+          {cur.card}
+        </div>
+      </div>
+    </Track>
+  );
+}
+
+/* ---- 5. Margin notes — pinned illustration, free-scrolling text ---- */
+
+function MarginNotes({ projects }: ViewProps) {
+  const [active, setActive] = useState(0);
+  const listRef = useRef<HTMLOListElement>(null);
+  const plateRef = useRef<HTMLElement>(null);
+  const [tickTop, setTickTop] = useState(0);
+  const desktop = useMedia("(min-width: 1024px)");
+  usePathLength(plateRef, active);
+
+  useEffect(() => {
+    if (!desktop) return;
+    const lis = listRef.current?.querySelectorAll<HTMLElement>("li[data-i]");
+    if (!lis?.length) return;
+    const io = new IntersectionObserver(
+      (es) => {
+        const best = es
+          .filter((e) => e.isIntersecting)
+          .sort((a, b) => b.intersectionRatio - a.intersectionRatio)[0];
+        if (best) setActive(Number((best.target as HTMLElement).dataset.i));
+      },
+      { rootMargin: "-45% 0px -45% 0px", threshold: [0, 0.01] },
+    );
+    lis.forEach((li) => io.observe(li));
+    return () => io.disconnect();
+  }, [desktop, projects.length]);
+
+  useEffect(() => {
+    const li = listRef.current?.querySelector<HTMLElement>(
+      `li[data-i="${active}"]`,
+    );
+    if (li) setTickTop(li.offsetTop + 12);
+  }, [active]);
+
+  if (!desktop) return <PlainStack projects={projects} />;
+
+  const cur = projects[active];
+
+  return (
+    <div className="mn">
+      <aside className="mn__plate" ref={plateRef}>
+        <div className="mn__plateCard" key={cur.id}>{cur.card}</div>
+      </aside>
+      <div className="mn__rule" aria-hidden>
+        <span className="mn__tick" style={{ top: tickTop }} />
+      </div>
+      <ol className="mn__blocks" ref={listRef}>
         {projects.map((p, i) => (
-          <li key={p.id} id={`fn-${i + 1}`}>
-            <button onClick={() => openP(p)}>
-              {String(i + 1).padStart(2, "0")} {p.title}
-            </button>{" "}
-            — {tags[p.id]}
+          <li key={p.id} data-i={i}>
+            <p className="mn__no">
+              {pad(i + 1)} · {META[i].tag}
+            </p>
+            <h3 className="mn__title">{p.title}</h3>
+            <p className="mn__desc">{META[i].desc}</p>
+            <p className="mn__tech">{META[i].tech}</p>
           </li>
         ))}
       </ol>
-      <dialog
-        ref={dlg}
-        className="mg__sheet"
-        onClose={() => setOpen(null)}
-        onClick={(e) => e.target === dlg.current && dlg.current.close()}
-      >
-        {open && (
-          <div className="mg__sheetBody">
-            <CardStage project={open} />
-            <button autoFocus onClick={() => dlg.current?.close()}>
-              close ×
-            </button>
-          </div>
-        )}
-      </dialog>
-    </article>
-  );
-}
-
-/* Run-2 V5 — Spines (a shelf of book spines, one open). */
-function Spines({ projects }: ViewProps) {
-  const [open, setOpen] = useState(0);
-  return (
-    <div className="sp" role="tablist" aria-orientation="horizontal">
-      {projects.map((p, i) => {
-        const isOpen = i === open;
-        return (
-          <div key={p.id} className="sp__spine" data-open={isOpen}>
-            <button
-              role="tab"
-              aria-selected={isOpen}
-              className="sp__label"
-              onClick={() => setOpen(i)}
-              onKeyDown={(e) => {
-                if (e.key === "ArrowRight") setOpen((i + 1) % projects.length);
-                if (e.key === "ArrowLeft") setOpen((i - 1 + projects.length) % projects.length);
-              }}
-            >
-              <span className="sp__no">{String(i + 1).padStart(2, "0")}</span>
-              <span className="sp__title">{p.title}</span>
-            </button>
-            {isOpen && (
-              <div role="tabpanel" className="sp__panel">
-                <CardStage project={p} />
-              </div>
-            )}
-          </div>
-        );
-      })}
     </div>
   );
 }
 
-/* ---- Lab-only: six fake static stand-ins for the real shell cards ---- */
+/* ---- lab-only: fake static stand-ins for the real shell cards ---- */
+
+type Meta = {
+  id: string;
+  n: string;
+  tag: string;
+  title: string;
+  desc: string;
+  tech: string;
+  focal: { x: number; y: number };
+  Mark: () => ReactNode;
+};
 
 const S = { stroke: "rgba(238,234,224,0.75)", fill: "none", strokeWidth: 1.1 };
 const S2 = { stroke: "rgba(238,234,224,0.4)", fill: "none", strokeWidth: 1 };
@@ -592,32 +515,63 @@ function MarkRaft() {
   );
 }
 
-function LabCard({
-  n,
-  tag,
-  title,
-  desc,
-  tech,
-  children,
-}: {
-  n: string;
-  tag: string;
+const META: Meta[] = [
+  {
+    id: "quicknotes", n: "01", tag: "notes", title: "Quicknotes",
+    desc: "Fast markdown notes that live on-device and sync through Firebase — [[wiki-links]], live preview, command palette, one-button zip export.",
+    tech: "Firebase · Firestore · Vanilla ES modules · Static hosting",
+    focal: { x: 0.5, y: 0.5 }, Mark: MarkQuicknotes,
+  },
+  {
+    id: "spine", n: "02", tag: "layout engine", title: "Spine",
+    desc: "Drag, nest and retune Flexbox and Grid containers in real time — a Go-to-WebAssembly engine with undo/redo and clean HTML/CSS export.",
+    tech: "Go · WebAssembly · Flexbox & Grid · syscall/js",
+    focal: { x: 0.62, y: 0.4 }, Mark: MarkSpine,
+  },
+  {
+    id: "waste-of-tokens", n: "03", tag: "playground", title: "Waste of tokens",
+    desc: "A dense pixel-grid playground where prompts burn down into geometry — every token spent leaves a mark on the plate.",
+    tech: "Canvas · Generative grid · TypeScript",
+    focal: { x: 0.4, y: 0.55 }, Mark: MarkTokens,
+  },
+  {
+    id: "cat-runner", n: "04", tag: "game", title: "Cat Runner",
+    desc: "An endless runner with a hand-inked cat — procedural obstacles, simple physics, and a leaderboard that survives refreshes.",
+    tech: "TypeScript · Canvas · Firebase",
+    focal: { x: 0.5, y: 0.42 }, Mark: MarkCat,
+  },
+  {
+    id: "practice-map", n: "05", tag: "learning map", title: "Practice Map",
+    desc: "Interactive practice-map reader: deep lessons wired as areas, sections and blocks, with shadow-typing drills.",
+    tech: "React · Markdown pipeline · Vite",
+    focal: { x: 0.55, y: 0.5 }, Mark: MarkPracticeMap,
+  },
+  {
+    id: "raft-cluster", n: "06", tag: "systems", title: "Raft Cluster",
+    desc: "A visualization of a Raft consensus cluster — elections, log replication and failovers, drawn as living tide lines.",
+    tech: "Go · WebSockets · SVG",
+    focal: { x: 0.45, y: 0.5 }, Mark: MarkRaft,
+  },
+];
+
+export type ProjectEntry = {
+  id: string;
   title: string;
-  desc: string;
-  tech: string;
-  children: ReactNode;
-}) {
+  card: ReactNode; // Your existing, unchanged card JSX.
+};
+
+function LabCard({ m }: { m: Meta }) {
   return (
     <article className="lab-card">
-      <div className="lab-card-stage">{children}</div>
+      <div className="lab-card-stage">{<m.Mark />}</div>
       <div className="lab-card-copy">
         <p className="lab-card-topline">
-          {n} · {tag}
+          {m.n} · {m.tag}
         </p>
-        <h3 className="lab-card-title">{title}</h3>
-        <p className="lab-card-desc">{desc}</p>
+        <h3 className="lab-card-title">{m.title}</h3>
+        <p className="lab-card-desc">{m.desc}</p>
         <div className="lab-card-footer">
-          <span className="lab-card-tech">{tech}</span>
+          <span className="lab-card-tech">{m.tech}</span>
           <span className="lab-card-open">
             open <span aria-hidden="true">↗</span>
           </span>
@@ -627,115 +581,25 @@ function LabCard({
   );
 }
 
-const entries: ProjectEntry[] = [
-  {
-    id: "quicknotes",
-    title: "Quicknotes",
-    card: (
-      <LabCard
-        n="01"
-        tag="notes"
-        title="Quicknotes"
-        desc="Fast markdown notes that live on-device and sync through Firebase — [[wiki-links]], live preview, command palette, one-button zip export."
-        tech="Firebase · Firestore · Vanilla ES modules · Static hosting"
-      >
-        <MarkQuicknotes />
-      </LabCard>
-    ),
-  },
-  {
-    id: "spine",
-    title: "Spine",
-    card: (
-      <LabCard
-        n="02"
-        tag="layout engine"
-        title="Spine"
-        desc="Drag, nest and retune Flexbox and Grid containers in real time — a Go-to-WebAssembly engine with undo/redo and clean HTML/CSS export."
-        tech="Go · WebAssembly · Flexbox & Grid · syscall/js"
-      >
-        <MarkSpine />
-      </LabCard>
-    ),
-  },
-  {
-    id: "waste-of-tokens",
-    title: "Waste of tokens",
-    card: (
-      <LabCard
-        n="03"
-        tag="playground"
-        title="Waste of tokens"
-        desc="A dense pixel-grid playground where prompts burn down into geometry — every token spent leaves a mark on the plate."
-        tech="Canvas · Generative grid · TypeScript"
-      >
-        <MarkTokens />
-      </LabCard>
-    ),
-  },
-  {
-    id: "cat-runner",
-    title: "Cat Runner",
-    card: (
-      <LabCard
-        n="04"
-        tag="game"
-        title="Cat Runner"
-        desc="An endless runner with a hand-inked cat — procedural obstacles, simple physics, and a leaderboard that survives refreshes."
-        tech="TypeScript · Canvas · Firebase"
-      >
-        <MarkCat />
-      </LabCard>
-    ),
-  },
-  {
-    id: "practice-map",
-    title: "Practice Map",
-    card: (
-      <LabCard
-        n="05"
-        tag="learning map"
-        title="Practice Map"
-        desc="Interactive practice-map reader: deep lessons wired as areas, sections and blocks, with shadow-typing drills."
-        tech="React · Markdown pipeline · Vite"
-      >
-        <MarkPracticeMap />
-      </LabCard>
-    ),
-  },
-  {
-    id: "raft-cluster",
-    title: "Raft Cluster",
-    card: (
-      <LabCard
-        n="06"
-        tag="systems"
-        title="Raft Cluster"
-        desc="A visualization of a Raft consensus cluster — elections, log replication and failovers, drawn as living tide lines."
-        tech="Go · WebSockets · SVG"
-      >
-        <MarkRaft />
-      </LabCard>
-    ),
-  },
+const entries: ProjectEntry[] = META.map((m) => ({
+  id: m.id,
+  title: m.title,
+  card: <LabCard m={m} />,
+}));
+
+/* ---- mounts ---- */
+
+const mounts: Array<[string, (p: ViewProps) => ReactNode]> = [
+  ["mount-plotter", Plotter],
+  ["mount-cut", Cut],
+  ["mount-approach", Approach],
+  ["mount-lens", Lens],
+  ["mount-margin", MarginNotes],
 ];
 
-const mounts: Array<[string, PresentationVariant]> = [
-  ["mount-focus", "focus"],
-  ["mount-ledger", "ledger"],
-  ["mount-dossiers", "dossiers"],
-  ["mount-chapters", "chapters"],
-  ["mount-archive", "archive"],
-  ["mount-dossier", "dossier"],
-  ["mount-marginalia", "marginalia"],
-  ["mount-spines", "spines"],
-];
-
-for (const [id, variant] of mounts) {
+for (const [id, V] of mounts) {
   const node = document.getElementById(id);
   if (node) {
-    createRoot(node).render(
-      <ProjectPresentation projects={entries} variant={variant} />,
-    );
+    createRoot(node).render(<V projects={entries} />);
   }
 }

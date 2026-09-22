@@ -1,5 +1,6 @@
-/* Variant lab — lab chrome first, then the relay's project-presentation.css
-   verbatim with its five tokens mapped to the shell ink palette. */
+/* Variant lab — scroll-driven presentations.
+   Lab chrome + fake cards, then the shared scroll engine and the five
+   variant styles (relay output; tokens mapped to the shell ink palette). */
 
 * {
   box-sizing: border-box;
@@ -60,7 +61,7 @@ body {
 
 .lab-variant {
   border-top: 1px solid rgba(238, 234, 224, 0.13);
-  padding-block: 2.5rem 3rem;
+  padding-block: 2.5rem 0;
 }
 
 .lab-variant > h2 {
@@ -97,6 +98,7 @@ body {
   background: #0b1317;
   color: #eeeae0;
   border: 1px solid rgba(238, 234, 224, 0.13);
+  transition: border-color 0.3s, background-color 0.3s;
 }
 
 .lab-card-stage {
@@ -114,6 +116,7 @@ body {
   width: 82%;
   max-width: 260px;
   aspect-ratio: 260 / 160;
+  overflow: visible;
 }
 
 .lab-card-copy {
@@ -155,472 +158,325 @@ body {
   color: #d39b61;
 }
 
-/* ===== relay project-presentation.css (verbatim, tokens mapped to ink) ===== */
+/* mobile fallback stack (all variants, < 1024px) */
 
-.wp {
-  --wp-bg: #0b1317;
-  --wp-text: #eeeae0;
-  --wp-muted: rgba(238, 234, 224, 0.68);
-  --wp-accent: #d39b61;
-  --wp-line: rgba(238, 234, 224, 0.26);
-
-  background: var(--wp-bg);
-  color: var(--wp-text);
-  padding: clamp(1.25rem, 4vw, 4rem);
-}
-
-/* Shared framing: restrained ink, not elevated UI tiles. */
-
-.wp-caption,
-.wp-number,
-.wp-mark,
-.wp-control {
-  font-family: "IBM Plex Mono", ui-monospace, SFMono-Regular, Consolas, monospace;
-}
-
-.wp-caption {
-  margin: 0 0 1.5rem;
-  color: var(--wp-muted);
-  font-size: 0.72rem;
-  font-weight: 400;
-  line-height: 1.6;
-  letter-spacing: 0.11em;
-  text-transform: uppercase;
-}
-
-.wp-stage {
-  inline-size: min(100%, 38rem);
-  min-inline-size: 0;
-  margin-inline: auto;
-}
-
-.wp-topline {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  flex-wrap: wrap;
-  gap: 1rem;
-}
-
-.wp-topline > .wp-caption {
-  margin: 0;
-}
-
-.wp-controls {
-  display: flex;
-  gap: 0.5rem;
-}
-
-.wp-control {
-  min-block-size: 2.75rem;
-  padding: 0.65rem 0.9rem;
-  border: 1px solid var(--wp-line);
-  border-radius: 0;
-  background: transparent;
-  color: var(--wp-text);
-  font-size: 0.75rem;
-  cursor: pointer;
-}
-
-.wp-control:disabled {
-  opacity: 0.35;
-  cursor: default;
-}
-
-.wp-index,
-.wp-dossiers {
-  border-block-start: 1px solid var(--wp-line);
-}
-
-.wp-row {
+.lab-stack {
   display: grid;
-  grid-template-columns: 2.25rem minmax(0, 1fr) auto;
-  align-items: baseline;
-  gap: 0.75rem;
-  inline-size: 100%;
-  min-block-size: 3.5rem;
-  padding: 1.3rem 0;
-  border: 0;
-  border-block-end: 1px solid var(--wp-line);
-  border-radius: 0;
-  background: transparent;
-  color: var(--wp-text);
-  font: inherit;
-  text-align: start;
-  cursor: pointer;
-}
-
-.wp-number,
-.wp-mark {
-  color: var(--wp-muted);
-  font-size: 0.75rem;
-  font-weight: 400;
-}
-
-.wp-row:hover,
-.wp-row[aria-current="true"],
-.wp-row[aria-expanded="true"],
-.wp-control:not(:disabled):hover {
-  color: var(--wp-accent);
-}
-
-.wp-row:focus-visible,
-.wp-control:focus-visible,
-.wp-pinned:focus-visible {
-  outline: 2px solid var(--wp-accent);
-  outline-offset: 4px;
-}
-
-/* 1 — Focus folio */
-
-.wp-focus {
-  display: grid;
-  grid-template-rows: auto 1fr;
-  gap: 2.5rem;
-  min-block-size: min(75svh, 50rem);
+  gap: 16px;
   padding-block: 1rem 3rem;
-  border-block: 1px solid var(--wp-line);
 }
 
-.wp-focus > .wp-stage {
-  align-self: center;
+.lab-stack__item .lab-card-stage {
+  height: 150px;
 }
 
-/* 2 — Text ledger: text gets more space than the preview. */
+/* ===== shared scroll engine ===== */
 
-.wp-ledger {
-  display: grid;
-  grid-template-columns: minmax(0, 1.4fr) minmax(0, 1fr);
-  align-items: start;
-  gap: clamp(2rem, 5vw, 5rem);
-}
-
-.wp--ledger .wp-row,
-.wp--archive .wp-row {
-  font-size: clamp(1rem, 1.8vw, 1.6rem);
-}
-
-.wp-inspector {
-  min-inline-size: 0;
-  padding-inline-start: clamp(1.5rem, 3vw, 3rem);
-  border-inline-start: 1px solid var(--wp-line);
-}
-
-/* 3 — Dossiers */
-
-.wp-dossier-heading {
-  margin: 0;
-  font: inherit;
-}
-
-.wp-dossier-panel {
-  padding: 2rem 0 3rem 3rem;
-}
-
-/* 4 — Chapters: six text sections, one illustrated stage. */
-
-.wp-chapters {
-  display: grid;
-  grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
-  align-items: start;
-  gap: clamp(2rem, 5vw, 5rem);
-}
-
-.wp-chapter {
-  display: flex;
-  flex-direction: column;
-  justify-content: center;
-  min-block-size: 90svh;
-  border-block-start: 1px solid var(--wp-line);
-}
-
-.wp-chapter-title {
-  max-inline-size: 13ch;
-  margin: 0;
-  font-size: clamp(2rem, 4.5vw, 4.75rem);
-  font-weight: 400;
-  line-height: 1.08;
-  letter-spacing: -0.04em;
-}
-
-.wp-pinned {
-  position: sticky;
-  inset-block-start: 1.5rem;
-  min-inline-size: 0;
-  max-block-size: calc(100svh - 3rem);
-  overflow: auto; /* Tall cards remain accessible, not cropped. */
-}
-
-/* 5 — Archive drawer */
-
-.wp-drawer {
-  position: fixed;
-  inset: 0 0 0 auto;
-  box-sizing: border-box;
-  inline-size: min(44rem, 100vw);
-  block-size: 100dvh;
-  max-inline-size: none;
-  max-block-size: none;
-  margin: 0;
-  padding: clamp(1.25rem, 4vw, 3rem);
-  border: 0;
-  border-inline-start: 1px solid var(--wp-line);
-  background: var(--wp-bg);
-  color: var(--wp-text);
-  overflow: auto;
-}
-
-.wp-drawer::backdrop {
-  background: rgb(2 7 5 / 86%);
-}
-
-.wp-drawer > .wp-topline {
-  margin-block-end: 2.5rem;
-}
-
-/* ===== run-2 additions (verbatim mechanisms, tokens mapped to ink) ===== */
-
-/* Run-2 V6 — Dossier stack */
-
-.ds {
-  --bg: #0b1317;
-  --ink: #d39b61;
-  --ink-dim: rgba(238, 234, 224, 0.6);
-  --rule: 1px solid rgba(238, 234, 224, 0.26);
-  font-family: "IBM Plex Mono", ui-monospace, monospace;
+.track {
   position: relative;
-  height: min(90svh, 900px);
-  max-width: 1100px;
-  margin: auto;
-  outline: none;
 }
 
-.ds__folder {
-  position: absolute;
-  inset: 0;
-  transform: translate(calc(var(--d) * 14px), calc(var(--d) * -38px)) scale(calc(1 - var(--d) * 0.012));
-  z-index: calc(10 - var(--d));
-  transition: transform 0.45s cubic-bezier(0.2, 0.7, 0.2, 1);
-  background: var(--bg);
-  border: var(--rule);
-}
-
-.ds__tab {
-  all: unset;
-  cursor: pointer;
-  position: absolute;
-  top: -1px;
-  left: calc(var(--d) * 16%);
-  display: flex;
-  gap: 1rem;
-  padding: 0.5rem 0.9rem;
-  font: 0.8rem var(--mono, "IBM Plex Mono", ui-monospace);
-  color: var(--ink-dim);
-  border: var(--rule);
-  border-bottom: none;
-  background: var(--bg);
-  transform: translateY(-100%);
-}
-
-.ds__folder[data-front="true"] .ds__tab {
-  color: var(--ink);
-}
-
-.ds__body {
-  position: absolute;
-  inset: 0;
+.stage {
+  position: sticky;
+  top: 0;
+  height: 100dvh;
   display: grid;
   place-items: center;
-  padding: 3rem;
-}
-
-.ds:focus-visible {
-  outline: 1px dashed var(--ink);
-}
-
-/* Run-2 V7 — Marginalia */
-
-.mg {
-  --bg: #0b1317;
-  --ink: #d39b61;
-  --ink-dim: rgba(238, 234, 224, 0.6);
-  --rule: 1px solid rgba(238, 234, 224, 0.26);
-  max-width: 62ch;
-  margin: 0 auto;
-  padding-block: 2rem 4rem;
-  font: 1.15rem/1.7 Georgia, "Times New Roman", serif;
-  color: #eeeae0;
-}
-
-.mg__ref {
-  all: unset;
-  cursor: pointer;
-  color: var(--ink);
-  border-bottom: 1px dotted var(--ink-dim);
-}
-
-.mg__ref sup {
-  font: 0.65em "IBM Plex Mono", ui-monospace, monospace;
-  margin-left: 0.15em;
-}
-
-.mg__notes {
-  margin-top: 6rem;
-  padding-top: 1.5rem;
-  border-top: var(--rule);
-  font: 0.85rem/1.6 "IBM Plex Mono", ui-monospace, monospace;
-  color: var(--ink-dim);
-}
-
-.mg__notes button {
-  all: unset;
-  cursor: pointer;
-  color: var(--ink);
-}
-
-.mg__sheet {
-  margin: 0 0 0 auto;
-  height: 100svh;
-  max-height: 100svh;
-  width: min(560px, 100vw);
-  background: var(--bg);
-  color: #eeeae0;
-  border: 0;
-  border-left: var(--rule);
-  padding: 0;
-}
-
-.mg__sheet::backdrop {
-  background: rgba(7, 11, 12, 0.7);
-  backdrop-filter: blur(2px);
-}
-
-.mg__sheetBody {
-  padding: 3rem 2rem;
-  display: grid;
-  gap: 2rem;
-}
-
-.mg__sheet[open] {
-  animation: mgIn 0.3s ease-out;
-}
-
-@keyframes mgIn {
-  from {
-    transform: translateX(100%);
-  }
-  to {
-    transform: none;
-  }
-}
-
-/* Run-2 V8 — Spines */
-
-.sp {
-  --rule: 1px solid rgba(238, 234, 224, 0.26);
-  --ink: #d39b61;
-  --ink-dim: rgba(238, 234, 224, 0.6);
-  display: flex;
-  height: min(88svh, 880px);
-  border: var(--rule);
-  border-width: 1px 0;
-}
-
-.sp__spine {
-  flex: 0 0 56px;
-  border-right: var(--rule);
-  display: flex;
-  transition: flex-basis 0.5s cubic-bezier(0.2, 0.7, 0.2, 1);
   overflow: hidden;
-  min-width: 0;
+  background: #060b0e;
 }
 
-.sp__spine[data-open="true"] {
-  flex: 1 1 auto;
+/* ===== 1. Plotter — draw-off / draw-on ===== */
+
+.pt {
+  display: flex;
+  gap: 3rem;
+  align-items: center;
+  width: min(100%, 68rem);
+  padding: 0 2rem;
 }
 
-.sp__label {
-  all: unset;
-  cursor: pointer;
-  flex: 0 0 56px;
+.pt__rail {
+  position: relative;
+  width: 14px;
+  height: 141px; /* 6 ticks × 28px − 1 */
   display: flex;
   flex-direction: column;
-  align-items: center;
-  gap: 1rem;
-  padding: 1rem 0;
-  font: 0.8rem "IBM Plex Mono", ui-monospace, monospace;
-  color: var(--ink-dim);
+  justify-content: space-between;
 }
 
-.sp__title {
-  writing-mode: vertical-rl;
-  transform: rotate(180deg);
-  letter-spacing: 0.08em;
-  white-space: nowrap;
+.pt__tick {
+  display: block;
+  width: 14px;
+  height: 1px;
+  background: rgba(238, 234, 224, 0.26);
 }
 
-.sp__spine[data-open="true"] .sp__label {
-  color: var(--ink);
+.pt__caret {
+  position: absolute;
+  left: -6px;
+  top: -0.5px;
+  width: 26px;
+  height: 2px;
+  background: #d39b61;
+  transition: transform 0.2s;
 }
 
-.sp__panel {
+.pt__sheet {
+  position: relative;
   flex: 1;
   display: grid;
   place-items: center;
-  padding: 2rem 3rem;
-  min-width: 0;
-  animation: spIn 0.4s 0.15s both;
 }
 
-@keyframes spIn {
+.pt__card {
+  position: absolute;
+  inset: 0;
+  display: grid;
+  place-items: center;
+}
+
+.pt__card .lab-card {
+  width: min(100%, 38rem);
+}
+
+.pt__card svg [pathLength] {
+  stroke-dasharray: 1;
+  stroke-dashoffset: calc(1 - var(--draw, 1));
+  fill-opacity: var(--draw, 1);
+  transition: none;
+}
+
+.pt__card .lab-card-copy {
+  clip-path: inset(0 calc(100% - var(--reveal, 1) * 100%) 0 0);
+}
+
+/* ===== 2. Cut — hairline guillotine wipe ===== */
+
+.ct {
+  position: relative;
+  width: 100%;
+  height: 100%;
+}
+
+.ct__layer {
+  position: absolute;
+  inset: 0;
+  display: grid;
+  place-items: center;
+}
+
+.ct__card .lab-card {
+  width: min(100%, 38rem);
+}
+
+.ct__rule {
+  position: absolute;
+  left: 0;
+  right: 0;
+  height: 1px;
+  background: #eeeae0;
+  z-index: 2;
+}
+
+.ct__rule--ghost {
+  opacity: 0.4;
+}
+
+/* ===== 3. Approach — z-travel through frames ===== */
+
+.ap {
+  position: relative;
+  width: 100%;
+  height: 100%;
+  perspective: 1200px;
+  display: grid;
+  place-items: center;
+}
+
+.ap__frame {
+  position: absolute;
+  width: min(100%, 38rem);
+  height: min(60dvh, 30rem);
+  display: grid;
+  place-items: center;
+}
+
+.ap__frame--next {
+  border: 1px solid rgba(238, 234, 224, 0.26);
+}
+
+.ap__inner .lab-card {
+  width: min(100%, 38rem);
+}
+
+.ap__frame--current .lab-card {
+  width: min(100%, 38rem);
+}
+
+/* ===== 4. Lens — zoom into a detail, out into the next ===== */
+
+.ln {
+  position: relative;
+  width: 100%;
+  height: 100%;
+  display: grid;
+  place-items: center;
+}
+
+.ln__grid {
+  position: absolute;
+  inset: 0;
+  background-image:
+    linear-gradient(rgba(238, 234, 224, 0.14) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(238, 234, 224, 0.14) 1px, transparent 1px);
+  background-size: 40px 40px;
+  pointer-events: none;
+}
+
+.ln__card {
+  position: absolute;
+  display: grid;
+  place-items: center;
+  will-change: transform, opacity;
+}
+
+.ln__card .lab-card {
+  width: min(100%, 38rem);
+}
+
+/* dissolved state: illustration flies apart, panel dissolves to hairlines */
+.ln__card.is-far .lab-card {
+  border-color: transparent;
+  background: transparent;
+}
+
+.ln__card.is-far .lab-card-copy {
+  opacity: 0;
+}
+
+.ln__card.is-far .lab-card-stage {
+  background: transparent;
+}
+
+/* ===== 5. Margin notes — pinned plate, free-scrolling text ===== */
+
+.mn {
+  display: grid;
+  grid-template-columns: 58fr 42fr;
+  align-items: start;
+  width: min(100%, 76rem);
+  margin: 0 auto;
+  padding: 0 2rem;
+}
+
+.mn__plate {
+  position: sticky;
+  top: 0;
+  height: 100dvh;
+  display: grid;
+  place-items: center;
+}
+
+.mn__plateCard {
+  width: min(100%, 38rem);
+}
+
+.mn__plateCard svg [pathLength] {
+  stroke-dasharray: 1;
+  animation: drawOn 0.45s cubic-bezier(0.2, 0.8, 0.2, 1) both;
+}
+
+@keyframes drawOn {
   from {
-    opacity: 0;
-    transform: translateX(12px);
+    stroke-dashoffset: 1;
   }
   to {
-    opacity: 1;
-    transform: none;
+    stroke-dashoffset: 0;
   }
 }
 
-@media (max-width: 700px) {
-  .sp {
-    flex-direction: column;
+.mn__rule {
+  position: relative;
+  width: 1px;
+  background: rgba(238, 234, 224, 0.13);
+}
+
+.mn__tick {
+  position: absolute;
+  left: 0;
+  width: 22px;
+  height: 1px;
+  background: #d39b61;
+  transition: top 0.25s;
+}
+
+.mn__blocks {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+
+.mn__blocks li {
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  padding-right: 1rem;
+}
+
+.mn__no {
+  margin: 0 0 0.6rem;
+  color: #d39b61;
+  font-family: "IBM Plex Mono", ui-monospace, monospace;
+  font-size: 0.72rem;
+  letter-spacing: 0.08em;
+}
+
+.mn__title {
+  margin: 0 0 0.8rem;
+  font-size: clamp(1.6rem, 3vw, 2.6rem);
+  font-weight: 600;
+  letter-spacing: -0.02em;
+}
+
+.mn__desc {
+  margin: 0 0 1rem;
+  max-width: 42ch;
+  color: rgba(238, 234, 224, 0.68);
+  font-size: 0.95rem;
+  line-height: 1.65;
+}
+
+.mn__tech {
+  margin: 0;
+  color: rgba(238, 234, 224, 0.48);
+  font-family: "IBM Plex Mono", ui-monospace, monospace;
+  font-size: 0.72rem;
+}
+
+/* mobile: drop the sticky engine entirely */
+
+@media (max-width: 1023px) {
+  .track {
+    height: auto !important;
+  }
+
+  .stage {
+    position: static;
     height: auto;
-  }
-
-  .sp__spine {
-    flex-basis: 56px;
-    border-right: 0;
-    border-bottom: var(--rule);
-  }
-
-  .sp__label {
-    flex-direction: row;
-    padding: 0 1rem;
-    height: 56px;
-  }
-
-  .sp__title {
-    writing-mode: horizontal-tb;
-    transform: none;
+    overflow: visible;
   }
 }
 
-/* Mobile: preserve disclosure and one-card visibility. */
-
-@media (max-width: 56rem) {
-  .wp-ledger {
-    grid-template-columns: minmax(0, 1fr);
+@media (prefers-reduced-motion: reduce) {
+  .pt__caret,
+  .mn__tick {
+    transition: none;
   }
 
-  .wp-inspector {
-    padding: 1.5rem 0 0;
-    border-inline-start: 0;
-    border-block-start: 1px solid var(--wp-line);
-  }
-
-  .wp-dossier-panel {
-    padding: 1.5rem 0 2rem;
+  .mn__plateCard svg [pathLength] {
+    animation: none;
+    stroke-dashoffset: 0;
   }
 }

@@ -4,7 +4,7 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <meta name="robots" content="noindex">
-  <title>Variant lab — project presentation</title>
+  <title>Variant lab — scroll-driven presentations</title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&family=IBM+Plex+Sans:wght@400;600&display=swap" rel="stylesheet">
@@ -12,105 +12,78 @@
 </head>
 <body>
   <header class="lab-head">
-    <h1>Variant lab — main-page project presentation</h1>
+    <h1>Variant lab — scroll-driven presentations</h1>
     <p>
-      Five presentation variants for the six project cards, relay-generated.
-      Minimal showcase, no polish: the six cards are fake static stand-ins
-      (the real cards stay as-is in every variant). Judge the mechanics —
-      layout, interaction, how much illustration shares the viewport.
+      One shared scroll engine, five structurally different presentations.
+      Each keeps the card component untouched and holds the contract: one
+      pinned card, one illustration in view, native document scroll, no snap,
+      no scroll-trap. Cards are fake static stand-ins; judge the motion.
+      Desktop ≥ 1024px only — phones get a plain stack; reduced-motion gets
+      hard cuts.
     </p>
     <p><a href="/">← back to the site</a></p>
     <nav aria-label="Variants">
-      <a href="#v1">V1 Focus folio</a>
-      <a href="#v2">V2 Text ledger</a>
-      <a href="#v3">V3 Inline dossiers</a>
-      <a href="#v4">V4 Scroll chapters</a>
-      <a href="#v5">V5 Archive drawer</a>
-      <a href="#v6">V6 Dossier stack</a>
-      <a href="#v7">V7 Marginalia</a>
-      <a href="#v8">V8 Spines</a>
+      <a href="#v1">S1 Plotter</a>
+      <a href="#v2">S2 Cut</a>
+      <a href="#v3">S3 Approach</a>
+      <a href="#v4">S4 Lens</a>
+      <a href="#v5">S5 Margin notes</a>
     </nav>
   </header>
 
   <main>
     <section class="lab-variant" id="v1">
-      <h2><span>V1</span>Focus folio</h2>
+      <h2><span>S1</span>Plotter — draw-off / draw-on</h2>
       <p class="lab-concept">
-        One generous stage, project counter, previous/next navigation. No
-        neighboring previews. Illustration visibility: 1, primary.
+        One fixed drafting sheet. Nothing moves; the ink does. The current
+        illustration is erased stroke by stroke while the next is plotted in,
+        like a pen plotter redrawing the sheet. Rail caret tracks progress.
       </p>
-      <div id="mount-focus"></div>
+      <div id="mount-plotter"></div>
     </section>
 
     <section class="lab-variant" id="v2">
-      <h2><span>V2</span>Text ledger</h2>
+      <h2><span>S2</span>Cut — hairline guillotine wipe</h2>
       <p class="lab-concept">
-        Six typographic project rows dominate; the selected card occupies a
-        narrower side inspector. Illustration visibility: 1, supporting.
-        Relay's best default.
+        A single frame; between cards a 1px rule descends (then ascends,
+        alternating) across the sheet. Above the rule the next card, below it
+        the current one. The rule is the transition — no fade. Cheapest of
+        the five: pure clip-path.
       </p>
-      <div id="mount-ledger"></div>
+      <div id="mount-cut"></div>
     </section>
 
     <section class="lab-variant" id="v3">
-      <h2><span>V3</span>Inline dossiers</h2>
+      <h2><span>S3</span>Approach — z-travel through frames</h2>
       <p class="lab-concept">
-        Six ruled headings. Opening one reveals its unchanged card and closes
-        the previous dossier. Illustration visibility: 0–1.
+        A corridor of framed drawings; scroll moves you forward. The current
+        frame grows past you and leaves; the next approaches as a hairline
+        rectangle far ahead, becoming real only once it is close. Thin ink
+        gets thinner with distance — on brand.
       </p>
-      <div id="mount-dossiers"></div>
+      <div id="mount-approach"></div>
     </section>
 
     <section class="lab-variant" id="v4">
-      <h2><span>V4</span>Scroll chapters</h2>
+      <h2><span>S4</span>Lens — zoom into a detail, out into the next</h2>
       <p class="lab-concept">
-        Six text-only chapters drive one pinned card stage. Native scrolling,
-        no scroll-jacking. Illustration visibility: 1, persistent.
+        The camera pushes into a chosen detail of the current drawing until
+        the lines dissolve into a fine grid, then pulls back out — and the
+        drawing that materialises is the next project. Continuity through a
+        shared abstract state, not a cut.
       </p>
-      <div id="mount-chapters"></div>
+      <div id="mount-lens"></div>
     </section>
 
     <section class="lab-variant" id="v5">
-      <h2><span>V5</span>Archive drawer</h2>
+      <h2><span>S5</span>Margin notes — pinned illustration, free-scrolling text</h2>
       <p class="lab-concept">
-        The section is entirely typographic. Selecting a project opens its
-        card in a full-height modal drawer. Illustration visibility: 0, then 1.
-        Strongest rejection of the "illustration collection" feel.
+        The only variant where the text is not pinned: the right column is
+        six text blocks at reading speed, the left plate shows whichever
+        block is nearest the centre, with a fast stroke draw-on. Not a
+        slideshow — an article whose figure keeps up.
       </p>
-      <div id="mount-archive"></div>
-    </section>
-
-    <section class="lab-variant" id="v6">
-      <h2><span>V6</span>Dossier stack</h2>
-      <p class="lab-concept">
-        Cards sit in a stack like folders in a drawer; only the top card
-        renders. The rest are thin offset tab edges (number + title) peeking
-        behind. Click a tab or use arrow keys to bring one forward.
-        Illustration visibility: exactly 1; others are text tabs.
-      </p>
-      <div id="mount-dossier"></div>
-    </section>
-
-    <section class="lab-variant" id="v7">
-      <h2><span>V7</span>Marginalia</h2>
-      <p class="lab-concept">
-        A long-form text with project names inline as superscript references.
-        Clicking a reference opens the full card in a side sheet. Illustrations
-        are fully demoted to supporting evidence: 0 on the page, 1 in the
-        sheet on demand. Prose below is placeholder copy.
-      </p>
-      <div id="mount-marginalia"></div>
-    </section>
-
-    <section class="lab-variant" id="v8">
-      <h2><span>V8</span>Spines</h2>
-      <p class="lab-concept">
-        Six vertical "book spines" side by side, each 56px wide with rotated
-        title text. Exactly one spine is open at a time and holds the card;
-        the rest stay as hairline-bordered spines. Reads as a shelf, not a
-        grid. Illustration visibility: 1.
-      </p>
-      <div id="mount-spines"></div>
+      <div id="mount-margin"></div>
     </section>
   </main>
 

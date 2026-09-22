@@ -21727,386 +21727,302 @@
   var import_react = __toESM(require_react(), 1);
   var import_client = __toESM(require_client(), 1);
   var import_jsx_runtime = __toESM(require_jsx_runtime(), 1);
-  var pad = (value) => String(value).padStart(2, "0");
-  function CardStage({ project }) {
-    return /* @__PURE__ */ (0, import_jsx_runtime.jsx)("div", { className: "wp-stage", children: project.card }, project.id);
+  var clamp01 = (v) => Math.min(1, Math.max(0, v));
+  var smooth = (t) => t * t * (3 - 2 * t);
+  var enterOf = (t) => smooth(clamp01(t / 0.3));
+  var exitOf = (t) => smooth(clamp01((t - 0.7) / 0.3));
+  var pad = (v) => String(v).padStart(2, "0");
+  function useTrack(count, vhPerCard = 1.2) {
+    const ref = (0, import_react.useRef)(null);
+    const [s, set] = (0, import_react.useState)({ index: 0, t: 0, p: 0 });
+    (0, import_react.useEffect)(() => {
+      let raf = 0;
+      const read = () => {
+        const el = ref.current;
+        if (!el) return;
+        const r = el.getBoundingClientRect();
+        const vh = window.innerHeight;
+        const scrollable = r.height - vh;
+        const p = Math.min(1, Math.max(0, -r.top / scrollable));
+        const f = p * count;
+        const index = Math.min(count - 1, Math.floor(f));
+        set((prev) => prev.p === p ? prev : { index, t: f - index, p });
+      };
+      const onScroll = () => {
+        cancelAnimationFrame(raf);
+        raf = requestAnimationFrame(read);
+      };
+      read();
+      addEventListener("scroll", onScroll, { passive: true });
+      addEventListener("resize", onScroll);
+      return () => {
+        removeEventListener("scroll", onScroll);
+        removeEventListener("resize", onScroll);
+        cancelAnimationFrame(raf);
+      };
+    }, [count]);
+    return { ref, ...s, trackHeight: `${count * vhPerCard * 100}vh` };
   }
-  function TextIndex({
-    projects,
-    active,
-    onSelect,
-    opensDialog = false
+  function useMedia(query) {
+    const [m, setM] = (0, import_react.useState)(() => window.matchMedia(query).matches);
+    (0, import_react.useEffect)(() => {
+      const mq = window.matchMedia(query);
+      const s = () => setM(mq.matches);
+      s();
+      mq.addEventListener("change", s);
+      return () => mq.removeEventListener("change", s);
+    }, [query]);
+    return m;
+  }
+  function Track({
+    trackRef,
+    height,
+    children
   }) {
-    return /* @__PURE__ */ (0, import_jsx_runtime.jsx)("nav", { className: "wp-index", "aria-label": "Project index", children: projects.map((project, index) => /* @__PURE__ */ (0, import_jsx_runtime.jsxs)(
-      "button",
-      {
-        type: "button",
-        className: "wp-row",
-        "aria-current": active === index ? "true" : void 0,
-        "aria-haspopup": opensDialog ? "dialog" : void 0,
-        onClick: () => onSelect(index),
-        children: [
-          /* @__PURE__ */ (0, import_jsx_runtime.jsx)("span", { className: "wp-number", children: pad(index + 1) }),
-          /* @__PURE__ */ (0, import_jsx_runtime.jsx)("span", { children: project.title }),
-          /* @__PURE__ */ (0, import_jsx_runtime.jsx)("span", { className: "wp-mark", "aria-hidden": "true", children: opensDialog ? "\u2197" : active === index ? "\u2014" : "\u2192" })
-        ]
-      },
-      project.id
-    )) });
+    return /* @__PURE__ */ (0, import_jsx_runtime.jsx)("section", { className: "track", ref: trackRef, style: { height }, children: /* @__PURE__ */ (0, import_jsx_runtime.jsx)("div", { className: "stage", children }) });
   }
-  function FocusFolio({ projects }) {
-    const [active, setActive] = (0, import_react.useState)(0);
-    const project = projects[active];
-    return /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", { className: "wp-focus", children: [
-      /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("header", { className: "wp-topline", children: [
-        /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("span", { className: "wp-caption", "aria-live": "polite", children: [
-          pad(active + 1),
-          " / ",
-          pad(projects.length),
-          " \u2014 ",
-          project.title
-        ] }),
-        /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", { className: "wp-controls", children: [
-          /* @__PURE__ */ (0, import_jsx_runtime.jsx)(
-            "button",
-            {
-              type: "button",
-              className: "wp-control",
-              disabled: active === 0,
-              onClick: () => setActive((index) => index - 1),
-              children: "\u2190 Previous"
-            }
-          ),
-          /* @__PURE__ */ (0, import_jsx_runtime.jsx)(
-            "button",
-            {
-              type: "button",
-              className: "wp-control",
-              disabled: active === projects.length - 1,
-              onClick: () => setActive((index) => index + 1),
-              children: "Next \u2192"
-            }
-          )
-        ] })
-      ] }),
-      /* @__PURE__ */ (0, import_jsx_runtime.jsx)(CardStage, { project })
-    ] });
+  function PlainStack({ projects }) {
+    return /* @__PURE__ */ (0, import_jsx_runtime.jsx)("div", { className: "lab-stack", children: projects.map((p) => /* @__PURE__ */ (0, import_jsx_runtime.jsx)("div", { className: "lab-stack__item", children: p.card }, p.id)) });
   }
-  function TextLedger({ projects }) {
-    const [active, setActive] = (0, import_react.useState)(0);
-    return /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", { className: "wp-ledger", children: [
-      /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", { children: [
-        /* @__PURE__ */ (0, import_jsx_runtime.jsx)("p", { className: "wp-caption", children: "Selected work / project index" }),
+  function usePathLength(ref, dep) {
+    (0, import_react.useEffect)(() => {
+      ref.current?.querySelectorAll(
+        "path,line,rect,circle,polyline,ellipse"
+      ).forEach((el) => el.setAttribute("pathLength", "1"));
+    }, [dep]);
+  }
+  function Plotter({ projects }) {
+    const count = projects.length;
+    const { ref, index, t, trackHeight } = useTrack(count);
+    const desktop = useMedia("(min-width: 1024px)");
+    const reduced = useMedia("(prefers-reduced-motion: reduce)");
+    const sheetRef = (0, import_react.useRef)(null);
+    usePathLength(sheetRef, index);
+    if (!desktop) return /* @__PURE__ */ (0, import_jsx_runtime.jsx)(PlainStack, { projects });
+    const exit = exitOf(t);
+    const nextI = Math.min(count - 1, index + 1);
+    const cur = projects[index];
+    const nxt = projects[nextI];
+    const drawCur = index === 0 ? enterOf(t) * (1 - exit) : Math.min(1, 0.4 + 0.65 * enterOf(t)) * (1 - exit);
+    const textCur = enterOf(t) * (1 - exit);
+    const nextPre = t > 0.7 ? smooth(clamp01((t - 0.7) / 0.3)) : 0;
+    const drawNext = nextPre * 0.4;
+    if (reduced) {
+      return /* @__PURE__ */ (0, import_jsx_runtime.jsx)(Track, { trackRef: ref, height: trackHeight, children: /* @__PURE__ */ (0, import_jsx_runtime.jsx)("div", { className: "pt", children: /* @__PURE__ */ (0, import_jsx_runtime.jsx)("div", { className: "pt__sheet", children: /* @__PURE__ */ (0, import_jsx_runtime.jsx)("div", { className: "pt__card", children: cur.card }) }) }) });
+    }
+    return /* @__PURE__ */ (0, import_jsx_runtime.jsx)(Track, { trackRef: ref, height: trackHeight, children: /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", { className: "pt", children: [
+      /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", { className: "pt__rail", "aria-hidden": true, children: [
+        projects.map((_, i) => /* @__PURE__ */ (0, import_jsx_runtime.jsx)("span", { className: "pt__tick" }, i)),
         /* @__PURE__ */ (0, import_jsx_runtime.jsx)(
-          TextIndex,
+          "span",
           {
-            projects,
-            active,
-            onSelect: setActive
+            className: "pt__caret",
+            style: { transform: `translateY(${index * 28}px)` }
           }
         )
       ] }),
-      /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("aside", { className: "wp-inspector", "aria-label": "Selected project", children: [
-        /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("p", { className: "wp-caption", children: [
-          "Inspection / ",
-          pad(active + 1)
-        ] }),
-        /* @__PURE__ */ (0, import_jsx_runtime.jsx)(CardStage, { project: projects[active] })
-      ] })
-    ] });
-  }
-  function InlineDossiers({ projects }) {
-    const [open, setOpen] = (0, import_react.useState)(null);
-    const baseId = (0, import_react.useId)();
-    return /* @__PURE__ */ (0, import_jsx_runtime.jsx)("div", { className: "wp-dossiers", children: projects.map((project, index) => {
-      const expanded = open === index;
-      const buttonId = `${baseId}-button-${index}`;
-      const panelId = `${baseId}-panel-${index}`;
-      return /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("section", { children: [
-        /* @__PURE__ */ (0, import_jsx_runtime.jsx)("h3", { className: "wp-dossier-heading", children: /* @__PURE__ */ (0, import_jsx_runtime.jsxs)(
-          "button",
-          {
-            type: "button",
-            className: "wp-row",
-            id: buttonId,
-            "aria-expanded": expanded,
-            "aria-controls": panelId,
-            onClick: () => setOpen(expanded ? null : index),
-            children: [
-              /* @__PURE__ */ (0, import_jsx_runtime.jsx)("span", { className: "wp-number", children: pad(index + 1) }),
-              /* @__PURE__ */ (0, import_jsx_runtime.jsx)("span", { children: project.title }),
-              /* @__PURE__ */ (0, import_jsx_runtime.jsx)("span", { className: "wp-mark", "aria-hidden": "true", children: expanded ? "\u2212" : "+" })
-            ]
-          }
-        ) }),
+      /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", { className: "pt__sheet", ref: sheetRef, children: [
         /* @__PURE__ */ (0, import_jsx_runtime.jsx)(
           "div",
           {
-            className: "wp-dossier-panel",
-            id: panelId,
-            role: "region",
-            "aria-labelledby": buttonId,
-            hidden: !expanded,
-            children: expanded && /* @__PURE__ */ (0, import_jsx_runtime.jsx)(CardStage, { project })
-          }
+            className: "pt__card",
+            style: { "--draw": drawCur, "--reveal": textCur },
+            children: cur.card
+          },
+          cur.id
+        ),
+        nextI !== index && /* @__PURE__ */ (0, import_jsx_runtime.jsx)(
+          "div",
+          {
+            className: "pt__card pt__card--next",
+            style: { "--draw": drawNext, "--reveal": 0 },
+            children: nxt.card
+          },
+          nxt.id
         )
-      ] }, project.id);
-    }) });
+      ] })
+    ] }) });
   }
-  function ScrollChapters({ projects }) {
-    const [active, setActive] = (0, import_react.useState)(0);
-    const [desktop, setDesktop] = (0, import_react.useState)(
-      () => window.matchMedia("(min-width: 56rem)").matches
-    );
-    const chapterRail = (0, import_react.useRef)(null);
-    (0, import_react.useEffect)(() => {
-      const media = window.matchMedia("(min-width: 56rem)");
-      const sync = () => setDesktop(media.matches);
-      sync();
-      media.addEventListener("change", sync);
-      return () => media.removeEventListener("change", sync);
-    }, []);
-    (0, import_react.useEffect)(() => {
-      if (!desktop) return;
-      let frame = 0;
-      const update = () => {
-        frame = 0;
-        const chapters = chapterRail.current?.querySelectorAll("[data-chapter]");
-        if (!chapters?.length) return;
-        const viewportCenter = window.innerHeight / 2;
-        let nearest = 0;
-        let shortestDistance = Infinity;
-        chapters.forEach((chapter, index) => {
-          const rect = chapter.getBoundingClientRect();
-          const distance = Math.abs(
-            (rect.top + rect.bottom) / 2 - viewportCenter
-          );
-          if (distance < shortestDistance) {
-            shortestDistance = distance;
-            nearest = index;
-          }
-        });
-        setActive(nearest);
-      };
-      const schedule = () => {
-        if (!frame) frame = window.requestAnimationFrame(update);
-      };
-      schedule();
-      window.addEventListener("scroll", schedule, { passive: true });
-      window.addEventListener("resize", schedule);
-      return () => {
-        window.cancelAnimationFrame(frame);
-        window.removeEventListener("scroll", schedule);
-        window.removeEventListener("resize", schedule);
-      };
-    }, [desktop, projects.length]);
-    if (!desktop) return /* @__PURE__ */ (0, import_jsx_runtime.jsx)(FocusFolio, { projects });
-    return /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", { className: "wp-chapters", children: [
-      /* @__PURE__ */ (0, import_jsx_runtime.jsx)("div", { ref: chapterRail, children: projects.map((project, index) => /* @__PURE__ */ (0, import_jsx_runtime.jsxs)(
-        "section",
-        {
-          className: "wp-chapter",
-          "data-chapter": index,
-          children: [
-            /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("p", { className: "wp-caption", children: [
-              "Chapter ",
-              pad(index + 1),
-              " / ",
-              pad(projects.length)
-            ] }),
-            /* @__PURE__ */ (0, import_jsx_runtime.jsx)("h3", { className: "wp-chapter-title", children: project.title })
-          ]
-        },
-        project.id
-      )) }),
+  function Cut({ projects }) {
+    const count = projects.length;
+    const { ref, index, t, trackHeight } = useTrack(count);
+    const desktop = useMedia("(min-width: 1024px)");
+    const reduced = useMedia("(prefers-reduced-motion: reduce)");
+    if (!desktop) return /* @__PURE__ */ (0, import_jsx_runtime.jsx)(PlainStack, { projects });
+    const nextI = Math.min(count - 1, index + 1);
+    const cur = projects[index];
+    const nxt = projects[nextI];
+    const cut = reduced ? 0 : exitOf(t);
+    const down = index % 2 === 0;
+    const curClip = down ? `inset(${cut * 100}% 0 0 0)` : `inset(0 0 ${cut * 100}% 0)`;
+    const nextClip = down ? `inset(0 0 ${(1 - cut) * 100}% 0)` : `inset(${(1 - cut) * 100}% 0 0 0)`;
+    const ruleTop = down ? `${cut * 100}%` : `${(1 - cut) * 100}%`;
+    const moving = cut > 0 && cut < 1;
+    return /* @__PURE__ */ (0, import_jsx_runtime.jsx)(Track, { trackRef: ref, height: trackHeight, children: /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", { className: "ct", children: [
+      nextI !== index && /* @__PURE__ */ (0, import_jsx_runtime.jsx)("div", { className: "ct__layer", style: { clipPath: nextClip }, children: /* @__PURE__ */ (0, import_jsx_runtime.jsx)("div", { className: "ct__card", children: nxt.card }, nxt.id) }),
+      /* @__PURE__ */ (0, import_jsx_runtime.jsx)("div", { className: "ct__layer", style: { clipPath: curClip }, children: /* @__PURE__ */ (0, import_jsx_runtime.jsx)("div", { className: "ct__card", children: cur.card }, cur.id) }),
       /* @__PURE__ */ (0, import_jsx_runtime.jsx)(
-        "aside",
+        "div",
         {
-          className: "wp-pinned",
-          "aria-label": "Current chapter project",
-          tabIndex: 0,
-          children: /* @__PURE__ */ (0, import_jsx_runtime.jsx)(CardStage, { project: projects[active] })
-        }
-      )
-    ] });
-  }
-  function ArchiveDrawer({ projects }) {
-    const [selected, setSelected] = (0, import_react.useState)(null);
-    const dialog = (0, import_react.useRef)(null);
-    const titleId = (0, import_react.useId)();
-    const project = selected === null ? null : projects[selected];
-    (0, import_react.useEffect)(() => {
-      if (selected !== null && dialog.current && !dialog.current.open) {
-        dialog.current.showModal();
-      }
-    }, [selected]);
-    return /* @__PURE__ */ (0, import_jsx_runtime.jsxs)(import_jsx_runtime.Fragment, { children: [
-      /* @__PURE__ */ (0, import_jsx_runtime.jsx)("p", { className: "wp-caption", children: "Selected work / open a project" }),
-      /* @__PURE__ */ (0, import_jsx_runtime.jsx)(
-        TextIndex,
-        {
-          projects,
-          active: null,
-          onSelect: setSelected,
-          opensDialog: true
+          className: "ct__rule",
+          style: { top: ruleTop, opacity: moving ? 1 : 0 }
         }
       ),
-      /* @__PURE__ */ (0, import_jsx_runtime.jsxs)(
-        "dialog",
-        {
-          ref: dialog,
-          className: "wp-drawer",
-          "aria-labelledby": titleId,
-          onClose: () => setSelected(null),
-          children: [
-            /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("header", { className: "wp-topline", children: [
-              /* @__PURE__ */ (0, import_jsx_runtime.jsx)("h3", { className: "wp-caption", id: titleId, children: project?.title ?? "Project" }),
-              /* @__PURE__ */ (0, import_jsx_runtime.jsx)("form", { method: "dialog", children: /* @__PURE__ */ (0, import_jsx_runtime.jsx)("button", { type: "submit", className: "wp-control", children: "Close \xD7" }) })
-            ] }),
-            project && /* @__PURE__ */ (0, import_jsx_runtime.jsx)(CardStage, { project })
-          ]
-        }
-      )
-    ] });
-  }
-  var views = {
-    focus: FocusFolio,
-    ledger: TextLedger,
-    dossiers: InlineDossiers,
-    chapters: ScrollChapters,
-    archive: ArchiveDrawer,
-    dossier: DossierStack,
-    marginalia: Marginalia,
-    spines: Spines
-  };
-  function ProjectPresentation({
-    projects,
-    variant = "ledger"
-  }) {
-    if (projects.length === 0) return null;
-    const View = views[variant];
-    return /* @__PURE__ */ (0, import_jsx_runtime.jsx)(
-      "section",
-      {
-        className: `wp wp--${variant}`,
-        "aria-label": "Selected projects",
-        children: /* @__PURE__ */ (0, import_jsx_runtime.jsx)(View, { projects })
-      }
-    );
-  }
-  function DossierStack({ projects }) {
-    const [top, setTop] = (0, import_react.useState)(0);
-    const n = projects.length;
-    const order = (0, import_react.useMemo)(() => projects.map((_, i) => (i - top + n) % n), [top, n]);
-    const onKey = (e) => {
-      if (e.key === "ArrowRight" || e.key === "ArrowDown") setTop((t) => (t + 1) % n);
-      if (e.key === "ArrowLeft" || e.key === "ArrowUp") setTop((t) => (t - 1 + n) % n);
-    };
-    return /* @__PURE__ */ (0, import_jsx_runtime.jsx)("div", { className: "ds", tabIndex: 0, onKeyDown: onKey, role: "region", "aria-roledescription": "stack", "aria-label": "Projects", children: projects.map((p, i) => {
-      const depth = order[i];
-      return /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", { className: "ds__folder", style: { "--d": depth }, "data-front": depth === 0, children: [
-        /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("button", { className: "ds__tab", onClick: () => setTop(i), "aria-label": `Bring ${p.title} to front`, children: [
-          /* @__PURE__ */ (0, import_jsx_runtime.jsx)("span", { children: String(i + 1).padStart(2, "0") }),
-          /* @__PURE__ */ (0, import_jsx_runtime.jsx)("span", { children: p.title })
-        ] }),
-        depth === 0 && /* @__PURE__ */ (0, import_jsx_runtime.jsx)("div", { className: "ds__body", children: /* @__PURE__ */ (0, import_jsx_runtime.jsx)(CardStage, { project: p }) })
-      ] }, p.id);
-    }) });
-  }
-  function Marginalia({ projects }) {
-    const dlg = (0, import_react.useRef)(null);
-    const [open, setOpen] = (0, import_react.useState)(null);
-    const openP = (p) => {
-      setOpen(p);
-      dlg.current?.showModal();
-    };
-    const byId = Object.fromEntries(projects.map((p) => [p.id, p]));
-    const Ref = ({ id }) => {
-      const p = byId[id];
-      return /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("button", { className: "mg__ref", onClick: () => openP(p), "aria-haspopup": "dialog", children: [
-        p.title,
-        /* @__PURE__ */ (0, import_jsx_runtime.jsx)("sup", { children: String(projects.indexOf(p) + 1) })
-      ] });
-    };
-    const tags = {
-      quicknotes: "notes",
-      spine: "layout engine",
-      "waste-of-tokens": "playground",
-      "cat-runner": "game",
-      "practice-map": "learning map",
-      "raft-cluster": "systems"
-    };
-    return /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("article", { className: "mg", children: [
-      /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("p", { children: [
-        "I build tooling that stays out of the way \u2014 most recently",
-        " ",
-        /* @__PURE__ */ (0, import_jsx_runtime.jsx)(Ref, { id: "quicknotes" }),
-        " for offline-first notes and",
-        " ",
-        /* @__PURE__ */ (0, import_jsx_runtime.jsx)(Ref, { id: "spine" }),
-        ", a drag-and-drop layout engine that runs on WebAssembly."
-      ] }),
-      /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("p", { children: [
-        "Side quests keep the hands busy: ",
-        /* @__PURE__ */ (0, import_jsx_runtime.jsx)(Ref, { id: "waste-of-tokens" }),
-        " burns prompts into pixel grids, ",
-        /* @__PURE__ */ (0, import_jsx_runtime.jsx)(Ref, { id: "cat-runner" }),
-        " is an endless runner with a hand-inked cat, ",
-        /* @__PURE__ */ (0, import_jsx_runtime.jsx)(Ref, { id: "practice-map" }),
-        " wires deep lessons into a map, and ",
-        /* @__PURE__ */ (0, import_jsx_runtime.jsx)(Ref, { id: "raft-cluster" }),
-        " draws a consensus cluster as living tide lines."
-      ] }),
-      /* @__PURE__ */ (0, import_jsx_runtime.jsx)("ol", { className: "mg__notes", children: projects.map((p, i) => /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("li", { id: `fn-${i + 1}`, children: [
-        /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("button", { onClick: () => openP(p), children: [
-          String(i + 1).padStart(2, "0"),
-          " ",
-          p.title
-        ] }),
-        " ",
-        "\u2014 ",
-        tags[p.id]
-      ] }, p.id)) }),
       /* @__PURE__ */ (0, import_jsx_runtime.jsx)(
-        "dialog",
+        "div",
         {
-          ref: dlg,
-          className: "mg__sheet",
-          onClose: () => setOpen(null),
-          onClick: (e) => e.target === dlg.current && dlg.current.close(),
-          children: open && /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", { className: "mg__sheetBody", children: [
-            /* @__PURE__ */ (0, import_jsx_runtime.jsx)(CardStage, { project: open }),
-            /* @__PURE__ */ (0, import_jsx_runtime.jsx)("button", { autoFocus: true, onClick: () => dlg.current?.close(), children: "close \xD7" })
-          ] })
+          className: "ct__rule ct__rule--ghost",
+          style: {
+            top: `calc(${ruleTop} + ${down ? 12 : -12}px)`,
+            opacity: moving ? 0.4 : 0
+          }
         }
       )
-    ] });
+    ] }) });
   }
-  function Spines({ projects }) {
-    const [open, setOpen] = (0, import_react.useState)(0);
-    return /* @__PURE__ */ (0, import_jsx_runtime.jsx)("div", { className: "sp", role: "tablist", "aria-orientation": "horizontal", children: projects.map((p, i) => {
-      const isOpen = i === open;
-      return /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", { className: "sp__spine", "data-open": isOpen, children: [
-        /* @__PURE__ */ (0, import_jsx_runtime.jsxs)(
-          "button",
-          {
-            role: "tab",
-            "aria-selected": isOpen,
-            className: "sp__label",
-            onClick: () => setOpen(i),
-            onKeyDown: (e) => {
-              if (e.key === "ArrowRight") setOpen((i + 1) % projects.length);
-              if (e.key === "ArrowLeft") setOpen((i - 1 + projects.length) % projects.length);
-            },
-            children: [
-              /* @__PURE__ */ (0, import_jsx_runtime.jsx)("span", { className: "sp__no", children: String(i + 1).padStart(2, "0") }),
-              /* @__PURE__ */ (0, import_jsx_runtime.jsx)("span", { className: "sp__title", children: p.title })
-            ]
-          }
-        ),
-        isOpen && /* @__PURE__ */ (0, import_jsx_runtime.jsx)("div", { role: "tabpanel", className: "sp__panel", children: /* @__PURE__ */ (0, import_jsx_runtime.jsx)(CardStage, { project: p }) })
-      ] }, p.id);
-    }) });
+  function Approach({ projects }) {
+    const count = projects.length;
+    const { ref, index, t, trackHeight } = useTrack(count);
+    const desktop = useMedia("(min-width: 1024px)");
+    const reduced = useMedia("(prefers-reduced-motion: reduce)");
+    if (!desktop) return /* @__PURE__ */ (0, import_jsx_runtime.jsx)(PlainStack, { projects });
+    const nextI = Math.min(count - 1, index + 1);
+    const cur = projects[index];
+    const nxt = projects[nextI];
+    const exit = reduced ? 0 : exitOf(t);
+    const pre = reduced ? 0 : t > 0.7 ? smooth(clamp01((t - 0.7) / 0.3)) : 0;
+    const real = pre >= 0.78;
+    return /* @__PURE__ */ (0, import_jsx_runtime.jsx)(Track, { trackRef: ref, height: trackHeight, children: /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", { className: "ap", children: [
+      nextI !== index && /* @__PURE__ */ (0, import_jsx_runtime.jsx)(
+        "div",
+        {
+          className: "ap__frame ap__frame--next",
+          style: {
+            transform: `translateZ(${-900 + pre * 900}px)`,
+            opacity: real ? 0.35 + 0.65 * ((pre - 0.78) / 0.22) : 0.18
+          },
+          children: /* @__PURE__ */ (0, import_jsx_runtime.jsx)("div", { className: "ap__inner", style: { visibility: real ? "visible" : "hidden" }, children: /* @__PURE__ */ (0, import_jsx_runtime.jsx)("div", { children: nxt.card }, nxt.id) })
+        }
+      ),
+      /* @__PURE__ */ (0, import_jsx_runtime.jsx)(
+        "div",
+        {
+          className: "ap__frame ap__frame--current",
+          style: {
+            transform: `translateZ(${exit * 600}px)`,
+            opacity: 1 - exit
+          },
+          children: /* @__PURE__ */ (0, import_jsx_runtime.jsx)("div", { children: cur.card }, cur.id)
+        }
+      )
+    ] }) });
+  }
+  function Lens({ projects }) {
+    const count = projects.length;
+    const { ref, index, t, trackHeight } = useTrack(count);
+    const desktop = useMedia("(min-width: 1024px)");
+    const reduced = useMedia("(prefers-reduced-motion: reduce)");
+    if (!desktop) return /* @__PURE__ */ (0, import_jsx_runtime.jsx)(PlainStack, { projects });
+    const nextI = Math.min(count - 1, index + 1);
+    const cur = projects[index];
+    const nxt = projects[nextI];
+    const curMeta = META[index];
+    const grid = reduced ? 0 : t > 0.6 ? smooth(clamp01((t - 0.6) / 0.25)) : 0;
+    let scale = 1;
+    let opacity = 1;
+    if (!reduced) {
+      if (t < 0.15 && index > 0) {
+        const k = smooth(clamp01(0.5 + t / 0.15 * 0.5));
+        scale = 6 - 5 * k;
+        opacity = k;
+      } else if (t > 0.85) {
+        scale = 6;
+        opacity = 0;
+      } else if (t > 0.6) {
+        scale = 1 + 5 * smooth(clamp01((t - 0.6) / 0.25));
+        opacity = t < 0.78 ? 1 : 1 - smooth(clamp01((t - 0.78) / 0.07));
+      }
+    }
+    let nScale = 6;
+    let nOpacity = 0;
+    if (!reduced && t > 0.85) {
+      const k = smooth(clamp01((t - 0.85) / 0.15 * 0.5));
+      nScale = 6 - 5 * k;
+      nOpacity = k;
+    }
+    return /* @__PURE__ */ (0, import_jsx_runtime.jsx)(Track, { trackRef: ref, height: trackHeight, children: /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", { className: "ln", children: [
+      /* @__PURE__ */ (0, import_jsx_runtime.jsx)("div", { className: "ln__grid", style: { opacity: grid }, "aria-hidden": true }),
+      t > 0.85 && nextI !== index && /* @__PURE__ */ (0, import_jsx_runtime.jsx)(
+        "div",
+        {
+          className: `ln__card${nScale > 1.2 ? " is-far" : ""}`,
+          style: {
+            transform: `scale(${nScale})`,
+            transformOrigin: `${META[nextI].focal.x * 100}% ${META[nextI].focal.y * 100}%`,
+            opacity: nOpacity
+          },
+          children: nxt.card
+        },
+        nxt.id
+      ),
+      /* @__PURE__ */ (0, import_jsx_runtime.jsx)(
+        "div",
+        {
+          className: `ln__card${scale > 1.2 ? " is-far" : ""}`,
+          style: {
+            transform: `scale(${scale})`,
+            transformOrigin: `${curMeta.focal.x * 100}% ${curMeta.focal.y * 100}%`,
+            opacity
+          },
+          children: cur.card
+        },
+        cur.id
+      )
+    ] }) });
+  }
+  function MarginNotes({ projects }) {
+    const [active, setActive] = (0, import_react.useState)(0);
+    const listRef = (0, import_react.useRef)(null);
+    const plateRef = (0, import_react.useRef)(null);
+    const [tickTop, setTickTop] = (0, import_react.useState)(0);
+    const desktop = useMedia("(min-width: 1024px)");
+    usePathLength(plateRef, active);
+    (0, import_react.useEffect)(() => {
+      if (!desktop) return;
+      const lis = listRef.current?.querySelectorAll("li[data-i]");
+      if (!lis?.length) return;
+      const io = new IntersectionObserver(
+        (es) => {
+          const best = es.filter((e) => e.isIntersecting).sort((a, b) => b.intersectionRatio - a.intersectionRatio)[0];
+          if (best) setActive(Number(best.target.dataset.i));
+        },
+        { rootMargin: "-45% 0px -45% 0px", threshold: [0, 0.01] }
+      );
+      lis.forEach((li) => io.observe(li));
+      return () => io.disconnect();
+    }, [desktop, projects.length]);
+    (0, import_react.useEffect)(() => {
+      const li = listRef.current?.querySelector(
+        `li[data-i="${active}"]`
+      );
+      if (li) setTickTop(li.offsetTop + 12);
+    }, [active]);
+    if (!desktop) return /* @__PURE__ */ (0, import_jsx_runtime.jsx)(PlainStack, { projects });
+    const cur = projects[active];
+    return /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", { className: "mn", children: [
+      /* @__PURE__ */ (0, import_jsx_runtime.jsx)("aside", { className: "mn__plate", ref: plateRef, children: /* @__PURE__ */ (0, import_jsx_runtime.jsx)("div", { className: "mn__plateCard", children: cur.card }, cur.id) }),
+      /* @__PURE__ */ (0, import_jsx_runtime.jsx)("div", { className: "mn__rule", "aria-hidden": true, children: /* @__PURE__ */ (0, import_jsx_runtime.jsx)("span", { className: "mn__tick", style: { top: tickTop } }) }),
+      /* @__PURE__ */ (0, import_jsx_runtime.jsx)("ol", { className: "mn__blocks", ref: listRef, children: projects.map((p, i) => /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("li", { "data-i": i, children: [
+        /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("p", { className: "mn__no", children: [
+          pad(i + 1),
+          " \xB7 ",
+          META[i].tag
+        ] }),
+        /* @__PURE__ */ (0, import_jsx_runtime.jsx)("h3", { className: "mn__title", children: p.title }),
+        /* @__PURE__ */ (0, import_jsx_runtime.jsx)("p", { className: "mn__desc", children: META[i].desc }),
+        /* @__PURE__ */ (0, import_jsx_runtime.jsx)("p", { className: "mn__tech", children: META[i].tech })
+      ] }, p.id)) })
+    ] });
   }
   var S = { stroke: "rgba(238,234,224,0.75)", fill: "none", strokeWidth: 1.1 };
   var S2 = { stroke: "rgba(238,234,224,0.4)", fill: "none", strokeWidth: 1 };
@@ -22198,26 +22114,81 @@
       /* @__PURE__ */ (0, import_jsx_runtime.jsx)("circle", { cx: "130", cy: "58", r: "3", fill: A })
     ] });
   }
-  function LabCard({
-    n,
-    tag,
-    title,
-    desc,
-    tech,
-    children
-  }) {
+  var META = [
+    {
+      id: "quicknotes",
+      n: "01",
+      tag: "notes",
+      title: "Quicknotes",
+      desc: "Fast markdown notes that live on-device and sync through Firebase \u2014 [[wiki-links]], live preview, command palette, one-button zip export.",
+      tech: "Firebase \xB7 Firestore \xB7 Vanilla ES modules \xB7 Static hosting",
+      focal: { x: 0.5, y: 0.5 },
+      Mark: MarkQuicknotes
+    },
+    {
+      id: "spine",
+      n: "02",
+      tag: "layout engine",
+      title: "Spine",
+      desc: "Drag, nest and retune Flexbox and Grid containers in real time \u2014 a Go-to-WebAssembly engine with undo/redo and clean HTML/CSS export.",
+      tech: "Go \xB7 WebAssembly \xB7 Flexbox & Grid \xB7 syscall/js",
+      focal: { x: 0.62, y: 0.4 },
+      Mark: MarkSpine
+    },
+    {
+      id: "waste-of-tokens",
+      n: "03",
+      tag: "playground",
+      title: "Waste of tokens",
+      desc: "A dense pixel-grid playground where prompts burn down into geometry \u2014 every token spent leaves a mark on the plate.",
+      tech: "Canvas \xB7 Generative grid \xB7 TypeScript",
+      focal: { x: 0.4, y: 0.55 },
+      Mark: MarkTokens
+    },
+    {
+      id: "cat-runner",
+      n: "04",
+      tag: "game",
+      title: "Cat Runner",
+      desc: "An endless runner with a hand-inked cat \u2014 procedural obstacles, simple physics, and a leaderboard that survives refreshes.",
+      tech: "TypeScript \xB7 Canvas \xB7 Firebase",
+      focal: { x: 0.5, y: 0.42 },
+      Mark: MarkCat
+    },
+    {
+      id: "practice-map",
+      n: "05",
+      tag: "learning map",
+      title: "Practice Map",
+      desc: "Interactive practice-map reader: deep lessons wired as areas, sections and blocks, with shadow-typing drills.",
+      tech: "React \xB7 Markdown pipeline \xB7 Vite",
+      focal: { x: 0.55, y: 0.5 },
+      Mark: MarkPracticeMap
+    },
+    {
+      id: "raft-cluster",
+      n: "06",
+      tag: "systems",
+      title: "Raft Cluster",
+      desc: "A visualization of a Raft consensus cluster \u2014 elections, log replication and failovers, drawn as living tide lines.",
+      tech: "Go \xB7 WebSockets \xB7 SVG",
+      focal: { x: 0.45, y: 0.5 },
+      Mark: MarkRaft
+    }
+  ];
+  function LabCard({ m }) {
     return /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("article", { className: "lab-card", children: [
-      /* @__PURE__ */ (0, import_jsx_runtime.jsx)("div", { className: "lab-card-stage", children }),
+      /* @__PURE__ */ (0, import_jsx_runtime.jsx)("div", { className: "lab-card-stage", children: /* @__PURE__ */ (0, import_jsx_runtime.jsx)(m.Mark, {}) }),
       /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", { className: "lab-card-copy", children: [
         /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("p", { className: "lab-card-topline", children: [
-          n,
+          m.n,
           " \xB7 ",
-          tag
+          m.tag
         ] }),
-        /* @__PURE__ */ (0, import_jsx_runtime.jsx)("h3", { className: "lab-card-title", children: title }),
-        /* @__PURE__ */ (0, import_jsx_runtime.jsx)("p", { className: "lab-card-desc", children: desc }),
+        /* @__PURE__ */ (0, import_jsx_runtime.jsx)("h3", { className: "lab-card-title", children: m.title }),
+        /* @__PURE__ */ (0, import_jsx_runtime.jsx)("p", { className: "lab-card-desc", children: m.desc }),
         /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", { className: "lab-card-footer", children: [
-          /* @__PURE__ */ (0, import_jsx_runtime.jsx)("span", { className: "lab-card-tech", children: tech }),
+          /* @__PURE__ */ (0, import_jsx_runtime.jsx)("span", { className: "lab-card-tech", children: m.tech }),
           /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("span", { className: "lab-card-open", children: [
             "open ",
             /* @__PURE__ */ (0, import_jsx_runtime.jsx)("span", { "aria-hidden": "true", children: "\u2197" })
@@ -22226,114 +22197,22 @@
       ] })
     ] });
   }
-  var entries = [
-    {
-      id: "quicknotes",
-      title: "Quicknotes",
-      card: /* @__PURE__ */ (0, import_jsx_runtime.jsx)(
-        LabCard,
-        {
-          n: "01",
-          tag: "notes",
-          title: "Quicknotes",
-          desc: "Fast markdown notes that live on-device and sync through Firebase \u2014 [[wiki-links]], live preview, command palette, one-button zip export.",
-          tech: "Firebase \xB7 Firestore \xB7 Vanilla ES modules \xB7 Static hosting",
-          children: /* @__PURE__ */ (0, import_jsx_runtime.jsx)(MarkQuicknotes, {})
-        }
-      )
-    },
-    {
-      id: "spine",
-      title: "Spine",
-      card: /* @__PURE__ */ (0, import_jsx_runtime.jsx)(
-        LabCard,
-        {
-          n: "02",
-          tag: "layout engine",
-          title: "Spine",
-          desc: "Drag, nest and retune Flexbox and Grid containers in real time \u2014 a Go-to-WebAssembly engine with undo/redo and clean HTML/CSS export.",
-          tech: "Go \xB7 WebAssembly \xB7 Flexbox & Grid \xB7 syscall/js",
-          children: /* @__PURE__ */ (0, import_jsx_runtime.jsx)(MarkSpine, {})
-        }
-      )
-    },
-    {
-      id: "waste-of-tokens",
-      title: "Waste of tokens",
-      card: /* @__PURE__ */ (0, import_jsx_runtime.jsx)(
-        LabCard,
-        {
-          n: "03",
-          tag: "playground",
-          title: "Waste of tokens",
-          desc: "A dense pixel-grid playground where prompts burn down into geometry \u2014 every token spent leaves a mark on the plate.",
-          tech: "Canvas \xB7 Generative grid \xB7 TypeScript",
-          children: /* @__PURE__ */ (0, import_jsx_runtime.jsx)(MarkTokens, {})
-        }
-      )
-    },
-    {
-      id: "cat-runner",
-      title: "Cat Runner",
-      card: /* @__PURE__ */ (0, import_jsx_runtime.jsx)(
-        LabCard,
-        {
-          n: "04",
-          tag: "game",
-          title: "Cat Runner",
-          desc: "An endless runner with a hand-inked cat \u2014 procedural obstacles, simple physics, and a leaderboard that survives refreshes.",
-          tech: "TypeScript \xB7 Canvas \xB7 Firebase",
-          children: /* @__PURE__ */ (0, import_jsx_runtime.jsx)(MarkCat, {})
-        }
-      )
-    },
-    {
-      id: "practice-map",
-      title: "Practice Map",
-      card: /* @__PURE__ */ (0, import_jsx_runtime.jsx)(
-        LabCard,
-        {
-          n: "05",
-          tag: "learning map",
-          title: "Practice Map",
-          desc: "Interactive practice-map reader: deep lessons wired as areas, sections and blocks, with shadow-typing drills.",
-          tech: "React \xB7 Markdown pipeline \xB7 Vite",
-          children: /* @__PURE__ */ (0, import_jsx_runtime.jsx)(MarkPracticeMap, {})
-        }
-      )
-    },
-    {
-      id: "raft-cluster",
-      title: "Raft Cluster",
-      card: /* @__PURE__ */ (0, import_jsx_runtime.jsx)(
-        LabCard,
-        {
-          n: "06",
-          tag: "systems",
-          title: "Raft Cluster",
-          desc: "A visualization of a Raft consensus cluster \u2014 elections, log replication and failovers, drawn as living tide lines.",
-          tech: "Go \xB7 WebSockets \xB7 SVG",
-          children: /* @__PURE__ */ (0, import_jsx_runtime.jsx)(MarkRaft, {})
-        }
-      )
-    }
-  ];
+  var entries = META.map((m) => ({
+    id: m.id,
+    title: m.title,
+    card: /* @__PURE__ */ (0, import_jsx_runtime.jsx)(LabCard, { m })
+  }));
   var mounts = [
-    ["mount-focus", "focus"],
-    ["mount-ledger", "ledger"],
-    ["mount-dossiers", "dossiers"],
-    ["mount-chapters", "chapters"],
-    ["mount-archive", "archive"],
-    ["mount-dossier", "dossier"],
-    ["mount-marginalia", "marginalia"],
-    ["mount-spines", "spines"]
+    ["mount-plotter", Plotter],
+    ["mount-cut", Cut],
+    ["mount-approach", Approach],
+    ["mount-lens", Lens],
+    ["mount-margin", MarginNotes]
   ];
-  for (const [id, variant] of mounts) {
+  for (const [id, V] of mounts) {
     const node = document.getElementById(id);
     if (node) {
-      (0, import_client.createRoot)(node).render(
-        /* @__PURE__ */ (0, import_jsx_runtime.jsx)(ProjectPresentation, { projects: entries, variant })
-      );
+      (0, import_client.createRoot)(node).render(/* @__PURE__ */ (0, import_jsx_runtime.jsx)(V, { projects: entries }));
     }
   }
 })();

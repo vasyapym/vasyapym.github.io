@@ -133,3 +133,42 @@ Task: rethink how the 6 project cards are presented on the main page (desktop). 
 - Visual inspection: performed — V6 cascading tab edges behind the front folder (tabs peek above the stack top by design); V7 serif prose with accent refs + footnotes + side sheet with the card; V8 shelf of rotated spines with the open spine holding the card.
 - Code verification: probe — 8/8 `.wp` sections mounted; dossier tab 3 click brings "03 Waste of tokens" to front; marginalia ref opens the sheet (open: true, close works); spines tab 4 click opens "Cat Runner". Console noise: favicon 404 only.
 - Open question: owner chooses among all 8 at https://vasyapym.github.io/variant-lab/; then the real shell-adaptation round starts.
+
+## Feedback F004
+- Round: R011
+- Verdict: REJECTED
+- Scope: all 8 lab variants as final answers — none chosen
+- Decision: none of the 8 presentations is "it"; the owner steers to the scroll-driven mechanism family (V4 Scroll chapters was the direction) and wants it improved against the standing dislikes (F002/F003: several illustrations visible at once, candy-collection feel)
+- User source: "these are not it. then lets do this - i want the scrolling down mechanism but which will make it better considering my dislikes of the current"
+- Artifact: variant-lab (8 variants live)
+- Supersedes: none (the lab stays as a reference; the scroll family is the chosen direction within it)
+
+## Round R011
+- Goal: delegation retry with the worked −30% formula (R004/R006), narrowed to the chosen direction: 5 distinct takes on a scroll-driven single-pinned-stage presentation. Constraints encoded from the owner's dislikes + integration findings: exactly one illustration visible per viewport, native page scroll only, no inner snap scroller, scroll-trap banned.
+- Preserved preferences: F001, F002 (as corrected by F003), F004.
+- Changes: none to code — delegation round.
+- Before: R001 baseline artifacts
+- After: pending relay reply
+- Visual inspection: NOT RUN
+- Code verification: NOT RUN
+- Open question: owner pastes the relay reply; orchestrator adapts the chosen take into the shell.
+
+## Round R012
+- Goal: owner picked the −30% ladder rung and added a layout steer: on desktop the presentation must show one full-width project per row (the current grid is two per row). Prompt updated to 67 words (the added requirement costs ~13 words; still shorter than the R011 baseline of 81).
+- Preserved preferences: F001, F002 (as corrected by F003), F004.
+- Changes: none to code — delegation round.
+- Before: R001 baseline artifacts
+- After: pending relay reply
+- Visual inspection: NOT RUN
+- Code verification: NOT RUN
+- Open question: owner pastes the relay reply; orchestrator adapts the chosen take into the shell.
+
+## Round R013
+- Goal: owner picked the relay's scroll-engine reply ("show me these instead") and asked to remove the old showcases. Lab rebuilt at the same URL: one shared scroll engine (useTrack, sticky stage in a 6×120vh track) + five structurally different presentations — S1 Plotter (stroke draw-off/draw-on via pathLength), S2 Cut (1px guillotine rule, clip-path, alternating direction), S3 Approach (translateZ corridor, ghost frame until close), S4 Lens (zoom into focal point, grid dissolve, hard swap at 0.85), S5 Margin notes (sticky plate + free-scrolling text blocks, IO centre-band selection). Old 8 variants removed.
+- Preserved preferences: F001, F002 (as corrected by F003), F004.
+- Changes: `portfolio/shell/public/variant-lab/` — lab.tsx/lab.css/index.html rewritten; contract held (cards untouched, ≤1 illustration per viewport, native document scroll, no snap, no trap); mobile <1024px = plain stack; reduced-motion = hard cuts. Lab repairs beyond the relay text: useMedia plumbing, pathLength auto-tagging, duplicate-key guard on the last card, pull-out continuity across the swap for Lens.
+- Before: R008 artifacts (old lab)
+- After: artifacts/R013/scroll-*.png (dwell + transition shots per variant)
+- Visual inspection: performed — S1 mid-swap shows near-empty sheet with next card pre-drawn; S2 shows the hairline rule + ghost rule splicing two cards; S3 shows the exiting frame enlarged/dimmed with the ghost rectangle at the vanishing point; S4 push shows the mark zoomed with panel dissolved into the grid overlay; S5 plate follows the centred block.
+- Code verification: probe `portfolio/probes/variant-lab-scroll.mjs` — 4 tracks + 1 margin grid mounted, no mobile stacks on desktop, no console errors (favicon 404 only), margin plate shows the centred block's project. Probe scroll-math fix documented: engine progress = -top/(H−vh), shots addressed by p=(card+t)/6.
+- Open question: owner picks S1–S5 at https://vasyapym.github.io/variant-lab/ by scrolling; the chosen one becomes the shell-adaptation round.
