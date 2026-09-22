@@ -135,3 +135,15 @@ stays unchanged there. This ledger is new; numbering starts at B/R001.
 - Code verification: tsc --noEmit — no shell/src errors (known foreign
   practice-map errors resolved upstream)
 - Open question: owner review on Pages — LIKED/REJECTED verdict needed
+
+## Feedback F003
+- Round: R005
+- Verdict: LIKED
+- Scope: Spine card mark "Snap" as shipped in R005 — corner bracket + empty
+  corner-marked exact seat + flying bone square under the rust cursor, sparse
+  bed + hover halo, 184px — main-menu project card, all viewports
+- Decision: adopt as the final Spine card mark; card-mark-distinct task closed
+- User source: "good" (2026-09-22, replying to the R005 presentation)
+- Artifact: artifacts/R005/card-spine-snap-min.png
+- Supersedes: none (completes F002's replacement of "The Seventh"; F001's
+  "keep unchanged" was already superseded by F002 within this task's scope)
