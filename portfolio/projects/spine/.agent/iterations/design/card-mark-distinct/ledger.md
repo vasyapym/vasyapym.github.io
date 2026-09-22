@@ -119,3 +119,19 @@ stays unchanged there. This ledger is new; numbering starts at B/R001.
 - Code verification: tsc --noEmit — only the known foreign practice-map
   curriculum.ts errors (other agent, unstaged); no errors in shell/src
 - Open question: owner review on Pages — LIKED/REJECTED verdict needed
+
+## Round R005
+- Goal: remove the faint reserve patch from the seat (owner: "тень резерва"
+  gone) and shrink the mark ~15% more
+- Preserved preferences: F002; snap gesture; empty exact-seat concept (R004);
+  bed + halo
+- Changes: SpineCenterMark — gem-spine-dense reserve rect deleted (pattern def
+  removed with it), seat is corner marks only; styles.css — .center-spine
+  max-width 216px -> 184px (-14.8%)
+- Before: artifacts/R004/card-spine-snap-seat.png
+- After: artifacts/R005/card-spine-snap-min.png (+ grid-after-min.png)
+- Visual inspection: performed — card screenshot 1440x900@2x on the dev
+  server; seat reads as pure empty spot, composition holds at the smaller size
+- Code verification: tsc --noEmit — no shell/src errors (known foreign
+  practice-map errors resolved upstream)
+- Open question: owner review on Pages — LIKED/REJECTED verdict needed

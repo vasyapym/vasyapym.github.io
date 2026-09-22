@@ -529,15 +529,14 @@ function QuicknotesCenterMark() {
 }
 
 /* ── 7 · Spine — "Snap", seated in the house spot-ink language: sparse printed
-   bed, hover halo. The corner bracket holds an EMPTY exact seat — corner
-   marks and a faint reserved dense patch, no square in it yet — while the
-   bone element is still mid-drag under the rust cursor. Relay arm A concept
-   4, gesture geometry verbatim. ── */
+   bed, hover halo. The corner bracket holds an EMPTY exact seat, marked only
+   by two corner brackets — no square in it yet — while the bone element is
+   still mid-drag under the rust cursor. Relay arm A concept 4, gesture
+   geometry verbatim. ── */
 function SpineCenterMark() {
   return (
     <svg viewBox="0 0 260 160" aria-hidden="true">
       <defs>
-        <pattern id="gem-spine-dense" patternUnits="userSpaceOnUse" width="7" height="7"><circle cx="3.5" cy="3.5" r="1.9" fill="#c56b52" /></pattern>
         <pattern id="gem-spine-sparse" patternUnits="userSpaceOnUse" width="11" height="11"><circle cx="5.5" cy="5.5" r="1.6" fill="#7d7669" /></pattern>
         <pattern id="gem-spine-halo" patternUnits="userSpaceOnUse" width="7" height="7"><circle cx="3.5" cy="3.5" r="1.9" fill="#c56b52" /></pattern>
       </defs>
@@ -545,8 +544,7 @@ function SpineCenterMark() {
       <ellipse cx="130" cy="82" rx="104" ry="64" fill="url(#gem-spine-sparse)" opacity="0.09" />
       <ellipse className="gem-halo" cx="150" cy="76" rx="54" ry="40" fill="url(#gem-spine-halo)" style={haloVar(0.12)} opacity={0.12} />
 
-      {/* the exact seat — empty, corner-marked, its reserve only a faint patch */}
-      <rect x="64" y="98" width="34" height="34" fill="url(#gem-spine-dense)" opacity="0.4" />
+      {/* the exact seat — empty, corner-marked only */}
       <path d="M58 98 H64 V92" fill="none" stroke="#7d7669" strokeWidth="2.5" strokeLinecap="square" />
       <path d="M98 92 V98 H104" fill="none" stroke="#7d7669" strokeWidth="2.5" strokeLinecap="square" />
 
