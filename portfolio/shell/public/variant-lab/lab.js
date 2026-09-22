@@ -21974,7 +21974,10 @@
     ledger: TextLedger,
     dossiers: InlineDossiers,
     chapters: ScrollChapters,
-    archive: ArchiveDrawer
+    archive: ArchiveDrawer,
+    dossier: DossierStack,
+    marginalia: Marginalia,
+    spines: Spines
   };
   function ProjectPresentation({
     projects,
@@ -21990,6 +21993,120 @@
         children: /* @__PURE__ */ (0, import_jsx_runtime.jsx)(View, { projects })
       }
     );
+  }
+  function DossierStack({ projects }) {
+    const [top, setTop] = (0, import_react.useState)(0);
+    const n = projects.length;
+    const order = (0, import_react.useMemo)(() => projects.map((_, i) => (i - top + n) % n), [top, n]);
+    const onKey = (e) => {
+      if (e.key === "ArrowRight" || e.key === "ArrowDown") setTop((t) => (t + 1) % n);
+      if (e.key === "ArrowLeft" || e.key === "ArrowUp") setTop((t) => (t - 1 + n) % n);
+    };
+    return /* @__PURE__ */ (0, import_jsx_runtime.jsx)("div", { className: "ds", tabIndex: 0, onKeyDown: onKey, role: "region", "aria-roledescription": "stack", "aria-label": "Projects", children: projects.map((p, i) => {
+      const depth = order[i];
+      return /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", { className: "ds__folder", style: { "--d": depth }, "data-front": depth === 0, children: [
+        /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("button", { className: "ds__tab", onClick: () => setTop(i), "aria-label": `Bring ${p.title} to front`, children: [
+          /* @__PURE__ */ (0, import_jsx_runtime.jsx)("span", { children: String(i + 1).padStart(2, "0") }),
+          /* @__PURE__ */ (0, import_jsx_runtime.jsx)("span", { children: p.title })
+        ] }),
+        depth === 0 && /* @__PURE__ */ (0, import_jsx_runtime.jsx)("div", { className: "ds__body", children: /* @__PURE__ */ (0, import_jsx_runtime.jsx)(CardStage, { project: p }) })
+      ] }, p.id);
+    }) });
+  }
+  function Marginalia({ projects }) {
+    const dlg = (0, import_react.useRef)(null);
+    const [open, setOpen] = (0, import_react.useState)(null);
+    const openP = (p) => {
+      setOpen(p);
+      dlg.current?.showModal();
+    };
+    const byId = Object.fromEntries(projects.map((p) => [p.id, p]));
+    const Ref = ({ id }) => {
+      const p = byId[id];
+      return /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("button", { className: "mg__ref", onClick: () => openP(p), "aria-haspopup": "dialog", children: [
+        p.title,
+        /* @__PURE__ */ (0, import_jsx_runtime.jsx)("sup", { children: String(projects.indexOf(p) + 1) })
+      ] });
+    };
+    const tags = {
+      quicknotes: "notes",
+      spine: "layout engine",
+      "waste-of-tokens": "playground",
+      "cat-runner": "game",
+      "practice-map": "learning map",
+      "raft-cluster": "systems"
+    };
+    return /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("article", { className: "mg", children: [
+      /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("p", { children: [
+        "I build tooling that stays out of the way \u2014 most recently",
+        " ",
+        /* @__PURE__ */ (0, import_jsx_runtime.jsx)(Ref, { id: "quicknotes" }),
+        " for offline-first notes and",
+        " ",
+        /* @__PURE__ */ (0, import_jsx_runtime.jsx)(Ref, { id: "spine" }),
+        ", a drag-and-drop layout engine that runs on WebAssembly."
+      ] }),
+      /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("p", { children: [
+        "Side quests keep the hands busy: ",
+        /* @__PURE__ */ (0, import_jsx_runtime.jsx)(Ref, { id: "waste-of-tokens" }),
+        " burns prompts into pixel grids, ",
+        /* @__PURE__ */ (0, import_jsx_runtime.jsx)(Ref, { id: "cat-runner" }),
+        " is an endless runner with a hand-inked cat, ",
+        /* @__PURE__ */ (0, import_jsx_runtime.jsx)(Ref, { id: "practice-map" }),
+        " wires deep lessons into a map, and ",
+        /* @__PURE__ */ (0, import_jsx_runtime.jsx)(Ref, { id: "raft-cluster" }),
+        " draws a consensus cluster as living tide lines."
+      ] }),
+      /* @__PURE__ */ (0, import_jsx_runtime.jsx)("ol", { className: "mg__notes", children: projects.map((p, i) => /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("li", { id: `fn-${i + 1}`, children: [
+        /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("button", { onClick: () => openP(p), children: [
+          String(i + 1).padStart(2, "0"),
+          " ",
+          p.title
+        ] }),
+        " ",
+        "\u2014 ",
+        tags[p.id]
+      ] }, p.id)) }),
+      /* @__PURE__ */ (0, import_jsx_runtime.jsx)(
+        "dialog",
+        {
+          ref: dlg,
+          className: "mg__sheet",
+          onClose: () => setOpen(null),
+          onClick: (e) => e.target === dlg.current && dlg.current.close(),
+          children: open && /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", { className: "mg__sheetBody", children: [
+            /* @__PURE__ */ (0, import_jsx_runtime.jsx)(CardStage, { project: open }),
+            /* @__PURE__ */ (0, import_jsx_runtime.jsx)("button", { autoFocus: true, onClick: () => dlg.current?.close(), children: "close \xD7" })
+          ] })
+        }
+      )
+    ] });
+  }
+  function Spines({ projects }) {
+    const [open, setOpen] = (0, import_react.useState)(0);
+    return /* @__PURE__ */ (0, import_jsx_runtime.jsx)("div", { className: "sp", role: "tablist", "aria-orientation": "horizontal", children: projects.map((p, i) => {
+      const isOpen = i === open;
+      return /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", { className: "sp__spine", "data-open": isOpen, children: [
+        /* @__PURE__ */ (0, import_jsx_runtime.jsxs)(
+          "button",
+          {
+            role: "tab",
+            "aria-selected": isOpen,
+            className: "sp__label",
+            onClick: () => setOpen(i),
+            onKeyDown: (e) => {
+              if (e.key === "ArrowRight") setOpen((i + 1) % projects.length);
+              if (e.key === "ArrowLeft") setOpen((i - 1 + projects.length) % projects.length);
+            },
+            children: [
+              /* @__PURE__ */ (0, import_jsx_runtime.jsx)("span", { className: "sp__no", children: String(i + 1).padStart(2, "0") }),
+              /* @__PURE__ */ (0, import_jsx_runtime.jsx)("span", { className: "sp__title", children: p.title })
+            ]
+          }
+        ),
+        isOpen && /* @__PURE__ */ (0, import_jsx_runtime.jsx)("div", { role: "tabpanel", className: "sp__panel", children: /* @__PURE__ */ (0, import_jsx_runtime.jsx)(CardStage, { project: p }) })
+      ] }, p.id);
+    }) });
   }
   var S = { stroke: "rgba(238,234,224,0.75)", fill: "none", strokeWidth: 1.1 };
   var S2 = { stroke: "rgba(238,234,224,0.4)", fill: "none", strokeWidth: 1 };
@@ -22206,7 +22323,10 @@
     ["mount-ledger", "ledger"],
     ["mount-dossiers", "dossiers"],
     ["mount-chapters", "chapters"],
-    ["mount-archive", "archive"]
+    ["mount-archive", "archive"],
+    ["mount-dossier", "dossier"],
+    ["mount-marginalia", "marginalia"],
+    ["mount-spines", "spines"]
   ];
   for (const [id, variant] of mounts) {
     const node = document.getElementById(id);

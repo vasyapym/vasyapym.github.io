@@ -114,3 +114,22 @@ Task: rethink how the 6 project cards are presented on the main page (desktop). 
 - Visual inspection: performed — all five variants render; each holds exactly one visible illustration; V1 stage + counter + prev/next; V2 typographic index left + card inspector right; V3 six ruled headings; V4 giant chapter titles + pinned stage; V5 typographic index + full-height drawer (open state captured, backdrop dims the typographic section).
 - Code verification: probe `portfolio/probes/variant-lab-shot.mjs` (local-only): 5/5 `.wp` sections mounted; ledger row click swaps the inspector ("Inspection / 03", active row "Waste of tokens"); dossiers exclusive disclosure holds (1 expanded after opening two); archive drawer open/close = true/true. Console noise: one 404 (favicon only). Local dev-server quirk: `/variant-lab/` without a filename hits the SPA fallback in vite dev; GitHub Pages serves the directory index, so production is unaffected.
 - Open question: owner picks the winning variant at the link; the chosen one gets the real shell-adaptation round afterwards.
+
+## Round R009
+- Goal: evaluate a SECOND relay output (pasted by owner; evaluation only — "dont act").
+- Rubric: usable concepts 5/5 — cards stay opaque, ≤1 stage per viewport enforced as a stated rule, no banned traits, code per variant. Code-as-pasted 4/5: V1 references an undefined `useMediaQuery` hook and has a touch double-toggle risk (mouseenter+click both fire on tap); V4 hardcodes stub ids (`byId.alpha`) that crash with real data and needs owner-authored manifesto prose; V2 is a full-viewport INNER snap scroller (scroll-trap risk inside the landing's native page scroll); V3 mentions drag but doesn't implement it. Weak-route markers 0. Echo: none.
+- Overlap vs the first output: their V1 ≈ first V2 Text ledger (better mobile: inline expand under the active row), their V2 ≈ first V4 Scroll chapters (but snap-trapped inner scroller vs first's native page scroll). Genuinely NEW mechanisms: V3 Dossier stack (folders + tabs), V4 Marginalia (footnote refs in prose + side sheet, 0 illustrations idle), V5 Spines (horizontal book-shelf accordion).
+- Quality read: run 1 = stronger engineering completeness (full a11y, decided defaults, mobile fallbacks); run 2 = more original mechanisms, rougher delivery (Georgia serif and mint palette are placeholder-grade; trivial re-tint as before).
+- Integration cost guess: V3/V5 cheap; V1 cheap (hook + touch fix); V2 medium (embed-as-iframe or convert to native page scroll); V4 highest (authored essay + page-structure change).
+- Visual inspection: NOT RUN (no rendering — owner said don't act)
+- Code verification: NOT RUN (static read)
+- Open question: owner decides whether to add the 3 new mechanisms (V3 dossier, V4 marginalia, V5 spines) to the live lab before choosing.
+
+## Round R010
+- Goal: owner approved adding the second run's three new mechanisms to the live lab ("yes. add them too").
+- Changes: `portfolio/shell/public/variant-lab/` extended to 8 variants — V6 Dossier stack, V7 Marginalia, V8 Spines (mechanisms verbatim from the second run; adapted to the lab's ProjectEntry contract; tokens mapped to ink; V7 prose is placeholder copy the owner will rewrite; run-2 V1 index+plate NOT added — it duplicates the first run's V2 Text ledger). lab.js rebuilt.
+- Before: R008 artifacts (5 variants)
+- After: artifacts/R008/lab-dossier-stack.png, lab-marginalia-sheet-open.png, lab-spines.png (desktop 1440)
+- Visual inspection: performed — V6 cascading tab edges behind the front folder (tabs peek above the stack top by design); V7 serif prose with accent refs + footnotes + side sheet with the card; V8 shelf of rotated spines with the open spine holding the card.
+- Code verification: probe — 8/8 `.wp` sections mounted; dossier tab 3 click brings "03 Waste of tokens" to front; marginalia ref opens the sheet (open: true, close works); spines tab 4 click opens "Cat Runner". Console noise: favicon 404 only.
+- Open question: owner chooses among all 8 at https://vasyapym.github.io/variant-lab/; then the real shell-adaptation round starts.

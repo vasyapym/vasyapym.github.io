@@ -378,6 +378,235 @@ body {
   margin-block-end: 2.5rem;
 }
 
+/* ===== run-2 additions (verbatim mechanisms, tokens mapped to ink) ===== */
+
+/* Run-2 V6 — Dossier stack */
+
+.ds {
+  --bg: #0b1317;
+  --ink: #d39b61;
+  --ink-dim: rgba(238, 234, 224, 0.6);
+  --rule: 1px solid rgba(238, 234, 224, 0.26);
+  font-family: "IBM Plex Mono", ui-monospace, monospace;
+  position: relative;
+  height: min(90svh, 900px);
+  max-width: 1100px;
+  margin: auto;
+  outline: none;
+}
+
+.ds__folder {
+  position: absolute;
+  inset: 0;
+  transform: translate(calc(var(--d) * 14px), calc(var(--d) * -38px)) scale(calc(1 - var(--d) * 0.012));
+  z-index: calc(10 - var(--d));
+  transition: transform 0.45s cubic-bezier(0.2, 0.7, 0.2, 1);
+  background: var(--bg);
+  border: var(--rule);
+}
+
+.ds__tab {
+  all: unset;
+  cursor: pointer;
+  position: absolute;
+  top: -1px;
+  left: calc(var(--d) * 16%);
+  display: flex;
+  gap: 1rem;
+  padding: 0.5rem 0.9rem;
+  font: 0.8rem var(--mono, "IBM Plex Mono", ui-monospace);
+  color: var(--ink-dim);
+  border: var(--rule);
+  border-bottom: none;
+  background: var(--bg);
+  transform: translateY(-100%);
+}
+
+.ds__folder[data-front="true"] .ds__tab {
+  color: var(--ink);
+}
+
+.ds__body {
+  position: absolute;
+  inset: 0;
+  display: grid;
+  place-items: center;
+  padding: 3rem;
+}
+
+.ds:focus-visible {
+  outline: 1px dashed var(--ink);
+}
+
+/* Run-2 V7 — Marginalia */
+
+.mg {
+  --bg: #0b1317;
+  --ink: #d39b61;
+  --ink-dim: rgba(238, 234, 224, 0.6);
+  --rule: 1px solid rgba(238, 234, 224, 0.26);
+  max-width: 62ch;
+  margin: 0 auto;
+  padding-block: 2rem 4rem;
+  font: 1.15rem/1.7 Georgia, "Times New Roman", serif;
+  color: #eeeae0;
+}
+
+.mg__ref {
+  all: unset;
+  cursor: pointer;
+  color: var(--ink);
+  border-bottom: 1px dotted var(--ink-dim);
+}
+
+.mg__ref sup {
+  font: 0.65em "IBM Plex Mono", ui-monospace, monospace;
+  margin-left: 0.15em;
+}
+
+.mg__notes {
+  margin-top: 6rem;
+  padding-top: 1.5rem;
+  border-top: var(--rule);
+  font: 0.85rem/1.6 "IBM Plex Mono", ui-monospace, monospace;
+  color: var(--ink-dim);
+}
+
+.mg__notes button {
+  all: unset;
+  cursor: pointer;
+  color: var(--ink);
+}
+
+.mg__sheet {
+  margin: 0 0 0 auto;
+  height: 100svh;
+  max-height: 100svh;
+  width: min(560px, 100vw);
+  background: var(--bg);
+  color: #eeeae0;
+  border: 0;
+  border-left: var(--rule);
+  padding: 0;
+}
+
+.mg__sheet::backdrop {
+  background: rgba(7, 11, 12, 0.7);
+  backdrop-filter: blur(2px);
+}
+
+.mg__sheetBody {
+  padding: 3rem 2rem;
+  display: grid;
+  gap: 2rem;
+}
+
+.mg__sheet[open] {
+  animation: mgIn 0.3s ease-out;
+}
+
+@keyframes mgIn {
+  from {
+    transform: translateX(100%);
+  }
+  to {
+    transform: none;
+  }
+}
+
+/* Run-2 V8 — Spines */
+
+.sp {
+  --rule: 1px solid rgba(238, 234, 224, 0.26);
+  --ink: #d39b61;
+  --ink-dim: rgba(238, 234, 224, 0.6);
+  display: flex;
+  height: min(88svh, 880px);
+  border: var(--rule);
+  border-width: 1px 0;
+}
+
+.sp__spine {
+  flex: 0 0 56px;
+  border-right: var(--rule);
+  display: flex;
+  transition: flex-basis 0.5s cubic-bezier(0.2, 0.7, 0.2, 1);
+  overflow: hidden;
+  min-width: 0;
+}
+
+.sp__spine[data-open="true"] {
+  flex: 1 1 auto;
+}
+
+.sp__label {
+  all: unset;
+  cursor: pointer;
+  flex: 0 0 56px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 1rem;
+  padding: 1rem 0;
+  font: 0.8rem "IBM Plex Mono", ui-monospace, monospace;
+  color: var(--ink-dim);
+}
+
+.sp__title {
+  writing-mode: vertical-rl;
+  transform: rotate(180deg);
+  letter-spacing: 0.08em;
+  white-space: nowrap;
+}
+
+.sp__spine[data-open="true"] .sp__label {
+  color: var(--ink);
+}
+
+.sp__panel {
+  flex: 1;
+  display: grid;
+  place-items: center;
+  padding: 2rem 3rem;
+  min-width: 0;
+  animation: spIn 0.4s 0.15s both;
+}
+
+@keyframes spIn {
+  from {
+    opacity: 0;
+    transform: translateX(12px);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+
+@media (max-width: 700px) {
+  .sp {
+    flex-direction: column;
+    height: auto;
+  }
+
+  .sp__spine {
+    flex-basis: 56px;
+    border-right: 0;
+    border-bottom: var(--rule);
+  }
+
+  .sp__label {
+    flex-direction: row;
+    padding: 0 1rem;
+    height: 56px;
+  }
+
+  .sp__title {
+    writing-mode: horizontal-tb;
+    transform: none;
+  }
+}
+
 /* Mobile: preserve disclosure and one-card visibility. */
 
 @media (max-width: 56rem) {

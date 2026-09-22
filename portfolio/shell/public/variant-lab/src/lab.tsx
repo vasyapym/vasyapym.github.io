@@ -5,8 +5,10 @@
 import {
   useEffect,
   useId,
+  useMemo,
   useRef,
   useState,
+  type CSSProperties,
   type ReactNode,
 } from "react";
 import { createRoot } from "react-dom/client";
@@ -22,7 +24,10 @@ export type PresentationVariant =
   | "ledger"
   | "dossiers"
   | "chapters"
-  | "archive";
+  | "archive"
+  | "dossier"
+  | "marginalia"
+  | "spines";
 
 type ViewProps = {
   projects: readonly ProjectEntry[];
@@ -324,6 +329,9 @@ const views = {
   dossiers: InlineDossiers,
   chapters: ScrollChapters,
   archive: ArchiveDrawer,
+  dossier: DossierStack,
+  marginalia: Marginalia,
+  spines: Spines,
 };
 
 export function ProjectPresentation({
@@ -341,6 +349,136 @@ export function ProjectPresentation({
     >
       <View projects={projects} />
     </section>
+  );
+}
+
+/* ---- Second relay run: three genuinely new mechanisms ---- */
+
+/* Run-2 V3 — Dossier stack (folders in a drawer, tabs bring forward). */
+function DossierStack({ projects }: ViewProps) {
+  const [top, setTop] = useState(0);
+  const n = projects.length;
+  const order = useMemo(() => projects.map((_, i) => (i - top + n) % n), [top, n]); // 0 = front
+  const onKey = (e: React.KeyboardEvent) => {
+    if (e.key === "ArrowRight" || e.key === "ArrowDown") setTop(t => (t + 1) % n);
+    if (e.key === "ArrowLeft"  || e.key === "ArrowUp")   setTop(t => (t - 1 + n) % n);
+  };
+  return (
+    <div className="ds" tabIndex={0} onKeyDown={onKey} role="region" aria-roledescription="stack" aria-label="Projects">
+      {projects.map((p, i) => {
+        const depth = order[i];
+        return (
+          <div key={p.id} className="ds__folder" style={{ "--d": depth } as CSSProperties} data-front={depth === 0}>
+            <button className="ds__tab" onClick={() => setTop(i)} aria-label={`Bring ${p.title} to front`}>
+              <span>{String(i + 1).padStart(2, "0")}</span><span>{p.title}</span>
+            </button>
+            {depth === 0 && <div className="ds__body"><CardStage project={p} /></div>}
+          </div>
+        );
+      })}
+    </div>
+  );
+}
+
+/* Run-2 V4 — Marginalia (projects as footnotes in prose, card in a side
+   sheet). Prose below is lab placeholder copy — the owner rewrites it. */
+function Marginalia({ projects }: ViewProps) {
+  const dlg = useRef<HTMLDialogElement>(null);
+  const [open, setOpen] = useState<ProjectEntry | null>(null);
+  const openP = (p: ProjectEntry) => { setOpen(p); dlg.current?.showModal(); };
+  const byId = Object.fromEntries(projects.map((p) => [p.id, p]));
+  const Ref = ({ id }: { id: string }) => {
+    const p = byId[id] as ProjectEntry;
+    return (
+      <button className="mg__ref" onClick={() => openP(p)} aria-haspopup="dialog">
+        {p.title}
+        <sup>{String(projects.indexOf(p) + 1)}</sup>
+      </button>
+    );
+  };
+  const tags: Record<string, string> = {
+    quicknotes: "notes",
+    spine: "layout engine",
+    "waste-of-tokens": "playground",
+    "cat-runner": "game",
+    "practice-map": "learning map",
+    "raft-cluster": "systems",
+  };
+  return (
+    <article className="mg">
+      <p>
+        I build tooling that stays out of the way — most recently{" "}
+        <Ref id="quicknotes" /> for offline-first notes and{" "}
+        <Ref id="spine" />, a drag-and-drop layout engine that runs on
+        WebAssembly.
+      </p>
+      <p>
+        Side quests keep the hands busy: <Ref id="waste-of-tokens" /> burns
+        prompts into pixel grids, <Ref id="cat-runner" /> is an endless runner
+        with a hand-inked cat, <Ref id="practice-map" /> wires deep lessons
+        into a map, and <Ref id="raft-cluster" /> draws a consensus cluster as
+        living tide lines.
+      </p>
+      <ol className="mg__notes">
+        {projects.map((p, i) => (
+          <li key={p.id} id={`fn-${i + 1}`}>
+            <button onClick={() => openP(p)}>
+              {String(i + 1).padStart(2, "0")} {p.title}
+            </button>{" "}
+            — {tags[p.id]}
+          </li>
+        ))}
+      </ol>
+      <dialog
+        ref={dlg}
+        className="mg__sheet"
+        onClose={() => setOpen(null)}
+        onClick={(e) => e.target === dlg.current && dlg.current.close()}
+      >
+        {open && (
+          <div className="mg__sheetBody">
+            <CardStage project={open} />
+            <button autoFocus onClick={() => dlg.current?.close()}>
+              close ×
+            </button>
+          </div>
+        )}
+      </dialog>
+    </article>
+  );
+}
+
+/* Run-2 V5 — Spines (a shelf of book spines, one open). */
+function Spines({ projects }: ViewProps) {
+  const [open, setOpen] = useState(0);
+  return (
+    <div className="sp" role="tablist" aria-orientation="horizontal">
+      {projects.map((p, i) => {
+        const isOpen = i === open;
+        return (
+          <div key={p.id} className="sp__spine" data-open={isOpen}>
+            <button
+              role="tab"
+              aria-selected={isOpen}
+              className="sp__label"
+              onClick={() => setOpen(i)}
+              onKeyDown={(e) => {
+                if (e.key === "ArrowRight") setOpen((i + 1) % projects.length);
+                if (e.key === "ArrowLeft") setOpen((i - 1 + projects.length) % projects.length);
+              }}
+            >
+              <span className="sp__no">{String(i + 1).padStart(2, "0")}</span>
+              <span className="sp__title">{p.title}</span>
+            </button>
+            {isOpen && (
+              <div role="tabpanel" className="sp__panel">
+                <CardStage project={p} />
+              </div>
+            )}
+          </div>
+        );
+      })}
+    </div>
   );
 }
 
@@ -588,6 +726,9 @@ const mounts: Array<[string, PresentationVariant]> = [
   ["mount-dossiers", "dossiers"],
   ["mount-chapters", "chapters"],
   ["mount-archive", "archive"],
+  ["mount-dossier", "dossier"],
+  ["mount-marginalia", "marginalia"],
+  ["mount-spines", "spines"],
 ];
 
 for (const [id, variant] of mounts) {
