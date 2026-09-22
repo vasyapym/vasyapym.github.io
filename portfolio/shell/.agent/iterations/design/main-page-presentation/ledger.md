@@ -243,3 +243,10 @@ Task: rethink how the 6 project cards are presented on the main page (desktop). 
 - Verified geometry (real page, probe): at 1440 and 1920 — beneath rail, .rt-f-inner, .signal-index-grid all at left 440/200, width exactly 1040; hero copy left = measure left edge; grid 2 cols; rail 3 cols. Screenshots: artifacts/R020/real-hero.png, real-threshold.png, real-cards.png, real-cards-1920.png.
 - Visual inspection: performed on the real page (hero exit fade caught mid-state — expected).
 - Open question: owner wants project pages to breathe too — next delegation round: project-frame nav/topbar → the same --measure, then a per-project content audit.
+
+## Round R021
+- Goal: two owner micro-steers on the shipped measure: (1) the threshold band caps ENTIRELY (abyss ground + both rules narrow with the section — the full-bleed seam gesture is retired); (2) the hero header (wordmark | contact | count) aligns to the measure too. Projects content explicitly left unchanged for now ("i don't want to change projects yet (maybe later)") — recorded as the scope boundary for the coming project-frame round.
+- Changes: styles.css measure block — (b) now caps `.realm-threshold.rt-f` itself (inner cap removed as redundant), new (d) caps `.signal-index-hero-fluid .signal-index-header`; lab.css mirrored.
+- Verified geometry (probe): at 1440/1920 — header, beneath rail, threshold band, projects grid all left 200/440, width exactly 1040; grid 2 cols; rail 3 cols. Screenshot: artifacts/R020/real-hero.png (header + copy + rail on one left edge).
+- Visual inspection: performed — hero reads as one corridor; canvas still bleeds behind.
+- Open question: project-frame patch (delegated to the chat model) awaits the owner's relay round-trip; then the optional per-project content audit.

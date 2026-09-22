@@ -563,14 +563,20 @@ html[data-mode="measure"] .signal-index-shell {
     gap: 0.2rem clamp(1.5rem, 2.2vw, 2rem);
   }
 
-  /* (b) threshold — text/button capped; ::before + ::after untouched, still full-bleed */
-  html[data-mode="measure"] .realm-threshold.rt-f .rt-f-inner {
+  /* (b) threshold — the whole band caps to the measure (owner steer, R021) */
+  html[data-mode="measure"] .realm-threshold.rt-f {
     width: min(100%, var(--measure));
     margin-inline: auto;
   }
 
   /* (c) projects — grid capped, still 2 columns */
   html[data-mode="measure"] .signal-index-grid {
+    width: min(100%, var(--measure));
+    margin-inline: auto;
+  }
+
+  /* (d) hero header — wordmark + contact align to the measure too (owner steer) */
+  html[data-mode="measure"] .signal-index-hero-fluid .signal-index-header {
     width: min(100%, var(--measure));
     margin-inline: auto;
   }
