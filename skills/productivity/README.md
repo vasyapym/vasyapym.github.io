@@ -10,6 +10,7 @@ Reachable only when you type them (Claude Code: `disable-model-invocation: true`
 - **[code-iteration](./code-iteration/SKILL.md)** — Implement and refine code through small, evidence-backed verification passes.
 - **[custom-learning](./custom-learning/SKILL.md)** — Learn technologies one proof-of-skill Subcard at a time through an interactive Practice Map.
 - **[lesson-iteration](./lesson-iteration/SKILL.md)** — Turn a topic into a full Russian deep lesson and migrate it into the Practice Map curriculum, through planning, depth, and consistency gates.
+- **[lesson-script](./lesson-script/SKILL.md)** — Fast relay lesson: one chat-model round drafts the essay, then salvage, convert, and scripted wiring into the curriculum.
 - **[design-iteration](./design-iteration/SKILL.md)** — Refine interfaces through visual feedback rounds with an append-only liked/rejected ledger.
 - **[design-planning](./design-planning/SKILL.md)** — Compare two design directions and settle the choice before implementation.
 - **[planning](./planning/SKILL.md)** — Turn an approved direction into a repeatable implementation and verification plan.

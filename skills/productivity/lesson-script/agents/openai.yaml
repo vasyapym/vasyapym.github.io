@@ -1,0 +1,5 @@
+interface:
+  display_name: "Lesson script"
+  short_description: "Fast relay lesson into Practice Map"
+policy:
+  allow_implicit_invocation: false
