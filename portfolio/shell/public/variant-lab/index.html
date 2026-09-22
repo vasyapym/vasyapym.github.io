@@ -1,0 +1,83 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="robots" content="noindex">
+  <title>Variant lab — project presentation</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&family=IBM+Plex+Sans:wght@400;600&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="./lab.css">
+</head>
+<body>
+  <header class="lab-head">
+    <h1>Variant lab — main-page project presentation</h1>
+    <p>
+      Five presentation variants for the six project cards, relay-generated.
+      Minimal showcase, no polish: the six cards are fake static stand-ins
+      (the real cards stay as-is in every variant). Judge the mechanics —
+      layout, interaction, how much illustration shares the viewport.
+    </p>
+    <p><a href="/">← back to the site</a></p>
+    <nav aria-label="Variants">
+      <a href="#v1">V1 Focus folio</a>
+      <a href="#v2">V2 Text ledger</a>
+      <a href="#v3">V3 Inline dossiers</a>
+      <a href="#v4">V4 Scroll chapters</a>
+      <a href="#v5">V5 Archive drawer</a>
+    </nav>
+  </header>
+
+  <main>
+    <section class="lab-variant" id="v1">
+      <h2><span>V1</span>Focus folio</h2>
+      <p class="lab-concept">
+        One generous stage, project counter, previous/next navigation. No
+        neighboring previews. Illustration visibility: 1, primary.
+      </p>
+      <div id="mount-focus"></div>
+    </section>
+
+    <section class="lab-variant" id="v2">
+      <h2><span>V2</span>Text ledger</h2>
+      <p class="lab-concept">
+        Six typographic project rows dominate; the selected card occupies a
+        narrower side inspector. Illustration visibility: 1, supporting.
+        Relay's best default.
+      </p>
+      <div id="mount-ledger"></div>
+    </section>
+
+    <section class="lab-variant" id="v3">
+      <h2><span>V3</span>Inline dossiers</h2>
+      <p class="lab-concept">
+        Six ruled headings. Opening one reveals its unchanged card and closes
+        the previous dossier. Illustration visibility: 0–1.
+      </p>
+      <div id="mount-dossiers"></div>
+    </section>
+
+    <section class="lab-variant" id="v4">
+      <h2><span>V4</span>Scroll chapters</h2>
+      <p class="lab-concept">
+        Six text-only chapters drive one pinned card stage. Native scrolling,
+        no scroll-jacking. Illustration visibility: 1, persistent.
+      </p>
+      <div id="mount-chapters"></div>
+    </section>
+
+    <section class="lab-variant" id="v5">
+      <h2><span>V5</span>Archive drawer</h2>
+      <p class="lab-concept">
+        The section is entirely typographic. Selecting a project opens its
+        card in a full-height modal drawer. Illustration visibility: 0, then 1.
+        Strongest rejection of the "illustration collection" feel.
+      </p>
+      <div id="mount-archive"></div>
+    </section>
+  </main>
+
+  <script src="./lab.js"></script>
+</body>
+</html>

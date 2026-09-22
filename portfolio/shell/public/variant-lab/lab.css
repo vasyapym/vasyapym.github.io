@@ -1,0 +1,397 @@
+/* Variant lab — lab chrome first, then the relay's project-presentation.css
+   verbatim with its five tokens mapped to the shell ink palette. */
+
+* {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+  background: #060b0e;
+  color: #eeeae0;
+  font-family: "IBM Plex Sans", ui-sans-serif, system-ui, sans-serif;
+  -webkit-font-smoothing: antialiased;
+}
+
+.lab-head,
+.lab-variant {
+  max-width: 76rem;
+  margin-inline: auto;
+  padding-inline: clamp(1.25rem, 4vw, 3rem);
+}
+
+.lab-head {
+  padding-block: 3rem 1.5rem;
+}
+
+.lab-head h1 {
+  margin: 0 0 0.75rem;
+  font-size: 1.35rem;
+  font-weight: 600;
+  letter-spacing: -0.01em;
+}
+
+.lab-head p {
+  margin: 0 0 0.75rem;
+  max-width: 72ch;
+  color: rgba(238, 234, 224, 0.68);
+  font-size: 0.9rem;
+  line-height: 1.6;
+}
+
+.lab-head nav {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 1rem;
+  margin-top: 1.25rem;
+}
+
+.lab-head a {
+  color: #d39b61;
+  font-family: "IBM Plex Mono", ui-monospace, monospace;
+  font-size: 0.75rem;
+  letter-spacing: 0.08em;
+  text-decoration: none;
+}
+
+.lab-head a:hover {
+  text-decoration: underline;
+}
+
+.lab-variant {
+  border-top: 1px solid rgba(238, 234, 224, 0.13);
+  padding-block: 2.5rem 3rem;
+}
+
+.lab-variant > h2 {
+  margin: 0 0 0.4rem;
+  font-size: 1rem;
+  font-weight: 600;
+}
+
+.lab-variant > h2 span {
+  color: #d39b61;
+  font-family: "IBM Plex Mono", ui-monospace, monospace;
+  font-size: 0.75rem;
+  font-weight: 400;
+  margin-right: 0.6rem;
+}
+
+.lab-concept {
+  margin: 0 0 1.75rem;
+  max-width: 72ch;
+  color: rgba(238, 234, 224, 0.68);
+  font-size: 0.85rem;
+  line-height: 1.6;
+}
+
+/* -- fake static stand-in for the real .signal-index-card -- */
+
+.lab-card {
+  display: flex;
+  flex-direction: column;
+  position: relative;
+  min-width: 0;
+  overflow: hidden;
+  border-radius: 12px;
+  background: #0b1317;
+  color: #eeeae0;
+  border: 1px solid rgba(238, 234, 224, 0.13);
+}
+
+.lab-card-stage {
+  position: relative;
+  width: 100%;
+  height: 200px;
+  overflow: hidden;
+  background: #0b1317;
+  display: grid;
+  place-items: center;
+}
+
+.lab-card-stage svg {
+  display: block;
+  width: 82%;
+  max-width: 260px;
+  aspect-ratio: 260 / 160;
+}
+
+.lab-card-copy {
+  padding: 20px 22px 22px;
+}
+
+.lab-card-topline {
+  margin: 0 0 0.5rem;
+  color: #d39b61;
+  font-family: "IBM Plex Mono", ui-monospace, monospace;
+  font-size: 0.72rem;
+  letter-spacing: 0.08em;
+}
+
+.lab-card-title {
+  margin: 0 0 0.5rem;
+  font-size: 1.3rem;
+  font-weight: 600;
+  letter-spacing: -0.01em;
+}
+
+.lab-card-desc {
+  margin: 0 0 1.1rem;
+  color: rgba(238, 234, 224, 0.68);
+  font-size: 0.88rem;
+  line-height: 1.55;
+}
+
+.lab-card-footer {
+  display: flex;
+  justify-content: space-between;
+  gap: 1rem;
+  color: rgba(238, 234, 224, 0.48);
+  font-family: "IBM Plex Mono", ui-monospace, monospace;
+  font-size: 0.7rem;
+}
+
+.lab-card-open {
+  color: #d39b61;
+}
+
+/* ===== relay project-presentation.css (verbatim, tokens mapped to ink) ===== */
+
+.wp {
+  --wp-bg: #0b1317;
+  --wp-text: #eeeae0;
+  --wp-muted: rgba(238, 234, 224, 0.68);
+  --wp-accent: #d39b61;
+  --wp-line: rgba(238, 234, 224, 0.26);
+
+  background: var(--wp-bg);
+  color: var(--wp-text);
+  padding: clamp(1.25rem, 4vw, 4rem);
+}
+
+/* Shared framing: restrained ink, not elevated UI tiles. */
+
+.wp-caption,
+.wp-number,
+.wp-mark,
+.wp-control {
+  font-family: "IBM Plex Mono", ui-monospace, SFMono-Regular, Consolas, monospace;
+}
+
+.wp-caption {
+  margin: 0 0 1.5rem;
+  color: var(--wp-muted);
+  font-size: 0.72rem;
+  font-weight: 400;
+  line-height: 1.6;
+  letter-spacing: 0.11em;
+  text-transform: uppercase;
+}
+
+.wp-stage {
+  inline-size: min(100%, 38rem);
+  min-inline-size: 0;
+  margin-inline: auto;
+}
+
+.wp-topline {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 1rem;
+}
+
+.wp-topline > .wp-caption {
+  margin: 0;
+}
+
+.wp-controls {
+  display: flex;
+  gap: 0.5rem;
+}
+
+.wp-control {
+  min-block-size: 2.75rem;
+  padding: 0.65rem 0.9rem;
+  border: 1px solid var(--wp-line);
+  border-radius: 0;
+  background: transparent;
+  color: var(--wp-text);
+  font-size: 0.75rem;
+  cursor: pointer;
+}
+
+.wp-control:disabled {
+  opacity: 0.35;
+  cursor: default;
+}
+
+.wp-index,
+.wp-dossiers {
+  border-block-start: 1px solid var(--wp-line);
+}
+
+.wp-row {
+  display: grid;
+  grid-template-columns: 2.25rem minmax(0, 1fr) auto;
+  align-items: baseline;
+  gap: 0.75rem;
+  inline-size: 100%;
+  min-block-size: 3.5rem;
+  padding: 1.3rem 0;
+  border: 0;
+  border-block-end: 1px solid var(--wp-line);
+  border-radius: 0;
+  background: transparent;
+  color: var(--wp-text);
+  font: inherit;
+  text-align: start;
+  cursor: pointer;
+}
+
+.wp-number,
+.wp-mark {
+  color: var(--wp-muted);
+  font-size: 0.75rem;
+  font-weight: 400;
+}
+
+.wp-row:hover,
+.wp-row[aria-current="true"],
+.wp-row[aria-expanded="true"],
+.wp-control:not(:disabled):hover {
+  color: var(--wp-accent);
+}
+
+.wp-row:focus-visible,
+.wp-control:focus-visible,
+.wp-pinned:focus-visible {
+  outline: 2px solid var(--wp-accent);
+  outline-offset: 4px;
+}
+
+/* 1 — Focus folio */
+
+.wp-focus {
+  display: grid;
+  grid-template-rows: auto 1fr;
+  gap: 2.5rem;
+  min-block-size: min(75svh, 50rem);
+  padding-block: 1rem 3rem;
+  border-block: 1px solid var(--wp-line);
+}
+
+.wp-focus > .wp-stage {
+  align-self: center;
+}
+
+/* 2 — Text ledger: text gets more space than the preview. */
+
+.wp-ledger {
+  display: grid;
+  grid-template-columns: minmax(0, 1.4fr) minmax(0, 1fr);
+  align-items: start;
+  gap: clamp(2rem, 5vw, 5rem);
+}
+
+.wp--ledger .wp-row,
+.wp--archive .wp-row {
+  font-size: clamp(1rem, 1.8vw, 1.6rem);
+}
+
+.wp-inspector {
+  min-inline-size: 0;
+  padding-inline-start: clamp(1.5rem, 3vw, 3rem);
+  border-inline-start: 1px solid var(--wp-line);
+}
+
+/* 3 — Dossiers */
+
+.wp-dossier-heading {
+  margin: 0;
+  font: inherit;
+}
+
+.wp-dossier-panel {
+  padding: 2rem 0 3rem 3rem;
+}
+
+/* 4 — Chapters: six text sections, one illustrated stage. */
+
+.wp-chapters {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+  align-items: start;
+  gap: clamp(2rem, 5vw, 5rem);
+}
+
+.wp-chapter {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  min-block-size: 90svh;
+  border-block-start: 1px solid var(--wp-line);
+}
+
+.wp-chapter-title {
+  max-inline-size: 13ch;
+  margin: 0;
+  font-size: clamp(2rem, 4.5vw, 4.75rem);
+  font-weight: 400;
+  line-height: 1.08;
+  letter-spacing: -0.04em;
+}
+
+.wp-pinned {
+  position: sticky;
+  inset-block-start: 1.5rem;
+  min-inline-size: 0;
+  max-block-size: calc(100svh - 3rem);
+  overflow: auto; /* Tall cards remain accessible, not cropped. */
+}
+
+/* 5 — Archive drawer */
+
+.wp-drawer {
+  position: fixed;
+  inset: 0 0 0 auto;
+  box-sizing: border-box;
+  inline-size: min(44rem, 100vw);
+  block-size: 100dvh;
+  max-inline-size: none;
+  max-block-size: none;
+  margin: 0;
+  padding: clamp(1.25rem, 4vw, 3rem);
+  border: 0;
+  border-inline-start: 1px solid var(--wp-line);
+  background: var(--wp-bg);
+  color: var(--wp-text);
+  overflow: auto;
+}
+
+.wp-drawer::backdrop {
+  background: rgb(2 7 5 / 86%);
+}
+
+.wp-drawer > .wp-topline {
+  margin-block-end: 2.5rem;
+}
+
+/* Mobile: preserve disclosure and one-card visibility. */
+
+@media (max-width: 56rem) {
+  .wp-ledger {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  .wp-inspector {
+    padding: 1.5rem 0 0;
+    border-inline-start: 0;
+    border-block-start: 1px solid var(--wp-line);
+  }
+
+  .wp-dossier-panel {
+    padding: 1.5rem 0 2rem;
+  }
+}
