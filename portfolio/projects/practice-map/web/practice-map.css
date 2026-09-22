@@ -851,6 +851,14 @@
   text-wrap: pretty;
 }
 
+/* R007: the reading voice adopts the owner's reader font — the system
+   sans-serif (SF Pro on macOS) — instead of the inherited IBM Plex Sans.
+   h3 (--display) and code (--mono) keep their explicit families. */
+.practice-lesson-body,
+.practice-reader-section {
+  font-family: system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+}
+
 .practice-lesson-body p {
   margin: 0;
   /* Same reasoning as the reader sections: long inline `code` tokens must

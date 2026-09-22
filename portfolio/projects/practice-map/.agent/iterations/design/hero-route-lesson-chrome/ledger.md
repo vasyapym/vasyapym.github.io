@@ -260,3 +260,13 @@ e.g. lowercase mono chrome and the ink panel language, remain active constraints
 - Code verification: typecheck PASS, build PASS; probe 7/7 (1440/700/390/320 sizes + line counts); full `practice-map.check.mjs` 93 ok / 1 documented pre-existing environment fail (ArrowRight, chromium-1134).
 - Open question: none.
 - Shipped: commit at round close per the owner's always-current-repo setting.
+
+## Round R007
+- Goal: the lesson reading voice adopts the owner's reader font — the generic sans-serif their reader app uses (system UI sans; SF Pro on macOS) — replacing the inherited IBM Plex Sans for lesson body text only.
+- Preserved preferences: R004/R006 hero + band decisions untouched; section h3 keeps `--display` (IBM Plex Sans); inline/fenced code keeps `--mono`; all prose sizes and line-heights unchanged (F062 scale stays).
+- Changes: one new rule in `practice-map.css` — `.practice-lesson-body, .practice-reader-section { font-family: system-ui, -apple-system, "Segoe UI", Roboto, sans-serif; }` (card lesson preview + full reader inherit the system stack; elements with explicit families unaffected).
+- Before: artifacts/R007/before/reader-1440.png, artifacts/R007/before/prose-crop-1440.png (computed family: "IBM Plex Sans", ui-sans-serif, system-ui)
+- After: artifacts/R007/after/reader-1440.png, artifacts/R007/after/prose-crop-1440.png (computed family: system-ui, -apple-system, "Segoe UI", Roboto)
+- Visual inspection: performed — same paragraph, same wrap points; SF Pro cyrillic slightly rounder/wider than Plex at identical sizes; panel structure, h3, mono chips/code unchanged; no overflow at 1440.
+- Code verification: typecheck PASS, build PASS (30.6 s); practice-map.check.mjs — standard no-Chrome skip (the check script's own discovery does not see chromium-1134).
+- Open question: owner verdict — is the reader's sans-serif the system font (what this round approximates), or a named font from the reader's picker (then name it and R008 swaps the stack)?
