@@ -1,0 +1,136 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Spine card mark — R001 variants (choose one)</title>
+<style>
+  :root {
+    --field: #101920;
+    --ink: #26333b;
+    --steel: #465059;
+    --muted: #7d7669;
+    --bone: #b6ac95;
+    --rust: #c56b52;
+    --page: #0b1116;
+    --text: #b6ac95;
+  }
+  * { box-sizing: border-box; }
+  body {
+    margin: 0; background: var(--page); color: var(--text);
+    font: 14px/1.5 ui-monospace, "SF Mono", Menlo, monospace;
+    padding: 32px 28px 64px;
+  }
+  h1 { font-size: 16px; color: #d6d0c4; margin: 0 0 4px; }
+  .sub { color: var(--muted); margin: 0 0 28px; font-size: 12px; }
+  .grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(340px, 1fr)); gap: 20px; }
+  .tile {
+    background: var(--field); border: 1px solid #1c262d; border-radius: 10px;
+    padding: 18px 18px 14px;
+  }
+  .tile svg { display: block; width: 100%; height: auto; }
+  .meta { margin-top: 10px; }
+  .name { color: #d6d0c4; font-weight: 700; }
+  .name b { color: var(--rust); font-weight: 700; }
+  .desc { color: var(--muted); font-size: 12px; margin-top: 2px; }
+  .small-strip {
+    margin-top: 12px; padding-top: 10px; border-top: 1px dashed #1c262d;
+    display: flex; align-items: center; gap: 14px;
+  }
+  .small-strip svg { width: 150px; flex: none; }
+  .small-label { color: var(--muted); font-size: 11px; }
+</style>
+</head>
+<body>
+<h1>Spine card mark — round 1 variants</h1>
+<p class="sub">relay arm A, geometry verbatim; house register applied (retint only: deep-ink field, steel, bone, rust accent) · pick by number</p>
+
+<div class="grid">
+
+  <div class="tile" id="v1">
+    <svg viewBox="0 0 260 160" aria-label="variant 1, backbone">
+      <g fill="none" stroke-linecap="round">
+        <path d="M122 16 C165 45 95 115 138 144" stroke="var(--steel)" stroke-width="18"/>
+        <path d="M136 38 H200 M126 95 H176" stroke="var(--bone)" stroke-width="14"/>
+        <path d="M124 122 H84" stroke="var(--bone)" stroke-width="14"/>
+        <path d="M134 65 H60" stroke="var(--rust)" stroke-width="14"/>
+      </g>
+    </svg>
+    <div class="meta">
+      <p class="name"><b>1</b> · backbone</p>
+      <p class="desc">one curved main axis, items hanging off it as ribs — one rib claimed by the rust accent</p>
+      <div class="small-strip">
+        <svg viewBox="0 0 260 160" aria-hidden="true"><g fill="none" stroke-linecap="round"><path d="M122 16 C165 45 95 115 138 144" stroke="var(--steel)" stroke-width="18"/><path d="M136 38 H200 M126 95 H176 M124 122 H84" stroke="var(--bone)" stroke-width="14"/><path d="M134 65 H60" stroke="var(--rust)" stroke-width="14"/></g></svg>
+        <span class="small-label">card scale</span>
+      </div>
+    </div>
+  </div>
+
+  <div class="tile" id="v2">
+    <svg viewBox="0 0 260 160" aria-label="variant 2, flex-wrap">
+      <path d="M30 36 H188 A22 22 0 0 1 188 80 H72 A22 22 0 0 0 72 124 H198"
+            fill="none" stroke="var(--bone)" stroke-width="18" stroke-linecap="round" stroke-linejoin="round"/>
+      <polygon points="194,102 234,124 194,146" fill="var(--rust)"/>
+    </svg>
+    <div class="meta">
+      <p class="name"><b>2</b> · flex-wrap</p>
+      <p class="desc">a single continuous stroke that wraps like text, rust arrowhead carrying the flow</p>
+      <div class="small-strip">
+        <svg viewBox="0 0 260 160" aria-hidden="true"><path d="M30 36 H188 A22 22 0 0 1 188 80 H72 A22 22 0 0 0 72 124 H198" fill="none" stroke="var(--bone)" stroke-width="18" stroke-linecap="round" stroke-linejoin="round"/><polygon points="194,102 234,124 194,146" fill="var(--rust)"/></svg>
+        <span class="small-label">card scale</span>
+      </div>
+    </div>
+  </div>
+
+  <div class="tile" id="v3">
+    <svg viewBox="0 0 260 160" aria-label="variant 3, hash">
+      <path d="M100 16 V144 M160 16 V144 M40 56 H220 M40 104 H220"
+            fill="none" stroke="var(--steel)" stroke-width="16" stroke-linecap="square"/>
+      <rect x="108" y="64" width="44" height="32" fill="var(--rust)"/>
+    </svg>
+    <div class="meta">
+      <p class="name"><b>3</b> · hash</p>
+      <p class="desc">two grid lines crossing two grid lines — the layout engine's own object — one cell claimed</p>
+      <div class="small-strip">
+        <svg viewBox="0 0 260 160" aria-hidden="true"><path d="M100 16 V144 M160 16 V144 M40 56 H220 M40 104 H220" fill="none" stroke="var(--steel)" stroke-width="16" stroke-linecap="square"/><rect x="108" y="64" width="44" height="32" fill="var(--rust)"/></svg>
+        <span class="small-label">card scale</span>
+      </div>
+    </div>
+  </div>
+
+  <div class="tile" id="v4">
+    <svg viewBox="0 0 260 160" aria-label="variant 4, snap">
+      <path d="M36 56 V140 H128" fill="none" stroke="var(--steel)" stroke-width="16" stroke-linecap="square" stroke-linejoin="miter"/>
+      <rect x="-32" y="-32" width="64" height="64" transform="translate(168 62) rotate(12)"
+            fill="none" stroke="var(--bone)" stroke-width="14" stroke-linejoin="miter"/>
+      <polygon points="0,0 0,44 12,34 20,54 29,50 21,31 36,31" transform="translate(170 60)" fill="var(--rust)"/>
+    </svg>
+    <div class="meta">
+      <p class="name"><b>4</b> · snap</p>
+      <p class="desc">a tilted element mid-drag, corner bracket waiting to catch it, rust cursor on top</p>
+      <div class="small-strip">
+        <svg viewBox="0 0 260 160" aria-hidden="true"><path d="M36 56 V140 H128" fill="none" stroke="var(--steel)" stroke-width="16" stroke-linecap="square" stroke-linejoin="miter"/><rect x="-32" y="-32" width="64" height="64" transform="translate(168 62) rotate(12)" fill="none" stroke="var(--bone)" stroke-width="14" stroke-linejoin="miter"/><polygon points="0,0 0,44 12,34 20,54 29,50 21,31 36,31" transform="translate(170 60)" fill="var(--rust)"/></svg>
+        <span class="small-label">card scale</span>
+      </div>
+    </div>
+  </div>
+
+  <div class="tile" id="v5">
+    <svg viewBox="0 0 260 160" aria-label="variant 5, grow">
+      <rect x="44" y="40" width="120" height="80" fill="var(--ink)" stroke="var(--bone)" stroke-width="3"/>
+      <line x1="140" y1="96" x2="208" y2="136" stroke="var(--muted)" stroke-width="16"/>
+      <polygon points="232,150 199,151.5 217,120.5" fill="var(--rust)"/>
+    </svg>
+    <div class="meta">
+      <p class="name"><b>5</b> · grow</p>
+      <p class="desc">a solid block being pulled out from its corner — the resize handle gesture</p>
+      <div class="small-strip">
+        <svg viewBox="0 0 260 160" aria-hidden="true"><rect x="44" y="40" width="120" height="80" fill="var(--ink)" stroke="var(--bone)" stroke-width="3"/><line x1="140" y1="96" x2="208" y2="136" stroke="var(--muted)" stroke-width="16"/><polygon points="232,150 199,151.5 217,120.5" fill="var(--rust)"/></svg>
+        <span class="small-label">card scale</span>
+      </div>
+    </div>
+  </div>
+
+</div>
+</body>
+</html>
