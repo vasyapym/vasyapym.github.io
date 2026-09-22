@@ -1008,6 +1008,9 @@ textarea:focus-visible {
 .project-artwork-center.center-matrix {
   max-width: 221px;}
 
+.project-artwork-center.center-spine {
+  max-width: 216px;}
+
 .gem-halo {
   transition: opacity 180ms ease-out;}
 

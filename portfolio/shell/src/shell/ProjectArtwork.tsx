@@ -529,10 +529,10 @@ function QuicknotesCenterMark() {
 }
 
 /* ── 7 · Spine — "Snap", seated in the house spot-ink language: sparse printed
-   bed, hover halo, and the committed-vs-in-flight read — one element already
-   seated in the corner bracket (dense rust halftone = committed), the bone
-   element still mid-drag under the rust cursor, muted alignment ticks keying
-   the seat. Relay arm A concept 4, gesture geometry verbatim. ── */
+   bed, hover halo. The corner bracket holds an EMPTY exact seat — corner
+   marks and a faint reserved dense patch, no square in it yet — while the
+   bone element is still mid-drag under the rust cursor. Relay arm A concept
+   4, gesture geometry verbatim. ── */
 function SpineCenterMark() {
   return (
     <svg viewBox="0 0 260 160" aria-hidden="true">
@@ -545,15 +545,13 @@ function SpineCenterMark() {
       <ellipse cx="130" cy="82" rx="104" ry="64" fill="url(#gem-spine-sparse)" opacity="0.09" />
       <ellipse className="gem-halo" cx="150" cy="76" rx="54" ry="40" fill="url(#gem-spine-halo)" style={haloVar(0.12)} opacity={0.12} />
 
-      {/* the catch already made — one element seated and committed in the bracket */}
-      <rect x="64" y="98" width="34" height="34" fill="url(#gem-spine-dense)" stroke="#7e3b2c" strokeWidth="2.5" />
+      {/* the exact seat — empty, corner-marked, its reserve only a faint patch */}
+      <rect x="64" y="98" width="34" height="34" fill="url(#gem-spine-dense)" opacity="0.4" />
+      <path d="M58 98 H64 V92" fill="none" stroke="#7d7669" strokeWidth="2.5" strokeLinecap="square" />
+      <path d="M98 92 V98 H104" fill="none" stroke="#7d7669" strokeWidth="2.5" strokeLinecap="square" />
 
       {/* the waiting corner bracket */}
       <path d="M36 56 V140 H128" fill="none" stroke="#465059" strokeWidth="16" strokeLinecap="square" strokeLinejoin="miter" />
-
-      {/* alignment ticks keying the seat, like the engine's snap guides */}
-      <line x1="98" y1="84" x2="98" y2="92" stroke="#7d7669" strokeWidth="2.5" />
-      <line x1="46" y1="98" x2="54" y2="98" stroke="#7d7669" strokeWidth="2.5" />
 
       {/* the tilted element mid-drag, not yet seated */}
       <rect x="-32" y="-32" width="64" height="64" transform="translate(168 62) rotate(12)" fill="none" stroke="#b6ac95" strokeWidth="14" strokeLinejoin="miter" />

@@ -100,3 +100,22 @@ stays unchanged there. This ledger is new; numbering starts at B/R001.
   practice-map/web/curriculum.ts (another agent's uncommitted work in the
   shared tree, left unstaged); no errors in shell/src
 - Open question: owner review on Pages — LIKED/REJECTED verdict needed
+
+## Round R004
+- Goal: restore the snap concept — the bracket holds an EMPTY exact seat — and
+  size the mark ~17% down (owner feedback on R003: the seated second square
+  broke the "space for the square" idea)
+- Preserved preferences: F002; snap gesture (R001); house spot-ink
+  customization (R003: bed, halo)
+- Changes: SpineCenterMark — seated bordered element removed; the seat is now
+  corner marks (two muted L-brackets) + faint reserved dense patch
+  (gem-spine-dense @ 0.4, no border); styles.css — .center-spine max-width
+  216px (= ~17% under the 260px default, same lever as .center-matrix)
+- Before: artifacts/R003/card-spine-snap-customized.png
+- After: artifacts/R004/card-spine-snap-seat.png (+ grid-after-seat.png)
+- Visual inspection: performed — card screenshot 1440x900@2x on the dev
+  server; seat reads as a reserved zone, not an element; mark proportion sits
+  better in the card
+- Code verification: tsc --noEmit — only the known foreign practice-map
+  curriculum.ts errors (other agent, unstaged); no errors in shell/src
+- Open question: owner review on Pages — LIKED/REJECTED verdict needed
