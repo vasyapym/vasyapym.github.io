@@ -270,3 +270,31 @@ e.g. lowercase mono chrome and the ink panel language, remain active constraints
 - Visual inspection: performed — same paragraph, same wrap points; SF Pro cyrillic slightly rounder/wider than Plex at identical sizes; panel structure, h3, mono chips/code unchanged; no overflow at 1440.
 - Code verification: typecheck PASS, build PASS (30.6 s); practice-map.check.mjs — standard no-Chrome skip (the check script's own discovery does not see chromium-1134).
 - Open question: owner verdict — is the reader's sans-serif the system font (what this round approximates), or a named font from the reader's picker (then name it and R008 swaps the stack)?
+
+## Feedback F019
+- Round: R007
+- Verdict: LIKED
+- Scope: lesson reading voice font — card lesson preview + full reader, all viewports
+- Decision: the reading voice stays on the system sans-serif stack (system-ui, -apple-system, "Segoe UI", Roboto); IBM Plex Sans no longer renders lesson body text. The owner's reader is a personal e-ink book reader device; the generic "Sans-Serif" of its picker is approximated by the system font — owner approved the approximation.
+- User source: "i meant reader (my personal book reader device). did you change font" + "liked"
+- Artifact: artifacts/R007/after/reader-1440.png
+- Supersedes: none
+
+## Feedback F020
+- Round: R007 (clarification) → implemented in R008
+- Verdict: CLARIFIED (refines F019's target — F019's liked verdict on the rendering stands)
+- Scope: lesson reading voice font — identity of the owner's "reader font"
+- Decision: the owner's reader is the Readest app on iOS, not a generic device. Readest resolves its "Sans-serif" book font to bundled Roboto first (DEFAULT_BOOK_FONT.sansSerifFont = 'Roboto' in readest/readest constants.ts; chain built in utils/style.ts buildFontFamilyLists). So the intended font is Roboto, and the reading voice should lead with Roboto before system fallbacks.
+- User source: "i meant reader (my personal book reader device). did you change font" + "i meant in readest app in ios."
+- Artifact: artifacts/R007/after/reader-1440.png (the liked state)
+- Supersedes: none (F019 verdict preserved; font identity corrected)
+
+## Round R008
+- Goal: match the reading voice to what the owner actually reads in Readest iOS — Roboto (the font Readest's generic "Sans-serif" resolves to), replacing the system-ui approximation liked in R007.
+- Preserved preferences: F019 (system sans as the voice's direction — Roboto leads a system-sans stack); h3 keeps --display, code keeps --mono; sizes/line-heights unchanged.
+- Changes: (1) shell index.html — both Google Fonts stylesheet URLs add family=Roboto:wght@400;500;700 (cyrillic subsets served by unicode-range; no font binaries in repo, same CDN pattern as IBM Plex); (2) practice-map.css — the R007 rule becomes `font-family: "Roboto", system-ui, -apple-system, "Segoe UI", sans-serif`, comment updated to the Readest provenance.
+- Before: artifacts/R007/after/prose-crop-1440.png (SF Pro via system-ui)
+- After: artifacts/R008/after/reader-1440.png, artifacts/R008/after/prose-crop-1440.png (computed family: Roboto, system-ui, -apple-system, "Segoe UI", sans-serif)
+- Visual inspection: performed — Roboto renders (narrower grotesque, distinct cyrillic), wrap points unchanged, panel structure intact at 1440.
+- Code verification: typecheck PASS, build PASS (21 s).
+- Open question: owner verdict — is Roboto-as-loaded a faithful match of the Readest rendering (it is the same family + weights; hinting/subpixel differences on e-ink vs desktop are unavoidable), or should the round be rejected?

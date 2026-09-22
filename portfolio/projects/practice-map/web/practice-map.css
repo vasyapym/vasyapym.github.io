@@ -851,12 +851,14 @@
   text-wrap: pretty;
 }
 
-/* R007: the reading voice adopts the owner's reader font — the system
-   sans-serif (SF Pro on macOS) — instead of the inherited IBM Plex Sans.
-   h3 (--display) and code (--mono) keep their explicit families. */
+/* R007→R008: the reading voice matches the owner's Readest (iOS) "Sans-serif"
+   book font — Readest resolves its generic sans to bundled Roboto first
+   (DEFAULT_BOOK_FONT.sansSerifFont = 'Roboto'), so Roboto leads the stack,
+   self-hosted via Google Fonts (cyrillic subsets included). System sans falls
+   back while it loads. h3 (--display) and code (--mono) keep their families. */
 .practice-lesson-body,
 .practice-reader-section {
-  font-family: system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+  font-family: "Roboto", system-ui, -apple-system, "Segoe UI", sans-serif;
 }
 
 .practice-lesson-body p {
