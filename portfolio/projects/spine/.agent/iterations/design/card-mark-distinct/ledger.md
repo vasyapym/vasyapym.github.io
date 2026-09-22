@@ -80,3 +80,23 @@ stays unchanged there. This ledger is new; numbering starts at B/R001.
   geometry as shown)
 - Code verification: shell typecheck (tsc --noEmit) clean
 - Open question: owner review on Pages — LIKED/REJECTED verdict needed
+
+## Round R003
+- Goal: customize the snap mark into the house spot-ink language, like the
+  other main-page card marks (owner: "add more customization")
+- Preserved preferences: F002; owner choice of the snap gesture (R001, R002)
+- Changes: ProjectArtwork.tsx SpineCenterMark only — added sparse printed bed
+  (gem-spine-sparse @ 0.09), hover halo (gem-spine-halo + gem-halo class +
+  haloVar 0.12, restoring the .presentation-spine .gem-halo pulse), a
+  committed element seated in the bracket (dense rust halftone gem-spine-dense,
+  edge #7e3b2c), two muted alignment ticks keying the seat; gesture geometry
+  untouched
+- Before: artifacts/R002/card-spine-snap.png
+- After: artifacts/R003/card-spine-snap-customized.png (+ grid-after-customized.png)
+- Visual inspection: performed — card screenshot 1440x900@2x on the dev
+  server; committed-vs-in-flight reads at card scale; halo dot-glow matches
+  the raft treatment
+- Code verification: tsc --noEmit — only pre-existing errors in
+  practice-map/web/curriculum.ts (another agent's uncommitted work in the
+  shared tree, left unstaged); no errors in shell/src
+- Open question: owner review on Pages — LIKED/REJECTED verdict needed
