@@ -1,482 +1,113 @@
-/* Variant lab — scroll-driven presentations.
-   Lab chrome + fake cards, then the shared scroll engine and the five
-   variant styles (relay output; tokens mapped to the shell ink palette). */
+/* Variant lab — Tufte-restraint presentations.
+   Relay variants.css verbatim, plus minimal lab chrome (header/switcher). */
 
-* {
-  box-sizing: border-box;
+:root {
+  --paper: #fffff8;
+  --ink: #111;
+  --mute: #666;
+  --rule: #d8d8cf;
+  --serif: "ET Book", "Palatino Linotype", Palatino, Georgia, serif;
+  --measure: 62ch;
+}
+
+html {
+  scroll-snap-type: y proximity;
+  background: var(--paper);
+  color: var(--ink);
 }
 
 body {
   margin: 0;
-  background: #060b0e;
-  color: #eeeae0;
-  font-family: "IBM Plex Sans", ui-sans-serif, system-ui, sans-serif;
-  -webkit-font-smoothing: antialiased;
+  font: 400 1.125rem/1.55 var(--serif);
 }
 
-.lab-head,
-.lab-variant {
-  max-width: 76rem;
-  margin-inline: auto;
-  padding-inline: clamp(1.25rem, 4vw, 3rem);
+section.project {
+  min-height: 100dvh;
+  scroll-snap-align: start;
+  box-sizing: border-box;
+  padding: 6vh 6vw;
 }
+
+.stage { margin: 0; }
+.stage svg { display: block; width: 100%; height: auto; max-height: 72dvh; }
+
+.title { font-weight: 400; font-size: 1.5rem; letter-spacing: -0.01em; margin: 0 0 0.4rem; }
+.desc { margin: 0 0 0.6rem; max-width: var(--measure); }
+.tech { margin: 0; font-size: 0.85rem; color: var(--mute); font-variant: small-caps; letter-spacing: 0.04em; }
+.no { font-size: 0.8rem; color: var(--mute); font-variant-numeric: oldstyle-nums tabular-nums; }
+hr.rule { border: 0; border-top: 1px solid var(--rule); margin: 1.2rem 0; }
+
+@media (prefers-reduced-motion: no-preference) {
+  .rail a { transition: opacity 0.15s; }
+}
+
+/* 1 Ledger */
+.ledger .stage { max-width: min(90vw, 1100px); margin: 0 auto; }
+.ledger .caption { max-width: var(--measure); margin: 2rem auto 0; display: grid; grid-template-columns: 3ch 1fr; gap: 1rem; }
+
+/* 2 Sidenote */
+.sidenote section.project { display: grid; grid-template-columns: minmax(0, 3fr) minmax(22ch, 1fr); gap: 4vw; align-items: start; }
+.sidenote aside { position: sticky; top: 6vh; font-size: 0.95rem; border-left: 1px solid var(--rule); padding-left: 1.2rem; }
+
+/* 3 Folio */
+.folio section.project { display: grid; grid-template-columns: minmax(24ch, 1fr) minmax(0, 2.4fr); gap: 5vw; align-items: center; }
+.folio .stage svg { max-height: 82dvh; }
+
+/* 4 Plate */
+.plate section.project { display: grid; grid-template-rows: auto 1fr auto; max-width: 1100px; margin: 0 auto; }
+.plate header { display: flex; justify-content: space-between; font-size: 0.8rem; color: var(--mute); border-bottom: 1px solid var(--rule); padding-bottom: 0.4rem; }
+.plate .stage { align-self: center; padding: 2rem 0; }
+.plate footer { display: grid; grid-template-columns: 2fr 1fr; gap: 3rem; border-top: 1px solid var(--rule); padding-top: 1rem; }
+
+/* 5 Index */
+.index { display: grid; grid-template-columns: 18ch 1fr; }
+.index nav { position: sticky; top: 0; height: 100dvh; padding: 6vh 2vw; font-size: 0.85rem; border-right: 1px solid var(--rule); }
+.index nav a { display: block; color: inherit; text-decoration: none; opacity: 0.4; padding: 0.15rem 0; }
+.index nav a[aria-current] { opacity: 1; text-decoration: underline; text-underline-offset: 0.2em; }
+.index section.project { display: grid; grid-template-rows: 1fr auto; gap: 2rem; }
+
+@media (max-width: 820px) {
+  .sidenote section.project, .folio section.project, .index { grid-template-columns: 1fr; }
+  .index nav { display: none; }
+  .sidenote aside { position: static; border: 0; padding: 0; }
+}
+
+/* ---- lab chrome (header + variant switcher) ---- */
 
 .lab-head {
-  padding-block: 3rem 1.5rem;
+  max-width: 76rem;
+  margin-inline: auto;
+  padding: 2.5rem clamp(1.25rem, 4vw, 3rem) 0;
 }
 
 .lab-head h1 {
-  margin: 0 0 0.75rem;
-  font-size: 1.35rem;
-  font-weight: 600;
+  margin: 0 0 0.5rem;
+  font-size: 1.15rem;
+  font-weight: 400;
   letter-spacing: -0.01em;
 }
 
 .lab-head p {
-  margin: 0 0 0.75rem;
-  max-width: 72ch;
-  color: rgba(238, 234, 224, 0.68);
-  font-size: 0.9rem;
+  margin: 0 0 0.9rem;
+  max-width: 68ch;
+  color: var(--mute);
+  font-size: 0.85rem;
   line-height: 1.6;
 }
 
 .lab-head nav {
   display: flex;
   flex-wrap: wrap;
-  gap: 1rem;
-  margin-top: 1.25rem;
+  gap: 1.1rem;
+  margin-bottom: 1rem;
 }
 
 .lab-head a {
-  color: #d39b61;
-  font-family: "IBM Plex Mono", ui-monospace, monospace;
-  font-size: 0.75rem;
-  letter-spacing: 0.08em;
-  text-decoration: none;
-}
-
-.lab-head a:hover {
-  text-decoration: underline;
-}
-
-.lab-variant {
-  border-top: 1px solid rgba(238, 234, 224, 0.13);
-  padding-block: 2.5rem 0;
-}
-
-.lab-variant > h2 {
-  margin: 0 0 0.4rem;
-  font-size: 1rem;
-  font-weight: 600;
-}
-
-.lab-variant > h2 span {
-  color: #d39b61;
-  font-family: "IBM Plex Mono", ui-monospace, monospace;
-  font-size: 0.75rem;
-  font-weight: 400;
-  margin-right: 0.6rem;
-}
-
-.lab-concept {
-  margin: 0 0 1.75rem;
-  max-width: 72ch;
-  color: rgba(238, 234, 224, 0.68);
+  color: var(--ink);
   font-size: 0.85rem;
-  line-height: 1.6;
+  text-decoration: none;
+  border-bottom: 1px solid var(--rule);
+  padding-bottom: 0.1rem;
 }
 
-/* -- fake static stand-in for the real .signal-index-card -- */
-
-.lab-card {
-  display: flex;
-  flex-direction: column;
-  position: relative;
-  min-width: 0;
-  overflow: hidden;
-  border-radius: 12px;
-  background: #0b1317;
-  color: #eeeae0;
-  border: 1px solid rgba(238, 234, 224, 0.13);
-  transition: border-color 0.3s, background-color 0.3s;
-}
-
-.lab-card-stage {
-  position: relative;
-  width: 100%;
-  height: 200px;
-  overflow: hidden;
-  background: #0b1317;
-  display: grid;
-  place-items: center;
-}
-
-.lab-card-stage svg {
-  display: block;
-  width: 82%;
-  max-width: 260px;
-  aspect-ratio: 260 / 160;
-  overflow: visible;
-}
-
-.lab-card-copy {
-  padding: 20px 22px 22px;
-}
-
-.lab-card-topline {
-  margin: 0 0 0.5rem;
-  color: #d39b61;
-  font-family: "IBM Plex Mono", ui-monospace, monospace;
-  font-size: 0.72rem;
-  letter-spacing: 0.08em;
-}
-
-.lab-card-title {
-  margin: 0 0 0.5rem;
-  font-size: 1.3rem;
-  font-weight: 600;
-  letter-spacing: -0.01em;
-}
-
-.lab-card-desc {
-  margin: 0 0 1.1rem;
-  color: rgba(238, 234, 224, 0.68);
-  font-size: 0.88rem;
-  line-height: 1.55;
-}
-
-.lab-card-footer {
-  display: flex;
-  justify-content: space-between;
-  gap: 1rem;
-  color: rgba(238, 234, 224, 0.48);
-  font-family: "IBM Plex Mono", ui-monospace, monospace;
-  font-size: 0.7rem;
-}
-
-.lab-card-open {
-  color: #d39b61;
-}
-
-/* mobile fallback stack (all variants, < 1024px) */
-
-.lab-stack {
-  display: grid;
-  gap: 16px;
-  padding-block: 1rem 3rem;
-}
-
-.lab-stack__item .lab-card-stage {
-  height: 150px;
-}
-
-/* ===== shared scroll engine ===== */
-
-.track {
-  position: relative;
-}
-
-.stage {
-  position: sticky;
-  top: 0;
-  height: 100dvh;
-  display: grid;
-  place-items: center;
-  overflow: hidden;
-  background: #060b0e;
-}
-
-/* ===== 1. Plotter — draw-off / draw-on ===== */
-
-.pt {
-  display: flex;
-  gap: 3rem;
-  align-items: center;
-  width: min(100%, 68rem);
-  padding: 0 2rem;
-}
-
-.pt__rail {
-  position: relative;
-  width: 14px;
-  height: 141px; /* 6 ticks × 28px − 1 */
-  display: flex;
-  flex-direction: column;
-  justify-content: space-between;
-}
-
-.pt__tick {
-  display: block;
-  width: 14px;
-  height: 1px;
-  background: rgba(238, 234, 224, 0.26);
-}
-
-.pt__caret {
-  position: absolute;
-  left: -6px;
-  top: -0.5px;
-  width: 26px;
-  height: 2px;
-  background: #d39b61;
-  transition: transform 0.2s;
-}
-
-.pt__sheet {
-  position: relative;
-  flex: 1;
-  display: grid;
-  place-items: center;
-}
-
-.pt__card {
-  position: absolute;
-  inset: 0;
-  display: grid;
-  place-items: center;
-}
-
-.pt__card .lab-card {
-  width: min(100%, 38rem);
-}
-
-.pt__card svg [pathLength] {
-  stroke-dasharray: 1;
-  stroke-dashoffset: calc(1 - var(--draw, 1));
-  fill-opacity: var(--draw, 1);
-  transition: none;
-}
-
-.pt__card .lab-card-copy {
-  clip-path: inset(0 calc(100% - var(--reveal, 1) * 100%) 0 0);
-}
-
-/* ===== 2. Cut — hairline guillotine wipe ===== */
-
-.ct {
-  position: relative;
-  width: 100%;
-  height: 100%;
-}
-
-.ct__layer {
-  position: absolute;
-  inset: 0;
-  display: grid;
-  place-items: center;
-}
-
-.ct__card .lab-card {
-  width: min(100%, 38rem);
-}
-
-.ct__rule {
-  position: absolute;
-  left: 0;
-  right: 0;
-  height: 1px;
-  background: #eeeae0;
-  z-index: 2;
-}
-
-.ct__rule--ghost {
-  opacity: 0.4;
-}
-
-/* ===== 3. Approach — z-travel through frames ===== */
-
-.ap {
-  position: relative;
-  width: 100%;
-  height: 100%;
-  perspective: 1200px;
-  display: grid;
-  place-items: center;
-}
-
-.ap__frame {
-  position: absolute;
-  width: min(100%, 38rem);
-  height: min(60dvh, 30rem);
-  display: grid;
-  place-items: center;
-}
-
-.ap__frame--next {
-  border: 1px solid rgba(238, 234, 224, 0.26);
-}
-
-.ap__inner .lab-card {
-  width: min(100%, 38rem);
-}
-
-.ap__frame--current .lab-card {
-  width: min(100%, 38rem);
-}
-
-/* ===== 4. Lens — zoom into a detail, out into the next ===== */
-
-.ln {
-  position: relative;
-  width: 100%;
-  height: 100%;
-  display: grid;
-  place-items: center;
-}
-
-.ln__grid {
-  position: absolute;
-  inset: 0;
-  background-image:
-    linear-gradient(rgba(238, 234, 224, 0.14) 1px, transparent 1px),
-    linear-gradient(90deg, rgba(238, 234, 224, 0.14) 1px, transparent 1px);
-  background-size: 40px 40px;
-  pointer-events: none;
-}
-
-.ln__card {
-  position: absolute;
-  display: grid;
-  place-items: center;
-  will-change: transform, opacity;
-}
-
-.ln__card .lab-card {
-  width: min(100%, 38rem);
-}
-
-/* dissolved state: illustration flies apart, panel dissolves to hairlines */
-.ln__card.is-far .lab-card {
-  border-color: transparent;
-  background: transparent;
-}
-
-.ln__card.is-far .lab-card-copy {
-  opacity: 0;
-}
-
-.ln__card.is-far .lab-card-stage {
-  background: transparent;
-}
-
-/* ===== 5. Margin notes — pinned plate, free-scrolling text ===== */
-
-.mn {
-  display: grid;
-  grid-template-columns: 58fr 42fr;
-  align-items: start;
-  width: min(100%, 76rem);
-  margin: 0 auto;
-  padding: 0 2rem;
-}
-
-.mn__plate {
-  position: sticky;
-  top: 0;
-  height: 100dvh;
-  display: grid;
-  place-items: center;
-}
-
-.mn__plateCard {
-  width: min(100%, 38rem);
-}
-
-.mn__plateCard svg [pathLength] {
-  stroke-dasharray: 1;
-  animation: drawOn 0.45s cubic-bezier(0.2, 0.8, 0.2, 1) both;
-}
-
-@keyframes drawOn {
-  from {
-    stroke-dashoffset: 1;
-  }
-  to {
-    stroke-dashoffset: 0;
-  }
-}
-
-.mn__rule {
-  position: relative;
-  width: 1px;
-  background: rgba(238, 234, 224, 0.13);
-}
-
-.mn__tick {
-  position: absolute;
-  left: 0;
-  width: 22px;
-  height: 1px;
-  background: #d39b61;
-  transition: top 0.25s;
-}
-
-.mn__blocks {
-  list-style: none;
-  margin: 0;
-  padding: 0;
-}
-
-.mn__blocks li {
-  min-height: 100vh;
-  display: flex;
-  flex-direction: column;
-  justify-content: center;
-  padding-right: 1rem;
-}
-
-.mn__no {
-  margin: 0 0 0.6rem;
-  color: #d39b61;
-  font-family: "IBM Plex Mono", ui-monospace, monospace;
-  font-size: 0.72rem;
-  letter-spacing: 0.08em;
-}
-
-.mn__title {
-  margin: 0 0 0.8rem;
-  font-size: clamp(1.6rem, 3vw, 2.6rem);
-  font-weight: 600;
-  letter-spacing: -0.02em;
-}
-
-.mn__desc {
-  margin: 0 0 1rem;
-  max-width: 42ch;
-  color: rgba(238, 234, 224, 0.68);
-  font-size: 0.95rem;
-  line-height: 1.65;
-}
-
-.mn__tech {
-  margin: 0;
-  color: rgba(238, 234, 224, 0.48);
-  font-family: "IBM Plex Mono", ui-monospace, monospace;
-  font-size: 0.72rem;
-}
-
-/* mobile: drop the sticky engine entirely */
-
-@media (max-width: 1023px) {
-  .track {
-    height: auto !important;
-  }
-
-  .stage {
-    position: static;
-    height: auto;
-    overflow: visible;
-  }
-}
-
-@media (prefers-reduced-motion: reduce) {
-  .pt__caret,
-  .mn__tick {
-    transition: none;
-  }
-
-  .mn__plateCard svg [pathLength] {
-    animation: none;
-    stroke-dashoffset: 0;
-  }
-}
+.lab-head a:hover { border-bottom-color: var(--ink); }

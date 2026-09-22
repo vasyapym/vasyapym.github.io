@@ -172,3 +172,53 @@ Task: rethink how the 6 project cards are presented on the main page (desktop). 
 - Visual inspection: performed — S1 mid-swap shows near-empty sheet with next card pre-drawn; S2 shows the hairline rule + ghost rule splicing two cards; S3 shows the exiting frame enlarged/dimmed with the ghost rectangle at the vanishing point; S4 push shows the mark zoomed with panel dissolved into the grid overlay; S5 plate follows the centred block.
 - Code verification: probe `portfolio/probes/variant-lab-scroll.mjs` — 4 tracks + 1 margin grid mounted, no mobile stacks on desktop, no console errors (favicon 404 only), margin plate shows the centred block's project. Probe scroll-math fix documented: engine progress = -top/(H−vh), shots addressed by p=(card+t)/6.
 - Open question: owner picks S1–S5 at https://vasyapym.github.io/variant-lab/ by scrolling; the chosen one becomes the shell-adaptation round.
+
+## Feedback F005
+- Round: R014
+- Verdict: REJECTED
+- Scope: all five scroll-driven presentations (S1 Plotter … S5 Margin notes)
+- Decision: none of them is "it" — too scope-creep. The taste bar is a senior developer inclined to minimalism: restraint over spectacle, no theatrical motion, typography and spacing carry the design.
+- User source: "these are not it. i don't want too scope creep ones. i want senior developer who is inclining towards minimalism look"
+- Artifact: rebuilt variant-lab (scroll lab)
+- Supersedes: narrows F004 (scroll direction stays, theatrical execution rejected)
+
+## Round R014
+- Goal: brief revised for the minimalist taste bar (F005) and re-cut into the 10–80% compression ladder for the owner to pick. New cargo in the brief: `taste: senior developer leaning minimalist — restraint over spectacle, no theatrical motion, typography carries it`. Standing cargo unchanged: cards as-is, one illustration per viewport, native scroll, no snap, one full-width row per project on desktop.
+- Preserved preferences: F001, F002 (as corrected by F003), F004, F005.
+- Changes: none to code — delegation round.
+- Before: R013 artifacts
+- After: pending owner's ladder pick + relay reply
+- Visual inspection: NOT RUN
+- Code verification: NOT RUN
+- Open question: owner picks a rung; relay reply gets adapted into the shell.
+
+## Round R015
+- Goal: named-style variants of the revised minimalist brief (same move as R005): the aesthetic + taste clauses are swapped for one compact named style that unpacks the vocabulary itself. Base = the −30% rung minus those two clauses (~50 words each).
+- Preserved preferences: F001, F002 (as corrected by F003), F004, F005.
+- Changes: none to code — delegation round.
+- Variants prepared: swiss minimal dark mode / tufte-style typographic restraint / dieter rams less-but-better / plain technical-document minimal / e-ink calm minimal.
+- Before: R013 artifacts
+- After: pending owner's pick + relay reply
+- Visual inspection: NOT RUN
+- Code verification: NOT RUN
+- Open question: owner picks a named style; relay reply gets scored and adapted.
+
+## Round R016
+- Goal: record the owner's verdict — the Tufte-style named-style variant (R015 #2) produced a GOOD (not maximum) result on the relay. The reply has not been pasted yet; next step is to strip the previous tries from the lab and deploy the Tufte reply's variants to https://vasyapym.github.io/variant-lab/ for the owner to check.
+- Preserved preferences: F001, F002 (as corrected by F003), F004, F005.
+- Changes: none to code yet.
+- Before: R013 artifacts (scroll lab still live)
+- After: pending reply paste
+- Visual inspection: NOT RUN
+- Code verification: NOT RUN
+- Open question: owner pastes the Tufte relay reply; orchestrator rebuilds the lab with only those variants.
+
+## Round R017
+- Goal: owner pasted the Tufte relay reply; previous tries removed; the lab now hosts exactly its five presentations at the same URL, switched via `?v=ledger|sidenote|folio|plate|index` (relay's own switch contract).
+- Preserved preferences: F001, F002 (as corrected by F003), F004, F005.
+- Changes: `portfolio/shell/public/variant-lab/` rewritten — Card primitives (Stage/Text), five variants (Ledger, Sidenote, Folio, Plate, Index), variants.css verbatim incl. paper palette + scroll-snap proximity + reduced-motion gate; fake stand-in marks recolored for paper (ink strokes, ochre accent — the only repair); lab chrome reduced to a header switcher.
+- Before: R013 artifacts (scroll lab)
+- After: artifacts/R017/tufte-*.png (one shot per variant, desktop 1440)
+- Visual inspection: performed — paper bg, serif, hairline rules, oldstyle numerals, small-caps tech; Ledger figure+numbered caption; Sidenote margin text sticky; all hold one illustration per viewport.
+- Code verification: probe `portfolio/probes/variant-lab-tufte.mjs` — 6/6 sections in every variant, no console errors (favicon 404 only), Index rail marks the centred section ("4 Cat Runner").
+- Open question: owner checks the five variants by scrolling; the chosen one becomes the shell-adaptation round (palette decision — keep Tufte paper or re-tint to dark ink — happens there).

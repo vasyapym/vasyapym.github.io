@@ -2169,9 +2169,9 @@
                   if ("string" === typeof entry.name) {
                     var JSCompiler_temp_const = info;
                     a: {
-                      var name = entry.name, env = entry.env, location = entry.debugLocation;
-                      if (null != location) {
-                        var childStack = formatOwnerStack(location), idx = childStack.lastIndexOf("\n"), lastLine = -1 === idx ? childStack : childStack.slice(idx + 1);
+                      var name = entry.name, env = entry.env, location2 = entry.debugLocation;
+                      if (null != location2) {
+                        var childStack = formatOwnerStack(location2), idx = childStack.lastIndexOf("\n"), lastLine = -1 === idx ? childStack : childStack.slice(idx + 1);
                         if (-1 !== lastLine.indexOf(name)) {
                           var JSCompiler_inline_result = "\n" + lastLine;
                           break a;
@@ -8247,14 +8247,14 @@
               1,
               badgeFormat + " " + error[0],
               badgeStyle,
-              pad2 + JSCompiler_inline_result + pad2,
+              pad + JSCompiler_inline_result + pad,
               resetStyle
             ) : error.splice(
               0,
               0,
               badgeFormat,
               badgeStyle,
-              pad2 + JSCompiler_inline_result + pad2,
+              pad + JSCompiler_inline_result + pad,
               resetStyle
             );
             error.unshift(console);
@@ -21218,7 +21218,7 @@
           _currentValue: NotPendingTransition,
           _currentValue2: NotPendingTransition,
           _threadCount: 0
-        }, badgeFormat = "%c%s%c", badgeStyle = "background: #e6e6e6;background: light-dark(rgba(0,0,0,0.1), rgba(255,255,255,0.25));color: #000000;color: light-dark(#000000, #ffffff);border-radius: 2px", resetStyle = "", pad2 = " ", bind = Function.prototype.bind;
+        }, badgeFormat = "%c%s%c", badgeStyle = "background: #e6e6e6;background: light-dark(rgba(0,0,0,0.1), rgba(255,255,255,0.25));color: #000000;color: light-dark(#000000, #ffffff);border-radius: 2px", resetStyle = "", pad = " ", bind = Function.prototype.bind;
         var didWarnAboutNestedUpdates = false;
         var overrideHookState = null, overrideHookStateDeletePath = null, overrideHookStateRenamePath = null, overrideProps = null, overridePropsDeletePath = null, overridePropsRenamePath = null, scheduleUpdate = null, scheduleRetry = null, setErrorHandler = null, setSuspenseHandler = null;
         overrideHookState = function(fiber, id, path, value) {
@@ -21727,307 +21727,10 @@
   var import_react = __toESM(require_react(), 1);
   var import_client = __toESM(require_client(), 1);
   var import_jsx_runtime = __toESM(require_jsx_runtime(), 1);
-  var clamp01 = (v) => Math.min(1, Math.max(0, v));
-  var smooth = (t) => t * t * (3 - 2 * t);
-  var enterOf = (t) => smooth(clamp01(t / 0.3));
-  var exitOf = (t) => smooth(clamp01((t - 0.7) / 0.3));
-  var pad = (v) => String(v).padStart(2, "0");
-  function useTrack(count, vhPerCard = 1.2) {
-    const ref = (0, import_react.useRef)(null);
-    const [s, set] = (0, import_react.useState)({ index: 0, t: 0, p: 0 });
-    (0, import_react.useEffect)(() => {
-      let raf = 0;
-      const read = () => {
-        const el = ref.current;
-        if (!el) return;
-        const r = el.getBoundingClientRect();
-        const vh = window.innerHeight;
-        const scrollable = r.height - vh;
-        const p = Math.min(1, Math.max(0, -r.top / scrollable));
-        const f = p * count;
-        const index = Math.min(count - 1, Math.floor(f));
-        set((prev) => prev.p === p ? prev : { index, t: f - index, p });
-      };
-      const onScroll = () => {
-        cancelAnimationFrame(raf);
-        raf = requestAnimationFrame(read);
-      };
-      read();
-      addEventListener("scroll", onScroll, { passive: true });
-      addEventListener("resize", onScroll);
-      return () => {
-        removeEventListener("scroll", onScroll);
-        removeEventListener("resize", onScroll);
-        cancelAnimationFrame(raf);
-      };
-    }, [count]);
-    return { ref, ...s, trackHeight: `${count * vhPerCard * 100}vh` };
-  }
-  function useMedia(query) {
-    const [m, setM] = (0, import_react.useState)(() => window.matchMedia(query).matches);
-    (0, import_react.useEffect)(() => {
-      const mq = window.matchMedia(query);
-      const s = () => setM(mq.matches);
-      s();
-      mq.addEventListener("change", s);
-      return () => mq.removeEventListener("change", s);
-    }, [query]);
-    return m;
-  }
-  function Track({
-    trackRef,
-    height,
-    children
-  }) {
-    return /* @__PURE__ */ (0, import_jsx_runtime.jsx)("section", { className: "track", ref: trackRef, style: { height }, children: /* @__PURE__ */ (0, import_jsx_runtime.jsx)("div", { className: "stage", children }) });
-  }
-  function PlainStack({ projects }) {
-    return /* @__PURE__ */ (0, import_jsx_runtime.jsx)("div", { className: "lab-stack", children: projects.map((p) => /* @__PURE__ */ (0, import_jsx_runtime.jsx)("div", { className: "lab-stack__item", children: p.card }, p.id)) });
-  }
-  function usePathLength(ref, dep) {
-    (0, import_react.useEffect)(() => {
-      ref.current?.querySelectorAll(
-        "path,line,rect,circle,polyline,ellipse"
-      ).forEach((el) => el.setAttribute("pathLength", "1"));
-    }, [dep]);
-  }
-  function Plotter({ projects }) {
-    const count = projects.length;
-    const { ref, index, t, trackHeight } = useTrack(count);
-    const desktop = useMedia("(min-width: 1024px)");
-    const reduced = useMedia("(prefers-reduced-motion: reduce)");
-    const sheetRef = (0, import_react.useRef)(null);
-    usePathLength(sheetRef, index);
-    if (!desktop) return /* @__PURE__ */ (0, import_jsx_runtime.jsx)(PlainStack, { projects });
-    const exit = exitOf(t);
-    const nextI = Math.min(count - 1, index + 1);
-    const cur = projects[index];
-    const nxt = projects[nextI];
-    const drawCur = index === 0 ? enterOf(t) * (1 - exit) : Math.min(1, 0.4 + 0.65 * enterOf(t)) * (1 - exit);
-    const textCur = enterOf(t) * (1 - exit);
-    const nextPre = t > 0.7 ? smooth(clamp01((t - 0.7) / 0.3)) : 0;
-    const drawNext = nextPre * 0.4;
-    if (reduced) {
-      return /* @__PURE__ */ (0, import_jsx_runtime.jsx)(Track, { trackRef: ref, height: trackHeight, children: /* @__PURE__ */ (0, import_jsx_runtime.jsx)("div", { className: "pt", children: /* @__PURE__ */ (0, import_jsx_runtime.jsx)("div", { className: "pt__sheet", children: /* @__PURE__ */ (0, import_jsx_runtime.jsx)("div", { className: "pt__card", children: cur.card }) }) }) });
-    }
-    return /* @__PURE__ */ (0, import_jsx_runtime.jsx)(Track, { trackRef: ref, height: trackHeight, children: /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", { className: "pt", children: [
-      /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", { className: "pt__rail", "aria-hidden": true, children: [
-        projects.map((_, i) => /* @__PURE__ */ (0, import_jsx_runtime.jsx)("span", { className: "pt__tick" }, i)),
-        /* @__PURE__ */ (0, import_jsx_runtime.jsx)(
-          "span",
-          {
-            className: "pt__caret",
-            style: { transform: `translateY(${index * 28}px)` }
-          }
-        )
-      ] }),
-      /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", { className: "pt__sheet", ref: sheetRef, children: [
-        /* @__PURE__ */ (0, import_jsx_runtime.jsx)(
-          "div",
-          {
-            className: "pt__card",
-            style: { "--draw": drawCur, "--reveal": textCur },
-            children: cur.card
-          },
-          cur.id
-        ),
-        nextI !== index && /* @__PURE__ */ (0, import_jsx_runtime.jsx)(
-          "div",
-          {
-            className: "pt__card pt__card--next",
-            style: { "--draw": drawNext, "--reveal": 0 },
-            children: nxt.card
-          },
-          nxt.id
-        )
-      ] })
-    ] }) });
-  }
-  function Cut({ projects }) {
-    const count = projects.length;
-    const { ref, index, t, trackHeight } = useTrack(count);
-    const desktop = useMedia("(min-width: 1024px)");
-    const reduced = useMedia("(prefers-reduced-motion: reduce)");
-    if (!desktop) return /* @__PURE__ */ (0, import_jsx_runtime.jsx)(PlainStack, { projects });
-    const nextI = Math.min(count - 1, index + 1);
-    const cur = projects[index];
-    const nxt = projects[nextI];
-    const cut = reduced ? 0 : exitOf(t);
-    const down = index % 2 === 0;
-    const curClip = down ? `inset(${cut * 100}% 0 0 0)` : `inset(0 0 ${cut * 100}% 0)`;
-    const nextClip = down ? `inset(0 0 ${(1 - cut) * 100}% 0)` : `inset(${(1 - cut) * 100}% 0 0 0)`;
-    const ruleTop = down ? `${cut * 100}%` : `${(1 - cut) * 100}%`;
-    const moving = cut > 0 && cut < 1;
-    return /* @__PURE__ */ (0, import_jsx_runtime.jsx)(Track, { trackRef: ref, height: trackHeight, children: /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", { className: "ct", children: [
-      nextI !== index && /* @__PURE__ */ (0, import_jsx_runtime.jsx)("div", { className: "ct__layer", style: { clipPath: nextClip }, children: /* @__PURE__ */ (0, import_jsx_runtime.jsx)("div", { className: "ct__card", children: nxt.card }, nxt.id) }),
-      /* @__PURE__ */ (0, import_jsx_runtime.jsx)("div", { className: "ct__layer", style: { clipPath: curClip }, children: /* @__PURE__ */ (0, import_jsx_runtime.jsx)("div", { className: "ct__card", children: cur.card }, cur.id) }),
-      /* @__PURE__ */ (0, import_jsx_runtime.jsx)(
-        "div",
-        {
-          className: "ct__rule",
-          style: { top: ruleTop, opacity: moving ? 1 : 0 }
-        }
-      ),
-      /* @__PURE__ */ (0, import_jsx_runtime.jsx)(
-        "div",
-        {
-          className: "ct__rule ct__rule--ghost",
-          style: {
-            top: `calc(${ruleTop} + ${down ? 12 : -12}px)`,
-            opacity: moving ? 0.4 : 0
-          }
-        }
-      )
-    ] }) });
-  }
-  function Approach({ projects }) {
-    const count = projects.length;
-    const { ref, index, t, trackHeight } = useTrack(count);
-    const desktop = useMedia("(min-width: 1024px)");
-    const reduced = useMedia("(prefers-reduced-motion: reduce)");
-    if (!desktop) return /* @__PURE__ */ (0, import_jsx_runtime.jsx)(PlainStack, { projects });
-    const nextI = Math.min(count - 1, index + 1);
-    const cur = projects[index];
-    const nxt = projects[nextI];
-    const exit = reduced ? 0 : exitOf(t);
-    const pre = reduced ? 0 : t > 0.7 ? smooth(clamp01((t - 0.7) / 0.3)) : 0;
-    const real = pre >= 0.78;
-    return /* @__PURE__ */ (0, import_jsx_runtime.jsx)(Track, { trackRef: ref, height: trackHeight, children: /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", { className: "ap", children: [
-      nextI !== index && /* @__PURE__ */ (0, import_jsx_runtime.jsx)(
-        "div",
-        {
-          className: "ap__frame ap__frame--next",
-          style: {
-            transform: `translateZ(${-900 + pre * 900}px)`,
-            opacity: real ? 0.35 + 0.65 * ((pre - 0.78) / 0.22) : 0.18
-          },
-          children: /* @__PURE__ */ (0, import_jsx_runtime.jsx)("div", { className: "ap__inner", style: { visibility: real ? "visible" : "hidden" }, children: /* @__PURE__ */ (0, import_jsx_runtime.jsx)("div", { children: nxt.card }, nxt.id) })
-        }
-      ),
-      /* @__PURE__ */ (0, import_jsx_runtime.jsx)(
-        "div",
-        {
-          className: "ap__frame ap__frame--current",
-          style: {
-            transform: `translateZ(${exit * 600}px)`,
-            opacity: 1 - exit
-          },
-          children: /* @__PURE__ */ (0, import_jsx_runtime.jsx)("div", { children: cur.card }, cur.id)
-        }
-      )
-    ] }) });
-  }
-  function Lens({ projects }) {
-    const count = projects.length;
-    const { ref, index, t, trackHeight } = useTrack(count);
-    const desktop = useMedia("(min-width: 1024px)");
-    const reduced = useMedia("(prefers-reduced-motion: reduce)");
-    if (!desktop) return /* @__PURE__ */ (0, import_jsx_runtime.jsx)(PlainStack, { projects });
-    const nextI = Math.min(count - 1, index + 1);
-    const cur = projects[index];
-    const nxt = projects[nextI];
-    const curMeta = META[index];
-    const grid = reduced ? 0 : t > 0.6 ? smooth(clamp01((t - 0.6) / 0.25)) : 0;
-    let scale = 1;
-    let opacity = 1;
-    if (!reduced) {
-      if (t < 0.15 && index > 0) {
-        const k = smooth(clamp01(0.5 + t / 0.15 * 0.5));
-        scale = 6 - 5 * k;
-        opacity = k;
-      } else if (t > 0.85) {
-        scale = 6;
-        opacity = 0;
-      } else if (t > 0.6) {
-        scale = 1 + 5 * smooth(clamp01((t - 0.6) / 0.25));
-        opacity = t < 0.78 ? 1 : 1 - smooth(clamp01((t - 0.78) / 0.07));
-      }
-    }
-    let nScale = 6;
-    let nOpacity = 0;
-    if (!reduced && t > 0.85) {
-      const k = smooth(clamp01((t - 0.85) / 0.15 * 0.5));
-      nScale = 6 - 5 * k;
-      nOpacity = k;
-    }
-    return /* @__PURE__ */ (0, import_jsx_runtime.jsx)(Track, { trackRef: ref, height: trackHeight, children: /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", { className: "ln", children: [
-      /* @__PURE__ */ (0, import_jsx_runtime.jsx)("div", { className: "ln__grid", style: { opacity: grid }, "aria-hidden": true }),
-      t > 0.85 && nextI !== index && /* @__PURE__ */ (0, import_jsx_runtime.jsx)(
-        "div",
-        {
-          className: `ln__card${nScale > 1.2 ? " is-far" : ""}`,
-          style: {
-            transform: `scale(${nScale})`,
-            transformOrigin: `${META[nextI].focal.x * 100}% ${META[nextI].focal.y * 100}%`,
-            opacity: nOpacity
-          },
-          children: nxt.card
-        },
-        nxt.id
-      ),
-      /* @__PURE__ */ (0, import_jsx_runtime.jsx)(
-        "div",
-        {
-          className: `ln__card${scale > 1.2 ? " is-far" : ""}`,
-          style: {
-            transform: `scale(${scale})`,
-            transformOrigin: `${curMeta.focal.x * 100}% ${curMeta.focal.y * 100}%`,
-            opacity
-          },
-          children: cur.card
-        },
-        cur.id
-      )
-    ] }) });
-  }
-  function MarginNotes({ projects }) {
-    const [active, setActive] = (0, import_react.useState)(0);
-    const listRef = (0, import_react.useRef)(null);
-    const plateRef = (0, import_react.useRef)(null);
-    const [tickTop, setTickTop] = (0, import_react.useState)(0);
-    const desktop = useMedia("(min-width: 1024px)");
-    usePathLength(plateRef, active);
-    (0, import_react.useEffect)(() => {
-      if (!desktop) return;
-      const lis = listRef.current?.querySelectorAll("li[data-i]");
-      if (!lis?.length) return;
-      const io = new IntersectionObserver(
-        (es) => {
-          const best = es.filter((e) => e.isIntersecting).sort((a, b) => b.intersectionRatio - a.intersectionRatio)[0];
-          if (best) setActive(Number(best.target.dataset.i));
-        },
-        { rootMargin: "-45% 0px -45% 0px", threshold: [0, 0.01] }
-      );
-      lis.forEach((li) => io.observe(li));
-      return () => io.disconnect();
-    }, [desktop, projects.length]);
-    (0, import_react.useEffect)(() => {
-      const li = listRef.current?.querySelector(
-        `li[data-i="${active}"]`
-      );
-      if (li) setTickTop(li.offsetTop + 12);
-    }, [active]);
-    if (!desktop) return /* @__PURE__ */ (0, import_jsx_runtime.jsx)(PlainStack, { projects });
-    const cur = projects[active];
-    return /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", { className: "mn", children: [
-      /* @__PURE__ */ (0, import_jsx_runtime.jsx)("aside", { className: "mn__plate", ref: plateRef, children: /* @__PURE__ */ (0, import_jsx_runtime.jsx)("div", { className: "mn__plateCard", children: cur.card }, cur.id) }),
-      /* @__PURE__ */ (0, import_jsx_runtime.jsx)("div", { className: "mn__rule", "aria-hidden": true, children: /* @__PURE__ */ (0, import_jsx_runtime.jsx)("span", { className: "mn__tick", style: { top: tickTop } }) }),
-      /* @__PURE__ */ (0, import_jsx_runtime.jsx)("ol", { className: "mn__blocks", ref: listRef, children: projects.map((p, i) => /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("li", { "data-i": i, children: [
-        /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("p", { className: "mn__no", children: [
-          pad(i + 1),
-          " \xB7 ",
-          META[i].tag
-        ] }),
-        /* @__PURE__ */ (0, import_jsx_runtime.jsx)("h3", { className: "mn__title", children: p.title }),
-        /* @__PURE__ */ (0, import_jsx_runtime.jsx)("p", { className: "mn__desc", children: META[i].desc }),
-        /* @__PURE__ */ (0, import_jsx_runtime.jsx)("p", { className: "mn__tech", children: META[i].tech })
-      ] }, p.id)) })
-    ] });
-  }
-  var S = { stroke: "rgba(238,234,224,0.75)", fill: "none", strokeWidth: 1.1 };
-  var S2 = { stroke: "rgba(238,234,224,0.4)", fill: "none", strokeWidth: 1 };
-  var A = "#d39b61";
-  var P = { fill: "rgba(238,234,224,0.07)", stroke: "none" };
+  var S = { stroke: "rgba(17,17,17,0.75)", fill: "none", strokeWidth: 1.1 };
+  var S2 = { stroke: "rgba(17,17,17,0.4)", fill: "none", strokeWidth: 1 };
+  var A = "#a8652d";
+  var P = { fill: "rgba(17,17,17,0.06)", stroke: "none" };
   function MarkQuicknotes() {
     return /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("svg", { viewBox: "0 0 260 160", role: "img", "aria-label": "Quicknotes mark", children: [
       /* @__PURE__ */ (0, import_jsx_runtime.jsx)("ellipse", { cx: "128", cy: "108", rx: "86", ry: "26", ...P }),
@@ -22044,7 +21747,7 @@
     return /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("svg", { viewBox: "0 0 260 160", role: "img", "aria-label": "Spine mark", children: [
       /* @__PURE__ */ (0, import_jsx_runtime.jsx)("path", { d: "M96 44 v52 h40", ...S }),
       /* @__PURE__ */ (0, import_jsx_runtime.jsx)("path", { d: "M104 52 v36 h24", ...S2 }),
-      /* @__PURE__ */ (0, import_jsx_runtime.jsx)("g", { transform: "rotate(9 168 66)", children: /* @__PURE__ */ (0, import_jsx_runtime.jsx)("rect", { x: "146", y: "44", width: "42", height: "42", fill: "rgba(238,234,224,0.06)", ...S }) }),
+      /* @__PURE__ */ (0, import_jsx_runtime.jsx)("g", { transform: "rotate(9 168 66)", children: /* @__PURE__ */ (0, import_jsx_runtime.jsx)("rect", { x: "146", y: "44", width: "42", height: "42", fill: "rgba(17,17,17,0.06)", ...S }) }),
       /* @__PURE__ */ (0, import_jsx_runtime.jsx)("path", { d: "M170 56 l14 22 -9 -2 -3 9 z", fill: A })
     ] });
   }
@@ -22060,7 +21763,7 @@
               y: 44 + r * 15,
               width: "10",
               height: "10",
-              fill: r === 1 && c === 5 ? A : "rgba(238,234,224,0.35)",
+              fill: r === 1 && c === 5 ? A : "rgba(17,17,17,0.35)",
               opacity: r === 1 && c === 5 ? 0.9 : 0.5 - r * 0.08
             },
             `${r}-${c}`
@@ -22078,11 +21781,11 @@
   function MarkCat() {
     return /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("svg", { viewBox: "0 0 260 160", role: "img", "aria-label": "Cat Runner mark", children: [
       /* @__PURE__ */ (0, import_jsx_runtime.jsx)("ellipse", { cx: "130", cy: "96", rx: "78", ry: "24", ...P }),
-      /* @__PURE__ */ (0, import_jsx_runtime.jsx)("path", { d: "M104 62 l8 -18 10 12 z", fill: "rgba(238,234,224,0.8)" }),
-      /* @__PURE__ */ (0, import_jsx_runtime.jsx)("path", { d: "M156 62 l-8 -18 -10 12 z", fill: "rgba(238,234,224,0.8)" }),
-      /* @__PURE__ */ (0, import_jsx_runtime.jsx)("ellipse", { cx: "130", cy: "82", rx: "34", ry: "26", fill: "rgba(238,234,224,0.82)" }),
-      /* @__PURE__ */ (0, import_jsx_runtime.jsx)("circle", { cx: "119", cy: "80", r: "2.6", fill: "#0b1317" }),
-      /* @__PURE__ */ (0, import_jsx_runtime.jsx)("circle", { cx: "141", cy: "80", r: "2.6", fill: "#0b1317" }),
+      /* @__PURE__ */ (0, import_jsx_runtime.jsx)("path", { d: "M104 62 l8 -18 10 12 z", fill: "rgba(17,17,17,0.8)" }),
+      /* @__PURE__ */ (0, import_jsx_runtime.jsx)("path", { d: "M156 62 l-8 -18 -10 12 z", fill: "rgba(17,17,17,0.8)" }),
+      /* @__PURE__ */ (0, import_jsx_runtime.jsx)("ellipse", { cx: "130", cy: "82", rx: "34", ry: "26", fill: "rgba(17,17,17,0.82)" }),
+      /* @__PURE__ */ (0, import_jsx_runtime.jsx)("circle", { cx: "119", cy: "80", r: "2.6", fill: "#fffff8" }),
+      /* @__PURE__ */ (0, import_jsx_runtime.jsx)("circle", { cx: "141", cy: "80", r: "2.6", fill: "#fffff8" }),
       /* @__PURE__ */ (0, import_jsx_runtime.jsx)("line", { x1: "86", y1: "86", x2: "108", y2: "88", ...S2 }),
       /* @__PURE__ */ (0, import_jsx_runtime.jsx)("line", { x1: "86", y1: "94", x2: "108", y2: "92", ...S2 }),
       /* @__PURE__ */ (0, import_jsx_runtime.jsx)("line", { x1: "174", y1: "86", x2: "152", y2: "88", ...S2 }),
@@ -22107,7 +21810,7 @@
   function MarkRaft() {
     return /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("svg", { viewBox: "0 0 260 160", role: "img", "aria-label": "Raft Cluster mark", children: [
       /* @__PURE__ */ (0, import_jsx_runtime.jsx)("rect", { x: "84", y: "52", width: "92", height: "12", rx: "6", ...S }),
-      /* @__PURE__ */ (0, import_jsx_runtime.jsx)("rect", { x: "72", y: "70", width: "116", height: "12", rx: "6", fill: "rgba(238,234,224,0.07)", ...S }),
+      /* @__PURE__ */ (0, import_jsx_runtime.jsx)("rect", { x: "72", y: "70", width: "116", height: "12", rx: "6", fill: "rgba(17,17,17,0.07)", ...S }),
       /* @__PURE__ */ (0, import_jsx_runtime.jsx)("rect", { x: "92", y: "88", width: "76", height: "12", rx: "6", ...S2 }),
       /* @__PURE__ */ (0, import_jsx_runtime.jsx)("path", { d: "M56 122 q18 -8 36 0 t36 0 t36 0 t36 0", ...S2 }),
       /* @__PURE__ */ (0, import_jsx_runtime.jsx)("path", { d: "M64 134 q18 -8 36 0 t36 0 t36 0", ...S2 }),
@@ -22117,104 +21820,139 @@
   var META = [
     {
       id: "quicknotes",
-      n: "01",
-      tag: "notes",
       title: "Quicknotes",
       desc: "Fast markdown notes that live on-device and sync through Firebase \u2014 [[wiki-links]], live preview, command palette, one-button zip export.",
-      tech: "Firebase \xB7 Firestore \xB7 Vanilla ES modules \xB7 Static hosting",
-      focal: { x: 0.5, y: 0.5 },
+      tech: ["Firebase", "Firestore", "Vanilla ES modules", "Static hosting"],
       Mark: MarkQuicknotes
     },
     {
       id: "spine",
-      n: "02",
-      tag: "layout engine",
       title: "Spine",
       desc: "Drag, nest and retune Flexbox and Grid containers in real time \u2014 a Go-to-WebAssembly engine with undo/redo and clean HTML/CSS export.",
-      tech: "Go \xB7 WebAssembly \xB7 Flexbox & Grid \xB7 syscall/js",
-      focal: { x: 0.62, y: 0.4 },
+      tech: ["Go", "WebAssembly", "Flexbox & Grid", "syscall/js"],
       Mark: MarkSpine
     },
     {
       id: "waste-of-tokens",
-      n: "03",
-      tag: "playground",
       title: "Waste of tokens",
       desc: "A dense pixel-grid playground where prompts burn down into geometry \u2014 every token spent leaves a mark on the plate.",
-      tech: "Canvas \xB7 Generative grid \xB7 TypeScript",
-      focal: { x: 0.4, y: 0.55 },
+      tech: ["Canvas", "Generative grid", "TypeScript"],
       Mark: MarkTokens
     },
     {
       id: "cat-runner",
-      n: "04",
-      tag: "game",
       title: "Cat Runner",
       desc: "An endless runner with a hand-inked cat \u2014 procedural obstacles, simple physics, and a leaderboard that survives refreshes.",
-      tech: "TypeScript \xB7 Canvas \xB7 Firebase",
-      focal: { x: 0.5, y: 0.42 },
+      tech: ["TypeScript", "Canvas", "Firebase"],
       Mark: MarkCat
     },
     {
       id: "practice-map",
-      n: "05",
-      tag: "learning map",
       title: "Practice Map",
       desc: "Interactive practice-map reader: deep lessons wired as areas, sections and blocks, with shadow-typing drills.",
-      tech: "React \xB7 Markdown pipeline \xB7 Vite",
-      focal: { x: 0.55, y: 0.5 },
+      tech: ["React", "Markdown pipeline", "Vite"],
       Mark: MarkPracticeMap
     },
     {
       id: "raft-cluster",
-      n: "06",
-      tag: "systems",
       title: "Raft Cluster",
       desc: "A visualization of a Raft consensus cluster \u2014 elections, log replication and failovers, drawn as living tide lines.",
-      tech: "Go \xB7 WebSockets \xB7 SVG",
-      focal: { x: 0.45, y: 0.5 },
+      tech: ["Go", "WebSockets", "SVG"],
       Mark: MarkRaft
     }
   ];
-  function LabCard({ m }) {
-    return /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("article", { className: "lab-card", children: [
-      /* @__PURE__ */ (0, import_jsx_runtime.jsx)("div", { className: "lab-card-stage", children: /* @__PURE__ */ (0, import_jsx_runtime.jsx)(m.Mark, {}) }),
-      /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", { className: "lab-card-copy", children: [
-        /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("p", { className: "lab-card-topline", children: [
-          m.n,
-          " \xB7 ",
-          m.tag
-        ] }),
-        /* @__PURE__ */ (0, import_jsx_runtime.jsx)("h3", { className: "lab-card-title", children: m.title }),
-        /* @__PURE__ */ (0, import_jsx_runtime.jsx)("p", { className: "lab-card-desc", children: m.desc }),
-        /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", { className: "lab-card-footer", children: [
-          /* @__PURE__ */ (0, import_jsx_runtime.jsx)("span", { className: "lab-card-tech", children: m.tech }),
-          /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("span", { className: "lab-card-open", children: [
-            "open ",
-            /* @__PURE__ */ (0, import_jsx_runtime.jsx)("span", { "aria-hidden": "true", children: "\u2197" })
-          ] })
-        ] })
-      ] })
+  var projects = META.map((m) => ({ ...m, stage: /* @__PURE__ */ (0, import_jsx_runtime.jsx)(m.Mark, {}) }));
+  function Stage({ children }) {
+    return /* @__PURE__ */ (0, import_jsx_runtime.jsx)("figure", { className: "stage", children });
+  }
+  function Text({ p }) {
+    return /* @__PURE__ */ (0, import_jsx_runtime.jsxs)(import_jsx_runtime.Fragment, { children: [
+      /* @__PURE__ */ (0, import_jsx_runtime.jsx)("h2", { className: "title", children: p.title }),
+      /* @__PURE__ */ (0, import_jsx_runtime.jsx)("p", { className: "desc", children: p.desc }),
+      /* @__PURE__ */ (0, import_jsx_runtime.jsx)("p", { className: "tech", children: p.tech.join(" \xB7 ") })
     ] });
   }
-  var entries = META.map((m) => ({
-    id: m.id,
-    title: m.title,
-    card: /* @__PURE__ */ (0, import_jsx_runtime.jsx)(LabCard, { m })
-  }));
-  var mounts = [
-    ["mount-plotter", Plotter],
-    ["mount-cut", Cut],
-    ["mount-approach", Approach],
-    ["mount-lens", Lens],
-    ["mount-margin", MarginNotes]
-  ];
-  for (const [id, V] of mounts) {
-    const node = document.getElementById(id);
-    if (node) {
-      (0, import_client.createRoot)(node).render(/* @__PURE__ */ (0, import_jsx_runtime.jsx)(V, { projects: entries }));
-    }
+  function Ledger({ projects: projects2 }) {
+    return /* @__PURE__ */ (0, import_jsx_runtime.jsx)("main", { className: "ledger", children: projects2.map((p, i) => /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("section", { className: "project", children: [
+      /* @__PURE__ */ (0, import_jsx_runtime.jsx)(Stage, { children: p.stage }),
+      /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", { className: "caption", children: [
+        /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("span", { className: "no", children: [
+          i + 1,
+          "."
+        ] }),
+        /* @__PURE__ */ (0, import_jsx_runtime.jsx)("div", { children: /* @__PURE__ */ (0, import_jsx_runtime.jsx)(Text, { p }) })
+      ] })
+    ] }, p.id)) });
   }
+  function Sidenote({ projects: projects2 }) {
+    return /* @__PURE__ */ (0, import_jsx_runtime.jsx)("main", { className: "sidenote", children: projects2.map((p, i) => /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("section", { className: "project", children: [
+      /* @__PURE__ */ (0, import_jsx_runtime.jsx)(Stage, { children: p.stage }),
+      /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("aside", { children: [
+        /* @__PURE__ */ (0, import_jsx_runtime.jsx)("span", { className: "no", children: i + 1 }),
+        /* @__PURE__ */ (0, import_jsx_runtime.jsx)(Text, { p })
+      ] })
+    ] }, p.id)) });
+  }
+  function Folio({ projects: projects2 }) {
+    return /* @__PURE__ */ (0, import_jsx_runtime.jsx)("main", { className: "folio", children: projects2.map((p, i) => /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("section", { className: "project", children: [
+      /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", { children: [
+        /* @__PURE__ */ (0, import_jsx_runtime.jsx)("span", { className: "no", children: String(i + 1).padStart(2, "0") }),
+        /* @__PURE__ */ (0, import_jsx_runtime.jsx)("hr", { className: "rule" }),
+        /* @__PURE__ */ (0, import_jsx_runtime.jsx)(Text, { p })
+      ] }),
+      /* @__PURE__ */ (0, import_jsx_runtime.jsx)(Stage, { children: p.stage })
+    ] }, p.id)) });
+  }
+  function Plate({ projects: projects2, name = "Portfolio" }) {
+    return /* @__PURE__ */ (0, import_jsx_runtime.jsx)("main", { className: "plate", children: projects2.map((p, i) => /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("section", { className: "project", children: [
+      /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("header", { children: [
+        /* @__PURE__ */ (0, import_jsx_runtime.jsx)("span", { children: name }),
+        /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("span", { className: "no", children: [
+          "Plate ",
+          i + 1,
+          " of ",
+          projects2.length
+        ] })
+      ] }),
+      /* @__PURE__ */ (0, import_jsx_runtime.jsx)(Stage, { children: p.stage }),
+      /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("footer", { children: [
+        /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", { children: [
+          /* @__PURE__ */ (0, import_jsx_runtime.jsx)("h2", { className: "title", children: p.title }),
+          /* @__PURE__ */ (0, import_jsx_runtime.jsx)("p", { className: "desc", children: p.desc })
+        ] }),
+        /* @__PURE__ */ (0, import_jsx_runtime.jsx)("p", { className: "tech", children: p.tech.join(" \xB7 ") })
+      ] })
+    ] }, p.id)) });
+  }
+  function Index({ projects: projects2 }) {
+    const [cur, setCur] = (0, import_react.useState)(projects2[0]?.id);
+    (0, import_react.useEffect)(() => {
+      const io = new IntersectionObserver(
+        (es) => es.forEach((e) => e.isIntersecting && setCur(e.target.id)),
+        { rootMargin: "-45% 0px -45% 0px" }
+      );
+      document.querySelectorAll("section.project").forEach((s) => io.observe(s));
+      return () => io.disconnect();
+    }, []);
+    return /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("main", { className: "index", children: [
+      /* @__PURE__ */ (0, import_jsx_runtime.jsx)("nav", { className: "rail", "aria-label": "Projects", children: projects2.map((p, i) => /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("a", { href: `#${p.id}`, "aria-current": cur === p.id ? "true" : void 0, children: [
+        /* @__PURE__ */ (0, import_jsx_runtime.jsx)("span", { className: "no", children: i + 1 }),
+        "\xA0 ",
+        p.title
+      ] }, p.id)) }),
+      /* @__PURE__ */ (0, import_jsx_runtime.jsx)("div", { children: projects2.map((p) => /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("section", { className: "project", id: p.id, children: [
+        /* @__PURE__ */ (0, import_jsx_runtime.jsx)(Stage, { children: p.stage }),
+        /* @__PURE__ */ (0, import_jsx_runtime.jsx)("div", { children: /* @__PURE__ */ (0, import_jsx_runtime.jsx)(Text, { p }) })
+      ] }, p.id)) })
+    ] });
+  }
+  var V = { ledger: Ledger, sidenote: Sidenote, folio: Folio, plate: Plate, index: Index };
+  function App() {
+    const key = new URLSearchParams(location.search).get("v") ?? "ledger";
+    const Variant = V[key] ?? V.ledger;
+    return /* @__PURE__ */ (0, import_jsx_runtime.jsx)(Variant, { projects });
+  }
+  (0, import_client.createRoot)(document.getElementById("root")).render(/* @__PURE__ */ (0, import_jsx_runtime.jsx)(App, {}));
 })();
 /*! Bundled license information:
 
