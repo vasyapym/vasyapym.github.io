@@ -165,7 +165,12 @@ textarea:focus-visible {
 
 .signal-index-shell {
   width: min(100% - 72px, 1280px);
-  margin: 0 auto;}
+  margin: 0 auto;
+  /* Breathing-space measure (owner-approved lab preview, R019): hero copy,
+     threshold copy and the projects grid align to this column; full-bleed
+     backdrops and the threshold rules stay wider. */
+  --measure: clamp(52rem, 86vw, 65rem); /* 832px … 86vw … 1040px */
+  --measure-inset: max(0px, calc((100% - var(--measure)) / 2));}
 
 
 .signal-index-header {
@@ -469,17 +474,9 @@ textarea:focus-visible {
   }}
 
 
-/* 900–1199px laptop band: hold the approved 3×2 catalogue rhythm through the
-   whole band instead of letting auto-fit fall back to an airy 2×3 (which sat
-   47px taller and flipped column count at an arbitrary ~1130px). Columns run
-   narrower here (~240–320px), so the column gap eases to 1.5rem; a long title
-   wraps inside its 44px row rather than overflowing. ≥1200px is untouched —
-   auto-fit already resolves to the same three columns there. */
-@media (min-width: 900px) and (max-width: 1199px) {
-  .signal-index-hero-fluid .signal-index-beneath {
-    grid-template-columns: repeat(3, minmax(0, 1fr));
-    gap: 0.2rem 1.5rem;
-  }}
+/* 900–1199px laptop band: the beneath rail's column rhythm is now owned by
+   the measure block below (3 columns pinned across all ≥900px widths) — the
+   old band override folded into it. */
 
 
 .signal-index-graphic {
@@ -1257,4 +1254,34 @@ body:has(.quicknotes-frame) { background: #0b1317; }
   .gem-card-copy {
     padding: 20px;
     min-height: 0;}
+}
+
+
+/* -- breathing-space measure (chat-model patch, lab-approved R019): applies
+   ≥900px only; mobile behavior byte-identical -- */
+@media (min-width: 900px) {
+
+  /* (a) hero — copy indents to the measure's left edge, rail capped + centered */
+  .signal-index-hero-fluid .signal-index-hero-copy {
+    margin-left: var(--measure-inset);
+  }
+
+  .signal-index-hero-fluid .signal-index-beneath {
+    justify-self: center;                /* was stretch */
+    width: min(100%, var(--measure));
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: .2rem clamp(1.5rem, 2.2vw, 2rem);
+  }
+
+  /* (b) threshold — text/button capped; ::before + ::after untouched, still full-bleed */
+  .realm-threshold.rt-f .rt-f-inner {
+    width: min(100%, var(--measure));
+    margin-inline: auto;
+  }
+
+  /* (c) projects — grid capped, still 2 columns */
+  .signal-index-grid {
+    width: min(100%, var(--measure));
+    margin-inline: auto;
+  }
 }
