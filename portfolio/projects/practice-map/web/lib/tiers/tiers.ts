@@ -23,6 +23,7 @@ export const TIERS: readonly Tier[] = [
   { id: "fable-5.1-high", name: "fable-5.1-high", band: "high", areas: ["kubernetes", "hitchcock", "agentic-programming", "agi", "redis", "merkle-trees-layered"] },
   { id: "astra-6-medium", name: "astra-6-medium", band: "medium", areas: ["rust", "php-frameworks"] },
   { id: "fable-5.1-low", name: "fable-5.1-low", band: "low", areas: ["go", "spirit-of-time", "darwin", "microservices", "scaling"] },
+  { id: "gpt-6-sol-max", name: "gpt-6-sol-max", band: "max", areas: ["sinners-2025-coogler"] },
   {
     id: "opus-4.8-thinking",
     name: "opus-4.8-thinking",
