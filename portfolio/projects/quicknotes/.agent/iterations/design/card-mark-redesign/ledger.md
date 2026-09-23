@@ -88,3 +88,13 @@ the only mark without one).
   8 quick strike · 9 backlink knot · 10 sync ring
 - After: artifacts/R001/variants-preview.png (10 tiles) re-shot; live page
   updated.
+
+### R001 addendum 2 (2026-09-23, same session)
+- Third relay draw appended as candidates 11–15, same rules: 11 linkwell ·
+  12 boltmark · 13 palette knot · 14 orbit home · 15 fastquote (this draw
+  arrived with no bg rects — contract learned).
+- Cross-draw skeleton overlap now visible on the page: brackets ×3 (1, 6,
+  11), hash ×3 (2, 7, 12), sync-orbit ×3 (5, 10, 14). Disclosed as-is —
+  owner picks from the full 15.
+- After: artifacts/R001/variants-preview.png (15 tiles) re-shot; live page
+  updated.
