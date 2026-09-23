@@ -250,3 +250,10 @@ Task: rethink how the 6 project cards are presented on the main page (desktop). 
 - Verified geometry (probe): at 1440/1920 — header, beneath rail, threshold band, projects grid all left 200/440, width exactly 1040; grid 2 cols; rail 3 cols. Screenshot: artifacts/R020/real-hero.png (header + copy + rail on one left edge).
 - Visual inspection: performed — hero reads as one corridor; canvas still bleeds behind.
 - Open question: project-frame patch (delegated to the chat model) awaits the owner's relay round-trip; then the optional per-project content audit.
+
+## Round R022
+- Goal: owner bug report — on large Windows screens (Edge, ~1080p+) the gaps between hero elements are too large. Cause: the hero's 1fr middle row stretches without bound on tall viewports, floating the copy in dead voids (owner screenshot: `for bugs/image.png`).
+- Changes: styles.css — new media rule `@media (min-width: 900px) and (min-height: 950px) { .signal-index-hero-fluid { min-height: min(100svh, 56rem); } }`. The hero keeps its compact approved rhythm (~896px) on tall screens; the threshold band peeks below the fold as a scroll invitation. Below 950px viewport height: untouched 100svh. No JS changes (the --hero-bottom-pad settle math is height-agnostic).
+- Verified geometry (probe): measure columns unchanged (header/copy/rail/threshold/grid all 1040 on one left edge at 1440×900, 1920×955, 1920×1200); hero capped at 896px on the two tall viewports. Screenshots: artifacts/R020/real-hero-955.png, real-hero-1200.png (threshold peeking below the fold).
+- Visual inspection: performed at 1920×1200 — composition compact, threshold peek reads as an invitation.
+- Open question: owner re-checks on the Windows/Edge machine; alternative (if the hero must always fill the screen) is top-clustering the copy — parked unless requested.

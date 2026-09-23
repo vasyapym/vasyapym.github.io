@@ -1292,3 +1292,14 @@ body:has(.quicknotes-frame) { background: #0b1317; }
     margin-inline: auto;
   }
 }
+
+/* -- tall screens: cap the hero's vertical spread (owner bug report, Edge
+   @1080p+). The 1fr middle row otherwise stretches without bound, floating
+   the copy in dead voids. Capped, the hero keeps its compact approved
+   rhythm and the threshold band peeks below the fold as a scroll invitation.
+   Below 950px height the rule is off — 100svh behavior is untouched. -- */
+@media (min-width: 900px) and (min-height: 950px) {
+  .signal-index-hero-fluid {
+    min-height: min(100svh, 56rem);
+  }
+}
