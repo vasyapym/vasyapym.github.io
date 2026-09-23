@@ -535,3 +535,5 @@
 {"type":"edge.added","id":"e259","ts":"2026-09-23T07:20:49.470Z","from":"n280","to":"n283","rel":"continues"}
 {"type":"node.added","id":"n284","ts":"2026-09-23T07:27:27.229Z","kind":"iteration","actor":"design-iteration","title":"Hero note: scratchpad dropped","summary":"Owner-specified removal; note now 'unstable builds · visual experiments · trial & error', one line at 1440; typecheck+build green; shipped b17e3c8","artifacts":[{"kind":"git-commit","ref":"b17e3c8"}]}
 {"type":"edge.added","id":"e260","ts":"2026-09-23T07:27:27.231Z","from":"n282","to":"n284","rel":"continues"}
+{"type":"node.added","id":"n285","ts":"2026-09-23T07:33:02.032Z","kind":"iteration","actor":"design-iteration","title":"Hero kicker: tests → active tests","summary":"Owner-specified copy swap in signal-index hero; rendered fine; typecheck+build green","artifacts":[{"kind":"file","ref":"shell/.agent/iterations/design/main-page-presentation/artifacts/hero-copy-tests.png"}]}
+{"type":"edge.added","id":"e261","ts":"2026-09-23T07:33:02.035Z","from":"n284","to":"n285","rel":"continues"}
