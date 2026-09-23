@@ -230,3 +230,71 @@ output for integration. S4 arms A/B never ran on the relay; **no H1 verdict**
 the lighter compressed prompt (facts + corridor/mark constraints + contract,
 no selector inventory) sufficed — the extra spec cargo added in S4's arms was
 not needed. The R026 patch proceeds via salvage integration.
+
+## Experiment S5 — quicknotes card mark, 10 rough-SVG concepts (real task, 2026-09-23)
+
+- Hypothesis axis: **H1 — document register** (agent telegraphic vs human
+  prose), same facts both sides. H1 carries over untested from S2–S4.
+- Task: 10 rough spot-ink SVG mark concepts for the Quicknotes main-menu card
+  — ledger `portfolio/projects/quicknotes/.agent/iterations/design/card-mark-redesign/`;
+  reply integrates by salvage (render → compare → owner pick → tune).
+- Owner constraints carried from S1–S3: task facts only, no owner-evaluation
+  or process details in either arm.
+- Endpoint: owner's chat relay (`comprehensive code -` opener, unmasked) —
+  same endpoint all rounds. Caveat logged up front: if that interface is a
+  fixed chat model rather than the randomized routing endpoint, the run has
+  no router to signal and can only produce descriptive findings, not an H1
+  verdict.
+- Confounders held: length A=140 / B=153 words (+9.3%, within ±10%);
+  identical facts (product, canvas, render size, palette, accent rule,
+  texture devices, gesture rule, banned set); identical contract shape
+  (10 numbered blocks: "## n · name" heading + one gesture line + fenced svg);
+  contract not register-swapped (both arms ask the same structured blocks —
+  deviation from the S2 humanize-the-contract rule, logged: the blocks are
+  the integrator's parse cargo).
+- Alternation: A B A B A B (6 rounds), starting A.
+- Owner early-close rule carries from S2: owner stops when a good result
+  lands; early close records a descriptive finding, no H1 verdict.
+
+### Fixed brief pair (pre-registered, do not edit between rounds)
+
+Arm A (agent telegraphic):
+
+> comprehensive code - 10 rough spot-ink svg marks, quicknotes card, dark minimal portfolio main menu (replacing a row of rounded slates); product: local-first markdown notes, [[wiki-links]]+preview, command palette, folder tree, firebase sync. canvas viewBox="0 0 260 160"; mark renders ~170-218px wide, legible at 150px, ~8px edge margin; flat vector, no gradients/filters/text; pattern|clipPath ok, ids prefixed qn-. neutrals #26333b #465059 #7d7669 #b6ac95 #eeeae0; accent blue #7aa2f7 on ONE protagonist element; texture: halftone dot beds, low-opacity halos, dashed=waiting, white glints, stepped caps. each mark = one bold gesture, asymmetric, seated, generous air, 12-35 elements. ten different metaphors, no repeats, no shared skeletons. banned: rounded-square rows/slats/columns; corner bracket+tilted square+cursor; pigeonhole grids; cat head/shard burst/cascade/tree landscape/nested arcs; notepad+pencil/sticky note/doc sheet cliches unless fresh; >35 elements. reply: exactly 10 numbered blocks - "## n · name" heading, one gesture line, fenced svg - nothing else.
+
+Arm B (human register):
+
+> comprehensive code - new spot-ink art for my quicknotes card — currently a row of rounded slates on my dark minimal portfolio. quicknotes is local-first markdown notes ([[wiki-links]], preview, command palette, folder tree, firebase sync). ten rough svg marks: viewBox="0 0 260 160", rendered ~170-218px, legible at 150px, ~8px edge margin; flat vector, no gradients, filters, or text; patterns and clipPaths ok, ids prefixed qn-. neutrals: #26333b, #465059, #7d7669, #b6ac95, #eeeae0 (deep ink to paper); blue #7aa2f7 on one protagonist element. texture: halftone dot beds, low-opacity halos, dashes for waiting, white glints, stepped caps. each mark: one bold gesture, asymmetric, seated, generous air, 12–35 elements. ten different metaphors, no repeats, no shared skeletons. avoid rounded-square rows, corner-bracket snap looks, pigeonhole grids, cat heads, shard bursts, cascades, tree landscapes, nested arcs, notepad/sticky-note/doc-sheet cliches unless fresh. reply with exactly ten numbered blocks — "## n · name", one gesture line, the fenced svg, nothing else.
+
+### Pre-registered verdict (fixed before round 1)
+
+Per round, score the reply:
+
+- **usable** (0–10): concept violates no banned trait AND is one bold gesture
+  (single dominant shape/action) AND is salvageable into a static spot-ink SVG
+  mark at 260×160 — missing polish does NOT disqualify (that is the
+  contract); only wrong gesture or unusable structure does.
+- **weak-route markers** (count): asks a question instead of deciding; drops
+  the output contract (≠10 blocks, missing name/gesture line, wrong or
+  missing viewBox); regenerates a banned trait; same skeleton repeated
+  across concepts (variety collapse).
+- **identity echo** when the relay shows it — the direct metric.
+
+Verdict rule: H1 **confirmed** if mean(usable B) − mean(usable A) ≥ +1.0
+across 6 scored rounds AND B has fewer total weak-route markers; **refuted**
+if |mean B − mean A| < 0.5; otherwise **inconclusive** → extend alternation.
+
+### Rounds (append one line per round)
+
+| round | arm | usable | weak-route markers | banned violations | echo | evidence / notes |
+| --- | --- | --- | --- | --- | --- | --- |
+
+### Amendment (2026-09-23, owner steer)
+
+Owner relaxed the protocol: the ±10% length confounder is no longer binding.
+Purpose restated — record good prompts/briefs, keep a minimal summary per
+round, and build the next round's brief from that summary, varying something
+each round. The pair above becomes the round-1 starting point (arm A first);
+later rounds vary one signal at a time (register, contract shape, spec
+density, banned-set phrasing…) and log what moved the result. No strict
+alternation count; owner early-close still applies.
