@@ -318,3 +318,19 @@ the only mark without one).
 - Code verification: tsc --noEmit green.
 - Open question: owner decides if the 7% size is ok; the overprint-arc
   detail is the new finer-detail candidate.
+
+## Round R008
+- Goal: owner steer on R007 — size ok; add ONE little noticeable detail
+- Preserved preferences: R007 caps (164/180 — owner approved), overprint
+  arc, ring colour, accent, bed+halo
+- Changes: ProjectArtwork.tsx — one tiny four-point sparkle in the open
+  glass (blue #7aa2f7, 10 units, .9, axis-aligned — the planck-star device
+  at reduced scale), placed between the chevron and the underscore.
+- Before: artifacts/R007/card-quicknotes-desktop.png
+- After: artifacts/R008/card-quicknotes-desktop.png,
+  artifacts/R008/card-quicknotes-mobile.png
+- Visual inspection: performed on the real page (probe) at 1440x900@2x and
+  390x844@2x — sparkle visible at card scale next to the chevron; smaller
+  than the underscore, does not compete with the glass hero.
+- Code verification: tsc --noEmit green.
+- Open question: owner judges the sparkle's noticeability live.

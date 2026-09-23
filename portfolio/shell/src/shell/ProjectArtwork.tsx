@@ -538,6 +538,8 @@ function QuicknotesCenterMark() {
       {/* prompt glyphs — the blue accent, on the glass */}
       <path d="M92 55 L112 72 L92 89" fill="none" stroke="#7aa2f7" strokeWidth="12" strokeLinecap="round" strokeLinejoin="round" />
       <line x1="120" y1="90" x2="136" y2="90" stroke="#7aa2f7" strokeWidth="10" strokeLinecap="round" />
+      {/* the hit — tiny four-point sparkle in the open glass */}
+      <polygon points="127,59 128.4,62.6 132,64 128.4,65.4 127,69 125.4,65.4 122,64 125.4,62.6" fill="#7aa2f7" opacity="0.9" />
 
       {/* white square glints — on the overprint arc + glass reflection */}
       <rect x="84" y="40" width="2.6" height="2.6" fill="#ffffff" opacity="0.55" />
