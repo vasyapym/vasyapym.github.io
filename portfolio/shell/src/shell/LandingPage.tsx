@@ -835,7 +835,7 @@ export default function LandingPage({
 
           <HeroFluid />
           <div className="signal-index-hero-copy">
-            <p className="signal-index-hero-kicker">active tests</p>
+            <p className="signal-index-hero-kicker">tests</p>
             <h1
               id="signal-index-title"
               className="signal-index-hero-headline"
