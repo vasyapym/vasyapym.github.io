@@ -851,14 +851,12 @@
   text-wrap: pretty;
 }
 
-/* R007→R008: the reading voice matches the owner's Readest (iOS) "Sans-serif"
-   book font — Readest resolves its generic sans to bundled Roboto first
-   (DEFAULT_BOOK_FONT.sansSerifFont = 'Roboto'), so Roboto leads the stack,
-   self-hosted via Google Fonts (cyrillic subsets included). System sans falls
-   back while it loads. h3 (--display) and code (--mono) keep their families. */
+/* R009 (F021 rejected R008): the reading voice returns to R007's system
+   sans-serif — system-ui (SF Pro on macOS) — without the Readest-matched
+   Roboto webfont. h3 (--display) and code (--mono) keep their families. */
 .practice-lesson-body,
 .practice-reader-section {
-  font-family: "Roboto", system-ui, -apple-system, "Segoe UI", sans-serif;
+  font-family: system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
 }
 
 .practice-lesson-body p {
