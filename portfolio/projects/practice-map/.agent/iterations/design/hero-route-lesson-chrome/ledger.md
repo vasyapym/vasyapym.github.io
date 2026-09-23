@@ -337,3 +337,13 @@ e.g. lowercase mono chrome and the ink panel language, remain active constraints
 - User source: "i guess it looks better. liked - for now."
 - Artifact: artifacts/R010-metrics/desktop-1440.png
 - Supersedes: none
+
+## Round R011
+- Goal: owner request — lesson-window text −10% on desktop in the Waste of tokens project (mobile untouched).
+- Preserved preferences: F019/F021 (system sans voice); R010's liked pairing (band-center measure + 1.6 leading) kept as a RATIO, not absolute px; mobile voice 18.24px/1.72/100% untouched; mono chrome untouched per F047's own rule.
+- Changes: (1) the F047 ≥901px reading-matter set scales ×0.9 — prose/li max(1.2rem, 19.2px), h3 1.29rem, h2 clamp(1.09rem, 1.96vw, 1.41rem), objectives 0.96rem, lesson-body/callouts 1rem, example pre/p 0.86/0.89rem; (2) measure cap 42→38rem = 31.7em of the 19.2px voice — the same band center R010 liked; line-height ratio 1.6 unchanged (ratio-based).
+- Before: artifacts/R010-metrics/desktop-1440.png (R010 state: 21.3px, 672px, 31.5em)
+- After: artifacts/R011-metrics/desktop-1440.png, laptop-1024.png, mobile-390.png (19.2px, 608px, 31.7em; mobile identical to before: 18.24px/358px)
+- Visual inspection: performed at 1440 — same composition, smaller voice, column follows; nav chips/hairlines full-width unchanged; no overflow.
+- Code verification: typecheck PASS, build PASS (36.5 s).
+- Open question: owner verdict — keep (LIKED) or adjust/reverse?
