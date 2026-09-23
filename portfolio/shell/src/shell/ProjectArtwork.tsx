@@ -505,25 +505,46 @@ function TrailCenterMark() {
   );
 }
 
-/* ── 8 · Quicknotes — four note slates seated on the desk line, the fifth
-   waiting dashed and airborne beside the row. ── */
+/* ── 8 · Quicknotes — the ember nib: a paper nib with a knocked-out slit
+   crowned by a sync flame, seated in the house spot-ink language: sparse
+   printed bed, hover halo, stepped bone cap behind the nib mass, stacked
+   flame fills, dashed sync wisp (future), white glints. Base geometry from
+   relay candidate 24 (S5 round 6), refined in R002 for house consistency —
+   register references: the archive wall mark first, spine second. ── */
 function QuicknotesCenterMark() {
   return (
     <svg viewBox="0 0 260 160" aria-hidden="true">
       <defs>
-        <pattern id="qn-bed" width="7" height="7" patternUnits="userSpaceOnUse">
-          <circle cx="2" cy="2" r="1.2" fill="#465059" opacity=".5" />
+        <pattern id="qn-sparse" width="11" height="11" patternUnits="userSpaceOnUse">
+          <circle cx="5.5" cy="5.5" r="1.6" fill="#7d7669" />
+        </pattern>
+        <pattern id="qn-halo" width="7" height="7" patternUnits="userSpaceOnUse">
+          <circle cx="3.5" cy="3.5" r="1.9" fill="#7aa2f7" />
         </pattern>
       </defs>
-      <ellipse cx="130" cy="88" rx="115" ry="56" fill="url(#qn-bed)" opacity=".35" />
-      {/* four copies already touch down; the fifth is still airborne */}
-      <rect x="34" y="112" width="192" height="8" rx="4" fill="#465059" />
-      <rect x="44" y="82" width="28" height="28" rx="5" fill="#26333b" stroke="#7b93b3" strokeWidth="1.5" />
-      <rect x="80" y="82" width="28" height="28" rx="5" fill="#465059" stroke="#7b93b3" strokeWidth="1.5" />
-      <rect x="116" y="82" width="28" height="28" rx="5" fill="#26333b" stroke="#b6ac95" strokeWidth="1.5" />
-      <rect x="152" y="82" width="28" height="28" rx="5" fill="#7aa2f7" opacity=".9" />
-      <rect x="188" y="46" width="28" height="28" rx="5" fill="none" stroke="#b6ac95" strokeWidth="2.5" strokeDasharray="6 5" />
-      <rect x="197" y="86" width="9" height="9" rx="4.5" fill="#7b93b3" opacity=".7" />
+
+      {/* sparse printed bed */}
+      <ellipse cx="130" cy="86" rx="104" ry="58" fill="url(#qn-sparse)" opacity="0.09" />
+      {/* halo — pulse binds to class */}
+      <ellipse className="gem-halo" style={haloVar(0.12)} cx="130" cy="88" rx="54" ry="42" fill="url(#qn-halo)" opacity={0.12} />
+
+      {/* sync wisp — dashed, the future the flame writes into */}
+      <path d="M168 36 Q182 28 190 16" fill="none" stroke="#465059" strokeWidth="2" strokeDasharray="4 4" opacity="0.6" />
+      <circle cx="192" cy="13" r="2.5" fill="#eeeae0" opacity="0.8" />
+
+      {/* nib — bone step behind, paper mass in front (stepped cap) */}
+      <path d="M127 147 L91 87 Q91 69 107 61 L147 61 Q163 69 163 87 Z" fill="#b6ac95" />
+      <path d="M130 150 L94 90 Q94 72 110 64 L150 64 Q166 72 166 90 Z" fill="#eeeae0" />
+      {/* slit + breather hole, knocked out to the panel */}
+      <line x1="130" y1="150" x2="130" y2="104" stroke="#0b1317" strokeWidth="6" />
+      <circle cx="130" cy="98" r="7" fill="#0b1317" />
+
+      {/* flame — stacked fills */}
+      <path d="M130 10 C162 34 160 52 148 60 L112 60 C100 52 98 34 118 20 C118 34 124 40 129 37 C124 28 126 18 130 10 Z" fill="#7aa2f7" />
+      <path d="M130 21 C143 33 144 45 136 51 L124 51 C117 45 119 33 127 26 C127 31 129 33 129 33 C127 30 128 25 130 21 Z" fill="#b8cefb" />
+      {/* white square glints */}
+      <rect x="121" y="27" width="2.6" height="2.6" fill="#ffffff" opacity="0.55" />
+      <rect x="142" y="84" width="2.8" height="2.8" fill="#ffffff" opacity="0.4" />
     </svg>
   );
 }

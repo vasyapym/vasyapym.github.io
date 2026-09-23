@@ -134,3 +134,47 @@ the only mark without one).
   for aria-labels. Owner judges; the refined/detailed round-5 brief is with
   the relay in parallel.
 - After: artifacts/R001/variants-preview.png (25 tiles).
+
+## Feedback F003
+- Round: R001 (choice page, 25 candidates)
+- Verdict: LIKED (with direction)
+- Scope: candidate 24 · ember nib, as the base for the refined mark;
+  consistency references — "Waste of tokens" card mark first, Spine second
+  (for size and register); note: the draws come from a randomized relay with
+  no chat history (independent draws)
+- Decision: refine candidate 24 to house consistency — size calibrated
+  against the archive-wall and spine marks
+- User source: "i actually like this one - '24 · ember nib'. but it should be
+  refined and made consistent. out of the all the illustrations i like 'Waste
+  of tokens' ones'. Spine - second. consider them for size and whatnot"
+  (2026-09-23)
+- Artifact: artifacts/R001/variants-preview.png (tile 24)
+- Supersedes: none
+
+## Round R002
+- Goal: integrate owner pick (candidate 24 · ember nib, F003) — refined to
+  house consistency; size calibrated against the matrix wall mark (primary
+  ref) and spine (second)
+- Preserved preferences: F001 (replace), F002 (refined/detailed register),
+  F003 (base + consistency references)
+- Changes: ProjectArtwork.tsx — QuicknotesCenterMark replaced with the
+  refined ember nib: candidate-24 base geometry (paper nib mass, blue flame,
+  panel-knockout slit + breather) + house devices added: sparse printed bed
+  (dots, 0.09), gem-halo (blue dots, 0.12, CSS hover pulse), stepped bone
+  cap behind the nib mass, stacked flame fills (blue + lighter inner cap),
+  dashed sync wisp + paper ghost dot (future), two white square glints.
+  styles.css ≥900 block — .center-quicknotes max-width 232 (the nib's ink
+  footprint is narrow, ~30% of box width vs plate marks' ~70%; the bump
+  lands its visual weight between matrix 186 and base 218).
+- Before: artifacts/baseline/card-quicknotes.png (old slate row)
+- After: artifacts/R002/card-quicknotes-after.png (+ card-matrix-ref.png,
+  card-spine-ref.png)
+- Visual inspection: performed on the real page (probe, 1440x900@2x), two
+  iterations — base cap read undersized next to the matrix plate; 232 cap
+  shot inspected: mark clear at card scale, headroom ~13px top/bottom (in
+  family), bed+halo seated, wisp and glints survive card scale, knockout
+  slit clean, flame is the only accent (protagonist).
+- Code verification: tsc --noEmit green (tsx + css-only).
+- Open question: owner judges the refined nib live (deploy follows the
+  push); halo pulse and the ≤900px band not visually verified this round
+  (desktop shots only).
