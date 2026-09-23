@@ -835,7 +835,7 @@ export default function LandingPage({
 
           <HeroFluid />
           <div className="signal-index-hero-copy">
-            <p className="signal-index-hero-kicker">currents</p>
+            <p className="signal-index-hero-kicker">tests</p>
             <h1
               id="signal-index-title"
               className="signal-index-hero-headline"
@@ -854,7 +854,7 @@ export default function LandingPage({
               </span>
             </h1>
             <p className="signal-index-hero-note">
-              stable-fluids&nbsp;· ordered-dither&nbsp;· canvas2d&nbsp;· no webgl
+              unstable builds&nbsp;· visual experiments&nbsp;· scratchpad&nbsp;· trial &amp; error
             </p>
           </div>
           <div className="signal-index-graphic signal-index-beneath">
