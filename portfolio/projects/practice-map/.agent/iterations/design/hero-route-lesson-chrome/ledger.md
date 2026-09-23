@@ -298,3 +298,23 @@ e.g. lowercase mono chrome and the ink panel language, remain active constraints
 - Visual inspection: performed — Roboto renders (narrower grotesque, distinct cyrillic), wrap points unchanged, panel structure intact at 1440.
 - Code verification: typecheck PASS, build PASS (21 s).
 - Open question: owner verdict — is Roboto-as-loaded a faithful match of the Readest rendering (it is the same family + weights; hinting/subpixel differences on e-ink vs desktop are unavoidable), or should the round be rejected?
+
+## Feedback F021
+- Round: R008
+- Verdict: REJECTED
+- Scope: lesson reading voice font, all viewports
+- Decision: drop the Roboto webfont and reverse to the previous sans-serif — R007's system stack (system-ui, SF Pro on macOS). The Readest-faithful match is not wanted; the owner prefers the previous rendering.
+- User source: "reverse to previous sans serif"
+- Artifact: artifacts/R008/after/prose-crop-1440.png (the rejected state)
+- Supersedes: R008 (F019's liked system rendering is restored)
+
+## Round R009
+- Goal: revert R008 — remove the Roboto webfont load and restore R007's reading-voice stack exactly.
+- Preserved preferences: F019 + F021 (system sans-serif voice, no Roboto leading); h3 --display, code --mono untouched.
+- Changes: (1) practice-map.css — stack back to `system-ui, -apple-system, "Segoe UI", Roboto, sans-serif` (R007 form), comment records the rejection; (2) shell index.html — family=Roboto removed from both Google Fonts stylesheet URLs (back to the Plex-only load).
+- Before: artifacts/R008/after/prose-crop-1440.png (Roboto)
+- After: artifacts/R009/after/reader-1440.png, artifacts/R009/after/prose-crop-1440.png (computed family: system-ui, -apple-system, "Segoe UI", Roboto, sans-serif — no Roboto webfont loaded)
+- Visual inspection: performed — SF Pro rendering identical to R007's liked state; panel intact at 1440.
+- Code verification: typecheck PASS, build PASS (13.3 s).
+- Open question: none — explicit owner instruction; verdict not required unless the rendering differs from the liked R007 state.
+- Shipped: commit 80af9b2 (CSS + index.html); this ledger block follows in the next commit.
