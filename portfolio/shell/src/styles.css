@@ -1293,17 +1293,58 @@ body:has(.quicknotes-frame) { background: #0b1317; }
   }
 }
 
-/* -- tall screens (owner bug report, Edge @1080p+): the hero always fills the
-   viewport exactly (base 100svh) so the threshold band never peeks, and no
-   viewport-scaled slack pools between the copy and the rail — the copy is
-   end-anchored just above the rail with a fixed editorial gap, the rail
-   keeps its approved bottom pin, and the --hero-bottom-pad settle math
-   equalizes the two remaining edge voids (masthead→copy == rail→fold) at
-   any height. Below 950px height the approved centred composition is
-   untouched. -- */
+/* -- tall screens (chat-model patch, relay round R025): the composition
+   scales with viewport height so the first screen is owned by content, not
+   by edge voids. Every value is clamped — growth tops out around ~1200px
+   tall, and ≤949px tall is untouched. The hero still fills the viewport
+   exactly (base 100svh) so the threshold band never peeks; the copy stays
+   end-anchored (+ margin) so the --hero-bottom-pad settle math keeps
+   equalizing masthead→copy == rail→fold at any height. No horizontal
+   changes (the measure corridor and panel width are untouched). -- */
 @media (min-width: 900px) and (min-height: 950px) {
   .signal-index-hero-fluid .signal-index-hero-copy {
     align-self: end;
-    margin-bottom: clamp(2.5rem, 4.5vh, 3.5rem);
+    margin-bottom: clamp(2.5rem, 6.5vh, 4.5rem);
+    padding-top: clamp(1.9rem, 3.6vh, 2.6rem);
+    padding-bottom: clamp(2rem, 3.8vh, 2.75rem);
+  }
+
+  .signal-index-hero-fluid .signal-index-hero-kicker {
+    margin-bottom: clamp(1.1rem, 2.1vh, 1.6rem);
+    font-size: clamp(0.7rem, 1.25vh, 0.82rem);
+  }
+
+  /* Never smaller than the approved width-driven size; grows with height;
+     the vw guard keeps narrow-but-tall windows at the base size; hard cap
+     4.75rem keeps the display type restrained. */
+  .signal-index-hero-fluid .signal-index-hero-headline {
+    font-size: max(
+      clamp(1.76rem, calc((100vw - 72px) / 19.4), 3.68rem),
+      min(7.6vh, 4.3vw, 4.75rem)
+    );
+  }
+
+  .signal-index-hero-fluid .signal-index-hero-line { white-space: nowrap; }
+
+  .signal-index-hero-fluid .signal-index-hero-note {
+    margin-top: clamp(1.5rem, 3vh, 2.25rem);
+    font-size: clamp(0.72rem, 1.3vh, 0.86rem);
+  }
+
+  .signal-index-hero-fluid .signal-index-beneath {
+    padding-top: clamp(1.1rem, 2.2vh, 1.6rem);
+    padding-bottom: clamp(0.6rem, 1.2vh, 0.9rem);
+  }
+
+  .signal-index-hero-fluid .signal-index-beneath-label {
+    margin-bottom: clamp(0.5rem, 1.1vh, 0.8rem);
+    font-size: clamp(0.64rem, 1.15vh, 0.74rem);
+  }
+
+  .signal-index-hero-fluid .signal-index-beneath-row {
+    min-height: clamp(44px, 5.4vh, 60px);
+    /* Row font stays at the base size: at 0.84rem the middle column's longest
+       row ("05 / distributed systems — Raft Cluster") wraps and breaks the
+       rail's rhythm — density comes from the taller rows, not bigger data. */
   }
 }

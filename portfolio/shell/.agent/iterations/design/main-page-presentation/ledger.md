@@ -304,3 +304,23 @@ Task: rethink how the 6 project cards are presented on the main page (desktop). 
 - Visual inspection: performed on the real page (probe). Measured — 1920×963: 175/43/173, peek 0; 1920×1200: 290/54/284, peek 0; 1440×900: 112/104/112 (unchanged). Inspected PNGs: rail sits at the fold again; the two symmetric edge voids are plume territory; composition reads deliberate at both heights.
 - Code verification: tsc --noEmit green (CSS-only).
 - Open question: owner judges on the Edge machine — especially whether the masthead→copy void (~175 at 963, ~290 at 1200) reads as artwork air or as new sparseness. If rejected, the round hands to the relay model for option C (scale the composition: headline by viewport height, taller rail rows, bounded ~90-110 gaps).
+
+## Feedback F009
+- Round: R024
+- Verdict: LIKED
+- Scope: bottom-anchored hero cluster (copy above rail, rail at fold, symmetric edge voids), tall screens (≥900w/≥950h), scroll-0
+- Decision: "it looks better" — the R024 placement is accepted as an improvement; owner then commissioned option C (scale-up composition) as the next exploration, to be drafted via the chat-model relay
+- User source: "it looks better. but let's try C - delegate"
+- Artifact: artifacts/R023/afterA-1920x963.png (deployed R024)
+- Supersedes: none (does not reverse F006/F007/F008)
+
+## Round R025
+- Goal: owner commissioned option C (scale the composition on tall screens) via the chat-model relay. Two model patches received; output 1 integrated, output 2 declined (no projections, no width guard for narrow-tall windows).
+- Preserved preferences: F002, F005, F006 (no peek), F007/F008 as narrowed by F009 (between-element gaps small, no bottom slack pool), approved ≤950px-height composition.
+- Changes: styles.css tall block (≥900w/≥950h) — content scale-up, all clamped: copy padding-block + margin-bottom 4.5vh→6.5vh; kicker/note font+margin grow; headline `max(approved width-driven clamp, min(7.6vh, 4.3vw, 4.75rem))` (never smaller than base, width-guarded, restrained cap); rail label/rows/paddings grow (rows via min-height only); `white-space: nowrap` on headline lines.
+- Integration corrections: the model's copy-padding shorthand also grew horizontal padding (violates the no-horizontal constraint) — re-expressed as block-only; the model's rail row font-size scaling (0.76→0.84rem) made the middle column's longest row wrap at 1200 — caught by the probe, removed (row text is data; density comes from row height).
+- Disclosure: hero copy content ("currents"→"active tests", note rewrite) is another agent's committed work in the shared tree during this round — layout verdicts unaffected; artifact text differs for that reason.
+- After: artifacts/R025/afterC2-1920x963.png, afterC2-1920x1200.png, afterC2-1440x900.png (afterC-1920x1200.png kept as the wrap-bug evidence)
+- Visual inspection: performed on the real page (probe). Measured — 1920×963: 121/63/120 (was 175/43/173), copy 316→379, rail 192→217, peek 0; 1920×1200: 204/72/200 (was 290/54/284), copy 416, rail 244, peek 0; 1440×900: 112/104/112 byte-identical. Inspected PNGs at all three heights; composition reads full at 963 and 1200, plumes own the remaining edge voids.
+- Code verification: tsc --noEmit green (CSS-only).
+- Open question: owner judges the scaled composition on the Edge machine — headline now 4.57rem (was 3.68 cap) at 963, 4.75rem at 1200; if the larger display type reads as spectacle (F005 risk), the caps pull back in a micro-steer round.
