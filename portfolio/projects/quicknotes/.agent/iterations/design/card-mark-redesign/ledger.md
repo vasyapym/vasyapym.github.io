@@ -125,3 +125,12 @@ the only mark without one).
 - Verdict F002 (register rejected) arrived while the owner reviewed; the
   page stays up for reference. After: artifacts/R001/variants-preview.png
   (20 tiles).
+
+### R001 addendum 4 (2026-09-23, same session)
+- Fifth draw (from the OLD bold brief, returned after the F002 register
+  rejection) appended as candidates 21–25: 21 link clasp · 22 backlink
+  constellation · 23 prompt lens · 24 ember nib · 25 hash eye. Same rules:
+  geometry verbatim, retint-only, bg rects stripped, <title> tags dropped
+  for aria-labels. Owner judges; the refined/detailed round-5 brief is with
+  the relay in parallel.
+- After: artifacts/R001/variants-preview.png (25 tiles).
