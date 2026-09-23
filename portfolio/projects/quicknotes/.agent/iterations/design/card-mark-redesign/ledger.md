@@ -56,3 +56,27 @@ the only mark without one).
   then tune." (2026-09-23, task brief)
 - Artifact: `artifacts/baseline/card-quicknotes.png`
 - Supersedes: none
+
+## Round R001
+- Goal: replace the slate-row mark (F001) — concept round, 5 candidates for
+  owner choice, showcased online (owner asked for a link, no refinement until
+  the pick)
+- Provenance: relay S5 round 2 (minimize-iteration2, relaxed protocol; the
+  5-count task-facts shape carried over from the S2 spine win, after round 1's
+  10-count telegraphic ask drew weak — owner verdict, reply not returned)
+- Preserved preferences: F001 (replace, senior-dev minimalist, organically
+  consistent); house register (retint-only rule from the spine R001 precedent)
+- Changes: none shipped — choice round. Candidate page renders the relay's
+  5 SVGs with geometry verbatim; retint-only (neutrals ramp + blue accent on
+  the protagonist; taken hues swapped out); full-bleed canvas rects stripped
+  (panel provides the ground). No refinement before the pick.
+- Candidates: 1 double-bracket knot · 2 split pane hash · 3 command chevron ·
+  4 branching tick · 5 local anchor, cloud echo
+- Before: artifacts/baseline/card-quicknotes.png
+- After: artifacts/R001/card-mark-variants.html (+ variants-preview.png);
+  live: https://vasyapym.github.io/quicknotes-mark/
+- Visual inspection: performed — full-page headless-Chromium screenshot
+  1240px@2x inspected; all five hold one bold gesture, read at the 150px
+  card-scale strip; no banned grammar
+- Code verification: NOT RUN (no product code changed)
+- Open question: which variant to integrate (1–5)?
