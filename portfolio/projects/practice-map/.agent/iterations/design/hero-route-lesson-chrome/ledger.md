@@ -328,3 +328,12 @@ e.g. lowercase mono chrome and the ink panel language, remain active constraints
 - Visual inspection: performed — desktop paragraph visibly denser and contained; wrap ~63–66 chars; nav chips + hairlines still full-panel width (the "floating island" is NOT addressed — third-tier option, out of this round's scope).
 - Code verification: typecheck PASS, build PASS (25.1 s); check script — standard no-Chrome skip; F077 parity preserved by construction (both fr modes share the one max-width rule) but not re-executed (no Chrome in check's discovery).
 - Open question: owner verdict — keep (LIKED) or reverse (REJECTED, we return to 48rem + 1.72 desktop)?
+
+## Feedback F022
+- Round: R010
+- Verdict: LIKED (provisional — owner reserves the right to reverse)
+- Scope: desktop lesson measure + leading, ≥901px viewports
+- Decision: keep 42rem measure + 1.6 desktop leading; mobile unchanged. Provisional: owner may reopen later.
+- User source: "i guess it looks better. liked - for now."
+- Artifact: artifacts/R010-metrics/desktop-1440.png
+- Supersedes: none
