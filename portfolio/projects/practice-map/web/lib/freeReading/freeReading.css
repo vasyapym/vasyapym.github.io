@@ -114,10 +114,13 @@
   overflow-wrap: anywhere;
 }
 
-/* desktop: match the reader prose (which carries the same ×1.1 there) */
+/* desktop: match the reader prose. R011: the prose voice went ×0.9
+   (19.2px @ 1.6) — the fr surface rides it, so both modes stay one voice
+   (F074) and toggle-free-reading moves no glyph size (F077 parity). */
 @media (min-width: 901px) {
   .fr-area {
-    font-size: max(1.33rem, 21.3px);
+    font-size: max(1.2rem, 19.2px);
+    line-height: 1.6;
   }
 }
 

@@ -347,3 +347,10 @@ e.g. lowercase mono chrome and the ink panel language, remain active constraints
 - Visual inspection: performed at 1440 — same composition, smaller voice, column follows; nav chips/hairlines full-width unchanged; no overflow.
 - Code verification: typecheck PASS, build PASS (36.5 s).
 - Open question: owner verdict — keep (LIKED) or adjust/reverse?
+
+## Round R012
+- Goal: owner report — free reading ON/OFF render different lesson text fonts (desktop).
+- Diagnosis: NOT a family mismatch — `font: inherit` gives the fr textarea the same system-ui stack (F019/F021 voice). R010/R011 changed the prose voice (21.3→19.2px, leading 1.72→1.6) but the `.fr-area` desktop override still carried the old F052 values (21.3px @ 1.72) — a stale size/leading pair reads as a different font. Regression of F074 (one reading voice) / F077 (toggle parity), introduced when the prose rules moved without their fr-mode counterpart.
+- Changes: freeReading.css ≥901px `.fr-area` → font-size max(1.2rem, 19.2px), line-height 1.6 (rides R011's prose voice).
+- Verification: probe `fr-parity-probe.mjs` — OFF prose 19.2px/1.60/system-ui; ON fr-area 19.2px/1.60/system-ui (each element only exists in its own mode, hence paired nulls); typecheck PASS, build PASS (57.4 s).
+- Open question: none — parity is the owner's report, verified numerically.
