@@ -98,3 +98,30 @@ the only mark without one).
   owner picks from the full 15.
 - After: artifacts/R001/variants-preview.png (15 tiles) re-shot; live page
   updated.
+
+## Feedback F002
+- Round: R001 (all four draws, 20 candidates)
+- Verdict: REJECTED
+- Scope: the whole bold-glyph register of the batch (fat 12–22px strokes,
+  single-shape marks: brackets, hashes, bolts, loops, chevrons) plus the
+  prompt framing that produced it ("one bold gesture", "concept directions")
+- Decision: the owner wants the opposite register — refined, detailed,
+  illustration-like marks (layered masses, texture, small narrative detail),
+  not bold poster glyphs; delegate freely instead of over-constraining
+- User source: "these are not it. i want it more refined/detailed. not bold.
+  don't write in the prompt 'concept directions'. they can do anything, why
+  not delegate." (2026-09-23)
+- Artifact: artifacts/R001/variants-preview.png (20 tiles)
+- Supersedes: none (narrows F001 — replacement still stands; register
+  direction corrected)
+
+### R001 addendum 3 (2026-09-23, same session)
+- Fourth draw appended as candidates 16–20: 16 link knot · 17 struck hash ·
+  18 constellation · 19 command loop · 20 render prism (single-red draw,
+  paper bg rects stripped as before).
+- Fix disclosed: tile 16's first render put the accent on the tiny tie bar
+  while the tint text claimed chain → accent — corrected (chain → blue,
+  brackets → slate, tie → paper) before shipping.
+- Verdict F002 (register rejected) arrived while the owner reviewed; the
+  page stays up for reference. After: artifacts/R001/variants-preview.png
+  (20 tiles).
