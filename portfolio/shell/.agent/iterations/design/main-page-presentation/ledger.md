@@ -285,3 +285,22 @@ Task: rethink how the 6 project cards are presented on the main page (desktop). 
 - User source: "there is still excessive whitespace between the elements in the hero section, making the layout feel sparse and incomplete"
 - Artifact: before-1920x963.png / before-1920x1200.png
 - Supersedes: none (narrows R022's verdict — the cap itself, not the measure, fell short)
+
+## Feedback F008
+- Round: R023
+- Verdict: REJECTED
+- Scope: hero region below the catalogue rail (rail→fold), large screens (≥900px width / ≥950px height), scroll-0 state
+- Decision: the canvas slack below the rail is too much breathing space — the rail must sit closer to the fold; the slack may not all pool at the hero's bottom edge
+- User source: "there's too much breathing space now for microsoft edge windows with large screen … i meant breathing space below the hero section" (for bugs/image-2.png)
+- Artifact: artifacts/R023/after-1920x963.png (the shipped round); owner's live screenshot for bugs/image-2.png (~288px canvas region below the rail at their viewport)
+- Supersedes: narrows F007 — between-element gaps (61/43) are accepted; the bottom-edge slack placement is not
+
+## Round R024
+- Goal: F008 — the ~288px canvas slack below the rail at the owner's Edge viewport reads as too much breathing space below the hero. Owner chose option A over relay-delegated option C: bottom-anchor the cluster, slack splits symmetrically to the two edge voids.
+- Preserved preferences: F002 (measure corridor), F005 (restraint), F006 (no threshold peek), F007 as narrowed by F008 (between-element gaps accepted at 61/43-ish), the approved ≤950px-height composition.
+- Changes: styles.css tall block (≥900w/≥950h) — R023's top-knot rules replaced: copy `align-self: end` + fixed `margin-bottom: clamp(2.5rem, 4.5vh, 3.5rem)`; rail keeps its base bottom pin; base rows restored (auto 1fr auto). The --hero-bottom-pad settle math drives its designed symmetry: masthead→copy == rail→fold at equilibrium.
+- Before: artifacts/R023/after-1920x963.png (R023: gaps 61/43/287)
+- After: artifacts/R023/afterA-1920x963.png, afterA-1920x1200.png, afterA-1440x900.png
+- Visual inspection: performed on the real page (probe). Measured — 1920×963: 175/43/173, peek 0; 1920×1200: 290/54/284, peek 0; 1440×900: 112/104/112 (unchanged). Inspected PNGs: rail sits at the fold again; the two symmetric edge voids are plume territory; composition reads deliberate at both heights.
+- Code verification: tsc --noEmit green (CSS-only).
+- Open question: owner judges on the Edge machine — especially whether the masthead→copy void (~175 at 963, ~290 at 1200) reads as artwork air or as new sparseness. If rejected, the round hands to the relay model for option C (scale the composition: headline by viewport height, taller rail rows, bounded ~90-110 gaps).

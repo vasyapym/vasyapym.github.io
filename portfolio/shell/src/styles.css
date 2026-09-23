@@ -1293,26 +1293,17 @@ body:has(.quicknotes-frame) { background: #0b1317; }
   }
 }
 
-/* -- tall screens (owner bug report, Edge @1080p+): no vertical element gap
-   may ever grow with the viewport, and the threshold band must never peek
-   into the first screen. The hero therefore always fills the viewport
-   exactly (the base 100svh), and at >=950px height the copy+rail cluster
-   top-knots under the masthead with fixed editorial gaps — header→copy and
-   copy→rail stop tracking the viewport, and the slack belongs to the fluid
-   canvas below the rail, not to any gap between elements. Below 950px
-   height the approved centred composition is untouched. -- */
+/* -- tall screens (owner bug report, Edge @1080p+): the hero always fills the
+   viewport exactly (base 100svh) so the threshold band never peeks, and no
+   viewport-scaled slack pools between the copy and the rail — the copy is
+   end-anchored just above the rail with a fixed editorial gap, the rail
+   keeps its approved bottom pin, and the --hero-bottom-pad settle math
+   equalizes the two remaining edge voids (masthead→copy == rail→fold) at
+   any height. Below 950px height the approved centred composition is
+   untouched. -- */
 @media (min-width: 900px) and (min-height: 950px) {
-  .signal-index-hero-fluid {
-    grid-template-rows: auto auto 1fr;
-  }
-
   .signal-index-hero-fluid .signal-index-hero-copy {
-    align-self: start;
-    margin-top: clamp(3rem, 5.5vh, 4.5rem);
-  }
-
-  .signal-index-hero-fluid .signal-index-beneath {
-    align-self: start;
-    margin-top: clamp(2.5rem, 4.5vh, 3.5rem);
+    align-self: end;
+    margin-bottom: clamp(2.5rem, 4.5vh, 3.5rem);
   }
 }
