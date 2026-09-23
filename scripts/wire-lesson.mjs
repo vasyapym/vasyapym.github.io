@@ -1,6 +1,8 @@
 #!/usr/bin/env node
 // scripts/wire-lesson.mjs
-// Splice a converted Practice Map lesson into web/curriculum.ts + tiers.ts.
+// Splice a converted Practice Map lesson into web/curriculum.ts + tiers.ts and
+// emit the lesson's section array as its own lazy chunk (web/lesson-data/<id>.ts,
+// loaded by web/lessons-loader.ts on first open — the page bundle stays lean).
 // Companion to scripts/convert-lesson.mjs: the orchestrator authors only the
 // theory snippet (problem/model/mechanics/pitfalls/whenNot) — the essay and the
 // emitted TS never pass through the agent's chat context. Zero dependencies.
@@ -54,8 +56,10 @@ function readSections(file) {
   if (!m) fail(`--sections ${file} is not emitted converter TS (missing "const XSections")`);
   const end = raw.lastIndexOf("];");
   if (end === -1) fail(`no closing ]; in ${file}`);
-  // cut the converter's trailing report (sections: N / blocks: N / ...)
-  return { base: m[1], text: raw.slice(0, end + 2).trimEnd() };
+  // the array text, from the decl's first [ to the array's closing ];
+  const open = raw.indexOf("[", m.index);
+  if (open === -1 || open > end) fail(`cannot locate the array opening [ in ${file}`);
+  return { base: m[1], arrText: raw.slice(open, end + 2) };
 }
 
 function readTheory(file) {
@@ -82,6 +86,8 @@ function prettyList(arr, ind) {
 
 function buildTopics(base, topicId, meta, theory) {
   const json = (v) => JSON.stringify(v);
+  // No deepLesson on the card: the reader resolves sections lazily via
+  // web/lessons-loader.ts → ./lesson-data/<topicId>.ts (one chunk per lesson).
   return [
     `const ${base}Topics: readonly TopicCard[] = [`,
     "  {",
@@ -97,18 +103,21 @@ function buildTopics(base, topicId, meta, theory) {
     "    lesson: {",
     theory,
     "    },",
-    "    deepLesson: {",
-    `      sections: ${base}Sections,`,
-    "    },",
     "  },",
     "];",
   ].join("\n");
 }
 
-function spliceCurriculum(src, { base, areaId, topicId, meta, theory, sectionsText, areaTitle, areaDescription }) {
+const LESSON_DATA_HEADER = `import type { LessonSection } from "../curriculum";\n\n`;
+
+function buildLessonData(topicId, arrText) {
+  return `${LESSON_DATA_HEADER}export const sections: readonly LessonSection[] = ${arrText};\n`;
+}
+
+function spliceCurriculum(src, { base, areaId, topicId, meta, theory, areaTitle, areaDescription, lessonDataText }) {
   const first = src.indexOf(CURRICULUM_EXPORT);
   if (first === -1) fail("curriculum.ts: no `export const curriculum` anchor");
-  if (src.includes(`const ${base}Sections`) || src.includes(`topics: ${base}Topics`)) {
+  if (src.includes(`topics: ${base}Topics`)) {
     fail(`area "${base}" appears already wired in curriculum.ts`);
   }
   if (src.includes(`id: "${topicId}"`)) fail(`topic card "${topicId}" already present`);
@@ -126,7 +135,7 @@ function spliceCurriculum(src, { base, areaId, topicId, meta, theory, sectionsTe
     `  },\n`;
   const topicsText = buildTopics(base, topicId, meta, theory);
   const newTail = tail.slice(0, closeRel) + areaEntry + tail.slice(closeRel);
-  return `${src.slice(0, first).trimEnd()}\n\n${sectionsText}\n${topicsText}\n${newTail}`;
+  return `${src.slice(0, first).trimEnd()}\n\n${topicsText}\n${newTail}`;
 }
 
 function spliceTiers(src, tierId, areaId) {
@@ -150,25 +159,32 @@ function wire(opts) {
   if (Array.isArray(meta.concepts) && meta.concepts.length) {
     console.error("wire-lesson: warning: lesson-meta has concepts — cards never display them; wiring concepts: []");
   }
-  const { base, text: sectionsText } = readSections(opts.sectionsPath);
+  const { base, arrText } = readSections(opts.sectionsPath);
   const theory = readTheory(opts.theoryPath);
+  const lessonDataDir = path.join(path.dirname(opts.curriculumPath), "lesson-data");
+  const lessonDataPath = path.join(lessonDataDir, `${opts.topicId}.ts`);
+  const lessonDataText = buildLessonData(opts.topicId, arrText);
+  if (fs.existsSync(lessonDataPath)) {
+    fail(`lesson chunk already exists: ${lessonDataPath} (delete it to rewire, or reuse its topic id)`);
+  }
   let newCurriculum = spliceCurriculum(fs.readFileSync(opts.curriculumPath, "utf8"), {
     base,
     areaId: meta.id,
     topicId: opts.topicId,
     meta,
     theory,
-    sectionsText,
     areaTitle: opts.areaTitle,
     areaDescription: opts.areaDescription,
   });
   let newTiers = spliceTiers(fs.readFileSync(opts.tiersPath, "utf8"), opts.tier, meta.id);
   if (!opts.dry) {
+    fs.mkdirSync(lessonDataDir, { recursive: true });
+    fs.writeFileSync(lessonDataPath, lessonDataText);
     fs.writeFileSync(opts.curriculumPath, newCurriculum);
     fs.writeFileSync(opts.tiersPath, newTiers);
   }
   const notes = [
-    `area "${meta.id}" → tier "${opts.tier}"; card "${opts.topicId}"; consts ${base}Sections + ${base}Topics`,
+    `area "${meta.id}" → tier "${opts.tier}"; card "${opts.topicId}"; lazy chunk ${path.relative(path.dirname(opts.curriculumPath), lessonDataPath)} + ${base}Topics`,
   ];
   if (opts.dry) notes.push("(dry run — nothing written)");
   return notes.join("; ");
@@ -183,7 +199,6 @@ function selftest() {
   };
   try {
     const curriculum = [
-      "const goSections: readonly LessonSection[] = [];",
       "const goTopics: readonly TopicCard[] = [",
       "  {",
       '    id: "go-core",',
@@ -201,9 +216,6 @@ function selftest() {
       '      mechanics: "x",',
       "      pitfalls: [],",
       '      whenNot: "x",',
-      "    },",
-      "    deepLesson: {",
-      "      sections: goSections,",
       "    },",
       "  },",
       "];",
@@ -255,12 +267,17 @@ function selftest() {
     const after = fs.readFileSync(curriculumPath, "utf8");
     const tiersAfter = fs.readFileSync(tiersPath, "utf8");
     assert(note.includes("test-first-lesson"), "summary names the card");
-    assert(after.includes("const testSections"), "sections const inserted");
-    assert(after.indexOf("const testSections") < after.indexOf(CURRICULUM_EXPORT), "sections precede export");
-    assert(after.indexOf("const testTopics") < after.indexOf(CURRICULUM_EXPORT), "topics precede export");
+    assert(!after.includes("const testSections"), "sections const NOT inserted into curriculum");
+    assert(!after.includes("deepLesson"), "no deepLesson on the wired card");
     assert(after.includes(`topics: testTopics`), "area references the topics const");
     assert(after.includes('id: "test"'), "area entry present");
     assert(after.includes('id: "test-first-lesson"'), "topic card present");
+    const chunkPath = path.join(dir, "lesson-data", "test-first-lesson.ts");
+    assert(fs.existsSync(chunkPath), "lazy lesson chunk emitted");
+    const chunk = fs.readFileSync(chunkPath, "utf8");
+    assert(chunk.includes('import type { LessonSection } from "../curriculum";'), "chunk imports the type");
+    assert(chunk.includes("export const sections: readonly LessonSection[] = ["), "chunk exports the array");
+    assert(chunk.includes('text: "t"'), "chunk carries the array text verbatim");
     assert(tiersAfter.includes('areas: ["kubernetes", "agi", "test"]'), "tier areas appended");
     assert(!tiersAfter.includes('"kubernetes", "agi", "test", "test"'), "no duplicate area");
 
