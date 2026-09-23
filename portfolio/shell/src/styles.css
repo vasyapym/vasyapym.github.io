@@ -1293,13 +1293,26 @@ body:has(.quicknotes-frame) { background: #0b1317; }
   }
 }
 
-/* -- tall screens: cap the hero's vertical spread (owner bug report, Edge
-   @1080p+). The 1fr middle row otherwise stretches without bound, floating
-   the copy in dead voids. Capped, the hero keeps its compact approved
-   rhythm and the threshold band peeks below the fold as a scroll invitation.
-   Below 950px height the rule is off — 100svh behavior is untouched. -- */
+/* -- tall screens (owner bug report, Edge @1080p+): no vertical element gap
+   may ever grow with the viewport, and the threshold band must never peek
+   into the first screen. The hero therefore always fills the viewport
+   exactly (the base 100svh), and at >=950px height the copy+rail cluster
+   top-knots under the masthead with fixed editorial gaps — header→copy and
+   copy→rail stop tracking the viewport, and the slack belongs to the fluid
+   canvas below the rail, not to any gap between elements. Below 950px
+   height the approved centred composition is untouched. -- */
 @media (min-width: 900px) and (min-height: 950px) {
   .signal-index-hero-fluid {
-    min-height: min(100svh, 56rem);
+    grid-template-rows: auto auto 1fr;
+  }
+
+  .signal-index-hero-fluid .signal-index-hero-copy {
+    align-self: start;
+    margin-top: clamp(3rem, 5.5vh, 4.5rem);
+  }
+
+  .signal-index-hero-fluid .signal-index-beneath {
+    align-self: start;
+    margin-top: clamp(2.5rem, 4.5vh, 3.5rem);
   }
 }

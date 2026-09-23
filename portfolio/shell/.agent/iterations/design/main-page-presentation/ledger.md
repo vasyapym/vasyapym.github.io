@@ -257,3 +257,31 @@ Task: rethink how the 6 project cards are presented on the main page (desktop). 
 - Verified geometry (probe): measure columns unchanged (header/copy/rail/threshold/grid all 1040 on one left edge at 1440×900, 1920×955, 1920×1200); hero capped at 896px on the two tall viewports. Screenshots: artifacts/R020/real-hero-955.png, real-hero-1200.png (threshold peeking below the fold).
 - Visual inspection: performed at 1920×1200 — composition compact, threshold peek reads as an invitation.
 - Open question: owner re-checks on the Windows/Edge machine; alternative (if the hero must always fill the screen) is top-clustering the copy — parked unless requested.
+
+## Round R023
+- Goal: owner re-check on the Windows/Edge machine after R022 — two verdicts: (1) the capped hero's rhythm is still too sparse; (2) the threshold band ("the same work, 08 works / beneath the surface. 08 doors") is incorrectly visible at the very top of the page on large screens and must not be. Root cause: a cap (56rem) is structurally unable to satisfy "no peek" (hero shorter than viewport ⇒ the next section always shows at scroll 0) while leaving the inter-element gaps viewport-scaled — capping at 896 barely tightened anything at a ~963px Edge viewport.
+- Preserved preferences: F002 (measure corridor, R021), F005 (minimalist senior-developer restraint), the approved ≤950px-height composition (copy centred, rail bottom-pinned — 1440×900 regression gate).
+- Changes: styles.css — R022's `min-height: min(100svh, 56rem)` cap deleted. New ≥900w/≥950h block: `grid-template-rows: auto auto 1fr` + copy and rail `align-self: start` with fixed editorial margins (copy `clamp(3rem, 5.5vh, 4.5rem)`, rail `clamp(2.5rem, 4.5vh, 3.5rem)`). The cluster top-knots under the masthead; both inter-element gaps stop tracking the viewport; hero always fills the viewport exactly (base 100svh untouched), so nothing peeks; slack belongs to the fluid canvas below the rail. No JS changes — the --hero-bottom-pad settle math is a closed-form no-op after the first settle (measured gap is pad-independent).
+- Before: artifacts/R023/before-1920x963.png, before-1920x1200.png (capped hero: peek 43/280px, voids 178/415px below rail)
+- After: artifacts/R023/after-1920x963.png, after-1920x1200.png, after-1440x900.png
+- Visual inspection: performed on the real page via headless Chromium probe (portfolio/probes/r023-tall-hero.mjs). Measured geometry — 1920×963: hero 963 (=viewport, thresholdPeek 0), header→copy 61, copy→rail 43; 1920×1200: hero 1200, peek 0, gaps 74/54, slack 500px all canvas (plumes render in it); 1440×900: byte-identical to approved (112/104/112, pad 112, peek 0). Inspected the PNGs: composition reads compact and closed at all three; reading order masthead→copy→rail in one movement; no threshold strip in the first screen.
+- Code verification: tsc --noEmit green (CSS-only change; no JS touched).
+- Open question: owner judges the top-knotted cluster on the Edge machine — especially the bottom region being fluid-canvas rather than layout (the parked R022 alternative, now shipped). If the very-tall (≥1200px) canvas slack still reads sparse, the next lever is horizontal, not vertical (the 1040px corridor at 1920 wide).
+
+## Feedback F006
+- Round: R023
+- Verdict: REJECTED
+- Scope: .realm-threshold band visibility, large screens (≥900px width / ≥950px height), scroll-0 state
+- Decision: the threshold band must never be visible at the top of the page on large screens — R022's "peek as scroll invitation" is reversed
+- User source: "the element containing 'the same work, 08 works beneath the surface. 08' is incorrectly visible on large screens even when at the very top of the page—it should not be visible here"
+- Artifact: before-1920x963.png (43px peek), before-1920x1200.png (280px peek)
+- Supersedes: R022's threshold-peek intent (the tall-screen cap's invitation gesture)
+
+## Feedback F007
+- Round: R023
+- Verdict: REJECTED
+- Scope: hero inter-element vertical rhythm (header→copy, copy→rail), large screens
+- Decision: R022's capped rhythm is still too sparse — inter-element gaps must stop scaling with viewport height
+- User source: "there is still excessive whitespace between the elements in the hero section, making the layout feel sparse and incomplete"
+- Artifact: before-1920x963.png / before-1920x1200.png
+- Supersedes: none (narrows R022's verdict — the cap itself, not the measure, fell short)
