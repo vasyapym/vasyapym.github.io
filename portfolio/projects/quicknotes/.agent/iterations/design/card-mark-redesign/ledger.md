@@ -334,3 +334,29 @@ the only mark without one).
   than the underscore, does not compete with the glass hero.
 - Code verification: tsc --noEmit green.
 - Open question: owner judges the sparkle's noticeability live.
+
+## Feedback F008
+- Round: R008
+- Verdict: REJECTED (sparkle) + ACCEPTED (the mark, bounded)
+- Scope: the glass sparkle; the whole quicknotes prompt-lens mark
+- Decision: remove the sparkle; the R007 state (lens, overprint arc, two
+  glints, bone ring #c0b6a1, caps 164/180) is accepted for now — redesign
+  stops at this resting point
+- User source: "remove that detail. and for now it is ok" (2026-09-23)
+- Artifact: artifacts/R008/card-quicknotes-desktop.png
+- Supersedes: none
+
+## Round R009
+- Goal: F008 — remove the sparkle, land the accepted mark
+- Preserved preferences: the full accepted chain — candidate 23 base
+  (F004/F005), bone ring #c0b6a1 (F005/F006), caps 164/180 (F007),
+  overprint arc + two glints (R007), bed + halo + blue prompt glyphs
+- Changes: ProjectArtwork.tsx — sparkle removed (mark = R007 state).
+- Before: artifacts/R008/card-quicknotes-desktop.png
+- After: artifacts/R009/card-quicknotes-final.png
+- Visual inspection: performed on the real page (probe, 1440x900@2x) —
+  sparkle gone; mark as approved.
+- Code verification: tsc --noEmit green.
+- Open question: none — owner accepted for now. Reopen trigger: any steer
+  on the mark; halo pulse + ≤900px on real iOS Safari remain unverified
+  visually (Chromium approximations only).
