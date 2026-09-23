@@ -254,3 +254,36 @@ the only mark without one).
 - Code verification: tsc --noEmit green.
 - Open question: owner judges live; halo pulse + ≤900px band not
   screenshot-verified.
+
+## Feedback F006
+- Round: R005
+- Verdict: REJECTED (mobile size only) + steers
+- Scope: lens size on mobile (iOS Safari, ≤900px band); ring whiteness;
+  detail density
+- Decision: mobile too big — calibrate; ring ~8% whiter again; add finer
+  details (the mark reads bare)
+- User source: "it is too big on mobile (ios safari) - adjust. make its
+  white 'whiter' - more by around 8%. add some finer details - as of now it
+  might look boring" (2026-09-23)
+- Artifact: artifacts/R005/card-quicknotes-lens-r5.png
+- Supersedes: none (desktop size R005 stays)
+
+## Round R006
+- Goal: F006 — mobile size calibrated, ring +8% whiter, finer details added
+- Preserved preferences: desktop cap 176 (R005), device set, blue accent
+- Changes: styles.css ≤900 — .center-quicknotes max-width 194px (240 base ×
+  0.807, the same owner calibration as the ≥900 band; the 240 base left the
+  svg 2px of stage air). ProjectArtwork.tsx — ring/handle #bcb29c →
+  #c0b6a1 (bone +18% toward paper total); three hairline search ticks off
+  the upper rim (slate, w1.5, .5); dashed reach arc top-right (the palette
+  summoning); third white glint on the handle (1.8px, .35).
+- Before: artifacts/R005/card-quicknotes-lens-r5.png
+- After: artifacts/R006/card-quicknotes-desktop.png,
+  artifacts/R006/card-quicknotes-mobile.png (first mobile verification)
+- Visual inspection: performed on the real page (probe) at 1440x900@2x AND
+  390x844@2x — mobile: lens now 119px in the 150px stage (~15px air, was
+  ~2px), no clipping; desktop: ticks + dashed reach + glints read as fine
+  hairlines, ring a touch lighter, composition unchanged.
+- Code verification: tsc --noEmit green.
+- Open question: owner judges on iOS Safari (real device) — the mobile cap
+  is calibrated in Chromium 390x844; halo pulse unverified.
