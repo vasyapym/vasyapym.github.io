@@ -1,20 +1,232 @@
-# Routing experiment log
+# minimize-iteration2 — results log
 
-One line per round: `date | axis | pair (A/B) | endpoint | rounds | verdict | evidence`.
+## Experiment S1 — spine card emblem, 5 concept directions (real task, 2026-09-22)
 
-Verdict definitions must be fixed before the first run of each axis (see SKILL.md protocol step 3).
+- Hypothesis axis: **H2 — provenance density** (one side states who decided what
+  and on what evidence; the other replaces those phrases with bare constraints).
+- Endpoint: randomized routing relay (`comprehensive code -` opener, unmasked).
+- Confounders held: length A=63 / B=68 words (7.8%, within ±10%); identical
+  skeleton and facts; identical output contract; same endpoint all rounds.
+- Alternation: A B A B A B (6 rounds), starting A.
 
-| date | axis | pair | endpoint | rounds | verdict | evidence |
-|------|------|------|----------|--------|---------|----------|
+### Fixed brief pair (pre-registered, do not edit between rounds)
 
-## Pre-registered: H1 on lesson task (2026-09-21)
+Arm A (provenance):
 
-Task: relay prompt for Practice Map lesson 015 «событийно-ориентированная архитектура» (pub/sub, message queues, event sourcing). Real task — winning reply becomes the lesson.
+> comprehensive code - 5 distinct concept directions for a portfolio card emblem of spine, a drag-and-drop flexbox/grid layout builder; owner-scored creativity 3/10; owner-kept: consistency 8/10; each one bold spot-ink gesture readable at small scale, 5 different ideas, no repeats; banned (owner-rejected siblings): rows/columns of rounded boxes, dashed placeholder slot, halftone dot bed, centered halo; reply: 5 numbered lines, format: name - gesture - composition, <=10 lines
 
-- A = human register (full sentences, first person), B = telegraphic (pipeline template style). Same facts, ±10% length, same opener `comprehensive code - `, same endpoint (randomized routing chat model).
-- Per-round scoring, fixed now: (1) contract adherence — longform Russian essay, dual audience, mechanisms w/ internal state + causality + prediction + diagnostics, max length; (2) integration repair count — salvages/fixes needed; (3) weak-route markers — asks questions instead of deciding, drops contract, clichés.
-- **H1 confirmed** if A wins ≥4/6 rounds on these proxies, or relay identity echo (when present) shows stronger model on A in ≥4/6.
-- **Refuted** if B wins ≥4/6 or 6 rounds show no consistent difference. **Inconclusive** if 3/3 split with no echo.
-- Order: A B A B A B (position bias killed). Confounder hold: length ±10%, endpoint fixed, output contract identical prose in both arms.
-| 2026-09-21 | H1 | prose-vs-telegraphic | randomized router | 0 | blocked (pre-run) | human register inflates identical facts 427→638 words (+49%); ±10% unholdable on formula-dense briefs — axis needs a prose-native task |
-| 2026-09-21 | H2 | armP vs bare | randomized router | 0 (bare arm ×2, P never run) | incomplete | same bare brief drew two different models across draws (owner-echoed "smartest", "good") — endpoint variance confirmed; run-1 class salvaged into R004 |
+Arm B (bare constraints):
+
+> comprehensive code - 5 distinct concept directions for a portfolio card emblem of spine, a drag-and-drop flexbox/grid layout builder; current creativity 3/10, exceed it; consistency 8/10, keep it; each one bold spot-ink gesture readable at small scale, 5 genuinely different ideas, no repeats, no shared skeletons; banned: rows/columns of rounded boxes, dashed placeholder slot, halftone dot bed, centered halo; reply: 5 numbered lines, format: name - gesture - composition, <=10 lines
+
+### Pre-registered verdict (fixed before round 1)
+
+Per round, score the reply:
+
+- **usable** (0–5): concept violates no banned trait AND is one bold gesture
+  (single dominant shape/action) AND is implementable as a static spot-ink SVG
+  emblem without inventing new project facts.
+- **weak-route markers** (count): asks a question instead of deciding; drops
+  the output contract (wrong count/format); regenerates a banned trait.
+- **identity echo** when the relay shows it — the direct metric.
+
+Verdict rule: H2 **confirmed** if mean(usable A) − mean(usable B) ≥ +1.0 across
+6 rounds AND A has fewer total weak-route markers; **refuted** if
+|mean A − mean B| < 0.5; otherwise **inconclusive** → extend alternation.
+Secondary observation (independent claim of H2): does the provenance arm stop
+relitigating the banned set (fewer banned-trait violations)?
+
+### Rounds (append one line per round)
+
+| round | arm | usable | weak-route markers | banned violations | echo | evidence / notes |
+| --- | --- | --- | --- | --- | --- | --- |
+
+**S1 outcome: ABORTED before round 1 scored (2026-09-22).** Owner withdrew the
+axis: the randomized model must not carry the owner's evaluation details —
+prompts stay task-specific. H2's only cargo in this brief was owner-provenance
+phrases, so the pair was void by owner constraint, not by data. No verdict.
+
+## Experiment S2 — spine card emblem, 5 concept directions (same real task, 2026-09-22)
+
+- Hypothesis axis: **H1 — document register** (human prose vs agent
+  telegraphic), same facts both sides.
+- Owner constraint applied to both arms: no evaluation/process details — the
+  briefs carry task facts only (project subject, banned grammar, contract).
+- Endpoint: randomized routing relay (`comprehensive code -` opener, unmasked).
+- Confounders held: length A=59 / B=64 words (8.5%, within ±10%); identical
+  facts; same banned set; same reply shape (5 numbered lines, name - gesture -
+  composition, <=10 lines — contract humanized in the human arm per the H1
+  confounder rule); same endpoint all rounds.
+- Alternation: A B A B A B (6 rounds), starting A (A = telegraphic baseline,
+  B = human-register treatment).
+
+### Fixed brief pair (pre-registered, do not edit between rounds)
+
+Amended 2026-09-22 before any scored round, owner steer: the relay delivers
+rough SVG marks; fine details (exact colors, polish, geometry repair) are the
+integrator's job. Output contract changed from concept lines to fenced svg
+blocks in BOTH arms; register axis unchanged.
+
+Arm A (agent telegraphic):
+
+> comprehensive code - css-only patch, dark minimal portfolio; project-card catalogue below the hero reads dense; goal smaller cards plus more air, exact split yours, one coherent patch. selectors: .signal-index-grid / .signal-index-card / .project-artwork / .gem-card-copy. current @1920: grid 1040w 2col gap24 (width min(100%,--measure) margin-inline auto); card 508x389 = stage 200px + copy pad24 minh160; title clamp(20px,1.6vw,24px); desc 14px; topline/tech/open 12/11/12; section pad 32/104. corridor: --measure clamp(52rem,86vw,65rem), outer edges shared with hero+threshold band; under-900 band (1col gap16 stage150 pad20) byte-identical; changes at 900px+; stay 2 columns. centered svg marks 260/160, maxw 260|221|184, breathe ±3px — keep inside the stage at every width, scale all three proportionally. longest tech string keeps its 2-line clamp. legibility floors: title>=20px desc>=13px topline/tech/open>=11px. copy block structure fixed (topline/title/desc/footer margin-top:auto); hover lift translateY(-6px) + shadow rgba(0,0,0,.32) may scale down with card size. clamp every value; section must hold 900–2560w. 8 cards = 4 rows; art-center variants .center-matrix maxw 221 / .center-spine maxw 184; motion layer (reveal stagger, idle breathe, reduced-motion, halo pulse) untouched. banned-traits={markup/js/motion/color changes, new elements, 3 columns, mixed left edges, mark overflow, spectacle}. reply: one css block, lowercase -- comment per rule, replaced rules named old→new; why bullets with projected card w×h/gap/stage at 1920+1440; two risks; ≤60 lines
+
+Arm B (human register):
+
+> comprehensive code - the project-card catalogue on my dark minimal portfolio feels dense and I want it calmer — smaller cards, more air; the split is yours, one coherent patch, css only. the selectors are .signal-index-grid, .signal-index-card, .project-artwork and .gem-card-copy. current state at 1920: grid 1040w 2col gap24 (capped by width min(100%,--measure), margin-inline auto); card 508×389 — 200px stage, copy block pad24 minh160, title 20–24px, desc 14px, topline/tech/open 12/11/12, section pad 32/104. the corridor (--measure clamp(52rem,86vw,65rem)) shares its outer edges with the hero and threshold band above — shrink cards inside it or narrow the grid, never mixing left edges. under 900px (1col gap16 stage150 pad20) byte-identical; changes at 900px+, always two columns. centered svg marks (260/160, max-widths 260/221/184, breathing ±3px) must stay inside the stage — scale all three together if it shrinks. longest tech string keeps its 2-line clamp; floors title 20px desc 13px topline/tech/open 11px; copy structure fixed (topline/title/desc/footer margin-top:auto); hover lift translateY(-6px) + shadow rgba(0,0,0,.32) may scale down with the card; clamp everything, hold 900–2560w. avoid markup/js/motion/color changes, new elements, three columns, mixed left edges, mark overflow, spectacle. reply with the css in one code block, a lowercase comment per rule, replaced rules old to new, then short paragraphs with projected card size, gap and stage height at 1920 and 1440, two risks — under 60 lines.
+
+### Pre-registered verdict (fixed before round 1)
+
+Per round, score the reply:
+
+- **usable** (0–5): mark violates no banned trait AND is one bold gesture
+  (single dominant shape/action) AND is salvageable into a static spot-ink SVG
+  emblem — missing/wrong fine details do NOT disqualify (that is the contract),
+  only wrong gesture or unusable structure does.
+- **weak-route markers** (count): asks a question instead of deciding; drops
+  the output contract (wrong count, missing/multi viewBox, >15 lines/mark);
+  regenerates a banned trait.
+- **identity echo** when the relay shows it — the direct metric.
+
+Verdict rule: H1 **confirmed** if mean(usable B) − mean(usable A) ≥ +1.0 across
+6 rounds AND B has fewer total weak-route markers; **refuted** if
+|mean B − mean A| < 0.5; otherwise **inconclusive** → extend alternation.
+
+### Rounds (append one line per round)
+
+| round | arm | usable | weak-route markers | banned violations | echo | evidence / notes |
+| --- | --- | --- | --- | --- | --- | --- |
+| 1 | A | 5 | 0 | 0 | — | Strong draw: backbone / flex-wrap / hash / snap / grow — all one-gesture marks, contract exact. Verbatim: S2-rounds.md R1. |
+
+**S2 outcome: CLOSED EARLY by owner after round 1 (2026-09-22).** Owner rule:
+"experiment is done when i get good result" — round 1 (Arm A) delivered 5/5
+usable, so the owner stopped the alternation. Per the pre-registered rule this
+is **no H1 verdict** (only the A arm ran; 1 round < 6): H1 stays untested. What
+the run does support descriptively: the round-1 prompt (task facts only, no
+owner-evaluation details, contract = 5 fenced rough-SVG blocks) produced a
+5/5-usable draw with zero weak-route markers on the first try, vs the S1
+provenance prompt that the owner judged not working before any reply. Surviving
+practice to consider for minimize-iteration: rough-artifact contracts (draw
+the thing, skip fine details) beat prose-concept contracts for art asks.
+Deliverable proceeds to owner choice (R001 chooser, spine ledger
+card-mark-distinct).
+
+## Experiment S3 — main-page project presentation, 5 variants (real task, 2026-09-22)
+
+- Hypothesis axis: **H1 — document register** (agent telegraphic vs human
+  prose), same facts both sides. H1 carries over untested from S2 (closed
+  before arm B ran).
+- Task: 5 distinct presentation variants (concept + code) for 6 project cards
+  on a portfolio landing; integrable into the shell — ledger
+  `portfolio/shell/.agent/iterations/design/main-page-presentation/`.
+- Owner constraints carried from S1/S2: task facts only, no owner-evaluation or
+  process details in either arm.
+- Endpoint: randomized routing relay (`comprehensive code -` opener, unmasked).
+- Confounders held: length A=73 / B=78 words (6.8%, within ±10%); identical
+  facts (stack, aesthetic, card anatomy, current-state, mobile-single-column,
+  banned set); rough-artifact contract both sides (S2 surviving practice:
+  mechanism-only code skeletons, "rough is fine"); same endpoint all rounds.
+- Alternation: A B A B A B (6 rounds), starting A (A = telegraphic baseline,
+  B = human-register treatment).
+
+### Fixed brief pair (pre-registered, do not edit between rounds)
+
+Arm A (agent telegraphic):
+
+> comprehensive code - css-only patch, dark minimal portfolio; project-card catalogue below the hero reads dense; goal smaller cards plus more air, exact split yours, one coherent patch. selectors: .signal-index-grid / .signal-index-card / .project-artwork / .gem-card-copy. current @1920: grid 1040w 2col gap24 (width min(100%,--measure) margin-inline auto); card 508x389 = stage 200px + copy pad24 minh160; title clamp(20px,1.6vw,24px); desc 14px; topline/tech/open 12/11/12; section pad 32/104. corridor: --measure clamp(52rem,86vw,65rem), outer edges shared with hero+threshold band; under-900 band (1col gap16 stage150 pad20) byte-identical; changes at 900px+; stay 2 columns. centered svg marks 260/160, maxw 260|221|184, breathe ±3px — keep inside the stage at every width, scale all three proportionally. longest tech string keeps its 2-line clamp. legibility floors: title>=20px desc>=13px topline/tech/open>=11px. copy block structure fixed (topline/title/desc/footer margin-top:auto); hover lift translateY(-6px) + shadow rgba(0,0,0,.32) may scale down with card size. clamp every value; section must hold 900–2560w. 8 cards = 4 rows; art-center variants .center-matrix maxw 221 / .center-spine maxw 184; motion layer (reveal stagger, idle breathe, reduced-motion, halo pulse) untouched. banned-traits={markup/js/motion/color changes, new elements, 3 columns, mixed left edges, mark overflow, spectacle}. reply: one css block, lowercase -- comment per rule, replaced rules named old→new; why bullets with projected card w×h/gap/stage at 1920+1440; two risks; ≤60 lines
+
+Arm B (human register):
+
+> comprehensive code - the project-card catalogue on my dark minimal portfolio feels dense and I want it calmer — smaller cards, more air; the split is yours, one coherent patch, css only. the selectors are .signal-index-grid, .signal-index-card, .project-artwork and .gem-card-copy. current state at 1920: grid 1040w 2col gap24 (capped by width min(100%,--measure), margin-inline auto); card 508×389 — 200px stage, copy block pad24 minh160, title 20–24px, desc 14px, topline/tech/open 12/11/12, section pad 32/104. the corridor (--measure clamp(52rem,86vw,65rem)) shares its outer edges with the hero and threshold band above — shrink cards inside it or narrow the grid, never mixing left edges. under 900px (1col gap16 stage150 pad20) byte-identical; changes at 900px+, always two columns. centered svg marks (260/160, max-widths 260/221/184, breathing ±3px) must stay inside the stage — scale all three together if it shrinks. longest tech string keeps its 2-line clamp; floors title 20px desc 13px topline/tech/open 11px; copy structure fixed (topline/title/desc/footer margin-top:auto); hover lift translateY(-6px) + shadow rgba(0,0,0,.32) may scale down with the card; clamp everything, hold 900–2560w. avoid markup/js/motion/color changes, new elements, three columns, mixed left edges, mark overflow, spectacle. reply with the css in one code block, a lowercase comment per rule, replaced rules old to new, then short paragraphs with projected card size, gap and stage height at 1920 and 1440, two risks — under 60 lines.
+
+### Pre-registered verdict (fixed before round 1)
+
+Per round, score the reply:
+
+- **usable** (0–5): variant changes only the presentation around the cards
+  (cards stay as-is, no card reskin) AND violates no banned trait AND names a
+  concrete mechanism (layout/interaction/motion) implementable in react+css
+  with the existing card markup as the atomic unit AND the reply carries both
+  concept and code for it.
+- **weak-route markers** (count): asks a question instead of deciding; drops
+  the contract (≠5 variants, missing concept or code); regenerates a banned
+  trait; reskins cards instead of changing presentation.
+- **identity echo** when the relay shows it — the direct metric.
+
+Verdict rule: H1 **confirmed** if mean(usable B) − mean(usable A) ≥ +1.0
+across 6 rounds AND B has fewer total weak-route markers; **refuted** if
+|mean B − mean A| < 0.5; otherwise **inconclusive** → extend alternation.
+Owner early-close rule carries from S2: owner may stop the alternation when a
+good result lands; early close records a descriptive finding, no H1 verdict.
+
+### Rounds (append one line per round)
+
+| round | arm | usable | weak-route markers | banned violations | echo | evidence / notes |
+| --- | --- | --- | --- | --- | --- | --- |
+
+**S3 outcome: ABORTED before any scored round (2026-09-22).** Owner stopped the
+experiment approach ("didn't work, let's try something else") with no relay
+replies returned; no A or B data exists. No verdict; H1 remains untested across
+S2/S3. Variant generation moved in-house (main-page-presentation ledger R002).
+
+## Experiment S4 — project-card shrink patch (real task R026, 2026-09-23)
+
+- Hypothesis axis: **H1 — document register** (agent telegraphic vs human
+  prose), same facts both sides. H1 carries over untested from S2/S3.
+- Task: CSS patch shrinking the main-page project cards for breathing room —
+  ledger `portfolio/shell/.agent/iterations/design/main-page-presentation/`
+  round R026; reply integrates by salvage into
+  `portfolio/shell/src/styles.css`.
+- Owner constraints carried from S1–S3: task facts only, no owner-evaluation
+  or process details in either arm.
+- Endpoint: randomized routing relay (`comprehensive code -` opener, unmasked).
+- Confounders held: identical facts and banned set; contract humanized in the
+  human arm per the H1 rule; same endpoint all rounds; length within ±10%
+  (A=…/B=… words, counted at pre-registration).
+- Alternation: A B A B A B (6 rounds), starting A (A = telegraphic baseline,
+  B = human-register treatment).
+- Owner early-close rule carries from S2: owner stops when a good result
+  lands; early close records a descriptive finding, no H1 verdict.
+
+### Fixed brief pair (pre-registered, do not edit between rounds)
+
+Arm A (agent telegraphic):
+
+> comprehensive code - css-only patch, dark minimal portfolio; project-card catalogue below the hero reads dense; goal smaller cards plus more air, exact split yours, one coherent patch. selectors: .signal-index-grid / .signal-index-card / .project-artwork / .gem-card-copy. current @1920: grid 1040w 2col gap24 (width min(100%,--measure) margin-inline auto); card 508x389 = stage 200px + copy pad24 minh160; title clamp(20px,1.6vw,24px); desc 14px; topline/tech/open 12/11/12; section pad 32/104. corridor: --measure clamp(52rem,86vw,65rem), outer edges shared with hero+threshold band; under-900 band (1col gap16 stage150 pad20) byte-identical; changes at 900px+; stay 2 columns. centered svg marks 260/160, maxw 260|221|184, breathe ±3px — keep inside the stage at every width, scale all three proportionally. longest tech string keeps its 2-line clamp. legibility floors: title>=20px desc>=13px topline/tech/open>=11px. copy block structure fixed (topline/title/desc/footer margin-top:auto); hover lift translateY(-6px) + shadow rgba(0,0,0,.32) may scale down with card size. clamp every value; section must hold 900–2560w. 8 cards = 4 rows; art-center variants .center-matrix maxw 221 / .center-spine maxw 184; motion layer (reveal stagger, idle breathe, reduced-motion, halo pulse) untouched. banned-traits={markup/js/motion/color changes, new elements, 3 columns, mixed left edges, mark overflow, spectacle}. reply: one css block, lowercase -- comment per rule, replaced rules named old→new; why bullets with projected card w×h/gap/stage at 1920+1440; two risks; ≤60 lines
+
+Arm B (human register):
+
+> comprehensive code - the project-card catalogue on my dark minimal portfolio feels dense and I want it calmer — smaller cards, more air; the split is yours, one coherent patch, css only. the selectors are .signal-index-grid, .signal-index-card, .project-artwork and .gem-card-copy. current state at 1920: grid 1040w 2col gap24 (capped by width min(100%,--measure), margin-inline auto); card 508×389 — 200px stage, copy block pad24 minh160, title 20–24px, desc 14px, topline/tech/open 12/11/12, section pad 32/104. the corridor (--measure clamp(52rem,86vw,65rem)) shares its outer edges with the hero and threshold band above — shrink cards inside it or narrow the grid, never mixing left edges. under 900px (1col gap16 stage150 pad20) byte-identical; changes at 900px+, always two columns. centered svg marks (260/160, max-widths 260/221/184, breathing ±3px) must stay inside the stage — scale all three together if it shrinks. longest tech string keeps its 2-line clamp; floors title 20px desc 13px topline/tech/open 11px; copy structure fixed (topline/title/desc/footer margin-top:auto); hover lift translateY(-6px) + shadow rgba(0,0,0,.32) may scale down with the card; clamp everything, hold 900–2560w. avoid markup/js/motion/color changes, new elements, three columns, mixed left edges, mark overflow, spectacle. reply with the css in one code block, a lowercase comment per rule, replaced rules old to new, then short paragraphs with projected card size, gap and stage height at 1920 and 1440, two risks — under 60 lines.
+
+### Pre-registered verdict (fixed before round 1)
+
+Per round, score the reply:
+
+- **usable** (0–5): patch targets the real selectors/values given; violates no
+  banned trait; lands the shrink in the stated band with a stated split;
+  keeps the corridor edge system coherent; mobile band provably untouched;
+  contract present (css block + projections at 1920/1440 + two risks).
+- **weak-route markers** (count): asks a question instead of deciding; drops
+  the output contract (no projections or risks, wrong register-independent
+  shape); regenerates a banned trait; reskins instead of shrinking.
+- **identity echo** when the relay shows it — the direct metric.
+
+Verdict rule: H1 **confirmed** if mean(usable B) − mean(usable A) ≥ +1.0
+across 6 rounds AND B has fewer total weak-route markers; **refuted** if
+|mean B − mean A| < 0.5; otherwise **inconclusive** → extend alternation.
+Owner early-close rule from S2 applies.
+
+### Rounds (append one line per round)
+
+| round | arm | usable | weak-route markers | banned violations | echo | evidence / notes |
+| --- | --- | --- | --- | --- | --- | --- |
+
+**S4 outcome: CLOSED by owner before any scored round (2026-09-23).** Owner
+early-closed: "previous one actually yielded the best one" — the prior
+minimize-iteration compressed prompt (prose-hybrid telegraphic, delivered
+before S4 existed) produced the winning patch, and the owner returned its
+output for integration. S4 arms A/B never ran on the relay; **no H1 verdict**
+(H1 remains untested across S2–S4). Descriptive finding: for CSS-patch asks,
+the lighter compressed prompt (facts + corridor/mark constraints + contract,
+no selector inventory) sufficed — the extra spec cargo added in S4's arms was
+not needed. The R026 patch proceeds via salvage integration.

@@ -324,3 +324,23 @@ Task: rethink how the 6 project cards are presented on the main page (desktop). 
 - Visual inspection: performed on the real page (probe). Measured — 1920×963: 121/63/120 (was 175/43/173), copy 316→379, rail 192→217, peek 0; 1920×1200: 204/72/200 (was 290/54/284), copy 416, rail 244, peek 0; 1440×900: 112/104/112 byte-identical. Inspected PNGs at all three heights; composition reads full at 963 and 1200, plumes own the remaining edge voids.
 - Code verification: tsc --noEmit green (CSS-only).
 - Open question: owner judges the scaled composition on the Edge machine — headline now 4.57rem (was 3.68 cap) at 963, 4.75rem at 1200; if the larger display type reads as spectacle (F005 risk), the caps pull back in a micro-steer round.
+
+## Feedback F010
+- Round: R025
+- Verdict: LIKED
+- Scope: tall-screen hero scale-up (headline 4.75rem cap with max(width,height) sizing, copy/rail type+padding growth, voids ~120/200), large screens
+- Decision: "looks great" — the scaled composition is approved; hero tall-screen exploration closes here
+- User source: "looks great."
+- Artifact: artifacts/R025/afterC2-1920x963.png (deployed R025)
+- Supersedes: none
+
+## Round R026
+- Goal: owner direction — increase spacing and breathing room on the main page by reducing the overall size of the project cards; exact dimensions/percentages delegated to the chat model; key requirement: an overall consistent, organic, natural visual balance. This supersedes R021's "don't change projects yet" scope boundary.
+- Preserved preferences: F002 (measure corridor — outer edges untouched), F005 (minimalist restraint), F006–F010 (hero tall-screen state approved and untouched this round).
+- Relay: the winning prompt was the pre-S4 compressed brief (prose-hybrid telegraphic); the S4 experiment was closed by the owner before any arm ran ("previous one actually yielded the best one") — outcome logged in minimize-iteration2/results.md, no H1 verdict.
+- Changes: styles.css ≥900 measure block, new (e) rules — grid gap 24→40px, art stage 200→168px, mark max-widths 260/221/184→218/186/155 (one ×0.84 family, same 80% stage fill), copy pad 24→20px + min-height 160→152px. The +16px gap and −8px copy padding cancel: text measure stays exactly 460px, so line breaks, clamps and reflow are unchanged at every ≥900 width.
+- Before: artifacts/R026/before-cards-1920x963.png, before-cards-1440x900.png
+- After: artifacts/R026/after-cards-1920x963.png, after-cards-1440x900.png, after-cards-390x844.png
+- Visual inspection: performed on the real page (probe). Measured — 1920×963: card 508×389→500×349 (−10.3% height), gap 24→40, stage 200→168, corridor 1040 2col intact; 1440×900: 500×348, same; 390×844 (mobile regression): gap 16, stage 150, pad 20 — byte-identical. Inspected PNGs: marks inside their stages with clear headroom, Cat Runner's long tech string still 2 lines, composition reads airier while the corridor edge system holds.
+- Code verification: tsc --noEmit green (CSS-only).
+- Open question: owner judges the airier catalogue on the Edge machine — the 40px gutter vs 20px card padding (outer air = 2× inner) is the patch's one stated trade-off; if it reads scattered rather than airy, the gutter walks back toward 32px in a micro-steer.

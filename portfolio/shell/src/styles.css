@@ -1291,6 +1291,39 @@ body:has(.quicknotes-frame) { background: #0b1317; }
     width: min(100%, var(--measure));
     margin-inline: auto;
   }
+
+  /* (e) card shrink for breathing room (chat-model patch, relay R026): cards
+     ~10% shorter and 8px narrower, air goes to the gutter. The +16px gap and
+     −8px padding cancel, so the text measure (column − 2×pad) is identical
+     before and after (460px) — line breaks, clamps and title reflow are
+     unchanged at every width ≥900. Marks scale as one family (×0.84), same
+     80% stage fill, headroom ≥13px with the breathe counted. Corridor, left
+     edges, section rhythm, type scale, color, motion and the <900px band
+     (1col gap16 stage150 pad20) are untouched. */
+  .signal-index-grid {
+    gap: 40px;                             /* was 24px */
+  }
+
+  .project-artwork {
+    height: 168px;                         /* was 200px */
+  }
+
+  .project-artwork-center {
+    max-width: 218px;                      /* was 260px */
+  }
+
+  .project-artwork-center.center-matrix {
+    max-width: 186px;                      /* was 221px */
+  }
+
+  .project-artwork-center.center-spine {
+    max-width: 155px;                      /* was 184px */
+  }
+
+  .gem-card-copy {
+    padding: 20px;                         /* was 24px */
+    min-height: 152px;                     /* was 160px */
+  }
 }
 
 /* -- tall screens (chat-model patch, relay round R025): the composition
