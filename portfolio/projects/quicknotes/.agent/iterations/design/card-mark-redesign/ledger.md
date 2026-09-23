@@ -238,3 +238,19 @@ the only mark without one).
 - Code verification: tsc --noEmit green.
 - Open question: owner judges live; halo pulse + ≤900px band still not
   screenshot-verified.
+
+## Round R005
+- Goal: owner steer on R004 — lens ~7% bigger, ring ~10% whiter
+- Preserved preferences: F003/F004/F005 chain; R004's device set and colour
+  family
+- Changes: styles.css ≥900 — .center-quicknotes max-width 164 → 176
+  (164 × 1.07). ProjectArtwork.tsx — ring + handle #b6ac95 → #bcb29c
+  (bone mixed 10% toward paper #eeeae0, stays in the house warm ramp).
+- Before: artifacts/R004/card-quicknotes-lens-small.png
+- After: artifacts/R005/card-quicknotes-lens-r5.png
+- Visual inspection: performed on the real page (probe, 1440x900@2x) —
+  mark slightly larger, ring reads a touch lighter; glyphs + glass dots
+  unchanged; composition balanced.
+- Code verification: tsc --noEmit green.
+- Open question: owner judges live; halo pulse + ≤900px band not
+  screenshot-verified.

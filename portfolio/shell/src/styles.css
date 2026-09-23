@@ -1320,10 +1320,10 @@ body:has(.quicknotes-frame) { background: #0b1317; }
     max-width: 155px;                      /* was 184px */
   }
 
-  /* quicknotes prompt lens: owner-calibrated ~25% under the family base —
-     the lens reads smaller and quieter next to matrix/spine */
+  /* quicknotes prompt lens: owner-calibrated — 164 was 25% under the base,
+     owner steered +7% (≈0.84 × base); ring colour bone +10% toward paper */
   .project-artwork-center.center-quicknotes {
-    max-width: 164px;
+    max-width: 176px;
   }
 
   .gem-card-copy {
