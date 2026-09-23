@@ -1252,10 +1252,9 @@ body:has(.quicknotes-frame) { background: #0b1317; }
     max-width: 204px;}
 
   /* quicknotes prompt lens: same owner-calibration as the >=900 band
-     (176/218 = 0.807 of the family cap) — the lens read oversized on
-     mobile, the 240 base left it 2px of stage air */
+     (−7%: 194 × 0.93); the 240 base left it 2px of stage air */
   .project-artwork-center.center-quicknotes {
-    max-width: 194px;}
+    max-width: 180px;}
 
   .gem-card-copy {
     padding: 20px;
@@ -1326,10 +1325,11 @@ body:has(.quicknotes-frame) { background: #0b1317; }
     max-width: 155px;                      /* was 184px */
   }
 
-  /* quicknotes prompt lens: owner-calibrated — 164 was 25% under the base,
-     owner steered +7% (≈0.84 × base); ring colour bone +18% toward paper */
+  /* quicknotes prompt lens: owner-calibrated — R005 approved 176, owner
+     steered −7% (both bands, pending owner ok); ring colour bone +18%
+     toward paper */
   .project-artwork-center.center-quicknotes {
-    max-width: 176px;
+    max-width: 164px;
   }
 
   .gem-card-copy {

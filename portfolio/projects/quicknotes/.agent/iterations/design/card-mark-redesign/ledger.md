@@ -287,3 +287,34 @@ the only mark without one).
 - Code verification: tsc --noEmit green.
 - Open question: owner judges on iOS Safari (real device) — the mobile cap
   is calibrated in Chromium 390x844; halo pulse unverified.
+
+## Feedback F007
+- Round: R006
+- Verdict: REJECTED (the R006 detail batch)
+- Scope: rim search ticks, dashed reach arc, handle glint (all added in
+  R006); size on BOTH bands
+- Decision: different finer-detail approach; size −7% on mobile and desktop
+  (owner will decide if ok)
+- User source: "i don't like the finer detail. try something else. also
+  reduce the size by around 7% for mobile and desktop (i will decide if it
+  is ok)" (2026-09-23, two messages merged, the later one wins)
+- Artifact: artifacts/R006/card-quicknotes-desktop.png
+- Supersedes: none (F006's ring colour and mobile fix stay)
+
+## Round R007
+- Goal: F007 — swap the detail approach (texture, not extra geometry) and
+  shrink ~7% on both bands
+- Preserved preferences: ring colour #c0b6a1 (F006), blue accent, bed+halo
+- Changes: ProjectArtwork.tsx — R006 details removed (ticks ×3, dashed
+  reach, handle glint); new detail: one halftone overprint arc over the
+  ring's upper-left band (dot pattern along the stroke, .4 — the matrix
+  wall / cat-runner overprint device), existing rim glint now sits on it.
+  styles.css — desktop cap 176 → 164 (×0.93), mobile cap 194 → 180 (×0.93).
+- Before: artifacts/R006/card-quicknotes-mobile.png
+- After: artifacts/R007/card-quicknotes-desktop.png,
+  artifacts/R007/card-quicknotes-mobile.png
+- Visual inspection: performed on the real page (probe) at 1440x900@2x and
+  390x844@2x.
+- Code verification: tsc --noEmit green.
+- Open question: owner decides if the 7% size is ok; the overprint-arc
+  detail is the new finer-detail candidate.

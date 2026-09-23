@@ -532,21 +532,16 @@ function QuicknotesCenterMark() {
       <circle cx="112" cy="72" r="44" fill="none" stroke="#c0b6a1" strokeWidth="14" />
       {/* handle */}
       <line x1="144" y1="104" x2="188" y2="142" stroke="#c0b6a1" strokeWidth="20" strokeLinecap="round" />
-      {/* search ticks — fine hairlines off the upper rim */}
-      <path d="M125.7 20.8 L127.3 14.9" stroke="#7d7669" strokeWidth="1.5" strokeLinecap="round" opacity="0.5" />
-      <path d="M112 19 L112 13" stroke="#7d7669" strokeWidth="1.5" strokeLinecap="round" opacity="0.5" />
-      <path d="M98.3 20.8 L96.7 14.9" stroke="#7d7669" strokeWidth="1.5" strokeLinecap="round" opacity="0.5" />
-      {/* dashed reach — the palette summoning, top-right */}
-      <path d="M158 28 Q166 20 168 10" fill="none" stroke="#7d7669" strokeWidth="1.5" strokeDasharray="3 3" strokeLinecap="round" opacity="0.5" />
+      {/* halftone overprint arc — texture on the ring's upper-left band */}
+      <path d="M68 72 A44 44 0 0 1 112 28" fill="none" stroke="url(#qn-halo)" strokeWidth="14" strokeLinecap="round" opacity="0.4" />
 
       {/* prompt glyphs — the blue accent, on the glass */}
       <path d="M92 55 L112 72 L92 89" fill="none" stroke="#7aa2f7" strokeWidth="12" strokeLinecap="round" strokeLinejoin="round" />
       <line x1="120" y1="90" x2="136" y2="90" stroke="#7aa2f7" strokeWidth="10" strokeLinecap="round" />
 
-      {/* white square glints — rim + glass reflection + handle */}
+      {/* white square glints — on the overprint arc + glass reflection */}
       <rect x="84" y="40" width="2.6" height="2.6" fill="#ffffff" opacity="0.55" />
       <rect x="128" y="58" width="2.6" height="2.6" fill="#ffffff" opacity="0.4" />
-      <rect x="177" y="133" width="1.8" height="1.8" fill="#ffffff" opacity="0.35" />
     </svg>
   );
 }
