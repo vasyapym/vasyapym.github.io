@@ -528,11 +528,10 @@ function QuicknotesCenterMark() {
       {/* halo — pulse binds to class */}
       <ellipse className="gem-halo" style={haloVar(0.12)} cx="112" cy="72" rx="54" ry="42" fill="url(#qn-halo)" opacity={0.12} />
 
-      {/* lens — bone step behind, paper ring in front (stepped cap) */}
-      <circle cx="109" cy="69" r="44" fill="none" stroke="#b6ac95" strokeWidth="14" />
-      <circle cx="112" cy="72" r="44" fill="none" stroke="#eeeae0" strokeWidth="14" />
+      {/* lens — single bone-weight stroke, the spine-square treatment */}
+      <circle cx="112" cy="72" r="44" fill="none" stroke="#b6ac95" strokeWidth="14" />
       {/* handle */}
-      <line x1="144" y1="104" x2="188" y2="142" stroke="#eeeae0" strokeWidth="20" strokeLinecap="round" />
+      <line x1="144" y1="104" x2="188" y2="142" stroke="#b6ac95" strokeWidth="20" strokeLinecap="round" />
 
       {/* prompt glyphs — the blue accent, on the glass */}
       <path d="M92 55 L112 72 L92 89" fill="none" stroke="#7aa2f7" strokeWidth="12" strokeLinecap="round" strokeLinejoin="round" />

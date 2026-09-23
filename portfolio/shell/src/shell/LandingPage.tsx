@@ -854,7 +854,7 @@ export default function LandingPage({
               </span>
             </h1>
             <p className="signal-index-hero-note">
-              unstable builds&nbsp;· visual experiments&nbsp;· trial &amp; error
+              unstable builds&nbsp;· scripted messes&nbsp;· trial &amp; error
             </p>
           </div>
           <div className="signal-index-graphic signal-index-beneath">

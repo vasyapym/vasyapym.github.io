@@ -1320,6 +1320,12 @@ body:has(.quicknotes-frame) { background: #0b1317; }
     max-width: 155px;                      /* was 184px */
   }
 
+  /* quicknotes prompt lens: owner-calibrated ~25% under the family base —
+     the lens reads smaller and quieter next to matrix/spine */
+  .project-artwork-center.center-quicknotes {
+    max-width: 164px;
+  }
+
   .gem-card-copy {
     padding: 20px;                         /* was 24px */
     min-height: 152px;                     /* was 160px */

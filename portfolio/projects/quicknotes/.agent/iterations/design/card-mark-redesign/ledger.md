@@ -216,3 +216,25 @@ the only mark without one).
 - Code verification: tsc --noEmit green.
 - Open question: owner judges the lens live (deploy follows the push);
   halo pulse and ≤900px band still not screenshot-verified (desktop only).
+
+## Round R004
+- Goal: F005 — lens ~25% smaller, ring re-coloured to the Spine-square tone
+- Preserved preferences: F003 (consistency refs), F004 (no prominence),
+  R003's device set (bed, halo, blue prompt glyphs, glints)
+- Changes: styles.css ≥900 — .center-quicknotes max-width 164px (218 ×
+  0.75). ProjectArtwork.tsx — lens ring + handle #eeeae0 → #b6ac95 (the
+  spine-square colour, single-weight stroke like the square itself); the
+  bone step behind the ring dropped (redundant behind a bone ring).
+  Related one-line change from the same owner message (outside the mark):
+  hero note "visual experiments" → "scripted messes" — owner wrote
+  "scipted"; shipped the corrected spelling "scripted", flag if the literal
+  was wanted (LandingPage.tsx:857).
+- Before: artifacts/R003/card-quicknotes-lens.png
+- After: artifacts/R004/card-quicknotes-lens-small.png
+- Visual inspection: performed on the real page (probe, 1440x900@2x) —
+  lens quieter, ink spans ~100px of the stage; bone ring + handle match
+  the Spine square tone; blue glyphs remain the accent; halo dots still
+  read through the glass.
+- Code verification: tsc --noEmit green.
+- Open question: owner judges live; halo pulse + ≤900px band still not
+  screenshot-verified.
