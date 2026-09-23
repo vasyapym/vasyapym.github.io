@@ -178,3 +178,41 @@ the only mark without one).
 - Open question: owner judges the refined nib live (deploy follows the
   push); halo pulse and the ≤900px band not visually verified this round
   (desktop shots only).
+
+## Feedback F004
+- Round: R002
+- Verdict: REJECTED
+- Scope: the shipped refined ember nib (quicknotes card mark, all viewports)
+- Decision: too prominent — replaced as the pick; new base is candidate
+  23 · prompt lens (from the same 25-tile page), refined to the same house
+  treatment
+- User source: "it looks too prominent. let's do this instead - '23 · prompt
+  lens'" (2026-09-23)
+- Artifact: artifacts/R002/card-quicknotes-after.png
+- Supersedes: F003's pick (candidate 24) — F003's consistency references
+  (matrix first, spine second) stay in force
+
+## Round R003
+- Goal: F004 — replace the too-prominent nib with candidate 23 · prompt
+  lens, refined with the same house treatment
+- Preserved preferences: F001, F002, F003's consistency references (matrix
+  first, spine second); F004 (new base, less prominence)
+- Changes: ProjectArtwork.tsx — QuicknotesCenterMark replaced with the
+  refined prompt lens: candidate-23 geometry (ring r44 + handle, chevron +
+  underscore) with house devices: sparse printed bed (0.09), gem-halo
+  (blue dots 0.12, centered on the lens — its dots show through the open
+  glass, a kept accident reading as frosted glass), stepped bone edge
+  behind the paper ring, blue accent on the prompt glyphs (protagonist),
+  two white square glints (rim + glass). styles.css — the nib's 232px
+  quicknotes cap reverted (lens uses the family base 218; its ink footprint
+  is naturally wider).
+- Before: artifacts/R002/card-quicknotes-after.png (the nib)
+- After: artifacts/R003/card-quicknotes-lens.png
+- Visual inspection: performed on the real page (probe, 1440x900@2x) —
+  lens + handle read clear at card scale; blue prompt glyphs carry the
+  accent; stepped bone edge visible upper-left; halo dots visible through
+  the glass interior (kept deliberately); no towering vertical mass (the
+  nib's prominence issue is structurally gone — horizontal composition).
+- Code verification: tsc --noEmit green.
+- Open question: owner judges the lens live (deploy follows the push);
+  halo pulse and ≤900px band still not screenshot-verified (desktop only).

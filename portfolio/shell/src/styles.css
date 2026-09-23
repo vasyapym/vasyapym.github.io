@@ -1320,14 +1320,6 @@ body:has(.quicknotes-frame) { background: #0b1317; }
     max-width: 155px;                      /* was 184px */
   }
 
-  /* quicknotes ember nib: the mark's ink footprint is narrow (a vertical
-     nib, ~30% of box width vs the plate marks' ~70%), so the family cap
-     would read undersized next to matrix/spine — bump the box, ink weight
-     lands between the two references */
-  .project-artwork-center.center-quicknotes {
-    max-width: 232px;
-  }
-
   .gem-card-copy {
     padding: 20px;                         /* was 24px */
     min-height: 152px;                     /* was 160px */

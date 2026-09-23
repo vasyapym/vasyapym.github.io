@@ -505,12 +505,12 @@ function TrailCenterMark() {
   );
 }
 
-/* ── 8 · Quicknotes — the ember nib: a paper nib with a knocked-out slit
-   crowned by a sync flame, seated in the house spot-ink language: sparse
-   printed bed, hover halo, stepped bone cap behind the nib mass, stacked
-   flame fills, dashed sync wisp (future), white glints. Base geometry from
-   relay candidate 24 (S5 round 6), refined in R002 for house consistency —
-   register references: the archive wall mark first, spine second. ── */
+/* ── 8 · Quicknotes — the prompt lens: a paper magnifier with a stepped
+   bone edge, the command palette's chevron + underscore in the blue accent
+   on the glass, seated in the house spot-ink language: sparse printed bed,
+   hover halo, white glints. Base geometry from relay candidate 23 (S5
+   round 6), refined in R003 for house consistency — register references:
+   the archive wall mark first, spine second (F004 superseded the nib pick). ── */
 function QuicknotesCenterMark() {
   return (
     <svg viewBox="0 0 260 160" aria-hidden="true">
@@ -524,27 +524,23 @@ function QuicknotesCenterMark() {
       </defs>
 
       {/* sparse printed bed */}
-      <ellipse cx="130" cy="86" rx="104" ry="58" fill="url(#qn-sparse)" opacity="0.09" />
+      <ellipse cx="124" cy="80" rx="104" ry="58" fill="url(#qn-sparse)" opacity="0.09" />
       {/* halo — pulse binds to class */}
-      <ellipse className="gem-halo" style={haloVar(0.12)} cx="130" cy="88" rx="54" ry="42" fill="url(#qn-halo)" opacity={0.12} />
+      <ellipse className="gem-halo" style={haloVar(0.12)} cx="112" cy="72" rx="54" ry="42" fill="url(#qn-halo)" opacity={0.12} />
 
-      {/* sync wisp — dashed, the future the flame writes into */}
-      <path d="M168 36 Q182 28 190 16" fill="none" stroke="#465059" strokeWidth="2" strokeDasharray="4 4" opacity="0.6" />
-      <circle cx="192" cy="13" r="2.5" fill="#eeeae0" opacity="0.8" />
+      {/* lens — bone step behind, paper ring in front (stepped cap) */}
+      <circle cx="109" cy="69" r="44" fill="none" stroke="#b6ac95" strokeWidth="14" />
+      <circle cx="112" cy="72" r="44" fill="none" stroke="#eeeae0" strokeWidth="14" />
+      {/* handle */}
+      <line x1="144" y1="104" x2="188" y2="142" stroke="#eeeae0" strokeWidth="20" strokeLinecap="round" />
 
-      {/* nib — bone step behind, paper mass in front (stepped cap) */}
-      <path d="M127 147 L91 87 Q91 69 107 61 L147 61 Q163 69 163 87 Z" fill="#b6ac95" />
-      <path d="M130 150 L94 90 Q94 72 110 64 L150 64 Q166 72 166 90 Z" fill="#eeeae0" />
-      {/* slit + breather hole, knocked out to the panel */}
-      <line x1="130" y1="150" x2="130" y2="104" stroke="#0b1317" strokeWidth="6" />
-      <circle cx="130" cy="98" r="7" fill="#0b1317" />
+      {/* prompt glyphs — the blue accent, on the glass */}
+      <path d="M92 55 L112 72 L92 89" fill="none" stroke="#7aa2f7" strokeWidth="12" strokeLinecap="round" strokeLinejoin="round" />
+      <line x1="120" y1="90" x2="136" y2="90" stroke="#7aa2f7" strokeWidth="10" strokeLinecap="round" />
 
-      {/* flame — stacked fills */}
-      <path d="M130 10 C162 34 160 52 148 60 L112 60 C100 52 98 34 118 20 C118 34 124 40 129 37 C124 28 126 18 130 10 Z" fill="#7aa2f7" />
-      <path d="M130 21 C143 33 144 45 136 51 L124 51 C117 45 119 33 127 26 C127 31 129 33 129 33 C127 30 128 25 130 21 Z" fill="#b8cefb" />
-      {/* white square glints */}
-      <rect x="121" y="27" width="2.6" height="2.6" fill="#ffffff" opacity="0.55" />
-      <rect x="142" y="84" width="2.8" height="2.8" fill="#ffffff" opacity="0.4" />
+      {/* white square glints — rim + glass reflection */}
+      <rect x="84" y="40" width="2.6" height="2.6" fill="#ffffff" opacity="0.55" />
+      <rect x="128" y="58" width="2.6" height="2.6" fill="#ffffff" opacity="0.4" />
     </svg>
   );
 }
