@@ -10,10 +10,12 @@ import {
 import { createPortal } from "react-dom";
 import {
   curriculum,
+  type DeepLesson,
   type LessonExample,
   type LessonSection,
   type TopicCard as TopicCardDefinition,
 } from "./curriculum";
+import { loadDeepLesson } from "./lessons-loader";
 import {
   createInitialState,
   loadPracticeState,
@@ -265,7 +267,23 @@ function LessonOverlay({
   const saveTimerRef = useRef<number>(undefined);
   const pendingScrollTopRef = useRef<number | null>(null);
   const lesson = topic.lesson;
-  const deep = topic.deepLesson;
+  // Legacy fast path (deepLesson inlined in the topic card) falls back to the
+  // per-lesson chunk loader; while the chunk resolves the tabs view shows.
+  const [lazyDeep, setLazyDeep] = useState<DeepLesson | null>(null);
+  useEffect(() => {
+    if (topic.deepLesson) return;
+    setLazyDeep(null);
+    let alive = true;
+    loadDeepLesson(topic.id)
+      .then((next) => {
+        if (alive) setLazyDeep(next);
+      })
+      .catch(() => {}); // stay on tabs; a missing file is a wiring bug to report
+    return () => {
+      alive = false;
+    };
+  }, [topic]);
+  const deep = topic.deepLesson ?? lazyDeep;
   const free = useFreeSettings(topic.id);
   const freeEnabled = free.value?.enabled ?? false;
 

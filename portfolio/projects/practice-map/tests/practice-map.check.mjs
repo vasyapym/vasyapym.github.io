@@ -119,6 +119,9 @@ try {
   await page.click(".pg-card .pg-pill");
   check(await appears(".practice-reader"), "deep reader opens for lesson 01");
   check(await appears(".practice-lesson-progress span"), "progress hairline mounts");
+  // the lesson text now loads as a lazy per-lesson chunk — wait for the nav
+  // to mount before measuring content (otherwise this gate races the import)
+  check(await appears(".practice-reader-nav button"), "lazy lesson chunk resolves (nav mounts)");
 
   const chipCount = await page.$$eval(".practice-reader-nav button", (b) => b.length);
   check(chipCount >= 10, `section nav lists all sections (${chipCount})`);
@@ -365,6 +368,8 @@ try {
   check(goCardCount === 1, `Go area renders its single flagship card (${goCardCount})`);
   await page.click(".pg-card .pg-pill");
   check(await appears(".practice-reader"), "Go deep reader opens");
+  // lazy per-lesson chunk: the 19-section nav mounts only after the import
+  check(await appears(".practice-reader-nav button"), "Go lazy chunk resolves (nav mounts)");
   const goOverlayCovers = await page.evaluate(() => {
     const r = document.querySelector(".practice-lesson-overlay").getBoundingClientRect();
     return r.top <= 0 && r.bottom >= window.innerHeight && r.left <= 0 && r.right >= window.innerWidth;
@@ -439,6 +444,8 @@ try {
   await wait(400);
   await page.tap(".pg-card .pg-pill");
   check(await appears(".practice-reader"), "deep reader opens on mobile");
+  // lazy per-lesson chunk settles before the geometry asserts below
+  await appears(".practice-reader-nav button");
 
   // the 180ms entry animation moves the panel 6px — let it settle before
   // asserting geometry (a bare appears() raced the animation mid-flight).
@@ -542,6 +549,8 @@ try {
   await wait(400);
   await page.tap(".pg-card .pg-pill");
   check(await appears(".practice-reader"), "deep reader opens at 320px");
+  // lazy per-lesson chunk settles before the geometry asserts below
+  await appears(".practice-reader-nav button");
 
   // same animation-settle law as the 390 leg
   await wait(300);
