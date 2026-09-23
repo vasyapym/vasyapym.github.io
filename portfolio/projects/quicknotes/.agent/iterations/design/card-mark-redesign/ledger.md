@@ -80,3 +80,11 @@ the only mark without one).
   card-scale strip; no banned grammar
 - Code verification: NOT RUN (no product code changed)
 - Open question: which variant to integrate (1–5)?
+
+### R001 addendum (2026-09-23, same session)
+- Owner supplied a second relay draw (same 5-count shape) while reviewing:
+  candidates 6–10 appended to the choice page, same rules — geometry verbatim,
+  retint-only, bg rects stripped. 6 double gate · 7 hash headline ·
+  8 quick strike · 9 backlink knot · 10 sync ring
+- After: artifacts/R001/variants-preview.png (10 tiles) re-shot; live page
+  updated.
