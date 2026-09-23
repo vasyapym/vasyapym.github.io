@@ -885,9 +885,10 @@
 
 /* F082 supersedes F075 (owner's explicit reconsideration): the measure returns.
    Cap rides the SECTION container — both fr modes share it, so toggling free
-   reading still moves no paragraph (F077 parity). 48rem ≈ 72 characters of the
-   21.3px desktop prose voice (avg cyr ~0.5em) — inside the 60–75 optimal band;
-   the 100% leg keeps phones on the panel's own width. */
+   reading still moves no paragraph (F077 parity). R010: 42rem ≈ 63–66 cyr
+   characters of the 21.3px desktop prose voice (avg cyr ~0.5em) — the center
+   of the 60–75 optimal band (the old 48rem ≈ 72 sat at its top edge, paired
+   with loose leading); the 100% leg keeps phones on the panel's own width. */
 .practice-reader-section {
   display: grid;
   gap: 0.95em;
@@ -896,7 +897,7 @@
      stretched, and in fr mode its max-content is the textarea's intrinsic
      width — without a definite width the column collapses to ~264px. */
   width: 100%;
-  max-width: min(48rem, 100%);
+  max-width: min(42rem, 100%);
   margin-inline: auto;
   scroll-margin-top: 1.25rem;
 }
@@ -1277,6 +1278,14 @@
   .practice-reader-section li,
   .practice-lesson-body li {
     font-size: max(1.33rem, 21.3px);
+  }
+  /* R010 (F-side pairing with the 42rem measure): the base 1.72 leading was
+     tuned for the mobile voice's short lines; at the desktop 21.3px voice it
+     doubles the airiness on a long measure. 1.6 desktop-only — the mobile
+     1.72 (short lines) stays untouched. */
+  .practice-reader-section > p,
+  .practice-reader-section li {
+    line-height: 1.6;
   }
   .practice-lesson-body,
   .practice-callout p {

@@ -318,3 +318,13 @@ e.g. lowercase mono chrome and the ink panel language, remain active constraints
 - Code verification: typecheck PASS, build PASS (13.3 s).
 - Open question: none — explicit owner instruction; verdict not required unless the rendering differs from the liked R007 state.
 - Shipped: commit 80af9b2 (CSS + index.html); this ledger block follows in the next commit.
+
+## Round R010
+- Goal: desktop lesson readability — pair the 21.3px desktop voice with the center of the 60–75 cyr character band and a leading that fits it. Owner approved the brainstorm's A+B levers ("ok. let's try. if it will be bad we will just reverse"). Mobile explicitly out of scope (owner: perfect, unchanged).
+- Preserved preferences: F019/F021 (system sans voice); mobile prose voice 18.24px/1.72/100% leg untouched; F077 fr-toggle parity (the cap rides the shared SECTION container, both fr modes).
+- Changes: (1) `.practice-reader-section` max-width min(48rem→42rem, 100%) — 672px = 31.5em ≈ 63–66 cyr chars at 21.3px, center of the 60–75 band; (2) inside the ≥901 desktop media block, prose/li line-height 1.72→1.6 (base 1.72 kept for mobile's short lines).
+- Before: artifacts/R010-metrics/desktop-1440.png (pre-change diagnosis state, 36.1em, 1.72)
+- After: artifacts/R010-metrics/desktop-1440.png + laptop-1024 + mobile-390 (post-change overwrite of the same dir; mobile metrics identical: 18.24px, 1.72, 358px)
+- Visual inspection: performed — desktop paragraph visibly denser and contained; wrap ~63–66 chars; nav chips + hairlines still full-panel width (the "floating island" is NOT addressed — third-tier option, out of this round's scope).
+- Code verification: typecheck PASS, build PASS (25.1 s); check script — standard no-Chrome skip; F077 parity preserved by construction (both fr modes share the one max-width rule) but not re-executed (no Chrome in check's discovery).
+- Open question: owner verdict — keep (LIKED) or reverse (REJECTED, we return to 48rem + 1.72 desktop)?
