@@ -533,3 +533,5 @@
 {"type":"edge.added","id":"e258","ts":"2026-09-23T07:09:11.377Z","from":"n281","to":"n282","rel":"continues"}
 {"type":"node.added","id":"n283","ts":"2026-09-23T07:20:49.465Z","kind":"iteration","actor":"zcode","title":"Lesson 021 Nolan's Odyssey → fable-5.1-high","summary":"Owner-provided Russian essay salvaged verbatim (facts verified, zero content edits), wired as odyssey-nolan-2026 as fable-5.1-high's 7th area; typecheck+build green, tier gates held","artifacts":[{"kind":"file","ref":"projects/practice-map/lessons/021-odyssey-nolan.md"}]}
 {"type":"edge.added","id":"e259","ts":"2026-09-23T07:20:49.470Z","from":"n280","to":"n283","rel":"continues"}
+{"type":"node.added","id":"n284","ts":"2026-09-23T07:27:27.229Z","kind":"iteration","actor":"design-iteration","title":"Hero note: scratchpad dropped","summary":"Owner-specified removal; note now 'unstable builds · visual experiments · trial & error', one line at 1440; typecheck+build green; shipped b17e3c8","artifacts":[{"kind":"git-commit","ref":"b17e3c8"}]}
+{"type":"edge.added","id":"e260","ts":"2026-09-23T07:27:27.231Z","from":"n282","to":"n284","rel":"continues"}
