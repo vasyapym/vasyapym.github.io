@@ -839,22 +839,19 @@ export default function LandingPage({
             <h1
               id="signal-index-title"
               className="signal-index-hero-headline"
-              aria-label="things i couldn't not build"
+              aria-label="clever hacks & dumb ideas"
             >
               <span className="signal-index-hero-line" aria-hidden="true">
-                <span className="signal-index-hero-line-in">things</span>
-              </span>
-              <span className="signal-index-hero-line" aria-hidden="true">
                 <span className="signal-index-hero-line-in">
-                  <span className="signal-index-hero-amp">i</span> couldn't
+                  clever hacks <span className="signal-index-hero-amp">&</span>
                 </span>
               </span>
               <span className="signal-index-hero-line" aria-hidden="true">
-                <span className="signal-index-hero-line-in">not build</span>
+                <span className="signal-index-hero-line-in">dumb ideas</span>
               </span>
             </h1>
             <p className="signal-index-hero-note">
-              itch scratched&nbsp;· problem invented&nbsp;· solution overengineered
+              problem invented&nbsp;· solution overengineered
             </p>
           </div>
           <div className="signal-index-graphic signal-index-beneath">
