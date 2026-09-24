@@ -269,3 +269,41 @@ detail (SVG marks); concepts must be fresh/original yet simple. Presented on
 - User source: "also make red ball at the centre smaller by around 7%"
 - Artifact: artifacts/R008/r008-after-raft.png
 - Supersedes: none
+
+## Round R010
+- Goal: owner micro-steers: follower balls mirrored to the minority pair's placement ("symmetric, same angle"), cut −15% more, leader ball −10% more.
+- Preserved preferences: F006 pick, F008/F009 register, R008/R009 geometry conventions (straight cut, collinear rays, measured gaps, re-centered composition).
+- Changes (RaftCenterMark only): followers (46,38)/(46,122) → (46,50)/(46,110) — the left pair now mirrors the right pair's vertical offsets (±30 about the leader axis) and both link pairs read as one symmetric family; majority links re-derived on the new rays (start leader+25u, end follower+13.4u); cut y24–136 → y32.4–127.6 (112→95.2 units, −15.0%, trimmed both ends, paper twin follows); leader core r14.9→13.4, term ring r19.5→17.6, paper rim arc r10.2→9.2 (quarter arc recomputed).
+- Interpretation note (flagged to owner): "same angle as right darker balls" implemented as mirrored placement (same heights/distance pattern); the literal ±14.6° leader rays would put the left balls almost on the midline and shrink the left links to ~4-unit stubs — rejected as visually broken; if the literal shallow-angle variant is wanted anyway, it's a two-coordinate follow-up.
+- Before: artifacts/R009/r009-after-raft.png
+- After: artifacts/R010/r010-after-raft.png
+- Visual inspection: performed on the real page (Chromium headless, 1440×900 @3×, card crop) — left/right pairs read symmetric; the shorter cut no longer reaches past the ball rows; smaller leader keeps the term ring proportion; register unchanged.
+- Code verification: tsc --noEmit green; vite build green (18.9s).
+- Open question: verdict per F019–F021; interpretation flag above.
+
+## Feedback F019
+- Round: R010
+- Verdict: REQUESTED (interpretation flagged)
+- Scope: the two bone follower balls, landing page raft card
+- Decision: symmetric with the right darker balls — implemented as mirrored placement (same vertical offsets ±30 and same x-distance family); literal same-ray-angle variant rejected as visually broken (links collapse), owner can override
+- User source: "make simmetrical - white balls on the left. they should be positioned at the same angle as right darker balls."
+- Artifact: artifacts/R010/r010-after-raft.png
+- Supersedes: none
+
+## Feedback F020
+- Round: R010
+- Verdict: REQUESTED
+- Scope: the raft partition cut line length, landing page card
+- Decision: ~15% smaller again (second consecutive trim)
+- User source: "also reduce the size of cutting line by around 15% more."
+- Artifact: artifacts/R010/r010-after-raft.png
+- Supersedes: extends F014
+
+## Feedback F021
+- Round: R010
+- Verdict: REQUESTED
+- Scope: the coral leader ball, landing page raft card
+- Decision: ~10% smaller again (second consecutive trim)
+- User source: "also make red ball at the centre smaller by around 7%" → this message: "reduce the size of red ball by around 10% more"
+- Artifact: artifacts/R010/r010-after-raft.png
+- Supersedes: extends F018
