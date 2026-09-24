@@ -835,14 +835,14 @@ export default function LandingPage({
 
           <HeroFluid />
           <div className="signal-index-hero-copy">
-            <p className="signal-index-hero-kicker">minor works</p>
+            <p className="signal-index-hero-kicker">prototypes</p>
             <h1
               id="signal-index-title"
               className="signal-index-hero-headline"
-              aria-label="things with buttons & bugs"
+              aria-label="machines with buttons & bugs"
             >
               <span className="signal-index-hero-line" aria-hidden="true">
-                <span className="signal-index-hero-line-in">things</span>
+                <span className="signal-index-hero-line-in">machines</span>
               </span>
               <span className="signal-index-hero-line" aria-hidden="true">
                 <span className="signal-index-hero-line-in">with buttons</span>
