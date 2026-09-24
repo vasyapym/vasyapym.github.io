@@ -322,7 +322,7 @@ textarea:focus-visible {
   margin: 0;
   font-family: var(--display);
   font-weight: 600;
-  font-size: clamp(1.58rem, calc((100vw - 72px) / 21.6), 3.31rem);
+  font-size: clamp(1.76rem, calc((100vw - 72px) / 19.4), 3.68rem);
   line-height: 0.98;
   letter-spacing: -0.02em;
   text-transform: lowercase;
@@ -332,7 +332,9 @@ textarea:focus-visible {
 .signal-index-hero-line {
   display: block;
   overflow: hidden;
-  padding-bottom: 0.04em;}
+  /* 0.1em keeps descenders (g, y, p) inside the mask at line-height 0.98;
+     0.04em clipped the bottom of the g in "things"/"bugs". */
+  padding-bottom: 0.1em;}
 
 
 .signal-index-hero-line-in {
@@ -876,7 +878,7 @@ textarea:focus-visible {
   }
 
   .signal-index-hero-headline {
-    font-size: clamp(1.44rem, calc((100vw - 32px) / 11.7), 2.23rem);
+    font-size: clamp(1.6rem, calc((100vw - 32px) / 10.5), 2.48rem);
     line-height: 0.98;
     letter-spacing: -0.02em;
   }
@@ -1364,8 +1366,8 @@ body:has(.quicknotes-frame) { background: #0b1317; }
      4.75rem keeps the display type restrained. */
   .signal-index-hero-fluid .signal-index-hero-headline {
     font-size: max(
-      clamp(1.58rem, calc((100vw - 72px) / 21.6), 3.31rem),
-      min(6.84vh, 3.87vw, 4.28rem)
+      clamp(1.76rem, calc((100vw - 72px) / 19.4), 3.68rem),
+      min(7.6vh, 4.3vw, 4.75rem)
     );
   }
 
