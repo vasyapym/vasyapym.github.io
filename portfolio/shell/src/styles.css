@@ -322,7 +322,7 @@ textarea:focus-visible {
   margin: 0;
   font-family: var(--display);
   font-weight: 600;
-  font-size: clamp(1.67rem, calc((100vw - 72px) / 20.4), 3.5rem);
+  font-size: clamp(1.5rem, calc((100vw - 72px) / 22.7), 3.15rem);
   line-height: 0.98;
   letter-spacing: -0.02em;
   text-transform: lowercase;
@@ -878,7 +878,7 @@ textarea:focus-visible {
   }
 
   .signal-index-hero-headline {
-    font-size: clamp(1.52rem, calc((100vw - 32px) / 11.1), 2.36rem);
+    font-size: clamp(1.37rem, calc((100vw - 32px) / 12.3), 2.12rem);
     line-height: 0.98;
     letter-spacing: -0.02em;
   }
@@ -1357,13 +1357,13 @@ body:has(.practice-map-field) { background: #0b1317; }
   .signal-index-hero-fluid .signal-index-hero-copy {
     align-self: end;
     margin-bottom: clamp(2.5rem, 6.5vh, 4.5rem);
-    padding-top: clamp(1.9rem, 3.6vh, 2.6rem);
-    padding-bottom: clamp(2rem, 3.8vh, 2.75rem);
+    padding-top: clamp(1.9rem, 3.6vh, 3.25rem);   /* cap 2.6 → 3.25rem: 2K presence */
+    padding-bottom: clamp(2rem, 3.8vh, 3.4rem);   /* cap 2.75 → 3.4rem: 2K presence */
   }
 
   .signal-index-hero-fluid .signal-index-hero-kicker {
-    margin-bottom: clamp(1.1rem, 2.1vh, 1.6rem);
-    font-size: clamp(0.7rem, 1.25vh, 0.82rem);
+    margin-bottom: clamp(1.1rem, 2.1vh, 2rem);    /* cap 1.6 → 2rem: 2K presence */
+    font-size: clamp(0.7rem, 1.25vh, 0.95rem);    /* cap 0.82 → 0.95rem: 2K presence */
   }
 
   /* Never smaller than the approved width-driven size; grows with height;
@@ -1371,32 +1371,49 @@ body:has(.practice-map-field) { background: #0b1317; }
      4.75rem keeps the display type restrained. */
   .signal-index-hero-fluid .signal-index-hero-headline {
     font-size: max(
-      clamp(1.67rem, calc((100vw - 72px) / 20.4), 3.5rem),
-      min(7.22vh, 4.09vw, 4.51rem)
+      clamp(1.5rem, calc((100vw - 72px) / 22.7), 3.15rem),
+      min(6.5vh, 3.68vw, 4.06rem)
     );
   }
 
   .signal-index-hero-fluid .signal-index-hero-line { white-space: nowrap; }
 
   .signal-index-hero-fluid .signal-index-hero-note {
-    margin-top: clamp(1.5rem, 3vh, 2.25rem);
-    font-size: clamp(0.72rem, 1.3vh, 0.86rem);
+    margin-top: clamp(1.5rem, 3vh, 2.75rem);      /* cap 2.25 → 2.75rem: 2K presence */
+    font-size: clamp(0.72rem, 1.3vh, 1rem);       /* cap 0.86 → 1rem: 2K presence */
   }
 
+  /* Owner round 2026-09-24: the rail reads small on large screens and the
+     hero breathes too much (rail share slid 22.5% → 16.9% as the viewport
+     grew). The band now holds the rail at ~25% of viewport height; row
+     fonts stay at the base size — the widest in-band column is 308.7px at
+     every width and 0.80rem needs 307–320px for the longest row, so density
+     comes from height and centring, not bigger data (relay brief 17). */
   .signal-index-hero-fluid .signal-index-beneath {
-    padding-top: clamp(1.1rem, 2.2vh, 1.6rem);
-    padding-bottom: clamp(0.6rem, 1.2vh, 0.9rem);
+    --beneath-row-h:  clamp(44px, calc(12vh - 60px), 84px);
+    --beneath-more-h: clamp(44px, calc(8vh - 32px), 64px);
+    row-gap:        clamp(0.2rem, calc(1.6vh - 12px), 0.75rem);
+    padding-top:    clamp(1.1rem, calc(4.4vh - 20px), 2.5rem);
+    padding-bottom: clamp(0.6rem, calc(2.4vh - 11px), 1.5rem);
   }
 
   .signal-index-hero-fluid .signal-index-beneath-label {
-    margin-bottom: clamp(0.5rem, 1.1vh, 0.8rem);
-    font-size: clamp(0.64rem, 1.15vh, 0.74rem);
+    margin-bottom: clamp(0.5rem, calc(2vh - 8px), 1.25rem);
+    font-size:     clamp(0.64rem, calc(1.6vh - 4px), 0.9rem);
+    /* full-width, no wrap risk: 19 ch × (0.6+0.28)em × 14.4px ≈ 241px ≪ 830px */
   }
 
   .signal-index-hero-fluid .signal-index-beneath-row {
-    min-height: clamp(44px, 5.4vh, 60px);
-    /* Row font stays at the base size: at 0.84rem the middle column's longest
-       row ("05 / distributed systems — Raft Cluster") wraps and breaks the
-       rail's rhythm — density comes from the taller rows, not bigger data. */
+    min-height: var(--beneath-row-h);
+    padding-block: 0.3rem;                                              /* fallback */
+    padding-block: max(0.3rem, calc((var(--beneath-row-h) - 1lh) / 2)); /* centre text */
+    /* Row font stays 0.76rem: widest in-band column is 308.7px at every
+       width; 0.80rem needs 307–320px. Density = height, not bigger data. */
+  }
+
+  .signal-index-hero-fluid .signal-index-beneath-more {
+    min-height: var(--beneath-more-h);
+    padding-block: 0.3rem;
+    padding-block: max(0.3rem, calc((var(--beneath-more-h) - 1lh) / 2));
   }
 }
