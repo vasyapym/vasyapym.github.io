@@ -835,26 +835,26 @@ export default function LandingPage({
 
           <HeroFluid />
           <div className="signal-index-hero-copy">
-            <p className="signal-index-hero-kicker">tests</p>
+            <p className="signal-index-hero-kicker">parts bin</p>
             <h1
               id="signal-index-title"
               className="signal-index-hero-headline"
-              aria-label="prototypes & small machines"
+              aria-label="things i couldn't not build"
             >
               <span className="signal-index-hero-line" aria-hidden="true">
-                <span className="signal-index-hero-line-in">prototypes</span>
+                <span className="signal-index-hero-line-in">things</span>
               </span>
               <span className="signal-index-hero-line" aria-hidden="true">
                 <span className="signal-index-hero-line-in">
-                  <span className="signal-index-hero-amp">&amp;</span> small
+                  <span className="signal-index-hero-amp">i</span> couldn't
                 </span>
               </span>
               <span className="signal-index-hero-line" aria-hidden="true">
-                <span className="signal-index-hero-line-in">machines</span>
+                <span className="signal-index-hero-line-in">not build</span>
               </span>
             </h1>
             <p className="signal-index-hero-note">
-              unstable builds&nbsp;· scripted messes&nbsp;· trial &amp; error
+              itch scratched&nbsp;· problem invented&nbsp;· solution overengineered
             </p>
           </div>
           <div className="signal-index-graphic signal-index-beneath">
