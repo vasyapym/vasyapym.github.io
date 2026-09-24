@@ -845,7 +845,7 @@ export default function LandingPage({
                 <span className="signal-index-hero-line-in">machines</span>
               </span>
               <span className="signal-index-hero-line" aria-hidden="true">
-                <span className="signal-index-hero-line-in">with buttons</span>
+                <span className="signal-index-hero-line-in">w/buttons</span>
               </span>
               <span className="signal-index-hero-line" aria-hidden="true">
                 <span className="signal-index-hero-line-in">
