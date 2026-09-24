@@ -322,7 +322,7 @@ textarea:focus-visible {
   margin: 0;
   font-family: var(--display);
   font-weight: 600;
-  font-size: clamp(1.76rem, calc((100vw - 72px) / 19.4), 3.68rem);
+  font-size: clamp(1.67rem, calc((100vw - 72px) / 20.4), 3.5rem);
   line-height: 0.98;
   letter-spacing: -0.02em;
   text-transform: lowercase;
@@ -878,7 +878,7 @@ textarea:focus-visible {
   }
 
   .signal-index-hero-headline {
-    font-size: clamp(1.6rem, calc((100vw - 32px) / 10.5), 2.48rem);
+    font-size: clamp(1.52rem, calc((100vw - 32px) / 11.1), 2.36rem);
     line-height: 0.98;
     letter-spacing: -0.02em;
   }
@@ -1366,8 +1366,8 @@ body:has(.quicknotes-frame) { background: #0b1317; }
      4.75rem keeps the display type restrained. */
   .signal-index-hero-fluid .signal-index-hero-headline {
     font-size: max(
-      clamp(1.76rem, calc((100vw - 72px) / 19.4), 3.68rem),
-      min(7.6vh, 4.3vw, 4.75rem)
+      clamp(1.67rem, calc((100vw - 72px) / 20.4), 3.5rem),
+      min(7.22vh, 4.09vw, 4.51rem)
     );
   }
 
