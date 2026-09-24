@@ -689,7 +689,7 @@ export function PlanckC() {
 /* ── Round wiring ── */
 
 const RAFT_FOUR_ROUND: readonly { id: string; topline: string; Mark?: () => ReactElement }[] = [
-  { id: "current", topline: "current · majority partition (adopted)", Mark: INCUMBENT_MARKS.raft },
+  { id: "current", topline: "current · split-brain partition (adopted)", Mark: INCUMBENT_MARKS.raft },
   { id: "a", topline: "candidate a · heartbeat ring", Mark: RaftA },
   { id: "b", topline: "candidate b · split-brain partition", Mark: RaftB },
   { id: "c", topline: "candidate c · committed across replicas", Mark: RaftC },

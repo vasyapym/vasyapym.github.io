@@ -344,3 +344,22 @@ detail (SVG marks); concepts must be fresh/original yet simple. Presented on
 - User source: "also incerase the legth of lines which go to white balls, by around 10%"
 - Artifact: artifacts/R011/r011-after-raft.png
 - Supersedes: none
+
+## Round R012
+- Goal: subject swap per owner — adopt the "split-brain partition" composition (candidate b of the raft rethink round, fourProjectRethink.tsx) while re-expressing it entirely in the current adopted design language.
+- Preserved preferences: F006 (owner picks raft split-brain now supersedes the majority-partition pick), F008/F009 register, R008–R011 geometry conventions (single straight cut, collinear severed rays, measured gaps, trimmed lengths, mirrored ball sizes, re-centered viewBox).
+- Changes (RaftCenterMark + fourProjectRethink topline): majority side becomes a fully meshed trio — new bone link between the two followers (46,63.4)→(46,96.6) with the 13.4 measured node gaps; the lower severed attempt now originates from the lower follower (horizontal ray y=110: heartbeat (71,110)→(140,110), dash (160.8,110)→(185.7,110)) instead of the leader, matching RaftB's two-attempt story (upper attempt stays leader→cut→top minority); the leader's lower heartbeat (110.2,86.3)→(140,94.1) removed. Language untouched: neutral bed @0.09, coral halo, bone 2.5 links, 0.5 heartbeats, dashed #7d7669 minority, single 3px straight cut (y39.5–y120.5), leader core r13.4 / ring r17.6 / paper rim, followers r9.5, viewBox "-6 0 260 160". Topline on the art-directions page: "current · split-brain partition (adopted)".
+- Before: artifacts/R011/r011-after-raft.png
+- After: artifacts/R012/r012-after-raft.png
+- Visual inspection: performed on the real page (Chromium headless, 1440×900 @3×, card crop) — majority reads as a connected trio; both severed attempts die at the cut; minority pair orphaned with its own vertical dash; register and sizes unchanged.
+- Code verification: tsc --noEmit green; vite build green (18.5s).
+- Open question: owner judges the split-brain subject in the adopted language live.
+
+## Feedback F025
+- Round: R012
+- Verdict: REQUESTED
+- Scope: the raft mark's subject/composition, landing page card
+- Decision: base switches to "split-brain partition" (candidate b from the art-directions raft round); all design language stays the currently adopted+modified version (R007–R011 refinements carry over)
+- User source: "this is fine but base i guess is not it. let's change to 'split-brain partition' from art-directions. but redo all the design language as to which is currently is (current adopted and modified version)"
+- Artifact: artifacts/R011/r011-after-raft.png (the rejected base), artifacts/R012/r012-after-raft.png (the redo)
+- Supersedes: F006's raft pick (majority partition → split-brain partition); geometry conventions F010–F024 remain in force
