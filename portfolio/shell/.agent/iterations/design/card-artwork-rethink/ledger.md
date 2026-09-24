@@ -497,3 +497,22 @@ detail (SVG marks); concepts must be fresh/original yet simple. Presented on
 - User source: "make raft cluster one a bit more prominentt, by around 10% more prominent..." → "actually only raft cluster - make it around 15% more prominent. and that's it"
 - Artifact: artifacts/R017/r017-after-raft.png
 - Supersedes: partially reverses F030's quieting (+15% back); fox/blast part of the message withdrawn before implementation
+
+## Round R020
+- Goal: owner steer — another +15% prominence on the raft mark only, same proportional-only approach.
+- Preserved preferences: everything structural from R017/R019 (spine-like outline-diagram language, measured gaps, straight thin cut).
+- Changes (RaftCenterMark only, proportional ~15% bumps): leader disc r12.5 → r14.4; mesh links 2.3 → 2.6px; severed attempts 2.3 → 2.6px @0.55 → 0.63; majority peer outlines 2.3 → 2.6px; fault line 2.9 → 3.3px; raft halo 0.14 → 0.16. No structural changes.
+- Before: artifacts/R019/r019-after-raft.png
+- After: artifacts/R020/r020-after-raft.png
+- Visual inspection: performed on the real page (Chromium headless, 1440×900 @3×, card crop) — mark reads clearly stronger; outline character intact; nothing else moved.
+- Code verification: tsc --noEmit green; vite build green (18.5s).
+- Open question: owner judges the cumulative +30% presence live.
+
+## Feedback F033
+- Round: R020
+- Verdict: REQUESTED
+- Scope: the raft mark's prominence only, landing page card
+- Decision: +15% more on top of R019 (cumulative ~30% over the R017 baseline)
+- User source: "make 15% even more prominent"
+- Artifact: artifacts/R019/r019-after-raft.png
+- Supersedes: extends F032
