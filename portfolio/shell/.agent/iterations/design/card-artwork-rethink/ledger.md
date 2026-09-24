@@ -168,3 +168,49 @@ detail (SVG marks); concepts must be fresh/original yet simple. Presented on
 - Visual inspection: performed on the real page — whitish now delivered via edges/rims/pips; scattered white squares gone; raft reads polished (soft cut, measured links); set sits in the first-four register; no seams; no console errors.
 - Code verification: tsc --noEmit green; vite build green.
 - Open question: owner judges the refined palette/raft live; per-mark nudges remain one-line.
+
+## Round R008
+- Goal: owner refinement of the adopted raft mark — straighten the partition cut, make each minority branch one collinear ray (solid heartbeat → cut → dashed continuation aligned), narrow the composition ~7% by shortening the lines.
+- Preserved preferences: F006 pick (majority partition, crownless), F008/F009 register (whitish as structure: paper hairline on the cut's majority side, leader's paper rim), measured gaps (links stop short of every node; heartbeats fade at the cut, 0.5).
+- Changes (ProjectArtwork.tsx, RaftCenterMark only): S-curve cut → straight vertical (M152 18 L152 142, paper twin at x148); both branches rebuilt as single rays from the leader center (86,80) through the minority node centers — top ray slope −0.2609, bottom +0.2609; heartbeats end 12 units short of the cut, dashes resume 8 units past it and stop 15 short of the node centers (ray-true endpoints); minority nodes 208→201 with the vertical dash recentered; followers 40→46; bed ellipse rx 106→99. Content span 188→175 units ≈ −6.9% width, achieved by shorter lines with the gap conventions intact.
+- Before: artifacts/R008/r008-before-raft.png (equals the R007 state)
+- After: artifacts/R008/r008-after-raft.png
+- Visual inspection: performed on the real page (Chromium headless, 1440×900 @3×, card crop) — cut reads as one straight fault line with its paper hairline; no visible kink at the cut on either branch; composition tighter; node/leader character unchanged.
+- Code verification: tsc --noEmit green; vite build green (13.1s); branch collinearity verified numerically (all segment endpoints on the leader→node rays).
+- Open question: owner judges the straightened cut, aligned branches and −7% width live.
+
+## Feedback F010
+- Round: R008
+- Verdict: LIKED
+- Scope: the adopted raft cluster mark overall, landing page
+- Decision: the R007 raft mark (majority partition, soft cut, paper edge, crownless coral leader) is the accepted base; this round's asks refine it, not replace it
+- User source: "I like the raft cluster project card illustration on the main page"
+- Artifact: artifacts/R008/r008-before-raft.png (the liked state)
+- Supersedes: none
+
+## Feedback F011
+- Round: R008
+- Verdict: REQUESTED
+- Scope: the raft partition cut line, landing page card
+- Decision: the line cutting through the design must be straight (the soft S-cut reads too abstract)
+- User source: "it feels a bit too abstract. Please straighten the line that cuts through the design."
+- Artifact: artifacts/R008/r008-before-raft.png
+- Supersedes: none
+
+## Feedback F012
+- Round: R008
+- Verdict: REQUESTED
+- Scope: the two minority branch lines after the cut, landing page raft card
+- Decision: solid lines from the center and the transparent/dashed lines beyond the cut must line up — one continuous ray per branch
+- User source: "the two lines that branch out from it seem misaligned after the cut. The solid lines from the center to the transparent lines do not line up correctly."
+- Artifact: artifacts/R008/r008-before-raft.png
+- Supersedes: none
+
+## Feedback F013
+- Round: R008
+- Verdict: REQUESTED
+- Scope: raft mark width, landing page card
+- Decision: ~7% narrower, achieved by making the lines shorter (outer nodes pulled inward, gaps preserved)
+- User source: "make it smaller in width (by around 7%) by making lines shorter."
+- Artifact: artifacts/R008/r008-before-raft.png
+- Supersedes: none

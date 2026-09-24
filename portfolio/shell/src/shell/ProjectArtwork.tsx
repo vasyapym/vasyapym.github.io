@@ -78,11 +78,12 @@ export const INCUMBENT_MARKS: Partial<Record<ProjectCenter, () => ReactElement>>
   fox: FoxCenterMark,
 };
 
-/* ── 1 · Raft Cluster — coral spot ink, "majority partition", R007
-   refinement (chat-model salvage): the miter zigzag became a soft cubic
-   S-cut with a 1.25px paper edge on the majority side; links stop a measured
-   gap short of every node; heartbeats fade at the cut; the leader gains a
-   term ring and one drawn paper rim (the only whitish accent). ── */
+/* ── 1 · Raft Cluster — coral spot ink, "majority partition", R008
+   refinement: the S-cut straightened to one vertical fault line (paper
+   hairline on the majority side); each minority branch is now one straight
+   ray from the leader — solid heartbeat up to the cut, dashed continuation
+   after it, collinear so no kink; links stop a measured gap short of every
+   node; span pulled in ~7% by shortening the lines. ── */
 function RaftCenterMark() {
   return (
     <svg viewBox="0 0 260 160" aria-hidden="true">
@@ -94,39 +95,39 @@ function RaftCenterMark() {
           <circle cx="3.5" cy="3.5" r="1.9" fill="#ff6a5f" />
         </pattern>
       </defs>
-      <ellipse cx="124" cy="82" rx="106" ry="64" fill="url(#gem-raft-bed)" opacity="0.09" />
+      <ellipse cx="124" cy="82" rx="99" ry="64" fill="url(#gem-raft-bed)" opacity="0.09" />
       <ellipse className="gem-halo" style={haloVar(0.12)} cx="90" cy="80" rx="58" ry="40" fill="url(#gem-raft-glow)" opacity={0.12} />
 
       {/* majority links — measured, stop short of every node */}
       <g stroke="#b6ac95" strokeWidth="2.5" strokeLinecap="round" fill="none">
-        <line x1="67.6" y1="63.2" x2="50.3" y2="47.4" />
-        <line x1="67.6" y1="96.8" x2="50.3" y2="112.6" />
+        <line x1="68.8" y1="61.9" x2="55.6" y2="48.1" />
+        <line x1="68.8" y1="98.1" x2="55.6" y2="111.9" />
       </g>
-      {/* heartbeats that die at the cut */}
+      {/* heartbeats that die at the cut — collinear with the dashed rays */}
       <g stroke="#b6ac95" strokeWidth="2.5" strokeLinecap="round" fill="none" opacity="0.5">
-        <line x1="109.5" y1="71.5" x2="139" y2="60.7" />
-        <line x1="109.8" y1="87.8" x2="145" y2="99.4" />
+        <line x1="110.2" y1="73.7" x2="140" y2="65.9" />
+        <line x1="110.2" y1="86.3" x2="140" y2="94.1" />
       </g>
 
-      {/* the partition — one soft S-cut with a paper edge on the majority side */}
-      <path d="M152 18 C138 56 166 104 152 142" fill="none" stroke="#7d7669" strokeWidth="3" strokeLinecap="round" />
-      <path d="M148 18 C134 56 162 104 148 142" fill="none" stroke="#eeeae0" strokeWidth="1.25" strokeLinecap="round" opacity="0.75" />
+      {/* the partition — one straight vertical cut, paper edge on the majority side */}
+      <path d="M152 18 L152 142" fill="none" stroke="#7d7669" strokeWidth="3" strokeLinecap="round" />
+      <path d="M148 18 L148 142" fill="none" stroke="#eeeae0" strokeWidth="1.25" strokeLinecap="round" opacity="0.75" />
 
-      {/* orphaned minority — soft round-cap dashes */}
+      {/* orphaned minority — soft round-cap dashes on the leader's rays */}
       <g stroke="#7d7669" strokeWidth="2" strokeLinecap="round" strokeDasharray="1.5 5" fill="none">
-        <line x1="160" y1="59" x2="193.2" y2="52.8" />
-        <line x1="164" y1="100" x2="193.4" y2="106.7" />
-        <line x1="208" y1="65" x2="208" y2="95" />
+        <line x1="160" y1="60.7" x2="186.5" y2="53.8" />
+        <line x1="160" y1="99.3" x2="186.5" y2="106.2" />
+        <line x1="201" y1="65" x2="201" y2="95" />
       </g>
       <g fill="#26333b" stroke="#7d7669" strokeWidth="2" strokeLinecap="round" strokeDasharray="1.5 4.5">
-        <circle cx="208" cy="50" r="10" pathLength={60} />
-        <circle cx="208" cy="110" r="10" pathLength={60} />
+        <circle cx="201" cy="50" r="10" pathLength={60} />
+        <circle cx="201" cy="110" r="10" pathLength={60} />
       </g>
 
       {/* followers — bone bodies */}
       <g fill="#b6ac95">
-        <circle cx="40" cy="38" r="10" />
-        <circle cx="40" cy="122" r="10" />
+        <circle cx="46" cy="38" r="10" />
+        <circle cx="46" cy="122" r="10" />
       </g>
 
       {/* leader — coral core, term ring, one drawn paper rim */}
