@@ -1366,13 +1366,16 @@ body:has(.practice-map-field) { background: #0b1317; }
     font-size: clamp(0.7rem, 1.25vh, 0.82rem);
   }
 
-  /* Never smaller than the approved width-driven size; grows with height;
-     the vw guard keeps narrow-but-tall windows at the base size; hard cap
-     4.75rem keeps the display type restrained. */
+  /* Never smaller than the approved width-driven size; grows with height,
+     but softly (owner round 2026-09-24: the 7.22vh/4.51rem band drove the
+     hero copy to ~55% of the composition on a 1920x1080 dpr-1 desktop vs
+     ~40% on the Mac reference — 5.5vh and a 3.75rem cap keep the growth
+     without the drift; the vw guard keeps narrow-but-tall windows at the
+     base size). */
   .signal-index-hero-fluid .signal-index-hero-headline {
     font-size: max(
       clamp(1.67rem, calc((100vw - 72px) / 20.4), 3.5rem),
-      min(7.22vh, 4.09vw, 4.51rem)
+      min(5.5vh, 4.09vw, 3.75rem)
     );
   }
 
