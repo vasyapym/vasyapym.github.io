@@ -78,53 +78,58 @@ export const INCUMBENT_MARKS: Partial<Record<ProjectCenter, () => ReactElement>>
   fox: FoxCenterMark,
 };
 
-/* ── 1 · Raft Cluster — "split-brain partition", R015: candidate b verbatim —
-   composition AND coral dressing (leader disc, coral square-cap links,
-   jagged zigzag fault line, dark-node strokes, coral dotted beds). Owner
-   customizations only: beds stepped down (less prominent), white square
-   glints removed per the standing no-random-whites ban, one quiet coral
-   halo keeps the hover pulse device. ── */
+/* ── 1 · Raft Cluster — "split-brain partition", R017: same subject, spine-like
+   language per owner (simplistic/consistent/natural) — one coral mass (the
+   leader disc) on an empty stage, outlined peers (solid bone = majority,
+   dashed slate = minority), thin bone mesh with measured gaps, faint
+   severed attempts dying at one thin straight fault line, neutral sparse
+   bed @0.09 + one quiet coral halo. ── */
 function RaftCenterMark() {
   return (
-    <svg viewBox="0 0 260 160" aria-hidden="true">
+    <svg viewBox="-2 0 260 160" aria-hidden="true">
       <defs>
-        <pattern id="gem-raft-bed" width="6" height="6" patternUnits="userSpaceOnUse">
-          <circle cx="3" cy="3" r="0.9" fill="#ff6a5f" />
+        <pattern id="gem-raft-bed" width="11" height="11" patternUnits="userSpaceOnUse">
+          <circle cx="5.5" cy="5.5" r="1.6" fill="#7d7669" />
         </pattern>
-        <pattern id="gem-raft-glow" width="6" height="6" patternUnits="userSpaceOnUse">
-          <circle cx="3" cy="3" r="1.7" fill="#ff6a5f" />
+        <pattern id="gem-raft-glow" width="7" height="7" patternUnits="userSpaceOnUse">
+          <circle cx="3.5" cy="3.5" r="1.9" fill="#ff6a5f" />
         </pattern>
       </defs>
-      <ellipse cx="100" cy="84" rx="88" ry="58" fill="url(#gem-raft-bed)" opacity="0.14" />
-      <ellipse cx="78" cy="86" rx="48" ry="36" fill="url(#gem-raft-glow)" opacity="0.2" />
-      <ellipse className="gem-halo" style={haloVar(0.12)} cx="78" cy="86" rx="30" ry="22" fill="url(#gem-raft-glow)" opacity={0.12} />
+      <ellipse cx="128" cy="86" rx="99" ry="60" fill="url(#gem-raft-bed)" opacity="0.09" />
+      <ellipse className="gem-halo" style={haloVar(0.12)} cx="78" cy="80" rx="44" ry="32" fill="url(#gem-raft-glow)" opacity={0.12} />
 
-      {/* split-brain mesh — candidate b verbatim */}
-      <line x1="62" y1="56" x2="48" y2="112" stroke="#ff6a5f" strokeWidth="3" />
-      <line x1="62" y1="56" x2="98" y2="104" stroke="#ff6a5f" strokeWidth="3" />
-      <line x1="48" y1="112" x2="98" y2="104" stroke="#ff6a5f" strokeWidth="3" />
-      <line x1="192" y1="62" x2="208" y2="112" stroke="#4a4a52" strokeWidth="3" strokeDasharray="4 5" />
-      <line x1="77" y1="57" x2="126" y2="60" stroke="#ff6a5f" strokeWidth="3" strokeLinecap="square" />
-      <line x1="109" y1="105" x2="126" y2="106" stroke="#ff6a5f" strokeWidth="3" strokeLinecap="square" />
-      <line x1="164" y1="61" x2="181" y2="62" stroke="#4a4a52" strokeWidth="3" strokeLinecap="square" />
-      <line x1="164" y1="108" x2="197" y2="111" stroke="#4a4a52" strokeWidth="3" strokeLinecap="square" />
+      {/* split-brain mesh — thin bone, measured gaps */}
+      <g stroke="#b6ac95" strokeWidth="2" strokeLinecap="round" fill="none">
+        <line x1="56.2" y1="79.1" x2="51.3" y2="99" />
+        <line x1="76.3" y1="75.1" x2="90" y2="93.3" />
+        <line x1="61.2" y1="109.9" x2="84.8" y2="106.1" />
+      </g>
+      {/* severed attempts that die at the cut */}
+      <g stroke="#b6ac95" strokeWidth="2" strokeLinecap="round" fill="none" opacity="0.5">
+        <line x1="85.8" y1="57.1" x2="138" y2="59.5" />
+        <line x1="123" y1="105.8" x2="138" y2="106.9" />
+      </g>
 
-      {/* the jagged fault line — candidate b verbatim */}
-      <polyline
-        points="150,18 136,46 154,72 136,98 154,124 140,148"
-        fill="none"
-        stroke="#ff6a5f"
-        strokeWidth="4"
-        strokeLinejoin="miter"
-      />
+      {/* the partition — one thin straight line */}
+      <path d="M150 36 L150 126" fill="none" stroke="#7d7669" strokeWidth="2.5" strokeLinecap="round" />
 
-      {/* nodes — candidate b verbatim: coral leader, coral-ringed majority peers,
-          grey-ringed orphaned minority */}
-      <circle cx="62" cy="56" r="15" fill="#ff6a5f" />
-      <circle cx="48" cy="112" r="11" fill="#26262c" stroke="#ff6a5f" strokeWidth="3" />
-      <circle cx="98" cy="104" r="11" fill="#26262c" stroke="#ff6a5f" strokeWidth="3" />
-      <circle cx="192" cy="62" r="11" fill="#1b1b20" stroke="#4a4a52" strokeWidth="3" />
-      <circle cx="208" cy="112" r="11" fill="#1b1b20" stroke="#4a4a52" strokeWidth="3" />
+      {/* orphaned minority — empty dashed outlines, slate */}
+      <g stroke="#7d7669" strokeWidth="1.5" strokeLinecap="round" strokeDasharray="1.5 5" fill="none">
+        <line x1="158" y1="60.4" x2="176.7" y2="61.3" />
+        <line x1="158" y1="108.4" x2="192.8" y2="110.9" />
+        <line x1="196.2" y1="75.2" x2="203.8" y2="98.8" />
+        <circle cx="192" cy="62" r="9.5" />
+        <circle cx="208" cy="112" r="9.5" />
+      </g>
+
+      {/* majority peers — solid bone outlines */}
+      <g fill="none" stroke="#b6ac95" strokeWidth="2">
+        <circle cx="48" cy="112" r="9.5" />
+        <circle cx="98" cy="104" r="9.5" />
+      </g>
+
+      {/* leader — the one hue mass, sized to match the other cards' accents */}
+      <circle cx="62" cy="56" r="11" fill="#ff6a5f" />
     </svg>
   );
 }
@@ -303,14 +308,14 @@ function BlastCenterMark() {
       <path d="M93 76 L99 80 L93 84 Z" fill="#465059" />
       <path d="M161 76 L167 80 L161 84 Z" fill="#465059" />
 
-      {/* frame 1: spark */}
+      {/* frame 1: spark — centered on its cell (frame spans 32..92, center x62) */}
       <g fill="#d99a55">
-        <rect x="54" y="62" width="4" height="9" rx="1" />
-        <rect x="54" y="89" width="4" height="9" rx="1" />
-        <rect x="38" y="78" width="9" height="4" rx="1" />
-        <rect x="65" y="78" width="9" height="4" rx="1" />
+        <rect x="60" y="62" width="4" height="9" rx="1" />
+        <rect x="60" y="89" width="4" height="9" rx="1" />
+        <rect x="44" y="78" width="9" height="4" rx="1" />
+        <rect x="71" y="78" width="9" height="4" rx="1" />
       </g>
-      <circle cx="56" cy="80" r="5" fill="#ffb347" />
+      <circle cx="62" cy="80" r="5" fill="#ffb347" />
 
       {/* frame 2: burst — the one white-hot core */}
       <polygon

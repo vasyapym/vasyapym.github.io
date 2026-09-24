@@ -440,3 +440,41 @@ detail (SVG marks); concepts must be fresh/original yet simple. Presented on
 - User source: "make the fox green/white combination (i.e. as initial one + whiteish/paperish for consistency)"
 - Artifact: artifacts/R013/r013-after-fox.png (the rust state being replaced)
 - Supersedes: F026 (natural rust) — fox colour scope
+
+## Round R017
+- Goal: owner steer — the raft mark more simplistic/consistent/natural (Spine illustration as reference) and, per the follow-up clarification, NOT more prominent than the other illustrations.
+- Preserved preferences: F025 split-brain subject; F009 no white glints; F005 less-prominent; hover halo device; measured-gap and re-center conventions.
+- Changes (RaftCenterMark rewritten to the spine-like language, same split-brain composition): coral everything stripped to ONE small hue mass — leader disc r15 → r11 (sized like the other cards' accent masses); peers/minority become OUTLINES (solid bone 2px majority circles, empty dashed slate 1.5px minority circles) instead of dark fills with thick strokes; mesh links coral 3px → bone 2px round-cap with the measured gaps; severed attempts bone 2px @0.5 dying 12 short of the cut; jagged coral zigzag → one thin straight fault line #7d7669 2.5px (y36–y126); double coral beds → neutral sparse bed @0.09 + one quiet coral halo @0.12; viewBox re-centered "-2 0 260 160".
+- Before: artifacts/R015/r015-after-raft.png
+- After: artifacts/R017/r017-after-raft.png
+- Visual inspection: performed on the real page (Chromium headless, 1440×900 @3×, card crop) — the mark reads quiet: outline-diagram family with one small coral mass, hairline grammar matching the spine reference; no loud fields.
+- Code verification: tsc --noEmit green; vite build green (16.7s).
+- Open question: owner judges the quiet split-brain live.
+
+## Feedback F030
+- Round: R017
+- Verdict: REQUESTED (refines F028)
+- Scope: the raft mark's prominence/stroke language, landing page card
+- Decision: simplistic/consistent/natural like the Spine illustration; the mark must NOT stand out among the other illustrations — its coral is limited to one small mass, structure moves to thin bone/slate strokes
+- User source: "make raft cluster one a bit more simplistic/consistent/natural (i guess you can see Spine project's illustration for reference)." + "i mean - it shouldn't stand out. it is more prominent than other illustrations (it shouldn't be)"
+- Artifact: artifacts/R015/r015-after-raft.png (the loud state)
+- Supersedes: narrows F028 — the candidate's coral dressing is demoted to one hue accent
+
+## Round R018
+- Goal: owner bug report — the blast filmstrip's first frame element (spark) is off-center; it must sit centered like the other two frames.
+- Preserved preferences: three-frame filmstrip composition, ember register, frame arrows.
+- Changes (BlastCenterMark only): frame-1 content shifted +6 in x — cross bars (54,62)/(54,89)/(38,78)/(65,78) → (60,62)/(60,89)/(44,78)/(71,78), core (56,80) → (62,80); the spark now centers on its cell (span 32..92, center x62) exactly as frame 2 (130,80) and frame 3 (198,80) do.
+- Before: artifacts/R006/r006-cards-full-1440.png (blast cell)
+- After: artifacts/R018/r018-after-blast.png
+- Visual inspection: performed on the real page (@3×) — spark cross centered in its cell; frames read as an even triptych.
+- Code verification: tsc --noEmit green; vite build green.
+- Open question: owner judges the centered spark live.
+
+## Feedback F031
+- Round: R018
+- Verdict: REQUESTED
+- Scope: the blast filmstrip's first frame element, landing page card
+- Decision: the first frame's spark sits centered in its frame like the other two
+- User source: "Explosion project illustration - first 'frame' element is positioned not in the centre. it should be positioned in the centre as other two elements"
+- Artifact: artifacts/R018/r018-after-blast.png
+- Supersedes: none
