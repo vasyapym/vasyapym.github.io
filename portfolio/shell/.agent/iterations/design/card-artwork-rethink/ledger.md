@@ -421,3 +421,22 @@ detail (SVG marks); concepts must be fresh/original yet simple. Presented on
 - User source: "make it more like original split-brain"
 - Artifact: artifacts/R014/r014-after-raft.png (too far from the original)
 - Supersedes: narrows F027's "customize into the adopted register" — the adopted register's dressing is NOT wanted for this mark; the candidate's own dressing stands, prominence-tuned
+
+## Round R016
+- Goal: owner re-pick for the fox — green/white combination instead of R013's natural rust: the initial candidate's palette + whitish/paper accents for consistency.
+- Preserved preferences: paper tail tip/chest/ridge (whiteish consistency), deep-ink eye/nose, teal scene register, coral-halo device.
+- Changes (FoxCenterMark only): body group #a8552c → #4fd1a5 (the initial ForestF candidate's teal); legs #465059 → #1f5e4c (the candidate's dark green); paper accents stay (tail tip, chest patch, back ridge).
+- Before: artifacts/R013/r013-after-fox.png (rust state)
+- After: artifacts/R016/r016-after-fox.png
+- Visual inspection: performed on the real page (Chromium headless, 1440×900 @3×, card crop) — fox reads green/white: teal body, dark green legs, paper tail tip + chest + ridge, deep-ink eye; teal scene coherent.
+- Code verification: tsc --noEmit green; vite build green (16.9s).
+- Open question: owner judges the green/white fox live.
+
+## Feedback F029
+- Round: R016
+- Verdict: REQUESTED
+- Scope: the evening-forest fox colour, landing page card
+- Decision: green/white combination — the initial candidate's green body with whitish/paperish accents for consistency (supersedes F026's natural rust)
+- User source: "make the fox green/white combination (i.e. as initial one + whiteish/paperish for consistency)"
+- Artifact: artifacts/R013/r013-after-fox.png (the rust state being replaced)
+- Supersedes: F026 (natural rust) — fox colour scope

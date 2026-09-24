@@ -226,9 +226,10 @@ function FoxCenterMark() {
         <rect x="48" y="108" width="10" height="4" />
       </g>
 
-      {/* fox — natural rust body (owner: non-white, natural fox colour), paper
-          tail tip + chest, one paper ridge from tail to shoulder */}
-      <g fill="#a8552c">
+      {/* fox — green/white combination per owner: initial candidate's teal body
+          (#4fd1a5) + dark green legs (#1f5e4c), whitish/paper accents for
+          consistency (paper tail tip + chest + back ridge) */}
+      <g fill="#4fd1a5">
         <rect x="72" y="92" width="28" height="10" />
         <rect x="100" y="96" width="40" height="16" />
         <rect x="140" y="88" width="16" height="16" />
@@ -245,7 +246,7 @@ function FoxCenterMark() {
       </g>
       <rect x="149" y="92" width="3" height="3" fill="#26333b" />
       <rect x="162" y="96" width="3" height="3" fill="#26333b" />
-      <g fill="#465059">
+      <g fill="#1f5e4c">
         <rect x="104" y="112" width="5" height="12" />
         <rect x="116" y="112" width="5" height="8" />
         <rect x="128" y="112" width="5" height="12" />
