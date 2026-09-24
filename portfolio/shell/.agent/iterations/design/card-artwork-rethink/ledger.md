@@ -214,3 +214,58 @@ detail (SVG marks); concepts must be fresh/original yet simple. Presented on
 - User source: "make it smaller in width (by around 7%) by making lines shorter."
 - Artifact: artifacts/R008/r008-before-raft.png
 - Supersedes: none
+
+## Round R009
+- Goal: owner micro-steer batch on the refined raft mark: cut −10% overall, dashed continuations −6%, follower balls −5%, leader cluster −7%, then re-center.
+- Preserved preferences: F006 pick, F008/F009 register, R008 straight cut + collinear branches + measured gaps (links stop short of nodes, heartbeats fade at the cut).
+- Changes (RaftCenterMark only): cut y18–142 → y24–136 (124→112 units, −9.7% ≈ 10%, trimmed both ends, paper twin follows); dashed branch lines → (160.8,60.5)–(185.7,54) and mirror (−6%: 27.4→25.7 units, 0.8 off each end, endpoints still on the leader rays); followers r10→9.5; leader core r16→14.9, term ring r21→19.5, paper rim arc r11→10.2; composition re-centered horizontally via viewBox "-6 0 260 160" (content center 123.75 → box center 130) — interpretation of "adjust the centering", flagged below.
+- Before: artifacts/R008/r008-after-raft.png
+- After: artifacts/R009/r009-after-raft.png
+- Visual inspection: performed on the real page (Chromium headless, 1440×900 @3×, card crop) — the shorter cut clears both branch crossings; branches stay collinear; smaller balls/leader keep the register; the mark reads centered in the card.
+- Code verification: tsc --noEmit green; vite build green (16.8s).
+- Open question: verdict per F014–F018; "adjust the center" was implemented as horizontal re-centering of the whole mark — if the leader node itself was meant instead, say so.
+
+## Feedback F014
+- Round: R009
+- Verdict: REQUESTED
+- Scope: the raft partition cut line length, landing page card
+- Decision: cut shorter on both ends, ~10% smaller overall
+- User source: "make that cutting line shorter on both ends. overall that cutting line should be 10% smaller"
+- Artifact: artifacts/R008/r008-after-raft.png
+- Supersedes: none
+
+## Feedback F015
+- Round: R009
+- Verdict: REQUESTED
+- Scope: the two dashed minority continuations after the cut, landing page raft card
+- Decision: ~6% shorter
+- User source: "also makee the transparent lines (two lines that go after cutting) shorter by around 6%"
+- Artifact: artifacts/R008/r008-after-raft.png
+- Supersedes: none
+
+## Feedback F016
+- Round: R009
+- Verdict: REQUESTED
+- Scope: the two bone follower balls (left side), landing page raft card
+- Decision: ~5% smaller
+- User source: "also make white round balls on the left smaller by around 5%."
+- Artifact: artifacts/R008/r008-after-raft.png
+- Supersedes: none
+
+## Feedback F017
+- Round: R009
+- Verdict: REQUESTED (interpretation flagged)
+- Scope: raft mark placement, landing page card
+- Decision: re-center the composition after the size changes — implemented as a horizontal re-center (+6-unit viewBox shift); if the leader node itself was meant, the round gets a follow-up
+- User source: "and after that adjust the centering"
+- Artifact: artifacts/R009/r009-after-raft.png
+- Supersedes: none
+
+## Feedback F018
+- Round: R009
+- Verdict: REQUESTED
+- Scope: the coral leader ball (center), landing page raft card
+- Decision: ~7% smaller (core, term ring and paper rim scaled together)
+- User source: "also make red ball at the centre smaller by around 7%"
+- Artifact: artifacts/R008/r008-after-raft.png
+- Supersedes: none

@@ -83,10 +83,12 @@ export const INCUMBENT_MARKS: Partial<Record<ProjectCenter, () => ReactElement>>
    hairline on the majority side); each minority branch is now one straight
    ray from the leader — solid heartbeat up to the cut, dashed continuation
    after it, collinear so no kink; links stop a measured gap short of every
-   node; span pulled in ~7% by shortening the lines. ── */
+    node; span pulled in ~7% by shortening the lines. R009 owner micro-steers:
+    cut trimmed 10% overall (both ends), dashed continuations −6%, followers
+    −5% (r9.5), leader cluster −7%; composition re-centered (viewBox −6). ── */
 function RaftCenterMark() {
   return (
-    <svg viewBox="0 0 260 160" aria-hidden="true">
+    <svg viewBox="-6 0 260 160" aria-hidden="true">
       <defs>
         <pattern id="gem-raft-bed" width="11" height="11" patternUnits="userSpaceOnUse">
           <circle cx="5.5" cy="5.5" r="1.6" fill="#7d7669" />
@@ -109,14 +111,16 @@ function RaftCenterMark() {
         <line x1="110.2" y1="86.3" x2="140" y2="94.1" />
       </g>
 
-      {/* the partition — one straight vertical cut, paper edge on the majority side */}
-      <path d="M152 18 L152 142" fill="none" stroke="#7d7669" strokeWidth="3" strokeLinecap="round" />
-      <path d="M148 18 L148 142" fill="none" stroke="#eeeae0" strokeWidth="1.25" strokeLinecap="round" opacity="0.75" />
+      {/* the partition — one straight vertical cut, paper edge on the majority side;
+          trimmed 10% overall (y24–y136, was y18–y142) */}
+      <path d="M152 24 L152 136" fill="none" stroke="#7d7669" strokeWidth="3" strokeLinecap="round" />
+      <path d="M148 24 L148 136" fill="none" stroke="#eeeae0" strokeWidth="1.25" strokeLinecap="round" opacity="0.75" />
 
-      {/* orphaned minority — soft round-cap dashes on the leader's rays */}
+      {/* orphaned minority — soft round-cap dashes on the leader's rays;
+          each continuation trimmed ~6% (0.8 unit off both ends) */}
       <g stroke="#7d7669" strokeWidth="2" strokeLinecap="round" strokeDasharray="1.5 5" fill="none">
-        <line x1="160" y1="60.7" x2="186.5" y2="53.8" />
-        <line x1="160" y1="99.3" x2="186.5" y2="106.2" />
+        <line x1="160.8" y1="60.5" x2="185.7" y2="54" />
+        <line x1="160.8" y1="99.5" x2="185.7" y2="106" />
         <line x1="201" y1="65" x2="201" y2="95" />
       </g>
       <g fill="#26333b" stroke="#7d7669" strokeWidth="2" strokeLinecap="round" strokeDasharray="1.5 4.5">
@@ -124,16 +128,16 @@ function RaftCenterMark() {
         <circle cx="201" cy="110" r="10" pathLength={60} />
       </g>
 
-      {/* followers — bone bodies */}
+      {/* followers — bone bodies, −5% (r9.5) */}
       <g fill="#b6ac95">
-        <circle cx="46" cy="38" r="10" />
-        <circle cx="46" cy="122" r="10" />
+        <circle cx="46" cy="38" r="9.5" />
+        <circle cx="46" cy="122" r="9.5" />
       </g>
 
-      {/* leader — coral core, term ring, one drawn paper rim */}
-      <circle cx="86" cy="80" r="21" fill="none" stroke="#ff6a5f" strokeWidth="1.25" opacity="0.45" />
-      <circle cx="86" cy="80" r="16" fill="#ff6a5f" />
-      <path d="M75 80 A11 11 0 0 1 86 69" fill="none" stroke="#f4efe4" strokeWidth="2" strokeLinecap="round" opacity="0.6" />
+      {/* leader — coral core −7%, term ring, one drawn paper rim */}
+      <circle cx="86" cy="80" r="19.5" fill="none" stroke="#ff6a5f" strokeWidth="1.25" opacity="0.45" />
+      <circle cx="86" cy="80" r="14.9" fill="#ff6a5f" />
+      <path d="M75.8 80 A10.2 10.2 0 0 1 86 69.8" fill="none" stroke="#f4efe4" strokeWidth="2" strokeLinecap="round" opacity="0.6" />
     </svg>
   );
 }
