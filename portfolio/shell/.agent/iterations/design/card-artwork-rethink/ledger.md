@@ -516,3 +516,17 @@ detail (SVG marks); concepts must be fresh/original yet simple. Presented on
 - User source: "make 15% even more prominent"
 - Artifact: artifacts/R019/r019-after-raft.png
 - Supersedes: extends F032
+
+## Round R020 verdict (saga close)
+- Owner approval: "ok it is fine" — the raft mark at R020 prominence is accepted; the card-art rethink saga closes.
+- Final adopted state: raft = split-brain partition in the spine-like outline language at the +30% prominence step (R017+R019+R020); fox = green/white combination (R016); blast = filmstrip with centered spark (R018); planck unchanged from R007.
+- Open items: none in this saga. (Janitor flags the stray root graph store — a separate cross-session migration, not part of this saga.)
+
+## Feedback F034
+- Round: R020
+- Verdict: LIKED
+- Scope: the raft mark's final prominence step (cumulative +30% over R017), landing page card
+- Decision: the R020 state is the accepted resting state for the raft mark; no further prominence steps
+- User source: "ok it is fine"
+- Artifact: artifacts/R020/r020-after-raft.png
+- Supersedes: none (closes the F010–F033 refinement chain)
