@@ -478,3 +478,22 @@ detail (SVG marks); concepts must be fresh/original yet simple. Presented on
 - User source: "Explosion project illustration - first 'frame' element is positioned not in the centre. it should be positioned in the centre as other two elements"
 - Artifact: artifacts/R018/r018-after-blast.png
 - Supersedes: none
+
+## Round R019
+- Goal: owner steer — ONLY the raft mark ~15% more prominent, no radical changes (the fox/blast asks from the same message were withdrawn by the follow-up "actually only raft cluster... and that's it").
+- Preserved preferences: everything structural from R017 (spine-like language, one hue mass, outline diagram, straight thin cut, measured gaps); fox and blast untouched.
+- Changes (RaftCenterMark only, proportional ~15% bumps): leader disc r11 → r12.5; mesh links 2 → 2.3px; severed attempts 2 → 2.3px @0.5 → 0.55; majority peer outlines 2 → 2.3px; fault line 2.5 → 2.9px; raft halo 0.12 → 0.14. No structural or compositional changes.
+- Before: artifacts/R017/r017-after-raft.png
+- After: artifacts/R019/r019-after-raft.png
+- Visual inspection: performed on the real page (Chromium headless, 1440×900 @3×, card crop) — the mark reads slightly stronger (bolder lines, larger leader, slightly warmer halo) while keeping the quiet outline-diagram character.
+- Code verification: tsc --noEmit green; vite build green (18.9s).
+- Open question: owner judges the +15% presence live.
+
+## Feedback F032
+- Round: R019
+- Verdict: REQUESTED (narrows the same message's earlier three-part ask)
+- Scope: the raft mark's prominence only, landing page card
+- Decision: raft ~15% more prominent; evening forest and explosion stay as they are (the fox/blast prominence asks were withdrawn by the owner's follow-up)
+- User source: "make raft cluster one a bit more prominentt, by around 10% more prominent..." → "actually only raft cluster - make it around 15% more prominent. and that's it"
+- Artifact: artifacts/R017/r017-after-raft.png
+- Supersedes: partially reverses F030's quieting (+15% back); fox/blast part of the message withdrawn before implementation

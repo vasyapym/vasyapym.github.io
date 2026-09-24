@@ -96,22 +96,22 @@ function RaftCenterMark() {
         </pattern>
       </defs>
       <ellipse cx="128" cy="86" rx="99" ry="60" fill="url(#gem-raft-bed)" opacity="0.09" />
-      <ellipse className="gem-halo" style={haloVar(0.12)} cx="78" cy="80" rx="44" ry="32" fill="url(#gem-raft-glow)" opacity={0.12} />
+      <ellipse className="gem-halo" style={haloVar(0.12)} cx="78" cy="80" rx="44" ry="32" fill="url(#gem-raft-glow)" opacity={0.14} />
 
       {/* split-brain mesh — thin bone, measured gaps */}
-      <g stroke="#b6ac95" strokeWidth="2" strokeLinecap="round" fill="none">
+      <g stroke="#b6ac95" strokeWidth="2.3" strokeLinecap="round" fill="none">
         <line x1="56.2" y1="79.1" x2="51.3" y2="99" />
         <line x1="76.3" y1="75.1" x2="90" y2="93.3" />
         <line x1="61.2" y1="109.9" x2="84.8" y2="106.1" />
       </g>
       {/* severed attempts that die at the cut */}
-      <g stroke="#b6ac95" strokeWidth="2" strokeLinecap="round" fill="none" opacity="0.5">
+      <g stroke="#b6ac95" strokeWidth="2.3" strokeLinecap="round" fill="none" opacity="0.55">
         <line x1="85.8" y1="57.1" x2="138" y2="59.5" />
         <line x1="123" y1="105.8" x2="138" y2="106.9" />
       </g>
 
       {/* the partition — one thin straight line */}
-      <path d="M150 36 L150 126" fill="none" stroke="#7d7669" strokeWidth="2.5" strokeLinecap="round" />
+      <path d="M150 36 L150 126" fill="none" stroke="#7d7669" strokeWidth="2.9" strokeLinecap="round" />
 
       {/* orphaned minority — empty dashed outlines, slate */}
       <g stroke="#7d7669" strokeWidth="1.5" strokeLinecap="round" strokeDasharray="1.5 5" fill="none">
@@ -123,13 +123,13 @@ function RaftCenterMark() {
       </g>
 
       {/* majority peers — solid bone outlines */}
-      <g fill="none" stroke="#b6ac95" strokeWidth="2">
+      <g fill="none" stroke="#b6ac95" strokeWidth="2.3">
         <circle cx="48" cy="112" r="9.5" />
         <circle cx="98" cy="104" r="9.5" />
       </g>
 
       {/* leader — the one hue mass, sized to match the other cards' accents */}
-      <circle cx="62" cy="56" r="11" fill="#ff6a5f" />
+      <circle cx="62" cy="56" r="12.5" fill="#ff6a5f" />
     </svg>
   );
 }
