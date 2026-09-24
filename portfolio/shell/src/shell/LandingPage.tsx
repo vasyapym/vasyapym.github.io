@@ -839,13 +839,13 @@ export default function LandingPage({
             <h1
               id="signal-index-title"
               className="signal-index-hero-headline"
-              aria-label="machines with buttons & bugs"
+              aria-label="small machines with buttons & bugs"
             >
               <span className="signal-index-hero-line" aria-hidden="true">
-                <span className="signal-index-hero-line-in">machines</span>
+                <span className="signal-index-hero-line-in">small machines</span>
               </span>
               <span className="signal-index-hero-line" aria-hidden="true">
-                <span className="signal-index-hero-line-in">w/buttons</span>
+                <span className="signal-index-hero-line-in">w/ buttons</span>
               </span>
               <span className="signal-index-hero-line" aria-hidden="true">
                 <span className="signal-index-hero-line-in">
