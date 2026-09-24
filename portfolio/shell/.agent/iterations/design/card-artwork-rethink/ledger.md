@@ -402,3 +402,22 @@ detail (SVG marks); concepts must be fresh/original yet simple. Presented on
 - User source: "nope. you totally messed up the raft cluster one. i meant just customize new chosen option. (i.e. less prominent etc.). you kinda combined both and it looks ugly. i.e. i changed my choice. you need to make it consistent/customize it"
 - Artifact: artifacts/R012/r012-after-raft.png
 - Supersedes: F025's implementation only (the split-brain base choice stands; geometry micro-steers F010–F024 were majority-partition-scoped and do NOT carry over as constraints, only their language conventions do)
+
+## Round R015
+- Goal: restore the split-brain candidate faithfully (R014's register translation was still too far from the original) — candidate b verbatim, customized only in prominence.
+- Preserved preferences: F025 base choice (split-brain); F009 no-random-white-glints ban (the candidate's two white squares stay out); F005 less-prominent direction (beds stepped down); hover halo device kept quiet.
+- Changes (RaftCenterMark rewritten): RaftB verbatim — leader plain coral disc r15 at (62,56), coral-ringed dark majority peers r11 at (48,112)/(98,104), grey-ringed dark minority r11 at (192,62)/(208,112), coral 3px square-cap mesh + attempts (77,57→126,60; 109,105→126,106), grey 3px minority rays + dashed 4/5 pair link, jagged coral zigzag polyline (150,18 136,46 154,72 136,98 154,124 140,148) 4px miter, coral dotted beds; customizations: bed opacities 0.3/0.38 → 0.14/0.2, white glints deleted, one quiet coral halo @0.12 (78,86) keeps the hover pulse; viewBox back to the candidate's "0 0 260 160".
+- Before: artifacts/R014/r014-after-raft.png
+- After: artifacts/R015/r015-after-raft.png
+- Visual inspection: performed on the real page (Chromium headless, 1440×900 @3×, card crop) — the mark now reads as the art-directions candidate: coral-dominant split-brain with the jagged fault; beds quiet; no random whites.
+- Code verification: tsc --noEmit green; vite build green (21.7s).
+- Open question: owner judges the faithful split-brain live.
+
+## Feedback F028
+- Round: R015
+- Verdict: REQUESTED
+- Scope: the raft split-brain mark, landing page card
+- Decision: closer to the original split-brain candidate — composition AND its coral character restored (jagged zigzag cut, coral mesh, dark-node strokes, coral beds); customization limited to prominence (softer beds) and the white-glint ban
+- User source: "make it more like original split-brain"
+- Artifact: artifacts/R014/r014-after-raft.png (too far from the original)
+- Supersedes: narrows F027's "customize into the adopted register" — the adopted register's dressing is NOT wanted for this mark; the candidate's own dressing stands, prominence-tuned
