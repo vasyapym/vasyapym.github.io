@@ -78,16 +78,17 @@ export const INCUMBENT_MARKS: Partial<Record<ProjectCenter, () => ReactElement>>
   fox: FoxCenterMark,
 };
 
-/* ── 1 · Raft Cluster — coral spot ink, "split-brain partition", R012 subject
-   swap: the majority side is a fully meshed trio (leader + two followers,
-   RaftB's split-brain story from the art-directions round), severed attempts
-   at the cut come from the leader (upper) and a follower (lower), minority
-   pair orphaned. Everything else is the adopted language: single straight
-   cut, bone links with measured gaps, neutral dotted bed @0.09, coral halo,
-   dashed dark minority balls, leader core/term ring/paper rim, re-centered. ── */
+/* ── 1 · Raft Cluster — coral spot ink, "split-brain partition", R014 redo:
+   candidate b (RaftB) is the base — its own composition: leader upper-left
+   meshed to two followers, orphaned pair lower-right, two severed attempts at
+   the cut. Customized into the adopted register (less prominent): neutral
+   dotted bed @0.09, one coral halo @0.12, bone 2.5 links with measured gaps,
+   0.5 heartbeats dying 12 short of the single straight cut, dashes resuming 8
+   past it, dashed dark minority balls, leader core/term ring/paper rim, no
+   white glints, re-centered viewBox. ── */
 function RaftCenterMark() {
   return (
-    <svg viewBox="-6 0 260 160" aria-hidden="true">
+    <svg viewBox="-2 0 260 160" aria-hidden="true">
       <defs>
         <pattern id="gem-raft-bed" width="11" height="11" patternUnits="userSpaceOnUse">
           <circle cx="5.5" cy="5.5" r="1.6" fill="#7d7669" />
@@ -96,47 +97,45 @@ function RaftCenterMark() {
           <circle cx="3.5" cy="3.5" r="1.9" fill="#ff6a5f" />
         </pattern>
       </defs>
-      <ellipse cx="124" cy="82" rx="99" ry="64" fill="url(#gem-raft-bed)" opacity="0.09" />
-      <ellipse className="gem-halo" style={haloVar(0.12)} cx="90" cy="80" rx="58" ry="40" fill="url(#gem-raft-glow)" opacity={0.12} />
+      <ellipse cx="128" cy="86" rx="99" ry="60" fill="url(#gem-raft-bed)" opacity="0.09" />
+      <ellipse className="gem-halo" style={haloVar(0.12)} cx="72" cy="84" rx="52" ry="36" fill="url(#gem-raft-glow)" opacity={0.12} />
 
-      {/* split-brain majority — three nodes fully meshed (leader + two followers);
-          measured gaps, bone links */}
+      {/* split-brain majority — fully meshed trio, bone links, measured gaps */}
       <g stroke="#b6ac95" strokeWidth="2.5" strokeLinecap="round" fill="none">
-        <line x1="66.9" y1="65.7" x2="56.7" y2="58" />
-        <line x1="66.9" y1="94.3" x2="56.7" y2="102" />
-        <line x1="46" y1="63.4" x2="46" y2="96.6" />
+        <line x1="56.2" y1="79.1" x2="51.3" y2="99" />
+        <line x1="76.3" y1="75.1" x2="90" y2="93.3" />
+        <line x1="61.2" y1="109.9" x2="84.8" y2="106.1" />
       </g>
-      {/* severed attempts that die at the cut — upper from the leader, lower from a follower */}
+      {/* severed attempts that die at the cut — upper from the leader, lower from the near follower */}
       <g stroke="#b6ac95" strokeWidth="2.5" strokeLinecap="round" fill="none" opacity="0.5">
-        <line x1="110.2" y1="73.7" x2="140" y2="65.9" />
-        <line x1="71" y1="110" x2="140" y2="110" />
+        <line x1="85.8" y1="57.1" x2="138" y2="59.5" />
+        <line x1="123" y1="105.8" x2="138" y2="106.9" />
       </g>
 
-      {/* the partition — one single straight line (paper twin removed per owner),
-          trimmed again ~15% (y39.5–y120.5) */}
-      <path d="M152 39.5 L152 120.5" fill="none" stroke="#7d7669" strokeWidth="3" strokeLinecap="round" />
+      {/* the partition — one single straight line, current cut language */}
+      <path d="M150 36 L150 126" fill="none" stroke="#7d7669" strokeWidth="3" strokeLinecap="round" />
 
-      {/* orphaned minority — dashes on the severed rays */}
+      {/* orphaned minority — dashes on the severed rays + pair link */}
       <g stroke="#7d7669" strokeWidth="2" strokeLinecap="round" strokeDasharray="1.5 5" fill="none">
-        <line x1="160.8" y1="60.5" x2="185.7" y2="54" />
-        <line x1="160.8" y1="110" x2="185.7" y2="110" />
-        <line x1="201" y1="65" x2="201" y2="95" />
+        <line x1="158" y1="60.4" x2="176.7" y2="61.3" />
+        <line x1="158" y1="108.4" x2="192.8" y2="110.9" />
+        <line x1="196.2" y1="75.2" x2="203.8" y2="98.8" />
       </g>
       <g fill="#26333b" stroke="#7d7669" strokeWidth="2" strokeLinecap="round" strokeDasharray="1.5 4.5">
-        <circle cx="201" cy="50" r="10" pathLength={60} />
-        <circle cx="201" cy="110" r="10" pathLength={60} />
+        <circle cx="192" cy="62" r="10" pathLength={60} />
+        <circle cx="208" cy="112" r="10" pathLength={60} />
       </g>
 
-      {/* followers — bone bodies, −5% (r9.5), mirrored heights (y50/y110) */}
+      {/* followers — bone bodies (current majority-member treatment) */}
       <g fill="#b6ac95">
-        <circle cx="46" cy="50" r="9.5" />
-        <circle cx="46" cy="110" r="9.5" />
+        <circle cx="48" cy="112" r="9.5" />
+        <circle cx="98" cy="104" r="9.5" />
       </g>
 
-      {/* leader — coral core −7% then −10% more, term ring, one drawn paper rim */}
-      <circle cx="86" cy="80" r="17.6" fill="none" stroke="#ff6a5f" strokeWidth="1.25" opacity="0.45" />
-      <circle cx="86" cy="80" r="13.4" fill="#ff6a5f" />
-      <path d="M76.8 80 A9.2 9.2 0 0 1 86 70.8" fill="none" stroke="#f4efe4" strokeWidth="2" strokeLinecap="round" opacity="0.6" />
+      {/* leader at candidate b position — coral core, term ring, one drawn paper rim */}
+      <circle cx="62" cy="56" r="17.6" fill="none" stroke="#ff6a5f" strokeWidth="1.25" opacity="0.45" />
+      <circle cx="62" cy="56" r="13.4" fill="#ff6a5f" />
+      <path d="M52.8 56 A9.2 9.2 0 0 1 62 46.8" fill="none" stroke="#f4efe4" strokeWidth="2" strokeLinecap="round" opacity="0.6" />
     </svg>
   );
 }
@@ -238,17 +237,18 @@ function FoxCenterMark() {
         <rect x="48" y="108" width="10" height="4" />
       </g>
 
-      {/* fox — bone body, one paper ridge from tail tip to shoulder */}
-      <g fill="#b6ac95">
+      {/* fox — natural rust body (owner: non-white, natural fox colour), paper
+          tail tip + chest, one paper ridge from tail to shoulder */}
+      <g fill="#a8552c">
         <rect x="72" y="92" width="28" height="10" />
         <rect x="100" y="96" width="40" height="16" />
         <rect x="140" y="88" width="16" height="16" />
         <rect x="144" y="80" width="4" height="8" />
         <rect x="152" y="80" width="4" height="8" />
         <rect x="156" y="96" width="8" height="6" />
-        <rect x="140" y="104" width="10" height="8" />
       </g>
       <rect x="64" y="88" width="10" height="10" fill="#eeeae0" />
+      <rect x="140" y="104" width="10" height="8" fill="#eeeae0" />
       <g fill="#eeeae0" opacity="0.9">
         <rect x="74" y="92" width="26" height="2" />
         <rect x="98" y="92" width="2" height="4" />

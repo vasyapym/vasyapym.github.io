@@ -363,3 +363,42 @@ detail (SVG marks); concepts must be fresh/original yet simple. Presented on
 - User source: "this is fine but base i guess is not it. let's change to 'split-brain partition' from art-directions. but redo all the design language as to which is currently is (current adopted and modified version)"
 - Artifact: artifacts/R011/r011-after-raft.png (the rejected base), artifacts/R012/r012-after-raft.png (the redo)
 - Supersedes: F006's raft pick (majority partition → split-brain partition); geometry conventions F010–F024 remain in force
+
+## Round R013
+- Goal: owner side-ask while the raft R012 verdict pends — the evening-forest fox body back to a natural fox colour (non-white).
+- Preserved preferences: F009 whitish-as-structure delivery (paper tail tip, paper ridge), teal forest register (ground/fern/mushrooms), slate legs, deep-ink eye.
+- Changes (FoxCenterMark only): body group #b6ac95 (bone) → #a8552c (the house's ember rust — natural fox red-brown); chest patch (140,104) lifted out of the body group to paper #eeeae0 (natural white chest); tail tip stays paper; paper ridge stays.
+- Scope note: explicit owner ask supersedes the whitish-prominent register (F008/F009) for the fox body only — the other three marks keep their register.
+- Before: artifacts/R012/r012-after-raft.png (fox state = R007 bone)
+- After: artifacts/R013/r013-after-fox.png
+- Visual inspection: performed on the real page (Chromium headless, 1440×900 @3×, card crop) — the fox reads as a natural red fox: rust body, paper tail tip + chest + back ridge, teal scene untouched, halo pulse intact.
+- Code verification: tsc --noEmit green; vite build green.
+- Open question: owner judges the natural-fox colour live.
+
+## Feedback F026
+- Round: R013
+- Verdict: REQUESTED
+- Scope: the evening-forest fox body colour, landing page card
+- Decision: fox body non-white — natural fox colour (implemented as house ember rust #a8552c with paper tail tip/chest kept)
+- User source: "bring back fox's colour (make it non-white) - natural fox colour i mean as it was initially"
+- Artifact: artifacts/R013/r013-after-fox.png
+- Supersedes: F008/F009 whitish register — fox body scope only
+
+## Round R014
+- Goal: redo the raft mark after F027's rejection — candidate b (RaftB) as the base with its OWN composition, customized into the adopted register (less prominent, consistent), instead of the R012 hybrid merge.
+- Preserved preferences: F025's base choice (split-brain) stands; adopted register F008/F009 (neutral bed @0.09, one coral halo @0.12, whitish via paper rim, no white glints); leader treatment (core r13.4 + term ring r17.6 + paper rim); follower ball size r9.5; single straight 3px cut; measured gaps; re-centered viewBox.
+- Changes (RaftCenterMark rewritten wholesale): RaftB geometry as drawn — leader (62,56) upper-left meshed to both followers (48,112)/(98,104) plus the f1↔f2 base link (triangle); severed attempts exactly RaftB's two: upper from the leader along the shallow ray to the top minority ball, lower from the NEAR follower (98,104) along its ray (not the far-left ball); cut single straight vertical at x=150 (RaftB's zigzag x-range) spanning y36–y126; minority pair at RaftB's (192,62)/(208,112) with dashed pair link and dashed ray continuations; dressing in the adopted language: bone 2.5 round-cap links, 0.5 heartbeats dying 12 short of the cut, dashes resuming 8 past it, #7d7669 2px dasharray 1.5/5, dashed dark minority balls r10, leader coral core r13.4 + ring r17.6 @0.45 + paper rim arc, bone followers r9.5, neutral bed + coral halo, viewBox "-2 0 260 160" (content center 128.25 → 130). All R012 hybrid elements removed (no mirrored left balls, no vertical left-edge link, no horizontal y110 ray).
+- Before: artifacts/R012/r012-after-raft.png (rejected)
+- After: artifacts/R014/r014-after-raft.png
+- Visual inspection: performed on the real page (Chromium headless, 1440×900 @3×, card crop) — composition reads as RaftB (leader upper-left, meshed trio, orphaned pair lower-right); register matches the other adopted marks (bed/halo/stroke grammar); no hybrid leftovers.
+- Code verification: tsc --noEmit green; vite build green (18.7s).
+- Open question: owner judges the RaftB-in-adopted-language mark live.
+
+## Feedback F027
+- Round: R014
+- Verdict: REJECTED
+- Scope: the R012 raft implementation approach, landing page card
+- Decision: the owner chose the split-brain candidate as the new base — the ask was to customize THAT option (less prominent etc.), not to merge its elements into the previous layout; the hybrid looked ugly
+- User source: "nope. you totally messed up the raft cluster one. i meant just customize new chosen option. (i.e. less prominent etc.). you kinda combined both and it looks ugly. i.e. i changed my choice. you need to make it consistent/customize it"
+- Artifact: artifacts/R012/r012-after-raft.png
+- Supersedes: F025's implementation only (the split-brain base choice stands; geometry micro-steers F010–F024 were majority-partition-scoped and do NOT carry over as constraints, only their language conventions do)
