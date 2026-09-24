@@ -2026,6 +2026,41 @@ const odysseyNolanTopics: readonly TopicCard[] = [
     },
   },
 ];
+
+const erykahBaduTopics: readonly TopicCard[] = [
+  {
+    id: "erykah-badu-analog-priestess",
+    title: "Erykah Badu: A Field Guide to the Analog Priestess",
+    summary: "A layered introduction to Erykah Badu's career and ideas: the renaming as manifesto, the Soulquarian sound and Dilla time, the New Amerykah politics, the doula model of art, the trickster humor, and the neo-soul label she kept escaping.",
+    concepts: [],
+    practicePrompt: "Read the guide, then listen to the ten-song beginner sequence in order ('On & On' through 'Hello'). Write a 600–900-word note for each of the three tracks that moved you most, naming one concrete musical choice (phrasing behind the beat, Dilla's off-grid drums, harmonic texture, structure) and one idea from the guide (self-authorship, healing as accompaniment, the trickster, the phone as mediation) that the track carries. Verify release years and featured artists against your own listening.",
+    checkPrompt: "Your notes should: (1) tie each chosen track to a specific musical mechanism rather than a mood adjective; (2) connect it to at least one of the guide's big ideas with a concrete lyric or production detail; (3) keep facts straight — 'stay woke' was popularized, not coined, by 'Master Teacher'; 'Tyrone' is a live-album song; Dilla produced 'Didn't Cha Know'; the 'Window Seat' video ends with the word GROUPTHINK; (4) distinguish documented events (Grammys, doula work, the fine for the Dealey Plaza shoot) from interpretation offered as reading. The recordings were not played in this environment; verify track details against your own listening.",
+    tier: 1,
+    complexity: 3,
+    references: [
+      "Dan Charnas, Dilla Time (2022) — J Dilla's rhythmic innovation and the Soulquarian world",
+      "Questlove, Mo' Meta Blues (2013) — insider perspective on the Soulquarian era",
+      "Emily J. Lordi, The Meaning of Soul (2020) — soul as aesthetic and philosophy",
+      "Mark Anthony Neal, Songs in the Key of Black Life (2003) — neo-soul era criticism",
+      "Ytasha Womack, Afrofuturism (2013) — the tradition Badu works within",
+      "Merriam-Webster on 'woke' — Lead Belly 1938 through Badu's 'Master Teacher' (2008)",
+      "Erykah Badu — official discography and Grammy records (Baduizm, 'On & On', 'You Got Me', 'Love of My Life')"
+    ],
+    lesson: {
+      problem: "Why is Erykah Badu so easy to file and so easy to misread? The industry shelved her as 'neo-soul revivalist', which is backwards: she fused jazz phrasing, hip-hop production, Five Percent and Kemetic thought, and stand-up comedy into a self-authored persona — part priestess, part trickster. The listener's problem is holding both poles at once without collapsing her into a headwrap-and-incense aesthetic.",
+      model: "Identity as a work of art you author, revise, and perform. The name is the thesis: 'Erykah' reaches to imagined African antiquity (the ka), 'Badu' to jazz scat — ancestral cosmology and improvised sound as the two poles her whole career moves between. The artist works as a doula: not fixing, but accompanying people across thresholds — birth, death, heartbreak, awakening. The records split into a mind/world pole (New Amerykah Part One) and a heart pole (Mama's Gun, Part Two).",
+      mechanics: "Sound: the voice sits behind the beat — a jazz trait, not laziness — which locks with J Dilla's off-grid MPC programming (kicks rush, snares drag, several clocks in one groove), so voice and drums share the same elastic microtiming; hear 'Didn't Cha Know'. Structure is hip-hop: grooves loop rather than develop. Marketing: 'neo-soul' was a label-boss sales term (Kedar Massenburg), so the category was partly a pitch from day one, and the catalog is a series of escapes from it. Provocation ('Window Seat', the incense, 'Tyrone') seizes the gaze on her own terms — trickster logic, truth spoken sideways.",
+      pitfalls: [
+        "Reading her as 1990s nostalgia: New Amerykah Part One (2008) is her most radical record, collage-electronic, not a revival.",
+        "Missing the humor — 'Tyrone', the oversized hats, the deadpan interviews — and mistaking the sage for the whole persona.",
+        "Saying Badu coined 'woke': 'Master Teacher' popularized a phrase that runs back through Black vernacular to Lead Belly 1938.",
+        "Crediting Madlib, Dilla, or Poyser and missing the auteur: Badu co-produces, produced 'Out My Mind, Just in Time' herself, and directs the vision across records, visuals, and shows.",
+        "Letting the trickster persona excuse the real controversies (2018 'something good in Hitler', R. Kelly remarks): the same radical nonjudgment that powers the art produced them, and it does not exempt her from accountability.",
+      ],
+      whenNot: "When you need a plain chronology without interpretation, a study of belted gospel-rooted R&B vocals (her power is phrasing, not volume), or claims about releases after 2015 — the guide's catalog line stops there and newer announcements must be checked against current sources.",
+    },
+  },
+];
 export const curriculum: readonly PracticeArea[] = [
   {
     id: "go",
@@ -2202,5 +2237,13 @@ export const curriculum: readonly PracticeArea[] = [
     tier: 1,
     dependencies: [],
     topics: odysseyNolanTopics,
+  },
+  {
+    id: "erykah-badu-analog-priestess",
+    title: "Erykah Badu",
+    description: "Essays on Erykah Badu — the analog priestess: sound, ideas, records",
+    tier: 1,
+    dependencies: [],
+    topics: erykahBaduTopics,
   },
 ];

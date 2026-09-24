@@ -21,6 +21,14 @@ comprehensive code - напиши лонгформ-эссе-урок {TOPIC} д�
 
 The chat model has no repo access, no tools, no memory of prior rounds. If its reply arrives thin or truncated, deepen instead of padding: a follow-up round carrying the salvaged state verbatim (the essay as it stands, what is missing) — spend length freely there.
 
+## Operational notes (fast path — from the erykah-badu round, 2026-09-24)
+
+- `convert-lesson.mjs` must be called with `--name <base>Sections` — wire-lesson's regex requires the suffix; remember `<base>`, wire derives the topics const from it.
+- The theory snippet is a **TS object body**, not YAML: `problem: "…", model: "…", mechanics: "…", pitfalls: ["…", …], whenNot: "…"`, one line per string; match the sinners card's style in `curriculum.ts`. `problem: >` scalars break the splice.
+- **New tier** = add the row to `tiers.ts` manually, in display order, with `areas: []` (wire appends the area; pre-filled areas make it fail with "already in tier"). Wire cannot create tiers. If the tier's position shifts existing rows, re-sync the check's positional gates (`.pg-tier-list button:nth-child(N)`, `nth-last-child(1)` = thinking tier) and run `portfolio/probes/tier-order-probe.mjs` **from `portfolio/`**.
+- Full (non-skipping) check: `CHROME_PATH="$HOME/Library/Caches/ms-playwright/chromium-1134/chrome-mac/Chromium.app/Contents/MacOS/Chromium" node projects/practice-map/tests/practice-map.check.mjs` from `portfolio/`.
+- If a wire run fails mid-way: `git restore curriculum.ts tiers.ts`, `rm web/lesson-data/<topic-id>.ts`, re-add the tier, re-run. A re-run against wired files is rejected by design.
+
 ## Salvage notes
 
 - **Free-form is the contract.** The chat model's structure wins. Sections may be thematic, numbered, or unnumbered; the converter handles any `##`-sectioned markdown. Do not restructure unless the owner asks.

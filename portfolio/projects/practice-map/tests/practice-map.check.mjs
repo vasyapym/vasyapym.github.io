@@ -110,7 +110,7 @@ try {
 
   check(await appears(".pg-card"), "map renders");
 
-  // The map opens on the first tier (astra-6-max, two lesson cards).
+  // The map opens on the first tier (opus-5.5-high, one lesson card).
   // The thinking tier (opus-4.8-thinking) sorts LAST in the tier list — the
   // owner's fixed data order — and folds its 20 lessons into 5 volume faces.
   await page.click(".pg-tier-list button:nth-last-child(1)");
@@ -394,11 +394,12 @@ try {
 
   // curriculum[0] is the Go area: one flagship card whose deep lesson carries
   // the full 19-section course.
-  // The Go flagship lives in the fable-5.1-low tier (4th row of TIERS data order).
-  await page.click(".pg-tier-list button:nth-child(4)");
+  // The Go flagship lives in the fable-5.1-low tier (5th row of TIERS data
+  // order — opus-5.5-high was added first per the owner's request).
+  await page.click(".pg-tier-list button:nth-child(5)");
   await wait(400);
-  const goCardCount = await page.$$eval(".pg-card", (cards) => cards.length);
-  check(goCardCount === 1, `Go area renders its single flagship card (${goCardCount})`);
+  const goCardTitle = await page.$eval(".pg-card h3", (el) => el.textContent.trim());
+  check(/^Go/.test(goCardTitle), `Go area leads the fable-5.1-low tier's cards (${goCardTitle})`);
   await page.click(".pg-card .pg-pill");
   check(await appears(".practice-reader"), "Go deep reader opens");
   // lazy per-lesson chunk: the 19-section nav mounts only after the import

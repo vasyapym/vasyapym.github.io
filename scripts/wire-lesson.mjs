@@ -56,8 +56,10 @@ function readSections(file) {
   if (!m) fail(`--sections ${file} is not emitted converter TS (missing "const XSections")`);
   const end = raw.lastIndexOf("];");
   if (end === -1) fail(`no closing ]; in ${file}`);
-  // the array text, from the decl's first [ to the array's closing ];
-  const open = raw.indexOf("[", m.index);
+  // the array text, from the decl's opening [ to the array's closing ];
+  // the decl match itself ends with the array's opening [ — the annotation's
+  // `[]` must not match, and a body scan would jump into the first block
+  const open = m.index + m[0].length - 1;
   if (open === -1 || open > end) fail(`cannot locate the array opening [ in ${file}`);
   return { base: m[1], arrText: raw.slice(open, end + 2) };
 }
@@ -277,6 +279,8 @@ function selftest() {
     const chunk = fs.readFileSync(chunkPath, "utf8");
     assert(chunk.includes('import type { LessonSection } from "../curriculum";'), "chunk imports the type");
     assert(chunk.includes("export const sections: readonly LessonSection[] = ["), "chunk exports the array");
+    assert(chunk.includes("export const sections: readonly LessonSection[] = [\n"), "chunk array opens cleanly (no doubled decl)");
+    assert(!chunk.includes("] = [] = ["), "chunk does not splice the annotation brackets");
     assert(chunk.includes('text: "t"'), "chunk carries the array text verbatim");
     assert(tiersAfter.includes('areas: ["kubernetes", "agi", "test"]'), "tier areas appended");
     assert(!tiersAfter.includes('"kubernetes", "agi", "test", "test"'), "no duplicate area");
