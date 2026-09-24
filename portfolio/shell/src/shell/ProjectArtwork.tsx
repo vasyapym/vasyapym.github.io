@@ -87,7 +87,8 @@ export const INCUMBENT_MARKS: Partial<Record<ProjectCenter, () => ReactElement>>
     cut trimmed 10% overall (both ends), dashed continuations −6%, followers
     −5% (r9.5),     leader cluster −7%; composition re-centered (viewBox −6). R010: followers
     mirrored to the minority pair's offsets (y50/y110), cut −15% more
-    (y32.4–y127.6), leader −10% more. ── */
+    (y32.4–y127.6), leader −10% more. R011: cut single-line (paper twin gone)
+    and −15% more (y39.5–y120.5), majority links +10% longer. ── */
 function RaftCenterMark() {
   return (
     <svg viewBox="-6 0 260 160" aria-hidden="true">
@@ -103,10 +104,11 @@ function RaftCenterMark() {
       <ellipse className="gem-halo" style={haloVar(0.12)} cx="90" cy="80" rx="58" ry="40" fill="url(#gem-raft-glow)" opacity={0.12} />
 
       {/* majority links — measured, stop short of every node; followers mirror
-          the minority pair's vertical offsets (±30 about the leader axis) */}
+          the minority pair's vertical offsets; +10% length (leader-side start
+          moved closer to the now-smaller leader, node gaps intact) */}
       <g stroke="#b6ac95" strokeWidth="2.5" strokeLinecap="round" fill="none">
-        <line x1="66" y1="65" x2="56.7" y2="58" />
-        <line x1="66" y1="95" x2="56.7" y2="102" />
+        <line x1="66.9" y1="65.7" x2="56.7" y2="58" />
+        <line x1="66.9" y1="94.3" x2="56.7" y2="102" />
       </g>
       {/* heartbeats that die at the cut — collinear with the dashed rays */}
       <g stroke="#b6ac95" strokeWidth="2.5" strokeLinecap="round" fill="none" opacity="0.5">
@@ -114,10 +116,9 @@ function RaftCenterMark() {
         <line x1="110.2" y1="86.3" x2="140" y2="94.1" />
       </g>
 
-      {/* the partition — one straight vertical cut, paper edge on the majority side;
-          trimmed 10% overall (y24–y136), then ~15% more (y32.4–y127.6) */}
-      <path d="M152 32.4 L152 127.6" fill="none" stroke="#7d7669" strokeWidth="3" strokeLinecap="round" />
-      <path d="M148 32.4 L148 127.6" fill="none" stroke="#eeeae0" strokeWidth="1.25" strokeLinecap="round" opacity="0.75" />
+      {/* the partition — one single straight line (paper twin removed per owner),
+          trimmed again ~15% (y39.5–y120.5) */}
+      <path d="M152 39.5 L152 120.5" fill="none" stroke="#7d7669" strokeWidth="3" strokeLinecap="round" />
 
       {/* orphaned minority — soft round-cap dashes on the leader's rays;
           each continuation trimmed ~6% (0.8 unit off both ends) */}

@@ -307,3 +307,40 @@ detail (SVG marks); concepts must be fresh/original yet simple. Presented on
 - User source: "also make red ball at the centre smaller by around 7%" → this message: "reduce the size of red ball by around 10% more"
 - Artifact: artifacts/R010/r010-after-raft.png
 - Supersedes: extends F018
+
+## Round R011
+- Goal: owner micro-steers: cut −15% again and reduced to a single line (paper twin removed), majority links +10% longer.
+- Preserved preferences: F006 pick, F008/F009 register except the cut's paper twin (explicitly superseded this round), collinear rays, node-gap conventions.
+- Changes (RaftCenterMark only): cut y32.4–127.6 → y39.5–120.5 (95.2→81 units, −14.9%, both ends; still covers both ray crossings at y62.8/y97.2); paper hairline twin (x148) deleted — the cut is now one 3px line; majority links start moved toward the now-smaller leader (leader+25u → leader+23.84u): top (66.9,65.7)→(56.7,58), bottom (66.9,94.3)→(56.7,102), length 11.6→12.8 units (+9.6% ≈ 10%), node-side gaps untouched.
+- Before: artifacts/R010/r010-after-raft.png
+- After: artifacts/R011/r011-after-raft.png
+- Visual inspection: performed on the real page (Chromium headless, 1440×900 @3×, card crop) — cut reads as one clean line and clears the ball rows; links read slightly longer; nothing else moved.
+- Code verification: tsc --noEmit green; vite build green (19.2s).
+- Open question: verdict per F022–F024.
+
+## Feedback F022
+- Round: R011
+- Verdict: REQUESTED
+- Scope: the raft partition cut line, landing page card
+- Decision: the cut is one single line — the parallel paper hairline is removed (supersedes the cut-paper-edge aspect of the R007 whitish-as-structure delivery, cut scope only; the leader's paper rim stays)
+- User source: "also make it a one line, instead of two parallel ones."
+- Artifact: artifacts/R011/r011-after-raft.png
+- Supersedes: R007/F009 paper-edge-on-cut delivery (scope-limited)
+
+## Feedback F023
+- Round: R011
+- Verdict: REQUESTED
+- Scope: the raft partition cut line length, landing page card
+- Decision: ~15% shorter again (third consecutive trim)
+- User source: "make the cutting line by around 15% shorter."
+- Artifact: artifacts/R011/r011-after-raft.png
+- Supersedes: extends F020
+
+## Feedback F024
+- Round: R011
+- Verdict: REQUESTED
+- Scope: the majority links to the follower balls, landing page raft card
+- Decision: ~10% longer
+- User source: "also incerase the legth of lines which go to white balls, by around 10%"
+- Artifact: artifacts/R011/r011-after-raft.png
+- Supersedes: none
