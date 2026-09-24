@@ -2,14 +2,22 @@ import type { ReactElement } from "react";
 import type { ProjectModule } from "../../../../contracts/project-module";
 import { INCUMBENT_MARKS } from "../../shell/ProjectArtwork";
 import { RoundSection, type RoundEntry } from "./roundSection";
+import {
+  RaftD, RaftE, RaftF,
+  ForestD, ForestE, ForestF,
+  BlastD, BlastE, BlastF,
+  PlanckD, PlanckE, PlanckF,
+} from "./fourProjectRethink2";
 
-/* Card-art rethink round (card-artwork-rethink R002): 12 raw candidates drawn
-   by the randomized chat model (full subject autonomy, 3 per project). The
-   only integration repair: each mark's own `<rect width=260 height=160
-   fill="#0d0d10" />` ground was stripped — the draft card panel already paints
-   the card ground (#0b1317) and the rect read as a distinct seam. Everything
-   else is the model's code as received. Owner picks per project; refinement
-   into the house language happens after the pick. */
+/* Card-art rethink round (card-artwork-rethink R002/R003): raw candidates
+   drawn by the chat model with full subject autonomy, six per project from
+   two relay batches (A–C = batch 1, D–F = batch 2). The only integration
+   repair: batch 1's marks each carried a `<rect width="260" height="160"
+   fill="#0d0d10" />` ground which was stripped — the draft card panel already
+   paints the card ground and the rect read as a distinct seam; batch 2
+   shipped without one. Everything else is the model's code as received.
+   Owner picks per project; refinement into the house language follows the
+   picks. */
 
 type FourProjectRethinkProps = { projects: readonly ProjectModule[] };
 
@@ -685,6 +693,9 @@ const RAFT_FOUR_ROUND: readonly { id: string; topline: string; Mark?: () => Reac
   { id: "a", topline: "candidate a · heartbeat ring", Mark: RaftA },
   { id: "b", topline: "candidate b · split-brain partition", Mark: RaftB },
   { id: "c", topline: "candidate c · committed across replicas", Mark: RaftC },
+  { id: "d", topline: "candidate d · crowned broadcast", Mark: RaftD },
+  { id: "e", topline: "candidate e · log replication", Mark: RaftE },
+  { id: "f", topline: "candidate f · majority partition", Mark: RaftF },
 ];
 
 const FOREST_FOUR_ROUND: readonly { id: string; topline: string; Mark?: () => ReactElement }[] = [
@@ -692,6 +703,9 @@ const FOREST_FOUR_ROUND: readonly { id: string; topline: string; Mark?: () => Re
   { id: "a", topline: "candidate a · lantern walker", Mark: ForestA },
   { id: "b", topline: "candidate b · fork signpost & fireflies", Mark: ForestB },
   { id: "c", topline: "candidate c · footprints home", Mark: ForestC },
+  { id: "d", topline: "candidate d · lone pine walk", Mark: ForestD },
+  { id: "e", topline: "candidate e · creek log-bridge", Mark: ForestE },
+  { id: "f", topline: "candidate f · fox on the trail", Mark: ForestF },
 ];
 
 const BLAST_FOUR_ROUND: readonly { id: string; topline: string; Mark?: () => ReactElement }[] = [
@@ -699,6 +713,9 @@ const BLAST_FOUR_ROUND: readonly { id: string; topline: string; Mark?: () => Rea
   { id: "a", topline: "candidate a · three-frame filmstrip", Mark: BlastA },
   { id: "b", topline: "candidate b · exploded cube", Mark: BlastB },
   { id: "c", topline: "candidate c · mushroom plume", Mark: BlastC },
+  { id: "d", topline: "candidate d · sprite strip", Mark: BlastD },
+  { id: "e", topline: "candidate e · puffball peak", Mark: BlastE },
+  { id: "f", topline: "candidate f · ground dome", Mark: BlastF },
 ];
 
 const PLANCK_FOUR_ROUND: readonly { id: string; topline: string; Mark?: () => ReactElement }[] = [
@@ -706,6 +723,9 @@ const PLANCK_FOUR_ROUND: readonly { id: string; topline: string; Mark?: () => Re
   { id: "a", topline: "candidate a · first instant", Mark: PlanckA },
   { id: "b", topline: "candidate b · galaxies ignite", Mark: PlanckB },
   { id: "c", topline: "candidate c · worlds form", Mark: PlanckC },
+  { id: "d", topline: "candidate d · cmb sky map", Mark: PlanckD },
+  { id: "e", topline: "candidate e · galaxy era", Mark: PlanckE },
+  { id: "f", topline: "candidate f · recombination", Mark: PlanckF },
 ];
 
 export function FourProjectRethinkSection({ projects }: FourProjectRethinkProps) {
@@ -713,35 +733,35 @@ export function FourProjectRethinkSection({ projects }: FourProjectRethinkProps)
     <>
       <RoundSection
         label="card-art rethink · raft"
-        name="raft cluster · three mechanisms"
+        name="raft cluster · six mechanisms"
         projectId="raft-cluster"
-        thesis="Twelve raw candidates were drawn by the chat model with full subject autonomy, three per project. The raft set: election timers wearing down on a heartbeat ring, a split-brain partition with an orphaned minority, three replicas sharing one committed band. The card copy is the visual contract: crash the leader and watch elections answer."
+        thesis="Eighteen raw candidates from two relay batches, six per project, drawn with full subject autonomy. The raft set: election timers wearing down on a heartbeat ring, a split-brain partition with an orphaned minority, three replicas sharing one committed band, a crowned hub broadcasting, aligned logs with a commit-index bar, and a majority/minority fault line. The card copy is the visual contract: crash the leader and watch elections answer."
         round={RAFT_FOUR_ROUND}
         projects={projects}
       />
       <RoundSection
         label="card-art rethink · evening forest"
-        name="evening forest · three walks"
+        name="evening forest · six walks"
         projectId="evening-forest"
-        thesis="Three no-missions dusk scenes, drawn as deliberate 8-bit pixel art (the copy promises an 8-bit woodland): a lantern lighting a patch of trail, a fork in the path with fireflies, and footprints leading to a lit cabin at the walk's end."
+        thesis="Six no-missions dusk scenes from two relay batches — deliberate 8-bit pixel art (the copy promises an 8-bit woodland): a lantern lighting a patch of trail, a fork in the path with fireflies, footprints leading to a lit cabin, a lone pine walk, a log-bridge balance over a creek, and a fox trotting between fern and mushrooms."
         round={FOREST_FOUR_ROUND}
         projects={projects}
       />
       <RoundSection
         label="card-art rethink · explosion"
-        name="explosion · three frames of chaos"
+        name="explosion · six frames of chaos"
         projectId="explosion"
-        thesis="Order breaking into precision chaos, three ways: a filmstrip of spark-burst-smoke frames, a tidy isometric exploded cube with a flare through the gaps, and a layered mushroom plume built from one ordered stack of ember shapes."
+        thesis="Order breaking into precision chaos, six ways from two relay batches: a filmstrip of spark-burst-smoke frames, a tidy isometric exploded cube, a layered mushroom plume, an ordered three-frame sprite strip, a stacked puffball at peak with tumbling chunks, and a ground dome lobbing debris on dotted arcs."
         round={BLAST_FOUR_ROUND}
         projects={projects}
       />
       <RoundSection
         label="card-art rethink · planck to now"
-        name="planck to now · one timeline, three moments"
+        name="planck to now · one timeline, six moments"
         projectId="planck-to-now"
         round={PLANCK_FOUR_ROUND}
         projects={projects}
-        thesis="The scrub timeline as the mark itself: the knob parked at the first instant under a flaring spark, mid-history beneath a two-arm spiral galaxy, and near the end where a ringed planet and its moon have formed. Each candidate is the same history, three chapters apart."
+        thesis="The scrub timeline as the mark itself, six moments from two relay batches: the knob parked at the first instant under a flaring spark, mid-history beneath a two-arm spiral galaxy, a ringed planet and its moon near the end, the CMB all-sky map with a playhead, the galaxy era over a timeline track, and recombination — a playhead parting plasma fog as a freed photon escapes."
       />
     </>
   );

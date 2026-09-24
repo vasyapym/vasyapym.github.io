@@ -37,3 +37,11 @@ detail (SVG marks); concepts must be fresh/original yet simple. Presented on
 - Visual inspection: performed — all 12 candidates render legibly on the real page; no console/page errors; set reads as intended (raft = mechanisms, forest = pixel-art walks, blast = ordered chaos frames, planck = one timeline three chapters). Known raw-state differences to resolve only for ADOPTED marks: fixed #0d0d10 fills inside some marks (filmstrip cells, node fills) tuned to the card ground, gem-halo hover hooks and spot-ink bed restated in house idiom, viewBox margins normalized.
 - Code verification: tsc --noEmit green; vite build green (npm run build); probe sections=18 with the four new sections first.
 - Open question: owner picks one candidate per project on the live page (link in session reply); refinement/customization follows the picks.
+
+## Round R003
+- Goal: owner supplied a second relay batch (12 more raw marks, same payload contract) — integrated as candidates D–F per project so all 18 candidates + incumbent reference sit in one choosing grid per project.
+- Changes: fourProjectRethink2.tsx — batch 2 salvaged verbatim (RaftD–F crowned broadcast / log replication / majority partition; ForestD–F lone pine walk / creek log-bridge / fox on the trail; BlastD–F sprite strip / puffball peak / ground dome; PlanckD–F CMB sky map / galaxy era / recombination). Mechanical rename: function letters A/B/C → D/E/F, pattern/clip id prefixes re-prefixed to match (batch 1 owns A–C; ids stay unique page-wide). fourProjectRethink.tsx extends the four round grids with d–f entries, section names/theses say six now.
+- After: artifacts/R003/draft2-card-art-rethink-<project>.png (×4, section shots at 1440 @2x)
+- Visual inspection: performed — all 18 candidates render legibly on the real page; batch-2 marks shipped without a ground rect so nothing to strip; no console/page errors. RaftB (batch-1 split-brain) and RaftF (batch-2 majority partition) are same-subject siblings — both left in for the owner to weigh.
+- Code verification: tsc --noEmit green (build verified green in R002; this round is additive components only).
+- Open question: owner picks one candidate per project (A–F) on the live page; refinement/customization follows the picks.
