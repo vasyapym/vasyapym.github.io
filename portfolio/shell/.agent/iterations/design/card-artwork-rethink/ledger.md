@@ -110,3 +110,40 @@ detail (SVG marks); concepts must be fresh/original yet simple. Presented on
 - Visual inspection: performed on the real page — the four re-graded marks now sit in the first-four-cards' register: neutral beds, whitish/paper brightest masses, one quiet hue voice each; compositions and subjects unchanged; no seams; no console errors.
 - Code verification: tsc --noEmit green; vite build green.
 - Open question: owner judges the re-graded palette live; per-mark ± steps (e.g. arcs brighter/dimmer, pine tone) are one-line micro-steers.
+
+## Feedback F006
+- Round: R005
+- Verdict: LIKED (re-pick; supersedes F001–F004's per-card choices)
+- Scope: the four adopted card marks, landing page
+- Decision: raft → majority partition (crown removed); forest → fox on the trail; blast → three-frame filmstrip; planck → galaxies ignite
+- User source: "actually let's do different options. raft cluster - majority partition. but remove the crown. evening forest - fox on the trail. explosion - three-frame filmstrip. planck to now - galaxies ignite."
+- Artifact: artifacts/R003/*.png (candidate boards)
+- Supersedes: F001–F004 per-card decisions
+
+## Feedback F007
+- Round: R005/R006
+- Verdict: REQUESTED
+- Scope: the four adopted marks, rendered size, both bands
+- Decision: marks ~10% smaller
+- User source: "also make them smaller by aroun 10%."
+- Artifact: artifacts/R005/graded-cards-full-1440.png
+- Supersedes: none
+
+## Feedback F008
+- Round: R005/R006
+- Verdict: REQUESTED (extends F005's register to the new picks)
+- Scope: colour emphasis of the four adopted marks
+- Decision: prominent/prevalent colour = whitish/paperish
+- User source: "their prominent/prevalent(emphasis-wise) should be whiteish/paperish colour"
+- Artifact: artifacts/R005/graded-cards-full-1440.png
+- Supersedes: none (narrows F005's scope onto the new picks)
+
+## Round R006
+- Goal: swap the four cards to the new picks, re-graded whitish/paper-dominant, −10% size.
+- Preserved preferences: F005 register (neutral beds @0.09, halos @0.12), F006 picks (raft crownless), F007/F008.
+- Changes: ProjectArtwork.tsx — RaftCenterMark → majority partition (paper fault line, paper majority followers, coral crownless leader, dashed slate minority); FoxCenterMark → fox on the trail (paper fox + slate legs, dim teal mushroom caps/leaves); BlastCenterMark → three-frame filmstrip (paper strip + deep-ink cells, muted ember contents, bone frame arrows); SpiralCenterMark → galaxies ignite (pale lavender arms #cfc4f2, paper core, muted violet timeline). styles.css — new per-center size rules: .center-raft/.center-fox/.center-blast/.center-spiral max-width 218→196px (≥900) and 240→216px (≤899). fourProjectRethink.tsx "current" toplines updated to the new adopted names.
+- Before: artifacts/R005/graded-cards-full-1440.png
+- After: artifacts/R006/r006-cards-full-1440.png (+ r006-art-<project>.png ×4)
+- Visual inspection: performed on the real page — the four marks now share the first-four-cards' register (whitish/paper subjects, quiet hue accents), sit ~10% smaller inside their stages with the breathe headroom intact; no seams; no console errors.
+- Code verification: tsc --noEmit green; vite build green.
+- Open question: owner judges live (desktop + mobile device); micro-steers remain one-line.

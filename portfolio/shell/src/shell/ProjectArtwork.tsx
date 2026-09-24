@@ -78,20 +78,13 @@ export const INCUMBENT_MARKS: Partial<Record<ProjectCenter, () => ReactElement>>
   fox: FoxCenterMark,
 };
 
-/* ── 1 · Raft Cluster — coral spot ink, "heartbeat ring": a solid leader
-   broadcasts heartbeats (dots along the spokes) to four followers, each
-   wearing a partial ring with its election timer draining. Adopted from the
-   card-art rethink round (candidate a, batch 1) — owner pick, R004; R005
-   re-grade: neutral printed bed, slate spokes, hue kept for the leader disc
-   and dim rust timer arcs. Ids keep the gem-raft-* prefix. ── */
+/* ── 1 · Raft Cluster — coral spot ink, "majority partition": a paper fault
+   line splits the cluster — the leader-holding majority (coral leader, paper
+   followers) stays linked, the orphaned minority hangs dashed beyond the
+   cut. Adopted from the card-art rethink round (candidate f, batch 2) —
+   owner pick, R006 (crown removed); whitish/paper dominant, hue kept for
+   the leader. Ids keep the gem-raft-* prefix. ── */
 function RaftCenterMark() {
-  const leader = { x: 130, y: 34 };
-  const followers = [
-    { x: 196.6, y: 68.5, timer: 62 },
-    { x: 171.2, y: 124.5, timer: 30 },
-    { x: 88.8, y: 124.5, timer: 80 },
-    { x: 63.4, y: 68.5, timer: 46 },
-  ];
   return (
     <svg viewBox="0 0 260 160" aria-hidden="true">
       <defs>
@@ -102,48 +95,38 @@ function RaftCenterMark() {
           <circle cx="3.5" cy="3.5" r="1.9" fill="#ff6a5f" />
         </pattern>
       </defs>
-      <ellipse cx="130" cy="82" rx="104" ry="62" fill="url(#gem-raft-bed)" opacity="0.09" />
-      <ellipse className="gem-halo" style={haloVar(0.12)} cx="130" cy="82" rx="62" ry="38" fill="url(#gem-raft-glow)" opacity={0.12} />
-      {followers.map((f, i) => (
-        <line
-          key={`l${i}`}
-          x1={leader.x}
-          y1={leader.y}
-          x2={f.x}
-          y2={f.y}
-          stroke="#465059"
-          strokeWidth="2.5"
-        />
-      ))}
-      {followers.map((f, i) => (
-        <circle
-          key={`m${i}`}
-          cx={leader.x + (f.x - leader.x) * 0.55}
-          cy={leader.y + (f.y - leader.y) * 0.55}
-          r="3.5"
-          fill="#b6ac95"
-        />
-      ))}
-      <circle cx={leader.x} cy={leader.y} r="21" fill="none" stroke="#465059" strokeWidth="2" />
-      <circle cx={leader.x} cy={leader.y} r="15" fill="#ff6a5f" />
-      {followers.map((f, i) => (
-        <g key={`f${i}`}>
-          <circle cx={f.x} cy={f.y} r="12" fill="#26333b" />
-          <circle
-            cx={f.x}
-            cy={f.y}
-            r="16"
-            fill="none"
-            stroke="#9c453f"
-            strokeWidth="3"
-            strokeLinecap="round"
-            strokeDasharray={`${f.timer} 101`}
-            transform={`rotate(-90 ${f.x} ${f.y})`}
-          />
-        </g>
-      ))}
-      <rect x="134" y="27" width="3" height="3" fill="#ffffff" />
-      <rect x="199" y="64" width="2" height="2" fill="#ffffff" />
+      <ellipse cx="124" cy="82" rx="106" ry="64" fill="url(#gem-raft-bed)" opacity="0.09" />
+      <ellipse className="gem-halo" style={haloVar(0.12)} cx="96" cy="82" rx="58" ry="40" fill="url(#gem-raft-glow)" opacity={0.12} />
+
+      <g stroke="#b6ac95" strokeWidth="3">
+        <line x1="80" y1="80" x2="48" y2="40" />
+        <line x1="80" y1="80" x2="50" y2="122" />
+        <line x1="80" y1="80" x2="138" y2="65.3" />
+        <line x1="80" y1="80" x2="138" y2="95.9" />
+      </g>
+      <g stroke="#465059" strokeWidth="3" strokeDasharray="5 5">
+        <line x1="162" y1="59.2" x2="198" y2="50" />
+        <line x1="162" y1="102.5" x2="204" y2="114" />
+        <line x1="198" y1="50" x2="204" y2="114" />
+      </g>
+
+      <path
+        d="M150 16 L140 44 L158 66 L142 92 L160 116 L146 144"
+        fill="none" stroke="#eeeae0" strokeWidth="4" strokeLinejoin="miter"
+      />
+
+      <g fill="#eeeae0" stroke="#465059" strokeWidth="3">
+        <circle cx="48" cy="40" r="11" />
+        <circle cx="50" cy="122" r="11" />
+      </g>
+      <g fill="#26333b" stroke="#465059" strokeWidth="2" strokeDasharray="4 3">
+        <circle cx="198" cy="50" r="11" />
+        <circle cx="204" cy="114" r="11" />
+      </g>
+
+      <circle cx="80" cy="80" r="17" fill="#ff6a5f" />
+
+      <rect x="69" y="65" width="3" height="3" fill="#fff" />
     </svg>
   );
 }
@@ -210,11 +193,10 @@ function KittyCenterMark() {
   );
 }
 
-/* ── 3 · Evening Forest — teal spot ink, "lone pine walk": a pixel wanderer
-   with a lantern beside one pine on a winding path — the deliberate 8-bit nod
-   the card copy promises. Adopted from the card-art rethink round (candidate
-   d, batch 2) — owner pick, R004; R005 re-grade: neutral printed bed, pine
-   tones dimmed, lantern light whitish. ── */
+/* ── 3 · Evening Forest — teal spot ink, "fox on the trail": a paper fox
+   trotting between a fern and a mushroom cluster at dusk. Adopted from the
+   card-art rethink round (candidate f, batch 2) — owner pick, R006;
+   whitish/paper dominant, teal kept for mushroom caps, leaves and the glow. ── */
 function FoxCenterMark() {
   return (
     <svg viewBox="0 0 260 160" aria-hidden="true" shapeRendering="crispEdges">
@@ -226,67 +208,69 @@ function FoxCenterMark() {
           <circle cx="3.5" cy="3.5" r="1.9" fill="#4fd1a5" />
         </pattern>
       </defs>
-      <ellipse cx="136" cy="88" rx="104" ry="62" fill="url(#gem-fox-bed)" opacity="0.09" />
-      <ellipse className="gem-halo" style={haloVar(0.12)} cx="160" cy="104" rx="50" ry="30" fill="url(#gem-fox-glow)" opacity={0.12} />
+      <ellipse cx="130" cy="92" rx="106" ry="58" fill="url(#gem-fox-bed)" opacity="0.09" />
+      <ellipse className="gem-halo" style={haloVar(0.12)} cx="118" cy="98" rx="56" ry="30" fill="url(#gem-fox-glow)" opacity={0.12} />
 
-      {/* lone pine */}
-      <g fill="#3f9c7c">
-        <rect x="66" y="28" width="8" height="8" />
-        <rect x="58" y="36" width="24" height="8" />
-        <rect x="50" y="44" width="40" height="8" />
-        <rect x="54" y="56" width="32" height="8" />
-        <rect x="46" y="64" width="48" height="8" />
-        <rect x="38" y="72" width="64" height="8" />
-        <rect x="46" y="84" width="48" height="8" />
-        <rect x="38" y="92" width="64" height="8" />
-        <rect x="30" y="100" width="80" height="8" />
-      </g>
+      {/* ground */}
+      <rect x="32" y="124" width="200" height="4" fill="#1f5e4c" />
       <g fill="#1f5e4c">
-        <rect x="50" y="48" width="12" height="4" />
-        <rect x="42" y="76" width="16" height="4" />
-        <rect x="34" y="104" width="20" height="4" />
+        <rect x="60" y="132" width="10" height="3" />
+        <rect x="96" y="134" width="14" height="3" />
+        <rect x="150" y="132" width="8" height="3" />
       </g>
-      <rect x="64" y="108" width="12" height="22" fill="#1f5e4c" />
 
-      {/* small far pine */}
+      {/* fern */}
       <g fill="#1f5e4c">
-        <rect x="206" y="68" width="8" height="8" />
-        <rect x="200" y="76" width="20" height="8" />
-        <rect x="194" y="84" width="32" height="8" />
-        <rect x="206" y="92" width="8" height="10" />
+        <rect x="44" y="100" width="4" height="24" />
+        <rect x="34" y="104" width="10" height="4" />
+        <rect x="48" y="98" width="10" height="4" />
+        <rect x="36" y="112" width="8" height="4" />
+        <rect x="48" y="108" width="10" height="4" />
       </g>
 
-      {/* path */}
-      <g fill="#1f5e4c">
-        <rect x="20" y="128" width="96" height="4" />
-        <rect x="108" y="128" width="64" height="6" />
-        <rect x="126" y="134" width="72" height="6" />
-        <rect x="152" y="140" width="84" height="6" />
+      {/* fox — paper body, slate legs, dark nose */}
+      <rect x="64" y="88" width="10" height="10" fill="#f4efe4" />
+      <rect x="72" y="92" width="28" height="10" fill="#eeeae0" />
+      <rect x="100" y="96" width="40" height="16" fill="#eeeae0" />
+      <rect x="140" y="88" width="16" height="16" fill="#eeeae0" />
+      <rect x="144" y="80" width="4" height="8" fill="#eeeae0" />
+      <rect x="152" y="80" width="4" height="8" fill="#eeeae0" />
+      <rect x="156" y="96" width="8" height="6" fill="#eeeae0" />
+      <rect x="162" y="96" width="3" height="3" fill="#1f5e4c" />
+      <rect x="140" y="104" width="10" height="8" fill="#f4efe4" />
+      <g fill="#465059">
+        <rect x="104" y="112" width="5" height="12" />
+        <rect x="116" y="112" width="5" height="8" />
+        <rect x="128" y="112" width="5" height="12" />
+        <rect x="138" y="112" width="5" height="8" />
       </g>
 
-      {/* walker */}
-      <rect x="150" y="94" width="8" height="8" fill="#e9f1ec" />
-      <rect x="148" y="90" width="12" height="4" fill="#3f9c7c" />
-      <rect x="148" y="102" width="12" height="16" fill="#3f9c7c" />
-      <rect x="146" y="118" width="4" height="10" fill="#3f9c7c" />
-      <rect x="158" y="118" width="4" height="10" fill="#3f9c7c" />
-      <rect x="160" y="106" width="6" height="4" fill="#3f9c7c" />
-      <rect x="165" y="110" width="8" height="10" fill="#e9f1ec" />
-      <rect x="167" y="108" width="4" height="2" fill="#3f9c7c" />
+      {/* mushrooms — dim teal caps, paper stems */}
+      <rect x="190" y="112" width="6" height="12" fill="#f4efe4" />
+      <rect x="182" y="102" width="22" height="10" fill="#3f9c7c" />
+      <rect x="186" y="98" width="14" height="4" fill="#3f9c7c" />
+      <rect x="188" y="104" width="3" height="3" fill="#f4efe4" />
+      <rect x="196" y="100" width="3" height="3" fill="#f4efe4" />
+      <rect x="210" y="116" width="4" height="8" fill="#f4efe4" />
+      <rect x="206" y="110" width="12" height="6" fill="#1f5e4c" />
 
-      <rect x="167" y="113" width="3" height="3" fill="#fff" />
-      <rect x="190" y="58" width="3" height="3" fill="#fff" />
-      <rect x="110" y="64" width="3" height="3" fill="#fff" />
+      {/* falling leaves */}
+      <rect x="176" y="62" width="4" height="4" fill="#3f9c7c" />
+      <rect x="92" y="54" width="4" height="4" fill="#1f5e4c" />
+
+      <rect x="149" y="92" width="3" height="3" fill="#fff" />
+      <rect x="214" y="84" width="3" height="3" fill="#fff" />
     </svg>
   );
 }
 
-/* ── 4 · Explosion — ember spot ink, "ground dome": a side-view blast dome
-   (deep ember → ember → bright core) with debris lobbing out on dotted arcs.
-   Adopted from the card-art rethink round (candidate f, batch 2) — owner
-   pick, R004; R005 re-grade: neutral bed, bone debris arcs, ember dome
-   stepped down, whitish core as the brightest mass. ── */
+/* ── 4 · Explosion — ember spot ink, "three-frame filmstrip": a paper
+   sprocketed strip frames spark → burst → smoke left to right; the strip
+   carries the whitish mass, the ember stays inside the cells. Adopted from
+   the card-art rethink round (candidate a, batch 1) — owner pick, R006;
+   whitish/paper dominant, muted ember contents. ── */
 function BlastCenterMark() {
+  const holes = Array.from({ length: 16 }, (_, i) => 26 + i * 13.5);
   return (
     <svg viewBox="0 0 260 160" aria-hidden="true">
       <defs>
@@ -297,47 +281,65 @@ function BlastCenterMark() {
           <circle cx="3.5" cy="3.5" r="1.9" fill="#ffb347" />
         </pattern>
       </defs>
-      <ellipse cx="130" cy="96" rx="108" ry="58" fill="url(#gem-blast-bed)" opacity="0.09" />
-      <ellipse className="gem-halo" style={haloVar(0.12)} cx="130" cy="104" rx="66" ry="36" fill="url(#gem-blast-glow)" opacity={0.12} />
+      <ellipse cx="130" cy="80" rx="112" ry="58" fill="url(#gem-blast-bed)" opacity="0.09" />
+      <ellipse className="gem-halo" style={haloVar(0.12)} cx="130" cy="80" rx="46" ry="34" fill="url(#gem-blast-glow)" opacity={0.12} />
 
-      <g fill="none" stroke="#b6ac95" strokeWidth="3" strokeLinecap="round" strokeDasharray="0.1 7">
-        <path d="M152 96 Q192 30 222 112" />
-        <path d="M108 96 Q68 24 40 112" />
+      <rect x="20" y="42" width="220" height="76" rx="3" fill="#eeeae0" />
+      {holes.map((x, i) => (
+        <g key={`h${i}`}>
+          <rect x={x} y="46" width="6" height="5" rx="1" fill="#0b1317" />
+          <rect x={x} y="109" width="6" height="5" rx="1" fill="#0b1317" />
+        </g>
+      ))}
+      <rect x="32" y="55" width="60" height="50" fill="#26333b" />
+      <rect x="100" y="55" width="60" height="50" fill="#26333b" />
+      <rect x="168" y="55" width="60" height="50" fill="#26333b" />
+      <path d="M89 76 L96 80 L89 84 Z" fill="#b6ac95" />
+      <path d="M163 76 L170 80 L163 84 Z" fill="#b6ac95" />
+
+      {/* frame 1: spark */}
+      <g fill="#d99a55">
+        <rect x="54" y="62" width="4" height="9" />
+        <rect x="54" y="89" width="4" height="9" />
+        <rect x="38" y="78" width="9" height="4" />
+        <rect x="65" y="78" width="9" height="4" />
       </g>
-      <rect x="217" y="112" width="9" height="9" fill="#d99a55" transform="rotate(20 221.5 116.5)" />
-      <rect x="35" y="112" width="8" height="8" fill="#5a3520" transform="rotate(-25 39 116)" />
+      <circle cx="56" cy="80" r="6" fill="#ffe9c8" />
 
-      <path d="M74 128 A56 52 0 0 1 186 128 Z" fill="#6b3a22" />
-      <path d="M88 128 A42 40 0 0 1 172 128 Z" fill="#a8552c" />
-      <path d="M104 128 A26 26 0 0 1 156 128 Z" fill="#d99a55" />
-      <path d="M118 128 A12 13 0 0 1 142 128 Z" fill="#ffe9c8" />
+      {/* frame 2: burst */}
+      <polygon
+        points="130,58 133.8,70.8 145.6,64.4 139.2,76.2 152,80 139.2,83.8 145.6,95.6 133.8,89.2 130,102 126.2,89.2 114.4,95.6 120.8,83.8 108,80 120.8,76.2 114.4,64.4 126.2,70.8"
+        fill="#b8652f"
+      />
+      <circle cx="130" cy="80" r="11" fill="#d99a55" />
+      <circle cx="130" cy="80" r="6" fill="#ffe9c8" />
 
-      <g fill="#5a3520">
-        <circle cx="68" cy="124" r="8" />
-        <circle cx="192" cy="124" r="8" />
-        <circle cx="56" cy="126" r="5" />
-        <circle cx="204" cy="126" r="5" />
-      </g>
-      <rect x="24" y="128" width="212" height="5" fill="#4a2a1a" />
+      {/* frame 3: smoke */}
+      <circle cx="190" cy="86" r="11" fill="#4a2a1a" />
+      <circle cx="205" cy="84" r="12" fill="#4a2a1a" />
+      <circle cx="197" cy="73" r="10" fill="#5a3520" />
+      <rect x="182" y="64" width="4" height="4" fill="#d99a55" />
+      <rect x="213" y="66" width="3" height="3" fill="#b8652f" />
+      <rect x="209" y="97" width="3" height="3" fill="#d99a55" />
 
-      <rect x="124" y="118" width="3" height="3" fill="#fff" />
-      <rect x="160" y="96" width="2" height="2" fill="#fff" />
+      <rect x="60.5" y="78.5" width="3" height="3" fill="#ffffff" />
+      <rect x="140" y="64" width="2" height="2" fill="#ffffff" />
     </svg>
   );
 }
 
-/* ── 5 · Planck to Now — violet spot ink, "worlds form": the scrub knob
-   parked near the end of the timeline under a lit ringed planet and its
-   moon. Adopted from the card-art rethink round (candidate c, batch 1) —
-   owner pick, R004; R005 re-grade: neutral bed, dim violet planet +
-   muted timeline, pale ring + paper moon as the brightest masses. ── */
+/* ── 5 · Planck to Now — violet spot ink, "galaxies ignite": the scrub knob
+   parked mid-timeline beneath a two-arm spiral galaxy. Adopted from the
+   card-art rethink round (candidate b, batch 1) — owner pick, R006; pale
+   arms + whitish core carry the emphasis, violet muted into the timeline. ── */
 function SpiralCenterMark() {
   const stars: [number, number, number][] = [
-    [56, 36, 3],
-    [214, 90, 3],
-    [70, 98, 4],
-    [44, 70, 2],
-    [226, 56, 3],
+    [58, 34, 3],
+    [206, 30, 4],
+    [72, 96, 3],
+    [196, 98, 3],
+    [44, 64, 2],
+    [220, 66, 3],
   ];
   const ticks = [70, 100, 130, 160, 190];
   return (
@@ -349,31 +351,42 @@ function SpiralCenterMark() {
         <pattern id="gem-planck-glow" width="7" height="7" patternUnits="userSpaceOnUse">
           <circle cx="3.5" cy="3.5" r="1.9" fill="#a98cff" />
         </pattern>
-        <clipPath id="gem-planck-planet">
-          <circle cx="130" cy="64" r="24" />
-        </clipPath>
       </defs>
       <ellipse cx="130" cy="64" rx="98" ry="50" fill="url(#gem-planck-bed)" opacity="0.09" />
-      <ellipse className="gem-halo" style={haloVar(0.12)} cx="130" cy="64" rx="52" ry="32" fill="url(#gem-planck-glow)" opacity={0.12} />
-      <g transform="rotate(-14 130 64)">
-        <ellipse cx="130" cy="64" rx="46" ry="11" fill="none" stroke="#e4dbff" strokeWidth="4" />
-        <circle cx="130" cy="64" r="24" fill="#3f2f7a" />
-        <circle cx="122" cy="57" r="24" fill="#6f5cb0" clipPath="url(#gem-planck-planet)" />
-        <path d="M84 64 A46 11 0 0 0 176 64" fill="none" stroke="#e4dbff" strokeWidth="4" />
+      <ellipse className="gem-halo" style={haloVar(0.12)} cx="130" cy="66" rx="50" ry="30" fill="url(#gem-planck-glow)" opacity={0.12} />
+
+      <g transform="rotate(-18 130 66)">
+        <circle cx="130" cy="66" r="15" fill="#4b3a8c" />
+        <path
+          d="M130 66 C118 50 150 40 168 54 C180 64 172 80 158 82"
+          fill="none"
+          stroke="#cfc4f2"
+          strokeWidth="8"
+          strokeLinecap="round"
+        />
+        <path
+          d="M130 66 C142 82 110 92 92 78 C80 68 88 52 102 50"
+          fill="none"
+          stroke="#cfc4f2"
+          strokeWidth="8"
+          strokeLinecap="round"
+        />
+        <circle cx="130" cy="66" r="9" fill="#eeeae0" />
       </g>
-      <circle cx="194" cy="38" r="5" fill="#eeeae0" />
       {stars.map(([x, y, s], i) => (
-        <rect key={`s${i}`} x={x} y={y} width={s} height={s} fill="#8a79b8" />
+        <rect key={`s${i}`} x={x} y={y} width={s} height={s} fill="#cfc4f2" />
       ))}
+
       <rect x="40" y="128" width="180" height="4" rx="2" fill="#2a2340" />
       {ticks.map((x) => (
         <rect key={`t${x}`} x={x} y="119" width="2" height="5" fill="#4b3a8c" />
       ))}
-      <rect x="40" y="128" width="156" height="4" rx="2" fill="#8a79b8" />
-      <circle cx="196" cy="130" r="7" fill="#8a79b8" stroke="#0b1317" strokeWidth="3" />
-      <circle cx="196" cy="130" r="2.5" fill="#eeeae0" />
-      <rect x="116" y="50" width="3" height="3" fill="#ffffff" />
-      <rect x="57" y="37" width="2" height="2" fill="#ffffff" />
+      <rect x="40" y="128" width="90" height="4" rx="2" fill="#8a79b8" />
+      <circle cx="130" cy="130" r="7" fill="#8a79b8" stroke="#0b1317" strokeWidth="3" />
+      <circle cx="130" cy="130" r="2.5" fill="#eeeae0" />
+
+      <rect x="160" y="48" width="3" height="3" fill="#ffffff" />
+      <rect x="207" y="31" width="2" height="2" fill="#ffffff" />
     </svg>
   );
 }
