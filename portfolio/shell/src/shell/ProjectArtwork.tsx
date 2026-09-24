@@ -78,12 +78,11 @@ export const INCUMBENT_MARKS: Partial<Record<ProjectCenter, () => ReactElement>>
   fox: FoxCenterMark,
 };
 
-/* ── 1 · Raft Cluster — coral spot ink, "majority partition": a paper fault
-   line splits the cluster — the leader-holding majority (coral leader, paper
-   followers) stays linked, the orphaned minority hangs dashed beyond the
-   cut. Adopted from the card-art rethink round (candidate f, batch 2) —
-   owner pick, R006 (crown removed); whitish/paper dominant, hue kept for
-   the leader. Ids keep the gem-raft-* prefix. ── */
+/* ── 1 · Raft Cluster — coral spot ink, "majority partition", R007
+   refinement (chat-model salvage): the miter zigzag became a soft cubic
+   S-cut with a 1.25px paper edge on the majority side; links stop a measured
+   gap short of every node; heartbeats fade at the cut; the leader gains a
+   term ring and one drawn paper rim (the only whitish accent). ── */
 function RaftCenterMark() {
   return (
     <svg viewBox="0 0 260 160" aria-hidden="true">
@@ -96,37 +95,44 @@ function RaftCenterMark() {
         </pattern>
       </defs>
       <ellipse cx="124" cy="82" rx="106" ry="64" fill="url(#gem-raft-bed)" opacity="0.09" />
-      <ellipse className="gem-halo" style={haloVar(0.12)} cx="96" cy="82" rx="58" ry="40" fill="url(#gem-raft-glow)" opacity={0.12} />
+      <ellipse className="gem-halo" style={haloVar(0.12)} cx="90" cy="80" rx="58" ry="40" fill="url(#gem-raft-glow)" opacity={0.12} />
 
-      <g stroke="#b6ac95" strokeWidth="3">
-        <line x1="80" y1="80" x2="48" y2="40" />
-        <line x1="80" y1="80" x2="50" y2="122" />
-        <line x1="80" y1="80" x2="138" y2="65.3" />
-        <line x1="80" y1="80" x2="138" y2="95.9" />
+      {/* majority links — measured, stop short of every node */}
+      <g stroke="#b6ac95" strokeWidth="2.5" strokeLinecap="round" fill="none">
+        <line x1="67.6" y1="63.2" x2="50.3" y2="47.4" />
+        <line x1="67.6" y1="96.8" x2="50.3" y2="112.6" />
       </g>
-      <g stroke="#465059" strokeWidth="3" strokeDasharray="5 5">
-        <line x1="162" y1="59.2" x2="198" y2="50" />
-        <line x1="162" y1="102.5" x2="204" y2="114" />
-        <line x1="198" y1="50" x2="204" y2="114" />
-      </g>
-
-      <path
-        d="M150 16 L140 44 L158 66 L142 92 L160 116 L146 144"
-        fill="none" stroke="#eeeae0" strokeWidth="4" strokeLinejoin="miter"
-      />
-
-      <g fill="#eeeae0" stroke="#465059" strokeWidth="3">
-        <circle cx="48" cy="40" r="11" />
-        <circle cx="50" cy="122" r="11" />
-      </g>
-      <g fill="#26333b" stroke="#465059" strokeWidth="2" strokeDasharray="4 3">
-        <circle cx="198" cy="50" r="11" />
-        <circle cx="204" cy="114" r="11" />
+      {/* heartbeats that die at the cut */}
+      <g stroke="#b6ac95" strokeWidth="2.5" strokeLinecap="round" fill="none" opacity="0.5">
+        <line x1="109.5" y1="71.5" x2="139" y2="60.7" />
+        <line x1="109.8" y1="87.8" x2="145" y2="99.4" />
       </g>
 
-      <circle cx="80" cy="80" r="17" fill="#ff6a5f" />
+      {/* the partition — one soft S-cut with a paper edge on the majority side */}
+      <path d="M152 18 C138 56 166 104 152 142" fill="none" stroke="#7d7669" strokeWidth="3" strokeLinecap="round" />
+      <path d="M148 18 C134 56 162 104 148 142" fill="none" stroke="#eeeae0" strokeWidth="1.25" strokeLinecap="round" opacity="0.75" />
 
-      <rect x="69" y="65" width="3" height="3" fill="#fff" />
+      {/* orphaned minority — soft round-cap dashes */}
+      <g stroke="#7d7669" strokeWidth="2" strokeLinecap="round" strokeDasharray="1.5 5" fill="none">
+        <line x1="160" y1="59" x2="193.2" y2="52.8" />
+        <line x1="164" y1="100" x2="193.4" y2="106.7" />
+        <line x1="208" y1="65" x2="208" y2="95" />
+      </g>
+      <g fill="#26333b" stroke="#7d7669" strokeWidth="2" strokeLinecap="round" strokeDasharray="1.5 4.5">
+        <circle cx="208" cy="50" r="10" pathLength={60} />
+        <circle cx="208" cy="110" r="10" pathLength={60} />
+      </g>
+
+      {/* followers — bone bodies */}
+      <g fill="#b6ac95">
+        <circle cx="40" cy="38" r="10" />
+        <circle cx="40" cy="122" r="10" />
+      </g>
+
+      {/* leader — coral core, term ring, one drawn paper rim */}
+      <circle cx="86" cy="80" r="21" fill="none" stroke="#ff6a5f" strokeWidth="1.25" opacity="0.45" />
+      <circle cx="86" cy="80" r="16" fill="#ff6a5f" />
+      <path d="M75 80 A11 11 0 0 1 86 69" fill="none" stroke="#f4efe4" strokeWidth="2" strokeLinecap="round" opacity="0.6" />
     </svg>
   );
 }
@@ -193,10 +199,10 @@ function KittyCenterMark() {
   );
 }
 
-/* ── 3 · Evening Forest — teal spot ink, "fox on the trail": a paper fox
-   trotting between a fern and a mushroom cluster at dusk. Adopted from the
-   card-art rethink round (candidate f, batch 2) — owner pick, R006;
-   whitish/paper dominant, teal kept for mushroom caps, leaves and the glow. ── */
+/* ── 3 · Evening Forest — teal spot ink, "fox on the trail", R007
+   refinement (chat-model salvage): the paper fox becomes bone with a lit
+   paper ridge running tail → shoulder (whitish as structure, not mass); the
+   head glint becomes a real deep-ink eye; mushroom spots go tone-on-tone. ── */
 function FoxCenterMark() {
   return (
     <svg viewBox="0 0 260 160" aria-hidden="true" shapeRendering="crispEdges">
@@ -228,16 +234,24 @@ function FoxCenterMark() {
         <rect x="48" y="108" width="10" height="4" />
       </g>
 
-      {/* fox — paper body, slate legs, dark nose */}
-      <rect x="64" y="88" width="10" height="10" fill="#f4efe4" />
-      <rect x="72" y="92" width="28" height="10" fill="#eeeae0" />
-      <rect x="100" y="96" width="40" height="16" fill="#eeeae0" />
-      <rect x="140" y="88" width="16" height="16" fill="#eeeae0" />
-      <rect x="144" y="80" width="4" height="8" fill="#eeeae0" />
-      <rect x="152" y="80" width="4" height="8" fill="#eeeae0" />
-      <rect x="156" y="96" width="8" height="6" fill="#eeeae0" />
-      <rect x="162" y="96" width="3" height="3" fill="#1f5e4c" />
-      <rect x="140" y="104" width="10" height="8" fill="#f4efe4" />
+      {/* fox — bone body, one paper ridge from tail tip to shoulder */}
+      <g fill="#b6ac95">
+        <rect x="72" y="92" width="28" height="10" />
+        <rect x="100" y="96" width="40" height="16" />
+        <rect x="140" y="88" width="16" height="16" />
+        <rect x="144" y="80" width="4" height="8" />
+        <rect x="152" y="80" width="4" height="8" />
+        <rect x="156" y="96" width="8" height="6" />
+        <rect x="140" y="104" width="10" height="8" />
+      </g>
+      <rect x="64" y="88" width="10" height="10" fill="#eeeae0" />
+      <g fill="#eeeae0" opacity="0.9">
+        <rect x="74" y="92" width="26" height="2" />
+        <rect x="98" y="92" width="2" height="4" />
+        <rect x="100" y="96" width="40" height="2" />
+      </g>
+      <rect x="149" y="92" width="3" height="3" fill="#26333b" />
+      <rect x="162" y="96" width="3" height="3" fill="#26333b" />
       <g fill="#465059">
         <rect x="104" y="112" width="5" height="12" />
         <rect x="116" y="112" width="5" height="8" />
@@ -245,30 +259,26 @@ function FoxCenterMark() {
         <rect x="138" y="112" width="5" height="8" />
       </g>
 
-      {/* mushrooms — dim teal caps, paper stems */}
-      <rect x="190" y="112" width="6" height="12" fill="#f4efe4" />
+      {/* mushrooms — teal caps with tone-on-tone spots, bone stems */}
+      <rect x="190" y="112" width="6" height="12" fill="#b6ac95" />
       <rect x="182" y="102" width="22" height="10" fill="#3f9c7c" />
       <rect x="186" y="98" width="14" height="4" fill="#3f9c7c" />
-      <rect x="188" y="104" width="3" height="3" fill="#f4efe4" />
-      <rect x="196" y="100" width="3" height="3" fill="#f4efe4" />
-      <rect x="210" y="116" width="4" height="8" fill="#f4efe4" />
+      <rect x="188" y="104" width="3" height="3" fill="#1f5e4c" />
+      <rect x="196" y="100" width="3" height="3" fill="#1f5e4c" />
+      <rect x="210" y="116" width="4" height="8" fill="#b6ac95" />
       <rect x="206" y="110" width="12" height="6" fill="#1f5e4c" />
 
       {/* falling leaves */}
       <rect x="176" y="62" width="4" height="4" fill="#3f9c7c" />
       <rect x="92" y="54" width="4" height="4" fill="#1f5e4c" />
-
-      <rect x="149" y="92" width="3" height="3" fill="#fff" />
-      <rect x="214" y="84" width="3" height="3" fill="#fff" />
     </svg>
   );
 }
 
-/* ── 4 · Explosion — ember spot ink, "three-frame filmstrip": a paper
-   sprocketed strip frames spark → burst → smoke left to right; the strip
-   carries the whitish mass, the ember stays inside the cells. Adopted from
-   the card-art rethink round (candidate a, batch 1) — owner pick, R006;
-   whitish/paper dominant, muted ember contents. ── */
+/* ── 4 · Explosion — ember spot ink, "three-frame filmstrip", R007
+   refinement (chat-model salvage): the paper strip mass becomes bone with a
+   single paper top-edge hairline; the heat story carries the whitish — one
+   white-hot burst core, an ember rim drawn on the smoke, no white squares. ── */
 function BlastCenterMark() {
   const holes = Array.from({ length: 16 }, (_, i) => 26 + i * 13.5);
   return (
@@ -284,7 +294,9 @@ function BlastCenterMark() {
       <ellipse cx="130" cy="80" rx="112" ry="58" fill="url(#gem-blast-bed)" opacity="0.09" />
       <ellipse className="gem-halo" style={haloVar(0.12)} cx="130" cy="80" rx="46" ry="34" fill="url(#gem-blast-glow)" opacity={0.12} />
 
-      <rect x="20" y="42" width="220" height="76" rx="3" fill="#eeeae0" />
+      {/* strip — bone body, paper top edge */}
+      <rect x="20" y="42" width="220" height="76" rx="3" fill="#b6ac95" />
+      <line x1="23" y1="43.5" x2="237" y2="43.5" stroke="#eeeae0" strokeWidth="1.5" strokeLinecap="round" opacity="0.85" />
       {holes.map((x, i) => (
         <g key={`h${i}`}>
           <rect x={x} y="46" width="6" height="5" rx="1" fill="#0b1317" />
@@ -294,52 +306,51 @@ function BlastCenterMark() {
       <rect x="32" y="55" width="60" height="50" fill="#26333b" />
       <rect x="100" y="55" width="60" height="50" fill="#26333b" />
       <rect x="168" y="55" width="60" height="50" fill="#26333b" />
-      <path d="M89 76 L96 80 L89 84 Z" fill="#b6ac95" />
-      <path d="M163 76 L170 80 L163 84 Z" fill="#b6ac95" />
+      <path d="M93 76 L99 80 L93 84 Z" fill="#465059" />
+      <path d="M161 76 L167 80 L161 84 Z" fill="#465059" />
 
       {/* frame 1: spark */}
       <g fill="#d99a55">
-        <rect x="54" y="62" width="4" height="9" />
-        <rect x="54" y="89" width="4" height="9" />
-        <rect x="38" y="78" width="9" height="4" />
-        <rect x="65" y="78" width="9" height="4" />
+        <rect x="54" y="62" width="4" height="9" rx="1" />
+        <rect x="54" y="89" width="4" height="9" rx="1" />
+        <rect x="38" y="78" width="9" height="4" rx="1" />
+        <rect x="65" y="78" width="9" height="4" rx="1" />
       </g>
-      <circle cx="56" cy="80" r="6" fill="#ffe9c8" />
+      <circle cx="56" cy="80" r="5" fill="#ffb347" />
 
-      {/* frame 2: burst */}
+      {/* frame 2: burst — the one white-hot core */}
       <polygon
         points="130,58 133.8,70.8 145.6,64.4 139.2,76.2 152,80 139.2,83.8 145.6,95.6 133.8,89.2 130,102 126.2,89.2 114.4,95.6 120.8,83.8 108,80 120.8,76.2 114.4,64.4 126.2,70.8"
         fill="#b8652f"
       />
       <circle cx="130" cy="80" r="11" fill="#d99a55" />
-      <circle cx="130" cy="80" r="6" fill="#ffe9c8" />
+      <circle cx="130" cy="80" r="5" fill="#ffe9c8" />
 
-      {/* frame 3: smoke */}
+      {/* frame 3: smoke, with an ember rim on the top puff */}
       <circle cx="190" cy="86" r="11" fill="#4a2a1a" />
       <circle cx="205" cy="84" r="12" fill="#4a2a1a" />
       <circle cx="197" cy="73" r="10" fill="#5a3520" />
+      <path d="M188 69 A10 10 0 0 1 206 69" fill="none" stroke="#d99a55" strokeWidth="1.25" strokeLinecap="round" opacity="0.55" />
       <rect x="182" y="64" width="4" height="4" fill="#d99a55" />
       <rect x="213" y="66" width="3" height="3" fill="#b8652f" />
       <rect x="209" y="97" width="3" height="3" fill="#d99a55" />
-
-      <rect x="60.5" y="78.5" width="3" height="3" fill="#ffffff" />
-      <rect x="140" y="64" width="2" height="2" fill="#ffffff" />
     </svg>
   );
 }
 
-/* ── 5 · Planck to Now — violet spot ink, "galaxies ignite": the scrub knob
-   parked mid-timeline beneath a two-arm spiral galaxy. Adopted from the
-   card-art rethink round (candidate b, batch 1) — owner pick, R006; pale
-   arms + whitish core carry the emphasis, violet muted into the timeline. ── */
+/* ── 5 · Planck to Now — violet spot ink, "galaxies ignite", R007
+   refinement (chat-model salvage): the near-white arms become dim violet
+   with an engraved pale spine, stars become plus-ticks, the slider knob
+   takes the identity violet, and one paper pip is the single whitish
+   accent. ── */
 function SpiralCenterMark() {
   const stars: [number, number, number][] = [
-    [58, 34, 3],
-    [206, 30, 4],
-    [72, 96, 3],
-    [196, 98, 3],
-    [44, 64, 2],
-    [220, 66, 3],
+    [59.5, 35.5, 2.5],
+    [208, 32, 3.5],
+    [73.5, 97.5, 2.5],
+    [197.5, 99.5, 2.5],
+    [45, 65, 2],
+    [221.5, 67.5, 2.5],
   ];
   const ticks = [70, 100, 130, 160, 190];
   return (
@@ -357,36 +368,36 @@ function SpiralCenterMark() {
 
       <g transform="rotate(-18 130 66)">
         <circle cx="130" cy="66" r="15" fill="#4b3a8c" />
-        <path
-          d="M130 66 C118 50 150 40 168 54 C180 64 172 80 158 82"
-          fill="none"
-          stroke="#cfc4f2"
-          strokeWidth="8"
-          strokeLinecap="round"
-        />
-        <path
-          d="M130 66 C142 82 110 92 92 78 C80 68 88 52 102 50"
-          fill="none"
-          stroke="#cfc4f2"
-          strokeWidth="8"
-          strokeLinecap="round"
-        />
-        <circle cx="130" cy="66" r="9" fill="#eeeae0" />
+        <g fill="none" strokeLinecap="round">
+          <g stroke="#8a79b8" strokeWidth="8">
+            <path d="M130 66 C118 50 150 40 168 54 C180 64 172 80 158 82" />
+            <path d="M130 66 C142 82 110 92 92 78 C80 68 88 52 102 50" />
+          </g>
+          <g stroke="#cfc4f2" strokeWidth="1.5" opacity="0.8">
+            <path d="M130 66 C118 50 150 40 168 54 C180 64 172 80 158 82" />
+            <path d="M130 66 C142 82 110 92 92 78 C80 68 88 52 102 50" />
+          </g>
+        </g>
+        <circle cx="130" cy="66" r="8" fill="#cfc4f2" />
       </g>
-      {stars.map(([x, y, s], i) => (
-        <rect key={`s${i}`} x={x} y={y} width={s} height={s} fill="#cfc4f2" />
-      ))}
+
+      {/* stars as drawn ticks, not squares */}
+      <g stroke="#8a79b8" strokeWidth="1.25" strokeLinecap="round" opacity="0.8">
+        {stars.map(([x, y, s], i) => (
+          <g key={`s${i}`}>
+            <line x1={x - s} y1={y} x2={x + s} y2={y} />
+            <line x1={x} y1={y - s} x2={x} y2={y + s} />
+          </g>
+        ))}
+      </g>
 
       <rect x="40" y="128" width="180" height="4" rx="2" fill="#2a2340" />
       {ticks.map((x) => (
         <rect key={`t${x}`} x={x} y="119" width="2" height="5" fill="#4b3a8c" />
       ))}
       <rect x="40" y="128" width="90" height="4" rx="2" fill="#8a79b8" />
-      <circle cx="130" cy="130" r="7" fill="#8a79b8" stroke="#0b1317" strokeWidth="3" />
-      <circle cx="130" cy="130" r="2.5" fill="#eeeae0" />
-
-      <rect x="160" y="48" width="3" height="3" fill="#ffffff" />
-      <rect x="207" y="31" width="2" height="2" fill="#ffffff" />
+      <circle cx="130" cy="130" r="7" fill="#a98cff" stroke="#0b1317" strokeWidth="3" />
+      <circle cx="130" cy="130" r="2" fill="#eeeae0" />
     </svg>
   );
 }

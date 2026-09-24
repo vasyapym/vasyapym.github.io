@@ -147,3 +147,24 @@ detail (SVG marks); concepts must be fresh/original yet simple. Presented on
 - Visual inspection: performed on the real page — the four marks now share the first-four-cards' register (whitish/paper subjects, quiet hue accents), sit ~10% smaller inside their stages with the breathe headroom intact; no seams; no console errors.
 - Code verification: tsc --noEmit green; vite build green.
 - Open question: owner judges live (desktop + mobile device); micro-steers remain one-line.
+
+## Feedback F009
+- Round: R006
+- Verdict: REJECTED (scope-limited: colour delivery + raft polish)
+- Scope: whitish delivery (random glints, large white masses) on the four adopted marks; raft edge quality
+- Decision: colouring must be subtle and intentional — edge lines / restrained drawn accents instead of random white highlights; white too prominent; raft too edgy → polished and refined
+- User source: "The coloring needs refinement. It should be subtle and intentional—for example, using edge lines or similar restrained accents instead of random white highlights. Right now, the white is too prominent. The Raft cluster also feels a bit too edgy and should be made more polished and refined."
+- Artifact: artifacts/R006/r006-cards-full-1440.png
+- Supersedes: narrows F008 (whitish stays the register; its delivery changes to structure)
+
+## Round R007
+- Goal: refine all four marks per F009 via the deepening relay (chat model carried the four functions verbatim + the feedback + the lens exemplar).
+- Preserved preferences: F006 picks (subjects/compositions recognizable), F007 size (untouched), F008 register, one gem-halo @0.12 per mark, house bed @0.09.
+- Relay: docs/briefs/BRIEF-card-art-refine-r007.md (deepening brief, evidence verbatim; output format note truncated in transit — the model inferred one-component-per-mark under the original names, which matched intent).
+- Changes (chat-model code, salvaged near-verbatim): Raft — miter zigzag → soft cubic S-cut (grey) with a 1.25px paper hairline on the majority side; links stop short of nodes; heartbeats fade at the cut (0.5); leader gains coral term ring + one drawn paper rim (the white square gone); minority dashes soften to warm grey round-cap, dashed circles use pathLength for even closing. Fox — paper body → bone, whitish as a 2px paper ridge (tail → riser → back), tail tip the one paper accent, head glint becomes a real deep-ink eye, mushroom spots tone-on-tone. Blast — 220×76 paper strip → bone with one paper top-edge hairline; both white squares removed; spark core drops to ember; burst keeps the single white-hot r5 core; smoke gets a drawn ember rim; arrows to slate in the gutters. Planck — near-white arms → dim violet with 1.5px pale spine engraved; square stars → plus-ticks; knob takes identity violet; the r2 paper pip is the mark's one intentional whitish accent.
+- Integration: verbatim except comment paraphrase; ids/halo hooks intact.
+- Before: artifacts/R006/r006-cards-full-1440.png
+- After: artifacts/R007/r007-cards-full-1440.png (+ r007-art-<project>.png ×4)
+- Visual inspection: performed on the real page — whitish now delivered via edges/rims/pips; scattered white squares gone; raft reads polished (soft cut, measured links); set sits in the first-four register; no seams; no console errors.
+- Code verification: tsc --noEmit green; vite build green.
+- Open question: owner judges the refined palette/raft live; per-mark nudges remain one-line.
