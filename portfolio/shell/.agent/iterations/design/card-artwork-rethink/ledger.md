@@ -91,3 +91,22 @@ detail (SVG marks); concepts must be fresh/original yet simple. Presented on
 - Visual inspection: performed on the real page — all four adopted marks render legibly at card size; no seams against the card ground; the four-card row reads as one family (dot beds + one hue protagonist + white glints); no console/page errors.
 - Code verification: tsc --noEmit green; vite build green.
 - Open question: owner judges the adopted cards live on GitHub Pages (desktop + mobile band untested visually on a real device); further micro-steers (note copy, hover glow strength) are cheap one-line rounds.
+
+## Feedback F005
+- Round: R004
+- Verdict: REJECTED (scope-limited)
+- Scope: colour prominence of the four adopted marks — hue-saturated beds and bright hue masses, landing page
+- Decision: colours must be less pronounced; the register should match the first four cards, where whitish/paper is the most prominent colour
+- User source: "please make colours of them less pronounced/less prominent. i like how it is in first 4 projects that most prominent colour is whiteish (which looks consistent). please make adjustments to colour palette"
+- Artifact: artifacts/R004/after-cards-full-1440.png
+- Supersedes: F001–F004 within colour-treatment scope only (subjects/compositions stay as picked)
+
+## Round R005
+- Goal: colour-only re-grade of the four adopted marks toward the first-four-cards register (whitish most prominent, hue demoted to accent). Geometry untouched.
+- Preserved preferences: F001–F004 (subjects/compositions as picked); house register (neutral sparse beds @0.09, halos @0.12, paper/whitish brightest).
+- Changes (all in ProjectArtwork.tsx unless noted): beds re-patterned to the house neutral sparse dots (#7d7669, 11px) @0.09 and glows to house halo dots @0.12 with haloVar(0.12). Raft: spokes + leader ring slate #465059, mid pulse dots bone #b6ac95, timer arcs dim rust #9c453f (hue keeps the leader disc only). Forest: pine bright #4fd1a5→#3f9c7c, lantern light #b8f2de→#e9f1ec (whitish), sparkles bone. Blast: debris arcs bone, dome stepped #6b3a22/#a8552c/#d99a55 with whitish core #ffe9c8, smoke/ground darkened ember. Planck: planet #3f2f7a + lit cap #6f5cb0, pale ring #e4dbff and paper moon #eeeae0 as brightest, timeline muted #8a79b8. styles.css: halo pulse restored to Raft + Planck + Spine (halos back at house 0.12).
+- Before: artifacts/R004/after-cards-full-1440.png
+- After: artifacts/R005/graded-cards-full-1440.png (+ graded-art-<project>.png ×4)
+- Visual inspection: performed on the real page — the four re-graded marks now sit in the first-four-cards' register: neutral beds, whitish/paper brightest masses, one quiet hue voice each; compositions and subjects unchanged; no seams; no console errors.
+- Code verification: tsc --noEmit green; vite build green.
+- Open question: owner judges the re-graded palette live; per-mark ± steps (e.g. arcs brighter/dimmer, pine tone) are one-line micro-steers.
