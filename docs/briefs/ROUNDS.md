@@ -4,7 +4,7 @@ One line per delegation brief/handoff. **Lifecycle:** a brief file lives only wh
 
 | File | Graph refs | Verdict / outcome |
 | --- | --- | --- |
-| BRIEF-card-art-four-projects-concepts.md | main: card-art rethink R001–R003 (ledger `portfolio/shell/.agent/iterations/design/card-artwork-rethink/`) — two minimized relay batches drew 18 raw candidates (6× raft/forest/blast/planck) rendered on /art-directions; owner picks per project, refinement follows — active |
+| BRIEF-card-art-four-projects-concepts.md | main n42-n44: card-art rethink R001–R004 (ledger `portfolio/shell/.agent/iterations/design/card-artwork-rethink/`) — two minimized relay batches drew 18 raw candidates on /art-directions; owner picked per card (raft a heartbeat ring, forest d lone pine walk, blast f ground dome, planck c worlds form — "these are really great-looking"); picks adopted onto the landing cards with house hover-halo repairs; brief deleted, outcome recorded — closed |
 | BRIEF-card-art-blast-spiral-rework.md | main n109: Card-artwork rework round n109-n114: Cat Runner HK head-ma — active |
 | BRIEF-card-art-consistency-directions.md | main n104: Card artwork consistency round: three variant languages (A — pending owner pick (A/B/C) |
 | BRIEF-card-art-kitty-hello-iconic.md | main n108: Owner rejects Hello-Kitty-iconic kitty mark (n108 draft):  — superseded; main n109(text): Card-artwork rework round n109-n114: Cat Runner HK head-ma — active |

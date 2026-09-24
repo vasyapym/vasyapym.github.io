@@ -45,3 +45,49 @@ detail (SVG marks); concepts must be fresh/original yet simple. Presented on
 - Visual inspection: performed — all 18 candidates render legibly on the real page; batch-2 marks shipped without a ground rect so nothing to strip; no console/page errors. RaftB (batch-1 split-brain) and RaftF (batch-2 majority partition) are same-subject siblings — both left in for the owner to weigh.
 - Code verification: tsc --noEmit green (build verified green in R002; this round is additive components only).
 - Open question: owner picks one candidate per project (A–F) on the live page; refinement/customization follows the picks.
+
+## Feedback F001
+- Round: R002/R003
+- Verdict: LIKED
+- Scope: raft-cluster card mark, landing page
+- Decision: adopt candidate a "heartbeat ring"
+- User source: "raft cluster - candidate a (heartbeat ring)"
+- Artifact: artifacts/R002/draft-card-art-rethink-raft.png
+- Supersedes: none
+
+## Feedback F002
+- Round: R002/R003
+- Verdict: LIKED
+- Scope: evening-forest card mark, landing page
+- Decision: adopt candidate d "lone pine walk"
+- User source: "evening forest - candidate d (lone pine walk)"
+- Artifact: artifacts/R003/draft2-card-art-rethink-evening-forest.png
+- Supersedes: none
+
+## Feedback F003
+- Round: R002/R003
+- Verdict: LIKED
+- Scope: explosion card mark, landing page
+- Decision: adopt candidate f "ground dome"
+- User source: "explosion - candidate f (ground dome)"
+- Artifact: artifacts/R003/draft2-card-art-rethink-explosion.png
+- Supersedes: none
+
+## Feedback F004
+- Round: R002/R003
+- Verdict: LIKED
+- Scope: planck-to-now card mark, landing page
+- Decision: adopt candidate c "worlds form"
+- User source: "planck to now - candidate c (worlds form)"
+- Artifact: artifacts/R002/draft-card-art-rethink-planck-to-now.png
+- Supersedes: none
+
+## Round R004
+- Goal: adopt the four owner picks (Raft a · heartbeat ring, Forest d · lone pine walk, Blast f · ground dome, Planck c · worlds form) onto the landing cards, refined to the house ground/hover mechanics with minimal repair. Owner added: "these are really great-looking" — the batch direction is liked; only the four picks move forward.
+- Preserved preferences: F001–F004 (the picks, as drawn — refinement must not restyle them).
+- Changes: ProjectArtwork.tsx — RaftCenterMark / FoxCenterMark / BlastCenterMark / SpiralCenterMark bodies replaced with the picked marks (same function names, so CENTER_MARKS/INCUMBENT_MARKS keys and all presentation config keep working). House adoption repairs: batch-1 ground rects already stripped in R002; raft follower node fill #26262c → house deep ink #26333b; planck knob outline #0d0d10 → card ground #0b1317; each mark's core dot-glow ellipse now carries className="gem-halo" + haloVar(drawn base 0.3–0.38) so hover brighten works additively; ids re-prefixed gem-raft/fox/blast/planck-*. styles.css: halo-pulse rule narrowed to Spine only — the adopted marks' glow beds (0.3–0.38) would be dimmed to the 0.08–0.16 pulse range, flattening the drawn look; their halos keep the static base, hover brighten only. fourProjectRethink.tsx "current" toplines updated to the adopted names (INCUMBENT_MARKS now resolves to the new marks). Relay brief deleted — outcome recorded.
+- Before: artifacts/R001/before-art-<project>.png
+- After: artifacts/R004/after-art-<project>.png (×4 + after-cards-full-1440.png, 1440×900 @2x)
+- Visual inspection: performed on the real page — all four adopted marks render legibly at card size; no seams against the card ground; the four-card row reads as one family (dot beds + one hue protagonist + white glints); no console/page errors.
+- Code verification: tsc --noEmit green; vite build green.
+- Open question: owner judges the adopted cards live on GitHub Pages (desktop + mobile band untested visually on a real device); further micro-steers (note copy, hover glow strength) are cheap one-line rounds.

@@ -78,57 +78,72 @@ export const INCUMBENT_MARKS: Partial<Record<ProjectCenter, () => ReactElement>>
   fox: FoxCenterMark,
 };
 
-/* ── 1 · Raft Cluster — coral spot ink, the cluster as a shift-register
-   ripple: the crowned leader flop (top-left) shifts the bit down a diagonal
-   cascade of stages — two stages hold it (stage 3 overprinted coral), the
-   next stage sits dashed and empty ahead of the frontier, the laggard stage
-   stalls off the cascade with an X across it, and the coral bit is mid-hop
-   into the frontier. Adopted from the round-7 cybernetic board (candidate
-   H "shift-register ripple"); ids keep the family prefix gem-raft-*. ── */
+/* ── 1 · Raft Cluster — coral spot ink, "heartbeat ring": a crowned leader
+   broadcasts heartbeats (dots along the spokes) to four followers, each
+   wearing a partial ring with its election timer draining. Adopted from the
+   card-art rethink round (candidate a, batch 1) — owner pick, R004. House
+   adoption re-tunes the node fills to the neutral ramp and binds the hover
+   halo; ids keep the gem-raft-* prefix. ── */
 function RaftCenterMark() {
+  const leader = { x: 130, y: 34 };
+  const followers = [
+    { x: 196.6, y: 68.5, timer: 62 },
+    { x: 171.2, y: 124.5, timer: 30 },
+    { x: 88.8, y: 124.5, timer: 80 },
+    { x: 63.4, y: 68.5, timer: 46 },
+  ];
   return (
     <svg viewBox="0 0 260 160" aria-hidden="true">
       <defs>
-        <pattern id="gem-raft-dense" patternUnits="userSpaceOnUse" width="7" height="7"><circle cx="3.5" cy="3.5" r="1.9" fill="#ff6a5f" /></pattern>
-        <pattern id="gem-raft-sparse" patternUnits="userSpaceOnUse" width="11" height="11"><circle cx="5.5" cy="5.5" r="1.6" fill="#7d7669" /></pattern>
-        <pattern id="gem-raft-halo" patternUnits="userSpaceOnUse" width="7" height="7"><circle cx="3.5" cy="3.5" r="1.9" fill="#ff6a5f" /></pattern>
+        <pattern id="gem-raft-bed" width="6" height="6" patternUnits="userSpaceOnUse">
+          <circle cx="3" cy="3" r="0.9" fill="#ff6a5f" />
+        </pattern>
+        <pattern id="gem-raft-glow" width="6" height="6" patternUnits="userSpaceOnUse">
+          <circle cx="3" cy="3" r="1.7" fill="#ff6a5f" />
+        </pattern>
       </defs>
-
-      <ellipse cx="130" cy="84" rx="104" ry="64" fill="url(#gem-raft-sparse)" opacity="0.09" />
-      <ellipse className="gem-halo" cx="128" cy="84" rx="54" ry="40" fill="url(#gem-raft-halo)" style={haloVar(0.12)} opacity={0.12} />
-
-      {/* leader input flop — top-left (24x20 so the r20 crown clears) */}
-      <rect x="33" y="42" width="24" height="20" fill="#26333b" stroke="#b6ac95" strokeWidth="2.5" />
-      <line x1="33" y1="56" x2="39" y2="62" stroke="#7d7669" strokeWidth="2" />
-      <circle cx="45" cy="52" r="20" fill="none" stroke="#ff6a5f" strokeWidth="3.5" />
-      <circle cx="45" cy="52" r="6" fill="#ff6a5f" />
-
-      {/* stage 2 (shifted, committed) */}
-      <polyline points="57,58 74,58 74,66 84,66" fill="none" stroke="#465059" strokeWidth="3.5" />
-      <rect x="84" y="56" width="30" height="24" fill="#465059" stroke="#b6ac95" strokeWidth="2.5" />
-      <line x1="84" y1="76" x2="88" y2="80" stroke="#7d7669" strokeWidth="2" />
-
-      {/* stage 3 (shifted, committed) */}
-      <polyline points="114,72 128,72 128,80 138,80" fill="none" stroke="#465059" strokeWidth="3.5" />
-      <rect x="138" y="70" width="30" height="24" fill="url(#gem-raft-dense)" stroke="#7d2723" strokeWidth="2.5" />
-
-      {/* stage 4 (empty, not yet shifted) — dashed */}
-      <polyline points="168,86 182,86 182,94 192,94" fill="none" stroke="#465059" strokeWidth="3.5" />
-      <rect x="192" y="84" width="30" height="24" fill="none" stroke="#7d7669" strokeWidth="1.5" strokeDasharray="4 4" />
-
-      {/* laggard stage 5 — stalled clock, broken dashed dead-end */}
-      <polyline points="150,94 150,116 176,116" fill="none" stroke="#7d7669" strokeWidth="1.5" strokeDasharray="4 4" />
-      <rect x="176" y="116" width="30" height="20" fill="none" stroke="#7d7669" strokeWidth="1.5" strokeDasharray="4 4" />
-      <polyline points="184,120 198,132" fill="none" stroke="#7d7669" strokeWidth="1.5" strokeDasharray="3 3" />
-      <polyline points="198,120 184,132" fill="none" stroke="#7d7669" strokeWidth="1.5" strokeDasharray="3 3" />
-
-      {/* clock-tick log straddling the committed stage edges */}
-      <line x1="99" y1="76" x2="99" y2="84" stroke="#7d7669" strokeWidth="2.5" />
-      <line x1="153" y1="92" x2="153" y2="100" stroke="#7d7669" strokeWidth="2.5" />
-
-      {/* coral protagonist — bit rippling between stage 3 and stage 4 */}
-      <rect x="170" y="82" width="14" height="9" rx="2" fill="#ff6a5f" />
-      <polyline points="185,90 190,94 185,98" fill="none" stroke="#7d2723" strokeWidth="3" />
+      <ellipse cx="130" cy="82" rx="104" ry="62" fill="url(#gem-raft-bed)" opacity="0.3" />
+      <ellipse className="gem-halo" style={haloVar(0.38)} cx="130" cy="82" rx="62" ry="38" fill="url(#gem-raft-glow)" opacity={0.38} />
+      {followers.map((f, i) => (
+        <line
+          key={`l${i}`}
+          x1={leader.x}
+          y1={leader.y}
+          x2={f.x}
+          y2={f.y}
+          stroke="#8c3a34"
+          strokeWidth="2.5"
+        />
+      ))}
+      {followers.map((f, i) => (
+        <circle
+          key={`m${i}`}
+          cx={leader.x + (f.x - leader.x) * 0.55}
+          cy={leader.y + (f.y - leader.y) * 0.55}
+          r="3.5"
+          fill="#ff6a5f"
+        />
+      ))}
+      <circle cx={leader.x} cy={leader.y} r="21" fill="none" stroke="#8c3a34" strokeWidth="2" />
+      <circle cx={leader.x} cy={leader.y} r="15" fill="#ff6a5f" />
+      {followers.map((f, i) => (
+        <g key={`f${i}`}>
+          <circle cx={f.x} cy={f.y} r="12" fill="#26333b" />
+          <circle
+            cx={f.x}
+            cy={f.y}
+            r="16"
+            fill="none"
+            stroke="#ff6a5f"
+            strokeWidth="3"
+            strokeLinecap="round"
+            strokeDasharray={`${f.timer} 101`}
+            transform={`rotate(-90 ${f.x} ${f.y})`}
+          />
+        </g>
+      ))}
+      <rect x="134" y="27" width="3" height="3" fill="#ffffff" />
+      <rect x="199" y="64" width="2" height="2" fill="#ffffff" />
     </svg>
   );
 }
@@ -195,167 +210,167 @@ function KittyCenterMark() {
   );
 }
 
-/* ── 3 · Evening Forest — teal spot ink on neutral dusk ── */
+/* ── 3 · Evening Forest — teal spot ink, "lone pine walk": a pixel wanderer
+   with a lantern beside one pine on a winding path — the deliberate 8-bit nod
+   the card copy promises. Adopted from the card-art rethink round (candidate
+   d, batch 2) — owner pick, R004. ── */
 function FoxCenterMark() {
   return (
-    <svg viewBox="0 0 260 160" aria-hidden="true">
+    <svg viewBox="0 0 260 160" aria-hidden="true" shapeRendering="crispEdges">
       <defs>
-        <pattern id="gem-fox-dense" patternUnits="userSpaceOnUse" width="7" height="7">
-          <circle cx="3.5" cy="3.5" r="1.9" fill="#4fd1a5" />
+        <pattern id="gem-fox-bed" width="6" height="6" patternUnits="userSpaceOnUse">
+          <circle cx="3" cy="3" r="0.9" fill="#4fd1a5" />
         </pattern>
-        <pattern id="gem-fox-sparse" patternUnits="userSpaceOnUse" width="11" height="11">
-          <circle cx="5.5" cy="5.5" r="1.6" fill="#7d7669" />
+        <pattern id="gem-fox-glow" width="6" height="6" patternUnits="userSpaceOnUse">
+          <circle cx="3" cy="3" r="1.7" fill="#4fd1a5" />
         </pattern>
-        <clipPath id="gem-fox-tree"><path d="M 130 60 L 156 124 Q 130 116 104 124 Z" /></clipPath>
-        <clipPath id="gem-fox-canopy"><rect x="40" y="78" width="180" height="20" /></clipPath>
       </defs>
-      {/* wide sparse neutral backdrop */}
-      <ellipse cx="130" cy="80" rx="104" ry="62" fill="url(#gem-fox-sparse)" opacity="0.09" />
-      {/* halo — TEAL dots at low opacity, cold-dusk hover glow */}
-      <ellipse className="gem-halo" style={haloVar(0.12)} cx="130" cy="80" rx="60" ry="40" fill="url(#gem-fox-dense)" opacity="0.12" />
-      {/* moon: cold paper disc + neutral cap + hairline teal rim */}
-      <circle cx="202" cy="46" r="15" fill="#eeeae0" />
-      <circle cx="199" cy="43" r="8" fill="#b6ac95" />
-      <circle cx="202" cy="46" r="15" fill="none" stroke="#4fd1a5" strokeWidth="1.2" />
-      {/* back layer — lighter neutral (far reads lighter) */}
-      <g opacity="0.5">
-        <path d="M 66 112 L 78 82 L 90 112 Z" fill="#7d7669" />
-        <path d="M 150 112 L 162 84 L 174 112 Z" fill="#7d7669" />
-        <path d="M 108 112 Q 96 88 120 84 Q 132 92 128 112 Z" fill="#465059" />
+      <ellipse cx="136" cy="88" rx="104" ry="62" fill="url(#gem-fox-bed)" opacity="0.26" />
+      <ellipse className="gem-halo" style={haloVar(0.3)} cx="160" cy="104" rx="50" ry="30" fill="url(#gem-fox-glow)" opacity={0.3} />
+
+      {/* lone pine */}
+      <g fill="#4fd1a5">
+        <rect x="66" y="28" width="8" height="8" />
+        <rect x="58" y="36" width="24" height="8" />
+        <rect x="50" y="44" width="40" height="8" />
+        <rect x="54" y="56" width="32" height="8" />
+        <rect x="46" y="64" width="48" height="8" />
+        <rect x="38" y="72" width="64" height="8" />
+        <rect x="46" y="84" width="48" height="8" />
+        <rect x="38" y="92" width="64" height="8" />
+        <rect x="30" y="100" width="80" height="8" />
       </g>
-      {/* ground hairline */}
-      <path d="M 30 128 Q 130 112 230 128" stroke="#26333b" strokeWidth="10" strokeLinecap="round" fill="none" opacity="0.8" />
-      {/* mid-layer bushes — medium neutral */}
-      <path d="M 62 124 Q 46 92 82 90 Q 100 98 96 124 Z" fill="#465059" opacity="0.7" />
-      <path d="M 178 124 Q 166 96 198 92 Q 214 100 210 124 Z" fill="#465059" opacity="0.7" />
-      {/* teal canopy halftone band across the mid-layer */}
-      <g clipPath="url(#gem-fox-canopy)">
-        <rect x="40" y="78" width="180" height="20" fill="url(#gem-fox-dense)" opacity="0.5" />
+      <g fill="#1f5e4c">
+        <rect x="50" y="48" width="12" height="4" />
+        <rect x="42" y="76" width="16" height="4" />
+        <rect x="34" y="104" width="20" height="4" />
       </g>
-      {/* front center tree — darkest neutral, stepped caps */}
-      <path d="M 130 60 L 156 124 Q 130 116 104 124 Z" fill="#26333b" />
-      <g clipPath="url(#gem-fox-tree)">
-        <polygon points="130,60 104,124 130,124" fill="#465059" />
-        <polygon points="130,60 116,108 126,108" fill="#7d7669" />
+      <rect x="64" y="108" width="12" height="22" fill="#1f5e4c" />
+
+      {/* small far pine */}
+      <g fill="#1f5e4c">
+        <rect x="206" y="68" width="8" height="8" />
+        <rect x="200" y="76" width="20" height="8" />
+        <rect x="194" y="84" width="32" height="8" />
+        <rect x="206" y="92" width="8" height="10" />
       </g>
-      {/* neutral fireflies */}
-      <circle cx="118" cy="66" r="2.6" fill="#b6ac95" />
-      <circle cx="168" cy="80" r="2.4" fill="#b6ac95" />
-      <circle cx="92" cy="82" r="2.2" fill="#b6ac95" />
-      {/* white square glints */}
-      <rect x="122" y="76" width="3.2" height="3.2" fill="#ffffff" opacity="0.55" />
-      <rect x="124" y="96" width="2.8" height="2.8" fill="#ffffff" opacity="0.4" />
+
+      {/* path */}
+      <g fill="#1f5e4c">
+        <rect x="20" y="128" width="96" height="4" />
+        <rect x="108" y="128" width="64" height="6" />
+        <rect x="126" y="134" width="72" height="6" />
+        <rect x="152" y="140" width="84" height="6" />
+      </g>
+
+      {/* walker */}
+      <rect x="150" y="94" width="8" height="8" fill="#b8f2de" />
+      <rect x="148" y="90" width="12" height="4" fill="#4fd1a5" />
+      <rect x="148" y="102" width="12" height="16" fill="#4fd1a5" />
+      <rect x="146" y="118" width="4" height="10" fill="#4fd1a5" />
+      <rect x="158" y="118" width="4" height="10" fill="#4fd1a5" />
+      <rect x="160" y="106" width="6" height="4" fill="#4fd1a5" />
+      <rect x="165" y="110" width="8" height="10" fill="#b8f2de" />
+      <rect x="167" y="108" width="4" height="2" fill="#4fd1a5" />
+
+      <rect x="167" y="113" width="3" height="3" fill="#fff" />
+      <rect x="190" y="58" width="3" height="3" fill="#fff" />
+      <rect x="110" y="64" width="3" height="3" fill="#fff" />
     </svg>
   );
 }
 
-/* ── 4 · Explosion — amber spot ink, ordered radial shatter ── */
+/* ── 4 · Explosion — ember spot ink, "ground dome": a side-view blast dome
+   (deep ember → ember → bright core) with debris lobbing out on dotted arcs.
+   Adopted from the card-art rethink round (candidate f, batch 2) — owner
+   pick, R004. ── */
 function BlastCenterMark() {
   return (
     <svg viewBox="0 0 260 160" aria-hidden="true">
       <defs>
-        <pattern id="gem-blast-dense" patternUnits="userSpaceOnUse" width="7" height="7">
-          <circle cx="3.5" cy="3.5" r="1.9" fill="#ffb347" />
+        <pattern id="gem-blast-bed" width="6" height="6" patternUnits="userSpaceOnUse">
+          <circle cx="3" cy="3" r="0.9" fill="#ffb347" />
         </pattern>
-        <pattern id="gem-blast-sparse" patternUnits="userSpaceOnUse" width="11" height="11">
-          <circle cx="5.5" cy="5.5" r="1.6" fill="#7d7669" />
+        <pattern id="gem-blast-glow" width="6" height="6" patternUnits="userSpaceOnUse">
+          <circle cx="3" cy="3" r="1.7" fill="#ffb347" />
         </pattern>
-        <pattern id="gem-blast-halo" patternUnits="userSpaceOnUse" width="7" height="7">
-          <circle cx="3.5" cy="3.5" r="1.9" fill="#ffb347" />
-        </pattern>
-        <clipPath id="gem-blast-disc-clip">
-          <circle cx="130" cy="80" r="26" />
-        </clipPath>
-        <clipPath id="gem-blast-shard45-clip">
-          <polygon points="154,104 164,120 170,114" />
-        </clipPath>
-        <clipPath id="gem-blast-shard225-clip">
-          <polygon points="106,56 96,40 90,46" />
-        </clipPath>
       </defs>
-      {/* wide sparse backdrop */}
-      <ellipse cx="130" cy="80" rx="104" ry="64" fill="url(#gem-blast-sparse)" opacity="0.09" />
-      {/* amber halo */}
-      <ellipse className="gem-halo" style={haloVar(0.12)} cx="130" cy="80" rx="60" ry="42" fill="url(#gem-blast-halo)" opacity="0.12" />
-      {/* eight radial seam lines (the cracks) */}
-      <path d="M160,80 L170,80 M151,101 L158,108 M130,110 L130,120 M109,101 L102,108 M100,80 L90,80 M109,59 L102,52 M130,50 L130,40 M151,59 L158,52" stroke="#7d7669" strokeWidth="1.5" opacity="0.45" fill="none" />
-      {/* eight shards on exact radial angles */}
-      <polygon points="164,80 190,85 190,75" fill="#b6ac95" />
-      <polygon points="154,104 164,120 170,114" fill="#7d7669" />
-      <polygon points="130,114 135,140 125,140" fill="#465059" />
-      <polygon points="106,104 90,114 96,120" fill="#b6ac95" />
-      <polygon points="96,80 70,75 70,85" fill="#7d7669" />
-      <polygon points="106,56 96,40 90,46" fill="#465059" />
-      <polygon points="130,46 135,20 125,20" fill="#b6ac95" />
-      <polygon points="154,56 170,46 164,40" fill="#eeeae0" />
-      {/* amber halftone overprint caps on the two opposite shards */}
-      <rect x="150" y="100" width="26" height="26" fill="url(#gem-blast-dense)" opacity="0.7" clipPath="url(#gem-blast-shard45-clip)" />
-      <rect x="86" y="36" width="26" height="26" fill="url(#gem-blast-dense)" opacity="0.7" clipPath="url(#gem-blast-shard225-clip)" />
-      {/* central lantern disc + stepped inner cap + hairline rim */}
-      <circle cx="130" cy="80" r="26" fill="#26333b" />
-      <circle cx="127" cy="77" r="20" fill="#465059" clipPath="url(#gem-blast-disc-clip)" />
-      <circle cx="130" cy="80" r="26" fill="none" stroke="#465059" strokeWidth="1" opacity="0.6" />
-      {/* amber ignition core (three stacked fills) */}
-      <circle cx="127" cy="77" r="9" fill="#ffb347" />
-      <circle cx="125.5" cy="75.5" r="4" fill="#ffcf87" />
-      <circle cx="124" cy="74" r="1.8" fill="#fff0cf" />
-      {/* three embers on radial lines */}
-      <circle cx="194" cy="103" r="2.2" fill="#b6ac95" />
-      <circle cx="66" cy="57" r="2.2" fill="#b6ac95" />
-      <circle cx="194" cy="57" r="2.2" fill="#b6ac95" />
-      {/* white glint */}
-      <rect x="123.3" y="73.3" width="1.4" height="1.4" fill="#ffffff" />
+      <ellipse cx="130" cy="96" rx="108" ry="58" fill="url(#gem-blast-bed)" opacity="0.26" />
+      <ellipse className="gem-halo" style={haloVar(0.32)} cx="130" cy="104" rx="66" ry="36" fill="url(#gem-blast-glow)" opacity={0.32} />
+
+      <g fill="none" stroke="#ffb347" strokeWidth="3" strokeLinecap="round" strokeDasharray="0.1 7">
+        <path d="M152 96 Q192 30 222 112" />
+        <path d="M108 96 Q68 24 40 112" />
+      </g>
+      <rect x="217" y="112" width="9" height="9" fill="#ffb347" transform="rotate(20 221.5 116.5)" />
+      <rect x="35" y="112" width="8" height="8" fill="#c2561f" transform="rotate(-25 39 116)" />
+
+      <path d="M74 128 A56 52 0 0 1 186 128 Z" fill="#c2561f" />
+      <path d="M88 128 A42 40 0 0 1 172 128 Z" fill="#ff7a2f" />
+      <path d="M104 128 A26 26 0 0 1 156 128 Z" fill="#ffb347" />
+      <path d="M118 128 A12 13 0 0 1 142 128 Z" fill="#ffe2b0" />
+
+      <g fill="#c2561f">
+        <circle cx="68" cy="124" r="8" />
+        <circle cx="192" cy="124" r="8" />
+        <circle cx="56" cy="126" r="5" />
+        <circle cx="204" cy="126" r="5" />
+      </g>
+      <rect x="24" y="128" width="212" height="5" fill="#c2561f" />
+
+      <rect x="124" y="118" width="3" height="3" fill="#fff" />
+      <rect x="160" y="96" width="2" height="2" fill="#fff" />
     </svg>
   );
 }
 
-/* ── 5 · Planck to Now — violet spot ink, Big Bang epoch ripples ── */
+/* ── 5 · Planck to Now — violet spot ink, "worlds form": the scrub knob
+   parked near the end of the timeline under a lit ringed planet and its
+   moon. Adopted from the card-art rethink round (candidate c, batch 1) —
+   owner pick, R004; the knob outline re-tuned to the card ground. ── */
 function SpiralCenterMark() {
+  const stars: [number, number, number][] = [
+    [56, 36, 3],
+    [214, 90, 3],
+    [70, 98, 4],
+    [44, 70, 2],
+    [226, 56, 3],
+  ];
+  const ticks = [70, 100, 130, 160, 190];
   return (
     <svg viewBox="0 0 260 160" aria-hidden="true">
       <defs>
-        <pattern id="gem-spiral-dense" patternUnits="userSpaceOnUse" width="7" height="7">
-          <circle cx="3.5" cy="3.5" r="1.9" fill="#a98cff" />
+        <pattern id="gem-planck-bed" width="6" height="6" patternUnits="userSpaceOnUse">
+          <circle cx="3" cy="3" r="0.9" fill="#a98cff" />
         </pattern>
-        <pattern id="gem-spiral-sparse" patternUnits="userSpaceOnUse" width="11" height="11">
-          <circle cx="5.5" cy="5.5" r="1.6" fill="#7d7669" />
+        <pattern id="gem-planck-glow" width="6" height="6" patternUnits="userSpaceOnUse">
+          <circle cx="3" cy="3" r="1.7" fill="#a98cff" />
         </pattern>
-        <pattern id="gem-spiral-halo" patternUnits="userSpaceOnUse" width="7" height="7">
-          <circle cx="3.5" cy="3.5" r="1.9" fill="#a98cff" />
-        </pattern>
+        <clipPath id="gem-planck-planet">
+          <circle cx="130" cy="64" r="24" />
+        </clipPath>
       </defs>
-      {/* scaled composition group: smaller ripples, seated right of centre so
-          the convergence (perceived epicentre) balances the right-hand fan */}
-      <g transform="translate(54 24.6) scale(0.66)">
-        {/* wide sparse backdrop */}
-        <ellipse cx="130" cy="84" rx="104" ry="64" fill="url(#gem-spiral-sparse)" opacity="0.09" />
-        {/* violet halo (CSS pulse hooks here) */}
-        <ellipse className="gem-halo" style={haloVar(0.12)} cx="52" cy="84" rx="60" ry="42" fill="url(#gem-spiral-halo)" opacity="0.12" />
-        {/* four nested right-opening epoch ripple bands (outer → inner) */}
-        <path d="M 52 10 A 165 74 0 0 1 52 158" fill="none" stroke="#b6ac95" strokeWidth="9" strokeLinecap="round" opacity="0.5" />
-        <path d="M 52 26 A 130 58 0 0 1 52 142" fill="none" stroke="#7d7669" strokeWidth="9" strokeLinecap="round" opacity="0.6" />
-        <path d="M 52 42 A 95 42 0 0 1 52 126" fill="none" stroke="#465059" strokeWidth="9" strokeLinecap="round" opacity="0.75" />
-        <path d="M 52 58 A 60 26 0 0 1 52 110" fill="none" stroke="#26333b" strokeWidth="9" strokeLinecap="round" opacity="0.9" />
-        {/* singularity (stacked fills + deep containment ring) */}
-        <circle cx="52" cy="84" r="11" fill="none" stroke="#4b3a8c" strokeWidth="1.5" opacity="0.8" />
-        <circle cx="52" cy="84" r="7" fill="#a98cff" />
-        <circle cx="52" cy="84" r="3" fill="#efe7ff" />
-        {/* violet "now" frontier: rightmost segment of band 4 overdrawn */}
-        <path d="M 210 62 A 165 74 0 0 1 210 106" fill="none" stroke="#a98cff" strokeWidth="10" strokeLinecap="round" opacity="0.9" />
-        <circle cx="217" cy="84" r="3" fill="#a98cff" />
-        <circle cx="217" cy="84" r="1.4" fill="#efe7ff" />
-        {/* star field between bands (increasing outward) */}
-        <circle cx="100" cy="84" r="1.6" fill="#b6ac95" />
-        <circle cx="124" cy="62" r="1.8" fill="#7d7669" />
-        <circle cx="150" cy="102" r="2.0" fill="#b6ac95" />
-        <circle cx="176" cy="48" r="2.2" fill="#7d7669" />
-        <circle cx="192" cy="110" r="2.4" fill="#b6ac95" />
-        <circle cx="206" cy="66" r="2.6" fill="#7d7669" />
-        {/* hero four-point star */}
-        <polygon points="168,79 169.6,82.4 173,84 169.6,85.6 168,89 166.4,85.6 163,84 166.4,82.4" fill="#eeeae0" opacity="0.9" />
-        {/* white glint */}
-        <rect x="215.4" y="82.4" width="1.3" height="1.3" fill="#ffffff" />
+      <ellipse cx="130" cy="64" rx="98" ry="50" fill="url(#gem-planck-bed)" opacity="0.28" />
+      <ellipse className="gem-halo" style={haloVar(0.38)} cx="130" cy="64" rx="52" ry="32" fill="url(#gem-planck-glow)" opacity={0.38} />
+      <g transform="rotate(-14 130 64)">
+        <ellipse cx="130" cy="64" rx="46" ry="11" fill="none" stroke="#e4dbff" strokeWidth="4" />
+        <circle cx="130" cy="64" r="24" fill="#5b3fc4" />
+        <circle cx="122" cy="57" r="24" fill="#a98cff" clipPath="url(#gem-planck-planet)" />
+        <path d="M84 64 A46 11 0 0 0 176 64" fill="none" stroke="#e4dbff" strokeWidth="4" />
       </g>
+      <circle cx="194" cy="38" r="5" fill="#e4dbff" />
+      {stars.map(([x, y, s], i) => (
+        <rect key={`s${i}`} x={x} y={y} width={s} height={s} fill="#a98cff" />
+      ))}
+      <rect x="40" y="128" width="180" height="4" rx="2" fill="#2a2340" />
+      {ticks.map((x) => (
+        <rect key={`t${x}`} x={x} y="119" width="2" height="5" fill="#5b3fc4" />
+      ))}
+      <rect x="40" y="128" width="156" height="4" rx="2" fill="#a98cff" />
+      <circle cx="196" cy="130" r="7" fill="#a98cff" stroke="#0b1317" strokeWidth="3" />
+      <circle cx="196" cy="130" r="2.5" fill="#e4dbff" />
+      <rect x="116" y="50" width="3" height="3" fill="#ffffff" />
+      <rect x="57" y="37" width="2" height="2" fill="#ffffff" />
     </svg>
   );
 }

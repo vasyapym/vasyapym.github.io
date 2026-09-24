@@ -1190,9 +1190,10 @@ body:has(.practice-map-field) { background: #0b1317; }
   .signal-index-card:nth-child(7) .project-artwork-center svg { animation-delay: 2.4s; }
   .signal-index-card:nth-child(8) .project-artwork-center svg { animation-delay: 2.8s; }
 
-  /* halo pulse — Raft + Planck + Spine, same 4s clock */
-  .presentation-raft-cluster .gem-halo,
-  .presentation-planck-to-now .gem-halo,
+  /* halo pulse — Spine only, same 4s clock. Raft + Planck marks adopted from
+     the card-art rethink carry their own strong glow beds (opacity ~0.38);
+     pulsing them down to 0.08–0.16 dimmed the drawn look, so their halos keep
+     their static base and the hover brighten only. */
   .presentation-spine .gem-halo {
     animation: gem-halo-pulse 4s ease-in-out infinite;}
 }

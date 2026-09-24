@@ -689,7 +689,7 @@ export function PlanckC() {
 /* ── Round wiring ── */
 
 const RAFT_FOUR_ROUND: readonly { id: string; topline: string; Mark?: () => ReactElement }[] = [
-  { id: "current", topline: "current · shift-register ripple", Mark: INCUMBENT_MARKS.raft },
+  { id: "current", topline: "current · heartbeat ring (adopted)", Mark: INCUMBENT_MARKS.raft },
   { id: "a", topline: "candidate a · heartbeat ring", Mark: RaftA },
   { id: "b", topline: "candidate b · split-brain partition", Mark: RaftB },
   { id: "c", topline: "candidate c · committed across replicas", Mark: RaftC },
@@ -699,7 +699,7 @@ const RAFT_FOUR_ROUND: readonly { id: string; topline: string; Mark?: () => Reac
 ];
 
 const FOREST_FOUR_ROUND: readonly { id: string; topline: string; Mark?: () => ReactElement }[] = [
-  { id: "current", topline: "current · dusk treeline", Mark: INCUMBENT_MARKS.fox },
+  { id: "current", topline: "current · lone pine walk (adopted)", Mark: INCUMBENT_MARKS.fox },
   { id: "a", topline: "candidate a · lantern walker", Mark: ForestA },
   { id: "b", topline: "candidate b · fork signpost & fireflies", Mark: ForestB },
   { id: "c", topline: "candidate c · footprints home", Mark: ForestC },
@@ -709,7 +709,7 @@ const FOREST_FOUR_ROUND: readonly { id: string; topline: string; Mark?: () => Re
 ];
 
 const BLAST_FOUR_ROUND: readonly { id: string; topline: string; Mark?: () => ReactElement }[] = [
-  { id: "current", topline: "current · radial shatter", Mark: INCUMBENT_MARKS.blast },
+  { id: "current", topline: "current · ground dome (adopted)", Mark: INCUMBENT_MARKS.blast },
   { id: "a", topline: "candidate a · three-frame filmstrip", Mark: BlastA },
   { id: "b", topline: "candidate b · exploded cube", Mark: BlastB },
   { id: "c", topline: "candidate c · mushroom plume", Mark: BlastC },
@@ -719,7 +719,7 @@ const BLAST_FOUR_ROUND: readonly { id: string; topline: string; Mark?: () => Rea
 ];
 
 const PLANCK_FOUR_ROUND: readonly { id: string; topline: string; Mark?: () => ReactElement }[] = [
-  { id: "current", topline: "current · epoch ripples", Mark: INCUMBENT_MARKS.spiral },
+  { id: "current", topline: "current · worlds form (adopted)", Mark: INCUMBENT_MARKS.spiral },
   { id: "a", topline: "candidate a · first instant", Mark: PlanckA },
   { id: "b", topline: "candidate b · galaxies ignite", Mark: PlanckB },
   { id: "c", topline: "candidate c · worlds form", Mark: PlanckC },
