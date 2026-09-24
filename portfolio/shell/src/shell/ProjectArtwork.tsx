@@ -75,6 +75,7 @@ export const INCUMBENT_MARKS: Partial<Record<ProjectCenter, () => ReactElement>>
   spiral: SpiralCenterMark,
   trail: TrailCenterMark,
   matrix: MatrixCenterMark,
+  fox: FoxCenterMark,
 };
 
 /* ── 1 · Raft Cluster — coral spot ink, the cluster as a shift-register
