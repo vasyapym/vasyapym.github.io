@@ -1,6 +1,6 @@
 // Browser check for Practice Map: deep-lesson reader, mobile overlay fit,
 // fragment-tab fallback, keyboard nav, touch-visible copy buttons,
-// shadow typing (interactive reading).
+// shadow typing (interactive reading), saved scroll restore (ed2e302 regression).
 //
 //   node projects/practice-map/tests/practice-map.check.mjs   (from portfolio/)
 //
@@ -53,18 +53,26 @@ async function waitForServer(url, tries = 40) {
   throw new Error(`dev server never answered at ${url}`);
 }
 
+const isWin = process.platform === "win32";
+// Node >= 20.12 refuses to spawn .cmd shims without a shell (spawn EINVAL).
 const server = spawn(
-  process.platform === "win32" ? "npm.cmd" : "npm",
+  isWin ? "npm.cmd" : "npm",
   ["run", "dev", "--", "--host", "0.0.0.0", "--port", String(PORT), "--strictPort"],
-  { cwd: shellDir, stdio: "ignore", detached: true },
+  { cwd: shellDir, stdio: "ignore", detached: !isWin, shell: isWin },
 );
-process.on("exit", () => {
+const killServer = () => {
   try {
-    process.kill(-server.pid);
+    if (isWin) {
+      // No process groups on Windows: kill the cmd wrapper's whole tree.
+      spawn("taskkill", ["/pid", String(server.pid), "/T", "/F"], { stdio: "ignore" });
+    } else {
+      process.kill(-server.pid);
+    }
   } catch {
     /* already gone */
   }
-});
+};
+process.on("exit", killServer);
 
 try {
   await waitForServer(`${BASE}/projects/practice-map`);
@@ -221,6 +229,31 @@ try {
   await page.keyboard.press("Escape");
   await wait(400);
   check((await page.$(".practice-lesson-overlay")) === null, "Escape closes the lesson");
+
+  // --- desktop: saved scroll restore (the ed2e302 regression) -----------------
+
+  // Reading position must survive close/reopen: scroll, close (the unmount
+  // flush writes the record), reopen — the pre-paint restore keyed on `deep`
+  // must land the reader back at the saved offset, not at the top.
+  await page.click(".pg-card .pg-pill");
+  check(await appears(".practice-reader-nav button"), "reader reopens for the restore leg");
+  const restoreTarget = 900;
+  await page.evaluate((top) => {
+    const scroller = document.querySelector(".practice-lesson-scroll");
+    scroller.scrollTop = top;
+  }, restoreTarget);
+  await wait(600); // past the 300ms save debounce
+  await page.keyboard.press("Escape");
+  await wait(400);
+  check((await page.$(".practice-lesson-overlay")) === null, "Escape closes for the restore leg");
+  await page.click(".pg-card .pg-pill");
+  check(await appears(".practice-reader-nav button"), "reader reopens again for the restore leg");
+  const restoredScroll = await page.evaluate(
+    () => document.querySelector(".practice-lesson-scroll").scrollTop,
+  );
+  check(restoredScroll > restoreTarget - 150, `reopen restores the saved reading position (${restoredScroll})`);
+  await page.keyboard.press("Escape");
+  await wait(400);
 
   // --- desktop: free reading (note-style sections) ----------------------------
 

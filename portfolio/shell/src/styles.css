@@ -1057,6 +1057,11 @@ textarea:focus-visible {
    the page body ink-dark so any residual band reads black instead of white. */
 body:has(.quicknotes-frame) { background: #0b1317; }
 
+/* Close-flash insurance: when the full-viewport lesson overlay unmounts, a frame
+   can expose the light --index-bg behind the practice map — paint the page body
+   ink-dark so any flash reads black instead of white. */
+body:has(.practice-map-field) { background: #0b1317; }
+
 
 /* -- copy block -- */
 .gem-card-copy {

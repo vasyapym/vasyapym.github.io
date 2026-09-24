@@ -268,17 +268,22 @@ function LessonOverlay({
   const pendingScrollTopRef = useRef<number | null>(null);
   const lesson = topic.lesson;
   // Legacy fast path (deepLesson inlined in the topic card) falls back to the
-  // per-lesson chunk loader; while the chunk resolves the tabs view shows.
+  // per-lesson chunk loader; while the chunk resolves the body stays empty
+  // over the ink sheet — the tabs view is only the load-failure path.
   const [lazyDeep, setLazyDeep] = useState<DeepLesson | null>(null);
+  const [lazyFailed, setLazyFailed] = useState(false);
   useEffect(() => {
     if (topic.deepLesson) return;
     setLazyDeep(null);
+    setLazyFailed(false);
     let alive = true;
     loadDeepLesson(topic.id)
       .then((next) => {
         if (alive) setLazyDeep(next);
       })
-      .catch(() => {}); // stay on tabs; a missing file is a wiring bug to report
+      .catch(() => {
+        if (alive) setLazyFailed(true); // show tabs; a missing file is a wiring bug to report
+      });
     return () => {
       alive = false;
     };
@@ -501,8 +506,11 @@ function LessonOverlay({
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
-  // Restore saved scroll position before the browser's first paint.
+  // Restore the saved scroll position pre-paint once the sections are mounted.
+  // Keyed on deep: since ed2e302 the chunk lands after overlay mount, when the
+  // scroller is still too short and the mount-only restore bailed on max <= 4.
   useLayoutEffect(() => {
+    if (!deep) return;
     const saved = readScrollProgress(topic.id);
     if (!saved) return;
     const scroller = scrollRef.current;
@@ -519,23 +527,23 @@ function LessonOverlay({
     }
     // The IntersectionObserver effect hasn't populated sectionTargetsRef
     // yet, so query section elements directly to sync the active chip.
-    if (deep) {
-      const scrollerRect = scroller.getBoundingClientRect();
-      const probeY = scrollerRect.top + Math.min(scrollerRect.height * 0.25, 260);
-      let active = -1;
-      scroller.querySelectorAll<HTMLElement>("[data-section-index]").forEach((el) => {
-        const rect = el.getBoundingClientRect();
-        const idx = Number(el.dataset.sectionIndex);
-        if (rect.top <= probeY && rect.bottom > probeY && idx >= 0) {
-          active = idx;
-        }
-      });
-      if (active >= 0) {
-        sectionIndexRef.current = active;
-        setSectionIndex(active);
+    const scrollerRect = scroller.getBoundingClientRect();
+    const probeY = scrollerRect.top + Math.min(scrollerRect.height * 0.25, 260);
+    let active = -1;
+    scroller.querySelectorAll<HTMLElement>("[data-section-index]").forEach((el) => {
+      const rect = el.getBoundingClientRect();
+      const idx = Number(el.dataset.sectionIndex);
+      if (rect.top <= probeY && rect.bottom > probeY && idx >= 0) {
+        active = idx;
       }
+    });
+    if (active >= 0) {
+      sectionIndexRef.current = active;
+      setSectionIndex(active);
     }
-  }, []);
+    // topic.id omitted on purpose: restore must fire only when section content mounts.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [deep]);
 
   useEffect(() => {
     const onHidden = () => {
@@ -657,7 +665,7 @@ function LessonOverlay({
                 ))}
               </div>
             </>
-          ) : lesson ? (
+          ) : lesson && lazyFailed ? (
             <>
               <div aria-label="Lesson sections" className="practice-lesson-tabs">
                 {LESSON_TABS.map(({ key, label }, tabIndex) => (
