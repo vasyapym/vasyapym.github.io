@@ -121,3 +121,19 @@ must not be touched. CSS caps (stage 168px ≥900 / 150px ≤899; base mark cap
   no duplicate ids (node check).
 - Code verification: NOT RUN (static page only)
 - Open question: owner picks draw(s) per card -> integration round.
+
+## Round R005
+- Goal: owner picked all four marks from out 3 (fable 5.1-high) — integrate verbatim.
+- Changes: portfolio/shell/src/shell/ProjectArtwork.tsx — the four function bodies
+  + header comments replaced verbatim with brief-19 output 3 (raft row-grid
+  triangle; fox 45° stepped tail, bone mushroom caps on paper stems; blast
+  11 large square sprockets @20 pitch, octagram burst, disc triad; planck
+  semicircle->tangent 120° arcs, squashed disc 0.78, square knob).
+- Verification: shell tsc clean. vite build blocked by the PRE-EXISTING wasm gate
+  on this machine (no Rust/Go toolchain; identical failure on the unmodified
+  baseline — CI builds green with setup-go). Visual: tests/landing-shots.mjs on
+  the dev server — desktop-cards.png + mobile-full.png in artifacts/R005-integrated:
+  all four marks legible at 196/216 caps and the 150px stage; set reads cohesive;
+  fox green/white read holds; raft weight comparable.
+- Deploy: pushed; deploy-pages.yml rebuilds GitHub Pages.
+- Open question: owner look on the live site.
