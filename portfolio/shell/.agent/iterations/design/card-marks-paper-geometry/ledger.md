@@ -192,3 +192,15 @@ must not be touched. CSS caps (stage 168px ≥900 / 150px ≤899; base mark cap
   (artifacts/R010-raft-lines): links marginally heavier, balance holds.
 - Deploy: pushed; deploy-pages.yml rebuilds Pages.
 - Revert switch: strokeWidth 2.55 -> 2.4 on the two raft link groups.
+
+## Round R011
+- Goal: owner trial — a white line or lines in the fox mark; green reads a bit
+  prevalent but the card is liked as-is, so no radical changes.
+- Changes: ProjectArtwork.tsx fox — ONE added element: a 200x1 paper hairline
+  (#eeeae0 @0.85) on the ground bar's top edge (the filmstrip's paper-hairline
+  device, re-read as the lit trail). Nothing else moved, no recolors.
+- Verification: tsc clean; landing-shots desktop-cards.png
+  (artifacts/R011-fox-trail-line): the green ground mass is broken by one quiet
+  lit rule under the fox.
+- Deploy: pushed; deploy-pages.yml rebuilds Pages.
+- Revert switch: delete the single hairline rect.

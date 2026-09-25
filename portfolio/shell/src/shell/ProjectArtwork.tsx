@@ -220,6 +220,9 @@ function FoxCenterMark() {
 
       {/* ground — one bar, two fragments */}
       <rect x="32" y="124" width="200" height="4" fill="#1f5e4c" />
+      {/* lit trail — one paper hairline on the ground's top edge (owner trial:
+          breaks the green mass; drop this one rect to revert) */}
+      <rect x="32" y="124" width="200" height="1" fill="#eeeae0" opacity="0.85" />
       <g fill="#1f5e4c">
         <rect x="68" y="132" width="12" height="3" />
         <rect x="150" y="132" width="8" height="3" />
