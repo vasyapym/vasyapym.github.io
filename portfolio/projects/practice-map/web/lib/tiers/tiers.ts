@@ -20,7 +20,7 @@ export type { TopicCard };
 
 export const TIERS: readonly Tier[] = [
   { id: "opus-5.5-high", name: "opus-5.5-high", band: "high", areas: ["erykah-badu-analog-priestess", "go-first-principles-internals", "laravel-symfony-field-guide"] },
-  { id: "astra-6-max", name: "astra-6-max", band: "max", areas: ["ddos", "lanthimos", "zeitgeist", "japan", "discourse", "kubernetes-first-principles"] },
+  { id: "astra-6-max", name: "astra-6-max", band: "max", areas: ["kubernetes-first-principles", "ddos", "lanthimos", "zeitgeist", "japan", "discourse"] },
   { id: "astra-6-medium", name: "astra-6-medium", band: "medium", areas: ["rust", "php-frameworks"] },
   { id: "fable-5.1-high", name: "fable-5.1-high", band: "high", areas: ["kubernetes", "hitchcock", "agentic-programming", "agi", "redis", "merkle-trees-layered", "odyssey-nolan-2026"] },
   { id: "fable-5.1-low", name: "fable-5.1-low", band: "low", areas: ["go", "spirit-of-time", "darwin", "microservices", "scaling"] },
