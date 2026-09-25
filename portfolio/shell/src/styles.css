@@ -1264,12 +1264,19 @@ body:has(.practice-map-field) { background: #0b1317; }
   .project-artwork-center.center-quicknotes {
     max-width: 180px;}
 
-  /* card-art rethink R006: the four adopted marks run ~10% smaller */
-  .project-artwork-center.center-raft,
-  .project-artwork-center.center-fox,
-  .project-artwork-center.center-blast,
+  /* brief-19 integration: owner size-steer per mark — raft −7%, fox −5%,
+     blast −8%; spiral untouched */
   .project-artwork-center.center-spiral {
-    max-width: 216px;}                     /* was 240px */
+    max-width: 216px;}                     /* unchanged */
+
+  .project-artwork-center.center-raft {
+    max-width: 201px;}                     /* was 216px (×0.93) */
+
+  .project-artwork-center.center-fox {
+    max-width: 205px;}                     /* was 216px (×0.95) */
+
+  .project-artwork-center.center-blast {
+    max-width: 199px;}                     /* was 216px (×0.92) */
 
   .gem-card-copy {
     padding: 20px;
@@ -1347,12 +1354,22 @@ body:has(.practice-map-field) { background: #0b1317; }
     max-width: 164px;
   }
 
-  /* card-art rethink R006: the four adopted marks run ~10% smaller */
-  .project-artwork-center.center-raft,
-  .project-artwork-center.center-fox,
-  .project-artwork-center.center-blast,
+  /* brief-19 integration: owner size-steer per mark — raft −7%, fox −5%,
+     blast −8%; spiral untouched */
   .project-artwork-center.center-spiral {
-    max-width: 196px;                      /* was 218px */
+    max-width: 196px;                      /* unchanged */
+  }
+
+  .project-artwork-center.center-raft {
+    max-width: 182px;                      /* was 196px (×0.93) */
+  }
+
+  .project-artwork-center.center-fox {
+    max-width: 186px;                      /* was 196px (×0.95) */
+  }
+
+  .project-artwork-center.center-blast {
+    max-width: 180px;                      /* was 196px (×0.92) */
   }
 
   .gem-card-copy {

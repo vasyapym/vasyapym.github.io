@@ -148,3 +148,14 @@ must not be touched. CSS caps (stage 168px ≥900 / 150px ≤899; base mark cap
 - Verification: tsc clean; landing-shots desktop-cards.png (artifacts/R006-paper-core):
   burst core reads in the paper register, no glare vs quicknotes.
 - Deploy: pushed; deploy-pages.yml rebuilds Pages.
+
+## Round R007
+- Goal: owner size-steer — raft ~7% smaller, evening forest ~5%, explosion ~8%;
+  planck untouched.
+- Changes: portfolio/shell/src/styles.css — the shared four-mark cap split into
+  per-mark max-widths in BOTH bands (>=900 from 196: raft 182 / fox 186 /
+  blast 180 / spiral 196; <=899 from 216: raft 201 / fox 205 / blast 199 /
+  spiral 216). Only size caps touched — no geometry, palette or stage changes.
+- Verification: landing-shots desktop-cards.png (artifacts/R007-sizes): the three
+  marks render smaller, spiral unchanged; no overflow, breathe intact.
+- Deploy: pushed; deploy-pages.yml rebuilds Pages.
