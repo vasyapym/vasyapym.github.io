@@ -83,3 +83,41 @@ must not be touched. CSS caps (stage 168px ≥900 / 150px ≤899; base mark cap
   carry over to the adopted post-saga marks — the saga's own verdict chain
   F005/F008/F009/F030/F032 already moved the set toward whitish/quiet, so the
   outputs' value is direction + detail ideas, not drop-in code).
+
+## Round R003
+- Goal: owner re-steer after reviewing the page — work WITH the current
+  adopted marks (split-brain raft / fox on the trail / filmstrip / galaxies
+  ignite), not the superseded generation brief 18 was written against; relay
+  re-cut per minimize-iteration2 (registered there as S6). Revised steers:
+  geometry **~25%** (weighted to bold/large forms — silhouettes, primary
+  structures, composition-level construction — explicitly not tiny details);
+  palette **~40%** further toward soft paper tones. Freedom raised: full
+  design autonomy, free reply structure, subjects must stay recognizable.
+- Preserved preferences: the adopted subjects (F025/F029/F031-chain + planck
+  R007); raft's calibrated prominence holds (F030–F034); whitish-as-structure
+  register (F009); anchors untouched; CSS caps untouched (196/216).
+- Changes: none shipped — relay round. Brief:
+  `chat-model-brief-19-cards-paper-geometry-r2.md` (orchestrator workspace)
+  carrying the four CURRENT functions verbatim + the two anchor marks.
+- Before: artifacts/baseline/* (pre-rethink incumbents, historical) + the
+  post-saga state at f173c55/167243c (current; the card-05..08 shots in
+  artifacts/baseline predate the rethink — current-code renders to be
+  captured with the integration round)
+- After: pending relay reply
+- Visual inspection: NOT RUN (delegation round)
+- Code verification: NOT RUN
+- Open question: paste the reply back for integration.
+
+## Round R004
+- Goal: show the four brief-19 relay replies for judging — static page, no integration.
+- Changes: portfolio/shell/public/card-marks-19/index.html (self-contained
+  symbol/<use> library, 24 marks: 4 current + 16 output + 4 anchors; output
+  pattern ids namespaced o1..o4-*; no JS). Replies: orchestrator workspace
+  chat-model-response-19-output1..4.md (fable 5.1-low x2, fable 5.1-high,
+  opus 5.5-high).
+- After: artifacts/R004-review-live.png (1200px headless render); deployed
+  on GitHub Pages with the same push.
+- Visual inspection: performed — all 24 marks legible; href targets resolve;
+  no duplicate ids (node check).
+- Code verification: NOT RUN (static page only)
+- Open question: owner picks draw(s) per card -> integration round.

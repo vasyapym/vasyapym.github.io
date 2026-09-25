@@ -298,3 +298,32 @@ each round. The pair above becomes the round-1 starting point (arm A first);
 later rounds vary one signal at a time (register, contract shape, spec
 density, banned-set phrasing…) and log what moved the result. No strict
 alternation count; owner early-close still applies.
+
+---
+
+## Experiment S6 — four card marks, one refine-in-place pass (real task, 2026-09-25)
+
+- Task: refine the four ADOPTED card marks (raft split-brain / fox on the
+  trail / explosion filmstrip / planck galaxies-ignite) — ledger
+  portfolio/shell/.agent/iterations/design/card-marks-paper-geometry/.
+  Owner steers for this round: geometry ~25% (bold shapes, not tiny details),
+  palette ~40% toward paper; spine/quicknotes as register references;
+  subjects recognizable; four stay cohesive with the set.
+- Variation signal vs the brief-18 pass (superseded — it was written against
+  the pre-rethink marks by a round-trip race): full autonomy granted (no
+  per-element prescriptions, free reply structure), deepening protocol
+  condensed, steers raised 15/25 → 25/40.
+- Endpoint: owner's chat model (fixed endpoint, NOT the randomized router —
+  per the S5 caveat this run can only produce descriptive findings, no H
+  verdict).
+- Prompt: chat-model-brief-19-cards-paper-geometry-r2.md (repo-root
+  orchestrator workspace; task facts + verbatim current functions + anchors +
+  mechanical contract + condensed deepening protocol).
+- Reply: four draws pasted back the same session — fable 5.1-low ×2,
+  fable 5.1-high, opus 5.5-high (chat-model-response-19-output1..4.md,
+  orchestrator workspace); rendered side-by-side vs current on
+  portfolio/shell/public/card-marks-19/ for owner judging.
+- Round summary: fixed endpoint + full autonomy drew four contract-clean,
+  distinct construction passes (triangle-mesh raft ×3 flavors, four
+  re-blocking approaches for the fox, octagram/primitive-rebuilt bursts,
+  compass-built spirals); descriptive only — owner verdict pending.
