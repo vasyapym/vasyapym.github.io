@@ -281,3 +281,11 @@ must not be touched. CSS caps (stage 168px ≥900 / 150px ≤899; base mark cap
   reads duskier, green less shouty, trail still the bright rule.
 - Deploy: pushed; deploy-pages.yml rebuilds Pages.
 - Revert: R015 raft (no ring/pip) + R013 fox hexes via git restore.
+
+## Round R018
+- Goal: owner size-steer — explosion ~5% smaller.
+- Changes: portfolio/shell/src/styles.css — .center-blast max-width 180 -> 171
+  (>=900) and 199 -> 189 (<=899). Only size caps touched.
+- Verification: landing-shots desktop-cards.png (artifacts/R018-blast-5): the
+  strip renders smaller, no overflow, breathe intact.
+- Deploy: pushed; deploy-pages.yml rebuilds Pages.
