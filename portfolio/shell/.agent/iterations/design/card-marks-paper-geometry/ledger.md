@@ -307,3 +307,43 @@ must not be touched. CSS caps (stage 168px ≥900 / 150px ≤899; base mark cap
   intact (quorum | wedge cut | orphans reaching).
 - Deploy: pushed; deploy-pages.yml rebuilds Pages.
 - Revert: R017 raft via git restore.
+
+## Round R021
+- Goal: owner re-opened the raft detail line ("these are not it. let's try
+  this ones") relaying the relief/rhythm detail decision (0.7 px/unit scale;
+  detail = relief + rhythm, nothing under 3 units) and asked to SEE treatments
+  on Pages before choosing �?" judging-board round, no code integration.
+- Changes: portfolio/shell/public/raft-details-22/index.html (new static
+  judging board) �?" four chunky detail variants built on the adopted R019
+  relief base, one detail family each, every stroke >= 3 units: A riveted
+  plating (r4 rivets along the bed rim), B serrated tear (teeth bite the
+  paper wedge from both gutters + diagonal hatch grain, column 9/7, reach
+  6/6), C stacked plates (two under-plates + r24.5 leader collar), D ring
+  anchors (r27 anchor ring on the leader, r15 on peers, fault flank ticks).
+  Current adopted state (R019) shown alongside.
+- Preserved preferences: F-core story (quorum | the cut | orphans still
+  trying), coral one-hue-mass, neutrals only, no text/gradients/filters,
+  ids in gem-raft- family, nothing under 3 units (owner relief decision).
+  The three rejected S8 treatments (prompt 21) stay out.
+- Before: artifacts/R021/board-full.png cells "current".
+- After: artifacts/R021/board-full.png cells A-D (zoom + real scale).
+- Visual inspection: performed (headless Chrome, puppeteer-core) �?" read the
+  full-page PNG: all five cells render; serrated teeth read at zoom and are
+  noise-level at 182px (declared in the board note); rivets/hatch/stack/
+  anchors all hold their read at 182px; no console errors.
+- Code verification: NOT RUN (static board, no app code touched).
+- Deploy: pushed (this commit); deploy-pages.yml rebuilds Pages.
+- Open question: which treatment (A/B/C/D, none, or a mix) integrates.
+
+## Feedback F009
+- Round: R019
+- Verdict: REJECTED
+- Scope: raft center mark, whole-card treatments of the prompt-21 board
+  (faceted press / offset impression / broken woodcut)
+- Decision: all three S8 relay treatments rejected ("these are not it");
+  the R019 relief/rhythm integration stands as the base to iterate on.
+- User source: "these are not it. let's try this ones" + relayed relief/
+  rhythm detail decision (0.7 px/unit; detail = relief and rhythm; nothing
+  under 3 units ships)
+- Artifact: portfolio/shell/public/raft-details-21/index.html
+- Supersedes: none
