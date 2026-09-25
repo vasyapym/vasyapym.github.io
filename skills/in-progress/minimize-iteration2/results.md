@@ -373,5 +373,9 @@ alternation count; owner early-close still applies.
   verdict).
 - Prompt: chat-model-prompt-21-raft-details-freedom.md (orchestrator
   workspace; telegraphic prose-hybrid — facts + reverted function + contract).
-- Reply: pending paste-back; owner picks one; integrator applies.
-- Round summary: (fill after the reply)
+- Reply: 3 treatments pasted back — faceted press / offset impression /
+  broken woodcut; rendered as delivered on
+  portfolio/shell/public/raft-details-21/ for owner judging. Mechanical note:
+  all three replace the dot-bed + gem-halo device with their own plate/halo
+  lines — the integrator restores the faint dot bed + hover halo on the pick.
+- Round summary: (fill after the owner pick)
