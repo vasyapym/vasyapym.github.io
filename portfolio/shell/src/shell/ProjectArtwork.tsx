@@ -130,12 +130,8 @@ function RaftCenterMark() {
         <circle cx="115" cy="108" r="9.5" />
       </g>
 
-      {/* leader — the one hue mass at the apex; the card's two deliberate
-          details: a paper pip inside the disc (the committed entry) and a
-          thin paper term-ring around it (the leader's current term) */}
-      <circle cx="85" cy="58" r="19.5" fill="none" stroke="#eeeae0" strokeWidth="1.4" opacity="0.7" />
+      {/* leader — the one hue mass at the apex (R017: pip + term-ring reverted) */}
       <circle cx="85" cy="58" r="14" fill="#f3948a" />
-      <circle cx="85" cy="58" r="3" fill="#eeeae0" />
     </svg>
   );
 }

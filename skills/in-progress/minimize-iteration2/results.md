@@ -350,4 +350,28 @@ alternation count; owner early-close still applies.
   quorum tally; coordinates snapped to the live raft geometry (the relay
   assumed a reference layout); rendered vs current on
   portfolio/shell/public/raft-details-20/ for owner judging.
-- Round summary: (fill after the owner pick)
+- Round summary: **S7 outcome (owner verdict): all five candidates too
+  subtle / not noticeable at the ~182px render** — the 0.7–0.8-unit hairlines
+  land sub-pixel at card scale; no pick. Lesson logged: detail candidates must
+  be sized for the render, not the artboard. The leader's pip + term-ring
+  were reverted (R017). S8 opens with detail freedom raised.
+
+---
+
+## Experiment S8 — raft creative detail pass, freedom round (real task, 2026-09-25)
+
+- Task: the same raft mark, detail layer fully open — the chat model decides
+  what "detail" means (add/remove/restyle/re-texture; printed-plate ink
+  language), story stays (quorum | fault | orphans still trying); reply =
+  3 complete drop-in treatments, owner picks. Ledger
+  portfolio/shell/.agent/iterations/design/card-marks-paper-geometry/.
+- Variation signal vs S7: freedom raised to full (S7's 1-3-element
+  prescriptions dropped; only mechanical rails + the render-legibility law
+  kept: "if a detail can't survive ~182px/150px stage, don't ship it" —
+  S7's lesson turned into the contract).
+- Endpoint: owner's chat model (fixed endpoint — descriptive only, no H
+  verdict).
+- Prompt: chat-model-prompt-21-raft-details-freedom.md (orchestrator
+  workspace; telegraphic prose-hybrid — facts + reverted function + contract).
+- Reply: pending paste-back; owner picks one; integrator applies.
+- Round summary: (fill after the reply)
