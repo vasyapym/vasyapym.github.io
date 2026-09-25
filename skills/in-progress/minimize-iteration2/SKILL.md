@@ -58,6 +58,20 @@ per-block format> - nothing else.
 
 Rules that earned their place (edit only with evidence):
 
+- ROUTER (owner hypothesis, 2026-09-26, "seems to work"): the relay router
+  reads the words. Concise briefs written with honest intent — human
+  first-person prose, natural function words, no dense spec cargo — route
+  to the stronger model; dense telegraphic briefs route to a weaker one.
+  For prose/personal-taste asks write the brief as honest intent (first
+  person, minimal, few instructions); telegraphic stays the default only
+  for mechanical code/art parses until more draws say otherwise.
+- Don't carry verbatim base text/code in the brief: it forces the model to
+  preserve every meaning (obvious-translation failure, S12). Give the
+  facts as short first-person clauses instead; after salvage the
+  integrator re-adds exact quotes, links and code itself.
+- Minimal side wins: between two brief shapes that both fit the facts,
+  send the shorter one.
+
 - Telegraphic prose-hybrid; no scaffolding (hypotheses, scoring rubrics,
   protocol steps) — scaffold cargo is what long briefs died of.
 - Verbatim base code only when the reply must match house register;
