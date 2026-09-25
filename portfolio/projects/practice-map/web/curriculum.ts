@@ -2131,6 +2131,42 @@ const goFirstPrinciplesTopics: readonly TopicCard[] = [
     },
   },
 ];
+
+const laravelSymfonyFieldGuideTopics: readonly TopicCard[] = [
+  {
+    id: "laravel-symfony-field-guide",
+    title: "Laravel and Symfony: A Field Guide from First Principles to Framework Internals",
+    summary: "A dual-audience field guide to the two PHP frameworks through their shared substrate and their contrasting philosophies: shared-nothing PHP and Composer/PSR-4/PSR-7 reality; front controller and kernel lifecycles (event-centric Symfony vs pipeline-centric Laravel); middleware and routing including route model binding vs argument value resolvers; the service container in depth — Laravel's runtime reflection autowiring with bindings, providers and facades vs Symfony's compiled container with passes, tags, decoration and lazy proxies; Eloquent's Active Record against Doctrine's Data Mapper with unit of work and identity map; Blade and Twig, validation and forms, authentication and authorization (guards/policies vs firewalls/authenticators/voters), events, queues and Messenger, Artisan and debug:console, serialization and API Platform, caching, OPcache and long-running runtimes (Octane, FrankenPHP, RoadRunner) that break shared-nothing, testing with fakes, release cultures, and the recurring tensions beneath the vocabulary.",
+    concepts: [],
+    practicePrompt: "Create a throwaway Laravel and a throwaway Symfony app and inspect the machinery: php artisan route:list and tinker vs bin/console debug:router, debug:container --show-lazy and debug:autowiring. Then add a relation and deliberately trigger an N+1 by iterating posts and touching comments in a loop, fixing it with eager loading (with()) and turning preventLazyLoading() on to watch it fail loudly. No frameworks were installed or executed in this environment — run and verify it yourself.",
+    checkPrompt: "Without running anything, answer: why is Laravel's Request an extension of Symfony's, and why that makes Laravel middleware non-PSR-15; what kernel events Symfony's HttpKernel dispatches and what a kernel.request listener can short-circuit; how Laravel's reflection-based container differs from Symfony's compiled one (compile-time validation, dead-code elimination, tags, decoration, lazy proxies); the typed-nil-equivalent gotchas of each container style (env() after config:cache; inverse-side updates that silently don't persist in Doctrine); what Unit of Work, identity map and the owning side mean; how Octane/FrankenPHP break shared-nothing and which two mechanisms (scoped bindings, ResetInterface/kernel.reset) restore safety; and which release model each framework promises.",
+    tier: 1,
+    complexity: 4,
+    references: [
+      "Laravel documentation — https://laravel.com/docs",
+      "Symfony documentation — https://symfony.com/doc/current/index.html",
+      "PHP-FIG Standards Recommendations — https://www.php-fig.org/psr/",
+      "Doctrine ORM documentation — https://www.doctrine-project.org/projects/doctrine-orm/en/current/index.html",
+      "Laravel Octane — https://laravel.com/docs/octane",
+      "FrankenPHP — https://frankenphp.dev",
+      "Rob Pike's proverb-equivalent: Fabien Potencier, 'Create your own framework... on top of the Symfony Components' — https://symfony.com/doc/current/create_framework/index.html"
+    ],
+    lesson: {
+      problem: "The two PHP frameworks are usually filed as rival syntaxes, which hides both the machinery they share and the real axis they differ on. Without the underlying model you memorize terms (facades, kernels, unit of work, voters) without seeing that they are answers to one recurring question — how does an HTTP request become a response — and that most of the vocabulary exists because PHP's per-request execution model makes every request boot from scratch.",
+      model: "Both frameworks are front-controller kernels over a shared substrate: Composer autoloading, PSR interface agreements, and the shared-nothing architecture, where all state that should survive a request lives outside the process. Symfony is explicit and compile-time: an event-driven kernel, a container compiled to plain PHP with validation at build time, configuration trees, voters. Laravel is expressive and runtime: a middleware pipeline, a reflection-based container with providers and facades, Active Record models. The same need, two philosophies — and Laravel is literally built on Symfony components, so the contrast is a choice of emphasis, not of world.",
+      mechanics: "The request path: index.php boots an application object and calls a kernel. Symfony's HttpKernel dispatches events (kernel.request → controller → arguments → view → response → terminate); features are listeners, and an early response short-circuits everything. Laravel runs bootstrappers, then folds global and route middleware into nested closures (the onion; not calling $next short-circuits), then routes to a controller. Routing: Laravel binds route parameters to models automatically; Symfony resolves controller arguments through a resolver chain (#[MapEntity], #[MapRequestPayload], #[MapQueryString]). Containers: Laravel resolves by runtime reflection with bind/singleton/scoped/instance and contextual bindings; Symfony reads definitions at warmup, runs compiler passes (tags, autoconfiguration, decoration, lazy proxies, private-by-default services), and dumps one optimized class — a missing dependency fails at build time, not 3 a.m. Facades are __callStatic proxies over container lookups, testable via swaps but invisible in constructors; contracts restore injection. Data layer: Eloquent couples object and row (fillables, casts, scopes, N+1 fixed by with() or prevented by preventLazyLoading); Doctrine keeps entities dumb while the unit of work tracks all managed state — flush writes one transaction ordered by foreign keys, the identity map guarantees one object per row, and only the owning side of an association writes. Authorization: gates/policies vs firewalls/authenticators-with-passports/voters-with-decision-strategies. Async: queued jobs with retries, chains, batches vs Messenger's message bus with envelopes, stamps, and sync-or-async transports. Long-running runtimes (Octane, FrankenPHP, RoadRunner) boot once and serve many — statics, singletons, and mutated state now leak between requests, healed by scoped bindings, ResetInterface/kernel.reset, and the Symfony Runtime.",
+      pitfalls: [
+      "Calling env() outside config files after config:cache — it returns null; read config('app.name') instead.",
+      "Updating only the inverse side of a Doctrine association — nothing persists; the owning side holds the foreign key.",
+      "N+1 queries: touching a lazy relation in a loop fires one query per element; eager-load with() and enforce preventLazyLoading() in development.",
+      "Treating Laravel middleware as PSR-15 middleware — both frameworks' native HTTP is mutable HttpFoundation, not PSR-7.",
+      "Keeping mutable state in singletons under Octane/FrankenPHP — a request-captured user leaks into the next request; use scoped bindings and reset services between requests.",
+      "Letting Active Record models accrete business logic: domain and persistence objects are the same thing, so testing logic without the database takes discipline."
+      ],
+      whenNot: "This is a vocabulary-and-mechanics map for reading and choosing between Laravel and Symfony — not a tutorial for building either, an ORM performance guide, or a deployment runbook; it names which layer owns which promise, not which framework you should adopt."
+    },
+  },
+];
 export const curriculum: readonly PracticeArea[] = [
   {
     id: "go",
@@ -2331,5 +2367,13 @@ export const curriculum: readonly PracticeArea[] = [
     tier: 1,
     dependencies: [],
     topics: goFirstPrinciplesTopics,
+  },
+  {
+    id: "laravel-symfony-field-guide",
+    title: "Laravel and Symfony: A Field Guide",
+    description: "A long-form English essay on the two PHP frameworks from first principles: shared-nothing PHP and the Composer substrate, kernel lifecycles, runtime vs compiled containers, Active Record vs Data Mapper, and the tensions underneath the vocabulary.",
+    tier: 1,
+    dependencies: [],
+    topics: laravelSymfonyFieldGuideTopics,
   },
 ];
