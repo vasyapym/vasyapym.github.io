@@ -1,0 +1,283 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>planck · consistency round — 10 variants from two draws</title>
+<style>
+  :root {
+    --ink-bg: #0b1317;
+    --ink-text: #eeeae0;
+    --ink-line-soft: rgba(238, 234, 224, 0.13);
+    --ink-faint: rgba(238, 234, 224, 0.5);
+    --ink-accent: #d39b61;
+  }
+  * { box-sizing: border-box; }
+  body {
+    margin: 0; padding: 40px 20px 90px;
+    background: var(--ink-bg); color: var(--ink-text);
+    font-family: "IBM Plex Mono", ui-monospace, "Cascadia Code", Consolas, Menlo, monospace;
+    font-size: 13px; line-height: 1.55;
+  }
+  .wrap { max-width: 1240px; margin: 0 auto; }
+  header { margin-bottom: 34px; }
+  .kicker { color: var(--ink-accent); font-size: 12px; letter-spacing: 0.14em; margin: 0 0 10px; }
+  h1 { font-size: 19px; font-weight: 500; margin: 0 0 12px; letter-spacing: 0.02em; }
+  .note { color: var(--ink-faint); max-width: 92ch; margin: 0; font-size: 12px; }
+  .note b { color: var(--ink-text); font-weight: 500; }
+  h2 { font-size: 13px; font-weight: 500; letter-spacing: 0.1em; margin: 46px 0 14px; text-transform: lowercase; color: var(--ink-faint); }
+  h2 span { color: var(--ink-accent); }
+  .grid5 { display: grid; grid-template-columns: repeat(5, minmax(0, 1fr)); gap: 14px; }
+  .grid3 { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 18px; }
+  .stage {
+    background: var(--ink-bg); border: 1px solid var(--ink-line-soft);
+    border-radius: 12px; display: grid; place-items: center; overflow: hidden;
+  }
+  .real .stage { height: 140px; }
+  .zoom .stage { height: 200px; }
+  .cur .stage { height: 150px; }
+  .mark { width: 196px; display: block; height: auto; }
+  .mark-lg { width: 300px; display: block; height: auto; }
+  .cur .mark-lg { width: 264px; }
+  .cap { color: var(--ink-faint); font-size: 10.5px; letter-spacing: 0.04em; margin-top: 8px; }
+  .cap b { color: var(--ink-text); font-weight: 500; }
+  footer { margin-top: 60px; color: var(--ink-faint); font-size: 11px; letter-spacing: 0.05em; }
+  @media (max-width: 1100px) {
+    .grid5 { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+    .grid3 { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  }
+</style>
+</head>
+<body>
+<div class="wrap">
+
+<header>
+  <p class="kicker">planck · consistency round · two draws × 5 variants</p>
+  <h1>10 spot-ink takes on "galaxies ignite" — rendered as delivered</h1>
+  <p class="note">output 1 = variants <b>1–5</b>, output 2 = variants <b>6–10</b>; "current" is the live card mark for reference. both draws delivered their own #0b1317 ground rect — kept, the cells share that colour; no ids carried, so nothing collides. judge on the real-scale rows (196px = the card's render width); zoomed rows are for detail. mechanical note: variant 10's inner stipple may mud at 196px — its own notes say which dots to drop if picked.</p>
+</header>
+
+<h2>current — <span>reference</span></h2>
+<div class="grid5 cur">
+  <div><div class="stage"><svg class="mark" viewBox="0 0 260 160" aria-hidden="true"><use href="#m-cur"/></svg></div><p class="cap"><b>current · live card mark</b> (R019 "galaxies ignite")</p></div>
+  <div><div class="stage"><svg class="mark-lg" viewBox="0 0 260 160" aria-hidden="true"><use href="#m-cur"/></svg></div><p class="cap">current · zoomed</p></div>
+</div>
+
+<h2>output 1 — <span>real scale · 196px</span></h2>
+<div class="grid5 real">
+  <div><div class="stage"><svg class="mark" viewBox="0 0 260 160" xmlns="http://www.w3.org/2000/svg"><rect width="260" height="160" fill="#0b1317"/><g fill="#7d7669"><circle cx="24" cy="30" r="1.2"/><circle cx="58" cy="18" r="1.1"/><circle cx="212" cy="26" r="1.3"/><circle cx="240" cy="58" r="1.1"/><circle cx="36" cy="112" r="1.2"/><circle cx="222" cy="110" r="1.2"/><circle cx="82" cy="140" r="1.1"/><circle cx="196" cy="146" r="1.1"/></g><g fill="#b6ac95"><circle cx="72" cy="52" r="1.3"/><circle cx="188" cy="44" r="1.2"/><circle cx="48" cy="86" r="1.4"/></g><circle cx="130" cy="76" r="30" fill="#26333b"/><circle cx="132" cy="77" r="17" fill="#465059"/><circle cx="130" cy="76" r="8" fill="#eeeae0"/><g fill="#8a79b8"><circle cx="140" cy="68" r="1.8"/><circle cx="149" cy="66" r="1.7"/><circle cx="158" cy="70" r="1.6"/><circle cx="165" cy="78" r="1.5"/><circle cx="167" cy="88" r="1.4"/><circle cx="163" cy="99" r="1.3"/><circle cx="154" cy="107" r="1.2"/><circle cx="142" cy="111" r="1.1"/><circle cx="120" cy="84" r="1.8"/><circle cx="111" cy="86" r="1.7"/><circle cx="102" cy="82" r="1.6"/><circle cx="95" cy="74" r="1.5"/><circle cx="93" cy="64" r="1.4"/><circle cx="97" cy="53" r="1.3"/><circle cx="106" cy="45" r="1.2"/><circle cx="118" cy="41" r="1.1"/></g><circle cx="126" cy="72" r="1.9" fill="#eeeae0"/><line x1="34" y1="138" x2="226" y2="138" stroke="#465059" stroke-width="1.6"/><line x1="34" y1="138" x2="176" y2="138" stroke="#7d7669" stroke-width="1.6"/><line x1="176" y1="132" x2="176" y2="144" stroke="#c5b2f3" stroke-width="1.8"/></svg></div><p class="cap"><b>1 · face-on, dotted arms, rail below</b> — dot-chain arms read as stars; two-step off-centre halo; paper core anchor; rail = played span + violet playhead</p></div>
+  <div><div class="stage"><svg class="mark" viewBox="0 0 260 160" xmlns="http://www.w3.org/2000/svg"><rect width="260" height="160" fill="#0b1317"/><g fill="#7d7669"><circle cx="30" cy="24" r="1.2"/><circle cx="88" cy="16" r="1.1"/><circle cx="200" cy="20" r="1.3"/><circle cx="236" cy="72" r="1.1"/><circle cx="26" cy="122" r="1.2"/><circle cx="118" cy="148" r="1.1"/><circle cx="214" cy="136" r="1.2"/><circle cx="160" cy="30" r="1.1"/></g><g fill="#b6ac95"><circle cx="62" cy="66" r="1.3"/><circle cx="222" cy="104" r="1.3"/><circle cx="52" cy="138" r="1.2"/></g><ellipse cx="130" cy="82" rx="62" ry="24" fill="#26333b"/><ellipse cx="128" cy="82" rx="36" ry="13" fill="#465059"/><path d="M 92 88 A 38 15 0 0 1 150 68" fill="none" stroke="#8a79b8" stroke-width="1.9"/><path d="M 166 76 A 38 15 0 0 1 112 98" fill="none" stroke="#4b3a8c" stroke-width="1.9"/><path d="M 72 90 A 58 22 0 0 1 148 60" fill="none" stroke="#7d7669" stroke-width="1.6" stroke-dasharray="3 5"/><ellipse cx="130" cy="82" rx="12" ry="8" fill="#eeeae0"/><circle cx="171" cy="72" r="1.9" fill="#eeeae0"/></svg></div><p class="cap"><b>2 · inclined disc, arm as ellipse arc, no rail</b> — tilt kills the hurricane symmetry; the dark arm arc reads as the not-yet-lit half (the scrub read); dashed arc doubles as halo edge</p></div>
+  <div><div class="stage"><svg class="mark" viewBox="0 0 260 160" xmlns="http://www.w3.org/2000/svg"><rect width="260" height="160" fill="#0b1317"/><g fill="#7d7669"><circle cx="22" cy="40" r="1.2"/><circle cx="66" cy="22" r="1.1"/><circle cx="150" cy="18" r="1.2"/><circle cx="238" cy="34" r="1.1"/><circle cx="40" cy="98" r="1.3"/><circle cx="212" cy="84" r="1.1"/><circle cx="96" cy="146" r="1.2"/><circle cx="244" cy="124" r="1.1"/></g><g fill="#b6ac95"><circle cx="186" cy="52" r="1.3"/><circle cx="60" cy="126" r="1.3"/><circle cx="118" cy="30" r="1.2"/></g><circle cx="96" cy="70" r="34" fill="#26333b"/><circle cx="98" cy="72" r="18" fill="#465059"/><path d="M 104 62 C 118 56 128 70 120 84 C 112 98 88 98 80 82 C 72 66 86 46 106 46 C 126 46 140 66 134 90 C 128 114 112 124 90 124" fill="none" stroke="#8a79b8" stroke-width="1.8"/><path d="M 90 124 C 110 124 130 124 150 124 L 232 124" fill="none" stroke="#465059" stroke-width="1.8"/><path d="M 90 124 L 172 124" fill="none" stroke="#b2a6c8" stroke-width="1.8"/><rect x="169" y="118" width="6" height="12" fill="#eeeae0"/><circle cx="96" cy="70" r="7" fill="#ddd6c6"/><circle cx="112" cy="58" r="1.9" fill="#eeeae0"/></svg></div><p class="cap"><b>3 · arm unwinds into the timeline</b> — one continuous line: inner arm → outer arm → rail; played span keeps the violet; the playhead block is the paper anchor</p></div>
+  <div><div class="stage"><svg class="mark" viewBox="0 0 260 160" xmlns="http://www.w3.org/2000/svg"><rect width="260" height="160" fill="#0b1317"/><g fill="#7d7669"><circle cx="28" cy="28" r="1.2"/><circle cx="76" cy="14" r="1.1"/><circle cx="196" cy="22" r="1.2"/><circle cx="232" cy="48" r="1.1"/><circle cx="44" cy="72" r="1.2"/><circle cx="220" cy="96" r="1.3"/><circle cx="60" cy="108" r="1.1"/><circle cx="182" cy="118" r="1.1"/></g><g fill="#b6ac95"><circle cx="108" cy="24" r="1.3"/><circle cx="240" cy="78" r="1.2"/><circle cx="20" cy="96" r="1.3"/></g><circle cx="130" cy="74" r="38" fill="#26333b"/><circle cx="128" cy="76" r="22" fill="#465059"/><line x1="112" y1="84" x2="148" y2="64" stroke="#ddd6c6" stroke-width="2.2"/><path d="M 148 64 C 168 54 176 76 168 94 C 160 112 136 118 116 110" fill="none" stroke="#8a79b8" stroke-width="1.8"/><path d="M 112 84 C 92 94 84 72 92 54 C 100 36 124 30 144 38" fill="none" stroke="#8a79b8" stroke-width="1.8"/><circle cx="130" cy="74" r="6" fill="#eeeae0"/><circle cx="161" cy="60" r="1.9" fill="#eeeae0"/><line x1="0" y1="140" x2="260" y2="140" stroke="#26333b" stroke-width="1.8"/><line x1="98" y1="140" x2="162" y2="140" stroke="#7d7669" stroke-width="1.8"/><circle cx="162" cy="140" r="2.2" fill="#c5b2f3"/></svg></div><p class="cap"><b>4 · barred spiral, low horizon</b> — the bar + two arms is the spiral silhouette that can't read as a cyclone glyph; horizon rail edge-to-edge, short lit span, violet playhead dot</p></div>
+  <div><div class="stage"><svg class="mark" viewBox="0 0 260 160" xmlns="http://www.w3.org/2000/svg"><rect width="260" height="160" fill="#0b1317"/><g fill="#7d7669"><circle cx="24" cy="22" r="1.2"/><circle cx="92" cy="14" r="1.1"/><circle cx="142" cy="26" r="1.2"/><circle cx="238" cy="20" r="1.1"/><circle cx="36" cy="132" r="1.2"/><circle cx="120" cy="140" r="1.1"/><circle cx="230" cy="138" r="1.2"/><circle cx="18" cy="72" r="1.1"/></g><g fill="#b6ac95"><circle cx="66" cy="38" r="1.3"/><circle cx="244" cy="98" r="1.2"/><circle cx="150" cy="120" r="1.3"/></g><line x1="22" y1="90" x2="238" y2="90" stroke="#26333b" stroke-width="1.8"/><line x1="22" y1="90" x2="176" y2="90" stroke="#465059" stroke-width="1.8"/><circle cx="48" cy="90" r="4" fill="#26333b"/><circle cx="48" cy="90" r="1.6" fill="#7d7669"/><circle cx="96" cy="90" r="7" fill="#26333b"/><circle cx="96" cy="90" r="2.4" fill="#b6ac95"/><path d="M 92 84 A 7 7 0 0 1 103 90" fill="none" stroke="#4b3a8c" stroke-width="1.6"/><circle cx="176" cy="74" r="34" fill="#26333b"/><circle cx="178" cy="76" r="18" fill="#465059"/><path d="M 184 66 C 198 60 206 76 198 90 C 190 104 168 104 160 90" fill="none" stroke="#8a79b8" stroke-width="1.8"/><path d="M 168 82 C 154 88 146 72 154 58 C 162 44 184 44 192 58" fill="none" stroke="#8a79b8" stroke-width="1.8"/><circle cx="176" cy="74" r="7" fill="#eeeae0"/><circle cx="192" cy="60" r="1.9" fill="#eeeae0"/><line x1="176" y1="84" x2="176" y2="96" stroke="#c5b2f3" stroke-width="1.8"/></svg></div><p class="cap"><b>5 · ignition sequence on the rail</b> — dark seed → first-light blob → full spiral parked on the playhead: "now" is where the galaxy is; one hero mass, not three</p></div>
+</div>
+
+<h2>output 2 — <span>real scale · 196px</span></h2>
+<div class="grid5 real">
+  <div><div class="stage"><svg class="mark" viewBox="0 0 260 160" xmlns="http://www.w3.org/2000/svg"><rect width="260" height="160" fill="#0b1317"/><g fill="#465059"><circle cx="22" cy="24" r="1"/><circle cx="48" cy="46" r="1"/><circle cx="36" cy="98" r="1"/><circle cx="58" cy="114" r="1"/><circle cx="150" cy="22" r="1"/><circle cx="188" cy="84" r="1"/><circle cx="228" cy="66" r="1"/><circle cx="214" cy="108" r="1"/><circle cx="78" cy="20" r="1"/><circle cx="20" cy="70" r="1"/><circle cx="246" cy="100" r="1"/></g><g fill="#7d7669"><circle cx="166" cy="58" r="1.2"/><circle cx="240" cy="28" r="1.2"/><circle cx="160" cy="104" r="1.2"/></g><g fill="#b2a6c8"><circle cx="206" cy="40" r="1.1"/><circle cx="132" cy="18" r="1.1"/></g><circle cx="104" cy="68" r="30" fill="#26333b"/><g fill="none" stroke-linecap="round"><path d="M111 68A8.75 8.75 0 0 1 104 78.5A13.1 13.1 0 0 1 88.25 68M97 68A8.75 8.75 0 0 1 104 57.5A13.1 13.1 0 0 1 119.75 68" stroke="#c5b2f3" stroke-width="2"/><path d="M88.25 68A19.7 19.7 0 0 1 104 44.4A29.5 29.5 0 0 1 139.4 68M119.75 68A19.7 19.7 0 0 1 104 91.6A29.5 29.5 0 0 1 68.6 68" stroke="#8a79b8" stroke-width="1.6"/></g><circle cx="104" cy="68" r="6.5" fill="#eeeae0"/><path d="M176 29.5L177.2 32.8L180.5 34L177.2 35.2L176 38.5L174.8 35.2L171.5 34L174.8 32.8Z" fill="#fff"/><g stroke-linecap="round" stroke-width="1.5"><line x1="28" y1="136" x2="232" y2="136" stroke="#26333b"/><line x1="28" y1="136" x2="172" y2="136" stroke="#7d7669"/><line x1="232" y1="132" x2="232" y2="140" stroke="#465059"/></g><circle cx="28" cy="136" r="2" fill="#b6ac95"/><circle cx="172" cy="136" r="3.5" fill="#c5b2f3"/></svg></div><p class="cap"><b>6 · scrub</b> — tonal fade in two inks (arms step light→deep violet); playhead ~70% along the track; no HUD</p></div>
+  <div><div class="stage"><svg class="mark" viewBox="0 0 260 160" xmlns="http://www.w3.org/2000/svg"><rect width="260" height="160" fill="#0b1317"/><g fill="#465059"><circle cx="150" cy="24" r="1"/><circle cx="172" cy="50" r="1"/><circle cx="196" cy="78" r="1"/><circle cx="232" cy="58" r="1"/><circle cx="244" cy="96" r="1"/><circle cx="22" cy="26" r="1"/><circle cx="20" cy="104" r="1"/><circle cx="60" cy="122" r="1"/><circle cx="120" cy="18" r="1"/></g><g fill="#7d7669"><circle cx="222" cy="22" r="1.2"/><circle cx="178" cy="98" r="1.2"/><circle cx="36" cy="140" r="1.2"/></g><g fill="#b2a6c8"><circle cx="160" cy="70" r="1.1"/><circle cx="246" cy="40" r="1.1"/></g><circle cx="80" cy="64" r="24" fill="#26333b"/><g fill="none" stroke-linecap="round" stroke-linejoin="round"><path d="M87 64A8.75 8.75 0 0 1 80 74.5A13.1 13.1 0 0 1 64.25 64M73 64A8.75 8.75 0 0 1 80 53.5A13.1 13.1 0 0 1 95.75 64" stroke="#c5b2f3" stroke-width="2"/><path d="M95.75 64A19.7 19.7 0 0 1 80 87.6A29.5 29.5 0 0 1 44.6 64" stroke="#8a79b8" stroke-width="1.6"/><path d="M64.25 64A19.7 19.7 0 0 1 80 40.4A29.5 29.5 0 0 1 115.4 64C115.4 104 124 130 146 130L196 130" stroke="#8a79b8" stroke-width="1.75"/><line x1="196" y1="130" x2="234" y2="130" stroke="#465059" stroke-width="1.5"/><line x1="234" y1="126" x2="234" y2="134" stroke="#465059" stroke-width="1.5"/></g><circle cx="80" cy="64" r="6" fill="#eeeae0"/><circle cx="196" cy="130" r="3.5" fill="#c5b2f3"/><path d="M208 31.5L209.2 34.8L212.5 36L209.2 37.2L208 40.5L206.8 37.2L203.5 36L206.8 34.8Z" fill="#fff"/></svg></div><p class="cap"><b>7 · arm becomes time</b> — the timeline IS the galaxy: no separate UI object; galaxy weights left, track pulls right</p></div>
+  <div><div class="stage"><svg class="mark" viewBox="0 0 260 160" xmlns="http://www.w3.org/2000/svg"><rect width="260" height="160" fill="#0b1317"/><g fill="#465059"><circle cx="26" cy="30" r="1"/><circle cx="58" cy="18" r="1"/><circle cx="34" cy="124" r="1"/><circle cx="90" cy="140" r="1"/><circle cx="170" cy="136" r="1"/><circle cx="230" cy="124" r="1"/><circle cx="238" cy="52" r="1"/><circle cx="196" cy="20" r="1"/><circle cx="116" cy="24" r="1"/></g><g fill="#7d7669"><circle cx="16" cy="78" r="1.2"/><circle cx="246" cy="92" r="1.2"/><circle cx="140" cy="146" r="1.2"/></g><g fill="#b2a6c8"><circle cx="78" cy="42" r="1.1"/><circle cx="204" cy="112" r="1.1"/></g><g transform="rotate(-14 130 76)"><ellipse cx="130" cy="76" rx="56" ry="24" fill="#26333b"/><g fill="none" stroke-linecap="round"><path d="M139 76A11.5 4.8 0 0 1 130 81.88A17.5 7.35 0 0 1 109 76M121 76A11.5 4.8 0 0 1 130 70.12A17.5 7.35 0 0 1 151 76" stroke="#c5b2f3" stroke-width="1.75"/><path d="M109 76A26 10.9 0 0 1 130 63A38.5 16.2 0 0 1 176 76M151 76A26 10.9 0 0 1 130 89A38.5 16.2 0 0 1 84 76" stroke="#8a79b8" stroke-width="1.5"/></g><ellipse cx="130" cy="76" rx="9" ry="5.5" fill="#eeeae0"/></g><path d="M206 37.5L207.2 40.8L210.5 42L207.2 43.2L206 46.5L204.8 43.2L201.5 42L204.8 40.8Z" fill="#fff"/></svg></div><p class="cap"><b>8 · inclined disc (no timeline)</b> — the oblique disc is the most "galaxy" silhouette; ignite read survives with no rail; tilt adds motion without depth fakery</p></div>
+  <div><div class="stage"><svg class="mark" viewBox="0 0 260 160" xmlns="http://www.w3.org/2000/svg"><rect width="260" height="160" fill="#0b1317"/><g stroke="#26333b" stroke-width="1.5" stroke-linecap="round" fill="none"><line x1="24" y1="80" x2="240" y2="26"/><line x1="24" y1="80" x2="240" y2="134"/></g><g fill="#465059"><circle cx="44" cy="82" r="1"/><circle cx="62" cy="76" r="1"/><circle cx="66" cy="86" r="1"/><circle cx="86" cy="70" r="1"/><circle cx="90" cy="88" r="1"/></g><g fill="#7d7669"><circle cx="108" cy="64" r="1.2"/><circle cx="114" cy="82" r="1.2"/><circle cx="106" cy="96" r="1.2"/><circle cx="132" cy="58" r="1.2"/><circle cx="140" cy="74" r="1.2"/><circle cx="136" cy="92" r="1.2"/><circle cx="142" cy="102" r="1.2"/></g><g fill="#b2a6c8"><circle cx="156" cy="52" r="1.3"/><circle cx="150" cy="86" r="1.3"/><circle cx="152" cy="110" r="1.3"/><circle cx="230" cy="46" r="1.3"/><circle cx="232" cy="92" r="1.3"/><circle cx="234" cy="112" r="1.3"/></g><circle cx="190" cy="80" r="24" fill="#26333b"/><g fill="none" stroke-linecap="round"><path d="M196 80A7.5 7.5 0 0 1 190 89A11.25 11.25 0 0 1 176.5 80M184 80A7.5 7.5 0 0 1 190 71A11.25 11.25 0 0 1 203.5 80" stroke="#c5b2f3" stroke-width="2"/><path d="M176.5 80A16.9 16.9 0 0 1 190 59.75A25.3 25.3 0 0 1 220.4 80M203.5 80A16.9 16.9 0 0 1 190 100.25A25.3 25.3 0 0 1 159.6 80" stroke="#8a79b8" stroke-width="1.6"/></g><circle cx="190" cy="80" r="5.5" fill="#eeeae0"/><path d="M24 75.5L25.2 78.8L28.5 80L25.2 81.2L24 84.5L22.8 81.2L19.5 80L22.8 78.8Z" fill="#fff"/><g stroke-linecap="round" stroke-width="1.5"><line x1="24" y1="146" x2="236" y2="146" stroke="#26333b"/><line x1="24" y1="146" x2="190" y2="146" stroke="#7d7669"/></g><circle cx="190" cy="146" r="3.5" fill="#c5b2f3"/></svg></div><p class="cap"><b>9 · expansion cone</b> — glint at the apex = first light, paper core = now; dots grow left→right so the star field itself ignites; timeline demoted to a quiet echo</p></div>
+  <div><div class="stage"><svg class="mark" viewBox="0 0 260 160" xmlns="http://www.w3.org/2000/svg"><rect width="260" height="160" fill="#0b1317"/><g fill="#465059"><circle cx="24" cy="22" r="1"/><circle cx="52" cy="60" r="1"/><circle cx="30" cy="96" r="1"/><circle cx="70" cy="30" r="1"/><circle cx="196" cy="70" r="1"/><circle cx="236" cy="48" r="1"/><circle cx="224" cy="100" r="1"/><circle cx="184" cy="16" r="1"/></g><g fill="#7d7669"><circle cx="16" cy="58" r="1.2"/><circle cx="246" cy="80" r="1.2"/><circle cx="76" cy="104" r="1.2"/></g><circle cx="130" cy="62" r="22" fill="#26333b"/><g fill="#c5b2f3"><circle cx="131.6" cy="71" r="1.3"/><circle cx="124.4" cy="71.7" r="1.35"/><circle cx="117" cy="66.7" r="1.4"/><circle cx="128.4" cy="53" r="1.3"/><circle cx="135.6" cy="52.3" r="1.35"/><circle cx="143" cy="57.3" r="1.4"/></g><g fill="#b2a6c8"><circle cx="113.9" cy="56.2" r="1.5"/><circle cx="115.4" cy="49.8" r="1.55"/><circle cx="119.5" cy="43.7" r="1.6"/><circle cx="125.9" cy="39" r="1.7"/><circle cx="134.5" cy="36.4" r="1.75"/><circle cx="144.4" cy="37" r="1.85"/><circle cx="154.6" cy="41.4" r="1.95"/><circle cx="163.5" cy="49.8" r="2.05"/><circle cx="169.5" cy="62" r="2.2"/><circle cx="146.1" cy="67.8" r="1.5"/><circle cx="144.6" cy="74.2" r="1.55"/><circle cx="140.5" cy="80.3" r="1.6"/><circle cx="134.1" cy="85" r="1.7"/><circle cx="125.5" cy="87.6" r="1.75"/><circle cx="115.6" cy="87" r="1.85"/><circle cx="105.4" cy="82.6" r="1.95"/><circle cx="96.5" cy="74.2" r="2.05"/><circle cx="90.5" cy="62" r="2.2"/></g><circle cx="130" cy="62" r="5" fill="#c5b2f3"/><path d="M214 25.5L215.2 28.8L218.5 30L215.2 31.2L214 34.5L212.8 31.2L209.5 30L212.8 28.8Z" fill="#fff"/><rect y="122" width="260" height="38" fill="#eeeae0"/><g stroke-linecap="round"><line x1="24" y1="141" x2="236" y2="141" stroke="#b6ac95" stroke-width="1.5"/><line x1="24" y1="141" x2="168" y2="141" stroke="#4b3a8c" stroke-width="2"/><line x1="236" y1="137" x2="236" y2="145" stroke="#7d7669" stroke-width="1.5"/></g><circle cx="168" cy="141" r="4" fill="#4b3a8c"/></svg></div><p class="cap"><b>10 · paper plate</b> — arms built from stars (the most detailed read); the paper band is the anchor; on paper the timeline goes deepest violet</p></div>
+</div>
+
+<h2>zoomed — <span>detail judgment · 300px</span></h2>
+<div class="grid3 zoom">
+  <div><div class="stage"><svg class="mark-lg" viewBox="0 0 260 160" aria-hidden="true"><use href="#m-1"/></svg></div><p class="cap"><b>1 · face-on, dotted arms, rail below</b></p></div>
+  <div><div class="stage"><svg class="mark-lg" viewBox="0 0 260 160" aria-hidden="true"><use href="#m-2"/></svg></div><p class="cap"><b>2 · inclined disc, no rail</b></p></div>
+  <div><div class="stage"><svg class="mark-lg" viewBox="0 0 260 160" aria-hidden="true"><use href="#m-3"/></svg></div><p class="cap"><b>3 · arm unwinds into the timeline</b></p></div>
+  <div><div class="stage"><svg class="mark-lg" viewBox="0 0 260 160" aria-hidden="true"><use href="#m-4"/></svg></div><p class="cap"><b>4 · barred spiral, low horizon</b></p></div>
+  <div><div class="stage"><svg class="mark-lg" viewBox="0 0 260 160" aria-hidden="true"><use href="#m-5"/></svg></div><p class="cap"><b>5 · ignition sequence on the rail</b></p></div>
+  <div><div class="stage"><svg class="mark-lg" viewBox="0 0 260 160" aria-hidden="true"><use href="#m-6"/></svg></div><p class="cap"><b>6 · scrub</b></p></div>
+  <div><div class="stage"><svg class="mark-lg" viewBox="0 0 260 160" aria-hidden="true"><use href="#m-7"/></svg></div><p class="cap"><b>7 · arm becomes time</b></p></div>
+  <div><div class="stage"><svg class="mark-lg" viewBox="0 0 260 160" aria-hidden="true"><use href="#m-8"/></svg></div><p class="cap"><b>8 · inclined disc (no timeline)</b></p></div>
+  <div><div class="stage"><svg class="mark-lg" viewBox="0 0 260 160" aria-hidden="true"><use href="#m-9"/></svg></div><p class="cap"><b>9 · expansion cone</b></p></div>
+  <div><div class="stage"><svg class="mark-lg" viewBox="0 0 260 160" aria-hidden="true"><use href="#m-10"/></svg></div><p class="cap"><b>10 · paper plate</b></p></div>
+</div>
+
+<footer>
+  static judging board · svg verbatim as delivered (ground rects kept — cells share the colour; no ids, nothing collides) ·
+  nothing integrated yet · pick 1–10 (or none / a mix)
+</footer>
+
+</div>
+
+<svg width="0" height="0" style="position:absolute" aria-hidden="true">
+  <defs>
+
+  <!-- current (live card mark, R019, verbatim from ProjectArtwork.tsx) -->
+  <symbol id="m-cur" viewBox="0 0 260 160">
+    <defs>
+      <pattern id="gem-planck-bed" width="11" height="11" patternUnits="userSpaceOnUse"><circle cx="5.5" cy="5.5" r="1.6" fill="#7d7669"/></pattern>
+      <pattern id="gem-planck-glow" width="7" height="7" patternUnits="userSpaceOnUse"><circle cx="3.5" cy="3.5" r="1.9" fill="#c5b2f3"/></pattern>
+    </defs>
+    <ellipse cx="130" cy="64" rx="98" ry="50" fill="url(#gem-planck-bed)" opacity="0.09"/>
+    <ellipse class="gem-halo" style="--halo-opacity:0.12" cx="130" cy="66" rx="50" ry="30" fill="url(#gem-planck-glow)" opacity="0.12"/>
+    <g transform="rotate(-18 130 66) translate(130 66) scale(1 0.78) translate(-130 -66)">
+      <g fill="none" stroke-linecap="round">
+        <g stroke="#b2a6c8" stroke-width="7"><path d="M130 66 A18 18 0 0 1 166 66 A36 36 0 0 1 112 97.2"/><path d="M130 66 A18 18 0 0 1 94 66 A36 36 0 0 1 148 34.8"/></g>
+        <g stroke="#eeeae0" stroke-width="1.5" opacity="0.75"><path d="M130 66 A18 18 0 0 1 166 66 A36 36 0 0 1 112 97.2"/><path d="M130 66 A18 18 0 0 1 94 66 A36 36 0 0 1 148 34.8"/></g>
+      </g>
+      <circle cx="130" cy="66" r="15" fill="#4b3a8c"/><circle cx="130" cy="66" r="8" fill="#eeeae0"/>
+    </g>
+    <g stroke="#b2a6c8" stroke-width="1.25" stroke-linecap="round" opacity="0.7"><path d="M55 36h6M58 33v6"/><path d="M205 34h6M208 31v6"/><path d="M43.5 68h5M46 65.5v5"/><path d="M217.5 70h5M220 67.5v5"/></g>
+    <rect x="40" y="128" width="180" height="4" fill="#2a2340"/>
+    <rect x="70" y="119" width="2" height="5" fill="#8a79b8"/><rect x="100" y="119" width="2" height="5" fill="#8a79b8"/><rect x="130" y="119" width="2" height="5" fill="#8a79b8"/><rect x="160" y="119" width="2" height="5" fill="#8a79b8"/><rect x="190" y="119" width="2" height="5" fill="#8a79b8"/>
+    <rect x="40" y="128" width="90" height="4" fill="#b2a6c8"/>
+    <rect x="124" y="124" width="12" height="12" fill="#c5b2f3" stroke="#0b1317" stroke-width="3"/>
+    <rect x="129" y="129" width="2" height="2" fill="#eeeae0"/>
+  </symbol>
+
+  <!-- output 1 · V1 -->
+  <symbol id="m-1" viewBox="0 0 260 160">
+    <rect width="260" height="160" fill="#0b1317"/>
+    <g fill="#7d7669"><circle cx="24" cy="30" r="1.2"/><circle cx="58" cy="18" r="1.1"/><circle cx="212" cy="26" r="1.3"/><circle cx="240" cy="58" r="1.1"/><circle cx="36" cy="112" r="1.2"/><circle cx="222" cy="110" r="1.2"/><circle cx="82" cy="140" r="1.1"/><circle cx="196" cy="146" r="1.1"/></g>
+    <g fill="#b6ac95"><circle cx="72" cy="52" r="1.3"/><circle cx="188" cy="44" r="1.2"/><circle cx="48" cy="86" r="1.4"/></g>
+    <circle cx="130" cy="76" r="30" fill="#26333b"/><circle cx="132" cy="77" r="17" fill="#465059"/><circle cx="130" cy="76" r="8" fill="#eeeae0"/>
+    <g fill="#8a79b8"><circle cx="140" cy="68" r="1.8"/><circle cx="149" cy="66" r="1.7"/><circle cx="158" cy="70" r="1.6"/><circle cx="165" cy="78" r="1.5"/><circle cx="167" cy="88" r="1.4"/><circle cx="163" cy="99" r="1.3"/><circle cx="154" cy="107" r="1.2"/><circle cx="142" cy="111" r="1.1"/><circle cx="120" cy="84" r="1.8"/><circle cx="111" cy="86" r="1.7"/><circle cx="102" cy="82" r="1.6"/><circle cx="95" cy="74" r="1.5"/><circle cx="93" cy="64" r="1.4"/><circle cx="97" cy="53" r="1.3"/><circle cx="106" cy="45" r="1.2"/><circle cx="118" cy="41" r="1.1"/></g>
+    <circle cx="126" cy="72" r="1.9" fill="#eeeae0"/>
+    <line x1="34" y1="138" x2="226" y2="138" stroke="#465059" stroke-width="1.6"/><line x1="34" y1="138" x2="176" y2="138" stroke="#7d7669" stroke-width="1.6"/><line x1="176" y1="132" x2="176" y2="144" stroke="#c5b2f3" stroke-width="1.8"/>
+  </symbol>
+
+  <!-- output 1 · V2 -->
+  <symbol id="m-2" viewBox="0 0 260 160">
+    <rect width="260" height="160" fill="#0b1317"/>
+    <g fill="#7d7669"><circle cx="30" cy="24" r="1.2"/><circle cx="88" cy="16" r="1.1"/><circle cx="200" cy="20" r="1.3"/><circle cx="236" cy="72" r="1.1"/><circle cx="26" cy="122" r="1.2"/><circle cx="118" cy="148" r="1.1"/><circle cx="214" cy="136" r="1.2"/><circle cx="160" cy="30" r="1.1"/></g>
+    <g fill="#b6ac95"><circle cx="62" cy="66" r="1.3"/><circle cx="222" cy="104" r="1.3"/><circle cx="52" cy="138" r="1.2"/></g>
+    <ellipse cx="130" cy="82" rx="62" ry="24" fill="#26333b"/><ellipse cx="128" cy="82" rx="36" ry="13" fill="#465059"/>
+    <path d="M 92 88 A 38 15 0 0 1 150 68" fill="none" stroke="#8a79b8" stroke-width="1.9"/>
+    <path d="M 166 76 A 38 15 0 0 1 112 98" fill="none" stroke="#4b3a8c" stroke-width="1.9"/>
+    <path d="M 72 90 A 58 22 0 0 1 148 60" fill="none" stroke="#7d7669" stroke-width="1.6" stroke-dasharray="3 5"/>
+    <ellipse cx="130" cy="82" rx="12" ry="8" fill="#eeeae0"/><circle cx="171" cy="72" r="1.9" fill="#eeeae0"/>
+  </symbol>
+
+  <!-- output 1 · V3 -->
+  <symbol id="m-3" viewBox="0 0 260 160">
+    <rect width="260" height="160" fill="#0b1317"/>
+    <g fill="#7d7669"><circle cx="22" cy="40" r="1.2"/><circle cx="66" cy="22" r="1.1"/><circle cx="150" cy="18" r="1.2"/><circle cx="238" cy="34" r="1.1"/><circle cx="40" cy="98" r="1.3"/><circle cx="212" cy="84" r="1.1"/><circle cx="96" cy="146" r="1.2"/><circle cx="244" cy="124" r="1.1"/></g>
+    <g fill="#b6ac95"><circle cx="186" cy="52" r="1.3"/><circle cx="60" cy="126" r="1.3"/><circle cx="118" cy="30" r="1.2"/></g>
+    <circle cx="96" cy="70" r="34" fill="#26333b"/><circle cx="98" cy="72" r="18" fill="#465059"/>
+    <path d="M 104 62 C 118 56 128 70 120 84 C 112 98 88 98 80 82 C 72 66 86 46 106 46 C 126 46 140 66 134 90 C 128 114 112 124 90 124" fill="none" stroke="#8a79b8" stroke-width="1.8"/>
+    <path d="M 90 124 C 110 124 130 124 150 124 L 232 124" fill="none" stroke="#465059" stroke-width="1.8"/>
+    <path d="M 90 124 L 172 124" fill="none" stroke="#b2a6c8" stroke-width="1.8"/>
+    <rect x="169" y="118" width="6" height="12" fill="#eeeae0"/><circle cx="96" cy="70" r="7" fill="#ddd6c6"/><circle cx="112" cy="58" r="1.9" fill="#eeeae0"/>
+  </symbol>
+
+  <!-- output 1 · V4 -->
+  <symbol id="m-4" viewBox="0 0 260 160">
+    <rect width="260" height="160" fill="#0b1317"/>
+    <g fill="#7d7669"><circle cx="28" cy="28" r="1.2"/><circle cx="76" cy="14" r="1.1"/><circle cx="196" cy="22" r="1.2"/><circle cx="232" cy="48" r="1.1"/><circle cx="44" cy="72" r="1.2"/><circle cx="220" cy="96" r="1.3"/><circle cx="60" cy="108" r="1.1"/><circle cx="182" cy="118" r="1.1"/></g>
+    <g fill="#b6ac95"><circle cx="108" cy="24" r="1.3"/><circle cx="240" cy="78" r="1.2"/><circle cx="20" cy="96" r="1.3"/></g>
+    <circle cx="130" cy="74" r="38" fill="#26333b"/><circle cx="128" cy="76" r="22" fill="#465059"/>
+    <line x1="112" y1="84" x2="148" y2="64" stroke="#ddd6c6" stroke-width="2.2"/>
+    <path d="M 148 64 C 168 54 176 76 168 94 C 160 112 136 118 116 110" fill="none" stroke="#8a79b8" stroke-width="1.8"/>
+    <path d="M 112 84 C 92 94 84 72 92 54 C 100 36 124 30 144 38" fill="none" stroke="#8a79b8" stroke-width="1.8"/>
+    <circle cx="130" cy="74" r="6" fill="#eeeae0"/><circle cx="161" cy="60" r="1.9" fill="#eeeae0"/>
+    <line x1="0" y1="140" x2="260" y2="140" stroke="#26333b" stroke-width="1.8"/><line x1="98" y1="140" x2="162" y2="140" stroke="#7d7669" stroke-width="1.8"/><circle cx="162" cy="140" r="2.2" fill="#c5b2f3"/>
+  </symbol>
+
+  <!-- output 1 · V5 -->
+  <symbol id="m-5" viewBox="0 0 260 160">
+    <rect width="260" height="160" fill="#0b1317"/>
+    <g fill="#7d7669"><circle cx="24" cy="22" r="1.2"/><circle cx="92" cy="14" r="1.1"/><circle cx="142" cy="26" r="1.2"/><circle cx="238" cy="20" r="1.1"/><circle cx="36" cy="132" r="1.2"/><circle cx="120" cy="140" r="1.1"/><circle cx="230" cy="138" r="1.2"/><circle cx="18" cy="72" r="1.1"/></g>
+    <g fill="#b6ac95"><circle cx="66" cy="38" r="1.3"/><circle cx="244" cy="98" r="1.2"/><circle cx="150" cy="120" r="1.3"/></g>
+    <line x1="22" y1="90" x2="238" y2="90" stroke="#26333b" stroke-width="1.8"/><line x1="22" y1="90" x2="176" y2="90" stroke="#465059" stroke-width="1.8"/>
+    <circle cx="48" cy="90" r="4" fill="#26333b"/><circle cx="48" cy="90" r="1.6" fill="#7d7669"/><circle cx="96" cy="90" r="7" fill="#26333b"/><circle cx="96" cy="90" r="2.4" fill="#b6ac95"/>
+    <path d="M 92 84 A 7 7 0 0 1 103 90" fill="none" stroke="#4b3a8c" stroke-width="1.6"/>
+    <circle cx="176" cy="74" r="34" fill="#26333b"/><circle cx="178" cy="76" r="18" fill="#465059"/>
+    <path d="M 184 66 C 198 60 206 76 198 90 C 190 104 168 104 160 90" fill="none" stroke="#8a79b8" stroke-width="1.8"/>
+    <path d="M 168 82 C 154 88 146 72 154 58 C 162 44 184 44 192 58" fill="none" stroke="#8a79b8" stroke-width="1.8"/>
+    <circle cx="176" cy="74" r="7" fill="#eeeae0"/><circle cx="192" cy="60" r="1.9" fill="#eeeae0"/>
+    <line x1="176" y1="84" x2="176" y2="96" stroke="#c5b2f3" stroke-width="1.8"/>
+  </symbol>
+
+  <!-- output 2 · 1 scrub -->
+  <symbol id="m-6" viewBox="0 0 260 160">
+    <rect width="260" height="160" fill="#0b1317"/>
+    <g fill="#465059"><circle cx="22" cy="24" r="1"/><circle cx="48" cy="46" r="1"/><circle cx="36" cy="98" r="1"/><circle cx="58" cy="114" r="1"/><circle cx="150" cy="22" r="1"/><circle cx="188" cy="84" r="1"/><circle cx="228" cy="66" r="1"/><circle cx="214" cy="108" r="1"/><circle cx="78" cy="20" r="1"/><circle cx="20" cy="70" r="1"/><circle cx="246" cy="100" r="1"/></g>
+    <g fill="#7d7669"><circle cx="166" cy="58" r="1.2"/><circle cx="240" cy="28" r="1.2"/><circle cx="160" cy="104" r="1.2"/></g>
+    <g fill="#b2a6c8"><circle cx="206" cy="40" r="1.1"/><circle cx="132" cy="18" r="1.1"/></g>
+    <circle cx="104" cy="68" r="30" fill="#26333b"/>
+    <g fill="none" stroke-linecap="round">
+      <path d="M111 68A8.75 8.75 0 0 1 104 78.5A13.1 13.1 0 0 1 88.25 68M97 68A8.75 8.75 0 0 1 104 57.5A13.1 13.1 0 0 1 119.75 68" stroke="#c5b2f3" stroke-width="2"/>
+      <path d="M88.25 68A19.7 19.7 0 0 1 104 44.4A29.5 29.5 0 0 1 139.4 68M119.75 68A19.7 19.7 0 0 1 104 91.6A29.5 29.5 0 0 1 68.6 68" stroke="#8a79b8" stroke-width="1.6"/>
+    </g>
+    <circle cx="104" cy="68" r="6.5" fill="#eeeae0"/>
+    <path d="M176 29.5L177.2 32.8L180.5 34L177.2 35.2L176 38.5L174.8 35.2L171.5 34L174.8 32.8Z" fill="#fff"/>
+    <g stroke-linecap="round" stroke-width="1.5"><line x1="28" y1="136" x2="232" y2="136" stroke="#26333b"/><line x1="28" y1="136" x2="172" y2="136" stroke="#7d7669"/><line x1="232" y1="132" x2="232" y2="140" stroke="#465059"/></g>
+    <circle cx="28" cy="136" r="2" fill="#b6ac95"/><circle cx="172" cy="136" r="3.5" fill="#c5b2f3"/>
+  </symbol>
+
+  <!-- output 2 · 2 arm becomes time -->
+  <symbol id="m-7" viewBox="0 0 260 160">
+    <rect width="260" height="160" fill="#0b1317"/>
+    <g fill="#465059"><circle cx="150" cy="24" r="1"/><circle cx="172" cy="50" r="1"/><circle cx="196" cy="78" r="1"/><circle cx="232" cy="58" r="1"/><circle cx="244" cy="96" r="1"/><circle cx="22" cy="26" r="1"/><circle cx="20" cy="104" r="1"/><circle cx="60" cy="122" r="1"/><circle cx="120" cy="18" r="1"/></g>
+    <g fill="#7d7669"><circle cx="222" cy="22" r="1.2"/><circle cx="178" cy="98" r="1.2"/><circle cx="36" cy="140" r="1.2"/></g>
+    <g fill="#b2a6c8"><circle cx="160" cy="70" r="1.1"/><circle cx="246" cy="40" r="1.1"/></g>
+    <circle cx="80" cy="64" r="24" fill="#26333b"/>
+    <g fill="none" stroke-linecap="round" stroke-linejoin="round">
+      <path d="M87 64A8.75 8.75 0 0 1 80 74.5A13.1 13.1 0 0 1 64.25 64M73 64A8.75 8.75 0 0 1 80 53.5A13.1 13.1 0 0 1 95.75 64" stroke="#c5b2f3" stroke-width="2"/>
+      <path d="M95.75 64A19.7 19.7 0 0 1 80 87.6A29.5 29.5 0 0 1 44.6 64" stroke="#8a79b8" stroke-width="1.6"/>
+      <path d="M64.25 64A19.7 19.7 0 0 1 80 40.4A29.5 29.5 0 0 1 115.4 64C115.4 104 124 130 146 130L196 130" stroke="#8a79b8" stroke-width="1.75"/>
+      <line x1="196" y1="130" x2="234" y2="130" stroke="#465059" stroke-width="1.5"/>
+      <line x1="234" y1="126" x2="234" y2="134" stroke="#465059" stroke-width="1.5"/>
+    </g>
+    <circle cx="80" cy="64" r="6" fill="#eeeae0"/><circle cx="196" cy="130" r="3.5" fill="#c5b2f3"/>
+    <path d="M208 31.5L209.2 34.8L212.5 36L209.2 37.2L208 40.5L206.8 37.2L203.5 36L206.8 34.8Z" fill="#fff"/>
+  </symbol>
+
+  <!-- output 2 · 3 inclined disc -->
+  <symbol id="m-8" viewBox="0 0 260 160">
+    <rect width="260" height="160" fill="#0b1317"/>
+    <g fill="#465059"><circle cx="26" cy="30" r="1"/><circle cx="58" cy="18" r="1"/><circle cx="34" cy="124" r="1"/><circle cx="90" cy="140" r="1"/><circle cx="170" cy="136" r="1"/><circle cx="230" cy="124" r="1"/><circle cx="238" cy="52" r="1"/><circle cx="196" cy="20" r="1"/><circle cx="116" cy="24" r="1"/></g>
+    <g fill="#7d7669"><circle cx="16" cy="78" r="1.2"/><circle cx="246" cy="92" r="1.2"/><circle cx="140" cy="146" r="1.2"/></g>
+    <g fill="#b2a6c8"><circle cx="78" cy="42" r="1.1"/><circle cx="204" cy="112" r="1.1"/></g>
+    <g transform="rotate(-14 130 76)">
+      <ellipse cx="130" cy="76" rx="56" ry="24" fill="#26333b"/>
+      <g fill="none" stroke-linecap="round">
+        <path d="M139 76A11.5 4.8 0 0 1 130 81.88A17.5 7.35 0 0 1 109 76M121 76A11.5 4.8 0 0 1 130 70.12A17.5 7.35 0 0 1 151 76" stroke="#c5b2f3" stroke-width="1.75"/>
+        <path d="M109 76A26 10.9 0 0 1 130 63A38.5 16.2 0 0 1 176 76M151 76A26 10.9 0 0 1 130 89A38.5 16.2 0 0 1 84 76" stroke="#8a79b8" stroke-width="1.5"/>
+      </g>
+      <ellipse cx="130" cy="76" rx="9" ry="5.5" fill="#eeeae0"/>
+    </g>
+    <path d="M206 37.5L207.2 40.8L210.5 42L207.2 43.2L206 46.5L204.8 43.2L201.5 42L204.8 40.8Z" fill="#fff"/>
+  </symbol>
+
+  <!-- output 2 · 4 expansion cone -->
+  <symbol id="m-9" viewBox="0 0 260 160">
+    <rect width="260" height="160" fill="#0b1317"/>
+    <g stroke="#26333b" stroke-width="1.5" stroke-linecap="round" fill="none"><line x1="24" y1="80" x2="240" y2="26"/><line x1="24" y1="80" x2="240" y2="134"/></g>
+    <g fill="#465059"><circle cx="44" cy="82" r="1"/><circle cx="62" cy="76" r="1"/><circle cx="66" cy="86" r="1"/><circle cx="86" cy="70" r="1"/><circle cx="90" cy="88" r="1"/></g>
+    <g fill="#7d7669"><circle cx="108" cy="64" r="1.2"/><circle cx="114" cy="82" r="1.2"/><circle cx="106" cy="96" r="1.2"/><circle cx="132" cy="58" r="1.2"/><circle cx="140" cy="74" r="1.2"/><circle cx="136" cy="92" r="1.2"/><circle cx="142" cy="102" r="1.2"/></g>
+    <g fill="#b2a6c8"><circle cx="156" cy="52" r="1.3"/><circle cx="150" cy="86" r="1.3"/><circle cx="152" cy="110" r="1.3"/><circle cx="230" cy="46" r="1.3"/><circle cx="232" cy="92" r="1.3"/><circle cx="234" cy="112" r="1.3"/></g>
+    <circle cx="190" cy="80" r="24" fill="#26333b"/>
+    <g fill="none" stroke-linecap="round">
+      <path d="M196 80A7.5 7.5 0 0 1 190 89A11.25 11.25 0 0 1 176.5 80M184 80A7.5 7.5 0 0 1 190 71A11.25 11.25 0 0 1 203.5 80" stroke="#c5b2f3" stroke-width="2"/>
+      <path d="M176.5 80A16.9 16.9 0 0 1 190 59.75A25.3 25.3 0 0 1 220.4 80M203.5 80A16.9 16.9 0 0 1 190 100.25A25.3 25.3 0 0 1 159.6 80" stroke="#8a79b8" stroke-width="1.6"/>
+    </g>
+    <circle cx="190" cy="80" r="5.5" fill="#eeeae0"/>
+    <path d="M24 75.5L25.2 78.8L28.5 80L25.2 81.2L24 84.5L22.8 81.2L19.5 80L22.8 78.8Z" fill="#fff"/>
+    <g stroke-linecap="round" stroke-width="1.5"><line x1="24" y1="146" x2="236" y2="146" stroke="#26333b"/><line x1="24" y1="146" x2="190" y2="146" stroke="#7d7669"/></g>
+    <circle cx="190" cy="146" r="3.5" fill="#c5b2f3"/>
+  </symbol>
+
+  <!-- output 2 · 5 paper plate -->
+  <symbol id="m-10" viewBox="0 0 260 160">
+    <rect width="260" height="160" fill="#0b1317"/>
+    <g fill="#465059"><circle cx="24" cy="22" r="1"/><circle cx="52" cy="60" r="1"/><circle cx="30" cy="96" r="1"/><circle cx="70" cy="30" r="1"/><circle cx="196" cy="70" r="1"/><circle cx="236" cy="48" r="1"/><circle cx="224" cy="100" r="1"/><circle cx="184" cy="16" r="1"/></g>
+    <g fill="#7d7669"><circle cx="16" cy="58" r="1.2"/><circle cx="246" cy="80" r="1.2"/><circle cx="76" cy="104" r="1.2"/></g>
+    <circle cx="130" cy="62" r="22" fill="#26333b"/>
+    <g fill="#c5b2f3"><circle cx="131.6" cy="71" r="1.3"/><circle cx="124.4" cy="71.7" r="1.35"/><circle cx="117" cy="66.7" r="1.4"/><circle cx="128.4" cy="53" r="1.3"/><circle cx="135.6" cy="52.3" r="1.35"/><circle cx="143" cy="57.3" r="1.4"/></g>
+    <g fill="#b2a6c8"><circle cx="113.9" cy="56.2" r="1.5"/><circle cx="115.4" cy="49.8" r="1.55"/><circle cx="119.5" cy="43.7" r="1.6"/><circle cx="125.9" cy="39" r="1.7"/><circle cx="134.5" cy="36.4" r="1.75"/><circle cx="144.4" cy="37" r="1.85"/><circle cx="154.6" cy="41.4" r="1.95"/><circle cx="163.5" cy="49.8" r="2.05"/><circle cx="169.5" cy="62" r="2.2"/><circle cx="146.1" cy="67.8" r="1.5"/><circle cx="144.6" cy="74.2" r="1.55"/><circle cx="140.5" cy="80.3" r="1.6"/><circle cx="134.1" cy="85" r="1.7"/><circle cx="125.5" cy="87.6" r="1.75"/><circle cx="115.6" cy="87" r="1.85"/><circle cx="105.4" cy="82.6" r="1.95"/><circle cx="96.5" cy="74.2" r="2.05"/><circle cx="90.5" cy="62" r="2.2"/></g>
+    <circle cx="130" cy="62" r="5" fill="#c5b2f3"/>
+    <path d="M214 25.5L215.2 28.8L218.5 30L215.2 31.2L214 34.5L212.8 31.2L209.5 30L212.8 28.8Z" fill="#fff"/>
+    <rect y="122" width="260" height="38" fill="#eeeae0"/>
+    <g stroke-linecap="round"><line x1="24" y1="141" x2="236" y2="141" stroke="#b6ac95" stroke-width="1.5"/><line x1="24" y1="141" x2="168" y2="141" stroke="#4b3a8c" stroke-width="2"/><line x1="236" y1="137" x2="236" y2="145" stroke="#7d7669" stroke-width="1.5"/></g>
+    <circle cx="168" cy="141" r="4" fill="#4b3a8c"/>
+  </symbol>
+
+  </defs>
+</svg>
+
+</body>
+</html>

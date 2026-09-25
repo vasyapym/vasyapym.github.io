@@ -546,3 +546,23 @@ must not be touched. CSS caps (stage 168px ≥900 / 150px ≤899; base mark cap
   protocol-presence to H1 register (A telegraphic / B human prose,
   contract identical); the S9 protocol stays the convergence-trap escape
   hatch. Draw 1 = short Arm A.
+
+### R028 addendum 3 — relay replies + judging board (2026-09-25, same round)
+- The owner relayed TWO outputs for the minimal brief (two draws on the
+  same shape): output 1 = five variants (face-on dotted arms / inclined
+  disc / arm-unwinds-into-timeline / barred spiral / ignition rail),
+  output 2 = five variants (scrub / arm-becomes-time / inclined disc /
+  expansion cone / paper plate). Mechanical review: both contract-clean
+  (5 blocks + why lines each); no ids (ap- prefix slipped - harmless on
+  a static board); each carries its own #0b1317 ground rect (kept - the
+  stage shares the colour); no banned traits spotted; variant 10's
+  stipple flagged as the mud risk at 196px (its own notes name the fix).
+- Board: portfolio/shell/public/planck-consistency-24/index.html -
+  current reference + 10 cells at real scale 196px + zoomed 300px rows,
+  svg verbatim as delivered. Visual inspection: performed (headless
+  Chromium, full-page PNG artifacts/R028/board-full.png) - 23 svgs, 0
+  blank cells, 0 console errors; all ten hold their read at 196px.
+- Code verification: NOT RUN (static board, no app code touched).
+- Deploy: pushed; deploy-pages.yml rebuilds Pages; board also opened
+  locally for the owner.
+- Open question: pick 1-10 (or none / a mix).
