@@ -447,3 +447,28 @@ must not be touched. CSS caps (stage 168px ≥900 / 150px ≤899; base mark cap
   errors.
 - Deploy: pushed; deploy-pages.yml rebuilds Pages.
 - Revert: R022 state via git restore of ProjectArtwork.tsx.
+
+## Feedback F013
+- Round: R024
+- Verdict: LIKED
+- Scope: raft center mark, S9 treatment 1 "Hub" (two-spoke chevron + full-
+  height cut + orphan ellipsis)
+- Decision: replace the just-integrated Ring with Hub; Bus stays out.
+- User source: "let's do hub instead" (after seeing Ring live)
+- Artifact: portfolio/shell/public/raft-details-23/index.html
+- Supersedes: F012 (Ring pick reversed before it settled)
+
+## Round R025
+- Goal: swap the integrated mark Ring -> Hub per F013.
+- Changes: portfolio/shell/src/shell/ProjectArtwork.tsx raft - the Hub
+  mark verbatim: coral leader (92,80 r14) as the vertex of a two-spoke
+  chevron to solid paper peers (48,42 / 48,118 r11), full-height paper cut
+  (x150, 14-146), hollow orphan pair (190,46 / 224,114 r9.5) joined only
+  by the five-dot ellipsis (r2.4, uniform 9.6 pitch). House repairs on
+  integration: dot bed + gem-halo kept, halo base opacity restored via
+  --halo-opacity.
+- Verification: tsc clean; landing card screenshot
+  (artifacts/R025/after-integration.png) - chevron + cut + ellipsis read
+  at 182px, no ring leftovers, no console errors.
+- Deploy: pushed; deploy-pages.yml rebuilds Pages.
+- Revert: R024 (Ring) via git restore of ProjectArtwork.tsx.

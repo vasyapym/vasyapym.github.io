@@ -78,13 +78,13 @@ export const INCUMBENT_MARKS: Partial<Record<ProjectCenter, () => ReactElement>>
   fox: FoxCenterMark,
 };
 
-/* ── 1 · Raft Cluster — "split-brain partition", R024 (owner-picked S9
-   "Ring"): five servers on one membership ring (r54, centre 126,82); the
-   quorum arc through the coral leader stays whole, the fault slices both
-   gaps, and the orphaned pair keeps only a dotted fragment of the circle —
-   the eye completes the break. Story: quorum | the cut | the orphans still
-   trying. House repairs on integration: the sparse dot bed + the single
-   gem-halo hover ellipse (halo base opacity restored via --halo-opacity). ── */
+/* ── 1 · Raft Cluster — "split-brain partition", R025 (owner-picked S9
+   "Hub", F013 supersedes F012): the coral leader is the vertex of a
+   two-spoke chevron aimed at a full-height cut; across the cut a leaderless
+   orphan pair is joined only by an ellipsis — an election that never
+   completes. Story: quorum | the cut | the orphans still trying. House
+   repairs on integration: the sparse dot bed + the single gem-halo hover
+   ellipse (halo base opacity restored via --halo-opacity). ── */
 function RaftCenterMark() {
   return (
     <svg viewBox="-2 0 260 160" fill="none" aria-hidden="true">
@@ -100,26 +100,31 @@ function RaftCenterMark() {
       <ellipse cx="128" cy="86" rx="99" ry="60" fill="url(#gem-raft-bed)" opacity="0.09" />
       <ellipse className="gem-halo" style={haloVar(0.12)} cx="95" cy="82" rx="50" ry="36" fill="url(#gem-raft-glow)" opacity={0.16} />
 
-      {/* quorum arc of the ring (center 126,82 · r 54) */}
-      <path id="gem-raft-ring" d="M109.3 30.6A54 54 0 0 0 109.3 133.4" stroke="#c0b6a1" strokeWidth="4.5" strokeLinecap="round" />
-      <g id="gem-raft-peers" fill="#ddd6c6">
-        <circle cx="109.3" cy="30.6" r="10.5" />
-        <circle cx="109.3" cy="133.4" r="10.5" />
+      {/* quorum: leader-centric spokes (followers only talk to the leader) */}
+      <g id="gem-raft-links" stroke="#c0b6a1" strokeWidth="4.5" strokeLinecap="round">
+        <line x1="92" y1="80" x2="48" y2="42" />
+        <line x1="92" y1="80" x2="48" y2="118" />
       </g>
-      <circle id="gem-raft-leader" cx="72" cy="82" r="14" fill="#f3948a" />
+      <g id="gem-raft-peers" fill="#ddd6c6">
+        <circle cx="48" cy="42" r="11" />
+        <circle cx="48" cy="118" r="11" />
+      </g>
+      <circle id="gem-raft-leader" cx="92" cy="80" r="14" fill="#f3948a" />
 
-      {/* the cut: passes through both ring gaps */}
-      <line id="gem-raft-fault" x1="139.5" y1="16" x2="139.5" y2="148" stroke="#eeeae0" strokeWidth="4" strokeLinecap="round" />
+      {/* the cut */}
+      <line id="gem-raft-fault" x1="150" y1="14" x2="150" y2="146" stroke="#ddd6c6" strokeWidth="4.5" strokeLinecap="round" />
 
-      {/* orphaned minority: hollow members, pending arc between them */}
+      {/* orphaned minority: hollow, leaderless, one pending link */}
       <g id="gem-raft-orphans" stroke="#7d7669" strokeWidth="4">
-        <circle cx="169.7" cy="50.3" r="9.5" />
-        <circle cx="169.7" cy="113.7" r="9.5" />
+        <circle cx="190" cy="46" r="9.5" />
+        <circle cx="224" cy="114" r="9.5" />
       </g>
       <g id="gem-raft-pending" fill="#b6ac95">
-        <circle cx="178.6" cy="69.85" r="2.5" />
-        <circle cx="180" cy="82" r="2.5" />
-        <circle cx="178.6" cy="94.15" r="2.5" />
+        <circle cx="198.4" cy="62.8" r="2.4" />
+        <circle cx="202.7" cy="71.4" r="2.4" />
+        <circle cx="207" cy="80" r="2.4" />
+        <circle cx="211.3" cy="88.6" r="2.4" />
+        <circle cx="215.6" cy="97.2" r="2.4" />
       </g>
     </svg>
   );
