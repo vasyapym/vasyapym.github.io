@@ -137,3 +137,14 @@ must not be touched. CSS caps (stage 168px ≥900 / 150px ≤899; base mark cap
   fox green/white read holds; raft weight comparable.
 - Deploy: pushed; deploy-pages.yml rebuilds GitHub Pages.
 - Open question: owner look on the live site.
+
+## Round R006
+- Goal: owner: the whitest whites must not be prominent — match the Quicknotes register.
+- Scan: across the four integrated marks, only blast's white-hot core #fff3e2 sat
+  above paper #eeeae0; raft rims / fox band+tip+ridges / planck spine+nucleus /
+  blast hairlines already sit exactly at paper.
+- Changes: ProjectArtwork.tsx — burst core #fff3e2 -> #eeeae0 (comments updated:
+  white-hot -> paper-white). No geometry or other color touched.
+- Verification: tsc clean; landing-shots desktop-cards.png (artifacts/R006-paper-core):
+  burst core reads in the paper register, no glare vs quicknotes.
+- Deploy: pushed; deploy-pages.yml rebuilds Pages.

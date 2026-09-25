@@ -281,7 +281,7 @@ function FoxCenterMark() {
    strip becomes a square-cornered light-bone slab with paper hairlines on
    both edges and eleven large square sprockets; the three frames become
    primitives — a gapped plus with a disc, an octagram (two squares) with a
-   white-hot core, an equilateral triad of neutral smoke discs with one ember
+   paper-white core, an equilateral triad of neutral smoke discs with one ember
    rim. Embers step toward paper; smoke goes to the neutral ramp. ── */
 function BlastCenterMark() {
   const holes = Array.from({ length: 11 }, (_, i) => 26 + i * 20);
@@ -323,13 +323,13 @@ function BlastCenterMark() {
       </g>
       <circle cx="62" cy="80" r="5" fill="#f3c88a" />
 
-      {/* frame 2: burst — octagram of two squares, the one white-hot core */}
+      {/* frame 2: burst — octagram of two squares, the one paper-white core */}
       <g fill="#ce9a76">
         <rect x="113" y="63" width="34" height="34" />
         <rect x="113" y="63" width="34" height="34" transform="rotate(45 130 80)" />
       </g>
       <circle cx="130" cy="80" r="11" fill="#e1ba8d" />
-      <circle cx="130" cy="80" r="5" fill="#fff3e2" />
+      <circle cx="130" cy="80" r="5" fill="#eeeae0" />
 
       {/* frame 3: smoke — equilateral triad of neutral discs, ember rim on the top one */}
       <circle cx="190" cy="88" r="10" fill="#5e5147" />
