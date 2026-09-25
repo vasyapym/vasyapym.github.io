@@ -171,3 +171,14 @@ must not be touched. CSS caps (stage 168px ≥900 / 150px ≤899; base mark cap
   (artifacts/R008-whites-10): peer rims no longer the brightest edge, fox
   band reads creamier.
 - Deploy: pushed; deploy-pages.yml rebuilds Pages.
+
+## Round R009
+- Goal: R008's step was imperceptible — owner right. Redo as a real ~10% luma
+  reduction (R008 moved only 10% of the way paper->bone = ~2% luma).
+- Changes: ProjectArtwork.tsx — raft peer rims + fox paper pieces (tail tip,
+  chest, ridges @0.9, mushroom stems) #eeeae0 -> #ddd6c6 (the ramp's
+  paper-shadow token; measured ~8-9% luma down, clearly visible).
+- Verification: tsc clean; landing-shots desktop-cards.png
+  (artifacts/R009-whites-visible): peer circles recede below the mesh read,
+  fox band no longer the glaring element.
+- Deploy: pushed; deploy-pages.yml rebuilds Pages.
