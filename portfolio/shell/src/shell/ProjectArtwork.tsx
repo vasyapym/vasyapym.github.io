@@ -329,68 +329,64 @@ function BlastCenterMark() {
   );
 }
 
-/* ── 5 · Planck to Now — violet spot ink, "galaxies ignite", R019: the
-   arms are now compass-constructed — each arm is a semicircle continuing
-   into a 120° arc of double radius (tangent join), the pair rotated 180°,
-   tilted and squashed into a disc; a paper spine engraves each arm and the
-   core center goes paper. Four plus-tick stars, a square scrub knob, ticks
-   and progress in the same lifted violet. ── */
+/* ── 5 · Planck to Now — "expansion cone", adopted from the
+   planck-consistency-24 board (owner pick 9, R028→R029): the classic
+   planck-to-now diagram reduced to a mark — the glint at the apex is the
+   first light, the paper core is now, the star field itself ignites (dots
+   grow in size, tone and count left to right), the scrub timeline demoted
+   to a quiet echo rail aligned under the galaxy. Geometry verbatim as
+   delivered; the delivered ground rect stripped (the card panel paints
+   the ground). No gem-halo hook: the halo here is the structural dark
+   disc, not a glow — hover brighten intentionally absent (disclosed
+   deviation; the planck gem-halo-pulse rule goes inert). ── */
 function SpiralCenterMark() {
-  const stars: [number, number, number][] = [
-    [58, 36, 3],
-    [208, 34, 3],
-    [46, 68, 2.5],
-    [220, 70, 2.5],
-  ];
-  const ticks = [70, 100, 130, 160, 190];
-  const armA = "M130 66 A18 18 0 0 1 166 66 A36 36 0 0 1 112 97.2";
-  const armB = "M130 66 A18 18 0 0 1 94 66 A36 36 0 0 1 148 34.8";
   return (
-    <svg viewBox="0 0 260 160" aria-hidden="true">
-      <defs>
-        <pattern id="gem-planck-bed" width="11" height="11" patternUnits="userSpaceOnUse">
-          <circle cx="5.5" cy="5.5" r="1.6" fill="#7d7669" />
-        </pattern>
-        <pattern id="gem-planck-glow" width="7" height="7" patternUnits="userSpaceOnUse">
-          <circle cx="3.5" cy="3.5" r="1.9" fill="#c5b2f3" />
-        </pattern>
-      </defs>
-      <ellipse cx="130" cy="64" rx="98" ry="50" fill="url(#gem-planck-bed)" opacity="0.09" />
-      <ellipse className="gem-halo" style={haloVar(0.12)} cx="130" cy="66" rx="50" ry="30" fill="url(#gem-planck-glow)" opacity={0.12} />
-
-      <g transform="rotate(-18 130 66) translate(130 66) scale(1 0.78) translate(-130 -66)">
-        <g fill="none" strokeLinecap="round">
-          <g stroke="#b2a6c8" strokeWidth="7">
-            <path d={armA} />
-            <path d={armB} />
-          </g>
-          <g stroke="#eeeae0" strokeWidth="1.5" opacity="0.75">
-            <path d={armA} />
-            <path d={armB} />
-          </g>
-        </g>
-        <circle cx="130" cy="66" r="15" fill="#4b3a8c" />
-        <circle cx="130" cy="66" r="8" fill="#eeeae0" />
+    <svg viewBox="0 0 260 160" fill="none" aria-hidden="true">
+      {/* the cone — two thin structural lines from the apex */}
+      <g stroke="#26333b" strokeWidth="1.5" strokeLinecap="round" fill="none">
+        <line x1="24" y1="80" x2="240" y2="26" />
+        <line x1="24" y1="80" x2="240" y2="134" />
       </g>
-
-      {/* stars as drawn ticks */}
-      <g stroke="#b2a6c8" strokeWidth="1.25" strokeLinecap="round" opacity="0.7">
-        {stars.map(([x, y, s], i) => (
-          <g key={`s${i}`}>
-            <line x1={x - s} y1={y} x2={x + s} y2={y} />
-            <line x1={x} y1={y - s} x2={x} y2={y + s} />
-          </g>
-        ))}
+      {/* star field — the ignition, left to right */}
+      <g fill="#465059">
+        <circle cx="44" cy="82" r="1" />
+        <circle cx="62" cy="76" r="1" />
+        <circle cx="66" cy="86" r="1" />
+        <circle cx="86" cy="70" r="1" />
+        <circle cx="90" cy="88" r="1" />
       </g>
-
-      {/* scrub timeline — square-cut track, square knob */}
-      <rect x="40" y="128" width="180" height="4" fill="#2a2340" />
-      {ticks.map((x) => (
-        <rect key={`t${x}`} x={x} y="119" width="2" height="5" fill="#8a79b8" />
-      ))}
-      <rect x="40" y="128" width="90" height="4" fill="#b2a6c8" />
-      <rect x="124" y="124" width="12" height="12" fill="#c5b2f3" stroke="#0b1317" strokeWidth="3" />
-      <rect x="129" y="129" width="2" height="2" fill="#eeeae0" />
+      <g fill="#7d7669">
+        <circle cx="108" cy="64" r="1.2" />
+        <circle cx="114" cy="82" r="1.2" />
+        <circle cx="106" cy="96" r="1.2" />
+        <circle cx="132" cy="58" r="1.2" />
+        <circle cx="140" cy="74" r="1.2" />
+        <circle cx="136" cy="92" r="1.2" />
+        <circle cx="142" cy="102" r="1.2" />
+      </g>
+      <g fill="#b2a6c8">
+        <circle cx="156" cy="52" r="1.3" />
+        <circle cx="150" cy="86" r="1.3" />
+        <circle cx="152" cy="110" r="1.3" />
+        <circle cx="230" cy="46" r="1.3" />
+        <circle cx="232" cy="92" r="1.3" />
+        <circle cx="234" cy="112" r="1.3" />
+      </g>
+      {/* the galaxy — now, parked under the echo rail's playhead */}
+      <circle cx="190" cy="80" r="24" fill="#26333b" />
+      <g fill="none" strokeLinecap="round">
+        <path d="M196 80A7.5 7.5 0 0 1 190 89A11.25 11.25 0 0 1 176.5 80M184 80A7.5 7.5 0 0 1 190 71A11.25 11.25 0 0 1 203.5 80" stroke="#c5b2f3" strokeWidth="2" />
+        <path d="M176.5 80A16.9 16.9 0 0 1 190 59.75A25.3 25.3 0 0 1 220.4 80M203.5 80A16.9 16.9 0 0 1 190 100.25A25.3 25.3 0 0 1 159.6 80" stroke="#8a79b8" strokeWidth="1.6" />
+      </g>
+      <circle cx="190" cy="80" r="5.5" fill="#eeeae0" />
+      {/* first light — the apex glint */}
+      <path d="M24 75.5L25.2 78.8L28.5 80L25.2 81.2L24 84.5L22.8 81.2L19.5 80L22.8 78.8Z" fill="#fff" />
+      {/* the echo rail — kept but demoted */}
+      <g strokeLinecap="round" strokeWidth="1.5">
+        <line x1="24" y1="146" x2="236" y2="146" stroke="#26333b" />
+        <line x1="24" y1="146" x2="190" y2="146" stroke="#7d7669" />
+      </g>
+      <circle cx="190" cy="146" r="3.5" fill="#c5b2f3" />
     </svg>
   );
 }

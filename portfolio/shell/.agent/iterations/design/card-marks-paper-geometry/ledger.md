@@ -566,3 +566,33 @@ must not be touched. CSS caps (stage 168px ≥900 / 150px ≤899; base mark cap
 - Deploy: pushed; deploy-pages.yml rebuilds Pages; board also opened
   locally for the owner.
 - Open question: pick 1-10 (or none / a mix).
+
+## Feedback F014
+- Round: R028
+- Verdict: LIKED
+- Scope: planck card mark, planck-consistency-24 board
+- Decision: integrate variant 9 "expansion cone" (output 2's diagram-as-timeline take); the other nine stay out.
+- User source: "i choose this - 9 · expansion cone" (on the board)
+- Artifact: portfolio/shell/public/planck-consistency-24/index.html
+- Supersedes: none
+
+## Round R029
+- Goal: integrate the owner-picked variant 9 "expansion cone" (F014).
+- Changes: ProjectArtwork.tsx SpiralCenterMark body replaced verbatim -
+  the cone (two thin structural lines from the apex glint), the igniting
+  star field (dots grow in size/tone/count left to right), the spiral
+  galaxy parked at the playhead, the apex glint as first light, the scrub
+  timeline demoted to an echo rail aligned under the core. House repairs
+  on integration (disclosed): the delivered #0b1317 ground rect stripped
+  (the card panel paints the ground, R002/R003 precedent); no gem-halo
+  hook - the halo here is the structural dark disc, not a glow, so hover
+  brighten is intentionally absent (the planck gem-halo-pulse CSS rule
+  goes inert; no CSS change made).
+- Verification: tsc clean; card + grid screenshots
+  (artifacts/R029/after-integration.png, grid-after-integration.png,
+  headless Chromium 1920x963 @3x) - glint, cone, dot ignition, galaxy and
+  echo rail all read at card scale; no console errors.
+- Deploy: pushed; deploy-pages.yml rebuilds Pages.
+- Revert: R019 "galaxies ignite" mark via git restore of ProjectArtwork.tsx.
+- Open question: owner judges the live card; if hover feedback is missed,
+  a violet glow-bed + gem-halo hook can be added as a micro-steer.
