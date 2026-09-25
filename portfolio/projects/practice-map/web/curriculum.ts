@@ -2239,6 +2239,42 @@ const subconsciousTopics: readonly TopicCard[] = [
     },
   },
 ];
+
+const kendrickLamarGlossaryTopics: readonly TopicCard[] = [
+  {
+    id: "kendrick-lamar-glossary",
+    title: "Kendrick Lamar: A Working Glossary of Concepts, Characters, and Ideas, from the Ground Up",
+    summary: "A glossary-first guide to Kendrick Lamar's closed album systems, built from the ground up: the Compton biography and K.Dot→pgLang career path; Section.80's generational thesis and HiiiPoWeR; good kid, m.A.A.d city as a short film with its cast (Sherane, the van, Dave, the Sinner's Prayer, survivor's guilt); To Pimp a Butterfly's accumulating poem, the Tupac interview of Mortal Man, Uncle Sam and Lucy as tempters, u/i and the Negus reclamation, Alright as protest anthem; DAMN.'s wickedness-versus-weakness dichotomy, Cousin Carl and Deuteronomy 28, the reversible tracklist and DUCKWORTH.; the Heart series and oklama; Mr. Morale & the Big Steppers as structured therapy, generational curses and the refusal of the savior role; the 2024 Drake war from Like That to Not Like Us, The Pop Out and Super Bowl LIX; and GNX's reincarnated thesis — closing with the cross-cutting concepts (the divided self, the ethics of escape, story architecture, the West Coast lineage) and a minimal working vocabulary.",
+    concepts: [],
+    practicePrompt: "Listen to good kid, m.A.A.d city and DAMN. in track order without skipping, then write a note per album naming three glossary terms each carries, tied to a specific musical or narrative moment (a voicemail, a poem line, a verse that changes voice). Re-read the glossary entries for m.A.A.d, the poem, and DUCKWORTH. before listening to verify the device against your own ears. Nothing was played or verified in this environment — run it against your own listening.",
+    checkPrompt: "Without looking back: expand m.A.A.d both official ways and say which incident the second encodes; reconstruct the Sing About Me structure (whose voices, whose deaths, whose memorialization); explain the TPAB poem device and the caterpillar/butterfly metaphor as heard on Mortal Man; name both tempters and what each offers; explain the u/i pairing and the Negus etymology; state the wickedness/weakness frame, the Deuteronomy 28 theology and who voices it; explain what the Collector's Edition reverses and what DUCKWORTH. and BLOOD. become in the reversed order; reconstruct the 2024 sequence (Like That → euphoria → 6:16 in LA → meet the grahams → Not Like Us) and the two public events that followed; state the reincarnated argument and how it answers DAMN.; and name the throughline concepts: divided self, survivor's guilt, story architecture, spokesman role.",
+    tier: 1,
+    complexity: 3,
+    references: [
+      "Pulitzer Prize 2018 Music citation for DAMN. — https://www.pulitzer.org/winners/kendrick-lamar",
+      "To Pimp a Butterfly, TDE/Aftermath (2015) — the poem text and Mortal Man's Tupac conversation",
+      "good kid, m.A.A.d city, TDE/Aftermath/Interscope (2012) — the short film framing and voicemails",
+      "DAMN., TDE/Aftermath/Interscope (2017) — wickedness/weakness and the Collector's Edition reverse order",
+      "The Heart Part 5 (2022) — the deepfake video and the Heart series (from 2010)",
+      "The Pop Out: Ken & Friends (Juneteenth 2024) and Super Bowl LIX halftime (Feb 2025)",
+      "Big Sean feat. Kendrick Lamar and Jay Cole, Control (2013) — the competitive challenge"
+    ],
+    lesson: {
+      problem: "Kendrick Lamar cannot be understood song by song: his albums are closed systems with recurring characters, acronyms, alter egos and theological arguments that pay off a decade apart. Casual listening loses the structure, and generic rap-analysis habits (single-verse reading, beef-as-personal-drama) actively mislead — the 2024 feud reads totally differently once you know it is the second act of a story that started with 'Control' in 2013 and runs through TDE, TDE's theology, and the spokesman role he has been negotiating for fifteen years.",
+      model: "A working glossary as the correct entry point: biography (the watcher inside Compton's chaos; K.Dot → TDE → Aftermath → pgLang/oklama), a cast of composite characters and personified temptations (Keisha, Tammy, Dave, Sherane, Uncle Sam, Lucy, Cousin Carl), and a chain of formal devices — the short-film frame, the accumulating poem, the reversible tracklist, the therapy session — each a different answer to making forty minutes of rap behave like a novel. The throughlines are the divided self (pitch-shifted voices), survivor's guilt and the ethics of escape, temptation as theology (Augustine/Bunyan more than most rappers), the West Coast lineage with Tupac as its ghost, and the refusal-then-reclamation of the spokesman role.",
+      mechanics: "Each album is a device plus a vocabulary: Section.80 = era + subsidy (Section 8 + the 1980s), generational thesis, HiiiPoWeR as first philosophy. good kid, m.A.A.d city = a one-day nonlinear plot; m.A.A.d carries two official expansions ('my angry adolescence divided' / 'my angels on angel dust' — the PCP-laced joint incident); the van and voicemails are the moral chorus; Sing About Me's two halves alternate memorialization requested and refused, ending in the Sinner's Prayer; 'Real' resolves it (real is responsibility). TPAB = title inverts To Kill a Mockingbird; a spoken poem accretes line by line until Mortal Man plays it to a spliced 1994 Tupac interview that ends in silence; Uncle Sam ('Wesley's Theory') and Lucy ('For Sale?') personify economic and demonic temptation; 'u'/'i' are the self-hatred/self-love diptych with the Negus etymology; 'Alright' becomes the protest chant. DAMN. = single-word capitals, wickedness-vs-weakness as the frame, FEAR.'s three ages, Cousin Carl's Deuteronomy 28 Hebrew-Israelite framing (presented without endorsement), DUCKWORTH.'s true near-miss story, and a Collector's Edition that reverses the tracklist — direction decides the ending. The Heart series (from 2010) is the pre-project state-of-the-union; Part 5's deepfakes stage the impossibility of a singular spokesman; oklama names the pgLang persona. Mr. Morale = structured therapy: 1,855 days counted, tap-dancing Big Steppers, Tolle's ego/pain-body as framework, generational curses (Father Time, We Cry Together, Auntie Diaries, Mother I Sober), Whitney as the fixed point and the closing verdict, 'Savior' declining the oracle role (Kodak Black as mirror), 'Mirror' choosing self. The 2024 war = Like That's 'it's just big me' → euphoria/6:16 → meet the grahams + Not Like Us (Mustard's anthem, 'A minor' pun) → Heart Part 6 as concession → The Pop Out (Not Like Us five times, rival gangs onstage) → Super Bowl LIX (Uncle Sam narrator, Serena's crip walk, GAME OVER) → five Grammys; GNX (the 1987 Buick) answers DAMN.'s theology in 'reincarnated' — the gift was given to be given away — with 'luther', 'heart pt. 6', and 'I deserve it all' closing the psychological arc begun at 'u'.",
+      pitfalls: [
+      "Reading the Drake beef as personal drama only: it is the 2024 act of a competitive arc begun with 'Control' (2013) and staged around authenticity, not just insult.",
+      "Reading DAMN. as a straight line: it is built to run both directions — the Collector's Edition reverses it, and the ending flips between wickedness and weakness.",
+      "Taking the Deuteronomy 28 doctrine as Kendrick's endorsed theology: Cousin Carl voices it; the album holds it at arm's length while letting it saturate.",
+      "Treating Mr. Morale as virtue signaling: it is a refusal of the savior role, deliberately frustrating listeners who wanted pandemic-era political statements — and 'Auntie Diaries' is contested on exactly that ground.",
+      "Annotating every symbol with biography as certainty: composite characters (Keisha, Tammy) and voices (Maya Angelou's prayer cameo per Kendrick) are dramaturgy; verify quotes against recordings.",
+      "Forgetting the formal devices: hearing 'Swimming Pools' as a party song or 'Sing About Me' as a random elegy misses the architecture the glossary exists to unlock."
+      ],
+      whenNot: "This is a working glossary and interpretive map for listening — not a biography in full, not lyric criticism of each song, and not the final word on contested items (oklama's meaning is unstated; 'Auntie Diaries' remains argued); nothing was played or verified here — confirm devices against your own listening."
+    },
+  },
+];
 export const curriculum: readonly PracticeArea[] = [
   {
     id: "go",
@@ -2463,5 +2499,13 @@ export const curriculum: readonly PracticeArea[] = [
     tier: 1,
     dependencies: [],
     topics: subconsciousTopics,
+  },
+  {
+    id: "kendrick-lamar-glossary",
+    title: "Kendrick Lamar: A Working Glossary",
+    description: "A glossary-first English essay on Kendrick Lamar: the cast, the acronyms, the album devices from the short film to the reversible tracklist, the theology, and the 2024 Drake war — the vocabulary that unlocks serious listening.",
+    tier: 1,
+    dependencies: [],
+    topics: kendrickLamarGlossaryTopics,
   },
 ];
