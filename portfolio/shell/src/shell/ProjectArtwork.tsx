@@ -100,14 +100,14 @@ function RaftCenterMark() {
       <ellipse className="gem-halo" style={haloVar(0.12)} cx="74" cy="80" rx="44" ry="32" fill="url(#gem-raft-glow)" opacity={0.16} />
 
       {/* majority mesh — one triangle: apex leader, two peers on the baseline row
-          (owner trial: links ~6% bolder, 2.4 -> 2.55 — may revert) */}
-      <g stroke="#c0b6a1" strokeWidth="2.55" strokeLinecap="round" fill="none">
+          (owner delegated a visible step: links 2.4 -> 2.7, ~+12% — revert = 2.4) */}
+      <g stroke="#c0b6a1" strokeWidth="2.7" strokeLinecap="round" fill="none">
         <line x1="55" y1="69.3" x2="47.7" y2="95" />
         <line x1="70.5" y1="66.7" x2="92.2" y2="97" />
         <line x1="57.5" y1="108" x2="86.5" y2="108" />
       </g>
       {/* severed attempts — two horizontals on the leader/peer rows, dying short of the cut */}
-      <g stroke="#c0b6a1" strokeWidth="2.55" strokeLinecap="round" fill="none" opacity="0.55">
+      <g stroke="#c0b6a1" strokeWidth="2.7" strokeLinecap="round" fill="none" opacity="0.55">
         <line x1="80" y1="52" x2="142" y2="52" />
         <line x1="114" y1="108" x2="142" y2="108" />
       </g>
@@ -220,9 +220,9 @@ function FoxCenterMark() {
 
       {/* ground — one bar, two fragments */}
       <rect x="32" y="124" width="200" height="4" fill="#1f5e4c" />
-      {/* lit trail — one paper hairline on the ground's top edge (owner trial:
-          breaks the green mass; drop this one rect to revert) */}
-      <rect x="32" y="124" width="200" height="1" fill="#eeeae0" opacity="0.85" />
+      {/* lit trail — a two-unit paper rule on the ground's top edge, full
+          strength (owner delegated a visible step; revert = remove this rect) */}
+      <rect x="32" y="124" width="200" height="2" fill="#eeeae0" />
       <g fill="#1f5e4c">
         <rect x="68" y="132" width="12" height="3" />
         <rect x="150" y="132" width="8" height="3" />

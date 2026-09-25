@@ -204,3 +204,16 @@ must not be touched. CSS caps (stage 168px ≥900 / 150px ≤899; base mark cap
   lit rule under the fox.
 - Deploy: pushed; deploy-pages.yml rebuilds Pages.
 - Revert switch: delete the single hairline rect.
+
+## Round R012
+- Goal: owner could not see R010/R011 (steps were genuinely sub-pixel) and
+  delegated the call: make the raft and fox changes VISIBLE, revert if disliked.
+- Changes: ProjectArtwork.tsx —
+  raft: link lines (mesh + severed) 2.55 -> 2.7 (+12.5% vs the 2.4 base);
+  fox: the lit-trail hairline 200x1 @0.85 -> 200x2 full #eeeae0 (a real paper
+  rule on the ground's top edge, mirroring the blast strip device).
+- Verification: tsc clean; landing-shots desktop-cards.png
+  (artifacts/R012-visible-steps): raft mesh clearly heavier, fox ground clearly
+  paper-topped; both visible at card scale in the shot itself.
+- Deploy: pushed; deploy-pages.yml rebuilds Pages.
+- Revert switches: raft strokeWidth 2.7 -> 2.4; delete the fox trail rect.
