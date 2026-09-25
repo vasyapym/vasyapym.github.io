@@ -867,12 +867,11 @@ export default function LandingPage({
               <span className="signal-index-hero-note-dot" aria-hidden="true">·</span>
               <a
                 className="signal-index-hero-link"
-                lang="ru"
                 href="https://github.com/vasyapym/vasyapym.github.io"
                 target="_blank"
                 rel="noreferrer"
               >
-                о проекте <span aria-hidden="true">→</span>
+                github repository <span aria-hidden="true">→</span>
               </a>
             </p>
           </div>

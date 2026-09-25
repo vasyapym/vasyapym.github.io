@@ -363,3 +363,22 @@ Task: rethink how the 6 project cards are presented on the main page (desktop). 
 - Visual inspection: performed on the real page (probe portfolio/probes/r027-about-link.mjs, headless Chromium). Geometry vs baseline: 1440×900 note top 432 unchanged, h 15→16 (transparent focus hairline), copy→rail 110→109; 390×844 unchanged (one line, h 13→14). Hover computed: text rgb(238,234,224)=--ink-text, arrow translateX(2px). Inspected PNGs: card rhythm intact; row fits one line at both viewports.
 - Code verification: tsc --noEmit green; vite build green.
 - Open question: owner judges the link pair in place of the tagline — especially whether both language labels stay side-by-side and whether the ochre arrow reads at 0.72rem.
+
+## Feedback F012
+- Round: R027
+- Verdict: REJECTED
+- Scope: hero note second label, all viewports
+- Decision: the RU label "о проекте →" is replaced by "github repository →" (same GitHub href); an about surface is coming as its own window instead
+- User source: "instead of 'о проекте' change it to - 'github repository →'. also add a window which opens when you click 'about the project'"
+- Artifact: after/note-390x844.png (R027 artifact set)
+- Supersedes: the RU-label half of the R027 goal (the link device and the first label stand)
+
+## Round R028
+- Goal: F012 — swap the hero's second label to "github repository →" (same href); first step of the about-window round (modal design delegated to the chat-model relay, integrates as R029).
+- Preserved preferences: F002, F005, F006–F011, R027's link device (F012 does not touch it).
+- Changes: LandingPage.tsx — second hero link text "о проекте" → "github repository", lang attribute dropped (now EN), href/target/rel unchanged.
+- Before: artifacts/R027/after-hero-390x844.png
+- After: artifacts/R028/after-hero-390x844.png, after-note-390x844.png, after-hero-1440x900.png
+- Visual inspection: performed on the real page (probe r027-about-link.mjs re-run). Geometry unchanged from R027 (note top 432 desktop / 245 mobile, one line at 390×844 — inspected the PNG: "about the project → · github repository →" fits with air).
+- Code verification: tsc --noEmit green.
+- Open question: none for this swap; the modal (R029) carries the round's real verdict.
