@@ -327,3 +327,23 @@ alternation count; owner early-close still applies.
   distinct construction passes (triangle-mesh raft ×3 flavors, four
   re-blocking approaches for the fox, octagram/primitive-rebuilt bursts,
   compass-built spirals); descriptive only — owner verdict pending.
+
+---
+
+## Experiment S7 — raft mark, detail candidates in the simple-geometrics language (real task, 2026-09-25)
+
+- Task: 5 detail candidates for the ADOPTED raft card mark (composition
+  owner-approved: quorum triangle | fault | orphan column; the leader's paper
+  pip + term-ring are the current details — keep/replace/extend allowed) —
+  owner picks one for integration. Ledger
+  portfolio/shell/.agent/iterations/design/card-marks-paper-geometry/.
+- Variation signal vs S6: single-mark scope; choose-from-N contract (name +
+  exact jsx lines + story line) instead of one integrated pass; detail-level
+  changes only (composition frozen); language pinned to the set's
+  simple-geometrics devices (rings/ticks/pips/dashes/stepped caps).
+- Endpoint: owner's chat model (fixed endpoint — descriptive only, no H
+  verdict).
+- Prompt: chat-model-prompt-20-raft-details.md (orchestrator workspace;
+  telegraphic prose-hybrid — facts + verbatim function + contract).
+- Reply: pending paste-back; owner picks one; integrator applies.
+- Round summary: (fill after the reply)
