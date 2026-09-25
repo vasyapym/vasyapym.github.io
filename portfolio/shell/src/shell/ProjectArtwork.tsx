@@ -78,11 +78,12 @@ export const INCUMBENT_MARKS: Partial<Record<ProjectCenter, () => ReactElement>>
   fox: FoxCenterMark,
 };
 
-/* ── 1 · Raft Cluster — "split-brain partition", R013 senior-minimalism trial:
-   the whole cluster sits on ONE horizontal axis — peer ring, coral leader disc,
-   peer ring, straight bone links with measured gaps; one severed stub dies at
-   the vertical fault; the orphaned pair mirrors the row in dashed slate.
-   Same story, fewer elements, one axis; revert = the R012 triangle state. ── */
+/* ── 1 · Raft Cluster — "split-brain partition", R014 concept restore, row
+   discipline kept: the quorum is a compact centered triangle again (coral
+   leader at the apex, two paper-ringed peers on one baseline, three straight
+   bone links = the mesh); one severed stub dies at the vertical fault; the
+   orphaned pair is a vertical dashed column on one axis. Two rows + two
+   verticals carry the story; revert = the R013 one-row state. ── */
 function RaftCenterMark() {
   return (
     <svg viewBox="-2 0 260 160" aria-hidden="true">
@@ -94,36 +95,37 @@ function RaftCenterMark() {
           <circle cx="3.5" cy="3.5" r="1.9" fill="#f3948a" />
         </pattern>
       </defs>
-      <ellipse cx="128" cy="80" rx="99" ry="60" fill="url(#gem-raft-bed)" opacity="0.09" />
-      <ellipse className="gem-halo" style={haloVar(0.12)} cx="84" cy="80" rx="44" ry="32" fill="url(#gem-raft-glow)" opacity={0.16} />
+      <ellipse cx="128" cy="86" rx="99" ry="60" fill="url(#gem-raft-bed)" opacity="0.09" />
+      <ellipse className="gem-halo" style={haloVar(0.12)} cx="85" cy="88" rx="44" ry="32" fill="url(#gem-raft-glow)" opacity={0.16} />
 
-      {/* the cluster — one row: peer ring — leader disc — peer ring */}
+      {/* the quorum — compact triangle: leader apex, peers on one baseline,
+          three straight links with measured gaps */}
       <g stroke="#c0b6a1" strokeWidth="2.7" strokeLinecap="round" fill="none">
-        <line x1="56.5" y1="80" x2="69" y2="80" />
-        <line x1="99" y1="80" x2="111.5" y2="80" />
+        <line x1="77.8" y1="70" x2="59.9" y2="99.9" />
+        <line x1="92.2" y1="70" x2="110.1" y2="99.9" />
+        <line x1="65.5" y1="108" x2="104.5" y2="108" />
       </g>
       {/* severed attempt — one stub dying short of the cut */}
-      <line x1="133" y1="80" x2="142" y2="80" stroke="#c0b6a1" strokeWidth="2.7" strokeLinecap="round" opacity="0.55" />
+      <line x1="125.5" y1="108" x2="142" y2="108" stroke="#c0b6a1" strokeWidth="2.7" strokeLinecap="round" opacity="0.55" />
 
       {/* the partition — one vertical */}
-      <line x1="150" y1="46" x2="150" y2="120" stroke="#7d7669" strokeWidth="3.3" strokeLinecap="round" />
+      <line x1="150" y1="40" x2="150" y2="124" stroke="#7d7669" strokeWidth="3.3" strokeLinecap="round" />
 
-      {/* orphaned minority — the row mirrored, dashed */}
+      {/* orphaned minority — a vertical dashed column, mirrored onto the quorum's rows */}
       <g stroke="#7d7669" strokeWidth="1.5" strokeLinecap="round" strokeDasharray="1.5 5" fill="none">
-        <line x1="159" y1="80" x2="167" y2="80" />
-        <circle cx="177.5" cy="80" r="9.5" />
-        <line x1="188" y1="80" x2="195" y2="80" />
-        <circle cx="205" cy="80" r="9.5" />
+        <circle cx="206" cy="58" r="9.5" />
+        <line x1="206" y1="68.5" x2="206" y2="97.5" />
+        <circle cx="206" cy="108" r="9.5" />
       </g>
 
       {/* majority peers — paper-leaning rims */}
       <g fill="none" stroke="#ddd6c6" strokeWidth="2.4">
-        <circle cx="46" cy="80" r="9.5" />
-        <circle cx="122" cy="80" r="9.5" />
+        <circle cx="55" cy="108" r="9.5" />
+        <circle cx="115" cy="108" r="9.5" />
       </g>
 
-      {/* leader — the one hue mass */}
-      <circle cx="84" cy="80" r="14" fill="#f3948a" />
+      {/* leader — the one hue mass, at the apex */}
+      <circle cx="85" cy="58" r="14" fill="#f3948a" />
     </svg>
   );
 }

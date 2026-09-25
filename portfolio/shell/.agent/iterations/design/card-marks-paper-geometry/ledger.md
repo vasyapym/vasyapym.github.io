@@ -235,3 +235,18 @@ must not be touched. CSS caps (stage 168px ≥900 / 150px ≤899; base mark cap
 - Deploy: pushed; deploy-pages.yml rebuilds Pages.
 - Revert: git restore the two functions to the R012 state (triangle raft /
   full fox scene).
+
+## Round R014
+- Goal: owner: R013's one-row raft looked consistent but broke the CONCEPT (a
+  chain is not a quorum/cluster) — fox OK as-is.
+- Changes: ProjectArtwork.tsx raft only — concept restore with the row
+  discipline kept: compact centered quorum triangle (coral leader apex at
+  85,58; peers on one baseline y108; three straight bone links 2.7 with
+  measured gaps), one severed stub dies at the vertical fault, the orphaned
+  pair is a vertical dashed column on one axis (x206, rings on the quorum's
+  two rows). Bed cy86, halo recentered on the quorum (85,88). Fox untouched.
+- Verification: tsc clean; landing-shots desktop-cards.png
+  (artifacts/R014-concept-restore): the card reads quorum | fault | orphans
+  again while staying schematic-quiet.
+- Deploy: pushed; deploy-pages.yml rebuilds Pages.
+- Revert: R013 one-row state via git restore.
