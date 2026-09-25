@@ -6,6 +6,12 @@ try (S2 round 1: "this worked great"; S5 rounds 2–4) while the long
 scaffolding briefs (S1, pre-amendment arms) under-delivered or drew
 nothing usable. Full verbatim history: `S1-S5-full-history.md`.
 
+Confirmed on S10 (planck consistency, draw 2, prompt-28, ~190-word
+facts-only): "ok result, not maximally good". Owner directive: **start
+from this format** — the prompt-28 shape below is the default opening
+brief; vary one signal per round from here and log what moved the
+result.
+
 ## The shape
 
 1. Opener, fixed: `comprehensive code - `
@@ -30,6 +36,27 @@ brief with the verbatim svg + full house cargo drew "this doesn't seem
 to work well" (S10 draw 1) — the same failure as S5 round 1: remaining
 spec cargo drowns the creative ask. When the reply must match house
 register, the integrator repairs carriers/colors afterward.
+
+## Starting shape (prompt-28, verbatim — begin every relay brief here)
+
+> comprehensive code - 5 spot-ink variants of the planck-to-now card mark,
+> recomposed to sit in the family with the raft/kitty/fox/blast marks;
+> freedom round, 5 different ideas, every choice yours. subject read:
+> "galaxies ignite" - spiral structure around a core, a star field, a scrub
+> timeline; keep that read even if a variant drops the timeline. canvas
+> viewBox 0 0 260 160; renders 196px wide on the card - nothing thinner
+> than ~1.5 units survives. neutrals #0b1317 #26333b #465059 #7d7669
+> #b6ac95 #c0b6a1 #ddd6c6 #eeeae0; accent violet only: #c5b2f3 #b2a6c8
+> #8a79b8 #4b3a8c. each variant: sparse dot bed + soft halo + one white
+> glint + one white/paper anchor mass. register: refined/detailed, not
+> bold; thin honest strokes, quiet neutral structure. banned: gradients,
+> glows, wisps, blur, neon, HUD clutter, bold poster glyphs, towering
+> marks, letterforms-as-image, brand glyphs, tiny hero, white text,
+> z-index fakes, 3d bevel. challenge assumptions and failure cases before
+> answering; rationale = the why lines. reply: exactly 5 blocks - "## n -
+> name - gesture" heading, one <svg viewBox="0 0 260 160">, one "why:"
+> line - nothing else. distinct skeleton per idea; two ideas share max 1
+> structural element.
 
 ## Exemplar (S5 Arm A, verbatim, 140 words)
 

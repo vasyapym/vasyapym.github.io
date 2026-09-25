@@ -34,7 +34,9 @@ closed by the owner with no scored data); git history keeps the originals.
 - Short wins (owner steer, 2026-09-25): the proven brief shape is ~60–150
   words of facts + rails + contract (S2 round 1: 5/5 usable, first try);
   the 900-word scaffold briefs are retired — template and exemplar recorded
-  in brief-format.md, full history in S1-S5-full-history.md.
+  in brief-format.md, full history in S1-S5-full-history.md. Confirmed on
+  S10 draw 2 ("ok result, not maximally good"): the prompt-28 facts-only
+  shape is the starting format — begin there, vary one signal per round.
 
 ## Rounds
 
@@ -44,4 +46,4 @@ closed by the owner with no scored data); git history keeps the originals.
 | S7 | raft mark: 5 detail candidates, simple-geometrics language | chat-model-prompt-20-raft-details.md | all five too subtle at the ~182px render; no pick; leader pip + term-ring reverted (R017) |
 | S8 | raft mark: creative detail freedom round | chat-model-prompt-21-raft-details-freedom.md | three treatments rejected ("these are not it"); owner-relayed relief/rhythm pass integrated (R019), later reverted to plain-disc leader (R022, "too decorative") |
 | S9 | raft mark: senior-minimalism freedom round (banned set explicit, deep-reasoning protocol) | chat-model-prompt-22-raft-freedom2.md | three genuinely different skeletons (Hub spokes+ellipsis / Bus one-wire / Ring broken-circle), contract-clean, geometry exact; the convergence trap + reasoning protocol broke the S6–S8 family gravity; owner picked Ring (R024) then swapped to Hub (R025, final) |
-| S10 | planck-to-now card mark: 5 consistency variants (freedom) | chat-model-prompt-28-planck-minimal.md | draw 1 (471-word telegraphic, prompts 26/27): owner verdict "this doesn't seem to work well" — same failure signature as S5 round 1; suspect: remaining cargo (verbatim base svg + two ramps + glint minutiae) drowns the creative ask; next draw varies spec density down: S5-round-2 shape — facts only, no verbatim base, integrator retints |
+| S10 | planck-to-now card mark: 5 consistency variants (freedom) | chat-model-prompt-28-planck-minimal.md | draw 1 (471-word telegraphic, prompts 26/27): "this doesn't seem to work well" — same failure as S5 round 1; draw 2 (prompt-28, ~190-word facts-only): reply returned, owner verdict "ok result, not maximally good". The prompt-28 shape becomes the starting format for relay briefs; variations build from it (one signal per round) |
