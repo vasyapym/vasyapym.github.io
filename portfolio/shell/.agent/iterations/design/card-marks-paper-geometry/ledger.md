@@ -335,6 +335,53 @@ must not be touched. CSS caps (stage 168px ≥900 / 150px ≤899; base mark cap
 - Deploy: pushed (this commit); deploy-pages.yml rebuilds Pages.
 - Open question: which treatment (A/B/C/D, none, or a mix) integrates.
 
+## Feedback F010
+- Round: R021
+- Verdict: REJECTED
+- Scope: raft center mark, all four raft-details-22 detail variants
+  (riveted plating / serrated tear / stacked plates / ring anchors)
+- Decision: too subtle, not noticeable at the render; also the whole
+  ornament direction is closed.
+- User source: "the changes are too subtle and not noticeable"
+- Artifact: portfolio/shell/public/raft-details-22/index.html
+- Supersedes: none
+
+## Feedback F011
+- Round: R021 (verdict on the integrated R019 state)
+- Verdict: REJECTED
+- Scope: raft center mark, R019 relief/rhythm integration as a whole
+- Decision: "current version looks too decorative" — does not read as the
+  senior-developer minimalism look; leader reverts to a plain coral disc
+  (no facet dot, no halo ring around it); next round = chat-model relay
+  with full design/code autonomy + a deeper-reasoning protocol; concept
+  (quorum | cut | orphans) stays.
+- User source: "current version looks like too decorative. also give
+  reverted version of the raft illustration (without dot and circle around
+  red ball). make the chat model be creative, don't restrict it in its
+  choices. concept stays, but when it comes to details - freedom"
+- Artifact: live landing card (R019 state)
+- Supersedes: none
+
+## Round R022
+- Goal: apply F011's revert on the integrated mark �?" leader becomes a
+  plain coral disc again (drop the facet dot + the halo ring around it,
+  including the halo's dark under-print twin).
+- Preserved preferences: F011 scope only; the rest of R019 (bed plate +
+  grain, bone links, wedge fault with gutters, hollow orphan rings +
+  pending column + reaching stubs) stays until the S9 relay pick.
+- Changes: portfolio/shell/src/shell/ProjectArtwork.tsx raft �?" removed
+  gem-raft-leader-halo ellipse, gem-raft-leader-facet path, and the
+  halo's r21 twin circle inside gem-raft-relief.
+- Before: artifacts/R022/before-revert.png
+- After: artifacts/R022/after-revert.png
+- Visual inspection: performed (headless Chrome via tests/landing-shots
+  pipeline) �?" leader reads as a plain coral disc; relief twin gone; no
+  orphaned dark circle anywhere.
+- Code verification: shell tsc clean.
+- Deploy: pushed; deploy-pages.yml rebuilds Pages.
+- Open question: S9 relay brief delivered with this round; owner pastes
+  it to the chat model.
+
 ## Feedback F009
 - Round: R019
 - Verdict: REJECTED

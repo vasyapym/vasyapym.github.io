@@ -78,14 +78,12 @@ export const INCUMBENT_MARKS: Partial<Record<ProjectCenter, () => ReactElement>>
   fox: FoxCenterMark,
 };
 
-/* ── 1 · Raft Cluster — "split-brain partition", R019 (owner-picked
-   relief/rhythm pass): every plate carries a dark offset under-print (the
-   misregistered second impression), the fault is a tapered paper wedge with
-   dark gutters, the orphans are hollow rings with a chunky pending column and
-   reaching stubs that stop short — nothing under 3 units. Story unchanged:
-   quorum | the cut | the orphans still trying. House repairs on integration:
-   the sparse dot bed + the single gem-halo hover ellipse sit behind the
-   design. ── */
+/* ── 1 · Raft Cluster — "split-brain partition", R022 (F011 revert): the
+    leader is a plain coral disc again (facet dot + halo ring removed,
+    including the halo's under-print twin); the rest of the R019 relief
+    pass stays until the S9 relay pick. Story unchanged: quorum | the cut |
+    the orphans still trying. House repairs on integration: the sparse dot
+    bed + the single gem-halo hover ellipse sit behind the design. ── */
 function RaftCenterMark() {
   return (
     <svg viewBox="-2 0 260 160" fill="none" aria-hidden="true">
@@ -110,7 +108,6 @@ function RaftCenterMark() {
 
       {/* second impression: dark under-print offset for relief */}
       <g id="gem-raft-relief" transform="translate(2.5 3)" fill="#26333b" stroke="#26333b" strokeLinecap="round">
-        <circle cx="95" cy="44" r="21" stroke="none" />
         <line x1="95" y1="44" x2="62" y2="104" strokeWidth="4.5" />
         <line x1="95" y1="44" x2="128" y2="104" strokeWidth="4.5" />
         <line x1="62" y1="104" x2="128" y2="104" strokeWidth="4.5" />
@@ -121,15 +118,13 @@ function RaftCenterMark() {
         <circle cx="206" cy="110" r="9" fill="none" strokeWidth="3.5" />
       </g>
 
-      {/* quorum: leader halo ring, bone links, coral leader with one facet, paper-ringed peers */}
-      <ellipse id="gem-raft-leader-halo" cx="95" cy="44" rx="21" ry="21" fill="#465059" stroke="#7d7669" strokeWidth="2.5" />
+      {/* quorum: bone links, plain coral leader, paper-ringed peers */}
       <g id="gem-raft-links" stroke="#c0b6a1" strokeWidth="4.5" strokeLinecap="round">
         <line x1="95" y1="44" x2="62" y2="104" />
         <line x1="95" y1="44" x2="128" y2="104" />
         <line x1="62" y1="104" x2="128" y2="104" />
       </g>
       <circle id="gem-raft-leader" cx="95" cy="44" r="13" fill="#f3948a" />
-      <path id="gem-raft-leader-facet" d="M87.3 41.9 A8 8 0 0 1 92.9 36.3" fill="none" stroke="#eeeae0" strokeWidth="3.2" strokeLinecap="round" />
       <g id="gem-raft-peers" fill="#465059" stroke="#eeeae0" strokeWidth="4">
         <circle cx="62" cy="104" r="10" />
         <circle cx="128" cy="104" r="10" />
