@@ -423,3 +423,12 @@ Task: rethink how the 6 project cards are presented on the main page (desktop). 
 - Visual inspection: performed on the real page (probe portfolio/probes/r031-about-slip.mjs). Inspected PNGs: gutter geometry correct (number column · gap · 1px rule · gap · text), hairline joins the gutter rule at the mail line, ochre appears only at the # and focus ring, strip echoes the trigger, mobile full-page keeps the gutter. Functional: esc exit fade → unmount, scroll lock restored, focus returns to the trigger, desktop scrim-click closes, SPA nav unmounts the modal.
 - Code verification: tsc --noEmit green; vite build green.
 - Open question: owner picks leaf (R030) vs slip (R031) — both shipped in history; a revert is one file swap away.
+
+## Feedback F014
+- Round: R031
+- Verdict: REJECTED
+- Scope: about-window concept entirely — both the R030 "unfiled catalogue leaf" and the R031 "catalogue slip" (overlay/sheet family), all viewports
+- Decision: the about surface is not a window at all — it becomes a standalone page at /about; both right-docked sheet concepts read as "very alike" and off the senior-developer minimalist register
+- User source: "they look very alike and i don't like them. it is not consistent and not senior developer minimalism visual look. let's make a page instead of window."
+- Artifact: artifacts/R030/modal-1440x900.png vs artifacts/R031/slip-1440x900.png
+- Supersedes: R030 + R031 (both stay in git history: leaf a502397, slip dc69a64); the trigger keeps opening the slip until the page integrates
