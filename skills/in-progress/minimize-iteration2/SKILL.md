@@ -76,6 +76,10 @@ Rules that earned their place (edit only with evidence):
   findings only — never run H-verdict experiments through it.
 - Vary one signal per round (size band, register axis, ban list, contract
   shape); the row in results.md logs what moved.
+- Prose asks (readmes, copy): rails flatten voice. Carry ground truth +
+  the owner's voice essence, then give explicit creative license and treat
+  the material as raw notes, not a checklist; heavy ban lists beyond hard
+  taste-lines (pitch, emoji) produce correct-but-flavorless copy (S11).
 
 ## Files here
 
