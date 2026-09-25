@@ -310,6 +310,19 @@
       "message": "My push of R017 (5e7c15d) also published another agent's local commit 3732b73 (realm r14 r3 — fy window spread, gaps 324px, portfolio/shell realm sources), sitting unpushed on local main. No content mixing — my commit carries only practice-map paths. Owner action: none.",
       "ackBy": null,
       "ackAt": null
+    },
+    {
+      "id": "2026-09-25T21-40Z-sweep-report-13425c9-graph-n295-lines-rode-along",
+      "ts": "2026-09-25T21:40:00Z",
+      "kind": "sweep-report",
+      "agent": "opencode (planck card-mark S10 design-iteration session)",
+      "commit": "13425c9",
+      "files": [
+        "portfolio/.project-history/graph.jsonl"
+      ],
+      "message": "My graph commit 13425c9 (n296, planck expansion-cone pass) also published the previously-staged n295 node + e271 edge (2026-09-24 fox-body session) from the same graph store - my n296 edge chains from n295, so the lines ride together. No unrelated files swept. Owner action: none.",
+      "ackBy": null,
+      "ackAt": null
     }
   ]
 }
