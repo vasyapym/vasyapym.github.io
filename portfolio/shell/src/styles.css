@@ -355,6 +355,10 @@ textarea:focus-visible {
 
 
 .signal-index-hero-note {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: 0.1rem 0.9rem;
   margin: clamp(1rem, 2vw, 1.5rem) 0 0;
   font-family: var(--mono);
   font-size: 0.72rem;
@@ -363,6 +367,46 @@ textarea:focus-visible {
   color: var(--ink-muted);
   opacity: 0;
   animation: signal-index-type-kicker 0.8s cubic-bezier(0.22, 1, 0.36, 1) 0.7s both;}
+
+
+.signal-index-hero-note-dot {
+  color: var(--ink-faint);}
+
+
+/* R027 — the hero's quiet action, highlighted with the Waste-of-tokens
+   tier-list device: muted type wakes to full ink, the arrow warms to ochre
+   and nudges (the warm-ordinal locator); NO wash, NO underline. Keyboard
+   focus stays the loudest moment: the ochre hairline. */
+.signal-index-hero-link {
+  color: inherit;
+  text-decoration: none;
+  white-space: nowrap;
+  /* resting transparent hairline: the ochre focus line never shifts layout */
+  border-bottom: 1px solid transparent;}
+
+
+.signal-index-hero-link span {
+  display: inline-block;
+  transition: transform 180ms ease, color 180ms ease;}
+
+
+.signal-index-hero-link:hover,
+.signal-index-hero-link:focus-visible {
+  color: var(--ink-text);}
+
+
+.signal-index-hero-link:hover span,
+.signal-index-hero-link:focus-visible span {
+  color: var(--ink-accent-bright);}
+
+
+.signal-index-hero-link:hover span {
+  transform: translateX(2px);}
+
+
+.signal-index-hero-link:focus-visible {
+  outline: none;
+  border-bottom: 1px solid var(--ink-accent);}
 
 
 /* "beneath the surface" index — a quiet corner rail under the copy, lifted
@@ -917,6 +961,14 @@ textarea:focus-visible {
   .signal-index-hero-kicker,
   .signal-index-hero-note {
     opacity: 1;
+  }
+
+  .signal-index-hero-link span {
+    transition: none;
+  }
+
+  .signal-index-hero-link:hover span {
+    transform: none;
   }}
 
 

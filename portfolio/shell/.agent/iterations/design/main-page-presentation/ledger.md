@@ -353,3 +353,13 @@ Task: rethink how the 6 project cards are presented on the main page (desktop). 
 - User source: "it seems better"
 - Artifact: artifacts/R026/after-cards-1920x963.png (deployed R026)
 - Supersedes: none
+
+## Round R027
+- Goal: owner direction (chat-model relay suggestion, owner-clarified) — replace the hero tagline "problem invented · solution overengineered" with two quiet links, "about the project →" and "о проекте →" (EN + RU), both redirecting to the GitHub repo (vasyapym/vasyapym.github.io) until a real about page exists; highlighted with the Waste-of-tokens tier-list device.
+- Preserved preferences: F002 (measure corridor), F005 (restraint), F006–F011 (hero composition untouched).
+- Changes: `LandingPage.tsx` — hero-note <p> now holds two `.signal-index-hero-link` anchors (target=_blank rel=noreferrer, RU variant lang=ru) separated by a faint dot; `styles.css` — note is a baseline flex row (wrap, 0.9rem column gap); link device from practice-map tiers.css: muted type wakes to --ink-text on hover/focus, arrow warms to --ink-accent-bright + nudges 2px (180ms ease), keyboard focus stays the loudest moment (ochre --ink-accent hairline), resting transparent hairline prevents focus layout shift, reduced-motion kills the nudge. Chat-model deviations corrected: it proposed a left/right hero-foot keeping the tagline and an underline hover — owner overrode (replace the tagline; both labels), and the header email's hover is color-only (no underline), so no underline was added.
+- Before: artifacts/R027/before-hero-1440x900.png
+- After: artifacts/R027/after-hero-1440x900.png, after-note-hover-1440x900.png, after-hero-390x844.png
+- Visual inspection: performed on the real page (probe portfolio/probes/r027-about-link.mjs, headless Chromium). Geometry vs baseline: 1440×900 note top 432 unchanged, h 15→16 (transparent focus hairline), copy→rail 110→109; 390×844 unchanged (one line, h 13→14). Hover computed: text rgb(238,234,224)=--ink-text, arrow translateX(2px). Inspected PNGs: card rhythm intact; row fits one line at both viewports.
+- Code verification: tsc --noEmit green; vite build green.
+- Open question: owner judges the link pair in place of the tagline — especially whether both language labels stay side-by-side and whether the ochre arrow reads at 0.72rem.

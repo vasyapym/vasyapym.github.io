@@ -856,7 +856,24 @@ export default function LandingPage({
               </span>
             </h1>
             <p className="signal-index-hero-note">
-              problem invented&nbsp;· solution overengineered
+              <a
+                className="signal-index-hero-link"
+                href="https://github.com/vasyapym/vasyapym.github.io"
+                target="_blank"
+                rel="noreferrer"
+              >
+                about the project <span aria-hidden="true">→</span>
+              </a>
+              <span className="signal-index-hero-note-dot" aria-hidden="true">·</span>
+              <a
+                className="signal-index-hero-link"
+                lang="ru"
+                href="https://github.com/vasyapym/vasyapym.github.io"
+                target="_blank"
+                rel="noreferrer"
+              >
+                о проекте <span aria-hidden="true">→</span>
+              </a>
             </p>
           </div>
           <div className="signal-index-graphic signal-index-beneath">
