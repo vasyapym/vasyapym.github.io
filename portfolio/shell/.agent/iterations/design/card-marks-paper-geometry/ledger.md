@@ -502,3 +502,47 @@ must not be touched. CSS caps (stage 168px ≥900 / 150px ≤899; base mark cap
   leader->cut 28.6 units, cut->orphan ring 19.35, dot gaps 4.32.
 - Deploy: pushed; deploy-pages.yml rebuilds Pages.
 - Revert: R026 sizes via git restore of ProjectArtwork.tsx.
+
+## Round R028
+- Goal: owner direction - bring the planck card mark the rest of the way
+  into the house spot-ink register, the way the raft mark was recomposed
+  (S9). Delegated: chat-model freedom round, 5 distinct ideas, reply
+  contract per the brief; owner picks on a GitHub Pages board
+  (planck-consistency-24).
+- Preserved preferences: mark fits its stage with breathe intact; the
+  owner-picked subject read "galaxies ignite" (R002/R003 chain, refined
+  R019); house carriers required (sparse bed + hover halo + white/paper
+  anchor, glint vocabulary); banned-trait list from the S6-S9 rounds.
+- Changes: none shipped - relay round. Brief at
+  docs/briefs/chat-model-prompt-26-planck-consistency-freedom.md (drafted
+  from the pre-registered prompt-24 arm, updated to the current render +
+  the adopted raft anchor; the S-series A/B pairing of prompt-24 is not
+  run - single-brief freedom round per owner direction).
+- Before: current SpiralCenterMark (ProjectArtwork.tsx R019 state) -
+  renders as the judging board's "current" cell.
+- After: pending relay reply.
+- Visual inspection: NOT RUN (delegation round; board build verifies next).
+- Code verification: NOT RUN.
+- Open question: paste the reply back to the orchestrator for integration.
+
+### R028 addendum — owner direction revision (2026-09-25, same round)
+- The owner invoked minimize-iteration2: the pre-registered prompt-24 A/B
+  experiment runs on this task after all. Draw 1 = Arm A (the brief already
+  issued, prompt-26, unchanged in content); draw 2 = Arm B (control: the
+  same brief minus the deliberation-protocol block, length rebalanced with
+  a no-fact contract restatement, ±10% held), then A B A B, >=6 draws
+  before any verdict talk. Endpoint: the owner's fixed specialist chat -
+  descriptive findings only, never routing verdicts (results.md is
+  explicit). Per-draw: board update at planck-consistency-24 + push +
+  Pages link; one results.md line per draw (prompt ref, outcome, proxies:
+  distinct skeletons / contract adherence / integration repair count).
+
+### R028 addendum 2 — owner format steer (2026-09-25, same round)
+- The owner reversed the long-brief direction ("shorter briefs worked;
+  the pruned text was not irrelevant"): prompts 26/27 rewritten to the
+  short proven shape (S2/S5 lineage). Template + exemplar recorded in
+  skills/in-progress/minimize-iteration2/brief-format.md; full S1-S5
+  history restored beside it. Experiment axis moves from
+  protocol-presence to H1 register (A telegraphic / B human prose,
+  contract identical); the S9 protocol stays the convergence-trap escape
+  hatch. Draw 1 = short Arm A.

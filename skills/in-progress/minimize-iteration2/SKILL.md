@@ -18,6 +18,9 @@ self-contained, and the owner hand-carries each deliverable and reply.
 
 ## Brief rules (distilled practice — do not re-derive)
 
+- The concrete template + verbatim exemplar live in `brief-format.md` —
+  the current best hypothesis for what works (owner steer, 2026-09-25).
+  Vary one signal per round and log what moved the result.
 - Telegraphic prose-hybrid: task facts + verbatim base code + hard rails +
   explicit output contract ("exactly N numbered blocks ... nothing else").
 - Rough-artifact contract: the model draws the thing; polish, exact colors,
@@ -39,7 +42,8 @@ self-contained, and the owner hand-carries each deliverable and reply.
 reference, outcome, and the distilled practice that changes the next brief.
 It must NOT accumulate hypotheses, pre-registered verdict rules, confounder
 tables, verbatim A/B prompt pairs, round transcripts, or aborted-experiment
-scaffolding. Aborted/no-data experiments are deleted outright — git history
-keeps the originals. A new round is one table row plus a practice update,
+scaffolding. Aborted/no-data experiments are deleted outright — the
+restored archive `S1-S5-full-history.md` (and git history) keeps the
+originals. A new round is one table row plus a practice update,
 nothing more. If a session finds the log growing beyond that, prune it in
 the same session instead of "keeping it for history".
