@@ -99,14 +99,15 @@ function RaftCenterMark() {
       <ellipse cx="128" cy="86" rx="99" ry="60" fill="url(#gem-raft-bed)" opacity="0.09" />
       <ellipse className="gem-halo" style={haloVar(0.12)} cx="74" cy="80" rx="44" ry="32" fill="url(#gem-raft-glow)" opacity={0.16} />
 
-      {/* majority mesh — one triangle: apex leader, two peers on the baseline row */}
-      <g stroke="#c0b6a1" strokeWidth="2.4" strokeLinecap="round" fill="none">
+      {/* majority mesh — one triangle: apex leader, two peers on the baseline row
+          (owner trial: links ~6% bolder, 2.4 -> 2.55 — may revert) */}
+      <g stroke="#c0b6a1" strokeWidth="2.55" strokeLinecap="round" fill="none">
         <line x1="55" y1="69.3" x2="47.7" y2="95" />
         <line x1="70.5" y1="66.7" x2="92.2" y2="97" />
         <line x1="57.5" y1="108" x2="86.5" y2="108" />
       </g>
       {/* severed attempts — two horizontals on the leader/peer rows, dying short of the cut */}
-      <g stroke="#c0b6a1" strokeWidth="2.4" strokeLinecap="round" fill="none" opacity="0.55">
+      <g stroke="#c0b6a1" strokeWidth="2.55" strokeLinecap="round" fill="none" opacity="0.55">
         <line x1="80" y1="52" x2="142" y2="52" />
         <line x1="114" y1="108" x2="142" y2="108" />
       </g>

@@ -182,3 +182,13 @@ must not be touched. CSS caps (stage 168px ≥900 / 150px ≤899; base mark cap
   (artifacts/R009-whites-visible): peer circles recede below the mesh read,
   fox band no longer the glaring element.
 - Deploy: pushed; deploy-pages.yml rebuilds Pages.
+
+## Round R010
+- Goal: owner trial — raft link lines ~6% bolder (owner unsure, may revert).
+- Changes: ProjectArtwork.tsx raft — mesh + severed attempts strokeWidth
+  2.4 -> 2.55 (+6.25%). Fault (3.3), minority dashes (1.5), peer rims (2.4)
+  untouched. Comment marks it as an owner trial.
+- Verification: tsc clean; landing-shots desktop-cards.png
+  (artifacts/R010-raft-lines): links marginally heavier, balance holds.
+- Deploy: pushed; deploy-pages.yml rebuilds Pages.
+- Revert switch: strokeWidth 2.55 -> 2.4 on the two raft link groups.
