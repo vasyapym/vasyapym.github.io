@@ -1,0 +1,782 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>card marks · brief 18 — geometry + paper pass</title>
+<style>
+  :root {
+    --ink-bg: #0b1317;
+    --ink-text: #eeeae0;
+    --ink-line: rgba(238, 234, 224, 0.26);
+    --ink-line-soft: rgba(238, 234, 224, 0.13);
+    --ink-faint: rgba(238, 234, 224, 0.5);
+    --ink-accent: #d39b61;
+  }
+  * { box-sizing: border-box; }
+  body {
+    margin: 0;
+    padding: 40px 20px 90px;
+    background: var(--ink-bg);
+    color: var(--ink-text);
+    font-family: "IBM Plex Mono", ui-monospace, "Cascadia Code", Consolas, Menlo, monospace;
+    font-size: 13px;
+    line-height: 1.55;
+  }
+  .wrap { max-width: 1120px; margin: 0 auto; }
+  header { margin-bottom: 34px; }
+  .kicker {
+    color: var(--ink-accent);
+    font-size: 12px;
+    letter-spacing: 0.14em;
+    margin: 0 0 10px;
+  }
+  h1 { font-size: 19px; font-weight: 500; margin: 0 0 12px; letter-spacing: 0.02em; }
+  .note { color: var(--ink-faint); max-width: 70ch; margin: 0; }
+  .note b { color: var(--ink-text); font-weight: 500; }
+  .banner {
+    border: 1px solid var(--ink-line-soft);
+    border-radius: 10px;
+    padding: 12px 16px;
+    margin: 18px 0 40px;
+    color: var(--ink-faint);
+    font-size: 12px;
+  }
+  h2 {
+    font-size: 13px;
+    font-weight: 500;
+    letter-spacing: 0.1em;
+    color: var(--ink-faint);
+    margin: 44px 0 6px;
+    text-transform: lowercase;
+  }
+  h2 span { color: var(--ink-accent); }
+  .thesis { color: var(--ink-faint); font-size: 12px; margin: 0 0 14px; max-width: 80ch; }
+  .trio {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 20px;
+  }
+  .setrow {
+    display: grid;
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+    gap: 16px;
+  }
+  .stage {
+    height: 168px;
+    background: var(--ink-bg);
+    border: 1px solid var(--ink-line-soft);
+    border-radius: 12px;
+    display: grid;
+    place-items: center;
+    overflow: hidden;
+  }
+  .stage-sm { height: 150px; }
+  .cap {
+    color: var(--ink-faint);
+    font-size: 11px;
+    letter-spacing: 0.08em;
+    margin-top: 8px;
+  }
+  .cap b { color: var(--ink-text); font-weight: 500; }
+  .mark-lg { width: 196px; }
+  .mark-md { width: 176px; }
+  .mark-sm { width: 216px; }
+  .mark-lg, .mark-md, .mark-sm { display: block; height: auto; }
+  .notes { margin: 14px 0 0; }
+  .notes p { margin: 6px 0; color: var(--ink-faint); font-size: 12px; max-width: 90ch; }
+  .notes p b { color: var(--ink-text); font-weight: 500; }
+  details {
+    border: 1px solid var(--ink-line-soft);
+    border-radius: 10px;
+    padding: 10px 16px;
+    margin: 16px 0 0;
+    color: var(--ink-faint);
+    font-size: 12px;
+  }
+  summary { cursor: pointer; color: var(--ink-text); letter-spacing: 0.06em; }
+  table { border-collapse: collapse; margin: 10px 0 4px; }
+  td, th { padding: 3px 14px 3px 0; text-align: left; font-weight: 400; }
+  th { color: var(--ink-accent); letter-spacing: 0.08em; }
+  .sw { display: inline-block; width: 10px; height: 10px; border-radius: 2px; vertical-align: -1px; margin-right: 6px; border: 1px solid rgba(238,234,224,0.25); }
+  footer { margin-top: 60px; color: var(--ink-faint); font-size: 11px; letter-spacing: 0.05em; }
+  @media (max-width: 860px) {
+    .trio { grid-template-columns: 1fr; }
+    .setrow { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  }
+</style>
+</head>
+<body>
+<div class="wrap">
+
+<header>
+  <p class="kicker">card marks · brief 18</p>
+  <h1>geometry + paper pass — two relay outputs vs current</h1>
+  <p class="note">the chat model returned <b>two full candidate passes</b> on the same brief: refine the
+  <b>raft cluster / evening forest / explosion / planck to now</b> card marks —
+  ~15% more geometric, palette ~25% toward soft paper tones, few deliberate geometric details emphasized,
+  secondary elements minimized, spine/quicknotes as the register references (but less simplified, outlines not as bold).
+  each output commits its own moves and hexes — shown here for judging.</p>
+  <div class="banner">
+    timeline note — the two outputs were drawn against the <b>previous generation</b> of these marks
+    (coral shift-register cascade / dusk treeline / radial shatter / epoch ripples). meanwhile the landing's
+    card-art rethink (rounds R001–R020, owner verdicts F001–F034) <b>replaced all four subjects</b>:
+    raft = split-brain partition · forest = fox on the trail · explosion = three-frame filmstrip ·
+    planck = galaxies ignite. <b>current</b> below is that adopted post-saga state; the outputs are shown
+    for their geometry/palette direction and how their register would sit with the rest of the set.
+  </div>
+</header>
+
+<!-- ══════════════════ the rest of the set (untouched anchors) ══════════════════ -->
+<h2>the rest of the set — <span>untouched reference anchors</span></h2>
+<p class="thesis">quicknotes · spine · waste of tokens · cat runner — the register any refinement must sit with.</p>
+<div class="setrow">
+  <div><svg class="mark-md" viewBox="0 0 260 160" aria-hidden="true"><use href="#m-quick"/></svg><p class="cap">quicknotes · prompt lens</p></div>
+  <div><svg class="mark-md" viewBox="0 0 260 160" aria-hidden="true"><use href="#m-spine"/></svg><p class="cap">spine · snap</p></div>
+  <div><svg class="mark-md" viewBox="0 0 260 160" aria-hidden="true"><use href="#m-matrix"/></svg><p class="cap">waste of tokens · occupancy wall</p></div>
+  <div><svg class="mark-md" viewBox="0 0 260 160" aria-hidden="true"><use href="#m-kitty"/></svg><p class="cap">cat runner · head mark</p></div>
+</div>
+
+<!-- ══════════════════ 05 · raft cluster ══════════════════ -->
+<h2>05 · raft cluster</h2>
+<p class="thesis">current = split-brain partition (spine-like outline language, one coral leader mass, straight fault line, +30% prominence steps, owner-approved). both outputs refine the older cascade story instead.</p>
+<div class="trio">
+  <div><svg class="mark-lg" viewBox="-2 0 260 160" aria-hidden="true"><use href="#m-cur-raft"/></svg><p class="cap"><b>current</b> · split-brain partition (adopted R020)</p></div>
+  <div><svg class="mark-lg" viewBox="0 0 260 160" aria-hidden="true"><use href="#m-o1-raft"/></svg><p class="cap"><b>output 1</b> · exact 54×16 diagonal lattice, registration-crown leader</p></div>
+  <div><svg class="mark-lg" viewBox="0 0 260 160" aria-hidden="true"><use href="#m-o2-raft"/></svg><p class="cap"><b>output 2</b> · regular octagon crown, midpoint elbows, bone leader</p></div>
+</div>
+<div class="notes">
+  <p><b>output 1</b> — stages snap to an exact diagonal lattice (identical orthogonal elbows); leader becomes a paper block under a thin registration crown; clock ticks + notch lines removed; stage 2 gains a bone cap strip; the bit becomes a crisp square (keeps more chroma as the small focal). <i>risk named: crown louder than the bit — mitigated with 3px ring + 1.5px ticks.</i></p>
+  <p><b>output 2</b> — circle crown → regular octagon (stroke 3); wires snap to exact midpoint elbows and thin (3.5→2.5px); two tick lines + notch collapse into one triangular clock-notch; leader steps to bone (lightest = source); laggard X at lower opacity. <i>risk named: octagon reads as a nut/bolt if too heavy.</i></p>
+</div>
+
+<!-- ══════════════════ 06 · evening forest ══════════════════ -->
+<h2>06 · evening forest</h2>
+<p class="thesis">current = fox on the trail (green/white pixel fox, teal scene, owner-approved). both outputs refine the older layered-treeline landscape instead.</p>
+<div class="trio">
+  <div><svg class="mark-lg" viewBox="0 0 260 160" aria-hidden="true"><use href="#m-cur-fox"/></svg><p class="cap"><b>current</b> · fox on the trail (adopted R016)</p></div>
+  <div><svg class="mark-lg" viewBox="0 0 260 160" aria-hidden="true"><use href="#m-o1-fox"/></svg><p class="cap"><b>output 1</b> · half-disc moon, stepped-tier bushes, straight ground bar</p></div>
+  <div><svg class="mark-lg" viewBox="0 0 260 160" aria-hidden="true"><use href="#m-o2-fox"/></svg><p class="cap"><b>output 2</b> · all-polygon understory, faceted tree, layers one rung lighter</p></div>
+</div>
+<div class="notes">
+  <p><b>output 1</b> — the blob bushes (the least geometric part of the set) become stepped tiers; back layer → three triangles; curved ground → straight bar; moon cap → exact half-disc with a crisp meridian; fireflies 3→2; canopy clip dropped (plain rect). <i>risk named: tiers reading as buildings — kept low, wide shoulders.</i></p>
+  <p><b>output 2</b> — every silhouette becomes a polygon with shared apex heights: half-hexagon trapezoid bushes, true triangle tree with two flat facets, flat ground bar, back triangles on a common apex line; layers step one rung lighter; fireflies 3→2. <i>risk named: everything-triangles reads as a logo — mitigated by keeping band, moon and fireflies.</i></p>
+</div>
+
+<!-- ══════════════════ 07 · explosion ══════════════════ -->
+<h2>07 · explosion</h2>
+<p class="thesis">current = three-frame filmstrip (paper strip, ember frames, centered spark, owner-approved). both outputs refine the older radial-shatter mark instead.</p>
+<div class="trio">
+  <div><svg class="mark-lg" viewBox="0 0 260 160" aria-hidden="true"><use href="#m-cur-blast"/></svg><p class="cap"><b>current</b> · three-frame filmstrip (adopted R018)</p></div>
+  <div><svg class="mark-lg" viewBox="0 0 260 160" aria-hidden="true"><use href="#m-o1-blast"/></svg><p class="cap"><b>output 1</b> · equal r34→r60 shards, octagonal seam ring, radial embers</p></div>
+  <div><svg class="mark-lg" viewBox="0 0 260 160" aria-hidden="true"><use href="#m-o2-blast"/></svg><p class="cap"><b>output 2</b> · exact 45° radial system, octagonal lantern</p></div>
+</div>
+<div class="notes">
+  <p><b>output 1</b> — shards equalized (all run exactly r34→r60, 10px tips; cardinals bone, diagonals slate); a hairline octagon ring joins the eight radials and seams become short spokes; lantern disc lifts one ramp step; embers become small squares exactly on radials. <i>risk named: octagon reading as a stop sign — 1.2px stroke @ 0.6.</i></p>
+  <p><b>output 2</b> — one congruent shard shape + one seam, rotated at exact 45° steps (data-driven); embers sit exactly on the 22.5° bisectors; the round lantern becomes a regular octagon with a concentric cap octagon and hairline bone rim; clips removed (overprints become the same polygon in pattern). <i>risk named: perfect symmetry going flat/clip-art — four-tone alternation keeps it alive.</i></p>
+</div>
+
+<!-- ══════════════════ 08 · planck to now ══════════════════ -->
+<h2>08 · planck to now</h2>
+<p class="thesis">current = galaxies ignite (tilted spiral galaxy over a scrub timeline, owner-approved). both outputs refine the older epoch-ripples mark instead.</p>
+<div class="trio">
+  <div><svg class="mark-lg" viewBox="0 0 260 160" aria-hidden="true"><use href="#m-cur-spiral"/></svg><p class="cap"><b>current</b> · galaxies ignite (adopted, R007-refined)</p></div>
+  <div><svg class="mark-lg" viewBox="0 0 260 160" aria-hidden="true"><use href="#m-o1-spiral"/></svg><p class="cap"><b>output 1</b> · butt-capped even bands, hairline time axis + epoch ticks</p></div>
+  <div><svg class="mark-lg" viewBox="0 0 260 160" aria-hidden="true"><use href="#m-o2-spiral"/></svg><p class="cap"><b>output 2</b> · butt-cut bands on one vertical, square containment</p></div>
+</div>
+<div class="notes">
+  <p><b>output 1</b> — bands even out to 7px with butt caps (equal rx spacing); a hairline horizontal time axis runs singularity→frontier with a tick at each band crossing (the one new geometric focus; HUD risk mitigated: single 1px line, no labels); stars 6→4; hero star lifted off the axis. <i>weight law kept: heaviest strokes are the 7–8px bands.</i></p>
+  <p><b>output 2</b> — all eight arc terminals butt-cut on one crisp vertical through the fan; the round containment ring becomes a rotated square (diamond, r13) — the one new construction; stars 6→4 snapped to exact ±30° rays at band-gap radii; arcs stepped lighter; violet softened for area ink, focal dots keep full chroma. <i>risk named: diamond reading as a gem/loading badge — kept small.</i></p>
+</div>
+
+<!-- ══════════════════ set rows ══════════════════ -->
+<h2>set check — <span>each column's four, side by side with the anchors</span></h2>
+<p class="thesis">do the marks read as one family with quicknotes/spine/wall/cat (same devices, same panel, no card popping louder)?</p>
+
+<h2>current set <span>· adopted post-saga</span></h2>
+<div class="setrow">
+  <div><svg class="mark-md" viewBox="-2 0 260 160" aria-hidden="true"><use href="#m-cur-raft"/></svg><p class="cap">raft · split-brain</p></div>
+  <div><svg class="mark-md" viewBox="0 0 260 160" aria-hidden="true"><use href="#m-cur-fox"/></svg><p class="cap">forest · fox on the trail</p></div>
+  <div><svg class="mark-md" viewBox="0 0 260 160" aria-hidden="true"><use href="#m-cur-blast"/></svg><p class="cap">explosion · filmstrip</p></div>
+  <div><svg class="mark-md" viewBox="0 0 260 160" aria-hidden="true"><use href="#m-cur-spiral"/></svg><p class="cap">planck · galaxies ignite</p></div>
+</div>
+
+<h2>set check — <span>output 1</span></h2>
+<div class="setrow">
+  <div><svg class="mark-md" viewBox="0 0 260 160" aria-hidden="true"><use href="#m-o1-raft"/></svg><p class="cap">raft · lattice ripple</p></div>
+  <div><svg class="mark-md" viewBox="0 0 260 160" aria-hidden="true"><use href="#m-o1-fox"/></svg><p class="cap">forest · stepped tiers</p></div>
+  <div><svg class="mark-md" viewBox="0 0 260 160" aria-hidden="true"><use href="#m-o1-blast"/></svg><p class="cap">explosion · octagon ring</p></div>
+  <div><svg class="mark-md" viewBox="0 0 260 160" aria-hidden="true"><use href="#m-o1-spiral"/></svg><p class="cap">planck · time axis</p></div>
+</div>
+
+<h2>set check — <span>output 2</span></h2>
+<div class="setrow">
+  <div><svg class="mark-md" viewBox="0 0 260 160" aria-hidden="true"><use href="#m-o2-raft"/></svg><p class="cap">raft · octagon crown</p></div>
+  <div><svg class="mark-md" viewBox="0 0 260 160" aria-hidden="true"><use href="#m-o2-fox"/></svg><p class="cap">forest · polygon understory</p></div>
+  <div><svg class="mark-md" viewBox="0 0 260 160" aria-hidden="true"><use href="#m-o2-blast"/></svg><p class="cap">explosion · radial system</p></div>
+  <div><svg class="mark-md" viewBox="0 0 260 160" aria-hidden="true"><use href="#m-o2-spiral"/></svg><p class="cap">planck · butt-cut arcs</p></div>
+</div>
+
+<!-- ══════════════════ mobile band (approx) ══════════════════ -->
+<h2>≤899 band <span>· approximation (150px stage, 216px mark cap)</span></h2>
+<p class="thesis">the real band is CSS-owned; this strip approximates the mark scale the owner calibrated for the four centers (240→216px).</p>
+<h2 style="margin-top:18px"><span>output 1</span></h2>
+<div class="setrow">
+  <div><svg class="mark-sm" viewBox="0 0 260 160" aria-hidden="true"><use href="#m-o1-raft"/></svg></div>
+  <div><svg class="mark-sm" viewBox="0 0 260 160" aria-hidden="true"><use href="#m-o1-fox"/></svg></div>
+  <div><svg class="mark-sm" viewBox="0 0 260 160" aria-hidden="true"><use href="#m-o1-blast"/></svg></div>
+  <div><svg class="mark-sm" viewBox="0 0 260 160" aria-hidden="true"><use href="#m-o1-spiral"/></svg></div>
+</div>
+<h2><span>output 2</span></h2>
+<div class="setrow">
+  <div><svg class="mark-sm" viewBox="0 0 260 160" aria-hidden="true"><use href="#m-o2-raft"/></svg></div>
+  <div><svg class="mark-sm" viewBox="0 0 260 160" aria-hidden="true"><use href="#m-o2-fox"/></svg></div>
+  <div><svg class="mark-sm" viewBox="0 0 260 160" aria-hidden="true"><use href="#m-o2-blast"/></svg></div>
+  <div><svg class="mark-sm" viewBox="0 0 260 160" aria-hidden="true"><use href="#m-o2-spiral"/></svg></div>
+</div>
+
+<!-- ══════════════════ palette tables ══════════════════ -->
+<h2>palettes</h2>
+<details>
+  <summary>output 1 — palette decisions</summary>
+  <table>
+    <tr><th>card</th><th>old</th><th>new</th><th>use</th></tr>
+    <tr><td>raft</td><td><span class="sw" style="background:#ff6a5f"></span>#ff6a5f</td><td><span class="sw" style="background:#ed7b6d"></span>#ed7b6d</td><td>crown, core, halftone, halo</td></tr>
+    <tr><td>raft</td><td><span class="sw" style="background:#7d2723"></span>#7d2723</td><td><span class="sw" style="background:#7d3b35"></span>#7d3b35</td><td>stage-3 rim, chevron</td></tr>
+    <tr><td>raft</td><td><span class="sw" style="background:#ff6a5f"></span>#ff6a5f</td><td><span class="sw" style="background:#f4705f"></span>#f4705f</td><td>the 10px bit only (small focal, keeps chroma)</td></tr>
+    <tr><td>forest</td><td><span class="sw" style="background:#4fd1a5"></span>#4fd1a5</td><td><span class="sw" style="background:#69c8a1"></span>#69c8a1</td><td>canopy halftone, halo, moon rim</td></tr>
+    <tr><td>explosion</td><td><span class="sw" style="background:#ffb347"></span>#ffb347</td><td><span class="sw" style="background:#edb15a"></span>#edb15a</td><td>halftone caps, halo</td></tr>
+    <tr><td>explosion</td><td><span class="sw" style="background:#ffb347"></span>#ffb347 / #ffcf87 / #fff0cf</td><td><span class="sw" style="background:#f5b250"></span>#f5b250 / #edc68a / #fbeed3</td><td>ignition core</td></tr>
+    <tr><td>planck</td><td><span class="sw" style="background:#a98cff"></span>#a98cff</td><td><span class="sw" style="background:#ac94e4"></span>#ac94e4</td><td>frontier, singularity, halo</td></tr>
+    <tr><td>planck</td><td><span class="sw" style="background:#4b3a8c"></span>#4b3a8c</td><td><span class="sw" style="background:#574983"></span>#574983</td><td>containment ring</td></tr>
+    <tr><td>planck</td><td><span class="sw" style="background:#efe7ff"></span>#efe7ff</td><td><span class="sw" style="background:#efe8f7"></span>#efe8f7</td><td>pale core</td></tr>
+  </table>
+</details>
+<details>
+  <summary>output 2 — palette decisions</summary>
+  <p>25% mix of each accent toward bone #b6ac95 for <b>area</b> work (fills, halftone/halo patterns, wide strokes); tiny focal marks keep the original accent — chroma lives in small areas. slate masses step one rung lighter where secondary.</p>
+  <table>
+    <tr><th>card</th><th>area accent (new)</th><th>focal accent (kept)</th><th>deep / pale companions (new)</th></tr>
+    <tr><td>raft</td><td><span class="sw" style="background:#ed7b6d"></span>#ed7b6d</td><td><span class="sw" style="background:#ff6a5f"></span>#ff6a5f</td><td><span class="sw" style="background:#8b4840"></span>#8b4840 (was #7d2723)</td></tr>
+    <tr><td>evening forest</td><td><span class="sw" style="background:#69c8a1"></span>#69c8a1</td><td>—</td><td>—</td></tr>
+    <tr><td>explosion</td><td><span class="sw" style="background:#edb15b"></span>#edb15b</td><td>—</td><td><span class="sw" style="background:#edc68b"></span>#edc68b, <span class="sw" style="background:#eddfc1"></span>#eddfc1</td></tr>
+    <tr><td>planck</td><td><span class="sw" style="background:#ac94e5"></span>#ac94e5</td><td><span class="sw" style="background:#a98cff"></span>#a98cff</td><td><span class="sw" style="background:#66578e"></span>#66578e, <span class="sw" style="background:#e1d8e5"></span>#e1d8e5</td></tr>
+  </table>
+</details>
+
+<footer>
+  static review page · brief 18 relay outputs, geometry + paper pass · halo pulse / hover animations and the
+  real card context live on the landing — this page judges geometry, palette and set fit · current marks per
+  card-artwork-rethink ledger R020 (f173c55)
+</footer>
+
+</div>
+
+<!-- ══════════════════ symbol library ══════════════════ -->
+<svg width="0" height="0" style="position:absolute" aria-hidden="true">
+  <defs>
+
+  <!-- ── current · raft (split-brain partition, R020) ── -->
+  <symbol id="m-cur-raft" viewBox="-2 0 260 160">
+    <pattern id="gem-raft-bed" width="11" height="11" patternUnits="userSpaceOnUse"><circle cx="5.5" cy="5.5" r="1.6" fill="#7d7669" /></pattern>
+    <pattern id="gem-raft-glow" width="7" height="7" patternUnits="userSpaceOnUse"><circle cx="3.5" cy="3.5" r="1.9" fill="#ff6a5f" /></pattern>
+    <ellipse cx="128" cy="86" rx="99" ry="60" fill="url(#gem-raft-bed)" opacity="0.09" />
+    <ellipse class="gem-halo" style="--halo-opacity:0.12" cx="78" cy="80" rx="44" ry="32" fill="url(#gem-raft-glow)" opacity="0.16" />
+    <g stroke="#b6ac95" stroke-width="2.6" stroke-linecap="round" fill="none">
+      <line x1="56.2" y1="79.1" x2="51.3" y2="99" />
+      <line x1="76.3" y1="75.1" x2="90" y2="93.3" />
+      <line x1="61.2" y1="109.9" x2="84.8" y2="106.1" />
+    </g>
+    <g stroke="#b6ac95" stroke-width="2.6" stroke-linecap="round" fill="none" opacity="0.63">
+      <line x1="85.8" y1="57.1" x2="138" y2="59.5" />
+      <line x1="123" y1="105.8" x2="138" y2="106.9" />
+    </g>
+    <path d="M150 36 L150 126" fill="none" stroke="#7d7669" stroke-width="3.3" stroke-linecap="round" />
+    <g stroke="#7d7669" stroke-width="1.5" stroke-linecap="round" stroke-dasharray="1.5 5" fill="none">
+      <line x1="158" y1="60.4" x2="176.7" y2="61.3" />
+      <line x1="158" y1="108.4" x2="192.8" y2="110.9" />
+      <line x1="196.2" y1="75.2" x2="203.8" y2="98.8" />
+      <circle cx="192" cy="62" r="9.5" />
+      <circle cx="208" cy="112" r="9.5" />
+    </g>
+    <g fill="none" stroke="#b6ac95" stroke-width="2.6">
+      <circle cx="48" cy="112" r="9.5" />
+      <circle cx="98" cy="104" r="9.5" />
+    </g>
+    <circle cx="62" cy="56" r="14.4" fill="#ff6a5f" />
+  </symbol>
+
+  <!-- ── current · fox (fox on the trail, R016 green/white) ── -->
+  <symbol id="m-cur-fox" viewBox="0 0 260 160" shape-rendering="crispEdges">
+    <pattern id="gem-fox-bed" width="11" height="11" patternUnits="userSpaceOnUse"><circle cx="5.5" cy="5.5" r="1.6" fill="#7d7669" /></pattern>
+    <pattern id="gem-fox-glow" width="7" height="7" patternUnits="userSpaceOnUse"><circle cx="3.5" cy="3.5" r="1.9" fill="#4fd1a5" /></pattern>
+    <ellipse cx="130" cy="92" rx="106" ry="58" fill="url(#gem-fox-bed)" opacity="0.09" />
+    <ellipse class="gem-halo" style="--halo-opacity:0.12" cx="118" cy="98" rx="56" ry="30" fill="url(#gem-fox-glow)" opacity="0.12" />
+    <rect x="32" y="124" width="200" height="4" fill="#1f5e4c" />
+    <g fill="#1f5e4c">
+      <rect x="60" y="132" width="10" height="3" /><rect x="96" y="134" width="14" height="3" /><rect x="150" y="132" width="8" height="3" />
+    </g>
+    <g fill="#1f5e4c">
+      <rect x="44" y="100" width="4" height="24" /><rect x="34" y="104" width="10" height="4" /><rect x="48" y="98" width="10" height="4" /><rect x="36" y="112" width="8" height="4" /><rect x="48" y="108" width="10" height="4" />
+    </g>
+    <g fill="#4fd1a5">
+      <rect x="72" y="92" width="28" height="10" /><rect x="100" y="96" width="40" height="16" /><rect x="140" y="88" width="16" height="16" /><rect x="144" y="80" width="4" height="8" /><rect x="152" y="80" width="4" height="8" /><rect x="156" y="96" width="8" height="6" />
+    </g>
+    <rect x="64" y="88" width="10" height="10" fill="#eeeae0" />
+    <rect x="140" y="104" width="10" height="8" fill="#eeeae0" />
+    <g fill="#eeeae0" opacity="0.9">
+      <rect x="74" y="92" width="26" height="2" /><rect x="98" y="92" width="2" height="4" /><rect x="100" y="96" width="40" height="2" />
+    </g>
+    <rect x="149" y="92" width="3" height="3" fill="#26333b" />
+    <rect x="162" y="96" width="3" height="3" fill="#26333b" />
+    <g fill="#1f5e4c">
+      <rect x="104" y="112" width="5" height="12" /><rect x="116" y="112" width="5" height="8" /><rect x="128" y="112" width="5" height="12" /><rect x="138" y="112" width="5" height="8" />
+    </g>
+    <rect x="190" y="112" width="6" height="12" fill="#b6ac95" />
+    <rect x="182" y="102" width="22" height="10" fill="#3f9c7c" />
+    <rect x="186" y="98" width="14" height="4" fill="#3f9c7c" />
+    <rect x="188" y="104" width="3" height="3" fill="#1f5e4c" />
+    <rect x="196" y="100" width="3" height="3" fill="#1f5e4c" />
+    <rect x="210" y="116" width="4" height="8" fill="#b6ac95" />
+    <rect x="206" y="110" width="12" height="6" fill="#1f5e4c" />
+    <rect x="176" y="62" width="4" height="4" fill="#3f9c7c" />
+    <rect x="92" y="54" width="4" height="4" fill="#1f5e4c" />
+  </symbol>
+
+  <!-- ── current · blast (three-frame filmstrip, R018) ── -->
+  <symbol id="m-cur-blast" viewBox="0 0 260 160">
+    <pattern id="gem-blast-bed" width="11" height="11" patternUnits="userSpaceOnUse"><circle cx="5.5" cy="5.5" r="1.6" fill="#7d7669" /></pattern>
+    <pattern id="gem-blast-glow" width="7" height="7" patternUnits="userSpaceOnUse"><circle cx="3.5" cy="3.5" r="1.9" fill="#ffb347" /></pattern>
+    <ellipse cx="130" cy="80" rx="112" ry="58" fill="url(#gem-blast-bed)" opacity="0.09" />
+    <ellipse class="gem-halo" style="--halo-opacity:0.12" cx="130" cy="80" rx="46" ry="34" fill="url(#gem-blast-glow)" opacity="0.12" />
+    <rect x="20" y="42" width="220" height="76" rx="3" fill="#b6ac95" />
+    <line x1="23" y1="43.5" x2="237" y2="43.5" stroke="#eeeae0" stroke-width="1.5" stroke-linecap="round" opacity="0.85" />
+    <!-- sprocket holes: x = 26 + i*13.5, i = 0..15 -->
+    <g fill="#0b1317">
+      <rect x="26" y="46" width="6" height="5" rx="1" /><rect x="26" y="109" width="6" height="5" rx="1" />
+      <rect x="39.5" y="46" width="6" height="5" rx="1" /><rect x="39.5" y="109" width="6" height="5" rx="1" />
+      <rect x="53" y="46" width="6" height="5" rx="1" /><rect x="53" y="109" width="6" height="5" rx="1" />
+      <rect x="66.5" y="46" width="6" height="5" rx="1" /><rect x="66.5" y="109" width="6" height="5" rx="1" />
+      <rect x="80" y="46" width="6" height="5" rx="1" /><rect x="80" y="109" width="6" height="5" rx="1" />
+      <rect x="93.5" y="46" width="6" height="5" rx="1" /><rect x="93.5" y="109" width="6" height="5" rx="1" />
+      <rect x="107" y="46" width="6" height="5" rx="1" /><rect x="107" y="109" width="6" height="5" rx="1" />
+      <rect x="120.5" y="46" width="6" height="5" rx="1" /><rect x="120.5" y="109" width="6" height="5" rx="1" />
+      <rect x="134" y="46" width="6" height="5" rx="1" /><rect x="134" y="109" width="6" height="5" rx="1" />
+      <rect x="147.5" y="46" width="6" height="5" rx="1" /><rect x="147.5" y="109" width="6" height="5" rx="1" />
+      <rect x="161" y="46" width="6" height="5" rx="1" /><rect x="161" y="109" width="6" height="5" rx="1" />
+      <rect x="174.5" y="46" width="6" height="5" rx="1" /><rect x="174.5" y="109" width="6" height="5" rx="1" />
+      <rect x="188" y="46" width="6" height="5" rx="1" /><rect x="188" y="109" width="6" height="5" rx="1" />
+      <rect x="201.5" y="46" width="6" height="5" rx="1" /><rect x="201.5" y="109" width="6" height="5" rx="1" />
+      <rect x="215" y="46" width="6" height="5" rx="1" /><rect x="215" y="109" width="6" height="5" rx="1" />
+      <rect x="228.5" y="46" width="6" height="5" rx="1" /><rect x="228.5" y="109" width="6" height="5" rx="1" />
+    </g>
+    <rect x="32" y="55" width="60" height="50" fill="#26333b" />
+    <rect x="100" y="55" width="60" height="50" fill="#26333b" />
+    <rect x="168" y="55" width="60" height="50" fill="#26333b" />
+    <path d="M93 76 L99 80 L93 84 Z" fill="#465059" />
+    <path d="M161 76 L167 80 L161 84 Z" fill="#465059" />
+    <g fill="#d99a55">
+      <rect x="60" y="62" width="4" height="9" rx="1" /><rect x="60" y="89" width="4" height="9" rx="1" /><rect x="44" y="78" width="9" height="4" rx="1" /><rect x="71" y="78" width="9" height="4" rx="1" />
+    </g>
+    <circle cx="62" cy="80" r="5" fill="#ffb347" />
+    <polygon points="130,58 133.8,70.8 145.6,64.4 139.2,76.2 152,80 139.2,83.8 145.6,95.6 133.8,89.2 130,102 126.2,89.2 114.4,95.6 120.8,83.8 108,80 120.8,76.2 114.4,64.4 126.2,70.8" fill="#b8652f" />
+    <circle cx="130" cy="80" r="11" fill="#d99a55" />
+    <circle cx="130" cy="80" r="5" fill="#ffe9c8" />
+    <circle cx="190" cy="86" r="11" fill="#4a2a1a" />
+    <circle cx="205" cy="84" r="12" fill="#4a2a1a" />
+    <circle cx="197" cy="73" r="10" fill="#5a3520" />
+    <path d="M188 69 A10 10 0 0 1 206 69" fill="none" stroke="#d99a55" stroke-width="1.25" stroke-linecap="round" opacity="0.55" />
+    <rect x="182" y="64" width="4" height="4" fill="#d99a55" />
+    <rect x="213" y="66" width="3" height="3" fill="#b8652f" />
+    <rect x="209" y="97" width="3" height="3" fill="#d99a55" />
+  </symbol>
+
+  <!-- ── current · planck (galaxies ignite, R007) ── -->
+  <symbol id="m-cur-spiral" viewBox="0 0 260 160">
+    <pattern id="gem-planck-bed" width="11" height="11" patternUnits="userSpaceOnUse"><circle cx="5.5" cy="5.5" r="1.6" fill="#7d7669" /></pattern>
+    <pattern id="gem-planck-glow" width="7" height="7" patternUnits="userSpaceOnUse"><circle cx="3.5" cy="3.5" r="1.9" fill="#a98cff" /></pattern>
+    <ellipse cx="130" cy="64" rx="98" ry="50" fill="url(#gem-planck-bed)" opacity="0.09" />
+    <ellipse class="gem-halo" style="--halo-opacity:0.12" cx="130" cy="66" rx="50" ry="30" fill="url(#gem-planck-glow)" opacity="0.12" />
+    <g transform="rotate(-18 130 66)">
+      <circle cx="130" cy="66" r="15" fill="#4b3a8c" />
+      <g fill="none" stroke-linecap="round">
+        <g stroke="#8a79b8" stroke-width="8">
+          <path d="M130 66 C118 50 150 40 168 54 C180 64 172 80 158 82" />
+          <path d="M130 66 C142 82 110 92 92 78 C80 68 88 52 102 50" />
+        </g>
+        <g stroke="#cfc4f2" stroke-width="1.5" opacity="0.8">
+          <path d="M130 66 C118 50 150 40 168 54 C180 64 172 80 158 82" />
+          <path d="M130 66 C142 82 110 92 92 78 C80 68 88 52 102 50" />
+        </g>
+      </g>
+      <circle cx="130" cy="66" r="8" fill="#cfc4f2" />
+    </g>
+    <g stroke="#8a79b8" stroke-width="1.25" stroke-linecap="round" opacity="0.8">
+      <g><line x1="57" y1="35.5" x2="62" y2="35.5" /><line x1="59.5" y1="33" x2="59.5" y2="38" /></g>
+      <g><line x1="204.5" y1="32" x2="211.5" y2="32" /><line x1="208" y1="28.5" x2="208" y2="35.5" /></g>
+      <g><line x1="71" y1="97.5" x2="76" y2="97.5" /><line x1="73.5" y1="95" x2="73.5" y2="100" /></g>
+      <g><line x1="195" y1="99.5" x2="200" y2="99.5" /><line x1="197.5" y1="97" x2="197.5" y2="102" /></g>
+      <g><line x1="43" y1="65" x2="47" y2="65" /><line x1="45" y1="63" x2="45" y2="67" /></g>
+      <g><line x1="219" y1="67.5" x2="224" y2="67.5" /><line x1="221.5" y1="65" x2="221.5" y2="70" /></g>
+    </g>
+    <rect x="40" y="128" width="180" height="4" rx="2" fill="#2a2340" />
+    <rect x="70" y="119" width="2" height="5" fill="#4b3a8c" /><rect x="100" y="119" width="2" height="5" fill="#4b3a8c" /><rect x="130" y="119" width="2" height="5" fill="#4b3a8c" /><rect x="160" y="119" width="2" height="5" fill="#4b3a8c" /><rect x="190" y="119" width="2" height="5" fill="#4b3a8c" />
+    <rect x="40" y="128" width="90" height="4" rx="2" fill="#8a79b8" />
+    <circle cx="130" cy="130" r="7" fill="#a98cff" stroke="#0b1317" stroke-width="3" />
+    <circle cx="130" cy="130" r="2" fill="#eeeae0" />
+  </symbol>
+
+  <!-- ── anchor · quicknotes (prompt lens) ── -->
+  <symbol id="m-quick" viewBox="0 0 260 160">
+    <pattern id="qn-sparse" width="11" height="11" patternUnits="userSpaceOnUse"><circle cx="5.5" cy="5.5" r="1.6" fill="#7d7669" /></pattern>
+    <pattern id="qn-halo" width="7" height="7" patternUnits="userSpaceOnUse"><circle cx="3.5" cy="3.5" r="1.9" fill="#7aa2f7" /></pattern>
+    <ellipse cx="124" cy="80" rx="104" ry="58" fill="url(#qn-sparse)" opacity="0.09" />
+    <ellipse class="gem-halo" style="--halo-opacity:0.12" cx="112" cy="72" rx="54" ry="42" fill="url(#qn-halo)" opacity="0.12" />
+    <circle cx="112" cy="72" r="44" fill="none" stroke="#c0b6a1" stroke-width="14" />
+    <line x1="144" y1="104" x2="188" y2="142" stroke="#c0b6a1" stroke-width="20" stroke-linecap="round" />
+    <path d="M68 72 A44 44 0 0 1 112 28" fill="none" stroke="url(#qn-halo)" stroke-width="14" stroke-linecap="round" opacity="0.4" />
+    <path d="M92 55 L112 72 L92 89" fill="none" stroke="#7aa2f7" stroke-width="12" stroke-linecap="round" stroke-linejoin="round" />
+    <line x1="120" y1="90" x2="136" y2="90" stroke="#7aa2f7" stroke-width="10" stroke-linecap="round" />
+    <rect x="84" y="40" width="2.6" height="2.6" fill="#ffffff" opacity="0.55" />
+    <rect x="128" y="58" width="2.6" height="2.6" fill="#ffffff" opacity="0.4" />
+  </symbol>
+
+  <!-- ── anchor · spine (snap) ── -->
+  <symbol id="m-spine" viewBox="0 0 260 160">
+    <pattern id="gem-spine-sparse" patternUnits="userSpaceOnUse" width="11" height="11"><circle cx="5.5" cy="5.5" r="1.6" fill="#7d7669" /></pattern>
+    <pattern id="gem-spine-halo" patternUnits="userSpaceOnUse" width="7" height="7"><circle cx="3.5" cy="3.5" r="1.9" fill="#c56b52" /></pattern>
+    <ellipse cx="130" cy="82" rx="104" ry="64" fill="url(#gem-spine-sparse)" opacity="0.09" />
+    <ellipse class="gem-halo" cx="150" cy="76" rx="54" ry="40" fill="url(#gem-spine-halo)" style="--halo-opacity:0.12" opacity="0.12" />
+    <path d="M58 98 H64 V92" fill="none" stroke="#7d7669" stroke-width="2.5" stroke-linecap="square" />
+    <path d="M98 92 V98 H104" fill="none" stroke="#7d7669" stroke-width="2.5" stroke-linecap="square" />
+    <path d="M36 56 V140 H128" fill="none" stroke="#465059" stroke-width="16" stroke-linecap="square" stroke-linejoin="miter" />
+    <rect x="-32" y="-32" width="64" height="64" transform="translate(168 62) rotate(12)" fill="none" stroke="#b6ac95" stroke-width="14" stroke-linejoin="miter" />
+    <polygon points="0,0 0,44 12,34 20,54 29,50 21,31 36,31" transform="translate(170 60)" fill="#c56b52" />
+  </symbol>
+
+  <!-- ── anchor · matrix (waste of tokens wall) ── -->
+  <symbol id="m-matrix" viewBox="0 0 260 160">
+    <pattern id="gem-matrix-dense" width="7" height="7" patternUnits="userSpaceOnUse"><circle cx="3.5" cy="3.5" r="1.9" fill="#7d7669" /></pattern>
+    <pattern id="gem-matrix-sparse" width="11" height="11" patternUnits="userSpaceOnUse"><circle cx="5.5" cy="5.5" r="1.6" fill="#7d7669" /></pattern>
+    <pattern id="gem-matrix-halo" width="7" height="7" patternUnits="userSpaceOnUse"><circle cx="3.5" cy="3.5" r="1.9" fill="#5cc8ff" /></pattern>
+    <ellipse cx="130" cy="82" rx="104" ry="64" fill="url(#gem-matrix-sparse)" opacity="0.09" />
+    <ellipse class="gem-halo" style="--halo-opacity:0.12" cx="124" cy="86" rx="62" ry="44" fill="url(#gem-matrix-halo)" opacity="0.12" />
+    <rect x="34" y="38" width="180" height="100" fill="none" stroke="#b6ac95" stroke-width="2.5" opacity="0.9" />
+    <path d="M58 38V138M82 38V138M106 38V138M130 38V138M154 38V138M178 38V138" fill="none" stroke="#7d7669" stroke-width="0.8" opacity="0.28" />
+    <path d="M34 64H214M34 90H214M34 116H214" fill="none" stroke="#7d7669" stroke-width="0.8" opacity="0.28" />
+    <g fill="url(#gem-matrix-dense)" stroke="#465059" stroke-width="1">
+      <rect x="36" y="40" width="20" height="22" /><rect x="60" y="40" width="20" height="22" /><rect x="84" y="40" width="20" height="22" /><rect x="108" y="40" width="20" height="22" /><rect x="132" y="40" width="20" height="22" /><rect x="156" y="40" width="20" height="22" />
+    </g>
+    <g fill="url(#gem-matrix-dense)" stroke="#465059" stroke-width="1">
+      <rect x="36" y="66" width="20" height="22" /><rect x="60" y="66" width="20" height="22" /><rect x="84" y="66" width="20" height="22" /><rect x="108" y="66" width="20" height="22" /><rect x="132" y="66" width="20" height="22" />
+    </g>
+    <g fill="url(#gem-matrix-dense)" stroke="#465059" stroke-width="1">
+      <rect x="36" y="92" width="20" height="22" /><rect x="60" y="92" width="20" height="22" /><rect x="84" y="92" width="20" height="22" />
+    </g>
+    <rect x="36" y="118" width="20" height="22" fill="#26333b" stroke="#7d7669" stroke-width="1" />
+    <rect x="132" y="118" width="42" height="22" fill="none" stroke="#7d7669" stroke-width="1" stroke-dasharray="3 3" opacity="0.7" />
+    <path d="M182 40V132" fill="none" stroke="#5cc8ff" stroke-width="1.2" stroke-dasharray="4 3" opacity="0.85" />
+    <path d="M182 40L178 46M182 40L186 46" fill="none" stroke="#5cc8ff" stroke-width="1.2" opacity="0.85" />
+    <rect x="180" y="40" width="20" height="22" fill="none" stroke="#7d7669" stroke-width="1" />
+    <circle cx="190" cy="51" r="6.5" fill="none" stroke="#5cc8ff" stroke-width="1" opacity="0.6" />
+    <circle cx="190" cy="51" r="3.5" fill="#5cc8ff" />
+    <circle cx="162" cy="77" r="5" fill="none" stroke="#5cc8ff" stroke-width="1" opacity="0.45" />
+    <path d="M40 142V146M64 142V146M88 142V146M112 142V146M136 142V146M160 142V146M184 142V146M208 142V146" fill="none" stroke="#7d7669" stroke-width="1" opacity="0.5" />
+    <path d="M38 150H214" fill="none" stroke="#b6ac95" stroke-width="1" opacity="0.35" />
+    <path d="M28 44V58M26 70V84M24 96V110M22 122V136" fill="none" stroke="#465059" stroke-width="1.5" opacity="0.8" />
+    <rect x="222" y="128" width="28" height="14" fill="none" stroke="#7d7669" stroke-width="0.8" opacity="0.6" />
+    <path d="M222 134H250" fill="none" stroke="#7d7669" stroke-width="0.8" opacity="0.4" />
+  </symbol>
+
+  <!-- ── anchor · kitty (head mark) ── -->
+  <symbol id="m-kitty" viewBox="0 0 260 160">
+    <pattern id="gem-cat-dense" patternUnits="userSpaceOnUse" width="7" height="7"><circle cx="3.5" cy="3.5" r="1.9" fill="#ff8fbf" /></pattern>
+    <pattern id="gem-cat-sparse" patternUnits="userSpaceOnUse" width="11" height="11"><circle cx="5.5" cy="5.5" r="1.6" fill="#7d7669" /></pattern>
+    <pattern id="gem-cat-halo" patternUnits="userSpaceOnUse" width="7" height="7"><circle cx="3.5" cy="3.5" r="1.9" fill="#7d7669" /></pattern>
+    <clipPath id="gem-cat-head-clip"><ellipse cx="136" cy="76" rx="40" ry="30" /></clipPath>
+    <ellipse cx="136" cy="78" rx="104" ry="62" fill="url(#gem-cat-sparse)" opacity="0.09" />
+    <ellipse class="gem-halo" style="--halo-opacity:0.12" cx="136" cy="78" rx="62" ry="40" fill="url(#gem-cat-halo)" opacity="0.12" />
+    <rect x="26" y="72" width="40" height="6" rx="3" fill="#7d7669" opacity="0.4" />
+    <rect x="26" y="84" width="30" height="6" rx="3" fill="#7d7669" opacity="0.4" />
+    <rect x="26" y="96" width="20" height="6" rx="3" fill="#7d7669" opacity="0.4" />
+    <path d="M 46 120 Q 140 112 236 118" stroke="#465059" stroke-width="5" stroke-linecap="round" fill="none" opacity="0.5" />
+    <rect x="100" y="114" width="60" height="5" rx="2.5" fill="url(#gem-cat-dense)" opacity="0.45" />
+    <g transform="translate(-40 4) scale(0.94)" opacity="0.14">
+      <ellipse cx="136" cy="76" rx="40" ry="30" fill="url(#gem-cat-dense)" />
+      <polygon points="106,62 94,38 122,54" fill="url(#gem-cat-dense)" />
+      <polygon points="166,62 178,38 150,54" fill="url(#gem-cat-dense)" />
+    </g>
+    <polygon points="106,62 94,38 122,54" fill="#f4efe4" />
+    <polygon points="166,62 178,38 150,54" fill="#f4efe4" />
+    <ellipse cx="136" cy="76" rx="40" ry="30" fill="#eeeae0" />
+    <g clip-path="url(#gem-cat-head-clip)"><ellipse cx="136" cy="90" rx="40" ry="30" fill="#b6ac95" /></g>
+    <path d="M 100 68 L 78 64" stroke="#eeeae0" stroke-width="2.2" stroke-linecap="round" />
+    <path d="M 100 76 L 76 76" stroke="#eeeae0" stroke-width="2.2" stroke-linecap="round" />
+    <path d="M 100 84 L 78 88" stroke="#eeeae0" stroke-width="2.2" stroke-linecap="round" />
+    <path d="M 172 68 L 194 64" stroke="#eeeae0" stroke-width="2.2" stroke-linecap="round" />
+    <path d="M 172 76 L 196 76" stroke="#eeeae0" stroke-width="2.2" stroke-linecap="round" />
+    <path d="M 172 84 L 194 88" stroke="#eeeae0" stroke-width="2.2" stroke-linecap="round" />
+    <ellipse cx="118" cy="78" rx="2.8" ry="4.2" fill="#0b1317" />
+    <ellipse cx="154" cy="78" rx="2.8" ry="4.2" fill="#0b1317" />
+    <rect x="122" y="58" width="2.6" height="2.6" fill="#ffffff" opacity="0.55" />
+  </symbol>
+
+  <!-- ── output 1 · raft ── -->
+  <symbol id="m-o1-raft" viewBox="0 0 260 160">
+    <pattern id="o1-raft-dense" patternUnits="userSpaceOnUse" width="7" height="7"><circle cx="3.5" cy="3.5" r="1.9" fill="#ed7b6d" /></pattern>
+    <pattern id="o1-raft-sparse" patternUnits="userSpaceOnUse" width="11" height="11"><circle cx="5.5" cy="5.5" r="1.6" fill="#7d7669" /></pattern>
+    <pattern id="o1-raft-halo" patternUnits="userSpaceOnUse" width="7" height="7"><circle cx="3.5" cy="3.5" r="1.9" fill="#ed7b6d" /></pattern>
+    <ellipse cx="130" cy="84" rx="104" ry="64" fill="url(#o1-raft-sparse)" opacity="0.09" />
+    <ellipse class="gem-halo" cx="128" cy="84" rx="54" ry="40" fill="url(#o1-raft-halo)" style="--halo-opacity:0.12" opacity="0.12" />
+    <polyline points="58,51 72,51 72,67 86,67" fill="none" stroke="#465059" stroke-width="3" />
+    <polyline points="116,67 128,67 128,83 140,83" fill="none" stroke="#465059" stroke-width="3" />
+    <polyline points="170,83 182,83 182,99 194,99" fill="none" stroke="#465059" stroke-width="3" />
+    <rect x="32" y="40" width="26" height="22" fill="#c0b6a1" />
+    <circle cx="45" cy="51" r="19" fill="none" stroke="#ed7b6d" stroke-width="3" />
+    <path d="M45 28 V33 M45 69 V74 M22 51 H27 M63 51 H68" stroke="#ed7b6d" stroke-width="1.5" />
+    <circle cx="45" cy="51" r="6" fill="#ed7b6d" />
+    <rect x="86" y="56" width="30" height="22" fill="#7d7669" />
+    <rect x="86" y="56" width="30" height="7" fill="#b6ac95" />
+    <rect x="140" y="72" width="30" height="22" fill="#465059" />
+    <rect x="140" y="72" width="30" height="22" fill="url(#o1-raft-dense)" opacity="0.6" stroke="#7d3b35" stroke-width="2" />
+    <rect x="194" y="88" width="30" height="22" fill="none" stroke="#7d7669" stroke-width="1.5" stroke-dasharray="4 4" />
+    <polyline points="155,94 155,124 180,124" fill="none" stroke="#7d7669" stroke-width="1.5" stroke-dasharray="4 4" />
+    <rect x="180" y="114" width="28" height="20" fill="none" stroke="#7d7669" stroke-width="1.5" stroke-dasharray="4 4" />
+    <path d="M188 118 L200 130 M200 118 L188 130" stroke="#7d7669" stroke-width="1.5" />
+    <rect x="177" y="94" width="10" height="10" fill="#f4705f" />
+    <polyline points="190,95 194,99 190,103" fill="none" stroke="#7d3b35" stroke-width="2.5" />
+    <rect x="36" y="43" width="2.6" height="2.6" fill="#ffffff" opacity="0.55" />
+  </symbol>
+
+  <!-- ── output 1 · fox ── -->
+  <symbol id="m-o1-fox" viewBox="0 0 260 160">
+    <pattern id="o1-fox-dense" patternUnits="userSpaceOnUse" width="7" height="7"><circle cx="3.5" cy="3.5" r="1.9" fill="#69c8a1" /></pattern>
+    <pattern id="o1-fox-sparse" patternUnits="userSpaceOnUse" width="11" height="11"><circle cx="5.5" cy="5.5" r="1.6" fill="#7d7669" /></pattern>
+    <clipPath id="o1-fox-tree"><polygon points="130,58 156,122 104,122" /></clipPath>
+    <ellipse cx="130" cy="80" rx="104" ry="62" fill="url(#o1-fox-sparse)" opacity="0.09" />
+    <ellipse class="gem-halo" style="--halo-opacity:0.12" cx="130" cy="80" rx="60" ry="40" fill="url(#o1-fox-dense)" opacity="0.12" />
+    <circle cx="202" cy="46" r="15" fill="#eeeae0" />
+    <path d="M202 31 A15 15 0 0 0 202 61 Z" fill="#c0b6a1" />
+    <circle cx="202" cy="46" r="15" fill="none" stroke="#69c8a1" stroke-width="1.2" />
+    <g opacity="0.45">
+      <polygon points="66,112 78,84 90,112" fill="#7d7669" />
+      <polygon points="106,112 118,88 130,112" fill="#465059" />
+      <polygon points="150,112 162,86 174,112" fill="#7d7669" />
+    </g>
+    <rect x="34" y="122" width="192" height="6" fill="#26333b" opacity="0.8" />
+    <polygon points="56,122 62,106 70,106 76,94 86,94 92,106 98,106 102,122" fill="#465059" opacity="0.7" />
+    <polygon points="172,122 176,106 184,106 190,96 200,96 206,106 212,106 216,122" fill="#465059" opacity="0.7" />
+    <rect x="40" y="82" width="180" height="14" fill="url(#o1-fox-dense)" opacity="0.45" />
+    <polygon points="130,58 156,122 104,122" fill="#26333b" />
+    <g clip-path="url(#o1-fox-tree)">
+      <polygon points="130,58 104,122 130,122" fill="#465059" />
+      <polygon points="130,58 117,104 127,104" fill="#b6ac95" opacity="0.8" />
+    </g>
+    <circle cx="92" cy="78" r="2.2" fill="#c0b6a1" />
+    <circle cx="168" cy="74" r="2.2" fill="#c0b6a1" />
+    <rect x="122" y="76" width="3" height="3" fill="#ffffff" opacity="0.55" />
+    <rect x="124" y="98" width="2.6" height="2.6" fill="#ffffff" opacity="0.4" />
+  </symbol>
+
+  <!-- ── output 1 · blast ── -->
+  <symbol id="m-o1-blast" viewBox="0 0 260 160">
+    <pattern id="o1-blast-dense" patternUnits="userSpaceOnUse" width="7" height="7"><circle cx="3.5" cy="3.5" r="1.9" fill="#edb15a" /></pattern>
+    <pattern id="o1-blast-sparse" patternUnits="userSpaceOnUse" width="11" height="11"><circle cx="5.5" cy="5.5" r="1.6" fill="#7d7669" /></pattern>
+    <pattern id="o1-blast-halo" patternUnits="userSpaceOnUse" width="7" height="7"><circle cx="3.5" cy="3.5" r="1.9" fill="#edb15a" /></pattern>
+    <clipPath id="o1-blast-disc-clip"><circle cx="130" cy="80" r="26" /></clipPath>
+    <clipPath id="o1-blast-shard45-clip"><polygon points="154,104 175.9,118.9 168.9,125.9" /></clipPath>
+    <clipPath id="o1-blast-shard225-clip"><polygon points="106,56 84.1,41.1 91.1,34.1" /></clipPath>
+    <ellipse cx="130" cy="80" rx="104" ry="64" fill="url(#o1-blast-sparse)" opacity="0.09" />
+    <ellipse class="gem-halo" style="--halo-opacity:0.12" cx="130" cy="80" rx="60" ry="42" fill="url(#o1-blast-halo)" opacity="0.12" />
+    <polygon points="161,80 151.9,101.9 130,111 108.1,101.9 99,80 108.1,58.1 130,49 151.9,58.1" fill="none" stroke="#7d7669" stroke-width="1.2" opacity="0.6" />
+    <path d="M156,80 L161,80 M148.4,98.4 L151.9,101.9 M130,106 L130,111 M111.6,98.4 L108.1,101.9 M104,80 L99,80 M111.6,61.6 L108.1,58.1 M130,54 L130,49 M148.4,61.6 L151.9,58.1" stroke="#7d7669" stroke-width="1.2" opacity="0.6" fill="none" />
+    <polygon points="164,80 190,75 190,85" fill="#c0b6a1" />
+    <polygon points="154,104 175.9,118.9 168.9,125.9" fill="#7d7669" />
+    <polygon points="130,114 125,140 135,140" fill="#c0b6a1" />
+    <polygon points="106,104 91.1,125.9 84.1,118.9" fill="#7d7669" />
+    <polygon points="96,80 70,75 70,85" fill="#c0b6a1" />
+    <polygon points="106,56 84.1,41.1 91.1,34.1" fill="#7d7669" />
+    <polygon points="130,46 125,20 135,20" fill="#c0b6a1" />
+    <polygon points="154,56 175.9,41.1 168.9,34.1" fill="#7d7669" />
+    <rect x="150" y="100" width="30" height="30" fill="url(#o1-blast-dense)" opacity="0.6" clip-path="url(#o1-blast-shard45-clip)" />
+    <rect x="80" y="30" width="30" height="30" fill="url(#o1-blast-dense)" opacity="0.6" clip-path="url(#o1-blast-shard225-clip)" />
+    <circle cx="130" cy="80" r="26" fill="#465059" />
+    <circle cx="127" cy="77" r="19" fill="#7d7669" clip-path="url(#o1-blast-disc-clip)" />
+    <circle cx="127" cy="77" r="9" fill="#f5b250" />
+    <circle cx="125.5" cy="75.5" r="4" fill="#edc68a" />
+    <circle cx="124" cy="74" r="1.8" fill="#fbeed3" />
+    <rect x="198.8" y="78.8" width="2.4" height="2.4" fill="#b6ac95" />
+    <rect x="179.8" y="27.8" width="2.4" height="2.4" fill="#b6ac95" />
+    <rect x="77.8" y="129.8" width="2.4" height="2.4" fill="#b6ac95" />
+    <rect x="123.3" y="73.3" width="1.4" height="1.4" fill="#ffffff" opacity="0.55" />
+  </symbol>
+
+  <!-- ── output 1 · planck ── -->
+  <symbol id="m-o1-spiral" viewBox="0 0 260 160">
+    <pattern id="o1-spiral-dense" patternUnits="userSpaceOnUse" width="7" height="7"><circle cx="3.5" cy="3.5" r="1.9" fill="#ac94e4" /></pattern>
+    <pattern id="o1-spiral-sparse" patternUnits="userSpaceOnUse" width="11" height="11"><circle cx="5.5" cy="5.5" r="1.6" fill="#7d7669" /></pattern>
+    <pattern id="o1-spiral-halo" patternUnits="userSpaceOnUse" width="7" height="7"><circle cx="3.5" cy="3.5" r="1.9" fill="#ac94e4" /></pattern>
+    <g transform="translate(54 24.6) scale(0.66)">
+      <ellipse cx="130" cy="84" rx="104" ry="64" fill="url(#o1-spiral-sparse)" opacity="0.09" />
+      <ellipse class="gem-halo" style="--halo-opacity:0.12" cx="52" cy="84" rx="60" ry="42" fill="url(#o1-spiral-halo)" opacity="0.12" />
+      <path d="M 52 10 A 165 74 0 0 1 52 158" fill="none" stroke="#c0b6a1" stroke-width="7" opacity="0.45" />
+      <path d="M 52 26 A 130 58 0 0 1 52 142" fill="none" stroke="#7d7669" stroke-width="7" opacity="0.6" />
+      <path d="M 52 42 A 95 42 0 0 1 52 126" fill="none" stroke="#465059" stroke-width="7" opacity="0.75" />
+      <path d="M 52 58 A 60 26 0 0 1 52 110" fill="none" stroke="#26333b" stroke-width="7" opacity="0.9" />
+      <line x1="64" y1="84" x2="210" y2="84" stroke="#7d7669" stroke-width="1.2" opacity="0.6" />
+      <path d="M112 79 V89 M147 79 V89 M182 79 V89" stroke="#7d7669" stroke-width="1.2" opacity="0.6" />
+      <circle cx="52" cy="84" r="11" fill="none" stroke="#574983" stroke-width="1.5" opacity="0.8" />
+      <circle cx="52" cy="84" r="7" fill="#ac94e4" />
+      <circle cx="52" cy="84" r="3" fill="#efe8f7" />
+      <path d="M 210 62 A 165 74 0 0 1 210 106" fill="none" stroke="#ac94e4" stroke-width="8" opacity="0.9" />
+      <circle cx="217" cy="84" r="3" fill="#ac94e4" />
+      <circle cx="217" cy="84" r="1.4" fill="#efe8f7" />
+      <circle cx="124" cy="62" r="1.8" fill="#7d7669" />
+      <circle cx="150" cy="104" r="2.0" fill="#b6ac95" />
+      <circle cx="196" cy="112" r="2.2" fill="#7d7669" />
+      <circle cx="200" cy="56" r="2.2" fill="#b6ac95" />
+      <polygon points="166,61 167.6,64.4 171,66 167.6,67.6 166,71 164.4,67.6 161,66 164.4,64.4" fill="#eeeae0" opacity="0.9" />
+      <rect x="215.4" y="82.4" width="1.3" height="1.3" fill="#ffffff" />
+    </g>
+  </symbol>
+
+  <!-- ── output 2 · raft ── -->
+  <symbol id="m-o2-raft" viewBox="0 0 260 160">
+    <pattern id="o2-raft-dense" patternUnits="userSpaceOnUse" width="7" height="7"><circle cx="3.5" cy="3.5" r="1.9" fill="#ed7b6d" /></pattern>
+    <pattern id="o2-raft-sparse" patternUnits="userSpaceOnUse" width="11" height="11"><circle cx="5.5" cy="5.5" r="1.6" fill="#7d7669" /></pattern>
+    <pattern id="o2-raft-halo" patternUnits="userSpaceOnUse" width="7" height="7"><circle cx="3.5" cy="3.5" r="1.9" fill="#ed7b6d" /></pattern>
+    <ellipse cx="130" cy="84" rx="104" ry="64" fill="url(#o2-raft-sparse)" opacity="0.09" />
+    <ellipse class="gem-halo" cx="128" cy="84" rx="54" ry="40" fill="url(#o2-raft-halo)" style="--halo-opacity:0.12" opacity="0.12" />
+    <rect x="33" y="42" width="24" height="20" fill="#b6ac95" stroke="#c0b6a1" stroke-width="2" />
+    <polygon points="33,54 39,58 33,62" fill="#465059" />
+    <polygon points="63.5,44.3 63.5,59.7 52.7,70.5 37.3,70.5 26.5,59.7 26.5,44.3 37.3,33.5 52.7,33.5" fill="none" stroke="#ed7b6d" stroke-width="3" stroke-linejoin="miter" />
+    <circle cx="45" cy="52" r="5" fill="#ff6a5f" />
+    <polyline points="57,58 70,58 70,66 84,66" fill="none" stroke="#465059" stroke-width="2.5" />
+    <rect x="84" y="56" width="30" height="24" fill="#26333b" stroke="#b6ac95" stroke-width="2" />
+    <polyline points="114,72 126,72 126,80 138,80" fill="none" stroke="#465059" stroke-width="2.5" />
+    <rect x="138" y="70" width="30" height="24" fill="url(#o2-raft-dense)" opacity="0.75" />
+    <rect x="138" y="70" width="30" height="24" fill="none" stroke="#8b4840" stroke-width="2" />
+    <polyline points="168,86 180,86 180,94 192,94" fill="none" stroke="#465059" stroke-width="2.5" />
+    <rect x="192" y="84" width="30" height="24" fill="none" stroke="#7d7669" stroke-width="1.5" stroke-dasharray="4 4" />
+    <g opacity="0.75">
+      <polyline points="150,94 150,116 176,116" fill="none" stroke="#7d7669" stroke-width="1.5" stroke-dasharray="4 4" />
+      <rect x="176" y="116" width="30" height="20" fill="none" stroke="#7d7669" stroke-width="1.5" stroke-dasharray="4 4" />
+      <path d="M184 120 L198 132 M198 120 L184 132" fill="none" stroke="#7d7669" stroke-width="1.5" stroke-dasharray="3 3" />
+    </g>
+    <rect x="170" y="82" width="14" height="9" fill="#ff6a5f" />
+    <polyline points="185,90 190,94 185,98" fill="none" stroke="#8b4840" stroke-width="3" stroke-linejoin="miter" />
+    <rect x="86" y="58" width="2" height="2" fill="#ffffff" opacity="0.45" />
+  </symbol>
+
+  <!-- ── output 2 · fox ── -->
+  <symbol id="m-o2-fox" viewBox="0 0 260 160">
+    <pattern id="o2-fox-dense" patternUnits="userSpaceOnUse" width="7" height="7"><circle cx="3.5" cy="3.5" r="1.9" fill="#69c8a1" /></pattern>
+    <pattern id="o2-fox-sparse" patternUnits="userSpaceOnUse" width="11" height="11"><circle cx="5.5" cy="5.5" r="1.6" fill="#7d7669" /></pattern>
+    <ellipse cx="130" cy="80" rx="104" ry="62" fill="url(#o2-fox-sparse)" opacity="0.09" />
+    <ellipse class="gem-halo" style="--halo-opacity:0.12" cx="130" cy="80" rx="60" ry="40" fill="url(#o2-fox-dense)" opacity="0.12" />
+    <circle cx="202" cy="46" r="15" fill="#eeeae0" />
+    <circle cx="199" cy="43" r="8" fill="#c0b6a1" />
+    <circle cx="202" cy="46" r="15" fill="none" stroke="#69c8a1" stroke-width="1.2" />
+    <g opacity="0.45">
+      <polygon points="66,112 78,84 90,112" fill="#b6ac95" />
+      <polygon points="108,112 118,84 128,112" fill="#b6ac95" />
+      <polygon points="150,112 162,84 174,112" fill="#b6ac95" />
+    </g>
+    <rect x="34" y="122" width="192" height="6" fill="#26333b" opacity="0.85" />
+    <polygon points="58,124 68,100 90,100 100,124" fill="#7d7669" opacity="0.6" />
+    <polygon points="170,124 180,100 204,100 214,124" fill="#7d7669" opacity="0.6" />
+    <rect x="44" y="80" width="172" height="18" fill="url(#o2-fox-dense)" opacity="0.45" />
+    <polygon points="130,58 156,124 104,124" fill="#465059" />
+    <polygon points="130,58 104,124 130,124" fill="#7d7669" />
+    <polygon points="130,58 118,110 128,110" fill="#b6ac95" />
+    <circle cx="92" cy="86" r="2.2" fill="#b6ac95" />
+    <circle cx="168" cy="78" r="2.2" fill="#b6ac95" />
+    <rect x="122" y="76" width="3.2" height="3.2" fill="#ffffff" opacity="0.55" />
+    <rect x="124" y="96" width="2.8" height="2.8" fill="#ffffff" opacity="0.4" />
+  </symbol>
+
+  <!-- ── output 2 · blast ── -->
+  <symbol id="m-o2-blast" viewBox="0 0 260 160">
+    <pattern id="o2-blast-dense" patternUnits="userSpaceOnUse" width="7" height="7"><circle cx="3.5" cy="3.5" r="1.9" fill="#edb15b" /></pattern>
+    <pattern id="o2-blast-sparse" patternUnits="userSpaceOnUse" width="11" height="11"><circle cx="5.5" cy="5.5" r="1.6" fill="#7d7669" /></pattern>
+    <pattern id="o2-blast-halo" patternUnits="userSpaceOnUse" width="7" height="7"><circle cx="3.5" cy="3.5" r="1.9" fill="#edb15b" /></pattern>
+    <ellipse cx="130" cy="80" rx="104" ry="64" fill="url(#o2-blast-sparse)" opacity="0.09" />
+    <ellipse class="gem-halo" style="--halo-opacity:0.12" cx="130" cy="80" rx="60" ry="42" fill="url(#o2-blast-halo)" opacity="0.12" />
+    <g transform="rotate(0 130 80)">
+      <line x1="158" y1="80" x2="170" y2="80" stroke="#7d7669" stroke-width="1.2" opacity="0.4" />
+      <polygon points="164,80 190,85 190,75" fill="#b6ac95" />
+    </g>
+    <g transform="rotate(45 130 80)">
+      <line x1="158" y1="80" x2="170" y2="80" stroke="#7d7669" stroke-width="1.2" opacity="0.4" />
+      <polygon points="164,80 190,85 190,75" fill="#7d7669" />
+      <polygon points="164,80 190,85 190,75" fill="url(#o2-blast-dense)" opacity="0.7" />
+    </g>
+    <g transform="rotate(90 130 80)">
+      <line x1="158" y1="80" x2="170" y2="80" stroke="#7d7669" stroke-width="1.2" opacity="0.4" />
+      <polygon points="164,80 190,85 190,75" fill="#465059" />
+    </g>
+    <g transform="rotate(135 130 80)">
+      <line x1="158" y1="80" x2="170" y2="80" stroke="#7d7669" stroke-width="1.2" opacity="0.4" />
+      <polygon points="164,80 190,85 190,75" fill="#b6ac95" />
+    </g>
+    <g transform="rotate(180 130 80)">
+      <line x1="158" y1="80" x2="170" y2="80" stroke="#7d7669" stroke-width="1.2" opacity="0.4" />
+      <polygon points="164,80 190,85 190,75" fill="#7d7669" />
+    </g>
+    <g transform="rotate(225 130 80)">
+      <line x1="158" y1="80" x2="170" y2="80" stroke="#7d7669" stroke-width="1.2" opacity="0.4" />
+      <polygon points="164,80 190,85 190,75" fill="#465059" />
+      <polygon points="164,80 190,85 190,75" fill="url(#o2-blast-dense)" opacity="0.7" />
+    </g>
+    <g transform="rotate(270 130 80)">
+      <line x1="158" y1="80" x2="170" y2="80" stroke="#7d7669" stroke-width="1.2" opacity="0.4" />
+      <polygon points="164,80 190,85 190,75" fill="#b6ac95" />
+    </g>
+    <g transform="rotate(315 130 80)">
+      <line x1="158" y1="80" x2="170" y2="80" stroke="#7d7669" stroke-width="1.2" opacity="0.4" />
+      <polygon points="164,80 190,85 190,75" fill="#eeeae0" />
+    </g>
+    <polygon points="154,70 154,90 140,104 120,104 106,90 106,70 120,56 140,56" fill="#465059" />
+    <polygon points="147.6,72.7 147.6,87.3 137.3,97.6 122.7,97.6 112.4,87.3 112.4,72.7 122.7,62.4 137.3,62.4" fill="#7d7669" />
+    <polygon points="154,70 154,90 140,104 120,104 106,90 106,70 120,56 140,56" fill="none" stroke="#b6ac95" stroke-width="1" opacity="0.5" />
+    <circle cx="130" cy="80" r="9" fill="#edb15b" />
+    <circle cx="130" cy="80" r="4" fill="#edc68b" />
+    <circle cx="130" cy="80" r="1.8" fill="#eddfc1" />
+    <circle cx="196.5" cy="107.6" r="2" fill="#b6ac95" />
+    <circle cx="63.5" cy="107.6" r="2" fill="#b6ac95" />
+    <circle cx="196.5" cy="52.4" r="2" fill="#b6ac95" />
+    <rect x="126.6" y="76.6" width="1.4" height="1.4" fill="#ffffff" opacity="0.55" />
+  </symbol>
+
+  <!-- ── output 2 · planck ── -->
+  <symbol id="m-o2-spiral" viewBox="0 0 260 160">
+    <pattern id="o2-spiral-dense" patternUnits="userSpaceOnUse" width="7" height="7"><circle cx="3.5" cy="3.5" r="1.9" fill="#ac94e5" /></pattern>
+    <pattern id="o2-spiral-sparse" patternUnits="userSpaceOnUse" width="11" height="11"><circle cx="5.5" cy="5.5" r="1.6" fill="#7d7669" /></pattern>
+    <pattern id="o2-spiral-halo" patternUnits="userSpaceOnUse" width="7" height="7"><circle cx="3.5" cy="3.5" r="1.9" fill="#ac94e5" /></pattern>
+    <g transform="translate(54 24.6) scale(0.66)">
+      <ellipse cx="130" cy="84" rx="104" ry="64" fill="url(#o2-spiral-sparse)" opacity="0.09" />
+      <ellipse class="gem-halo" style="--halo-opacity:0.12" cx="52" cy="84" rx="60" ry="42" fill="url(#o2-spiral-halo)" opacity="0.12" />
+      <path d="M 52 10 A 165 74 0 0 1 52 158" fill="none" stroke="#c0b6a1" stroke-width="9" stroke-linecap="butt" opacity="0.55" />
+      <path d="M 52 26 A 130 58 0 0 1 52 142" fill="none" stroke="#b6ac95" stroke-width="9" stroke-linecap="butt" opacity="0.55" />
+      <path d="M 52 42 A 95 42 0 0 1 52 126" fill="none" stroke="#7d7669" stroke-width="9" stroke-linecap="butt" opacity="0.65" />
+      <path d="M 52 58 A 60 26 0 0 1 52 110" fill="none" stroke="#465059" stroke-width="9" stroke-linecap="butt" opacity="0.85" />
+      <polygon points="52,71 65,84 52,97 39,84" fill="none" stroke="#66578e" stroke-width="1.5" stroke-linejoin="miter" opacity="0.85" />
+      <circle cx="52" cy="84" r="7" fill="#ac94e5" />
+      <circle cx="52" cy="84" r="3" fill="#e1d8e5" />
+      <path d="M 210 62 A 165 74 0 0 1 210 106" fill="none" stroke="#ac94e5" stroke-width="10" stroke-linecap="butt" opacity="0.9" />
+      <circle cx="217" cy="84" r="3" fill="#a98cff" />
+      <circle cx="217" cy="84" r="1.4" fill="#e1d8e5" />
+      <circle cx="93.6" cy="60" r="1.6" fill="#b6ac95" />
+      <circle cx="123" cy="125" r="1.8" fill="#7d7669" />
+      <circle cx="152.5" cy="26" r="2.1" fill="#b6ac95" />
+      <circle cx="181.9" cy="159" r="2.4" fill="#7d7669" />
+      <polygon points="168,79 169.6,82.4 173,84 169.6,85.6 168,89 166.4,85.6 163,84 166.4,82.4" fill="#eeeae0" opacity="0.9" />
+      <rect x="215.4" y="82.4" width="1.3" height="1.3" fill="#ffffff" />
+    </g>
+  </symbol>
+
+  </defs>
+</svg>
+
+</body>
+</html>
