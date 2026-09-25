@@ -345,5 +345,9 @@ alternation count; owner early-close still applies.
   verdict).
 - Prompt: chat-model-prompt-20-raft-details.md (orchestrator workspace;
   telegraphic prose-hybrid — facts + verbatim function + contract).
-- Reply: pending paste-back; owner picks one; integrator applies.
-- Round summary: (fill after the reply)
+- Reply: 5 candidates pasted back — term-ring shoulder ticks / heartbeat pips
+  on links / stepped fault caps / lag ticks beside the pending column /
+  quorum tally; coordinates snapped to the live raft geometry (the relay
+  assumed a reference layout); rendered vs current on
+  portfolio/shell/public/raft-details-20/ for owner judging.
+- Round summary: (fill after the owner pick)
