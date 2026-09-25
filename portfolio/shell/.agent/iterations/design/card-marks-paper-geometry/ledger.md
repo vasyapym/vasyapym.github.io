@@ -488,3 +488,17 @@ must not be touched. CSS caps (stage 168px ≥900 / 150px ≤899; base mark cap
   now read against the cut; no console errors.
 - Deploy: pushed; deploy-pages.yml rebuilds Pages.
 - Revert: R025 coordinates via git restore of ProjectArtwork.tsx.
+
+## Round R027
+- Goal: owner steer on the live tightened Hub - make the elements ~10%
+  bigger so the mark reads fuller and tighter; positions unchanged.
+- Changes: portfolio/shell/src/shell/ProjectArtwork.tsx raft - radii and
+  strokes grown x1.1: leader r14->15.4, peers r11->12.1, orphans r9.5->
+  10.45 (ring stroke 4->4.4), links 4.5->5, fault 4.5->5, ellipsis dots
+  r2.4->2.65 (pitch unchanged 9.6). Positions from R026 untouched.
+- Verification: tsc clean; landing card screenshot
+  (artifacts/R027/after-10pct.png, compare R026) - fuller read, no
+  overlaps, no clipping, no console errors. Clearances still healthy:
+  leader->cut 28.6 units, cut->orphan ring 19.35, dot gaps 4.32.
+- Deploy: pushed; deploy-pages.yml rebuilds Pages.
+- Revert: R026 sizes via git restore of ProjectArtwork.tsx.

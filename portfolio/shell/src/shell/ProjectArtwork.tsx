@@ -83,7 +83,9 @@ export const INCUMBENT_MARKS: Partial<Record<ProjectCenter, () => ReactElement>>
    two-spoke chevron aimed at a full-height cut; across the cut a leaderless
    orphan pair is joined only by an ellipsis — an election that never
    completes. R026 (owner-approved option A): air tightened — quorum +14
-   toward the cut, orphan pair −8, all element sizes verbatim. Story:
+   toward the cut, orphan pair −8, all element sizes verbatim. R027
+   (owner steer): every element grown ~10% (radii + strokes), positions
+   unchanged — tighter read, same layout. Story:
    quorum | the cut | the orphans still trying. House repairs on
    integration: the sparse dot bed + the single gem-halo hover ellipse
    (halo base opacity restored via --halo-opacity). ── */
@@ -103,30 +105,30 @@ function RaftCenterMark() {
       <ellipse className="gem-halo" style={haloVar(0.12)} cx="95" cy="82" rx="50" ry="36" fill="url(#gem-raft-glow)" opacity={0.16} />
 
       {/* quorum: leader-centric spokes (followers only talk to the leader) */}
-      <g id="gem-raft-links" stroke="#c0b6a1" strokeWidth="4.5" strokeLinecap="round">
+      <g id="gem-raft-links" stroke="#c0b6a1" strokeWidth="5" strokeLinecap="round">
         <line x1="106" y1="80" x2="62" y2="42" />
         <line x1="106" y1="80" x2="62" y2="118" />
       </g>
       <g id="gem-raft-peers" fill="#ddd6c6">
-        <circle cx="62" cy="42" r="11" />
-        <circle cx="62" cy="118" r="11" />
+        <circle cx="62" cy="42" r="12.1" />
+        <circle cx="62" cy="118" r="12.1" />
       </g>
-      <circle id="gem-raft-leader" cx="106" cy="80" r="14" fill="#f3948a" />
+      <circle id="gem-raft-leader" cx="106" cy="80" r="15.4" fill="#f3948a" />
 
       {/* the cut */}
-      <line id="gem-raft-fault" x1="150" y1="14" x2="150" y2="146" stroke="#ddd6c6" strokeWidth="4.5" strokeLinecap="round" />
+      <line id="gem-raft-fault" x1="150" y1="14" x2="150" y2="146" stroke="#ddd6c6" strokeWidth="5" strokeLinecap="round" />
 
       {/* orphaned minority: hollow, leaderless, one pending link */}
-      <g id="gem-raft-orphans" stroke="#7d7669" strokeWidth="4">
-        <circle cx="182" cy="46" r="9.5" />
-        <circle cx="216" cy="114" r="9.5" />
+      <g id="gem-raft-orphans" stroke="#7d7669" strokeWidth="4.4">
+        <circle cx="182" cy="46" r="10.45" />
+        <circle cx="216" cy="114" r="10.45" />
       </g>
       <g id="gem-raft-pending" fill="#b6ac95">
-        <circle cx="190.4" cy="62.8" r="2.4" />
-        <circle cx="194.7" cy="71.4" r="2.4" />
-        <circle cx="199" cy="80" r="2.4" />
-        <circle cx="203.3" cy="88.6" r="2.4" />
-        <circle cx="207.6" cy="97.2" r="2.4" />
+        <circle cx="190.4" cy="62.8" r="2.65" />
+        <circle cx="194.7" cy="71.4" r="2.65" />
+        <circle cx="199" cy="80" r="2.65" />
+        <circle cx="203.3" cy="88.6" r="2.65" />
+        <circle cx="207.6" cy="97.2" r="2.65" />
       </g>
     </svg>
   );
