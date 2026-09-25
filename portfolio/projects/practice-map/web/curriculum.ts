@@ -2093,6 +2093,44 @@ const kubernetesFirstPrinciplesTopics: readonly TopicCard[] = [
     },
   },
 ];
+
+const goFirstPrinciplesTopics: readonly TopicCard[] = [
+  {
+    id: "go-first-principles-internals",
+    title: "Go: From First Principles to Deep Internals",
+    summary: "A layered guide to Go's concepts and vocabulary, each section ending in internals: why Go looks the way it does (simplicity, three lineages, Go 1 promise, gofmt); packages and modules with Minimal Version Selection; values, zero values, untyped constants and iota; slices and their headers, maps, strings and structs; pointers, escape analysis and value semantics; functions, closures, defer and panic; methods, receivers and method sets; implicit interfaces and their two-word representation, including the nil-interface gotcha; embedding without inheritance; errors as values with wrapping and the errors.Is/As chain; control flow; generics as type sets with GC shape stenciling; goroutines, the GMP scheduler, channels, select and the happens-before memory model; the runtime and tri-color GC; the toolchain; sharp tools; idioms; and a field guide to classic gotchas.",
+    concepts: [],
+    practicePrompt: "Write a small Go module (go.mod with go 1.24+) and exercise three mechanisms from the guide: (1) a slice whose append is forced to copy via the full slice expression, printed before and after; (2) the typed-nil-interface gotcha, an error return of a nil *MyError read through err != nil; (3) go build -gcflags=-m on a function that escapes a pointer and one that does not. Then run the same code with go test -race against a concurrent map write. No Go toolchain was run in this environment — run and verify it yourself.",
+    checkPrompt: "Without a compiler, explain precisely: what a slice header contains and why append must always be reassigned; the difference between a type definition and an alias; why an interface holding a nil pointer is not nil, and what the two-word interface representation has to do with it; the method set difference between T and *T and why it decides interface satisfaction; how the GMP scheduler schedules, steals work and parks network-blocked goroutines; what happens-before buys you and what a torn multi-word race can do; how the tri-color concurrent GC stays correct with write barriers and what GOGC and GOMEMLIMIT tune; how MVS differs from newest-wins resolution and why major versions change the import path.",
+    tier: 1,
+    complexity: 4,
+    references: [
+      "The Go Programming Language Specification — https://go.dev/ref/spec",
+      "Effective Go — https://go.dev/doc/effective_go",
+      "Go 1.22 release notes (loop variables) — https://go.dev/doc/go1.22",
+      "Go 1.23: range-over-func iterators (iter package) — https://go.dev/doc/go1.23",
+      "Go 1.24: Swiss-table maps, tool directive, b.Loop — https://go.dev/doc/go1.24",
+      "Go 1.25: GOMAXPROCS container awareness, Green Tea GC experiment — https://go.dev/doc/go1.25",
+      "Rob Pike, Go Proverbs (2015) — https://go-proverbs.github.io/",
+      "The Go Memory Model — https://go.dev/ref/mem",
+      "Minimal Version Selection, Russ Cox — https://research.swtch.com/vgo-mvs"
+    ],
+    lesson: {
+      problem: "Go is easy to write and easy to misread. Its plain surface hides precise machinery: slice headers, two-word interfaces, a GMP scheduler, a happens-before memory model. Read it as «C with a garbage collector» or «a scripting language» and you collect the classic scars — aliasing surprises, the typed-nil interface, goroutine leaks, races, defer in loops. The model has to explain not just what the features do, but why the omissions (inheritance, exceptions, operator overloading, generics until 2022) are part of the design.",
+      model: "Everything is a value and everything is copied; some values — slices, maps, channels, strings, interfaces — are small headers pointing to shared data. Behavior is decoupled from data: structs hold state, methods attach behavior, and implicit interfaces describe capability, so components connect without knowing each other. Composition replaces inheritance. Failure is ordinary: errors are values, panics are reserved for the broken. Concurrency is structural: cheap goroutines, coordinated through channels, context, and occasionally locks, under a precise memory model. The runtime is a silent partner — stacks that grow, a work-stealing scheduler, a netpoller, a concurrent collector — and the toolchain (one format, built-in tests, race detection, trivial cross-compilation, the Go 1 promise) enforces the culture.",
+      mechanics: "A slice is (pointer, len, cap); append reuses spare capacity or reallocates and always returns the header you must keep — the full slice expression s[l:h:max] forces later appends to copy. Escape analysis (-gcflags=-m) decides stack vs heap: values that provably stay inside their function are free; escaping through pointers, closures, or interfaces costs an allocation. An interface value is two words (dynamic type, data pointer) backed by lazily built itabs — which is why an interface holding a nil pointer is not nil, and why *T's method set includes value methods while T's does not. Zero values are an API: Mutex and bytes.Buffer work without constructors. Module resolution uses MVS — oldest satisfying versions, deterministic — with /v2 import paths for breaking changes. Goroutines start with small contiguous stacks that grow by copying; the M:N scheduler holds G on M through P (GOMAXPROCS), steals work, detaches Ms on blocking syscalls, and parks network goroutines in the netpoller instead of blocking threads; preemption is asynchronous since 1.14. Channels are hchan structs: unbuffered sends are rendezvous, nil channels disable select cases, send-on-closed panics. The memory model guarantees happens-before through channel ops, locks, goroutine start, and atomics; data-race-free programs are sequentially consistent, but torn multi-word races (interface, slice, string) can still corrupt memory — run -race. The GC is concurrent tri-color mark-sweep, non-moving and non-generational, kept correct by hybrid write barriers, tuned by GOGC and GOMEMLIMIT, with mark assist making allocators pay for their own garbage. Generics compile as GC shape stenciling with dictionaries: one instantiation per memory shape, dictionaries carrying type specifics — type-safe reuse, not guaranteed speed.",
+      pitfalls: [
+      "Returning a typed nil pointer as error: the interface is non-nil, so err != nil fires forever — return literal nil.",
+      "Assuming append shares or copies memory: two slices may alias one array until capacity forces a copy; use the returned header and the full slice expression when handing sub-slices out.",
+      "Capturing pre-1.22 loop variables in goroutines and shadowing err with := in a nested scope.",
+      "Deferring inside loops (runs at function return, not iteration end) and copying structs that contain a mutex.",
+      "Starting goroutines without a stop story: the GC cannot collect one blocked forever on a channel nobody will service.",
+      "Expecting generics to be a performance feature: dictionary indirection on pointer-shaped parameters can make them slower than hand-written specialized code."
+      ],
+      whenNot: "This is a concepts-and-internals map for reading and writing Go — not a first-program tutorial, a concurrency design guide, or a substitute for the specification; it names mechanisms and their boundaries, not which library to pick for the job at hand."
+    },
+  },
+];
 export const curriculum: readonly PracticeArea[] = [
   {
     id: "go",
@@ -2285,5 +2323,13 @@ export const curriculum: readonly PracticeArea[] = [
     tier: 1,
     dependencies: [],
     topics: kubernetesFirstPrinciplesTopics,
+  },
+  {
+    id: "go-first-principles-internals",
+    title: "Go: From First Principles to Deep Internals",
+    description: "A layered English essay on Go: the philosophy of omission, values and slices, interfaces and their two-word representation, goroutines and the GMP scheduler, the memory model, the runtime and GC, generics, and the toolchain that enforces the culture.",
+    tier: 1,
+    dependencies: [],
+    topics: goFirstPrinciplesTopics,
   },
 ];
