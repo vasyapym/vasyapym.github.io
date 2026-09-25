@@ -130,8 +130,12 @@ function RaftCenterMark() {
         <circle cx="115" cy="108" r="9.5" />
       </g>
 
-      {/* leader — the one hue mass, at the apex */}
+      {/* leader — the one hue mass at the apex; the card's two deliberate
+          details: a paper pip inside the disc (the committed entry) and a
+          thin paper term-ring around it (the leader's current term) */}
+      <circle cx="85" cy="58" r="19.5" fill="none" stroke="#eeeae0" strokeWidth="1.4" opacity="0.7" />
       <circle cx="85" cy="58" r="14" fill="#f3948a" />
+      <circle cx="85" cy="58" r="3" fill="#eeeae0" />
     </svg>
   );
 }
@@ -198,11 +202,11 @@ function KittyCenterMark() {
   );
 }
 
-/* ── 3 · Evening Forest — teal spot ink, "fox on the trail", R013
-   senior-minimalism trial: the fox itself is untouched (three blocks, 45°
-   stepped tail, paper band); the scene drops to ground + lit trail, one fern
-   (stem + two fronds), one mushroom (no spots), one leaf — fewer elements,
-   more air, same green/white read; revert = the R012 scene state. ── */
+/* ── 3 · Evening Forest — teal spot ink, "fox on the trail", R016: the R013
+   minimal scene kept; the whole palette steps ~7% quieter toward the dusk
+   (mint #8fdbbd -> #86cdb1, deep green #1f5e4c -> #1e5948, caps #b6ac95 ->
+   #aaa18c, paper pieces #ddd6c6 -> #cec8ba) while the lit trail keeps full
+   paper as the card's one white accent. Revert = R013 hexes. ── */
 function FoxCenterMark() {
   return (
     <svg viewBox="0 0 260 160" aria-hidden="true" shapeRendering="crispEdges">
@@ -211,25 +215,25 @@ function FoxCenterMark() {
           <circle cx="5.5" cy="5.5" r="1.6" fill="#7d7669" />
         </pattern>
         <pattern id="gem-fox-glow" width="7" height="7" patternUnits="userSpaceOnUse">
-          <circle cx="3.5" cy="3.5" r="1.9" fill="#8fdbbd" />
+          <circle cx="3.5" cy="3.5" r="1.9" fill="#86cdb1" />
         </pattern>
       </defs>
       <ellipse cx="130" cy="92" rx="106" ry="58" fill="url(#gem-fox-bed)" opacity="0.09" />
       <ellipse className="gem-halo" style={haloVar(0.12)} cx="116" cy="98" rx="56" ry="30" fill="url(#gem-fox-glow)" opacity={0.12} />
 
       {/* ground — one bar with the lit trail on its top edge */}
-      <rect x="32" y="124" width="200" height="4" fill="#1f5e4c" />
+      <rect x="32" y="124" width="200" height="4" fill="#1e5948" />
       <rect x="32" y="124" width="200" height="2" fill="#eeeae0" />
 
       {/* fern — one stem, two fronds */}
-      <g fill="#1f5e4c">
+      <g fill="#1e5948">
         <rect x="44" y="100" width="4" height="24" />
         <rect x="34" y="108" width="10" height="4" />
         <rect x="48" y="108" width="10" height="4" />
       </g>
 
-      {/* fox — mint blocks: stepped tail, body slab, head square, snout */}
-      <g fill="#8fdbbd">
+      {/* fox — dusk-mint blocks: stepped tail, body slab, head square, snout */}
+      <g fill="#86cdb1">
         <rect x="80" y="100" width="16" height="8" />
         <rect x="76" y="96" width="8" height="8" />
         <rect x="96" y="96" width="40" height="16" />
@@ -238,11 +242,10 @@ function FoxCenterMark() {
         <rect x="148" y="80" width="4" height="8" />
         <rect x="152" y="96" width="8" height="8" />
       </g>
-      {/* paper as structure — tail tip, chest block, ridge lines (stepped
-          ~10% luma off paper so the whites sit quieter) */}
-      <rect x="68" y="88" width="12" height="8" fill="#ddd6c6" />
-      <rect x="136" y="104" width="16" height="8" fill="#ddd6c6" />
-      <g fill="#ddd6c6" opacity="0.9">
+      {/* paper as structure — tail tip, chest block, ridge lines */}
+      <rect x="68" y="88" width="12" height="8" fill="#cec8ba" />
+      <rect x="136" y="104" width="16" height="8" fill="#cec8ba" />
+      <g fill="#cec8ba" opacity="0.9">
         <rect x="80" y="100" width="16" height="2" />
         <rect x="96" y="96" width="40" height="2" />
         <rect x="136" y="88" width="16" height="2" />
@@ -250,7 +253,7 @@ function FoxCenterMark() {
       <rect x="145" y="93" width="3" height="3" fill="#26333b" />
       <rect x="157" y="97" width="3" height="3" fill="#26333b" />
       {/* legs — deep green ink */}
-      <g fill="#1f5e4c">
+      <g fill="#1e5948">
         <rect x="100" y="112" width="4" height="12" />
         <rect x="116" y="112" width="4" height="8" />
         <rect x="128" y="112" width="4" height="12" />
@@ -258,12 +261,12 @@ function FoxCenterMark() {
       </g>
 
       {/* mushroom — one stepped dome, bone cap, paper-leaning stem */}
-      <rect x="190" y="112" width="6" height="12" fill="#ddd6c6" />
-      <rect x="182" y="102" width="22" height="10" fill="#b6ac95" />
-      <rect x="186" y="98" width="14" height="4" fill="#b6ac95" />
+      <rect x="190" y="112" width="6" height="12" fill="#cec8ba" />
+      <rect x="182" y="102" width="22" height="10" fill="#aaa18c" />
+      <rect x="186" y="98" width="14" height="4" fill="#aaa18c" />
 
       {/* one falling leaf */}
-      <rect x="176" y="60" width="4" height="4" fill="#8fdbbd" />
+      <rect x="176" y="60" width="4" height="4" fill="#86cdb1" />
     </svg>
   );
 }

@@ -264,3 +264,20 @@ must not be touched. CSS caps (stage 168px ≥900 / 150px ≤899; base mark cap
   (artifacts/R015-connectors-back): the connection story reads both sides of
   the cut; the quorum | fault | orphans narrative is whole again.
 - Deploy: pushed; deploy-pages.yml rebuilds Pages.
+
+## Round R016
+- Goal: owner: add some detail to raft; fox card colours ~7% less prominent.
+- Changes: ProjectArtwork.tsx —
+  raft: two deliberate details on the leader — a paper pip inside the coral
+  disc (the committed entry) + a thin paper term-ring (85,58 r19.5 #eeeae0
+  1.4 @0.7, the leader's current term; the out-4 previewed device);
+  fox: palette stepped ~7% toward the dusk — mint #8fdbbd -> #86cdb1 (body,
+  halo dots, leaf), deep green #1f5e4c -> #1e5948 (ground, fern, legs),
+  caps #b6ac95 -> #aaa18c, paper pieces/stems #ddd6c6 -> #cec8ba; the lit
+  trail keeps full paper #eeeae0 as the card's one white accent. Scene
+  geometry untouched.
+- Verification: tsc clean; landing-shots desktop-cards.png
+  (artifacts/R016-raft-detail-fox-quiet): leader carries a pip + ring; fox
+  reads duskier, green less shouty, trail still the bright rule.
+- Deploy: pushed; deploy-pages.yml rebuilds Pages.
+- Revert: R015 raft (no ring/pip) + R013 fox hexes via git restore.
