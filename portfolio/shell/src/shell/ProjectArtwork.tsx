@@ -78,12 +78,13 @@ export const INCUMBENT_MARKS: Partial<Record<ProjectCenter, () => ReactElement>>
   fox: FoxCenterMark,
 };
 
-/* ── 1 · Raft Cluster — "split-brain partition", R022 (F011 revert): the
-    leader is a plain coral disc again (facet dot + halo ring removed,
-    including the halo's under-print twin); the rest of the R019 relief
-    pass stays until the S9 relay pick. Story unchanged: quorum | the cut |
-    the orphans still trying. House repairs on integration: the sparse dot
-    bed + the single gem-halo hover ellipse sit behind the design. ── */
+/* ── 1 · Raft Cluster — "split-brain partition", R024 (owner-picked S9
+   "Ring"): five servers on one membership ring (r54, centre 126,82); the
+   quorum arc through the coral leader stays whole, the fault slices both
+   gaps, and the orphaned pair keeps only a dotted fragment of the circle —
+   the eye completes the break. Story: quorum | the cut | the orphans still
+   trying. House repairs on integration: the sparse dot bed + the single
+   gem-halo hover ellipse (halo base opacity restored via --halo-opacity). ── */
 function RaftCenterMark() {
   return (
     <svg viewBox="-2 0 260 160" fill="none" aria-hidden="true">
@@ -99,57 +100,26 @@ function RaftCenterMark() {
       <ellipse cx="128" cy="86" rx="99" ry="60" fill="url(#gem-raft-bed)" opacity="0.09" />
       <ellipse className="gem-halo" style={haloVar(0.12)} cx="95" cy="82" rx="50" ry="36" fill="url(#gem-raft-glow)" opacity={0.16} />
 
-      {/* bed plate + grain */}
-      <ellipse id="gem-raft-bed-plate" cx="128" cy="132" rx="120" ry="16" fill="#26333b" stroke="#465059" strokeWidth="2.5" />
-      <g id="gem-raft-bed-grain" stroke="#465059" strokeWidth="3.5" strokeLinecap="round">
-        <line x1="20" y1="138" x2="236" y2="138" />
-        <line x1="52" y1="144" x2="204" y2="144" />
+      {/* quorum arc of the ring (center 126,82 · r 54) */}
+      <path id="gem-raft-ring" d="M109.3 30.6A54 54 0 0 0 109.3 133.4" stroke="#c0b6a1" strokeWidth="4.5" strokeLinecap="round" />
+      <g id="gem-raft-peers" fill="#ddd6c6">
+        <circle cx="109.3" cy="30.6" r="10.5" />
+        <circle cx="109.3" cy="133.4" r="10.5" />
       </g>
+      <circle id="gem-raft-leader" cx="72" cy="82" r="14" fill="#f3948a" />
 
-      {/* second impression: dark under-print offset for relief */}
-      <g id="gem-raft-relief" transform="translate(2.5 3)" fill="#26333b" stroke="#26333b" strokeLinecap="round">
-        <line x1="95" y1="44" x2="62" y2="104" strokeWidth="4.5" />
-        <line x1="95" y1="44" x2="128" y2="104" strokeWidth="4.5" />
-        <line x1="62" y1="104" x2="128" y2="104" strokeWidth="4.5" />
-        <circle cx="62" cy="104" r="12" stroke="none" />
-        <circle cx="128" cy="104" r="12" stroke="none" />
-        <polygon points="155,14 165,14 161.5,146 158.5,146" stroke="none" />
-        <circle cx="206" cy="50" r="9" fill="none" strokeWidth="3.5" />
-        <circle cx="206" cy="110" r="9" fill="none" strokeWidth="3.5" />
-      </g>
+      {/* the cut: passes through both ring gaps */}
+      <line id="gem-raft-fault" x1="139.5" y1="16" x2="139.5" y2="148" stroke="#eeeae0" strokeWidth="4" strokeLinecap="round" />
 
-      {/* quorum: bone links, plain coral leader, paper-ringed peers */}
-      <g id="gem-raft-links" stroke="#c0b6a1" strokeWidth="4.5" strokeLinecap="round">
-        <line x1="95" y1="44" x2="62" y2="104" />
-        <line x1="95" y1="44" x2="128" y2="104" />
-        <line x1="62" y1="104" x2="128" y2="104" />
+      {/* orphaned minority: hollow members, pending arc between them */}
+      <g id="gem-raft-orphans" stroke="#7d7669" strokeWidth="4">
+        <circle cx="169.7" cy="50.3" r="9.5" />
+        <circle cx="169.7" cy="113.7" r="9.5" />
       </g>
-      <circle id="gem-raft-leader" cx="95" cy="44" r="13" fill="#f3948a" />
-      <g id="gem-raft-peers" fill="#465059" stroke="#eeeae0" strokeWidth="4">
-        <circle cx="62" cy="104" r="10" />
-        <circle cx="128" cy="104" r="10" />
-      </g>
-
-      {/* the cut — tapered wedge with dark gutters */}
-      <g id="gem-raft-fault-gutter" fill="#465059">
-        <polygon points="151,18 155,18 155.5,142 152.5,142" />
-        <polygon points="165,18 169,18 167.5,142 164.5,142" />
-      </g>
-      <polygon id="gem-raft-fault" points="155,14 165,14 161.5,146 158.5,146" fill="#eeeae0" />
-
-      {/* orphaned minority: hollow rings, pending column, reaching stubs */}
-      <g id="gem-raft-orphans" fill="none" stroke="#7d7669" strokeWidth="3.5">
-        <circle cx="206" cy="50" r="9" />
-        <circle cx="206" cy="110" r="9" />
-      </g>
-      <g id="gem-raft-orphan-column" stroke="#b6ac95" strokeWidth="5" strokeDasharray="7 6">
-        <line x1="206" y1="22" x2="206" y2="38" />
-        <line x1="206" y1="62" x2="206" y2="98" />
-        <line x1="206" y1="122" x2="206" y2="140" />
-      </g>
-      <g id="gem-raft-orphan-reach" stroke="#b6ac95" strokeWidth="4" strokeDasharray="5 5" strokeLinecap="butt">
-        <line x1="194" y1="50" x2="173" y2="50" />
-        <line x1="194" y1="110" x2="173" y2="110" />
+      <g id="gem-raft-pending" fill="#b6ac95">
+        <circle cx="178.6" cy="69.85" r="2.5" />
+        <circle cx="180" cy="82" r="2.5" />
+        <circle cx="178.6" cy="94.15" r="2.5" />
       </g>
     </svg>
   );

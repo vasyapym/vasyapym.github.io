@@ -422,3 +422,28 @@ must not be touched. CSS caps (stage 168px ≥900 / 150px ≤899; base mark cap
 - Code verification: NOT RUN (static board, no app code touched).
 - Deploy: pushed; deploy-pages.yml rebuilds Pages.
 - Open question: pick 1 Hub / 2 Bus / 3 Ring (or none / a mix).
+
+## Feedback F012
+- Round: R023
+- Verdict: LIKED
+- Scope: raft center mark, S9 treatment 3 "Ring" (broken membership circle)
+- Decision: integrate Ring; Hub and Bus stay out.
+- User source: "i pick - 3" (on the raft-details-23 board)
+- Artifact: portfolio/shell/public/raft-details-23/index.html
+- Supersedes: none
+
+## Round R024
+- Goal: integrate the owner-picked S9 "Ring" treatment (F012).
+- Changes: portfolio/shell/src/shell/ProjectArtwork.tsx raft - the Ring
+  mark verbatim: quorum arc of the r54 membership ring (centre 126,82)
+  through the plain coral leader, two solid paper peers at the arc ends,
+  the paper cut through both ring gaps, hollow orphan members on the
+  circle with a three-dot pending fragment between them. House repairs on
+  integration: dot bed + gem-halo kept, halo base opacity restored via
+  --halo-opacity (the relay had dropped the style var).
+- Verification: tsc clean; landing card screenshot
+  (artifacts/R024/after-integration.png) - ring reads whole-left/broken-
+  right, dots visible at 182px, no orphaned relief leftovers, no console
+  errors.
+- Deploy: pushed; deploy-pages.yml rebuilds Pages.
+- Revert: R022 state via git restore of ProjectArtwork.tsx.
