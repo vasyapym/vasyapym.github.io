@@ -123,8 +123,8 @@ function RaftCenterMark() {
         <circle cx="212" cy="108" r="9.5" />
       </g>
 
-      {/* majority peers — paper rims (whitish as structure) */}
-      <g fill="none" stroke="#eeeae0" strokeWidth="2.4">
+      {/* majority peers — paper-leaning rims (stepped ~10% off full paper) */}
+      <g fill="none" stroke="#e9e5da" strokeWidth="2.4">
         <circle cx="44" cy="108" r="9.5" />
         <circle cx="100" cy="108" r="9.5" />
       </g>
@@ -243,10 +243,11 @@ function FoxCenterMark() {
         <rect x="148" y="80" width="4" height="8" />
         <rect x="152" y="96" width="8" height="8" />
       </g>
-      {/* paper as structure — tail tip, chest block, ridge lines */}
-      <rect x="68" y="88" width="12" height="8" fill="#eeeae0" />
-      <rect x="136" y="104" width="16" height="8" fill="#eeeae0" />
-      <g fill="#eeeae0" opacity="0.9">
+      {/* paper as structure — tail tip, chest block, ridge lines (stepped
+          ~10% off full paper so the whites sit quieter) */}
+      <rect x="68" y="88" width="12" height="8" fill="#e9e5da" />
+      <rect x="136" y="104" width="16" height="8" fill="#e9e5da" />
+      <g fill="#e9e5da" opacity="0.9">
         <rect x="80" y="100" width="16" height="2" />
         <rect x="96" y="96" width="40" height="2" />
         <rect x="136" y="88" width="16" height="2" />
@@ -261,13 +262,13 @@ function FoxCenterMark() {
         <rect x="144" y="112" width="4" height="8" />
       </g>
 
-      {/* mushrooms — stepped bone caps, deep-green spots, paper stems */}
-      <rect x="190" y="112" width="6" height="12" fill="#eeeae0" />
+      {/* mushrooms — stepped bone caps, deep-green spots, paper-leaning stems */}
+      <rect x="190" y="112" width="6" height="12" fill="#e9e5da" />
       <rect x="182" y="102" width="22" height="10" fill="#b6ac95" />
       <rect x="186" y="98" width="14" height="4" fill="#b6ac95" />
       <rect x="188" y="104" width="3" height="3" fill="#1f5e4c" />
       <rect x="196" y="100" width="3" height="3" fill="#1f5e4c" />
-      <rect x="210" y="116" width="4" height="8" fill="#eeeae0" />
+      <rect x="210" y="116" width="4" height="8" fill="#e9e5da" />
       <rect x="206" y="110" width="12" height="6" fill="#b6ac95" />
 
       {/* falling leaves */}

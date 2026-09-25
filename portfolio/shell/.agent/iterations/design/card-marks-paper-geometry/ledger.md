@@ -159,3 +159,15 @@ must not be touched. CSS caps (stage 168px ≥900 / 150px ≤899; base mark cap
 - Verification: landing-shots desktop-cards.png (artifacts/R007-sizes): the three
   marks render smaller, spiral unchanged; no overflow, breathe intact.
 - Deploy: pushed; deploy-pages.yml rebuilds Pages.
+
+## Round R008
+- Goal: owner: raft's two peer balls read too-edged; fox's whites a bit
+  prominent — tone both down ~10% (more paper-like).
+- Changes: ProjectArtwork.tsx — raft majority peer rims #eeeae0 -> #e9e5da
+  (10% toward the bone end of the ramp); fox card's paper pieces -> #e9e5da
+  (tail tip, chest block, ridge lines @0.9, both mushroom stems). Blast
+  hairlines and planck spine/nucleus untouched (not flagged).
+- Verification: tsc clean; landing-shots desktop-cards.png
+  (artifacts/R008-whites-10): peer rims no longer the brightest edge, fox
+  band reads creamier.
+- Deploy: pushed; deploy-pages.yml rebuilds Pages.
