@@ -78,13 +78,11 @@ export const INCUMBENT_MARKS: Partial<Record<ProjectCenter, () => ReactElement>>
   fox: FoxCenterMark,
 };
 
-/* ── 1 · Raft Cluster — "split-brain partition", R019: same subject, built
-   on a row grid — leader disc (soft coral, the one hue mass) at the apex of a
-   clean triangle mesh; peers sit on one baseline row; every link is a straight
-   axial/diagonal with a measured gap at each node; severed attempts are two
-   pure horizontals dying short of one vertical fault; the orphaned pair
-   mirrors the geometry in dashed slate. Majority rims move to paper; mesh to
-   light bone. Weight held (thinner + brighter, not louder). ── */
+/* ── 1 · Raft Cluster — "split-brain partition", R013 senior-minimalism trial:
+   the whole cluster sits on ONE horizontal axis — peer ring, coral leader disc,
+   peer ring, straight bone links with measured gaps; one severed stub dies at
+   the vertical fault; the orphaned pair mirrors the row in dashed slate.
+   Same story, fewer elements, one axis; revert = the R012 triangle state. ── */
 function RaftCenterMark() {
   return (
     <svg viewBox="-2 0 260 160" aria-hidden="true">
@@ -96,42 +94,36 @@ function RaftCenterMark() {
           <circle cx="3.5" cy="3.5" r="1.9" fill="#f3948a" />
         </pattern>
       </defs>
-      <ellipse cx="128" cy="86" rx="99" ry="60" fill="url(#gem-raft-bed)" opacity="0.09" />
-      <ellipse className="gem-halo" style={haloVar(0.12)} cx="74" cy="80" rx="44" ry="32" fill="url(#gem-raft-glow)" opacity={0.16} />
+      <ellipse cx="128" cy="80" rx="99" ry="60" fill="url(#gem-raft-bed)" opacity="0.09" />
+      <ellipse className="gem-halo" style={haloVar(0.12)} cx="84" cy="80" rx="44" ry="32" fill="url(#gem-raft-glow)" opacity={0.16} />
 
-      {/* majority mesh — one triangle: apex leader, two peers on the baseline row
-          (owner delegated a visible step: links 2.4 -> 2.7, ~+12% — revert = 2.4) */}
+      {/* the cluster — one row: peer ring — leader disc — peer ring */}
       <g stroke="#c0b6a1" strokeWidth="2.7" strokeLinecap="round" fill="none">
-        <line x1="55" y1="69.3" x2="47.7" y2="95" />
-        <line x1="70.5" y1="66.7" x2="92.2" y2="97" />
-        <line x1="57.5" y1="108" x2="86.5" y2="108" />
+        <line x1="56.5" y1="80" x2="69" y2="80" />
+        <line x1="99" y1="80" x2="111.5" y2="80" />
       </g>
-      {/* severed attempts — two horizontals on the leader/peer rows, dying short of the cut */}
-      <g stroke="#c0b6a1" strokeWidth="2.7" strokeLinecap="round" fill="none" opacity="0.55">
-        <line x1="80" y1="52" x2="142" y2="52" />
-        <line x1="114" y1="108" x2="142" y2="108" />
-      </g>
+      {/* severed attempt — one stub dying short of the cut */}
+      <line x1="133" y1="80" x2="142" y2="80" stroke="#c0b6a1" strokeWidth="2.7" strokeLinecap="round" opacity="0.55" />
 
       {/* the partition — one vertical */}
-      <line x1="150" y1="36" x2="150" y2="124" stroke="#7d7669" strokeWidth="3.3" strokeLinecap="round" />
+      <line x1="150" y1="46" x2="150" y2="120" stroke="#7d7669" strokeWidth="3.3" strokeLinecap="round" />
 
-      {/* orphaned minority — same rows, same diagonal, dashed slate */}
+      {/* orphaned minority — the row mirrored, dashed */}
       <g stroke="#7d7669" strokeWidth="1.5" strokeLinecap="round" strokeDasharray="1.5 5" fill="none">
-        <line x1="158" y1="52" x2="182.5" y2="52" />
-        <line x1="158" y1="108" x2="198.5" y2="108" />
-        <line x1="199.7" y1="65" x2="208.3" y2="95" />
-        <circle cx="196" cy="52" r="9.5" />
-        <circle cx="212" cy="108" r="9.5" />
+        <line x1="159" y1="80" x2="167" y2="80" />
+        <circle cx="177.5" cy="80" r="9.5" />
+        <line x1="188" y1="80" x2="195" y2="80" />
+        <circle cx="205" cy="80" r="9.5" />
       </g>
 
-      {/* majority peers — paper-leaning rims (stepped ~10% luma off paper) */}
+      {/* majority peers — paper-leaning rims */}
       <g fill="none" stroke="#ddd6c6" strokeWidth="2.4">
-        <circle cx="44" cy="108" r="9.5" />
-        <circle cx="100" cy="108" r="9.5" />
+        <circle cx="46" cy="80" r="9.5" />
+        <circle cx="122" cy="80" r="9.5" />
       </g>
 
-      {/* leader — the one hue mass, coral stepped toward paper */}
-      <circle cx="60" cy="52" r="14" fill="#f3948a" />
+      {/* leader — the one hue mass */}
+      <circle cx="84" cy="80" r="14" fill="#f3948a" />
     </svg>
   );
 }
@@ -198,12 +190,11 @@ function KittyCenterMark() {
   );
 }
 
-/* ── 3 · Evening Forest — teal spot ink, "fox on the trail", R019: the fox
-   is rebuilt on a 4px grid as three blocks (body slab, head square, 45°
-   stepped tail) in a paper-tinted mint, with paper carried by structure —
-   back/head/tail ridge lines, a chest block, the tail tip; legs and scene ink
-   stay deep green. Secondary scene goes quiet: symmetric fern, bone
-   mushroom caps on paper stems, two ground fragments, two leaves. ── */
+/* ── 3 · Evening Forest — teal spot ink, "fox on the trail", R013
+   senior-minimalism trial: the fox itself is untouched (three blocks, 45°
+   stepped tail, paper band); the scene drops to ground + lit trail, one fern
+   (stem + two fronds), one mushroom (no spots), one leaf — fewer elements,
+   more air, same green/white read; revert = the R012 scene state. ── */
 function FoxCenterMark() {
   return (
     <svg viewBox="0 0 260 160" aria-hidden="true" shapeRendering="crispEdges">
@@ -218,23 +209,15 @@ function FoxCenterMark() {
       <ellipse cx="130" cy="92" rx="106" ry="58" fill="url(#gem-fox-bed)" opacity="0.09" />
       <ellipse className="gem-halo" style={haloVar(0.12)} cx="116" cy="98" rx="56" ry="30" fill="url(#gem-fox-glow)" opacity={0.12} />
 
-      {/* ground — one bar, two fragments */}
+      {/* ground — one bar with the lit trail on its top edge */}
       <rect x="32" y="124" width="200" height="4" fill="#1f5e4c" />
-      {/* lit trail — a two-unit paper rule on the ground's top edge, full
-          strength (owner delegated a visible step; revert = remove this rect) */}
       <rect x="32" y="124" width="200" height="2" fill="#eeeae0" />
-      <g fill="#1f5e4c">
-        <rect x="68" y="132" width="12" height="3" />
-        <rect x="150" y="132" width="8" height="3" />
-      </g>
 
-      {/* fern — one stem, symmetric fronds */}
+      {/* fern — one stem, two fronds */}
       <g fill="#1f5e4c">
         <rect x="44" y="100" width="4" height="24" />
-        <rect x="36" y="104" width="8" height="4" />
-        <rect x="48" y="104" width="8" height="4" />
-        <rect x="38" y="112" width="6" height="4" />
-        <rect x="48" y="112" width="6" height="4" />
+        <rect x="34" y="108" width="10" height="4" />
+        <rect x="48" y="108" width="10" height="4" />
       </g>
 
       {/* fox — mint blocks: stepped tail, body slab, head square, snout */}
@@ -266,18 +249,13 @@ function FoxCenterMark() {
         <rect x="144" y="112" width="4" height="8" />
       </g>
 
-      {/* mushrooms — stepped bone caps, deep-green spots, paper-leaning stems */}
+      {/* mushroom — one stepped dome, bone cap, paper-leaning stem */}
       <rect x="190" y="112" width="6" height="12" fill="#ddd6c6" />
       <rect x="182" y="102" width="22" height="10" fill="#b6ac95" />
       <rect x="186" y="98" width="14" height="4" fill="#b6ac95" />
-      <rect x="188" y="104" width="3" height="3" fill="#1f5e4c" />
-      <rect x="196" y="100" width="3" height="3" fill="#1f5e4c" />
-      <rect x="210" y="116" width="4" height="8" fill="#ddd6c6" />
-      <rect x="206" y="110" width="12" height="6" fill="#b6ac95" />
 
-      {/* falling leaves */}
+      {/* one falling leaf */}
       <rect x="176" y="60" width="4" height="4" fill="#8fdbbd" />
-      <rect x="92" y="52" width="4" height="4" fill="#1f5e4c" />
     </svg>
   );
 }

@@ -217,3 +217,21 @@ must not be touched. CSS caps (stage 168px ≥900 / 150px ≤899; base mark cap
   paper-topped; both visible at card scale in the shot itself.
 - Deploy: pushed; deploy-pages.yml rebuilds Pages.
 - Revert switches: raft strokeWidth 2.7 -> 2.4; delete the fox trail rect.
+
+## Round R013
+- Goal: owner: still not consistent — wants a senior-developer minimalism look;
+  delegated the call, revert if disliked.
+- Changes: ProjectArtwork.tsx —
+  raft: dropped the triangle entirely — the whole cluster is ONE horizontal
+  row (peer ring - coral leader disc - peer ring, straight bone links 2.7 with
+  measured gaps), one severed stub dies at the vertical fault, the orphaned
+  pair mirrors the row in dashed slate; bed/halo recentred on the row;
+  fox: fox untouched; scene reduced to ground + lit trail, one fern (stem +
+  two fronds), one mushroom (dome, no spots, no second mushroom), one leaf;
+  ground fragments dropped.
+- Verification: tsc clean; landing-shots desktop-cards.png
+  (artifacts/R013-senior-minimal): both marks read quiet and diagrammatic,
+  closer to the quicknotes register; raft row rhymes with planck's scrubber.
+- Deploy: pushed; deploy-pages.yml rebuilds Pages.
+- Revert: git restore the two functions to the R012 state (triangle raft /
+  full fox scene).
