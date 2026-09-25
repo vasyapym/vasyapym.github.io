@@ -1270,7 +1270,7 @@ body:has(.practice-map-field) { background: #0b1317; }
     max-width: 216px;}                     /* unchanged */
 
   .project-artwork-center.center-raft {
-    max-width: 201px;}                     /* was 216px (×0.93) */
+    max-width: 175px;}                     /* was 201px (×0.87) */
 
   .project-artwork-center.center-fox {
     max-width: 205px;}                     /* was 216px (×0.95) */
@@ -1361,7 +1361,7 @@ body:has(.practice-map-field) { background: #0b1317; }
   }
 
   .project-artwork-center.center-raft {
-    max-width: 182px;                      /* was 196px (×0.93) */
+    max-width: 158px;                      /* was 182px (×0.87) */
   }
 
   .project-artwork-center.center-fox {
