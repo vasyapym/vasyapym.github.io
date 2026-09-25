@@ -80,6 +80,9 @@ Rules that earned their place (edit only with evidence):
   the owner's voice essence, then give explicit creative license and treat
   the material as raw notes, not a checklist; heavy ban lists beyond hard
   taste-lines (pitch, emoji) produce correct-but-flavorless copy (S11).
+  A verbatim base forces meaning-by-meaning reconstruction — for a fresh
+  text, give permission to drop meanings plus a length target, and carry
+  only the base's best moves as spirit-not-wording (S12).
 
 ## Files here
 
