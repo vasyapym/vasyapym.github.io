@@ -862,7 +862,7 @@ export default function LandingPage({
                 target="_blank"
                 rel="noreferrer"
               >
-                about the project <span aria-hidden="true">→</span>
+                github repository <span aria-hidden="true">→</span>
               </a>
               <span className="signal-index-hero-note-dot" aria-hidden="true">·</span>
               <a
@@ -871,7 +871,7 @@ export default function LandingPage({
                 target="_blank"
                 rel="noreferrer"
               >
-                github repository <span aria-hidden="true">→</span>
+                about the project <span aria-hidden="true">→</span>
               </a>
             </p>
           </div>

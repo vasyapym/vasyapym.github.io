@@ -382,3 +382,22 @@ Task: rethink how the 6 project cards are presented on the main page (desktop). 
 - Visual inspection: performed on the real page (probe r027-about-link.mjs re-run). Geometry unchanged from R027 (note top 432 desktop / 245 mobile, one line at 390×844 — inspected the PNG: "about the project → · github repository →" fits with air).
 - Code verification: tsc --noEmit green.
 - Open question: none for this swap; the modal (R029) carries the round's real verdict.
+
+## Feedback F013
+- Round: R028
+- Verdict: REJECTED
+- Scope: hero note label order, all viewports
+- Decision: "github repository →" leads, "about the project →" goes second
+- User source: "'about the project' should go second. github - first."
+- Artifact: after/note-390x844.png (R028 artifact set)
+- Supersedes: the R027 ordering only (labels and link device stand)
+
+## Round R029
+- Goal: F013 — swap the hero note order: github first, about second.
+- Preserved preferences: F002, F005, F006–F011, R027's link device, F012 labels.
+- Changes: LandingPage.tsx — the two hero-note anchors swapped; separator and styles untouched.
+- Before: artifacts/R028/after-note-390x844.png
+- After: artifacts/R029/after-note-390x844.png, after-hero-1440x900.png
+- Visual inspection: performed on the real page (probe re-run). Geometry unchanged from R027/R028 (note top 432 desktop / 245 mobile; one line at 390×844 — inspected the PNG).
+- Code verification: tsc --noEmit green.
+- Open question: none; the modal round follows as R030 (relay pending).
