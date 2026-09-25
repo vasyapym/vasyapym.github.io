@@ -2061,6 +2061,38 @@ const erykahBaduTopics: readonly TopicCard[] = [
     },
   },
 ];
+
+const kubernetesFirstPrinciplesTopics: readonly TopicCard[] = [
+  {
+    id: "kubernetes-first-principles",
+    title: "Kubernetes: from first principles to production",
+    summary: "Kubernetes as a distributed control system for declared intent: desired state versus observations, reconciliation and its asynchrony; the control plane and its datastore; Pods as the unit of placement; workload controllers (Deployment, StatefulSet, DaemonSet, Job); Services, discovery and routing; storage, configuration and secrets; requests, limits and scheduling economics; rollouts, graceful termination and disruption budgets; security and tenancy; extension through CRDs and operators — with the standing question of which layer owns each promise.",
+    concepts: [],
+    practicePrompt: "Spin up a local cluster (kind or minikube), deploy a three-replica Deployment with a Service, delete one Pod, and trace the recovery: which controller created the replacement, what the Pod reported at each step (Pending, Running, ready), and which Events kubectl describe shows. Then change the image and follow kubectl rollout status. No cluster was run in this environment — run and verify it yourself.",
+    checkPrompt: "Without a cluster, answer: a Pod whose status is Running — what is still not guaranteed about it receiving traffic? Why are 'the object exists', 'a Pod was scheduled', 'its process is running', and 'the application is ready to serve' four different claims, and which component reports each? Explain generation versus observedGeneration, what resourceVersion is for, and why a stuck finalizer leaves an object terminating. Name the layer that owns each of: keeping N replicas alive, choosing a Node, exposing a stable address, encrypting traffic, and database consistency.",
+    tier: 1,
+    complexity: 4,
+    references: [
+      "Kubernetes documentation — https://kubernetes.io/docs/",
+      "Kubernetes concepts — https://kubernetes.io/docs/concepts/",
+      "Kubernetes API concepts: resourceVersion, generation, observedGeneration — https://kubernetes.io/docs/reference/using-api/api-concepts/"
+    ],
+    lesson: {
+      problem: "Kubernetes gets filed as «it runs containers» — which hides the actual game: what a declared object does and does not promise, why «tries» is the operative word, and why four claims (the object exists / the Pod was scheduled / the process is running / the application is ready to serve) are different facts owned by different layers. Without that map you can read cluster vocabulary fluently and still not predict what a cluster will do.",
+      model: "A distributed control system that stores intent (spec) and observations (status) as API objects, and coordinates many independent, asynchronous control loops between them. You do not command containers to start — you write desired state, and controllers observe, compare, and act toward it. Every loop is bounded by physics: capacity, scheduling constraints, image retrieval, distributed-system delays, and application correctness. Knowing which layer owns each promise — application, workload controller, scheduler, network, storage, operator — is the core skill.",
+      mechanics: "kubectl apply writes objects; control loops act on them: a Deployment creates a ReplicaSet, the ReplicaSet creates Pods, the scheduler places each Pod, and each Node's kubelet + container runtime (CRI, commonly containerd) start its containers. Reconciliation is asynchronous: «created», «scheduled», «running» and «ready» are separate statuses reported by separate components. Identity and racing: name vs UID, namespaces, labels (selection) vs annotations, ownerReferences (garbage collection) and finalizers (deletion gates); generation vs observedGeneration tracks whether status reflects the latest spec revision, and resourceVersion is an opaque concurrency token for conflicting updates. Probes split health into liveness (restart), readiness (traffic) and startup (slow-start grace); Services publish ready, label-selected endpoints (EndpointSlice) behind a stable virtual IP, while Ingress/Gateway API add HTTP routing and NetworkPolicy adds permissive IP-and-port rules only where the CNI enforces them. Requests drive placement, limits drive runtime enforcement (CPU throttled, memory killed); QoS classes grade behavior under pressure, and affinity/taints/topology spread answer the real question: can each Pod be placed while every constraint holds? Termination is asynchronous endpoint removal plus a grace period plus SIGTERM — never an atomic traffic switch; a PDB gates only voluntary disruption via the Eviction API. CRDs add kinds, operators add domain-specific loops, and Helm/GitOps layer more desired state on top — all subject to the same reconciliation physics.",
+      pitfalls: [
+      "Reading status loosely: Running ≠ ready; ImagePullBackOff, CrashLoopBackOff and OOMKilled are reasons, not phases, and Events are short-lived, not an audit trail.",
+      "Treating Pod IPs, writable container layers, or Jobs as durable or exactly-once guarantees — retries and races reach external systems.",
+      "Expecting zero downtime from maxSurge alone: it also needs headroom, real readiness checks, graceful shutdown, and compatible data changes.",
+      "Liveness probes that restart every replica when a shared dependency slows — a transient incident becomes a cluster-wide outage.",
+      "Assuming base64 Secrets are encrypted, «Persistent» volumes are backup, or NetworkPolicy is default-deny and self-enforcing.",
+      "Letting several managers write the same field — an HPA fighting a reapplied manifest, Helm fighting GitOps — and discovering it through apply conflicts."
+      ],
+      whenNot: "This is a model of Kubernetes' control loops and their boundaries — not an operations runbook, a security architecture, or a substitute for the application's own replication, backups, and idempotency design. Kubernetes cannot create missing machines, repair bugs, or make a database consistent by restarting it."
+    },
+  },
+];
 export const curriculum: readonly PracticeArea[] = [
   {
     id: "go",
@@ -2245,5 +2277,13 @@ export const curriculum: readonly PracticeArea[] = [
     tier: 1,
     dependencies: [],
     topics: erykahBaduTopics,
+  },
+  {
+    id: "kubernetes-first-principles",
+    title: "Kubernetes: from first principles to production",
+    description: "A long-form English essay on Kubernetes as a control system: declared intent, asynchronous reconciliation, the layers that own each promise, and the boundary between vocabulary and behavior.",
+    tier: 1,
+    dependencies: [],
+    topics: kubernetesFirstPrinciplesTopics,
   },
 ];
