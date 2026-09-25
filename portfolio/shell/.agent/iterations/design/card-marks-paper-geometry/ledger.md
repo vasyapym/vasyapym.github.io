@@ -472,3 +472,19 @@ must not be touched. CSS caps (stage 168px ≥900 / 150px ≤899; base mark cap
   at 182px, no ring leftovers, no console errors.
 - Deploy: pushed; deploy-pages.yml rebuilds Pages.
 - Revert: R024 (Ring) via git restore of ProjectArtwork.tsx.
+
+## Round R026
+- Goal: owner verdict on the live Hub - left and right elements feel too
+  far from the cut; option A approved (breathing space tightened, element
+  sizes untouched).
+- Changes: portfolio/shell/src/shell/ProjectArtwork.tsx raft - quorum
+  cluster +14 toward the cut (leader 92->106, peers 48->62), orphan pair
+  -8 (190->182, 224->216); ellipsis dots translated with the pair (pitch
+  unchanged 9.6, dot size unchanged r2.4); links recomputed to the new
+  endpoints. Gap quorum->cut 44->30 units; cut->orphan 28.5->20.5. All
+  element sizes and stroke weights verbatim.
+- Verification: tsc clean; landing card screenshot
+  (artifacts/R026/after-tighten.png, compare R025 before) - both groups
+  now read against the cut; no console errors.
+- Deploy: pushed; deploy-pages.yml rebuilds Pages.
+- Revert: R025 coordinates via git restore of ProjectArtwork.tsx.
