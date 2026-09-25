@@ -1,0 +1,5 @@
+interface:
+  display_name: "Minimize Iteration 2"
+  short_description: "A/B-test relay routing signals: register, provenance, markdown density"
+policy:
+  allow_implicit_invocation: false

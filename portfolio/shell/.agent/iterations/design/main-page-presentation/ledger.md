@@ -344,3 +344,12 @@ Task: rethink how the 6 project cards are presented on the main page (desktop). 
 - Visual inspection: performed on the real page (probe). Measured — 1920×963: card 508×389→500×349 (−10.3% height), gap 24→40, stage 200→168, corridor 1040 2col intact; 1440×900: 500×348, same; 390×844 (mobile regression): gap 16, stage 150, pad 20 — byte-identical. Inspected PNGs: marks inside their stages with clear headroom, Cat Runner's long tech string still 2 lines, composition reads airier while the corridor edge system holds.
 - Code verification: tsc --noEmit green (CSS-only).
 - Open question: owner judges the airier catalogue on the Edge machine — the 40px gutter vs 20px card padding (outer air = 2× inner) is the patch's one stated trade-off; if it reads scattered rather than airy, the gutter walks back toward 32px in a micro-steer.
+
+## Feedback F011
+- Round: R026
+- Verdict: LIKED (hedged)
+- Scope: project-card shrink + 40px gutters (art stage 168, marks ×0.84, copy pad 20/minh 152), ≥900px widths
+- Decision: "it seems better" — the airier catalogue is accepted as an improvement; no further steer given
+- User source: "it seems better"
+- Artifact: artifacts/R026/after-cards-1920x963.png (deployed R026)
+- Supersedes: none
