@@ -2167,6 +2167,42 @@ const laravelSymfonyFieldGuideTopics: readonly TopicCard[] = [
     },
   },
 ];
+
+const visceralHypersensitivityTopics: readonly TopicCard[] = [
+  {
+    id: "visceral-hypersensitivity-gut",
+    title: "Visceral Hypersensitivity (VHS) of the Gut: From Basics to Advanced",
+    summary: "A layered medical-education essay on visceral hypersensitivity as amplification along a signaling chain: shared-nothing-free wiring from the enteric nervous system through vagal and spinal afferents, silent afferents that inflammation wakes, and viscerosomatic convergence that yields referred pain; how sensitivity rises at three levels — peripheral sensitization via mast cells, serotonin, ion channels (TRPV1, Nav, Piezo2) and the inflammatory soup, barrier permeability and post-infectious IBS, central sensitization with wind-up and glia, and descending facilitation measured by conditioned pain modulation; the brain's networks (salience, interoception, emotional arousal), signal-detection vs response bias, placebo effects; stress (CRF), early-life programming, the microbiota-gut-brain axis and FODMAPs; how it is measured (barostat protocols, VMR, biopsy-supernatant translation); treatments mapped to mechanism; and open questions — heterogeneity, mechanism-based subtyping, nociplastic pain, and predictive processing.",
+    concepts: [],
+    practicePrompt: "This is medical science — no experiments can be run here. Instead: pick two real patients' descriptions from published IBS case reports or the Rome IV chapters, and for each trace one symptom through the lesson's signaling chain, naming the level (periphery, cord, modulation, interpretation) the best evidence supports and marking every claim you cannot support from the text. Distinguish what is documented evidence from what is model. No clinical data was generated or executed in this environment.",
+    checkPrompt: "Without sources open, explain: allodynia vs hyperalgesia and what a leftward stimulus-response shift means; why visceral pain is diffuse and midline (sparse innervation, convergence); the four spinal afferent classes and why silent afferents matter post-inflammation; how viscerosomatic convergence and dichotomizing afferents produce referred and cross-organ sensitization; the three levels where sensitivity rises and one molecular mechanism at each (TRPV1 upregulation, NMDA/wind-up, ON/OFF-cell balance); what conditioned pain modulation tests and why it matters for SNRIs/TCAs; how the barostat controls for compliance and why response bias needs random/tracking protocols; and why the Rome Foundation replaced 'functional' with 'disorders of gut-brain interaction'.",
+    tier: 1,
+    complexity: 4,
+    references: [
+      "Rome Foundation — Rome IV criteria and disorders of gut-brain interaction — https://theromefoundation.org",
+      "IASP Terminology — 'nociplastic pain' adopted 2017 — https://www.iasp-pain.org/resources/terminology",
+      "Monash University — The low FODMAP diet — https://www.monashfodmap.com",
+      "ATLANTIS trial (Lancet, 2023): low-dose amitriptyline for IBS in primary care — https://doi.org/10.1016/S0140-6736(23)00859-8",
+      "Kaptchuk et al., open-label placebo in IBS (PLoS ONE, 2010) — https://doi.org/10.1371/journal.pone.0015591",
+      "Walkerton Health Study aftermath (2000 E. coli outbreak and PI-IBS) — https://www.ncbi.nlm.nih.gov/pmc/articles/PMC2607010",
+      "J. F. Furness, The Enteric Nervous System — the 400–600 million neuron estimate"
+    ],
+    lesson: {
+      problem: "Visceral hypersensitivity gets reduced to «a sensitive stomach» or, worse, «it's psychological» — both miss the actual architecture. The gut is not necessarily damaged; a signaling chain is amplified at several points, and a patient whose laboratory thresholds look normal can still suffer. Without the chain model you cannot explain referred pain, why IBS clusters with bladder pain and fibromyalgia, why low-FODMAPs help one patient and amitriptyline another, or why hypnotherapy changes barostat thresholds.",
+      model: "A signaling chain: the gut generates stimuli (distension, contraction, chemistry) → transduction through ion channels and enterochromaffin cells → peripheral sensitization (mast cells, permeability, microbial products, silent afferents waking up) → central amplification in the dorsal horn (wind-up, disinhibition, glia) → descending modulation from brainstem (ON/OFF-cell balance can fail to dampen or actively facilitate) → interpretation by brain networks (salience, interoception, emotional arousal, executive control) under systemic influences (stress/CRF, early-life programming, genetics, sex hormones, microbiome, diet). Disorders of gut-brain interaction are real dysregulations of this axis — the Rome Foundation's renaming makes that explicit — and 'hypersensitivity' is one mechanism among several, present in about a third to a half of IBS patients.",
+      mechanics: "Wiring: the ENS runs digestion semi-autonomously; conscious sensation rides extrinsic afferents — vagal (nodose/jugular → NTS; satiety, nausea; IGLEs/IMAs) and spinal (DRG → dorsal horn; the pain conduit). Spinal classes: mucosal, muscular, muscular-mucosal, serosal/mesenteric; low-threshold fibers encode the physiological range, high-threshold ones are nociceptors, and silent afferents — inert until inflammation — recruit en masse post-insult. Viscerosomatic convergence onto shared dorsal-horn neurons yields referred pain (heart attack felt in the arm); dichotomizing afferents and shared convergence yield viscero-visceral cross-sensitization (colitis ↔ bladder). Peripheral sensitization is chemical: the inflammatory soup — histamine (H1), tryptase (PAR2), prostaglandins, NGF, and 90–95% gut-made serotonin (5-HT3/5-HT4) — lowers channel thresholds via PKA/PKC/ERK phosphorylation of TRPV1/TRPA1/TRPV4/TRPM8, Nav1.7-1.9, Piezo2, ASICs, and α2δ-1. Central sensitization: NMDA-driven LTP-like strengthening, wind-up, microglia/astrocyte activation (BDNF), disinhibition — clinically visible as spread beyond the gut (nociplastic pain, chronic overlapping pain conditions). Descending modulation is bidirectional (PAG → RVM → dorsal horn; serotonin/noradrenaline/opioids); impaired conditioned pain modulation indexes deficient endogenous analgesia — the rationale for TCAs/SNRIs as 'neuromodulators'. Measurement must control compliance (barostat) and response bias (random/tracking protocols vs ascending limits; signal detection theory); placebo/nocebo are large, even open-label. Treatment maps onto levels: reduce stimulus (low-FODMAP), act peripherally (GC-C agonists' cGMP antinociception, alosetron, peppermint/TRPM8, mast-cell stabilizers, eluxadoline, bile-acid sequestrants), act centrally (TCAs/SNRIs, gabapentinoids), or retrain interpretation (gut-directed hypnotherapy, CBT) — the brain side is genuinely modifiable.",
+      pitfalls: [
+      "Reading VHS as one disease: post-infectious mast-cell activation, bile-acid diarrhea, trauma-driven central amplification, and catastrophizing with normal thresholds can all present identically — mechanism-based subtyping is the open frontier.",
+      "Treating hypersensitivity as universal or defining for IBS: only a third to a half show it, and its correlation with daily symptoms is modest.",
+      "Forgetting the brain half of the loop: expectation, attention and conditioning genuinely alter spinal and cortical processing; 'psychological vs physical' is a false dichotomy.",
+      "Overtranslating animal models: rodent VMR is a reflex, not a pain report, and many promising targets failed in humans.",
+      "Using 'leaky gut' loosely — permeability is measurable science tangled with pseudoscientific packaging.",
+      "Prescribing by bowel habit alone while missing bile-acid diarrhea or post-infectious mast-cell activation — mechanism mismatch is a treatment failure."
+      ],
+      whenNot: "This is a mechanistic map for understanding the literature and treatment logic — not a diagnostic checklist, a clinical guideline, or a substitute for assessment by a physician; no clinical data was generated here, and several specifics remain contested open questions."
+    },
+  },
+];
 export const curriculum: readonly PracticeArea[] = [
   {
     id: "go",
@@ -2375,5 +2411,13 @@ export const curriculum: readonly PracticeArea[] = [
     tier: 1,
     dependencies: [],
     topics: laravelSymfonyFieldGuideTopics,
+  },
+  {
+    id: "visceral-hypersensitivity-gut",
+    title: "Visceral Hypersensitivity of the Gut",
+    description: "A layered English essay on visceral hypersensitivity from basics to advanced: the signaling-chain model, afferent wiring, sensitization at three levels, measurement methods, and treatments mapped onto mechanisms.",
+    tier: 1,
+    dependencies: [],
+    topics: visceralHypersensitivityTopics,
   },
 ];
