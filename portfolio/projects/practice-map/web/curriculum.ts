@@ -2203,6 +2203,42 @@ const visceralHypersensitivityTopics: readonly TopicCard[] = [
     },
   },
 ];
+
+const subconsciousTopics: readonly TopicCard[] = [
+  {
+    id: "subconscious-basics-to-advanced",
+    title: "The subconscious: a guide from basics to advanced ideas",
+    summary: "A careful guide to what the everyday word 'subconscious' can and cannot mean: three kinds of unawareness (input, processing, cause) and the precise vocabulary — preconscious, nonconscious, implicit, subliminal, automatic; the Freudian dynamic unconscious and defense mechanisms with their evidentiary limits, Jung's archetypes as interpretation rather than inherited fact; perception as prediction with inattentional and change blindness, priming's secure and shaky halves, blindsight as the dissociation showcase; explicit vs implicit memory, reconstructive recall, consolidation and reconsolidation; conditioning, goal-directed vs habitual control and outcome devaluation, reward-prediction errors and dopamine's real role; emotion as appraisal plus interoception, valence and allostasis; heuristics, biases, IAT's limits and System 1/2 as metaphor; no subconscious brain region and the DMN's actual job; predictive processing and the unsettled theories of when processing becomes conscious; dreams, schemas, transference, therapies without buried secrets; and how science separates sensitivity from response bias before claiming anything is unconscious.",
+    concepts: [],
+    practicePrompt: "Take one everyday phenomenon of yours — typing without locating keys, recognizing a friend's voice in noise, feeling uneasy before naming why — and analyze it through the lesson: which of the three unawareness types applies, which vocabulary fits (implicit? nonconscious? preconscious?), and what the four levels of explanation each say about it. Then pick one claim about 'the subconscious' you have heard and say what evidence would establish or refute it. No experiments were run here.",
+    checkPrompt: "Without looking back: distinguish the three unawareness claims and why evidence for one doesn't cover the others; preconscious vs nonconscious vs psychoanalytic unconscious; why subliminal does not mean 'powerful hidden message' and speed/effort/intention/awareness are separate dimensions; repression vs suppression and why recovered-memory techniques are suspect; why illusions persist when known; priming's established vs insecure claims; explicit vs implicit memory and what amnesia cases show; outcome devaluation and habits; why dopamine is not 'the pleasure chemical'; why there is no subconscious region and no DMN headquarters; predictive processing with priors/likelihood/precision and where it overreaches; the four consciousness theories and what none of them settles; why a small insensitive awareness test proves nothing and above-chance performance proves little; the layered middle picture between the two extremes.",
+    tier: 1,
+    complexity: 3,
+    references: [
+      "William James, The Principles of Psychology (1890) — early distinctions of awareness and habit",
+      "Sigmund Freud, The Ego and the Id (1923) — the structural model, read historically",
+      "Stanislas Dehaene, Consciousness and the Brain (2014) — global neuronal workspace program",
+      "Karl Friston / Andy Clark — predictive processing surveys (Clark, Surfing Uncertainty, 2016)",
+      "Daniel Kahneman, Thinking, Fast and Slow (2011) — System 1/2 as metaphor, with replication-era caveats",
+      "Anthony Greenwald et al. — Implicit Association Test literature and its interpretation debates",
+      "The Axons/implicit memory literature: Milner, Corkin — H.M. and skill learning despite amnesia"
+    ],
+    lesson: {
+      problem: "The word 'subconscious' smuggles in a hidden person running a second mind, and pop culture trades on it — powerful subliminal messages, recovered memories, dream dictionaries, 'reprogramming'. The real picture is both less magical and more interesting: a layered system doing far more work than awareness can present, where the everyday word hides three different claims about unawareness and the evidence for one never establishes the others.",
+      model: "A layered architecture, not a two-tier machine: vast learning, prediction, regulation, and preparation run outside immediate awareness, while conscious reflection inspects outcomes, sets goals, and slowly reshapes the conditions under which automatic processes operate. Precision vocabulary does the work: preconscious (easily brought to mind), nonconscious (outside experience), implicit (shown through performance, not statement), subliminal (below a measured threshold), automatic (little deliberate effort) — with speed, effort, intention, and awareness as separate dimensions. History matters but earns no special truth: Freud's dynamic unconscious is influential history, not verified mechanism; Jung's archetypes interpret stories without being inherited facts.",
+      mechanics: "Perception is prediction: noisy bottom-up signals combine with top-down priors — which is why known illusions persist and why attention (selective resources) is not awareness (what enters experience); inattentional and change blindness show processed-but-inaccessible information. Priming is real where it is small and perceptual/semantic, weak where it claims life-steering power; blindsight is the flagship dissociation between processing and reported seeing, still task-by-task. Memory splits explicit (episodic, semantic; hippocampus) from implicit (skills, priming, conditioning; distributed systems) — amnesia cases show the split without watertight walls; recall is reconstructive, consolidation stabilizes, reconsolidation opens a narrow real window, not a delete key. Conditioning shapes behavior silently; outcome devaluation separates goal-directed from habitual; reinforcement learning's reward-prediction errors are dopamine's actual job (not 'pleasure'); extinction is new learning, which is why relapse returns in new contexts. Emotion is appraisal plus bodily regulation plus action preparation — feelings are data to investigate, not verdicts; the amygdala is not a fear switch. Judgment runs on heuristics with predictable biases; the IAT studies associations without measuring character; System 1/2 is a metaphor for process families, not brain modules. No subconscious region exists — contributions, not ownership; the DMN supports internally directed thought, not a hidden headquarters. Predictive processing (priors, likelihood, precision) illuminates without letting expectation override reality; the theories of when processing becomes conscious (global workspace broadcast, recurrent feedback, higher-order representation, integrated information) disagree and none settles why anything is experienced at all — and explanation levels (problem, algorithm, mechanism, feeling) must be kept apart. Science first specifies what was supposedly unconscious, then uses signal-detection theory to separate sensitivity from response bias — a weak awareness test proves nothing and above-chance performance proves little.",
+      pitfalls: [
+      "Collapsing three unawareness claims (input, processing, cause) into one — evidence for one transfers to none.",
+      "Treating 'subconscious' as a person inside: no region, no second self, no headquarters; the DMN is not the hidden mind.",
+      "Confusing repression with suppression, or assuming an inaccessible memory is stored intact and recoverable by technique — suggestive methods create false memories.",
+      "Trusting subliminal 'reprogramming', dream dictionaries, or hypnosis as truth serum — none survives experimental control.",
+      "Reading IAT scores as values, dopamine as pleasure, System 1/2 as anatomy, or prediction errors as expectations overriding reality.",
+      "Concluding unconsciousness from a failed small test — or sophistication from merely above-chance performance."
+      ],
+      whenNot: "This is a vocabulary-and-evidence map for reasoning about mental processes outside awareness — not a clinical guide, a therapy manual, or a license to interpret anyone's behavior, dreams, or test scores as hidden truths; the deep problem of why experience exists remains unsettled by all four theories."
+    },
+  },
+];
 export const curriculum: readonly PracticeArea[] = [
   {
     id: "go",
@@ -2419,5 +2455,13 @@ export const curriculum: readonly PracticeArea[] = [
     tier: 1,
     dependencies: [],
     topics: visceralHypersensitivityTopics,
+  },
+  {
+    id: "subconscious-basics-to-advanced",
+    title: "The subconscious: from basics to advanced ideas",
+    description: "A careful English essay on mental processes outside awareness: precise vocabulary, the real evidence behind priming, implicit memory and conditioning, and where pop-psychology claims fail.",
+    tier: 1,
+    dependencies: [],
+    topics: subconsciousTopics,
   },
 ];
