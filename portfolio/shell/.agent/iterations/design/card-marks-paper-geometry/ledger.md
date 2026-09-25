@@ -250,3 +250,17 @@ must not be touched. CSS caps (stage 168px ≥900 / 150px ≤899; base mark cap
   again while staying schematic-quiet.
 - Deploy: pushed; deploy-pages.yml rebuilds Pages.
 - Revert: R013 one-row state via git restore.
+
+## Round R015
+- Goal: owner: R014 dropped the lines connecting toward the right-side (orphan)
+  balls — concept broken again by over-pruning.
+- Changes: ProjectArtwork.tsx raft only — connectors restored in the column
+  geometry: majority side gets a second severed stub on the leader's row
+  (100,58 -> 142,58 @0.55, joining the baseline stub); the orphan side gets two
+  dashed stubs from the fault toward each ring (158 -> 191, stopping short —
+  the links never complete) while the vertical dashed link between the rings
+  stays. Quorum triangle + fault untouched. Fox untouched.
+- Verification: tsc clean; landing-shots desktop-cards.png
+  (artifacts/R015-connectors-back): the connection story reads both sides of
+  the cut; the quorum | fault | orphans narrative is whole again.
+- Deploy: pushed; deploy-pages.yml rebuilds Pages.

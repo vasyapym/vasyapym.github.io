@@ -105,16 +105,22 @@ function RaftCenterMark() {
         <line x1="92.2" y1="70" x2="110.1" y2="99.9" />
         <line x1="65.5" y1="108" x2="104.5" y2="108" />
       </g>
-      {/* severed attempt — one stub dying short of the cut */}
-      <line x1="125.5" y1="108" x2="142" y2="108" stroke="#c0b6a1" strokeWidth="2.7" strokeLinecap="round" opacity="0.55" />
+      {/* severed attempts — one stub per row (leader row + baseline), dying at the cut */}
+      <g stroke="#c0b6a1" strokeWidth="2.7" strokeLinecap="round" fill="none" opacity="0.55">
+        <line x1="100" y1="58" x2="142" y2="58" />
+        <line x1="125.5" y1="108" x2="142" y2="108" />
+      </g>
 
       {/* the partition — one vertical */}
       <line x1="150" y1="40" x2="150" y2="124" stroke="#7d7669" strokeWidth="3.3" strokeLinecap="round" />
 
-      {/* orphaned minority — a vertical dashed column, mirrored onto the quorum's rows */}
+      {/* orphaned minority — a vertical dashed column; dashed stubs from the
+          fault reach toward both rings and stop short (the links never complete) */}
       <g stroke="#7d7669" strokeWidth="1.5" strokeLinecap="round" strokeDasharray="1.5 5" fill="none">
-        <circle cx="206" cy="58" r="9.5" />
+        <line x1="158" y1="58" x2="191" y2="58" />
+        <line x1="158" y1="108" x2="191" y2="108" />
         <line x1="206" y1="68.5" x2="206" y2="97.5" />
+        <circle cx="206" cy="58" r="9.5" />
         <circle cx="206" cy="108" r="9.5" />
       </g>
 
