@@ -24,9 +24,12 @@ nothing usable. Full verbatim history: `S1-S5-full-history.md`.
    (hypotheses, scoring rubrics, protocol steps) — that cargo is what the
    long briefs died of.
 
-Size band that worked: ~60–150 words of prose around the cargo; verbatim
-base code rides along as needed. Keep total under ~400 words even when a
-full SVG is quoted.
+Size band that worked: ~60–150 words TOTAL for concept/mark asks, task
+facts only, no verbatim base (S5 rounds 2–4). A 471-word telegraphic
+brief with the verbatim svg + full house cargo drew "this doesn't seem
+to work well" (S10 draw 1) — the same failure as S5 round 1: remaining
+spec cargo drowns the creative ask. When the reply must match house
+register, the integrator repairs carriers/colors afterward.
 
 ## Exemplar (S5 Arm A, verbatim, 140 words)
 
