@@ -394,3 +394,31 @@ must not be touched. CSS caps (stage 168px ≥900 / 150px ≤899; base mark cap
   under 3 units ships)
 - Artifact: portfolio/shell/public/raft-details-21/index.html
 - Supersedes: none
+
+## Round R023
+- Goal: S9 relay reply arrived (Hub / Bus / Ring) - render as delivered on a
+  judging board vs the R022 reverted state; no integration until the owner
+  picks.
+- Preserved preferences: F011 (plain coral leader, no ornament), F010
+  (nothing subtle); brief rails held by all three (house lines verbatim,
+  ids in gem-raft- family, thinnest stroke 4 units, no banned devices).
+- Changes: portfolio/shell/public/raft-details-23/index.html (new static
+  judging board, 4 cells x 2 scales). Board-side repairs only: the Ring
+  symbol needed fill="none" on the arc path (the delivered tsx carries it
+  on the svg root, which <symbol> strips); the current cell gained the
+  house dot bed + halo for an honest comparison.
+- Mechanical review of the reply: contract-clean (3 blocks, story line,
+  why-it-survives line, drop-in functions); geometry verified - Ring's
+  r54 circle exact for all nodes/dots, Hub's ellipsis pitch uniform 9.6
+  units, Bus's dasharray "0 9" renders true dots. Flag: Bus's wire ends
+  30 units before the fault, so "severs" is implied, not literal
+  (repairable on integration if picked).
+- Before: artifacts/R023/board-full.png cell "current" (= R022 state).
+- After: same PNG cells 1 Hub / 2 Bus / 3 Ring.
+- Visual inspection: performed (headless Chrome, puppeteer-core) - read
+  the full-page PNG twice (caught and fixed the Ring fill rendering
+  artifact between reads); all three treatments hold their read at 182px;
+  no console errors.
+- Code verification: NOT RUN (static board, no app code touched).
+- Deploy: pushed; deploy-pages.yml rebuilds Pages.
+- Open question: pick 1 Hub / 2 Bus / 3 Ring (or none / a mix).
