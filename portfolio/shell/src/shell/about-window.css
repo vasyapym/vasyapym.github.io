@@ -1,0 +1,294 @@
+/* R030 "unfiled catalogue leaf" — relay concept, integrator-retinted to the
+   house --ink-* palette. Opens from the right over a dark scrim; the spine
+   marks the leaf as entry 00 outside the eight. No shadow, no radius, no
+   button UI: hairlines and mono only. */
+
+.about-window {
+  position: fixed;
+  inset: 0;
+  z-index: 1000;
+  display: flex;
+  align-items: stretch;
+  justify-content: flex-end;
+  background: rgb(11 19 23 / 86%);
+  color: var(--ink-text);
+  font-family: var(--sans);
+  animation: about-veil-in 180ms ease-out both;
+}
+
+.about-window * {
+  box-sizing: border-box;
+}
+
+.about-window__sheet {
+  width: min(840px, 86vw);
+  min-height: 0;
+  margin: clamp(20px, 4vh, 48px) clamp(24px, 4.5vw, 72px)
+    clamp(20px, 4vh, 48px) 0;
+  display: grid;
+  grid-template-columns: 56px minmax(0, 1fr);
+  overflow: hidden;
+  border: 1px solid var(--ink-line);
+  background: var(--ink-bg);
+  animation: about-leaf-in 220ms ease-out both;
+}
+
+.about-window__sheet:focus {
+  outline: none;
+}
+
+.about-window__spine {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 26px 0 24px;
+  border-right: 1px solid var(--ink-line);
+  color: var(--ink-faint);
+  font: 10px/1.4 var(--mono);
+  letter-spacing: 0.12em;
+}
+
+.about-window__spine-caption {
+  margin: auto 0;
+  writing-mode: vertical-rl;
+  transform: rotate(180deg);
+  white-space: nowrap;
+}
+
+.about-window__ticks {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.about-window__ticks span {
+  width: 10px;
+  height: 1px;
+  background: var(--ink-line);
+}
+
+.about-window__main {
+  min-width: 0;
+  min-height: 0;
+  overflow-x: hidden;
+  overflow-y: auto;
+  overscroll-behavior: contain;
+  scrollbar-color: var(--ink-line) var(--ink-bg);
+  scrollbar-width: thin;
+}
+
+.about-window__header {
+  position: sticky;
+  top: 0;
+  z-index: 1;
+  display: flex;
+  min-height: 62px;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  padding: 0 clamp(24px, 5vw, 72px);
+  border-bottom: 1px solid var(--ink-line);
+  background: var(--ink-bg);
+  color: var(--ink-muted);
+  font: 11px/1.4 var(--mono);
+  letter-spacing: 0.04em;
+}
+
+.about-window__header > span,
+.about-window__close {
+  white-space: nowrap;
+}
+
+.about-window a,
+.about-window a:visited {
+  color: var(--ink-muted);
+  text-decoration: none;
+  transition: color 180ms ease;
+}
+
+.about-window a:hover,
+.about-window a:focus-visible {
+  color: var(--ink-text);
+  text-decoration: none;
+}
+
+.about-window a:focus-visible {
+  outline: 1px solid var(--ink-accent-bright);
+  outline-offset: 3px;
+}
+
+.about-window__page {
+  --aw-number-width: 48px;
+  --aw-entry-gap: clamp(14px, 2vw, 26px);
+
+  padding: clamp(32px, 4vw, 56px) clamp(24px, 5vw, 72px) 48px;
+}
+
+.about-window__intro {
+  padding-bottom: 36px;
+  border-bottom: 1px solid var(--ink-line);
+}
+
+.about-window__intro-meta {
+  display: flex;
+  justify-content: space-between;
+  gap: 16px;
+  color: var(--ink-muted);
+  font: 10px/1.5 var(--mono);
+  letter-spacing: 0.05em;
+}
+
+.about-window__intro-meta span:last-child {
+  color: var(--ink-faint);
+  white-space: nowrap;
+}
+
+.about-window__intro h2 {
+  margin: 22px 0 0;
+  font-size: clamp(43px, 5vw, 66px);
+  font-weight: 400;
+  letter-spacing: -0.055em;
+  line-height: 1.05;
+}
+
+.about-window__hash {
+  color: var(--ink-accent);
+}
+
+.about-window__entries {
+  padding-top: 6px;
+}
+
+.about-window__entry {
+  display: grid;
+  grid-template-columns: var(--aw-number-width) minmax(0, 1fr);
+  gap: var(--aw-entry-gap);
+  padding: 21px 0 22px;
+  border-bottom: 1px solid var(--ink-line-soft);
+}
+
+.about-window__entry-number {
+  padding-top: 6px;
+  color: var(--ink-faint);
+  font: 10px/1.5 var(--mono);
+}
+
+.about-window__entry p {
+  max-width: 52ch;
+  margin: 0;
+  font-size: clamp(16px, 1.35vw, 18px);
+  font-weight: 400;
+  letter-spacing: 0.005em;
+  line-height: 1.65;
+}
+
+.about-window__entry a {
+  font-family: var(--mono);
+  font-size: 0.9em;
+  overflow-wrap: anywhere;
+}
+
+.about-window__entry em {
+  font-style: italic;
+  font-weight: 400;
+}
+
+.about-window__contact {
+  display: block;
+  margin: 28px 0 0 calc(var(--aw-number-width) + var(--aw-entry-gap));
+  padding-top: 25px;
+  border-top: 1px solid var(--ink-line);
+  font-style: normal;
+}
+
+.about-window__contact-label {
+  display: block;
+  margin-bottom: 9px;
+  color: var(--ink-faint);
+  font: 10px/1.5 var(--mono);
+  letter-spacing: 0.05em;
+}
+
+.about-window__email {
+  display: inline-block;
+  color: var(--ink-text);
+  font: 16px/1.5 var(--mono);
+  overflow-wrap: anywhere;
+}
+
+@keyframes about-veil-in {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+@keyframes about-leaf-in {
+  from {
+    opacity: 0;
+    transform: translateX(12px);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+
+@media (max-width: 680px) {
+  .about-window__sheet {
+    width: 100%;
+    height: 100%;
+    margin: 0;
+    grid-template-columns: 36px minmax(0, 1fr);
+    border: 0;
+  }
+
+  .about-window__spine {
+    padding: 21px 0;
+  }
+
+  .about-window__header {
+    min-height: 57px;
+    padding: 0 20px;
+  }
+
+  .about-window__page {
+    --aw-number-width: 26px;
+    --aw-entry-gap: 12px;
+
+    padding: 34px 20px calc(48px + env(safe-area-inset-bottom, 0px));
+  }
+
+  .about-window__intro {
+    padding-bottom: 27px;
+  }
+
+  .about-window__intro h2 {
+    margin-top: 19px;
+    font-size: clamp(39px, 10vw, 48px);
+  }
+
+  .about-window__entry {
+    padding: 18px 0;
+  }
+
+  .about-window__entry p {
+    font-size: 16px;
+  }
+
+  .about-window__email {
+    font-size: 14px;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .about-window {
+    animation: about-veil-in 120ms linear both;
+  }
+
+  .about-window__sheet {
+    animation: none;
+  }
+
+  .about-window a {
+    transition: none;
+  }
+}

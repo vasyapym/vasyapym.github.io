@@ -382,7 +382,15 @@ textarea:focus-visible {
   text-decoration: none;
   white-space: nowrap;
   /* resting transparent hairline: the ochre focus line never shifts layout */
-  border-bottom: 1px solid transparent;}
+  border: 0;
+  border-bottom: 1px solid transparent;
+  /* button trigger reset (the about trigger is a button, not a link):
+     no-ops on the anchor, kills the native button chrome here */
+  background: none;
+  padding: 0;
+  font: inherit;
+  letter-spacing: inherit;
+  cursor: pointer;}
 
 
 .signal-index-hero-link span {

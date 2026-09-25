@@ -3,6 +3,7 @@ import type { ProjectModule } from "../../../contracts/project-module";
 import HeroFluid from "./HeroFluid";
 import ProjectArtwork from "./ProjectArtwork";
 import RealmMode from "./RealmMode";
+import AboutWindow from "./AboutWindow";
 import {
   clearRealmReturnIntent,
   readRealmReturnIntent,
@@ -110,6 +111,14 @@ export default function LandingPage({
     [openProject],
   );
 
+  const handleAboutNavigate = useCallback(
+    (id: string) => {
+      setAboutOpen(false);
+      onOpenProject(id);
+    },
+    [onOpenProject],
+  );
+
   const handleRealmOpenProject = useCallback(
     (id: string) => {
       // Persist THIS instance's pre-realm offset so a later deep-return exit
@@ -121,6 +130,7 @@ export default function LandingPage({
   );
   const pageRef = useRef<HTMLElement>(null);
   const heroRef = useRef<HTMLElement>(null);
+  const [aboutOpen, setAboutOpen] = useState(false);
   const realmThresholdRef = useRef<HTMLElement>(null);
   const realmSectionEnterRef = useRef<HTMLButtonElement>(null);
   const realmChipRef = useRef<HTMLButtonElement>(null);
@@ -865,14 +875,20 @@ export default function LandingPage({
                 github repository <span aria-hidden="true">→</span>
               </a>
               <span className="signal-index-hero-note-dot" aria-hidden="true">·</span>
-              <a
+              <button
+                type="button"
                 className="signal-index-hero-link"
-                href="https://github.com/vasyapym/vasyapym.github.io"
-                target="_blank"
-                rel="noreferrer"
+                aria-haspopup="dialog"
+                aria-expanded={aboutOpen}
+                onClick={(event) => {
+                  // Safari leaves button clicks un-focused; focus first so
+                  // the dialog's focus-return lands back here.
+                  event.currentTarget.focus();
+                  setAboutOpen(true);
+                }}
               >
                 about the project <span aria-hidden="true">→</span>
-              </a>
+              </button>
             </p>
           </div>
           <div className="signal-index-graphic signal-index-beneath">
@@ -1046,6 +1062,11 @@ export default function LandingPage({
           entry={realmEntry}
         />
       ) : null}
+      <AboutWindow
+        open={aboutOpen}
+        onClose={() => setAboutOpen(false)}
+        onNavigate={handleAboutNavigate}
+      />
     </main>
   );
 }

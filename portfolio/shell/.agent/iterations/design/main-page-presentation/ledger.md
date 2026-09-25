@@ -401,3 +401,14 @@ Task: rethink how the 6 project cards are presented on the main page (desktop). 
 - Visual inspection: performed on the real page (probe re-run). Geometry unchanged from R027/R028 (note top 432 desktop / 245 mobile; one line at 390×844 — inspected the PNG).
 - Code verification: tsc --noEmit green.
 - Open question: none; the modal round follows as R030 (relay pending).
+
+## Round R030
+- Goal: owner-directed — the hero's "about the project →" opens an about window holding the owner's verbatim about text; design delegated through the chat-model relay (prompt 38 v4, telegraphic −30% arm). Winning concept: "unfiled catalogue leaf" — a leaf that opens from the right over a dark scrim, its spine marking it entry 00 outside the eight projects; no shadow, no radius, no button UI.
+- Preserved preferences: F002, F005, F006–F011, R027 link device, F012 labels, F013 order.
+- Changes: new `AboutWindow.tsx` (portal dialog: esc/scrim close, focus trap + return, body scroll lock with scrollbar-width compensation, verbatim copy as 7 numbered entries, project links wired to SPA nav via onNavigate → onOpenProject, mailto contact) + new `about-window.css` (house --ink-* palette, hairlines, 220ms leaf slide, ≤680px full-screen sheet with safe-area, reduced-motion = veil fade only) + `LandingPage.tsx` (aboutOpen state, handleAboutNavigate, trigger converted anchor→button with aria-haspopup/expanded and the Safari focus-first fix) + `styles.css` (hero-link button reset).
+- Integration repairs vs the model reply: demo copy → verbatim text; local --aw-* vars → house --ink-*; font literals → var(--mono)/var(--sans); close glyph ↗→× (close is not external); email span → mailto link; SPA nav added (model had demo hrefs + full-load advice).
+- Before: artifacts/R029/after-hero-1440x900.png (hero without modal)
+- After: artifacts/R030/modal-1440x900.png, modal-scrolled-1440x900.png, modal-390x844.png
+- Visual inspection: performed on the real page (probe portfolio/probes/r030-about-window.mjs). Inspected PNGs: scrim dims the catalogue, spine/ticks/00 joke reads, ochre hash anchors the intro, entries numbered 01–07 with mono links, contact block lands the email; mobile full-screen clean. Functional: esc close + focus returns to trigger, scroll lock restores, SPA nav to /projects/kitty-run/ unmounts the modal; scrim-click close is N/A on mobile by design (full-screen sheet; exits = close link).
+- Code verification: tsc --noEmit green; vite build green.
+- Open question: owner judges the concept and the heading register (model's h2 is weight 400 vs the house display 600) — ochre hash + 66px size may need a micro-steer.
