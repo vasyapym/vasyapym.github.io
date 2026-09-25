@@ -378,4 +378,12 @@ alternation count; owner early-close still applies.
   portfolio/shell/public/raft-details-21/ for owner judging. Mechanical note:
   all three replace the dot-bed + gem-halo device with their own plate/halo
   lines — the integrator restores the faint dot bed + hover halo on the pick.
-- Round summary: (fill after the owner pick)
+- Round summary: **S8 outcome: owner rejected the three treatments ("these
+  are not it")**, then delivered a further treatment from the same chat relay
+  (off-log round) — the relief/rhythm pass: dark offset under-print on every
+  plate, tapered paper-wedge fault with gutters, chunky dashes (nothing under
+  3 units), paper rings, reaching orphan stubs. Integrated as R019 verbatim
+  with the mechanical repairs (dot bed + hover halo restored behind the
+  design). Finding: the render-legibility law ("nothing that can't survive
+  ~182px") moved the detail language from linework to relief/rhythm — that
+  framing is what finally landed; S7's hairline framing is the counter-example.

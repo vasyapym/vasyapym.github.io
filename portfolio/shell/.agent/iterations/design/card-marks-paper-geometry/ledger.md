@@ -289,3 +289,21 @@ must not be touched. CSS caps (stage 168px ≥900 / 150px ≤899; base mark cap
 - Verification: landing-shots desktop-cards.png (artifacts/R018-blast-5): the
   strip renders smaller, no overflow, breathe intact.
 - Deploy: pushed; deploy-pages.yml rebuilds Pages.
+
+## Round R019
+- Goal: owner rejected the three S8 treatments ('these are not it') and
+  delivered a further relief/rhythm treatment from the same relay — integrate.
+- Changes: portfolio/shell/src/shell/ProjectArtwork.tsx raft — the
+  relief/rhythm mark verbatim: bed plate + grain bands, dark offset
+  under-print on every plate (translate 2.5,3), leader halo ring + coral disc
+  with one paper facet, 4.5-unit bone links, peers as paper rings on dark
+  fill, the fault as a tapered paper wedge with two dark gutters, orphans as
+  hollow rings + chunky pending column (7/6) + reaching stubs (5/5) that stop
+  short of the cut. Nothing under 3 units. House repairs on integration: the
+  sparse dot bed + the single gem-halo ellipse sit behind the design
+  (id gem-raft-halo renamed gem-raft-leader-halo; ids stay in the family).
+- Verification: shell tsc clean; landing-shots desktop-cards.png
+  (artifacts/R019-relief-rhythm): the mark reads with relief weight; story
+  intact (quorum | wedge cut | orphans reaching).
+- Deploy: pushed; deploy-pages.yml rebuilds Pages.
+- Revert: R017 raft via git restore.
