@@ -1,4 +1,6 @@
-import { Fragment, type CSSProperties, type ReactNode } from "react";
+import { Fragment, useEffect, type CSSProperties, type ReactNode } from "react";
+import { readProjectReturnPath, readProjectReturnScrollY, clearProjectReturnIntent } from "./project-return-intent";
+import { animateScrollToY } from "./animated-scroll";
 import "./about-page.css";
 
 // R032 — "colophon": the about page reads like the back matter of an
@@ -11,10 +13,11 @@ import "./about-page.css";
 export type Segment =
   | string
   | { em: string }
-  | { n: number; to: string; text: string }; // project link, n = catalogue number 1–8
+  | { n: number; to: string; text: string } // project link, n = catalogue number 1–8
+  | { to: string; text: string }; // unnumbered link (site url, "the deep")
 
 export type AboutCopy = {
-  lead?: Segment[];        // unnumbered opening line, above the ¶ entries
+  lead?: Segment[][];      // unnumbered opening paragraphs, above the ¶ entries
   paragraphs: Segment[][]; // numbered ¶ entries
   email?: string;          // optional sign-off; omitted when the copy has none
   home: { to: string; label: string }; // return control
@@ -40,17 +43,28 @@ const isProject = (s: Segment): s is { n: number; to: string; text: string } =>
 function segment(seg: Segment, key: number, link: RenderLink): ReactNode {
   if (typeof seg === "string") return seg;
   if (isEm(seg)) return <em key={key}>{seg.em}</em>;
+  if ("n" in seg) {
+    return (
+      <Fragment key={key}>
+        {link({
+          to: seg.to,
+          className: "ab-link",
+          children: (
+            <>
+              <span className="ab-link-t">{seg.text}</span>
+              <span className="ab-n" aria-hidden="true">{pad(seg.n)}</span>
+            </>
+          ),
+        })}
+      </Fragment>
+    );
+  }
   return (
     <Fragment key={key}>
       {link({
         to: seg.to,
         className: "ab-link",
-        children: (
-          <>
-            <span className="ab-link-t">{seg.text}</span>
-            <span className="ab-n" aria-hidden="true">{pad(seg.n)}</span>
-          </>
-        ),
+        children: <span className="ab-link-t">{seg.text}</span>,
       })}
     </Fragment>
   );
@@ -65,7 +79,22 @@ export default function AboutPage({
   copy: AboutCopy;
   renderLink?: RenderLink;
 }) {
-  const end = copy.paragraphs.length;
+  const end = (copy.lead?.length ?? 0) + copy.paragraphs.length;
+
+  // Returning from a project opened here: glide back to the row the visitor
+  // left. The intent's path gates it (the landing owns its own restore).
+  useEffect(() => {
+    if (readProjectReturnPath() !== "/about") {
+      return;
+    }
+    const scrollY = readProjectReturnScrollY();
+    clearProjectReturnIntent();
+    if (scrollY == null) {
+      return;
+    }
+    const maxScroll = Math.max(0, document.documentElement.scrollHeight - window.innerHeight);
+    animateScrollToY(Math.min(Math.max(0, scrollY), maxScroll));
+  }, []);
 
   return (
     <div className="ab">
@@ -87,21 +116,25 @@ export default function AboutPage({
 
       <main className="ab-main">
         <div className="ab-body">
-          {copy.lead && (
-            <Fragment key="lead">
-              <span className="ab-mark ab-enter" style={idx(0)} aria-hidden="true" />
-              <p className="ab-p ab-enter" style={idx(0)}>
-                {copy.lead.map((s, j) => segment(s, j, renderLink))}
+          {copy.lead?.map((p, i) => (
+            <Fragment key={`lead-${i}`}>
+              <span className="ab-mark ab-mark--ghost ab-enter" style={idx(i)} aria-hidden="true" />
+              <p className="ab-p ab-enter" style={idx(i)}>
+                {p.map((s, j) => segment(s, j, renderLink))}
               </p>
             </Fragment>
-          )}
+          ))}
 
           {copy.paragraphs.map((p, i) => (
             <Fragment key={i}>
-              <span className="ab-mark ab-enter" style={idx(i + 1)} aria-hidden="true">
+              <span
+                className="ab-mark ab-enter"
+                style={idx((copy.lead?.length ?? 0) + i)}
+                aria-hidden="true"
+              >
                 ¶ {pad(i + 1)}
               </span>
-              <p className="ab-p ab-enter" style={idx(i + 1)}>
+              <p className="ab-p ab-enter" style={idx((copy.lead?.length ?? 0) + i)}>
                 {p.map((s, j) => segment(s, j, renderLink))}
               </p>
             </Fragment>
@@ -129,14 +162,12 @@ export function checkAboutCopy(c: AboutCopy): string[] {
   const segs = c.paragraphs.flat();
   const projects = segs.filter(isProject);
   const nums = new Set(projects.map((p) => p.n));
-  const ems = segs.filter(isEm).length;
 
   if (c.paragraphs.length !== 6) out.push(`paragraphs: ${c.paragraphs.length}, expected 6`);
   if (!c.lead?.length) out.push("lead missing");
   if (projects.length !== 8) out.push(`project links: ${projects.length}, expected 8`);
   if (nums.size !== projects.length || [...nums].some((n) => n < 1 || n > 8))
     out.push("catalogue numbers must be unique, 1–8");
-  if (ems !== 1) out.push(`em: ${ems}, expected 1`);
   if (!c.home?.to) out.push("home link missing");
   return out;
 }

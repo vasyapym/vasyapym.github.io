@@ -12,7 +12,7 @@
   --ab-text: var(--sans, "IBM Plex Sans", ui-sans-serif, system-ui, sans-serif);
   --ab-mono: var(--mono, "IBM Plex Mono", ui-monospace, SFMono-Regular, monospace);
 
-  --ab-size: 0.875rem; /* 14px — the landing's prose ramp (card desc) */
+  --ab-size: 1rem; /* 16px — the landing prose ramp +15% (owner R035) */
   --ab-lh: 1.5;
   --ab-measure: clamp(52rem, 86vw, 65rem); /* the landing's corridor, verbatim */
   --ab-bar: 48px;
@@ -84,17 +84,28 @@
   margin-inline: auto;
   display: grid;
   grid-template-columns: minmax(0, 62ch);
-  row-gap: 1.2em;
+  row-gap: 0;
   align-items: baseline;
   font-size: var(--ab-size);
   line-height: var(--ab-lh);
   font-kerning: normal;
 }
 
-.ab-mark { display: none; }
+/* ¶ marks live on mobile too (owner R035): each mark sits above its
+   paragraph; the ghost cells (the lead's alignment-only marks) stay hidden. */
+.ab-mark {
+  display: block;
+  margin-bottom: 0.35em;
+  font: 400 11px/1.4 var(--ab-mono);
+  letter-spacing: 0.06em;
+  font-variant-numeric: tabular-nums;
+  color: var(--ab-muted);
+}
+
+.ab-mark--ghost { display: none; }
 
 .ab-p {
-  margin: 0;
+  margin: 0 0 1.2em;
   text-wrap: pretty;
   hanging-punctuation: first;
 }
@@ -102,8 +113,12 @@
 
 /* ── links ───────────────────────────────────────────── */
 
+/* the previous iteration's device: the gray mono voice — the link stands
+   apart from the sans body and wakes to full ink on hover */
 .ab-link {
-  color: inherit;
+  font-family: var(--ab-mono);
+  font-size: 0.9em;
+  color: var(--ab-muted);
   text-decoration: none;
   border-radius: 1px;
   scroll-margin-block: calc(var(--ab-bar) + 24px) 24px; /* clear sticky bar on focus */
@@ -123,10 +138,11 @@
   vertical-align: 0.7em;   /* raised without disturbing leading */
   color: var(--ab-ochre);
 }
-.ab-link:focus-visible { outline: 1px solid var(--ab-ochre); outline-offset: 3px; }
+.ab-link:focus-visible { color: var(--ab-paper); outline: 1px solid var(--ab-ochre); outline-offset: 3px; }
 .ab-link:focus-visible .ab-link-t { text-decoration-color: var(--ab-ochre); }
 
 @media (hover: hover) {
+  .ab-link:hover { color: var(--ab-paper); }
   .ab-link:hover .ab-link-t { text-decoration-color: var(--ab-ochre); }
   .ab-back:hover .ab-arrow { color: var(--ab-ochre); }
 }
@@ -141,6 +157,7 @@
   border-top: 1px solid var(--ab-line);
 }
 .ab-email {
+  grid-column: 2;
   margin: 0;
   padding-top: 1.4em;
   font: 400 0.8em/1.4 var(--ab-mono);
@@ -150,18 +167,22 @@
   overflow-wrap: anywhere;
 }
 
-/* ── desktop: rail ───────────────────────────────────── */
+/* ── desktop: the centered measure with the ¶ rail ───── */
 
 @media (min-width: 960px) {
   .ab { --ab-bar: 56px; }
-  .ab-body { grid-template-columns: clamp(7rem, 12vw, 11rem) minmax(0, 62ch); }
-  .ab-mark {
-    display: block;
-    font: 400 11px/1 var(--ab-mono);
-    letter-spacing: 0.06em;
-    font-variant-numeric: tabular-nums;
-    color: var(--ab-muted);
+  .ab-body {
+    grid-template-columns: 1fr minmax(0, 62ch) 1fr;
+    row-gap: 1.2em;
   }
+  .ab-mark {
+    grid-column: 1;
+    justify-self: end;
+    margin-bottom: 0;
+    padding-right: clamp(12px, 2.4vw, 28px);
+  }
+  .ab-mark--ghost { display: block; }
+  .ab-p { grid-column: 2; margin-bottom: 0; }
 }
 
 /* ── motion ──────────────────────────────────────────── */

@@ -9,6 +9,7 @@ const INTENT_KEY = "portfolio.project.return.v1";
 interface ProjectReturnData {
   type: "landing";
   scrollY?: number;
+  path?: string; // the route the visitor came from ("/" = the catalogue)
 }
 
 let volatileIntent: ProjectReturnData | null = null;
@@ -32,10 +33,11 @@ function resolveIntent(): ProjectReturnData | null {
   }
 }
 
-export function rememberProjectReturnIntent(scrollY?: number): void {
+export function rememberProjectReturnIntent(scrollY?: number, path: string = "/"): void {
   const data: ProjectReturnData = {
     type: "landing",
     ...(scrollY != null ? { scrollY } : {}),
+    ...(path !== "/" ? { path } : {}),
   };
   volatileIntent = data;
 
@@ -52,6 +54,10 @@ export function rememberProjectReturnIntent(scrollY?: number): void {
 
 export function readProjectReturnScrollY(): number | undefined {
   return resolveIntent()?.scrollY;
+}
+
+export function readProjectReturnPath(): string {
+  return resolveIntent()?.path ?? "/";
 }
 
 export function clearProjectReturnIntent(): void {

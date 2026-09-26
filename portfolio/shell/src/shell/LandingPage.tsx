@@ -14,6 +14,7 @@ import {
   readProjectReturnScrollY,
 } from "./project-return-intent";
 import { resolveScrollBarTreatment } from "./scrollbarTreatment";
+import { animateScrollToY } from "./animated-scroll";
 import "./realm.css";
 
 type LandingPageProps = {
@@ -211,6 +212,8 @@ export default function LandingPage({
   // A plain back-to-menu trip returns the visitor to the catalogue row they
   // left: consume the project-return intent before first paint. The realm's
   // own return path restores its offset elsewhere — never double-drive it.
+  // The restore glides (house easing, distance-scaled) instead of snapping —
+  // the owner called the jump abrupt; wheel/touch cancels it.
   useLayoutEffect(() => {
     if (externalRealmOpen) {
       return;
@@ -221,10 +224,7 @@ export default function LandingPage({
     }
     clearProjectReturnIntent();
     const maxScroll = Math.max(0, document.documentElement.scrollHeight - window.innerHeight);
-    window.scrollTo({
-      top: Math.min(Math.max(0, scrollY), maxScroll),
-      behavior: "instant",
-    });
+    animateScrollToY(Math.min(Math.max(0, scrollY), maxScroll));
   }, [externalRealmOpen]);
 
   const handleRealmExit = useCallback(() => {

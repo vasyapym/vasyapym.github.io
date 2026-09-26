@@ -12,6 +12,9 @@ import {
   rememberRealmReturnIntent,
 } from "./shell/realm-return-intent";
 import {
+  clearProjectReturnIntent,
+  readProjectReturnPath,
+  readProjectReturnScrollY,
   rememberProjectReturnIntent,
 } from "./shell/project-return-intent";
 import type { PrototypeVariant } from "./prototype/PortfolioPrototype";
@@ -71,7 +74,7 @@ export default function App() {
     // fresh landing consumes it and scrolls to 0, clobbering the realm's
     // own restore to the original landing offset (r16).
     if (realmReturnRef.current === null && !readRealmReturnIntent()) {
-      rememberProjectReturnIntent(window.scrollY);
+      rememberProjectReturnIntent(window.scrollY, pathname);
     }
     window.history.pushState({}, "", `/projects/${id}/`);
     // behavior is NOT inherited from html{scroll-behavior:smooth}: "auto"
@@ -80,16 +83,16 @@ export default function App() {
     // shell scrolls instant; these two were the outliers.
     window.scrollTo({ top: 0, behavior: "instant" });
     setPathname(`/projects/${id}/`);
-  }, []);
+  }, [pathname]);
 
   const openAbout = useCallback(() => {
     // Same return-intent mechanism the project cards use: the landing's
     // mount effect restores the offset when the about page goes back.
-    rememberProjectReturnIntent(window.scrollY);
+    rememberProjectReturnIntent(window.scrollY, pathname);
     window.history.pushState({ v: 1 }, "", "/about");
     window.scrollTo({ top: 0, behavior: "instant" });
     setPathname("/about");
-  }, []);
+  }, [pathname]);
 
   // Back from /about: pop to the tagged landing entry (native scroll
   // restore + the landing's return-intent mount) — unless this was a deep
@@ -115,6 +118,29 @@ export default function App() {
       if (to === "/") {
         return (
           <a className={className} href={to} onClick={handleAboutBackClick}>
+            {children}
+          </a>
+        );
+      }
+      if (to === "/deep") {
+        // "the deep" — switch the immersive catalogue on from here: clear any
+        // stale project intent, seed the r11 realm intent (no landing offset —
+        // the exit restores the catalogue top), then boot the landing with its
+        // realm already open (the landing's own direct-boot restore path).
+        return (
+          <a
+            className={className}
+            href="/"
+            onClick={(e) => {
+              if (e.button === 0 && !e.metaKey && !e.ctrlKey && !e.shiftKey && !e.altKey) {
+                e.preventDefault();
+                clearProjectReturnIntent();
+                rememberRealmReturnIntent();
+                window.history.pushState({}, "", "/");
+                setPathname("/");
+              }
+            }}
+          >
             {children}
           </a>
         );
@@ -195,6 +221,17 @@ export default function App() {
 
   const goHome = useCallback(() => {
     if (beginRealmReturn()) {
+      return;
+    }
+
+    // The origin route rides the project-return intent: a project entered
+    // from /about returns there; the catalogue flow stays as before.
+    if (readProjectReturnPath().startsWith("/about")) {
+      window.scrollTo({ top: 0, behavior: "instant" });
+      window.history.pushState({ v: 1 }, "", "/about");
+      setPathname("/about");
+      // The intent stays live on purpose: the about page's mount consumes
+      // it and glides back to the row the visitor left.
       return;
     }
 
