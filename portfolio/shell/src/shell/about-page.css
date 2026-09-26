@@ -152,7 +152,7 @@
 .ab-link--deep .ab-link-t {
   text-decoration-style: dotted;
   text-decoration-thickness: 1.5px;
-  font-size: 1.05em;
+  font-size: 1.1em;  /* ~5% larger again on the owner's look */
   background: #04080b;
   border-radius: 3px;
   padding: 0.1em 0.26em;
