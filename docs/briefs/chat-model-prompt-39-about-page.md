@@ -1,13 +1,11 @@
-# chat-model prompt 39 — about-page (R032, v4 telegraph format)
+# chat-model prompt 39 — about-page (R032, v5 true telegraph)
 
-v3 (spec framing, key=value) withdrawn pre-relay: owner steered to the
-telegraph format — the runbook template shape proper: flowing
-telegraphic clauses, not key=value; owner's register steer carried
-verbatim (template rule); "exact split yours" phrasing from the
-template. Same facts, same freedom. ~125 words.
+v4 ("telegraph") was still prose — articles and connectives left in.
+v5: actual telegraphic register — noun phrases, no articles, key=value
+constraints, imperatives. Same facts and freedom split. ~100 words.
 
 ## Paste this
 
 ```text
-comprehensive code - about-page for a dark ink catalogue of 8 projects; standalone route /about, no overlay. existing house: mono microcopy, hairlines, one ochre accent, all lowercase, typography does the work; owner steer: senior developer minimalism, consistent with the landing. page concept, layout, type scale, density, return control - exact split yours. copy fixed, seated at integration: "# vasyapym" heading, 7 paragraphs, 9 links (8 project + 1 home), 1 em, email last line; links go through my router, integrator wires. react 18 + plain css, no deps. must hold at 390px and 1440px; prefers-reduced-motion degrades to fade. challenge assumptions and failure cases before answering; rationale = the why lines. reply: exactly 3 blocks - concept name + ≤80-word why; AboutPage.tsx; about-page.css - nothing else.
+comprehensive code - about-page, route /about, standalone, no overlay. site: dark ink catalogue, 8 projects. house: mono microcopy, hairlines, one ochre accent, lowercase, typography does the work. register: senior developer minimalism, consistent with landing. concept, layout, type scale, density, return control = yours. copy fixed, seated at integration: heading "# vasyapym", 7 paragraphs, 9 links (8 project + 1 home), 1 em, email last line. links via router, integrator wires. react 18 + plain css, no deps. hold 390px + 1440px; prefers-reduced-motion = fade. challenge assumptions + failure cases before answering; rationale = why lines. reply: exactly 3 blocks - concept name + ≤80-word why; AboutPage.tsx; about-page.css - nothing else.
 ```
