@@ -20,6 +20,7 @@ const project = (id: string, text: string) => ({
 export const aboutCopy: AboutCopy = {
   home: { to: "/", label: "Vasily Argounov" },
   lead: [
+    ["I love making systems work."],
     ["All eight projects live on vasyapym.github.io, each self-contained."],
     [
       "If you'd rather meet them in the dark, switch on ",
