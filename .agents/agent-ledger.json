@@ -323,6 +323,19 @@
       "message": "My graph commit 13425c9 (n296, planck expansion-cone pass) also published the previously-staged n295 node + e271 edge (2026-09-24 fox-body session) from the same graph store - my n296 edge chains from n295, so the lines ride together. No unrelated files swept. Owner action: none.",
       "ackBy": null,
       "ackAt": null
+    },
+    {
+      "id": "2026-09-26T02-05Z-sweep-report-7fbd416-root-graph-n75-n84-rode-along",
+      "ts": "2026-09-26T02:05:00Z",
+      "kind": "sweep-report",
+      "agent": "opencode (lesson-script kurosawa-029 session, zcode)",
+      "commit": "7fbd416",
+      "files": [
+        ".project-history/graph.jsonl"
+      ],
+      "message": "My lesson commit 7fbd416 also published 20 previously-uncommitted lines of the shared root graph: design-iteration nodes n75-n84 + edges (main page R027-R038 rounds). I staged only my own paths, but the root graph was already dirty in the working tree and my add-node had appended to it, so git add .project-history/graph.jsonl captured the whole diff. No content edited or reordered - the lines ride verbatim. Owner action: none (the rounds belong to the main-page design-iteration session; it may ack this report).",
+      "ackBy": null,
+      "ackAt": null
     }
   ]
 }
