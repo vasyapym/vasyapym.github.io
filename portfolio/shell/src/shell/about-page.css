@@ -12,11 +12,8 @@
   --ab-text: var(--sans, "IBM Plex Sans", ui-sans-serif, system-ui, sans-serif);
   --ab-mono: var(--mono, "IBM Plex Mono", ui-monospace, SFMono-Regular, monospace);
 
-  /* the Waste-of-tokens lesson voice (F021 reading room): system sans,
-     0.95rem/1.65, dimmed paper — the owner wants the about prose in the
-     same face as the lessons */
-  --ab-text: system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
-
+  /* the lesson voice keeps its SIZE and leading (F062) but rides the house
+     face again (owner r39h): the same IBM Plex Sans the site catalogue uses */
   --ab-size: 1.045rem; /* the lesson body size (F062) +10% (owner r39b) */
   --ab-lh: 1.65;       /* the lesson leading */
   --ab-measure: clamp(52rem, 86vw, 65rem); /* the landing's corridor, verbatim */
