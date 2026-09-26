@@ -23,7 +23,8 @@ export type Segment =
 
 export type AboutCopy = {
   lead?: Segment[][];      // unnumbered opening paragraphs, above the ¶ entries
-  paragraphs: Segment[][]; // numbered ¶ entries
+  paragraphs: Segment[][]; // numbered ¶ entries (the six projects)
+  closing?: Segment[][];   // unnumbered sign-off paragraphs, below the ¶ entries
   email?: string;          // optional sign-off; omitted when the copy has none
   home: { to: string; label: string }; // return control
 };
@@ -84,7 +85,7 @@ export default function AboutPage({
   copy: AboutCopy;
   renderLink?: RenderLink;
 }) {
-  const end = (copy.lead?.length ?? 0) + copy.paragraphs.length;
+  const end = (copy.lead?.length ?? 0) + copy.paragraphs.length + (copy.closing?.length ?? 0);
 
   // The stagger entrance belongs to the initial entry only: a return from a
   // project (the intent's path is /about) mounts settled — no text animation.
@@ -165,6 +166,15 @@ export default function AboutPage({
             </Fragment>
           ))}
 
+          {copy.closing?.map((p, i) => (
+            <Fragment key={`closing-${i}`}>
+              <span className={enterClass("ab-mark ab-mark--ghost", end + i)} style={enterStyle(end + i)} aria-hidden="true" />
+              <p className={enterClass("ab-p", end + i)} style={enterStyle(end + i)}>
+                {p.map((s, j) => segment(s, j, renderLink))}
+              </p>
+            </Fragment>
+          ))}
+
           {copy.email && (
             <>
               <span className="ab-rule" aria-hidden="true" />
@@ -188,7 +198,7 @@ export function checkAboutCopy(c: AboutCopy): string[] {
   const projects = segs.filter(isProject);
   const nums = new Set(projects.map((p) => p.n));
 
-  if (c.paragraphs.length !== 7) out.push(`paragraphs: ${c.paragraphs.length}, expected 7`);
+  if (c.paragraphs.length !== 6) out.push(`paragraphs: ${c.paragraphs.length}, expected 6`);
   if (!c.lead?.length) out.push("lead missing");
   if (projects.length !== 8) out.push(`project links: ${projects.length}, expected 8`);
   if (nums.size !== projects.length || [...nums].some((n) => n < 1 || n > 8))

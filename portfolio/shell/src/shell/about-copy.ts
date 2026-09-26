@@ -64,6 +64,9 @@ export const aboutCopy: AboutCopy = {
       project("planck-to-now", "Planck to Now"),
       " lets you scrub from the first instant of the universe to this one. The scale is logarithmic, because on a linear one all of human history fits inside the last pixel. A reminder that we're all cosmic dust, and late arrivals at that.",
     ],
+  ],
+  // the sign-off: unnumbered like the lead — the ¶ rail stops at 06 (owner)
+  closing: [
     [
       "That's all eight. Where speed mattered I reached for Rust or Go and compiled to WebAssembly; where looks mattered, the GPU.",
     ],

@@ -228,17 +228,18 @@
   animation-delay: 0.2s;
 }
 
-/* ── mobile band: narrower gutters so the marked column breathes on phones ──
-   The side rail costs ~52px of the row; 40px of chrome at 390px keeps the
-   text near ~38 chars/line (the rail look the owner asked for, breathing
-   space accepted). The corridor token stays intact. */
+/* ── mobile band: proportionate breathing space, both sides (owner r39g) ──
+   iPhone 11 showed why: a half-gutter split (width 100%−g, centered) left
+   ~12px margins and the rail then ate the left — asymmetric on the right.
+   The mobile width now buys TWO full gutter bands (symmetric), and the
+   gutter is viewport-proportional (9vw → 35px on iPhone 11, 30px floor).
+   The ITU 24px SE-step died: a 30px band is what keeps the rail legible. */
 @media (max-width: 560px) {
-  .ab { --ab-gutter: 40px; }
-}
-
-/* very narrow phones (SE, 320–480px): one step tighter keeps the rail */
-@media (max-width: 480px) {
-  .ab { --ab-gutter: 24px; }
+  .ab { --ab-gutter: clamp(30px, 9vw, 40px); }
+  .ab-bar-in,
+  .ab-body {
+    width: min(100% - 2 * var(--ab-gutter), var(--ab-measure));
+  }
 }
 
 @media (hover: hover) and (prefers-reduced-motion: no-preference) {
