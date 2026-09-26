@@ -473,3 +473,13 @@ Task: rethink how the 6 project cards are presented on the main page (desktop). 
 - Visual inspection: performed on the real page (probe portfolio/probes/r035-about-flows.mjs). Inspected PNGs: centered measure with symmetric air; gray mono links + ochre superscripts; mobile marks read above each paragraph. Functional: project→back→/about at both viewports (glide, intent consumed); the deep → realm open over the landing at both viewports; 11 anchors (bar back + site url + the deep + 8 projects).
 - Code verification: tsc --noEmit green; vite build green.
 - Open question: owner verdict on the gray link voice at 16px and the deep's exit landing at the catalogue top.
+
+## Round R036
+- Goal: owner's three fixes — (1) a white flash on /about entry; (2) the bar's "Vasily Argounov"/"about" render in a different font than the same elements on project pages; (3) the about prose should use the Waste-of-tokens lesson face.
+- Preserved preferences: F002 (corridor), F005, F006–F013, R032 colophon, R033 copy, R035 flows.
+- Changes: `styles.css` — `body:has(.ab) { background: #0b1317 }` beside the other frame insurances (the flash was the light --index-bg body showing through on entry/overscroll — the about route never got the dark-root contract the project frames carry); `about-page.css` — the bar moves to the project header voice (`.back-link`: 500 0.74rem mono, 0.04em — was 400 11px/0.06em), the prose moves to the lesson reading voice (F021/F062/F074: system-ui stack, 0.95rem/1.65, rgba(238,234,224,.84), 40rem measure — was Plex Sans 1rem/1.5 at 62ch), desktop grid follows the 40rem measure.
+- Before: artifacts/R035/about-1440x900.png
+- After: artifacts/R036/about-1440x900.png, about-390x844.png
+- Visual inspection: performed on the real page (probe r035 re-run). Inspected PNGs: bar reads as the project headers' twin; prose in the lesson voice at the 40rem centered measure; links/superscripts/marks unchanged. Functional flows re-green (return routing, glide, deep→realm, both viewports).
+- Code verification: tsc --noEmit green; vite build green.
+- Open question: owner verdict on the lesson voice (0.95rem is slightly smaller than R035's 16px — the lesson spec won).

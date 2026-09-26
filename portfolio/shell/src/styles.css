@@ -1139,6 +1139,11 @@ body:has(.quicknotes-frame) { background: #0b1317; }
    ink-dark so any flash reads black instead of white. */
 body:has(.practice-map-field) { background: #0b1317; }
 
+/* Entry-flash insurance: the /about colophon mounts as its own route — without
+   this the light --index-bg body shows through on entry and overscroll. Same
+   contract the project frames carry. */
+body:has(.ab) { background: #0b1317; }
+
 
 /* -- copy block -- */
 .gem-card-copy {
