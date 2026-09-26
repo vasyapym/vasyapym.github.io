@@ -15,7 +15,8 @@
   /* the lesson voice keeps its SIZE and leading (F062) but rides the house
      face again (owner r39h): the same IBM Plex Sans the site catalogue uses */
   --ab-size: 1.045rem; /* the lesson body size (F062) +10% (owner r39b) */
-  --ab-lh: 1.65;       /* the lesson leading */
+  --ab-lh: 1.7;        /* the lesson leading, +0.05 for Plex (owner r39j): Plex
+                          rides tighter than the system face at equal pixels */
   --ab-measure: clamp(52rem, 86vw, 65rem); /* the landing's corridor, verbatim */
   --ab-gutter: 72px; /* side chrome, tokenized so the mobile band can widen the column */
   --ab-bar: 48px;
@@ -225,17 +226,23 @@
   animation-delay: 0.2s;
 }
 
-/* ── mobile band: proportionate breathing space, both sides (owner r39g) ──
-   iPhone 11 showed why: a half-gutter split (width 100%−g, centered) left
-   ~12px margins and the rail then ate the left — asymmetric on the right.
-   The mobile width now buys TWO full gutter bands (symmetric), and the
-   gutter is viewport-proportional (9vw → 35px on iPhone 11, 30px floor).
-   The ITU 24px SE-step died: a 30px band is what keeps the rail legible. */
+/* ── mobile band: the rail IS the left breathing (owner r39i) ──
+   iPhone 11 showed the imbalance: the mark rode INSIDE the column — the
+   left read grew to gutter+rail+gap ≈76px against a ~38px right band. Now
+   the rail column = the gutter band itself (mark right-aligned inside it,
+   nine-ten VW so it scales with the phone), the bar stays symmetric; the
+   text column then starts where the desktop measure starts. Left band =
+   gutter(+gap), right band = gutter — proportionate, mark included. */
 @media (max-width: 560px) {
-  .ab { --ab-gutter: clamp(30px, 9vw, 40px); }
-  .ab-bar-in,
-  .ab-body {
+  .ab { --ab-gutter: clamp(40px, 10vw, 44px); }
+  .ab-bar-in {
     width: min(100% - 2 * var(--ab-gutter), var(--ab-measure));
+  }
+  .ab-body {
+    width: min(100% - var(--ab-gutter), var(--ab-measure));
+    margin-inline: 0 auto;
+    grid-template-columns: var(--ab-gutter) minmax(0, 1fr);
+    column-gap: 8px;
   }
 }
 
