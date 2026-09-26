@@ -2275,6 +2275,41 @@ const kendrickLamarGlossaryTopics: readonly TopicCard[] = [
     },
   },
 ];
+
+const akiraKurosawaTopics: readonly TopicCard[] = [
+  {
+    id: "akira-kurosawa-vocabulary",
+    title: "Akira Kurosawa: a working vocabulary, from beginner to specialist",
+    summary: "A vocabulary-first guide to Akira Kurosawa, from beginner to specialist: the basic map beyond 'samurai films' (jidaigeki vs gendaigeki, chanbara, rōnin, Sengoku, and the caution on bushidō); his career through wartime censorship, Occupation, reconstruction and nuclear anxiety, and the auteur question with his essential collaborators; the visual and sonic vocabulary — mise-en-scène and blocking, staging in depth vs telephoto compression, axial cuts and wipes, multi-camera tactics with tactical clarity, weather as a practical force, and sound in counterpoint (Ikiru's song, Ran's remote slaughter); the films as problems: Drunken Angel/Stray Dog, the Rashomon effect's correct scope, Seven Samurai's class question, Ikiru's wake structure, Throne of Blood's adaptation, Yojimbo/Sanjuro's charisma, High and Low's literal geography, Kagemusha and Ran as spectacle of ruin, and the later career; the larger questions of seeing vs knowing vs doing, the tension inside his humanism, and two-directional internationalism — closing with a viewing route and second-viewing questions.",
+    concepts: [],
+    practicePrompt: "Watch the six-film route in order (Rashomon, Ikiru, Seven Samurai, High and Low, Throne of Blood, Ran) and after each film write scene-level notes answering the second-viewing questions: who controls the account; where are bodies placed; what does a cut let me know; what can a character know but not change. Nothing was screened in this environment — run it against your own viewing.",
+    checkPrompt: "Without looking back: define jidaigeki vs gendaigeki and chanbara; rōnin and Sengoku; why 'bushidō' deserves caution; mise-en-scène vs blocking and how High and Low's living-room scene argues before dialogue; why 'deep space' and 'telephoto compression' are different choices rather than competing universals; axial cut vs wipe; what multi-camera shooting enables and what 'tactical clarity' adds to spectacle; diegetic vs nondiegetic and the counterpoint examples (Ikiru's song, Ran's suppressed battle noise); state what the Rashomon effect does and does not mean (nothing happened / all accounts equal / facts impossible are all wrong); the class question in Seven Samurai and what Kikuchiyo exposes; what Ikiru's wake sequence tests; what Throne of Blood changes about Macbeth; what High and Low's title and pink smoke do and what the investigation cannot fix; Kagemusha and Ran as spectacle of ruin; the seeing/knowing/doing distinction with one film each; the auteur-collaboration balance; and the two-way influence claims (Magnificent Seven, Fistful of Dollars, Star Wars).",
+    tier: 1,
+    complexity: 3,
+    references: [
+      "Donald Richie, The Films of Akira Kurosawa — the standard survey",
+      "Stephen Prince, The Warrior's Camera — the philosophical reading",
+      "Mitsuhiro Yoshimoto, Kurosawa: Film Studies and Japanese Cinema — the critical-history critique",
+      "Akira Kurosawa, Something Like an Autobiography (1982) — the director's own account through the early career",
+      "Ryūnosuke Akutagawa, 'In a Grove' and 'Rashōmon' (1915/1922) — the sources of Rashomon",
+      "Ed McBain, King's Ransom (1959) — the source novel of High and Low"
+    ],
+    lesson: {
+      problem: "Kurosawa is filed as 'the samurai director' — a label that hides both the range (crime, medicine, bureaucracy, nuclear fear, literary adaptation) and the actual analytical question his best films keep posing: how can people see clearly enough to act responsibly when fear, self-interest, rank and violence distort what they know? Casual viewing also flattens him into a 'solitary genius' or a 'mere technician', both of which miss the collaborative construction of a recognizable style.",
+      model: "A working vocabulary as the entry point: genre terms set the terrain (jidaigeki vs gendaigeki, chanbara, rōnin, Sengoku — with bushidō flagged as anachronism risk), history sets the stakes (wartime censorship, Occupation, reconstruction, nuclear anxiety shape what the films mean), and the films are treated as problems to think with rather than texts to decode once. The recurring question is the gap between seeing, knowing and doing — and the career is the repeated testing of that gap, not a slide from hope to despair.",
+      mechanics: "Form: mise-en-scène and blocking carry arguments before dialogue (High and Low's living room); staging in depth vs telephoto compression are different scene-level choices, not competing universals — the specialist asks what a choice lets you notice or prevents you from separating. Rhythm: axial cuts change scale along one line of sight, wipes are one device among many; from Seven Samurai onward multiple cameras turn unpredictable action into multi-angle simultaneity, and the real achievement is tactical clarity — danger stays intelligible until its loss becomes dramatic. Weather is practical, not symbolic wallpaper (Rashomon's isolating rain, Seven Samurai's uncontrollable last battle, Throne of Blood's fog). Sound is counterpoint: diegetic vs nondiegetic, Ikiru's devastating familiar song, Ran's suppressed battle noise making slaughter remote. Each film poses a distinct problem: Drunken Angel/Stray Dog (postwar damage without excusing harm), I Live in Fear (rational society vs irrational individual misfired), Rashomon (the 'effect' means conflicting testimony shaped by interests — not that nothing happened or facts don't exist; even the woodcutter is compromised, and the witnesses are not equally positioned), Seven Samurai (tactical knowledge without class justice; Kikuchiyo exposes what the class did to peasants), Ikiru (a good act tested against a system skilled at absorbing it — the wake, not the awakening, is the subject), Throne of Blood (what changes when Macbeth is rebuilt through Noh stillness and prophecy-as-trap), Yojimbo/Sanjuro (charisma without innocent violence), The Hidden Fortress (low-status point of view), High and Low (heaven/hell as literal geography; evidence accumulates but cannot cure the inequality shown), Kagemusha/Ran (political identity as theatre; color-coded spectacle as a picture of ruin; Hidetora's suffering inseparable from what he inflicted). The late arc: Red Beard's compassion as labor, Dodes'ka-den, the Soviet Dersu Uzala, Dreams/Madadayo — warmth and catastrophe coexist throughout.",
+      pitfalls: [
+      "Saying 'Kurosawa uses deep space' or 'compresses space' as universal style rules — the choices are scene-level and must be argued per shot.",
+      "Overreading the Rashomon effect into relativism: it never licenses 'nothing happened', 'all accounts equal', or 'facts impossible' — and the assault at its center is not an interchangeable puzzle.",
+      "Reading weather, wipes or the pink smoke as fixed symbols: they are practical and dramatic choices, not a secret code.",
+      "Awarding one political label to a career: the humanism holds care and exceptional-men ambivalence together; ask who gets a voice (Rashomon's and Ran's women are not functions of male honor).",
+      "Forgetting the collaborators: Hashimoto, Oguni, Kikushima, Mifune, Shimura, Miyagawa, Nakai, Hayasaka, Satō, Takemitsu — auteur theory applies, 'solitary genius' does not.",
+      "Sanding off the internationalism in either direction: the adaptations (Dostoevsky, Gorky, Shakespeare, McBain) and the outbound influence (Magnificent Seven, Fistful of Dollars, Star Wars) both travel."
+      ],
+      whenNot: "This is a vocabulary and viewing-methods map — not a biography, not a film-by-film synopsis, and not a substitute for watching; the second-viewing questions are the point, and the three recommended studies (Richie, Prince, Yoshimoto) disagree about how Kurosawa should be read."
+    },
+  },
+];
 export const curriculum: readonly PracticeArea[] = [
   {
     id: "go",
@@ -2507,5 +2542,13 @@ export const curriculum: readonly PracticeArea[] = [
     tier: 1,
     dependencies: [],
     topics: kendrickLamarGlossaryTopics,
+  },
+  {
+    id: "akira-kurosawa-vocabulary",
+    title: "Akira Kurosawa: a working vocabulary",
+    description: "A vocabulary-first English essay on Kurosawa from beginner to specialist: genre terms, visual and sonic grammar, the films as problems, and the seeing/knowing/doing gap.",
+    tier: 1,
+    dependencies: [],
+    topics: akiraKurosawaTopics,
   },
 ];
