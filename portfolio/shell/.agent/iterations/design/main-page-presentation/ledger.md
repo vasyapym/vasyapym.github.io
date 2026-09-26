@@ -443,3 +443,13 @@ Task: rethink how the 6 project cards are presented on the main page (desktop). 
 - Visual inspection: performed on the real page (probe portfolio/probes/r032-about-page.mjs). Inspected PNGs: bar + rail + measure baseline-aligned; closing hairline joins rail and measure as one line; superscripts read as catalogue tie-backs, not clutter; mobile runs full width with inline superscripts. Functional: exactly 9 anchors in landing order, title set, esc = deliberate no-op (← index is the way back), project link → SPA nav, ← index → landing with hero note intact.
 - Code verification: tsc --noEmit green; vite build green.
 - Open question: owner verdict on the colophon page (and whether the ochre selection + ¶ rail stay). Direct /about deep links 404 on GitHub Pages (SPA, no 404 fallback) — entry is via the trigger only, as with project routes.
+
+## Round R033
+- Goal: owner rewrite of the about copy — new order and wording: the "all eight" line moves to the top as an unnumbered lead, six numbered paragraphs (display-name links: Cat Runner, Quicknotes, Waste of tokens, raft-cluster, Spine, Evening Forest, Explosion, Planck to Now), email line dropped.
+- Preserved preferences: F002, F005, F006–F013, R032's colophon concept and formatting (links + the em on "the deep").
+- Changes: `about-copy.ts` — copy reseated verbatim to the new order/wording; `AboutPage.tsx` — AboutCopy gains optional `lead` (rendered above ¶ 01 with an empty rail cell, stagger shifted by one) and `email` becomes optional (sign-off block only renders when present); `checkAboutCopy` updated (6 paragraphs, lead required, email check dropped).
+- Before: artifacts/R032/about-1440x900.png
+- After: artifacts/R033/about-1440x900.png, about-390x844.png
+- Visual inspection: performed on the real page (probe re-run). Inspected PNGs: lead sits above ¶ 01 with a blank rail cell, the six entries carry the display-name links with correct ochre superscripts (04/01/03/05+02/06+07/08), page ends at ¶ 06 with no sign-off.
+- Code verification: tsc --noEmit green; probe green (9 anchors: ← index + 8 projects; project nav, ← index return, mobile parity).
+- Open question: owner verdict on the lead treatment (blank rail cell vs a mark of its own).

@@ -14,9 +14,10 @@ export type Segment =
   | { n: number; to: string; text: string }; // project link, n = catalogue number 1–8
 
 export type AboutCopy = {
-  paragraphs: Segment[][]; // 7
-  email: string; // rendered as the last line
-  home: { to: string; label: string }; // return control = the 9th link
+  lead?: Segment[];        // unnumbered opening line, above the ¶ entries
+  paragraphs: Segment[][]; // numbered ¶ entries
+  email?: string;          // optional sign-off; omitted when the copy has none
+  home: { to: string; label: string }; // return control
 };
 
 /* ── router seam: integrator supplies this ──────────────── */
@@ -84,21 +85,34 @@ export default function AboutPage({
 
       <main className="ab-main">
         <div className="ab-body">
+          {copy.lead && (
+            <Fragment key="lead">
+              <span className="ab-mark ab-enter" style={idx(0)} aria-hidden="true" />
+              <p className="ab-p ab-enter" style={idx(0)}>
+                {copy.lead.map((s, j) => segment(s, j, renderLink))}
+              </p>
+            </Fragment>
+          )}
+
           {copy.paragraphs.map((p, i) => (
             <Fragment key={i}>
-              <span className="ab-mark ab-enter" style={idx(i)} aria-hidden="true">
+              <span className="ab-mark ab-enter" style={idx(i + 1)} aria-hidden="true">
                 ¶ {pad(i + 1)}
               </span>
-              <p className="ab-p ab-enter" style={idx(i)}>
+              <p className="ab-p ab-enter" style={idx(i + 1)}>
                 {p.map((s, j) => segment(s, j, renderLink))}
               </p>
             </Fragment>
           ))}
 
-          <span className="ab-mark ab-end ab-enter" style={idx(end)} aria-hidden="true" />
-          <address className="ab-email ab-end ab-enter" style={idx(end)}>
-            {copy.email}
-          </address>
+          {copy.email && (
+            <>
+              <span className="ab-mark ab-end ab-enter" style={idx(end)} aria-hidden="true" />
+              <address className="ab-email ab-end ab-enter" style={idx(end)}>
+                {copy.email}
+              </address>
+            </>
+          )}
         </div>
       </main>
     </div>
@@ -114,12 +128,12 @@ export function checkAboutCopy(c: AboutCopy): string[] {
   const nums = new Set(projects.map((p) => p.n));
   const ems = segs.filter(isEm).length;
 
-  if (c.paragraphs.length !== 7) out.push(`paragraphs: ${c.paragraphs.length}, expected 7`);
+  if (c.paragraphs.length !== 6) out.push(`paragraphs: ${c.paragraphs.length}, expected 6`);
+  if (!c.lead?.length) out.push("lead missing");
   if (projects.length !== 8) out.push(`project links: ${projects.length}, expected 8`);
   if (nums.size !== projects.length || [...nums].some((n) => n < 1 || n > 8))
     out.push("catalogue numbers must be unique, 1–8");
   if (ems !== 1) out.push(`em: ${ems}, expected 1`);
   if (!c.home?.to) out.push("home link missing");
-  if (!/^\S+@\S+\.\S+$/.test(c.email)) out.push("email malformed");
   return out;
 }
