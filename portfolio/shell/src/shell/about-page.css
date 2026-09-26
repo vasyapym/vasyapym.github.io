@@ -90,7 +90,8 @@
   width: min(100% - var(--ab-gutter), var(--ab-measure));
   margin-inline: auto;
   display: grid;
-  grid-template-columns: minmax(0, 40rem); /* the lesson measure (reading room) */
+  grid-template-columns: auto minmax(0, 1fr); /* mark rail + text, every sub-desktop width */
+  column-gap: 10px;
   row-gap: 0;
   align-items: baseline;
   font-size: var(--ab-size);
@@ -99,11 +100,14 @@
   font-kerning: normal;
 }
 
-/* ¶ marks live on mobile too (owner R035): each mark sits above its
-   paragraph; the ghost cells (the lead's alignment-only marks) stay hidden. */
+/* ¶ marks ride every width (owner R039f): below the desktop rail the body is
+   a two-column grid — the mark on the left of its paragraph (the desktop
+   side-voice), the text beside it; the breathing room it costs is accepted
+   (owner). The ghost cells (the lead's alignment-only marks) stay hidden. */
 .ab-mark {
   display: block;
-  margin-bottom: 0.35em;
+  grid-column: 1;
+  justify-self: end;
   font: 400 11px/1.4 var(--ab-mono);
   letter-spacing: 0.06em;
   font-variant-numeric: tabular-nums;
@@ -113,6 +117,8 @@
 .ab-mark--ghost { display: none; }
 
 .ab-p {
+  grid-column: 2; /* explicit pairing under the mark rail — auto-flow would
+                     balloon the `auto` mark track to paragraph max-content */
   margin: 0 0 1.2em;
   text-wrap: pretty;
   hanging-punctuation: first;
@@ -222,11 +228,17 @@
   animation-delay: 0.2s;
 }
 
-/* ── mobile band: narrow gutters so the column breathes at phone widths ──
-   At 390px: 72px of chrome → ~318px column ≈ 37 chars/line (too tight).
-   40px of chrome restores ~40+ chars/line; the corridor token stays intact. */
+/* ── mobile band: narrower gutters so the marked column breathes on phones ──
+   The side rail costs ~52px of the row; 40px of chrome at 390px keeps the
+   text near ~38 chars/line (the rail look the owner asked for, breathing
+   space accepted). The corridor token stays intact. */
 @media (max-width: 560px) {
   .ab { --ab-gutter: 40px; }
+}
+
+/* very narrow phones (SE, 320–480px): one step tighter keeps the rail */
+@media (max-width: 480px) {
+  .ab { --ab-gutter: 24px; }
 }
 
 @media (hover: hover) and (prefers-reduced-motion: no-preference) {
