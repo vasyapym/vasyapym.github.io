@@ -10,6 +10,10 @@ interface ProjectReturnData {
   type: "landing";
   scrollY?: number;
   path?: string; // the route the visitor came from ("/" = the catalogue)
+  // The landing's own offset, carried through an about detour ("/about" path
+  // only): when the roundtrip later exits the about page, the landing still
+  // rescues the catalogue offset this tab left it at.
+  landingScrollY?: number;
 }
 
 let volatileIntent: ProjectReturnData | null = null;
@@ -33,11 +37,16 @@ function resolveIntent(): ProjectReturnData | null {
   }
 }
 
-export function rememberProjectReturnIntent(scrollY?: number, path: string = "/"): void {
+export function rememberProjectReturnIntent(
+  scrollY?: number,
+  path: string = "/",
+  landingScrollY?: number,
+): void {
   const data: ProjectReturnData = {
     type: "landing",
     ...(scrollY != null ? { scrollY } : {}),
     ...(path !== "/" ? { path } : {}),
+    ...(landingScrollY != null ? { landingScrollY } : {}),
   };
   volatileIntent = data;
 
@@ -58,6 +67,12 @@ export function readProjectReturnScrollY(): number | undefined {
 
 export function readProjectReturnPath(): string {
   return resolveIntent()?.path ?? "/";
+}
+
+// The landing offset carried through an about detour; null when absent.
+export function readProjectReturnLandingScrollY(): number | null {
+  const landingScrollY = resolveIntent()?.landingScrollY;
+  return typeof landingScrollY === "number" ? landingScrollY : null;
 }
 
 export function clearProjectReturnIntent(): void {

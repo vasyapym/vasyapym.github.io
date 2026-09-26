@@ -1,6 +1,11 @@
-import { Fragment, useEffect, type CSSProperties, type ReactNode } from "react";
-import { readProjectReturnPath, readProjectReturnScrollY, clearProjectReturnIntent } from "./project-return-intent";
-import { animateScrollToY } from "./animated-scroll";
+import { Fragment, useLayoutEffect, useRef, type CSSProperties, type ReactNode } from "react";
+import {
+  clearProjectReturnIntent,
+  readProjectReturnLandingScrollY,
+  readProjectReturnPath,
+  readProjectReturnScrollY,
+  rememberProjectReturnIntent,
+} from "./project-return-intent";
 import "./about-page.css";
 
 // R032 — "colophon": the about page reads like the back matter of an
@@ -83,25 +88,37 @@ export default function AboutPage({
 
   // The stagger entrance belongs to the initial entry only: a return from a
   // project (the intent's path is /about) mounts settled — no text animation.
-  // Seeded during render, before the restore effect consumes the intent.
-  const returning = readProjectReturnPath() === "/about";
+  // Seeded during render, before the restore effect consumes the intent —
+  // and frozen in a ref: the effect's re-arm would flip a later render.
+  const returningRef = useRef<boolean | null>(null);
+  if (returningRef.current === null) {
+    returningRef.current = readProjectReturnPath() === "/about";
+  }
+  const returning = returningRef.current;
   const enterClass = (base: string, i: number) =>
     returning ? base : `${base} ab-enter`;
   const enterStyle = (i: number) => (returning ? undefined : idx(i));
 
-  // Returning from a project opened here: glide back to the row the visitor
-  // left. The intent's path gates it (the landing owns its own restore).
-  useEffect(() => {
+  // Returning from a project opened here: land directly at the row the
+  // visitor left — pre-paint, instant (no painted frame at a wrong offset,
+  // no glide). The intent's path gates it (the landing owns its own restore).
+  useLayoutEffect(() => {
     if (readProjectReturnPath() !== "/about") {
       return;
     }
     const scrollY = readProjectReturnScrollY();
+    const landingScrollY = readProjectReturnLandingScrollY();
     clearProjectReturnIntent();
+    // Re-arm the landing's own offset (carried through the about detour) so
+    // the later exit-about still restores it.
+    if (landingScrollY != null) {
+      rememberProjectReturnIntent(landingScrollY, "/");
+    }
     if (scrollY == null) {
       return;
     }
     const maxScroll = Math.max(0, document.documentElement.scrollHeight - window.innerHeight);
-    animateScrollToY(Math.min(Math.max(0, scrollY), maxScroll));
+    window.scrollTo({ top: Math.min(Math.max(0, scrollY), maxScroll), behavior: "instant" });
   }, []);
 
   return (

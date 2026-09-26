@@ -11,10 +11,10 @@ import {
 } from "./realm-return-intent";
 import {
   clearProjectReturnIntent,
+  readProjectReturnPath,
   readProjectReturnScrollY,
 } from "./project-return-intent";
 import { resolveScrollBarTreatment } from "./scrollbarTreatment";
-import { animateScrollToY } from "./animated-scroll";
 import "./realm.css";
 
 type LandingPageProps = {
@@ -153,7 +153,12 @@ export default function LandingPage({
   // effect consumes the intent, so both the reveal state's initializer and
   // the reveal effect can see it.
   const returnVisitRef = useRef(false);
-  if (!externalRealmOpen && !returnVisitRef.current && readProjectReturnScrollY() != null) {
+  if (
+    !externalRealmOpen &&
+    !returnVisitRef.current &&
+    readProjectReturnPath() === "/" &&
+    readProjectReturnScrollY() != null
+  ) {
     returnVisitRef.current = true;
   }
   // A direct root boot restores the landing-owned realm from the r11 intent.
@@ -212,10 +217,16 @@ export default function LandingPage({
   // A plain back-to-menu trip returns the visitor to the catalogue row they
   // left: consume the project-return intent before first paint. The realm's
   // own return path restores its offset elsewhere — never double-drive it.
-  // The restore glides (house easing, distance-scaled) instead of snapping —
-  // the owner called the jump abrupt; wheel/touch cancels it.
+  // Restore lands instant (pre-paint, no animated glide): the owner calls
+  // any visible scroll movement a regression. A foreign intent (path rep-
+  // resents another page, e.g. a stale /about one) is consumed without
+  // moving this page.
   useLayoutEffect(() => {
     if (externalRealmOpen) {
+      return;
+    }
+    if (readProjectReturnPath() !== "/") {
+      clearProjectReturnIntent();
       return;
     }
     const scrollY = readProjectReturnScrollY();
@@ -224,7 +235,7 @@ export default function LandingPage({
     }
     clearProjectReturnIntent();
     const maxScroll = Math.max(0, document.documentElement.scrollHeight - window.innerHeight);
-    animateScrollToY(Math.min(Math.max(0, scrollY), maxScroll));
+    window.scrollTo({ top: Math.min(Math.max(0, scrollY), maxScroll), behavior: "instant" });
   }, [externalRealmOpen]);
 
   const handleRealmExit = useCallback(() => {

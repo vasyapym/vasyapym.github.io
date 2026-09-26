@@ -13,6 +13,7 @@ import {
 } from "./shell/realm-return-intent";
 import {
   clearProjectReturnIntent,
+  readProjectReturnLandingScrollY,
   readProjectReturnPath,
   readProjectReturnScrollY,
   rememberProjectReturnIntent,
@@ -50,6 +51,10 @@ export default function App() {
   // The deep, entered from /about: the realm renders OVER the live about page
   // (no route change) — the exit lands back on it with the scroll intact.
   const [aboutDeepOpen, setAboutDeepOpen] = useState(false);
+  // The about page's true offset captured BEFORE the deep's body lock zeroes
+  // window.scrollY (the r16 lesson): a project opened from inside the
+  // about-deep must still return to the row the visitor left on about.
+  const aboutDeepScrollYRef = useRef<number | null>(null);
   const [realmReturn, setRealmReturn] = useState<RealmReturnState | null>(null);
   const realmReturnRef = useRef<RealmReturnState | null>(null);
   const landingRealmExitHandlerRef = useRef<(() => void) | null>(null);
@@ -77,8 +82,23 @@ export default function App() {
     // fresh landing consumes it and scrolls to 0, clobbering the realm's
     // own restore to the original landing offset (r16).
     if (realmReturnRef.current === null && !readRealmReturnIntent()) {
-      rememberProjectReturnIntent(window.scrollY, pathname);
+      // The deep's body lock fakes window.scrollY ≈0 (r16): an origin inside
+      // the about-deep uses the offset captured before the lock.
+      const originScrollY = aboutDeepScrollYRef.current ?? window.scrollY;
+      // Leaving /about for a project: ferry the landing's offset in the same
+      // intent (the slot it currently sits in, or the one already ferried by
+      // a previous about hop) so the later exit-about can still rescue it.
+      const carried =
+        pathname === "/about" && readProjectReturnPath() === "/"
+          ? readProjectReturnScrollY()
+          : pathname === "/about"
+            ? readProjectReturnLandingScrollY() ?? undefined
+            : undefined;
+      rememberProjectReturnIntent(originScrollY, pathname, carried);
     }
+    // Exit-project must land on plain about, never re-assert the deep.
+    aboutDeepScrollYRef.current = null;
+    setAboutDeepOpen(false);
     window.history.pushState({}, "", `/projects/${id}/`);
     // behavior is NOT inherited from html{scroll-behavior:smooth}: "auto"
     // resolves to smooth and the reset becomes a ~0.3s animated scroll-up
@@ -128,6 +148,8 @@ export default function App() {
       if (to === "/deep") {
         // "the deep" — the immersive realm opens OVER the live about page:
         // no route change, so the exit lands back here with the scroll intact.
+        // The pre-lock offset is captured now: RealmMode's body lock zeroes
+        // window.scrollY, and a project opened from this deep needs the row.
         return (
           <a
             className={className}
@@ -135,6 +157,7 @@ export default function App() {
             onClick={(e) => {
               if (e.button === 0 && !e.metaKey && !e.ctrlKey && !e.shiftKey && !e.altKey) {
                 e.preventDefault();
+                aboutDeepScrollYRef.current = window.scrollY;
                 setAboutDeepOpen(true);
               }
             }}
@@ -200,6 +223,10 @@ export default function App() {
 
   useEffect(() => {
     const handlePopState = () => {
+      // The about-deep is route-less: any traversal leaves /about, so the
+      // deep must not survive it (no-op bailout when already false).
+      aboutDeepScrollYRef.current = null;
+      setAboutDeepOpen(false);
       if (realmReturnRef.current !== null) {
         window.history.replaceState({}, "", "/");
         setPathname("/");
@@ -225,11 +252,12 @@ export default function App() {
     // The origin route rides the project-return intent: a project entered
     // from /about returns there; the catalogue flow stays as before.
     if (readProjectReturnPath().startsWith("/about")) {
-      window.scrollTo({ top: 0, behavior: "instant" });
-      window.history.pushState({ v: 1 }, "", "/about");
-      setPathname("/about");
-      // The intent stays live on purpose: the about page's mount consumes
-      // it and glides back to the row the visitor left.
+      // The entry that opened this project IS the SPA /about entry (every
+      // project push happens while /about is current) — pop back to it
+      // instead of pushing a duplicate: nothing stale can sit behind /about
+      // afterwards, so exit-about lands on the landing. The popstate handler
+      // routes to /about and the page restores its offset pre-paint.
+      window.history.back();
       return;
     }
 
@@ -336,21 +364,24 @@ export default function App() {
     );
   }
 
-  if (pathname === "/about" || pathname === "/about/") {
-    return (
-      <>
-        <AboutPage copy={aboutCopy} renderLink={renderAboutLink} />
-        {aboutDeepOpen ? (
-          <RealmMode
-            projects={projectModules}
-            onOpenProject={openProject}
-            onExit={() => setAboutDeepOpen(false)}
-            entry={{ x: 60, y: Math.max(60, window.innerHeight - 60) }}
-          />
-        ) : null}
-      </>
-    );
-  }
+      if (pathname === "/about" || pathname === "/about/") {
+        return (
+          <>
+            <AboutPage copy={aboutCopy} renderLink={renderAboutLink} />
+            {aboutDeepOpen ? (
+              <RealmMode
+                projects={projectModules}
+                onOpenProject={openProject}
+                onExit={() => {
+                  aboutDeepScrollYRef.current = null;
+                  setAboutDeepOpen(false);
+                }}
+                entry={{ x: 60, y: Math.max(60, window.innerHeight - 60) }}
+              />
+            ) : null}
+          </>
+        );
+      }
 
   if (pathname === "/directions") {
     return (

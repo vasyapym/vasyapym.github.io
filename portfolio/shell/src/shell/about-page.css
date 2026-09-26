@@ -120,9 +120,9 @@
 
 /* ── links ───────────────────────────────────────────── */
 
-/* R037: the gray mono voice is dropped — the owner wants consistency with
-   the ochre numeral device: links ride the body voice, the hairline
-   underline is the rest state, and ochre is feedback (hover/focus) only. */
+/* R038: the owner wants the links prominent beyond hover — the rest
+   underline is the ochre accent itself (the superscript device's colour),
+   and hover still wakes (brighter ochre + full-paper text). */
 .ab-link {
   color: inherit;
   text-decoration: none;
@@ -133,7 +133,7 @@
   text-decoration: underline;
   text-decoration-thickness: 1px;
   text-underline-offset: 0.22em;
-  text-decoration-color: rgb(238 234 224 / 0.31); /* rest hairline, +20% over the line token */
+  text-decoration-color: var(--ab-ochre); /* rest ochre — prominent without hover */
   transition: text-decoration-color 200ms ease;
 }
 .ab-n {
