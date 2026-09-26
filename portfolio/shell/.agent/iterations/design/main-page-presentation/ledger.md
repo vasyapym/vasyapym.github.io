@@ -493,3 +493,13 @@ Task: rethink how the 6 project cards are presented on the main page (desktop). 
 - Visual inspection: performed on the real page (probes r035-about-flows + r037-link-style). Computed: both link voices identical (15.2px, system sans, underline rgba(238,234,224,.26)); flows: project→back→/about + the deep → realm ON /about (path stays /about, realm open) at both viewports; PNGs inspected.
 - Code verification: tsc --noEmit green; vite build green.
 - Open question: owner verdict on the ochre-underline link voice at body size.
+
+## Round R038
+- Goal: owner — the link highlighting ~20% more prominent.
+- Preserved preferences: F002, F005, F006–F013, R032–R037 (the ochre-feedback grammar stays; only its intensity steps).
+- Changes: `about-page.css` — the rest hairline +20% (rgb(238 234 224 / .26 → .31)); the hover/focus underline steps to the house's bright ochre rung (--ink-accent → --ink-accent-bright, the established ladder); the link text wakes to full paper on hover/focus (0.84 → 1.0, ≈ +19% — the house type-wakes device); the back arrow's hover follows the bright rung.
+- Before: artifacts/R037/about-1440x900.png
+- After: artifacts/R038/hover-body-1440.png
+- Visual inspection: performed on the real page (probe portfolio/probes/r038-hover.mjs). Hover computed: underline rgb(232,181,124) = --ink-accent-bright; text rgb(238,234,224) = full paper. Inspected the PNG: the hovered link reads clearly against the quiet rest hairlines.
+- Code verification: tsc --noEmit green.
+- Open question: owner verdict on the +20% step (the bright rung is one ladder step, not a new colour).

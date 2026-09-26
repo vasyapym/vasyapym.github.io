@@ -133,7 +133,7 @@
   text-decoration: underline;
   text-decoration-thickness: 1px;
   text-underline-offset: 0.22em;
-  text-decoration-color: var(--ab-rule);
+  text-decoration-color: rgb(238 234 224 / 0.31); /* rest hairline, +20% over the line token */
   transition: text-decoration-color 200ms ease;
 }
 .ab-n {
@@ -144,12 +144,14 @@
   vertical-align: 0.7em;   /* raised without disturbing leading */
   color: var(--ab-ochre);
 }
-.ab-link:focus-visible { outline: 1px solid var(--ab-ochre); outline-offset: 3px; }
-.ab-link:focus-visible .ab-link-t { text-decoration-color: var(--ab-ochre); }
+.ab-link:focus-visible { color: var(--ab-paper); outline: 1px solid var(--ink-accent-bright); outline-offset: 3px; }
+.ab-link:focus-visible .ab-link-t { text-decoration-color: var(--ink-accent-bright); }
 
 @media (hover: hover) {
-  .ab-link:hover .ab-link-t { text-decoration-color: var(--ab-ochre); }
-  .ab-back:hover .ab-arrow { color: var(--ab-ochre); }
+  /* +20% prominence (owner R038): the bright ochre rung + the text waking */
+  .ab-link:hover { color: var(--ab-paper); }
+  .ab-link:hover .ab-link-t { text-decoration-color: var(--ink-accent-bright); }
+  .ab-back:hover .ab-arrow { color: var(--ink-accent-bright); }
 }
 
 /* ── last line (optional email sign-off) ─────────────── */
