@@ -19,7 +19,7 @@ export type Segment =
   | string
   | { em: string }
   | { n: number; to: string; text: string } // project link, n = catalogue number 1–8
-  | { to: string; text: string }; // unnumbered link (site url, "the deep")
+  | { to: string; text: string; deep?: true }; // unnumbered link; deep:true = "the deep" special voice
 
 export type AboutCopy = {
   lead?: Segment[][];      // unnumbered opening paragraphs, above the ¶ entries
@@ -68,7 +68,7 @@ function segment(seg: Segment, key: number, link: RenderLink): ReactNode {
     <Fragment key={key}>
       {link({
         to: seg.to,
-        className: "ab-link",
+        className: seg.deep ? "ab-link ab-link--deep" : "ab-link",
         children: <span className="ab-link-t">{seg.text}</span>,
       })}
     </Fragment>
@@ -188,7 +188,7 @@ export function checkAboutCopy(c: AboutCopy): string[] {
   const projects = segs.filter(isProject);
   const nums = new Set(projects.map((p) => p.n));
 
-  if (c.paragraphs.length !== 6) out.push(`paragraphs: ${c.paragraphs.length}, expected 6`);
+  if (c.paragraphs.length !== 7) out.push(`paragraphs: ${c.paragraphs.length}, expected 7`);
   if (!c.lead?.length) out.push("lead missing");
   if (projects.length !== 8) out.push(`project links: ${projects.length}, expected 8`);
   if (nums.size !== projects.length || [...nums].some((n) => n < 1 || n > 8))

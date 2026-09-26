@@ -1,9 +1,11 @@
 import { projectModules } from "../catalog/discover-projects";
 import type { AboutCopy } from "./AboutPage";
 
-// R033 — the owner's about copy, seated verbatim as catalogue segments.
+// the owner's about copy, seated verbatim as catalogue segments (R039 swap).
 // Superscript numbers are DERIVED from the landing's display order
 // (catalog/discover-projects) so they can never drift from the index.
+// The plain pasted text carries no symbols: every project mention keeps its
+// ochre catalogue number here, and "the deep" keeps its special door voice.
 
 const catalogueNumber = (id: string): number => {
   const index = projectModules.findIndex((p) => p.id === id);
@@ -21,10 +23,10 @@ export const aboutCopy: AboutCopy = {
   home: { to: "/", label: "Vasily Argounov" },
   lead: [
     ["I love making systems work."],
-    ["All eight projects live on vasyapym.github.io, each self-contained."],
+    ["Eight projects live on vasyapym.github.io, and each one stands on its own: open it and it runs."],
     [
       "If you'd rather meet them in the dark, switch on ",
-      { to: "/deep", text: "the deep" },
+      { to: "/deep", deep: true, text: "the deep" },
       " and they'll come to your lantern.",
     ],
   ],
@@ -36,19 +38,19 @@ export const aboutCopy: AboutCopy = {
     ],
     [
       project("quicknotes", "Quicknotes"),
-      " signs in with Google and syncs across devices, and one button copies text. Quickness is the whole feature.",
+      " is a notepad that stays out of the way. Google sign-in, sync across devices, one button to copy. Quickness is the whole feature.",
     ],
     [
-      "I came to code from linguistics, so language models were always going to catch me. What holds me is watching how a model rebuilds a picture of the world, out of nothing but the texts it read. That's ",
+      "I came to code from linguistics, so language models were always going to catch me. What holds me is watching a model rebuild a picture of the world out of nothing but the text it has read. That's ",
       project("practice-map", "Waste of tokens"),
       ".",
     ],
     [
-      "Some things I made just to see them work. In ",
+      "Some things I made just to see them work. ",
       project("raft-cluster", "raft-cluster"),
-      ", Rust in WebAssembly, you crash the leader and watch the survivors vote in a new term. ",
+      " is Rust compiled to WebAssembly: crash the leader and watch the survivors elect another and carry on in a new term. ",
       project("spine", "Spine"),
-      " puts a Go core in WebAssembly under a flexbox and grid editor that exports clean HTML and CSS.",
+      " puts a Go core, also in WebAssembly, under a flexbox-and-grid editor that exports HTML and CSS clean enough to paste into whatever you're building.",
     ],
     [
       "Some I made because I love how they look. ",
@@ -60,7 +62,10 @@ export const aboutCopy: AboutCopy = {
     [
       "And ",
       project("planck-to-now", "Planck to Now"),
-      " lets you scrub from the first instant of the universe to this one, on a log scale. A reminder that we're all cosmic dust.",
+      " lets you scrub from the first instant of the universe to this one. The scale is logarithmic, because on a linear one all of human history fits inside the last pixel. A reminder that we're all cosmic dust, and late arrivals at that.",
+    ],
+    [
+      "That's all eight. Where speed mattered I reached for Rust or Go and compiled to WebAssembly; where looks mattered, the GPU. If one of them caught your light, feel free to reach me.",
     ],
   ],
 };

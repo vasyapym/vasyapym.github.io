@@ -144,6 +144,13 @@
   vertical-align: 0.7em;   /* raised without disturbing leading */
   color: var(--ab-ochre);
 }
+
+/* "the deep" door voice: the same family, read differently — the dotted
+   phosphor-trail underline (no catalogue number); hover wakes like the rest */
+.ab-link--deep .ab-link-t {
+  text-decoration-style: dotted;
+  text-decoration-thickness: 1.5px;
+}
 .ab-link:focus-visible { color: var(--ab-paper); outline: 1px solid var(--ink-accent-bright); outline-offset: 3px; }
 .ab-link:focus-visible .ab-link-t { text-decoration-color: var(--ink-accent-bright); }
 
