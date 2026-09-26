@@ -47,7 +47,7 @@ export const aboutCopy: AboutCopy = {
     ],
     [
       "Some things I made just to see them work. ",
-      project("raft-cluster", "raft-cluster"),
+      project("raft-cluster", "Raft Cluster"),
       " is Rust compiled to WebAssembly: crash the leader and watch the survivors elect another and carry on in a new term. ",
       project("spine", "Spine"),
       " puts a Go core, also in WebAssembly, under a flexbox-and-grid editor that exports HTML and CSS clean enough to paste into whatever you're building.",
@@ -65,7 +65,7 @@ export const aboutCopy: AboutCopy = {
       " lets you scrub from the first instant of the universe to this one. The scale is logarithmic, because on a linear one all of human history fits inside the last pixel. A reminder that we're all cosmic dust, and late arrivals at that.",
     ],
     [
-      "That's all eight. Where speed mattered I reached for Rust or Go and compiled to WebAssembly; where looks mattered, the GPU. If one of them caught your light, feel free to reach me.",
+      "That's all eight. Where speed mattered I reached for Rust or Go and compiled to WebAssembly; where looks mattered, the GPU. If one of them caught your light, feel free to reach me at vasyapym@gmail.com.",
     ],
   ],
 };
