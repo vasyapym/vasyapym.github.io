@@ -363,6 +363,11 @@ textarea:focus-visible {
 .signal-index-hero-settled .signal-index-hero-fluid-canvas {
   animation: none;}
 
+/* the canvas rests at opacity 0 (its fade is the animation) — a settled hero
+   must show the fluid, or the cursor-stir layer disappears (R037 bug) */
+.signal-index-hero-settled .signal-index-hero-fluid-canvas {
+  opacity: 1;}
+
 .signal-index-hero-settled .signal-index-hero-line-in {
   transform: none;}
 

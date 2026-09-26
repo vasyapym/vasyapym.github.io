@@ -81,6 +81,14 @@ export default function AboutPage({
 }) {
   const end = (copy.lead?.length ?? 0) + copy.paragraphs.length;
 
+  // The stagger entrance belongs to the initial entry only: a return from a
+  // project (the intent's path is /about) mounts settled — no text animation.
+  // Seeded during render, before the restore effect consumes the intent.
+  const returning = readProjectReturnPath() === "/about";
+  const enterClass = (base: string, i: number) =>
+    returning ? base : `${base} ab-enter`;
+  const enterStyle = (i: number) => (returning ? undefined : idx(i));
+
   // Returning from a project opened here: glide back to the row the visitor
   // left. The intent's path gates it (the landing owns its own restore).
   useEffect(() => {
@@ -118,8 +126,8 @@ export default function AboutPage({
         <div className="ab-body">
           {copy.lead?.map((p, i) => (
             <Fragment key={`lead-${i}`}>
-              <span className="ab-mark ab-mark--ghost ab-enter" style={idx(i)} aria-hidden="true" />
-              <p className="ab-p ab-enter" style={idx(i)}>
+              <span className={enterClass("ab-mark ab-mark--ghost", i)} style={enterStyle(i)} aria-hidden="true" />
+              <p className={enterClass("ab-p", i)} style={enterStyle(i)}>
                 {p.map((s, j) => segment(s, j, renderLink))}
               </p>
             </Fragment>
@@ -128,13 +136,13 @@ export default function AboutPage({
           {copy.paragraphs.map((p, i) => (
             <Fragment key={i}>
               <span
-                className="ab-mark ab-enter"
-                style={idx((copy.lead?.length ?? 0) + i)}
+                className={enterClass("ab-mark", i)}
+                style={enterStyle(i)}
                 aria-hidden="true"
               >
                 ¶ {pad(i + 1)}
               </span>
-              <p className="ab-p ab-enter" style={idx((copy.lead?.length ?? 0) + i)}>
+              <p className={enterClass("ab-p", i)} style={enterStyle(i)}>
                 {p.map((s, j) => segment(s, j, renderLink))}
               </p>
             </Fragment>
@@ -144,7 +152,7 @@ export default function AboutPage({
             <>
               <span className="ab-rule" aria-hidden="true" />
               <span className="ab-mark" aria-hidden="true" />
-              <address className="ab-email ab-enter" style={idx(end)}>
+              <address className="ab-email" style={enterStyle(end)}>
                 {copy.email}
               </address>
             </>

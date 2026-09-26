@@ -483,3 +483,13 @@ Task: rethink how the 6 project cards are presented on the main page (desktop). 
 - Visual inspection: performed on the real page (probe r035 re-run). Inspected PNGs: bar reads as the project headers' twin; prose in the lesson voice at the 40rem centered measure; links/superscripts/marks unchanged. Functional flows re-green (return routing, glide, deep→realm, both viewports).
 - Code verification: tsc --noEmit green; vite build green.
 - Open question: owner verdict on the lesson voice (0.95rem is slightly smaller than R035's 16px — the lesson spec won).
+
+## Round R037
+- Goal: owner's batch — (1) the gray link highlight is disliked and inconsistent with the ochre-numeral device — try something consistent; (2) no entrance animation on returning from a project to /about — only initial entry; (3) the deep entered via /about must exit back to /about; (4) bug: the cursor-follow fluid was gone on the landing after returning from /about; (5) vasyapym.github.io un-highlighted; (6) ¶3 → "watching how a model rebuilds… the texts it read"; (7) highlighted text rendered smaller than the body — same size required.
+- Preserved preferences: F002 (corridor), F005, F006–F013, R032 colophon, R033 copy, R034–R036 fixes.
+- Changes: `about-page.css` — the link voice reverted to the colophon's own grammar (body font, inherit color, hairline underline; ochre ONLY as feedback on hover/focus + the numerals — the 0.9em mono gray is gone, links are body-size); `AboutPage.tsx` — the stagger entrance gated by a render-seeded returnVisit (the intent's path /about): return mounts render settled, initial entries animate; `App.tsx` — /deep no longer navigates: AboutDeepOpen renders RealmMode OVER the live about page (entry at the lower-left lantern corner, onOpenProject = openProject, exit = close the overlay — the page and its scroll never unmount); `styles.css` — the settled hero canvas also gets opacity:1 (its base is opacity 0 + the fade animation; R034's animation:none alone left the fluid invisible — the missing-cursor bug); `about-copy.ts` — vasyapym.github.io plain, ¶3 reworded.
+- Before: artifacts/R036/about-1440x900.png
+- After: artifacts/R037/about-1440x900.png, about-390x844.png, deep-1440x900.png
+- Visual inspection: performed on the real page (probes r035-about-flows + r037-link-style). Computed: both link voices identical (15.2px, system sans, underline rgba(238,234,224,.26)); flows: project→back→/about + the deep → realm ON /about (path stays /about, realm open) at both viewports; PNGs inspected.
+- Code verification: tsc --noEmit green; vite build green.
+- Open question: owner verdict on the ochre-underline link voice at body size.

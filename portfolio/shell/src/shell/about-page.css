@@ -120,12 +120,11 @@
 
 /* ── links ───────────────────────────────────────────── */
 
-/* the previous iteration's device: the gray mono voice — the link stands
-   apart from the sans body and wakes to full ink on hover */
+/* R037: the gray mono voice is dropped — the owner wants consistency with
+   the ochre numeral device: links ride the body voice, the hairline
+   underline is the rest state, and ochre is feedback (hover/focus) only. */
 .ab-link {
-  font-family: var(--ab-mono);
-  font-size: 0.9em;
-  color: var(--ab-muted);
+  color: inherit;
   text-decoration: none;
   border-radius: 1px;
   scroll-margin-block: calc(var(--ab-bar) + 24px) 24px; /* clear sticky bar on focus */
@@ -145,11 +144,10 @@
   vertical-align: 0.7em;   /* raised without disturbing leading */
   color: var(--ab-ochre);
 }
-.ab-link:focus-visible { color: var(--ab-paper); outline: 1px solid var(--ab-ochre); outline-offset: 3px; }
+.ab-link:focus-visible { outline: 1px solid var(--ab-ochre); outline-offset: 3px; }
 .ab-link:focus-visible .ab-link-t { text-decoration-color: var(--ab-ochre); }
 
 @media (hover: hover) {
-  .ab-link:hover { color: var(--ab-paper); }
   .ab-link:hover .ab-link-t { text-decoration-color: var(--ab-ochre); }
   .ab-back:hover .ab-arrow { color: var(--ab-ochre); }
 }

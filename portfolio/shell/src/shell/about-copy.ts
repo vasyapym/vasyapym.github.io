@@ -20,11 +20,7 @@ const project = (id: string, text: string) => ({
 export const aboutCopy: AboutCopy = {
   home: { to: "/", label: "Vasily Argounov" },
   lead: [
-    [
-      "All eight projects live on ",
-      { to: "/", text: "vasyapym.github.io" },
-      ", each self-contained.",
-    ],
+    ["All eight projects live on vasyapym.github.io, each self-contained."],
     [
       "If you'd rather meet them in the dark, switch on ",
       { to: "/deep", text: "the deep" },
@@ -42,7 +38,7 @@ export const aboutCopy: AboutCopy = {
       " signs in with Google and syncs across devices, and one button copies text. Quickness is the whole feature.",
     ],
     [
-      "I came to code from linguistics, so language models were always going to catch me. What holds me is watching how they rebuild a picture of the world, out of nothing but the texts read. That's ",
+      "I came to code from linguistics, so language models were always going to catch me. What holds me is watching how a model rebuilds a picture of the world, out of nothing but the texts it read. That's ",
       project("practice-map", "Waste of tokens"),
       ".",
     ],

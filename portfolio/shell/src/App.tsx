@@ -47,6 +47,9 @@ function projectIdFromPath(pathname: string): string | undefined {
 
 export default function App() {
   const [pathname, setPathname] = useState(() => window.location.pathname);
+  // The deep, entered from /about: the realm renders OVER the live about page
+  // (no route change) — the exit lands back on it with the scroll intact.
+  const [aboutDeepOpen, setAboutDeepOpen] = useState(false);
   const [realmReturn, setRealmReturn] = useState<RealmReturnState | null>(null);
   const realmReturnRef = useRef<RealmReturnState | null>(null);
   const landingRealmExitHandlerRef = useRef<(() => void) | null>(null);
@@ -123,10 +126,8 @@ export default function App() {
         );
       }
       if (to === "/deep") {
-        // "the deep" — switch the immersive catalogue on from here: clear any
-        // stale project intent, seed the r11 realm intent (no landing offset —
-        // the exit restores the catalogue top), then boot the landing with its
-        // realm already open (the landing's own direct-boot restore path).
+        // "the deep" — the immersive realm opens OVER the live about page:
+        // no route change, so the exit lands back here with the scroll intact.
         return (
           <a
             className={className}
@@ -134,10 +135,7 @@ export default function App() {
             onClick={(e) => {
               if (e.button === 0 && !e.metaKey && !e.ctrlKey && !e.shiftKey && !e.altKey) {
                 e.preventDefault();
-                clearProjectReturnIntent();
-                rememberRealmReturnIntent();
-                window.history.pushState({}, "", "/");
-                setPathname("/");
+                setAboutDeepOpen(true);
               }
             }}
           >
@@ -339,7 +337,19 @@ export default function App() {
   }
 
   if (pathname === "/about" || pathname === "/about/") {
-    return <AboutPage copy={aboutCopy} renderLink={renderAboutLink} />;
+    return (
+      <>
+        <AboutPage copy={aboutCopy} renderLink={renderAboutLink} />
+        {aboutDeepOpen ? (
+          <RealmMode
+            projects={projectModules}
+            onOpenProject={openProject}
+            onExit={() => setAboutDeepOpen(false)}
+            entry={{ x: 60, y: Math.max(60, window.innerHeight - 60) }}
+          />
+        ) : null}
+      </>
+    );
   }
 
   if (pathname === "/directions") {
