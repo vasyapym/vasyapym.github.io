@@ -70,17 +70,19 @@ export default function AboutPage({
   return (
     <div className="ab">
       <header className="ab-bar">
-        {renderLink({
-          to: copy.home.to,
-          className: "ab-back",
-          children: (
-            <>
-              <span className="ab-arrow" aria-hidden="true">←</span>
-              {copy.home.label}
-            </>
-          ),
-        })}
-        <h1 className="ab-title">about</h1>
+        <div className="ab-bar-in">
+          {renderLink({
+            to: copy.home.to,
+            className: "ab-back",
+            children: (
+              <>
+                <span className="ab-arrow" aria-hidden="true">←</span>
+                {copy.home.label}
+              </>
+            ),
+          })}
+          <h1 className="ab-title">about</h1>
+        </div>
       </header>
 
       <main className="ab-main">
@@ -107,8 +109,9 @@ export default function AboutPage({
 
           {copy.email && (
             <>
-              <span className="ab-mark ab-end ab-enter" style={idx(end)} aria-hidden="true" />
-              <address className="ab-email ab-end ab-enter" style={idx(end)}>
+              <span className="ab-rule" aria-hidden="true" />
+              <span className="ab-mark" aria-hidden="true" />
+              <address className="ab-email ab-enter" style={idx(end)}>
                 {copy.email}
               </address>
             </>

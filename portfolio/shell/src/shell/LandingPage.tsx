@@ -820,7 +820,7 @@ export default function LandingPage({
       >
         <section
           ref={heroRef}
-          className="signal-index-hero signal-index-hero-fluid"
+          className={`signal-index-hero signal-index-hero-fluid${returnVisitRef.current ? " signal-index-hero-settled" : ""}`}
           aria-labelledby="signal-index-title"
         >
           <header className="signal-index-header">

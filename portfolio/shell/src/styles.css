@@ -354,6 +354,23 @@ textarea:focus-visible {
   font-weight: 700;}
 
 
+/* Return visits (from a project or /about): the catalogue mounts settled and
+   the hero copy must not replay its entrance either. The class is set at
+   paint time (the return-visit seed runs during render), so nothing flashes. */
+.signal-index-hero-settled .signal-index-hero-line-in,
+.signal-index-hero-settled .signal-index-hero-kicker,
+.signal-index-hero-settled .signal-index-hero-note,
+.signal-index-hero-settled .signal-index-hero-fluid-canvas {
+  animation: none;}
+
+.signal-index-hero-settled .signal-index-hero-line-in {
+  transform: none;}
+
+.signal-index-hero-settled .signal-index-hero-kicker,
+.signal-index-hero-settled .signal-index-hero-note {
+  opacity: 1;}
+
+
 .signal-index-hero-note {
   display: flex;
   flex-wrap: wrap;

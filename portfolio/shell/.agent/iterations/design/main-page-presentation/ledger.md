@@ -453,3 +453,13 @@ Task: rethink how the 6 project cards are presented on the main page (desktop). 
 - Visual inspection: performed on the real page (probe re-run). Inspected PNGs: lead sits above ¶ 01 with a blank rail cell, the six entries carry the display-name links with correct ochre superscripts (04/01/03/05+02/06+07/08), page ends at ¶ 06 with no sign-off.
 - Code verification: tsc --noEmit green; probe green (9 anchors: ← index + 8 projects; project nav, ← index return, mobile parity).
 - Open question: owner verdict on the lead treatment (blank rail cell vs a mark of its own).
+
+## Round R034
+- Goal: owner's four about-page fixes — (1) the email sign-off rendered two misaligned hairlines (baseline alignment put the rail cell's and the address's border-tops at different heights); (2) the hero entrance replayed when returning from /about; (3) the bar's return control must read "Vasily Argounov", not "index"; (4) type and width must be consistent with the main menu's corridor and ramp.
+- Preserved preferences: F002, F005, F006–F013, R032 colophon, R033 copy.
+- Changes: `about-copy.ts` — home label "index" → "Vasily Argounov"; `AboutPage.tsx` — bar content wrapped in a corridor-width .ab-bar-in; the optional email sign-off's hairline rebuilt as a full-width grid rule row (one continuous line by construction, immune to baseline drift); `about-page.css` — corridor width `min(100% - 72px, clamp(52rem, 86vw, 65rem))` (the landing's shell + measure formulas verbatim) on bar and body; type ramp 0.875rem/1.5 (the landing's card-desc prose size); `LandingPage.tsx` — hero section takes a paint-time `signal-index-hero-settled` class on return-visit mounts; `styles.css` — settled class kills the hero line/kicker/note/canvas entrance animations (opacity 1, no transforms).
+- Before: artifacts/R032/about-end-1440x900.png (split hairline), artifacts/R033/about-1440x900.png (old ramp/label)
+- After: artifacts/R034/about-top.png, landing-after-return.png
+- Visual inspection: performed on the real page (probe portfolio/probes/r033-followup.mjs). Measured at 1440: bar and body at x=200/w=1040 — exactly the landing corridor. Hero on return: settled class present, line-in animation none/transform none, note opacity 1, canvas animation none, scrollY 0 — no replay. Inspected PNGs: bar reads "← Vasily Argounov · about"; body at the landing's prose size.
+- Code verification: tsc --noEmit green; vite build green; probe r032 flow re-run green (9 anchors, SPA nav, ← index return).
+- Open question: owner verdict on the 14px body (it now matches the landing's card prose; the colophon's original 17–19px was its own scale).

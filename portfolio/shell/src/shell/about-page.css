@@ -12,9 +12,9 @@
   --ab-text: var(--sans, "IBM Plex Sans", ui-sans-serif, system-ui, sans-serif);
   --ab-mono: var(--mono, "IBM Plex Mono", ui-monospace, SFMono-Regular, monospace);
 
-  --ab-size: clamp(17px, 15.4px + 0.25vw, 19px); /* 17 @390 → 19 @1440 */
-  --ab-lh: 1.58;
-  --ab-gutter: clamp(20px, 3.4vw, 48px);
+  --ab-size: 0.875rem; /* 14px — the landing's prose ramp (card desc) */
+  --ab-lh: 1.5;
+  --ab-measure: clamp(52rem, 86vw, 65rem); /* the landing's corridor, verbatim */
   --ab-bar: 48px;
 
   min-height: 100vh;
@@ -35,21 +35,23 @@
   position: sticky;
   top: 0;
   z-index: 1;
-  box-sizing: content-box;
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  height: var(--ab-bar);
-  padding:
-    env(safe-area-inset-top, 0px)
-    max(var(--ab-gutter), env(safe-area-inset-right, 0px))
-    0
-    max(var(--ab-gutter), env(safe-area-inset-left, 0px));
   background: var(--ab-ink);
   border-bottom: 1px solid var(--ab-line);
   font: 400 11px/1 var(--ab-mono);
   letter-spacing: 0.06em;
   color: var(--ab-muted);
+}
+
+/* the corridor: the about page never renders wider than the main menu */
+.ab-bar-in {
+  box-sizing: content-box;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  height: var(--ab-bar);
+  padding-top: env(safe-area-inset-top, 0px);
+  width: min(100% - 72px, var(--ab-measure));
+  margin-inline: auto;
 }
 
 .ab-title { margin: 0; font: inherit; color: inherit; }
@@ -73,11 +75,13 @@
 .ab-main {
   padding:
     clamp(40px, 9vh, 112px)
-    var(--ab-gutter)
+    0
     calc(clamp(64px, 14vh, 160px) + env(safe-area-inset-bottom, 0px));
 }
 
 .ab-body {
+  width: min(100% - 72px, var(--ab-measure));
+  margin-inline: auto;
   display: grid;
   grid-template-columns: minmax(0, 62ch);
   row-gap: 1.2em;
@@ -127,15 +131,18 @@
   .ab-back:hover .ab-arrow { color: var(--ab-ochre); }
 }
 
-/* ── last line ───────────────────────────────────────── */
+/* ── last line (optional email sign-off) ─────────────── */
 
-.ab-end {
+/* one continuous hairline by construction: a full-width rule row, immune to
+   the baseline alignment that split it into two lines (R033 bug) */
+.ab-rule {
+  grid-column: 1 / -1;
   margin-top: 1.4em;
-  padding-top: 1.4em;
-  border-top: 1px solid var(--ab-line); /* rail + measure cells join into one hairline */
+  border-top: 1px solid var(--ab-line);
 }
 .ab-email {
   margin: 0;
+  padding-top: 1.4em;
   font: 400 0.8em/1.4 var(--ab-mono);
   letter-spacing: 0.02em;
   color: var(--ab-paper);
