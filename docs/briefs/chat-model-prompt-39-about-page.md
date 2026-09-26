@@ -1,11 +1,14 @@
-# chat-model prompt 39 — about-page (R032, v5 true telegraph)
+# chat-model prompt 39 — about-page (R032, v6 telegraph −30%)
 
-v4 ("telegraph") was still prose — articles and connectives left in.
-v5: actual telegraphic register — noun phrases, no articles, key=value
-constraints, imperatives. Same facts and freedom split. ~100 words.
+v5 (~100w) withdrawn pre-relay: owner picked the −30% arm from the
+compression menu. v6: ~70 words. Cuts vs v5: site+house merged to one
+line, "typography does the work" dropped, copy shape compressed (heading
+detail dropped), stack line → "no deps", contract compressed. Kept: the
+owner's register steer verbatim, the freedom split, viewports,
+challenge line, exact reply contract.
 
 ## Paste this
 
 ```text
-comprehensive code - about-page, route /about, standalone, no overlay. site: dark ink catalogue, 8 projects. house: mono microcopy, hairlines, one ochre accent, lowercase, typography does the work. register: senior developer minimalism, consistent with landing. concept, layout, type scale, density, return control = yours. copy fixed, seated at integration: heading "# vasyapym", 7 paragraphs, 9 links (8 project + 1 home), 1 em, email last line. links via router, integrator wires. react 18 + plain css, no deps. hold 390px + 1440px; prefers-reduced-motion = fade. challenge assumptions + failure cases before answering; rationale = why lines. reply: exactly 3 blocks - concept name + ≤80-word why; AboutPage.tsx; about-page.css - nothing else.
+comprehensive code - about-page, route /about, standalone, no overlay. dark ink catalogue, 8 projects; mono microcopy, hairlines, one ochre accent, lowercase. register: senior developer minimalism, consistent with landing. concept, layout, type scale, density, return control = yours. copy fixed at integration: 7 paragraphs, 9 links (8 project + 1 home), 1 em, email last line; links via router, integrator wires. no deps. hold 390px + 1440px; reduced-motion = fade. challenge assumptions + failure cases first; rationale = why lines. reply: exactly 3 blocks - concept + ≤80-word why; AboutPage.tsx; about-page.css - nothing else.
 ```
