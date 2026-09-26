@@ -1,0 +1,177 @@
+/* about — standalone route (R032 colophon). reads the landing's house
+   tokens so the two pages cannot drift; fallbacks repeat the house values.
+   the relay's serif body fallback was declined: the house face is Plex Sans. */
+
+.ab {
+  --ab-ink: var(--ink-bg, #0b1317);
+  --ab-paper: var(--ink-text, #eeeae0);
+  --ab-muted: var(--ink-muted, rgb(238 234 224 / 0.68));
+  --ab-line: var(--ink-line-soft, rgb(238 234 224 / 0.13));
+  --ab-rule: var(--ink-line, rgb(238 234 224 / 0.26));
+  --ab-ochre: var(--ink-accent, #d39b61);
+  --ab-text: var(--sans, "IBM Plex Sans", ui-sans-serif, system-ui, sans-serif);
+  --ab-mono: var(--mono, "IBM Plex Mono", ui-monospace, SFMono-Regular, monospace);
+
+  --ab-size: clamp(17px, 15.4px + 0.25vw, 19px); /* 17 @390 → 19 @1440 */
+  --ab-lh: 1.58;
+  --ab-gutter: clamp(20px, 3.4vw, 48px);
+  --ab-bar: 48px;
+
+  min-height: 100vh;
+  min-height: 100svh;
+  background: var(--ab-ink);
+  color: var(--ab-paper);
+  color-scheme: dark;
+  font-family: var(--ab-text);
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+.ab ::selection { background: var(--ab-ochre); color: var(--ab-ink); }
+
+/* ── bar ─────────────────────────────────────────────── */
+
+.ab-bar {
+  position: sticky;
+  top: 0;
+  z-index: 1;
+  box-sizing: content-box;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  height: var(--ab-bar);
+  padding:
+    env(safe-area-inset-top, 0px)
+    max(var(--ab-gutter), env(safe-area-inset-right, 0px))
+    0
+    max(var(--ab-gutter), env(safe-area-inset-left, 0px));
+  background: var(--ab-ink);
+  border-bottom: 1px solid var(--ab-line);
+  font: 400 11px/1 var(--ab-mono);
+  letter-spacing: 0.06em;
+  color: var(--ab-muted);
+}
+
+.ab-title { margin: 0; font: inherit; color: inherit; }
+
+.ab-back {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.7em;
+  padding: 16px 12px;      /* ≥44px target */
+  margin: -16px -12px;
+  color: var(--ab-paper);
+  text-decoration: none;
+  border-radius: 2px;
+}
+.ab-arrow { display: inline-block; transition: transform 200ms ease, color 200ms ease; }
+.ab-back:focus-visible { outline: 1px solid var(--ab-ochre); outline-offset: -6px; }
+.ab-back:focus-visible .ab-arrow { color: var(--ab-ochre); }
+
+/* ── body ────────────────────────────────────────────── */
+
+.ab-main {
+  padding:
+    clamp(40px, 9vh, 112px)
+    var(--ab-gutter)
+    calc(clamp(64px, 14vh, 160px) + env(safe-area-inset-bottom, 0px));
+}
+
+.ab-body {
+  display: grid;
+  grid-template-columns: minmax(0, 62ch);
+  row-gap: 1.2em;
+  align-items: baseline;
+  font-size: var(--ab-size);
+  line-height: var(--ab-lh);
+  font-kerning: normal;
+}
+
+.ab-mark { display: none; }
+
+.ab-p {
+  margin: 0;
+  text-wrap: pretty;
+  hanging-punctuation: first;
+}
+.ab-p em { font-style: italic; }
+
+/* ── links ───────────────────────────────────────────── */
+
+.ab-link {
+  color: inherit;
+  text-decoration: none;
+  border-radius: 1px;
+  scroll-margin-block: calc(var(--ab-bar) + 24px) 24px; /* clear sticky bar on focus */
+}
+.ab-link-t {
+  text-decoration: underline;
+  text-decoration-thickness: 1px;
+  text-underline-offset: 0.22em;
+  text-decoration-color: var(--ab-rule);
+  transition: text-decoration-color 200ms ease;
+}
+.ab-n {
+  margin-left: 0.14em;
+  font: 400 0.56em/0 var(--ab-mono);
+  font-variant-numeric: tabular-nums;
+  letter-spacing: 0.02em;
+  vertical-align: 0.7em;   /* raised without disturbing leading */
+  color: var(--ab-ochre);
+}
+.ab-link:focus-visible { outline: 1px solid var(--ab-ochre); outline-offset: 3px; }
+.ab-link:focus-visible .ab-link-t { text-decoration-color: var(--ab-ochre); }
+
+@media (hover: hover) {
+  .ab-link:hover .ab-link-t { text-decoration-color: var(--ab-ochre); }
+  .ab-back:hover .ab-arrow { color: var(--ab-ochre); }
+}
+
+/* ── last line ───────────────────────────────────────── */
+
+.ab-end {
+  margin-top: 1.4em;
+  padding-top: 1.4em;
+  border-top: 1px solid var(--ab-line); /* rail + measure cells join into one hairline */
+}
+.ab-email {
+  margin: 0;
+  font: 400 0.8em/1.4 var(--ab-mono);
+  letter-spacing: 0.02em;
+  color: var(--ab-paper);
+  user-select: all;
+  overflow-wrap: anywhere;
+}
+
+/* ── desktop: rail ───────────────────────────────────── */
+
+@media (min-width: 960px) {
+  .ab { --ab-bar: 56px; }
+  .ab-body { grid-template-columns: clamp(7rem, 12vw, 11rem) minmax(0, 62ch); }
+  .ab-mark {
+    display: block;
+    font: 400 11px/1 var(--ab-mono);
+    letter-spacing: 0.06em;
+    font-variant-numeric: tabular-nums;
+    color: var(--ab-muted);
+  }
+}
+
+/* ── motion ──────────────────────────────────────────── */
+
+@keyframes ab-rise { from { opacity: 0; transform: translateY(6px); } to { opacity: 1; transform: none; } }
+@keyframes ab-fade { from { opacity: 0; } to { opacity: 1; } }
+
+.ab-enter {
+  animation: ab-rise 640ms cubic-bezier(0.2, 0.65, 0.2, 1) both;
+  animation-delay: calc(80ms + var(--i, 0) * 55ms);
+}
+
+@media (hover: hover) and (prefers-reduced-motion: no-preference) {
+  .ab-back:hover .ab-arrow { transform: translateX(-2px); }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .ab-enter { animation: ab-fade 360ms linear both; animation-delay: 0ms; }
+  .ab-arrow, .ab-link-t { transition: none; }
+}

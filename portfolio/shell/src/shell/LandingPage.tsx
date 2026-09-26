@@ -3,7 +3,6 @@ import type { ProjectModule } from "../../../contracts/project-module";
 import HeroFluid from "./HeroFluid";
 import ProjectArtwork from "./ProjectArtwork";
 import RealmMode from "./RealmMode";
-import AboutWindow from "./AboutWindow";
 import {
   clearRealmReturnIntent,
   readRealmReturnIntent,
@@ -20,6 +19,7 @@ import "./realm.css";
 type LandingPageProps = {
   projects: readonly ProjectModule[];
   onOpenProject: (id: string) => void;
+  onOpenAbout?: () => void;
   externalRealmOpen?: boolean;
   registerExternalRealmExitHandler?: (handler: (() => void) | null) => void;
 };
@@ -100,6 +100,7 @@ function scheduleIdleWarm(callback: () => void) {
 export default function LandingPage({
   projects,
   onOpenProject: openProject,
+  onOpenAbout,
   externalRealmOpen = false,
   registerExternalRealmExitHandler,
 }: LandingPageProps) {
@@ -109,14 +110,6 @@ export default function LandingPage({
       openProject(id);
     },
     [openProject],
-  );
-
-  const handleAboutNavigate = useCallback(
-    (id: string) => {
-      setAboutOpen(false);
-      onOpenProject(id);
-    },
-    [onOpenProject],
   );
 
   const handleRealmOpenProject = useCallback(
@@ -130,7 +123,6 @@ export default function LandingPage({
   );
   const pageRef = useRef<HTMLElement>(null);
   const heroRef = useRef<HTMLElement>(null);
-  const [aboutOpen, setAboutOpen] = useState(false);
   const realmThresholdRef = useRef<HTMLElement>(null);
   const realmSectionEnterRef = useRef<HTMLButtonElement>(null);
   const realmChipRef = useRef<HTMLButtonElement>(null);
@@ -878,14 +870,7 @@ export default function LandingPage({
               <button
                 type="button"
                 className="signal-index-hero-link"
-                aria-haspopup="dialog"
-                aria-expanded={aboutOpen}
-                onClick={(event) => {
-                  // Safari leaves button clicks un-focused; focus first so
-                  // the dialog's focus-return lands back here.
-                  event.currentTarget.focus();
-                  setAboutOpen(true);
-                }}
+                onClick={() => onOpenAbout?.()}
               >
                 about the project <span aria-hidden="true">→</span>
               </button>
@@ -1062,11 +1047,6 @@ export default function LandingPage({
           entry={realmEntry}
         />
       ) : null}
-      <AboutWindow
-        open={aboutOpen}
-        onClose={() => setAboutOpen(false)}
-        onNavigate={handleAboutNavigate}
-      />
     </main>
   );
 }

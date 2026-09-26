@@ -1,6 +1,8 @@
-import { lazy, Suspense, useCallback, useEffect, useRef, useState } from "react";
+import { lazy, Suspense, useCallback, useEffect, useRef, useState, type MouseEvent, type ReactNode } from "react";
 import { findProject, projectModules } from "./catalog/discover-projects";
 import LandingPage from "./shell/LandingPage";
+import AboutPage, { type LinkProps as AboutLinkProps } from "./shell/AboutPage";
+import { aboutCopy } from "./shell/about-copy";
 import ProjectFrame from "./shell/ProjectFrame";
 import RealmMode from "./shell/RealmMode";
 import {
@@ -79,6 +81,76 @@ export default function App() {
     window.scrollTo({ top: 0, behavior: "instant" });
     setPathname(`/projects/${id}/`);
   }, []);
+
+  const openAbout = useCallback(() => {
+    // Same return-intent mechanism the project cards use: the landing's
+    // mount effect restores the offset when the about page goes back.
+    rememberProjectReturnIntent(window.scrollY);
+    window.history.pushState({ v: 1 }, "", "/about");
+    window.scrollTo({ top: 0, behavior: "instant" });
+    setPathname("/about");
+  }, []);
+
+  // Back from /about: pop to the tagged landing entry (native scroll
+  // restore + the landing's return-intent mount) — unless this was a deep
+  // link with no SPA entry behind it, then load the index plainly.
+  const goHomeFromAbout = useCallback(() => {
+    const state = window.history.state as { v?: number } | null;
+    if (state && state.v) {
+      window.history.back();
+      return;
+    }
+    window.location.assign("/");
+  }, []);
+
+  const handleAboutBackClick = useCallback((e: MouseEvent<HTMLAnchorElement>) => {
+    if (e.defaultPrevented || e.button !== 0) return;
+    if (e.metaKey || e.ctrlKey || e.shiftKey || e.altKey) return;
+    e.preventDefault();
+    goHomeFromAbout();
+  }, [goHomeFromAbout]);
+
+  const renderAboutLink = useCallback(
+    ({ to, className, children }: AboutLinkProps): ReactNode => {
+      if (to === "/") {
+        return (
+          <a className={className} href={to} onClick={handleAboutBackClick}>
+            {children}
+          </a>
+        );
+      }
+      const projectMatch = /^\/projects\/([^/]+)\/?$/.exec(to);
+      if (projectMatch) {
+        return (
+          <a
+            className={className}
+            href={to}
+            onClick={(e) => {
+              if (e.button === 0 && !e.metaKey && !e.ctrlKey && !e.shiftKey && !e.altKey) {
+                e.preventDefault();
+                openProject(projectMatch[1]);
+              }
+            }}
+          >
+            {children}
+          </a>
+        );
+      }
+      return <a className={className} href={to}>{children}</a>;
+    },
+    [handleAboutBackClick, openProject],
+  );
+
+  useEffect(() => {
+    if (!pathname.startsWith("/about")) {
+      return;
+    }
+    const prev = document.title;
+    document.title = "about · vasyapym";
+    return () => {
+      document.title = prev;
+    };
+  }, [pathname]);
 
   const beginRealmReturn = useCallback((): boolean => {
     if (!project || !readRealmReturnIntent() || realmReturnRef.current !== null) {
@@ -212,6 +284,7 @@ export default function App() {
         <LandingPage
           projects={projectModules}
           onOpenProject={openProject}
+          onOpenAbout={openAbout}
           externalRealmOpen
           registerExternalRealmExitHandler={registerLandingRealmExitHandler}
         />
@@ -226,6 +299,10 @@ export default function App() {
         />
       </>
     );
+  }
+
+  if (pathname === "/about" || pathname === "/about/") {
+    return <AboutPage copy={aboutCopy} renderLink={renderAboutLink} />;
   }
 
   if (pathname === "/directions") {
@@ -289,7 +366,7 @@ export default function App() {
   // realm's exit commit, so its existing focus/artwork exit choreography runs.
   return (
     <>
-      <LandingPage projects={projectModules} onOpenProject={openProject} />
+      <LandingPage projects={projectModules} onOpenProject={openProject} onOpenAbout={openAbout} />
     </>
   );
 }
