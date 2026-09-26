@@ -68,7 +68,7 @@ export const aboutCopy: AboutCopy = {
       "That's all eight. Where speed mattered I reached for Rust or Go and compiled to WebAssembly; where looks mattered, the GPU.",
     ],
     [
-      "If one of them caught your light, feel free to reach me at vasyapym@gmail.com.",
+      "If one of them caught your light, I'm at vasyapym@gmail.com.",
     ],
   ],
 };
