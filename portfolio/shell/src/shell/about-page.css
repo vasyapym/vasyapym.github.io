@@ -20,6 +20,7 @@
   --ab-size: 1.045rem; /* the lesson body size (F062) +10% (owner r39b) */
   --ab-lh: 1.65;       /* the lesson leading */
   --ab-measure: clamp(52rem, 86vw, 65rem); /* the landing's corridor, verbatim */
+  --ab-gutter: 72px; /* side chrome, tokenized so the mobile band can widen the column */
   --ab-bar: 48px;
 
   min-height: 100vh;
@@ -56,7 +57,7 @@
   justify-content: space-between;
   height: var(--ab-bar);
   padding-top: env(safe-area-inset-top, 0px);
-  width: min(100% - 72px, var(--ab-measure));
+  width: min(100% - var(--ab-gutter), var(--ab-measure));
   margin-inline: auto;
 }
 
@@ -86,7 +87,7 @@
 }
 
 .ab-body {
-  width: min(100% - 72px, var(--ab-measure));
+  width: min(100% - var(--ab-gutter), var(--ab-measure));
   margin-inline: auto;
   display: grid;
   grid-template-columns: minmax(0, 40rem); /* the lesson measure (reading room) */
@@ -219,6 +220,13 @@
 .ab-enter {
   animation: ab-rise 0.9s cubic-bezier(0.22, 1, 0.36, 1) both;
   animation-delay: 0.2s;
+}
+
+/* ── mobile band: narrow gutters so the column breathes at phone widths ──
+   At 390px: 72px of chrome → ~318px column ≈ 37 chars/line (too tight).
+   40px of chrome restores ~40+ chars/line; the corridor token stays intact. */
+@media (max-width: 560px) {
+  .ab { --ab-gutter: 40px; }
 }
 
 @media (hover: hover) and (prefers-reduced-motion: no-preference) {
