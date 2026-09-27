@@ -146,43 +146,41 @@
   overflow:hidden; text-overflow:ellipsis; display:-webkit-box; -webkit-line-clamp:1; -webkit-box-orient:vertical;
 }
 
-/* pager (R040 — replaces the R038 fold): one ruled record in the fold's
-   register, 4 tracks: [← ordinal col][label = page cue][extent = global
-   ordinal range][→ outer edge]. arrows carry their own transparent hairline
-   sitting ON the record's rule (stretch + −1px), so hover brightens / focus
-   warms exactly like the fold did, but only under their own cell. */
+/* pager (R041 — the R040 build swapped for the refined variant): one ruled
+   record in the fold's register. three cells segment the hairline — prev
+   arrow rides the ordinal column at ordinal metrics, the page cue starts on
+   the names' edge, next arrow sits right-aligned in the count column. each
+   cell owns its own hairline segment so hover/focus wake only the arrow's
+   stretch of rule. no padding on the record; the cells carry it (1rem outer,
+   .6rem inner = the rows' column gap) so the cue lands on the names' edge. */
 .pg-tier-pager{
-  display:grid;
-  grid-template-columns:auto minmax(0,1fr) auto auto;
-  align-items:center; column-gap:.6rem;
-  min-height:40px; padding:0 1rem;
-  border-bottom:1px solid var(--ink-line-soft);
+  display:grid; grid-template-columns:auto minmax(0,1fr) auto;
+  align-items:stretch; min-height:40px;
   font-family:var(--mono); font-size:.72rem; line-height:1.15;
   color:var(--ink-faint);
 }
-.pg-tier-page{
-  box-sizing:content-box; align-self:stretch;
-  display:grid; align-content:center; min-height:40px; min-width:calc(2ch + .08em);
-  border:0; border-bottom:1px solid transparent; margin-bottom:-1px; border-radius:0;
+.pg-tier-page,
+.pg-tier-page-cue{
+  display:grid; align-content:center; min-width:0;
+  border:0; border-bottom:1px solid var(--ink-line-soft); border-radius:0;
   background:transparent; font:inherit; color:inherit;
-  font-size:.68rem; letter-spacing:.04em; font-variant-numeric:tabular-nums;
-  cursor:pointer; transition:border-color 180ms ease, color 180ms ease;
 }
-.pg-tier-page-prev{grid-column:1; justify-self:start; text-align:left;  padding:0 .6rem 0 1rem; margin-left:-1rem; margin-right:-.6rem}
-.pg-tier-page-next{grid-column:4; justify-self:end;   text-align:right; padding:0 1rem 0 .6rem; margin-right:-1rem; margin-left:-.6rem}
-.pg-tier-page:not([aria-disabled="true"]):hover{border-bottom-color:var(--ink-line); color:var(--ink-text)}
+.pg-tier-page{
+  padding:.7rem .6rem .7rem 1rem; text-align:left; cursor:pointer;
+  transition:border-color 180ms ease, color 180ms ease;
+}
+.pg-tier-page-next{padding:.7rem 1rem .7rem .6rem; justify-items:end}
+/* the glyph box = the ordinal's advance (2ch + .04em tracking, measured
+   13.93px = the real "01" width), so the cue lands exactly on the names'
+   RESTING edge — the active row hangs −.25rem left of it by design (F071) */
+.pg-tier-page-glyph{min-width:calc(2ch + .08em); font-size:.68rem; letter-spacing:.04em; font-variant-numeric:tabular-nums}
+.pg-tier-page-next .pg-tier-page-glyph{text-align:right}
+.pg-tier-page:enabled:hover{border-bottom-color:var(--ink-line); color:var(--ink-text)}
 .pg-tier-page:focus-visible{outline:none; border-bottom-color:var(--ink-accent); color:var(--ink-text)}
-.pg-tier-page[aria-disabled="true"]{cursor:default; opacity:.4}
-/* the arrow that leads back to the active tier rests one step brighter (muted, not ochre). */
-.pg-tier-page[data-toward-active="true"]{color:var(--ink-muted)}
-.pg-tier-pager-label{grid-column:2; min-width:0; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; font-variant-numeric:tabular-nums}
-.pg-tier-pager-extent{grid-column:3; justify-self:end; white-space:nowrap; font-variant-numeric:tabular-nums}
-@media (pointer: coarse){
-  .pg-tier-pager, .pg-tier-page{min-height:44px}
-  /* stub tail page: hold the pager where the thumb left it (short pages would otherwise pull it
-     up ~4 rows under a moving finger). --pg-tier-row-h ≈ one row; tune after render or set 0 to drop. */
-  .pg-tier-pager{margin-top:calc(var(--pg-tier-short, 0) * var(--pg-tier-row-h, 4.25rem))}
-}
+.pg-tier-page:disabled{cursor:default; opacity:.4}
+.pg-tier-page-cue{padding:.7rem 0}
+.pg-tier-page-cue-text{min-width:0; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; font-variant-numeric:tabular-nums}
+@media (pointer: coarse){ .pg-tier-pager{min-height:44px} }
 @media (prefers-reduced-motion: reduce){ .pg-tier-page{transition:none} }
 
 

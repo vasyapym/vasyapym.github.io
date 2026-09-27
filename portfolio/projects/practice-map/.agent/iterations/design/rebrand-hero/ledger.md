@@ -1107,5 +1107,29 @@ mobile top 390).
 - Code verification: `tsc --noEmit` clean; `vite build` clean; practice-map.check.mjs fully green — the fold legs were mapped 1:1 onto pager legs (pager renders, cue/extent strings, edge inertia both sides, next/next to page 3, stub landing with the active tier, prev returns + mid-range extent, restore path; the Go leg pages back to page 1 first; mobile legs page twice then tap the row). No gate removed in spirit.
 - Open question: owner verdict per element — dials: the stub filler (--pg-tier-row-h 4.25rem; set 0 to drop the void), the extent's inner position (one glyph-cell left of the rows' counts — inherent to the edge arrow; the measured alignment of the arrows themselves is exact), the ←/→ glyph faces in the mono face.
 
+## Feedback F088
+- Round: R040
+- Verdict: REJECTED (build swap)
+- Scope: the pager's build — the R040 variant is replaced by the refined chat-model variant
+- Decision: the owner compared both builds and chose the second output (3-cell pager, no permanent extent, off-page cue suffix, native disabled, ASCII glyphs, no stub filler)
+- User source: «does the below output differ? in what way? … let's try the new output»
+- Artifact: artifacts/R040/after/pager-page2.png
+- Supersedes: within the settled mechanic (F087 pagination stands), the R040 build's extent string, stub filler, aria-disabled edges, ←/→ glyphs and data-page-turn hooks
+
+## Round R041
+- Goal: F088 — swap the R040 pager build for the refined variant; orchestrator integration with one geometry chase resolved.
+- Preserved preferences: the fold's register; PAGE_SIZE 5; global data-order ordinals; derived page state (snap to the active tier's page); rows' anatomy + data-tier-id hook; F066 lockstep; the R039 .pg-main decoupling.
+- Changes:
+  - TierList.tsx — 3-cell pager: `<` rides the ordinal column at ordinal metrics, cue «page n of m» gains «· active on page k» whenever the active tier is off-page (aria-live polite + atomic), `>` sits right-aligned in the count column; page state via React's render-adjust pattern (snappedFor) — same derived-override semantics as R040's stamp, no effects, clamped; edge arrows use NATIVE disabled (drop from tab order; when the pressed arrow dies on arrival at an edge page, focus moves to the first row of the new page via the AfterTurn effect; otherwise the pager is scrollIntoView'd "instant" on pointer turns); ASCII `<`/`>` glyphs; aria-labels name the destination range; no jumpKey prop (a same-tier jump keeps the list in place — the suffix announces where the active tier lives). data-page/data-pages kept on the nav; data-turn replaces data-page-turn; data-toward-active dies (the suffix replaces it).
+  - tiers.css — per-cell hairline segments (each cell owns its border-bottom; hover brightens/focus warms cell-locally — structurally simpler than R040's transparent-hairline-over-the-rule trick); no padding on the record (cells carry 1rem outer / .6rem inner = the rows' column gap); disabled opacity .4; coarse 44px record floor; reduced-motion guard. R040's extent, stub filler (--pg-tier-short × --pg-tier-row-h) and toward-active rest state removed.
+  - tests — retargets: cue string legs (incl. the off-page suffix asserted on page 2 with the thinking tier active), ordinal-rows legs (page 1 = 01–05, stub = 11), disabled-property legs, data-turn selectors; the Go leg and mobile legs page via data-turn.
+- Orchestrator geometry chase: the cue seemed 4px off the names' edge — precise measurement showed the ACTIVE row's name hangs −.25rem (F071's hanging entry) while the pager aligns with the names' RESTING edge (cue 159.52 = the un-hung position; glyph box = the ordinal's real 13.93px advance via 2ch+.08em — the fold's original recipe was exact; an intermediate natural-width "fix" landed the cue 6.5px left and was reverted).
+- Before: artifacts/R040/after/* (the R040 build)
+- After: artifacts/R041/after/r041-page1.png («< page 1 of 3 >», prev dimmed), r041-page2.png (cue with «· active on page 1»), r041-page3.png (tight stub, next dimmed), r041-mobile-p3.png (390: pager right under the single row, 44px, no overflow)
+- Visual inspection: performed — the pager is quieter than R040's (no extent); the suffix cue carries position naturally; arrows sit exactly on the grid edges (prev glyph left 136 = ordinals' left; next glyph right 406 = counts' right); disabled arrows read as dimmed, not absent; the mobile stub's shrink reads intentional.
+- Code verification: `tsc --noEmit` clean; `vite build` clean; practice-map.check.mjs fully green (all legs incl. the new cue/suffix/disabled assertions; mobile 390/320 paths page through data-turn).
+- Open question: owner verdict — dials: the `<`/`>` glyph faces (swap to ‹/› on request); the permanent extent stays gone (R040's richer cue) unless the owner wants it back; the stub shrink (no filler) is the accepted tradeoff.
+
+
 
 

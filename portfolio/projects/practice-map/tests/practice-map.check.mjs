@@ -118,18 +118,18 @@ try {
   // last child, rows are picked by data-tier-id and exist only on their page
   // (page 1 = rows 01–05, page 3 = the thinking tier alone).
   check(await appears(".pg-tier-pager"), "tier list pages (pager renders)");
-  const pagerLabel = await page.$eval(".pg-tier-pager-label", (el) => el.textContent.trim());
+  const pagerLabel = await page.$eval(".pg-tier-page-cue-text", (el) => el.textContent.trim());
   check(pagerLabel === "page 1 of 3", `pager cue states the page (${pagerLabel})`);
-  const pagerExtent = await page.$eval(".pg-tier-pager-extent", (el) => el.textContent.trim());
-  check(pagerExtent === "01–05 of 11", `pager extent states the ordinal range (${pagerExtent})`);
-  check((await page.$eval('[data-page-turn="prev"]', (el) => el.getAttribute("aria-disabled"))) === "true", "prev arrow inert on the first page");
-  await page.click('[data-page-turn="next"]');
+  const firstPageRows = await page.$$eval(".pg-tier-row", (rows) => rows.map((r) => r.querySelector(".pg-tier-index").textContent));
+  check(firstPageRows.join(",") === "01,02,03,04,05", `page 1 holds the first five global ordinals (${firstPageRows.join(" ")})`);
+  check(await page.$eval('[data-turn="prev"]', (el) => el.disabled), "prev arrow disabled on the first page");
+  await page.click('[data-turn="next"]');
   await wait(300);
   check((await page.$eval(".pg-tier-list", (el) => el.dataset.page)) === "2", "next turns to page 2");
-  await page.click('[data-page-turn="next"]');
+  await page.click('[data-turn="next"]');
   await wait(300);
   check((await page.$eval(".pg-tier-list", (el) => el.dataset.page)) === "3", "next turns to page 3");
-  check((await page.$eval('[data-page-turn="next"]', (el) => el.getAttribute("aria-disabled"))) === "true", "next arrow inert on the last page");
+  check(await page.$eval('[data-turn="next"]', (el) => el.disabled), "next arrow disabled on the last page");
   await page.click('.pg-tier-row[data-tier-id="opus-4.8-thinking"]');
   await wait(400);
   const faceCount = await page.$$eval(".pg-face-head", (faces) => faces.length);
@@ -141,19 +141,19 @@ try {
   const cardCount = await page.$$eval(".pg-card", (cards) => cards.length);
   check(cardCount === 4, `vol 01 renders its 4 lessons (${cardCount})`);
   // pagination invariants: the active tier's landing — with the thinking tier
-  // active, the list rests on page 3 (1-row stub); turning back re-lands the
-  // ordinal ranges; a manual turn survives row selections on the same page.
+  // active, the list rests on page 3 (1-row stub); turning back shows the
+  // off-page cue suffix; the global ordinals never renumber.
   check((await page.$eval(".pg-tier-list", (el) => el.dataset.page)) === "3", "active tier's page is current (stub landing)");
-  const stubExtent = await page.$eval(".pg-tier-pager-extent", (el) => el.textContent.trim());
-  check(stubExtent === "11 of 11", `stub page states its single ordinal (${stubExtent})`);
-  await page.click('[data-page-turn="prev"]');
+  const stubRows = await page.$$eval(".pg-tier-row", (rows) => rows.map((r) => r.querySelector(".pg-tier-index").textContent));
+  check(stubRows.join(",") === "11", `stub page holds the single global ordinal (${stubRows.join(" ")})`);
+  await page.click('[data-turn="prev"]');
   await wait(300);
   check((await page.$eval(".pg-tier-list", (el) => el.dataset.page)) === "2", "prev returns to page 2");
-  const midExtent = await page.$eval(".pg-tier-pager-extent", (el) => el.textContent.trim());
-  check(midExtent === "06–10 of 11", `mid page states its ordinal range (${midExtent})`);
+  const midCue = await page.$eval(".pg-tier-page-cue-text", (el) => el.textContent.trim());
+  check(midCue === "page 2 of 3 · active on page 3", `off-page active tier is announced in the cue (${midCue})`);
   // restore the tuned state: thinking tier + vol 01 (the free-reading and
   // fragment legs below run on the Linux deep reader's note sections).
-  await page.click('[data-page-turn="next"]');
+  await page.click('[data-turn="next"]');
   await wait(300);
   await page.click('.pg-tier-row[data-tier-id="opus-4.8-thinking"]');
   await wait(400);
@@ -436,9 +436,9 @@ try {
   // data order — the astra run leads the list per the owner's request:
   // astra-6-max first, astra-6-medium second; the fable run follows).
   // The list rests on page 3 here (thinking tier active) — page back first.
-  await page.click('[data-page-turn="prev"]');
+  await page.click('[data-turn="prev"]');
   await wait(300);
-  await page.click('[data-page-turn="prev"]');
+  await page.click('[data-turn="prev"]');
   await wait(300);
   await page.click('.pg-tier-list .pg-tier-row[data-tier-id="fable-5.1-low"]');
   await wait(400);
@@ -527,9 +527,9 @@ try {
   // The pinned-close / copy-button laws were tuned on the Linux deep reader:
   // reach it the way the tier design does — thinking tier (last row), vol 01.
   // The tier list pages at 5 rows: page to page 3 first, then pick the row.
-  await page.tap('[data-page-turn="next"]');
+  await page.tap('[data-turn="next"]');
   await wait(300);
-  await page.tap('[data-page-turn="next"]');
+  await page.tap('[data-turn="next"]');
   await wait(300);
   await page.tap('.pg-tier-row[data-tier-id="opus-4.8-thinking"]');
   await wait(400);
@@ -636,9 +636,9 @@ try {
   check(noOverflowNarrow, "no horizontal overflow on the map at 320px");
 
   check(await appears(".pg-card"), "map renders at 320px");
-  await page.tap('[data-page-turn="next"]');
+  await page.tap('[data-turn="next"]');
   await wait(300);
-  await page.tap('[data-page-turn="next"]');
+  await page.tap('[data-turn="next"]');
   await wait(300);
   await page.tap('.pg-tier-row[data-tier-id="opus-4.8-thinking"]');
   await wait(400);
