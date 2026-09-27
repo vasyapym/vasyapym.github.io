@@ -5,10 +5,10 @@ import { plural } from "./tiers";
 
 /** rows per page. owner-fixed; every other number the pager shows is derived from tiers.length. */
 const PAGE_SIZE = 5;
-/** a short tail page still holds the pager as low as a page with this many rows (owner ask:
- * with fewer rows above it the pager rides up and the list reads squeezed). missing rows
- * become empty air — no placeholder rules. */
-const MIN_ROWS = 3;
+/** a short tail page still holds the pager as low as a page with this many rows (owner dial:
+ * 3 read as too much air, 2 is the settled floor). missing rows become empty air — no
+ * placeholder rules. */
+const MIN_ROWS = 2;
 
 type TierListProps = {
   tiers: readonly Tier[];

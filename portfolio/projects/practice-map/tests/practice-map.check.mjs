@@ -146,14 +146,14 @@ try {
   check((await page.$eval(".pg-tier-list", (el) => el.dataset.page)) === "3", "active tier's page is current (stub landing)");
   const stubRows = await page.$$eval(".pg-tier-row", (rows) => rows.map((r) => r.querySelector(".pg-tier-index").textContent));
   check(stubRows.join(",") === "11", `stub page holds the single global ordinal (${stubRows.join(" ")})`);
-  // the short-page air: the pager sits as low as a 3-row page (owner ask) —
-  // 2 missing rows of empty air on the 1-row stub, none on full pages.
+  // the short-page air: the pager sits as low as a 2-row page (owner dial, was 3) —
+  // 1 missing row of empty air on the 1-row stub, none on pages with 2+ rows.
   const air = await page.evaluate(() => {
     const rowH = parseFloat(getComputedStyle(document.querySelector(".pg-tier-list")).getPropertyValue("--pg-tier-row-h"));
     const mt = parseFloat(getComputedStyle(document.querySelector(".pg-tier-pager")).marginTop);
     return { rowH, mt, pad: mt / rowH };
   });
-  check(Math.abs(air.pad - 2) < 0.02, `stub page holds 2 rows of air above the pager (${air.mt}px = ${air.pad} rows)`);
+  check(Math.abs(air.pad - 1) < 0.02, `stub page holds 1 row of air above the pager (${air.mt}px = ${air.pad} rows)`);
   await page.click('[data-turn="prev"]');
   await wait(300);
   check((await page.$eval(".pg-tier-list", (el) => el.dataset.page)) === "2", "prev returns to page 2");

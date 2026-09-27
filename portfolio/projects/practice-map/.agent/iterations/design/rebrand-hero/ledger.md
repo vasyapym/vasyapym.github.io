@@ -1168,6 +1168,26 @@ mobile top 390).
 - Code verification: `tsc --noEmit` clean; `vite build` clean; practice-map.check.mjs fully green — new air legs: stub pad = 2 rows (±0.02), full pages pad = 0.
 - Open question: none — the batch is fully worked; the thread re-closes on the owner's verdict of R043 as presented.
 
+## Feedback F091
+- Round: R043
+- Verdict: REJECTED (the air dial)
+- Scope: the short-page air height, mobile AND desktop
+- Decision: 3 rows of air reads as too much — the floor drops to 2 (a 1-row stub holds 1 row of air, a 2-row page holds none)
+- User source: «3 doesn't look good. let's make it 2 instead of 3»
+- Artifact: artifacts/R043/after/r043-desktop-p3.png
+- Supersedes: the MIN_ROWS=3 dial of R043 (the mechanic stands)
+
+## Round R044
+- Goal: F091 — the air floor 3→2; orchestrator-direct (one constant + the test retarget).
+- Preserved preferences: everything settled by F089/F090 — the pager build, measured row advance, empty air without placeholder rules.
+- Changes: TierList.tsx — MIN_ROWS 3→2 (owner dial, comment updated: a 1-row stub holds 1 row of air, pages with 2+ rows hold none). tests — the stub air leg asserts pad = 1 row (±0.02); the full-page leg (pad = 0) unchanged.
+- Before: artifacts/R043/after/r043-desktop-p3.png (2 rows of air)
+- After: artifacts/R044/after/r044-desktop-p3.png (1 row of air — desktop pad 71.4px), r044-mobile-p3.png (67.8px, no overflow)
+- Visual inspection: performed — the stub page reads balanced: the pager sits one row below the single record, neither squeezed nor floating in a void.
+- Code verification: `tsc --noEmit` clean; `vite build` clean; practice-map.check.mjs fully green.
+- Open question: none — the dial is the owner's pick; the thread stands settled unless new feedback arrives.
+
+
 
 
 
