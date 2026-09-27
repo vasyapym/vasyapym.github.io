@@ -400,9 +400,16 @@ try {
   // first, then fable-5.1-high, fable-5.1-low, fable-5-high).
   await page.click(".pg-tier-list button:nth-child(3)");
   await wait(400);
-  const goCardTitle = await page.$eval(".pg-card h3", (el) => el.textContent.trim());
-  check(/^Go/.test(goCardTitle), `Go area leads the fable-5.1-low tier's cards (${goCardTitle})`);
-  await page.click(".pg-card .pg-pill");
+  // The tier leads with the English Go lesson (owner's EN-first rule); the
+  // 19-section flagship card is picked by its title, not by position.
+  const goCardTitles = await page.$$eval(".pg-card h3", (els) => els.map((el) => el.textContent.trim()));
+  check(goCardTitles.some((t) => t === "Go с нуля до глубокого понимания"), `flagship card sits in the fable-5.1-low tier (${goCardTitles.join(" | ").slice(0, 120)})`);
+  const goCardHandles = await page.$$(".pg-card");
+  const goCardIndex = await page.evaluate(() => {
+    const cards = Array.from(document.querySelectorAll(".pg-card"));
+    return cards.findIndex((c) => c.querySelector("h3")?.textContent.trim() === "Go с нуля до глубокого понимания");
+  });
+  await (await goCardHandles[goCardIndex].$(".pg-pill")).click();
   check(await appears(".practice-reader"), "Go deep reader opens");
   // lazy per-lesson chunk: the 19-section nav mounts only after the import
   check(await appears(".practice-reader-nav button"), "Go lazy chunk resolves (nav mounts)");
