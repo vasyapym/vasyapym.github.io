@@ -48,7 +48,10 @@
 .pg-tier-list{
   grid-area:list; margin-top:1rem;
   display:flex; flex-direction:column; gap:0;
-  /* F058 trial: no opening rule — records carry no upper edge; separators
+  /* measured row advance (R043: pad 14.72 + name 18.4 + gap 6.4 + sample 16.1 ≈ 71.4 desktop,
+     67.8 at ≤700 with the F057 band) — the short-page air dial */
+  --pg-tier-row-h:71.4px;
+  /* no opening rule — records carry no upper edge; separators
      below each record stay (the state device's carrier) */
 }
 .pg-tier-row{
@@ -158,6 +161,10 @@
   align-items:stretch; min-height:40px;
   font-family:var(--mono); font-size:.72rem; line-height:1.15;
   color:var(--ink-faint);
+  /* R043 (owner ask): a short tail page holds the pager as low as a page with
+     3 rows — missing rows become empty air (no placeholder rules), so the
+     pager neither rides up nor reads squeezed. 0 on full pages. */
+  margin-top:calc(var(--pg-tier-pad, 0) * var(--pg-tier-row-h, 71.4px));
 }
 .pg-tier-page,
 .pg-tier-page-cue{
@@ -409,6 +416,7 @@
   .pg-search{width:100%; max-width:none; margin-inline:0; padding-block:.35rem}
   .pg-tier-row{grid-template-columns:auto minmax(0,1fr) auto; padding:.81rem .85rem; min-height:44px}  /* F057 ×1.08 */
   .pg-tier-count{justify-self:end}
+  .pg-tier-list{--pg-tier-row-h:67.8px}
   .pg-card{padding:.95rem}
   .pg-face-head{padding:1rem}
   .pg-tier-head{padding-bottom:.64rem; margin-bottom:.73rem}  /* F064+F070+F072 ×3 */

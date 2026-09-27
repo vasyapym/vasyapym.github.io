@@ -1149,6 +1149,26 @@ mobile top 390).
 - Code verification: `tsc --noEmit` clean; `vite build` clean; practice-map.check.mjs fully green.
 - Open question: none — the tier-list length thread (R038–R042: fold → window 5/astra order/panel decoupling → pagination → refined build → bare cue) is settled by the owner's approval.
 
+## Feedback F090
+- Round: R042
+- Verdict: LIKED (R042's state) + REJECTED (short-page pager position)
+- Scope: the pager's position on pages with only 1–2 tier rows, mobile AND desktop
+- Decision: the pager must sit as low as if 3 model tiers stood above it — missing rows become empty air; with 1–2 rows the pager rides up and the list reads squeezed
+- User source: «when there are only 1 or 2 models i want "page X of X" to be positioned as if there were 3 model tiers above instead of 1 or 2. because if it is 1 or 2 it moves to the top and looks squeezed or something… ask me if you understood me correctly» — understanding confirmed via a question: hold the air to 3 rows (not the full 5-row page), empty air without placeholder rules, both viewports
+- Artifact: artifacts/R041/after/r041-page3.png
+- Supersedes: none (re-adopts the short-page-hold idea from the rejected R040 filler, generalized to both viewports and dialed to 3 rows)
+
+## Round R043
+- Goal: F090 — the short-page air; orchestrator-direct (one derived value + two CSS lines; measured, no relay needed).
+- Preserved preferences: the settled pager (F089), PAGE_SIZE 5, global ordinals, native disabled edges, no placeholder rules (empty air only).
+- Changes: TierList.tsx — MIN_ROWS = 3 (owner ask, commented); the pager carries `--pg-tier-pad = max(0, MIN_ROWS − rows on this page)` inline (0 on full pages, 2 on the 1-row stub, 1 on a 2-row tail). tiers.css — `.pg-tier-list` defines the measured row advance `--pg-tier-row-h: 71.4px` desktop (probe: 71.37 uniform) and 67.8px at ≤700 (probe: 67.84 uniform); `.pg-tier-pager` margin-top = pad × row height — pure air, no fake hairlines.
+- Before: artifacts/R041/after/r041-page3.png (tight stub)
+- After: artifacts/R043/after/r043-desktop-p3.png (row 11 + 142.8px air + pager at the 3-row position), r043-mobile-p3.png (390: 135.6px air, 44px pager, no overflow)
+- Visual inspection: performed — the pager no longer reads squeezed; the air reads as deliberate space between the last record and the pager record; the panel column is untouched (R039 decoupling absorbs the taller list).
+- Code verification: `tsc --noEmit` clean; `vite build` clean; practice-map.check.mjs fully green — new air legs: stub pad = 2 rows (±0.02), full pages pad = 0.
+- Open question: none — the batch is fully worked; the thread re-closes on the owner's verdict of R043 as presented.
+
+
 
 
 

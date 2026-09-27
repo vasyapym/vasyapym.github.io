@@ -1,9 +1,14 @@
 import { useEffect, useRef, useState } from "react";
+import type { CSSProperties } from "react";
 import type { Tier } from "./tiers";
 import { plural } from "./tiers";
 
 /** rows per page. owner-fixed; every other number the pager shows is derived from tiers.length. */
 const PAGE_SIZE = 5;
+/** a short tail page still holds the pager as low as a page with this many rows (owner ask:
+ * with fewer rows above it the pager rides up and the list reads squeezed). missing rows
+ * become empty air — no placeholder rules. */
+const MIN_ROWS = 3;
 
 type TierListProps = {
   tiers: readonly Tier[];
@@ -38,6 +43,7 @@ export function TierList({ tiers, activeTierId, onSelect, lessonCount, sampleTit
   const paged = pageCount > 1;
   const start = current * PAGE_SIZE;
   const pageTiers = tiers.slice(start, start + PAGE_SIZE);
+  const padRows = Math.max(0, MIN_ROWS - pageTiers.length); // empty air above the pager on short pages
   const onFirst = current === 0;
   const onLast = current === pageCount - 1;
 
@@ -101,7 +107,13 @@ export function TierList({ tiers, activeTierId, onSelect, lessonCount, sampleTit
         );
       })}
       {paged && (
-        <div ref={pagerRef} className="pg-tier-pager" role="group" aria-label="tier pages">
+        <div
+          ref={pagerRef}
+          className="pg-tier-pager"
+          role="group"
+          aria-label="tier pages"
+          style={{ "--pg-tier-pad": padRows } as CSSProperties}
+        >
           <button
             type="button"
             className="pg-tier-page pg-tier-page-prev"

@@ -146,11 +146,20 @@ try {
   check((await page.$eval(".pg-tier-list", (el) => el.dataset.page)) === "3", "active tier's page is current (stub landing)");
   const stubRows = await page.$$eval(".pg-tier-row", (rows) => rows.map((r) => r.querySelector(".pg-tier-index").textContent));
   check(stubRows.join(",") === "11", `stub page holds the single global ordinal (${stubRows.join(" ")})`);
+  // the short-page air: the pager sits as low as a 3-row page (owner ask) —
+  // 2 missing rows of empty air on the 1-row stub, none on full pages.
+  const air = await page.evaluate(() => {
+    const rowH = parseFloat(getComputedStyle(document.querySelector(".pg-tier-list")).getPropertyValue("--pg-tier-row-h"));
+    const mt = parseFloat(getComputedStyle(document.querySelector(".pg-tier-pager")).marginTop);
+    return { rowH, mt, pad: mt / rowH };
+  });
+  check(Math.abs(air.pad - 2) < 0.02, `stub page holds 2 rows of air above the pager (${air.mt}px = ${air.pad} rows)`);
   await page.click('[data-turn="prev"]');
   await wait(300);
   check((await page.$eval(".pg-tier-list", (el) => el.dataset.page)) === "2", "prev returns to page 2");
   const midCue = await page.$eval(".pg-tier-page-cue-text", (el) => el.textContent.trim());
   check(midCue === "page 2 of 3", `cue states the bare page (${midCue})`);
+  check(await page.evaluate(() => parseFloat(getComputedStyle(document.querySelector(".pg-tier-pager")).marginTop) < 1), "full pages carry no air");
   // restore the tuned state: thinking tier + vol 01 (the free-reading and
   // fragment legs below run on the Linux deep reader's note sections).
   await page.click('[data-turn="next"]');
