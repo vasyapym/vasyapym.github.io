@@ -1085,4 +1085,27 @@ mobile top 390).
 - Code verification: `tsc --noEmit` clean; `vite build` clean; practice-map.check.mjs fully green (all legs incl. fold invariants, mobile 390/320)
 - Open question: none — the batch is fully worked; the pagination redesign of the fold (owner's next ask) starts a new round from this state.
 
+## Feedback F087
+- Round: R039
+- Verdict: LIKED (the fold control's design) + REJECTED (the fold mechanic)
+- Scope: the tier list length mechanic, all viewports
+- Decision: keep the control's design language; replace the fold with pagination — exactly 5 tiers per page, back and forth; the build is delegated to the chat model
+- User source: «i like the design of "show more". but it is a long list and will get even longer. so let's change its logic. instead of showing more let's make it like a pagination. 5 model tiers in each page. you can go back and forth. delegate that to chat model»
+- Artifact: artifacts/R039/after/desktop-folded.png
+- Supersedes: the fold mechanic settled by R038/F085 (the control's register is explicitly kept and becomes the pager's donor language)
+
+## Round R040
+- Goal: F087 — the tier list pages instead of folds; chat-model relay (brief given in-session, same contract as R038: full autonomy, reasoning-first, output contract with code/notes/test-impact), integrated by the orchestrator.
+- Preserved preferences: the fold control's register (F087 keeps it — the pager reuses glyph-column metrics, ruled record, no ochre at rest, wake/focus grammar); row anatomy + aria-pressed; data-tier-id test hook; F066 breath lockstep; tier order = data order; the R039 .pg-main decoupling (per-page list height is now free).
+- Changes:
+  - TierList.tsx — pagination: PAGE_SIZE=5, pages of exactly 5 (tail stub allowed; 11 → 3 pages); page state is a derived override with a stamp — a manual turn holds while the active tier is unchanged, any external selection/jump re-lands the active tier's page, no effects, clamped if data shrinks; single pager record at the foot (where the fold lived): ← at ordinal metrics, cue «page n of m» (aria-live polite), extent «06–10 of 11» as the global-range position cue, → at the outer edge; edge arrows aria-disabled + dimmed (focusable, inert); pager hidden entirely at ≤5 tiers; rows keep data-tier-id; the fold's data-pinned dies.
+  - tiers.css — the fold-control block replaced by the pager block: 4-track grid, arrows carry their own transparent hairline riding the record's rule (stretch + −1px) so hover brightens/focus warms cell-locally; the toward-active arrow rests at muted (no ochre at rest); coarse pointers 44px + stub filler (--pg-tier-short × --pg-tier-row-h 4.25rem) holds the pager's position under a thumb; reduced-motion guard. Dead .pg-tier-more rules deleted in the same pass (grep-confirmed unreferenced).
+- Orchestrator decisions on the relay's options: the optional jumpKey prop NOT wired — a same-tier palette jump while paged away keeps the list in place (the panel still flashes the card; the active tier stays one turn away); revisit if the owner asks.
+- Before: artifacts/R039/after/desktop-folded.png (the fold state)
+- After: artifacts/R040/after/pager-page1.png (01–05 + «← page 1 of 3 · 01–05 of 11 →»), pager-page2.png (06–10, arrows on the grid edges), pager-page3-stub.png (row 11 alone, tight on fine pointers), pager-mobile-p1.png, pager-mobile-p3.png (390: 44px pager; the stub filler holds the pager's position — the ~270px void is the accepted coarse-pointer tradeoff)
+- Visual inspection: performed — the pager reads as one quieter ruled record aligned to the row grid; arrows land exactly on the grid edges (measured: prev glyph left 136 = ordinals' left, next glyph right 406 = counts' right); global ordinals hold across pages (06–10 shown as 06–10, not 01–05); page turns do not touch the panel column; the mobile stub void reads deliberate, not broken.
+- Code verification: `tsc --noEmit` clean; `vite build` clean; practice-map.check.mjs fully green — the fold legs were mapped 1:1 onto pager legs (pager renders, cue/extent strings, edge inertia both sides, next/next to page 3, stub landing with the active tier, prev returns + mid-range extent, restore path; the Go leg pages back to page 1 first; mobile legs page twice then tap the row). No gate removed in spirit.
+- Open question: owner verdict per element — dials: the stub filler (--pg-tier-row-h 4.25rem; set 0 to drop the void), the extent's inner position (one glyph-cell left of the rows' counts — inherent to the edge arrow; the measured alignment of the arrows themselves is exact), the ←/→ glyph faces in the mono face.
+
+
 

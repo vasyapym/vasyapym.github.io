@@ -146,27 +146,44 @@
   overflow:hidden; text-overflow:ellipsis; display:-webkit-box; -webkit-line-clamp:1; -webkit-box-orient:vertical;
 }
 
-/* fold control — a ruled record in chrome register, quieter than the records:
-   no ochre at rest, the same wake/focus grammar. the glyph rides the ordinal
-   column at the ordinal's metrics, so the label starts on the names' edge. */
-.pg-tier-more{
-  width:100%; display:grid;
-  grid-template-columns:auto minmax(0,1fr) auto;
-  align-items:baseline; align-content:center; column-gap:.6rem;
-  min-height:40px; padding:.7rem 1rem; text-align:left;
-  border:0; border-bottom:1px solid var(--ink-line-soft);
-  border-radius:0; background:transparent;
+/* pager (R040 — replaces the R038 fold): one ruled record in the fold's
+   register, 4 tracks: [← ordinal col][label = page cue][extent = global
+   ordinal range][→ outer edge]. arrows carry their own transparent hairline
+   sitting ON the record's rule (stretch + −1px), so hover brightens / focus
+   warms exactly like the fold did, but only under their own cell. */
+.pg-tier-pager{
+  display:grid;
+  grid-template-columns:auto minmax(0,1fr) auto auto;
+  align-items:center; column-gap:.6rem;
+  min-height:40px; padding:0 1rem;
+  border-bottom:1px solid var(--ink-line-soft);
   font-family:var(--mono); font-size:.72rem; line-height:1.15;
-  color:var(--ink-faint); cursor:pointer;
-  transition:border-color 180ms ease, color 180ms ease;
+  color:var(--ink-faint);
 }
-.pg-tier-more:hover{border-bottom-color:var(--ink-line); color:var(--ink-text)}
-.pg-tier-more:focus-visible{outline:none; border-bottom-color:var(--ink-accent); color:var(--ink-text)}
-.pg-tier-more-glyph{grid-column:1; min-width:calc(2ch + .08em); font-size:.68rem; letter-spacing:.04em; font-variant-numeric:tabular-nums}
-.pg-tier-more-label{grid-column:2; min-width:0; overflow:hidden; text-overflow:ellipsis; white-space:nowrap}
-.pg-tier-more-extent{grid-column:3; justify-self:end; white-space:nowrap; font-variant-numeric:tabular-nums}
-@media (pointer: coarse){ .pg-tier-more{min-height:44px} }
-@media (prefers-reduced-motion: reduce){ .pg-tier-more{transition:none} }
+.pg-tier-page{
+  box-sizing:content-box; align-self:stretch;
+  display:grid; align-content:center; min-height:40px; min-width:calc(2ch + .08em);
+  border:0; border-bottom:1px solid transparent; margin-bottom:-1px; border-radius:0;
+  background:transparent; font:inherit; color:inherit;
+  font-size:.68rem; letter-spacing:.04em; font-variant-numeric:tabular-nums;
+  cursor:pointer; transition:border-color 180ms ease, color 180ms ease;
+}
+.pg-tier-page-prev{grid-column:1; justify-self:start; text-align:left;  padding:0 .6rem 0 1rem; margin-left:-1rem; margin-right:-.6rem}
+.pg-tier-page-next{grid-column:4; justify-self:end;   text-align:right; padding:0 1rem 0 .6rem; margin-right:-1rem; margin-left:-.6rem}
+.pg-tier-page:not([aria-disabled="true"]):hover{border-bottom-color:var(--ink-line); color:var(--ink-text)}
+.pg-tier-page:focus-visible{outline:none; border-bottom-color:var(--ink-accent); color:var(--ink-text)}
+.pg-tier-page[aria-disabled="true"]{cursor:default; opacity:.4}
+/* the arrow that leads back to the active tier rests one step brighter (muted, not ochre). */
+.pg-tier-page[data-toward-active="true"]{color:var(--ink-muted)}
+.pg-tier-pager-label{grid-column:2; min-width:0; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; font-variant-numeric:tabular-nums}
+.pg-tier-pager-extent{grid-column:3; justify-self:end; white-space:nowrap; font-variant-numeric:tabular-nums}
+@media (pointer: coarse){
+  .pg-tier-pager, .pg-tier-page{min-height:44px}
+  /* stub tail page: hold the pager where the thumb left it (short pages would otherwise pull it
+     up ~4 rows under a moving finger). --pg-tier-row-h ≈ one row; tune after render or set 0 to drop. */
+  .pg-tier-pager{margin-top:calc(var(--pg-tier-short, 0) * var(--pg-tier-row-h, 4.25rem))}
+}
+@media (prefers-reduced-motion: reduce){ .pg-tier-page{transition:none} }
 
 
 /* ---------- 5a. search — a bare ledger field, not a widget (F038/F039) ----
@@ -394,7 +411,6 @@
   .pg-search{width:100%; max-width:none; margin-inline:0; padding-block:.35rem}
   .pg-tier-row{grid-template-columns:auto minmax(0,1fr) auto; padding:.81rem .85rem; min-height:44px}  /* F057 ×1.08 */
   .pg-tier-count{justify-self:end}
-  .pg-tier-more{padding:.81rem .85rem; min-height:44px}
   .pg-card{padding:.95rem}
   .pg-face-head{padding:1rem}
   .pg-tier-head{padding-bottom:.64rem; margin-bottom:.73rem}  /* F064+F070+F072 ×3 */
