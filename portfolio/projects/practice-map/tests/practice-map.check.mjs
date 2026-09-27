@@ -114,16 +114,53 @@ try {
   // order puts the fable run first).
   // The thinking tier (opus-4.8-thinking) sorts LAST in the tier list — the
   // owner's fixed data order — and folds its 20 lessons into 5 volume faces.
-  await page.click(".pg-tier-list button:nth-last-child(1)");
+  // The tier list folds past 8 tiers: the fold control is always the last
+  // child, so tier rows are picked by data-tier-id (11 tiers fold to 01–06 +
+  // "show 5 more"; expanding first is required to reach rows 07–11).
+  check(await appears(".pg-tier-more"), "tier list folds (fold control renders)");
+  const moreLabel = await page.$eval(".pg-tier-more-label", (el) => el.textContent.trim());
+  check(moreLabel === "show 5 more", `fold label counts the hidden tail (${moreLabel})`);
+  await page.click(".pg-tier-more");
+  await wait(400);
+  check((await page.$eval(".pg-tier-more", (el) => el.getAttribute("aria-expanded"))) === "true", "fold control expands");
+  await page.click('.pg-tier-row[data-tier-id="opus-4.8-thinking"]');
   await wait(400);
   const faceCount = await page.$$eval(".pg-face-head", (faces) => faces.length);
   check(faceCount === 5, `the thinking tier folds into 5 volume faces (${faceCount})`);
-  const tierCount = await page.$eval(".pg-tier-row:nth-last-child(1) .pg-tier-count", (el) => el.textContent.trim());
+  const tierCount = await page.$eval('.pg-tier-row[data-tier-id="opus-4.8-thinking"] .pg-tier-count', (el) => el.textContent.trim());
   check(tierCount === "20 lessons", `thinking tier counts its 20 lessons (${tierCount})`);
   await page.click(".pg-face-head");
   await wait(400);
   const cardCount = await page.$$eval(".pg-card", (cards) => cards.length);
   check(cardCount === 4, `vol 01 renders its 4 lessons (${cardCount})`);
+  // fold invariants: fold again with the thinking tier active (row 10, deep
+  // in the tail) — the active row must pin directly after the window; then
+  // select an in-window tier (pin dissolves) and restore the pre-fold state.
+  await page.click(".pg-tier-more");
+  await wait(400);
+  const pinnedIndex = await page.evaluate(() => {
+    const rows = [...document.querySelectorAll(".pg-tier-row")];
+    return rows.findIndex((r) => r.dataset.pinned === "true");
+  });
+  check(pinnedIndex === 6, `pinned active row sits directly after the window (${pinnedIndex})`);
+  const pinnedOrdinal = await page.$eval('.pg-tier-row[data-pinned="true"] .pg-tier-index', (el) => el.textContent.trim());
+  check(pinnedOrdinal === "11", `pinned row's ordinal marks the elision (${pinnedOrdinal})`);
+  const activeVisible = await page.$eval('.pg-tier-row[aria-pressed="true"]', (el) => {
+    const r = el.getBoundingClientRect();
+    return r.height > 0 && r.bottom > 0 && r.top < window.innerHeight;
+  });
+  check(activeVisible, "active tier row visible while folded");
+  await page.click('.pg-tier-row[data-tier-id="fable-5.1-low"]');
+  await wait(400);
+  check(await page.evaluate(() => !document.querySelector('.pg-tier-row[data-pinned="true"]')), "selecting an in-window tier dissolves the pin");
+  // restore the pre-fold state: thinking tier + vol 01 (the free-reading and
+  // fragment legs below are tuned on the Linux deep reader's note sections).
+  await page.click(".pg-tier-more");
+  await wait(400);
+  await page.click('.pg-tier-row[data-tier-id="opus-4.8-thinking"]');
+  await wait(400);
+  await page.click(".pg-face-head");
+  await wait(400);
 
   await page.click(".pg-card .pg-pill");
   check(await appears(".practice-reader"), "deep reader opens for lesson 01");
@@ -378,7 +415,9 @@ try {
   // card 6 (linux-users-groups) is the first remaining fragment card — Linux
   // cards 1-5 are deep lessons since the long-form md course landed.
   // vol 01 holds the four deep lessons; the first fragment (linux-users-groups)
-  // lives at index 1 of vol 02 — exit, enter vol 02, open its second card.
+  // lives at index 1 of vol 02 — the reader was opened from the thinking tier's
+  // vol 01 (restored by the fold-invariant leg), so exit to the faces, then
+  // enter vol 02.
   await page.click(".pg-crumb-back");
   await wait(300);
   const facesAfter = await page.$$(".pg-face-head");
@@ -398,10 +437,15 @@ try {
   // The Go flagship lives in the fable-5.1-low tier (3rd row of TIERS data
   // order — the fable run leads the list per the owner's request: fable-5.1-max
   // first, then fable-5.1-high, fable-5.1-low, fable-5-high).
-  await page.click(".pg-tier-list button:nth-child(3)");
+  await page.click('.pg-tier-list .pg-tier-row[data-tier-id="fable-5.1-low"]');
   await wait(400);
   // The tier leads with the English Go lesson (owner's EN-first rule); the
   // 19-section flagship card is picked by its title, not by position.
+  // Folding away from the expanded thinking tier: the list may re-fold — select
+  // via the stable data-tier-id hook in either state.
+  const goTierRows = await page.$$('.pg-tier-row[data-tier-id="fable-5.1-low"]');
+  check(goTierRows.length === 1, `the fable-5.1-low tier is reachable (${goTierRows.length})`);
+  await goTierRows[0].click();
   const goCardTitles = await page.$$eval(".pg-card h3", (els) => els.map((el) => el.textContent.trim()));
   check(goCardTitles.some((t) => t === "Go с нуля до глубокого понимания"), `flagship card sits in the fable-5.1-low tier (${goCardTitles.join(" | ").slice(0, 120)})`);
   const goCardHandles = await page.$$(".pg-card");
@@ -481,7 +525,10 @@ try {
   check(await appears(".pg-card"), "map renders at 390px");
   // The pinned-close / copy-button laws were tuned on the Linux deep reader:
   // reach it the way the tier design does — thinking tier (last row), vol 01.
-  await page.tap(".pg-tier-list button:nth-last-child(1)");
+  // The tier list folds past 8 tiers, so expand first, then pick the row.
+  await page.tap(".pg-tier-more");
+  await wait(400);
+  await page.tap('.pg-tier-row[data-tier-id="opus-4.8-thinking"]');
   await wait(400);
   await page.tap(".pg-face-head");
   await wait(400);
@@ -586,7 +633,9 @@ try {
   check(noOverflowNarrow, "no horizontal overflow on the map at 320px");
 
   check(await appears(".pg-card"), "map renders at 320px");
-  await page.tap(".pg-tier-list button:nth-last-child(1)");
+  await page.tap(".pg-tier-more");
+  await wait(400);
+  await page.tap('.pg-tier-row[data-tier-id="opus-4.8-thinking"]');
   await wait(400);
   await page.tap(".pg-face-head");
   await wait(400);

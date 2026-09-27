@@ -138,6 +138,28 @@
   overflow:hidden; text-overflow:ellipsis; display:-webkit-box; -webkit-line-clamp:1; -webkit-box-orient:vertical;
 }
 
+/* fold control — a ruled record in chrome register, quieter than the records:
+   no ochre at rest, the same wake/focus grammar. the glyph rides the ordinal
+   column at the ordinal's metrics, so the label starts on the names' edge. */
+.pg-tier-more{
+  width:100%; display:grid;
+  grid-template-columns:auto minmax(0,1fr) auto;
+  align-items:baseline; align-content:center; column-gap:.6rem;
+  min-height:40px; padding:.7rem 1rem; text-align:left;
+  border:0; border-bottom:1px solid var(--ink-line-soft);
+  border-radius:0; background:transparent;
+  font-family:var(--mono); font-size:.72rem; line-height:1.15;
+  color:var(--ink-faint); cursor:pointer;
+  transition:border-color 180ms ease, color 180ms ease;
+}
+.pg-tier-more:hover{border-bottom-color:var(--ink-line); color:var(--ink-text)}
+.pg-tier-more:focus-visible{outline:none; border-bottom-color:var(--ink-accent); color:var(--ink-text)}
+.pg-tier-more-glyph{grid-column:1; min-width:calc(2ch + .08em); font-size:.68rem; letter-spacing:.04em; font-variant-numeric:tabular-nums}
+.pg-tier-more-label{grid-column:2; min-width:0; overflow:hidden; text-overflow:ellipsis; white-space:nowrap}
+.pg-tier-more-extent{grid-column:3; justify-self:end; white-space:nowrap; font-variant-numeric:tabular-nums}
+@media (pointer: coarse){ .pg-tier-more{min-height:44px} }
+@media (prefers-reduced-motion: reduce){ .pg-tier-more{transition:none} }
+
 
 /* ---------- 5a. search — a bare ledger field, not a widget (F038/F039) ----
    the rounded fill + adjacent button silhouette IS the template; drop the
@@ -356,6 +378,7 @@
   .pg-search{width:100%; max-width:none; margin-inline:0; padding-block:.35rem}
   .pg-tier-row{grid-template-columns:auto minmax(0,1fr) auto; padding:.81rem .85rem; min-height:44px}  /* F057 ×1.08 */
   .pg-tier-count{justify-self:end}
+  .pg-tier-more{padding:.81rem .85rem; min-height:44px}
   .pg-card{padding:.95rem}
   .pg-face-head{padding:1rem}
   .pg-tier-head{padding-bottom:.64rem; margin-bottom:.73rem}  /* F064+F070+F072 ×3 */
