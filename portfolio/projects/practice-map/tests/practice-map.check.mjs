@@ -150,7 +150,7 @@ try {
   await wait(300);
   check((await page.$eval(".pg-tier-list", (el) => el.dataset.page)) === "2", "prev returns to page 2");
   const midCue = await page.$eval(".pg-tier-page-cue-text", (el) => el.textContent.trim());
-  check(midCue === "page 2 of 3 · active on page 3", `off-page active tier is announced in the cue (${midCue})`);
+  check(midCue === "page 2 of 3", `cue states the bare page (${midCue})`);
   // restore the tuned state: thinking tier + vol 01 (the free-reading and
   // fragment legs below run on the Linux deep reader's note sections).
   await page.click('[data-turn="next"]');

@@ -1130,6 +1130,26 @@ mobile top 390).
 - Code verification: `tsc --noEmit` clean; `vite build` clean; practice-map.check.mjs fully green (all legs incl. the new cue/suffix/disabled assertions; mobile 390/320 paths page through data-turn).
 - Open question: owner verdict — dials: the `<`/`>` glyph faces (swap to ‹/› on request); the permanent extent stays gone (R040's richer cue) unless the owner wants it back; the stub shrink (no filler) is the accepted tradeoff.
 
+## Feedback F089
+- Round: R041
+- Verdict: LIKED (R041 as presented) + REJECTED (the off-page suffix)
+- Scope: the pager cue text, all viewports
+- Decision: «this looks better» — the refined 3-cell pager build is accepted; the «· active on page k» suffix is removed — the bare «page n of m» is the standing cue
+- User source: «this looks better. remove "active on page...". it is ok without it. then we will finish»
+- Artifact: artifacts/R041/after/r041-page2.png
+- Supersedes: none (removes an R041 element, not a lineage treatment)
+
+## Round R042 — THREAD SETTLED
+- Goal: F089 — remove the off-page suffix; orchestrator-direct (one-line removal + test retarget). The owner closed the thread: «then we will finish» — the pagination mechanic is the settled state; no further rounds open on it.
+- Preserved preferences: everything owner-liked — the fold register's pager (F087/F088), PAGE_SIZE 5, global ordinals, bare cue, native disabled edges, ASCII glyphs, no stub filler; the R039 panel decoupling; data-order tier list.
+- Changes: TierList.tsx — the cue renders bare «page n of m» (the activeOffPage derivation removed); the aria-labels keep naming the destination ranges («next page, tiers 06–10» — a11y, not visible chrome). tests — the page-2 cue leg asserts the bare string.
+- Before: artifacts/R041/after/r041-page2.png (cue with the suffix)
+- After: artifacts/R042/after/r042-page2.png (bare «page 2 of 3»)
+- Visual inspection: performed — the cue reads as pure page position; nothing else moved.
+- Code verification: `tsc --noEmit` clean; `vite build` clean; practice-map.check.mjs fully green.
+- Open question: none — the tier-list length thread (R038–R042: fold → window 5/astra order/panel decoupling → pagination → refined build → bare cue) is settled by the owner's approval.
+
+
 
 
 

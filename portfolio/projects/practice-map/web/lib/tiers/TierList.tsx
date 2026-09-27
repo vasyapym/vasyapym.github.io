@@ -38,7 +38,6 @@ export function TierList({ tiers, activeTierId, onSelect, lessonCount, sampleTit
   const paged = pageCount > 1;
   const start = current * PAGE_SIZE;
   const pageTiers = tiers.slice(start, start + PAGE_SIZE);
-  const activeOffPage = activePage >= 0 && activePage !== current;
   const onFirst = current === 0;
   const onLast = current === pageCount - 1;
 
@@ -114,10 +113,7 @@ export function TierList({ tiers, activeTierId, onSelect, lessonCount, sampleTit
             <span className="pg-tier-page-glyph" aria-hidden="true">{"<"}</span>
           </button>
           <span className="pg-tier-page-cue" aria-live="polite" aria-atomic="true">
-            <span className="pg-tier-page-cue-text">
-              {`page ${current + 1} of ${pageCount}`}
-              {activeOffPage ? ` · active on page ${activePage + 1}` : ""}
-            </span>
+            <span className="pg-tier-page-cue-text">{`page ${current + 1} of ${pageCount}`}</span>
           </span>
           <button
             type="button"
