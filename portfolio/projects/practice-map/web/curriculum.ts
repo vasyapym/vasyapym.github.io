@@ -2463,6 +2463,43 @@ const oldEnglishTopics: readonly TopicCard[] = [
     },
   },
 ];
+
+const sakhaTopics: readonly TopicCard[] = [
+  {
+    id: "sakha",
+    title: "The Sakha (Yakut) Language: A Comprehensive Guide from Foundations to Advanced Concepts",
+    summary: "A conceptual guide to Sakha (Saxa tıla), the northernmost and most divergent Turkic language, from foundations to advanced research themes: what divergence means (early split, prolonged contact with Mongolic, Tungusic, Russian); the sound system — eight short vowels, eight long vowels plus four diphthongs (ıa, ie, uo, üö) with phonemic length, the spectacular shifts (Proto-Turkic y- > s-, s- > h/∅, no native f/v/ts/š/z), prosthetic vowels against initial clusters, and the two-axis vowel harmony (backness × rounding) that drives up to sixteen plural allomorphs; the agglutinative machine — the restructured case system (genitive lost, locative absorbed into the dative, comparative and partitive innovations), possession by juxtaposition plus possessive suffixes, the human-only pronoun kini; the verb as the heart of complexity — competing person-ending sets, five to seven past tenses with evidential -BIT (witnessed -TI vs remote/inferential), future -IAX, habitual -AAççı, immediate vs delayed imperatives, causative/passive/reflexive/reciprocal stacking, negation -BA, and the existential pair baar/suox; the posture-verb aspect system (sıt-/tur-/olor-); SOV head-final syntax, participial relatives, possession without 'have', zero copula with conjugating nouns; the contact-layered lexicon — Turkic core, enormous Mongolic layer (2,000–2,500 stems), Tungusic taiga layer, two waves of Russian borrowings (nativized ostuol/çaaskı vs modern code-switching), key cultural vocabulary (alaas, ıhıax, olonxo, xomus, kımıs, serge); the Cyrillic script with five extra letters and the Novgorodov interlude; and the advanced themes — historical phonology as Proto-Turkic keystone, case restructuring as contact study, evidentiality, Dolgan as language birth, olonxo's epic register, and sociolinguistic vitality at the coldest inhabited latitudes.",
+    concepts: [],
+    practicePrompt: "Take the case inventory in section IV and the verb system in section VI and build three contrastive sentences: (1) a definite vs indefinite object of the same verb (accusative -nı vs partitive -ta, e.g. uu ta); (2) one witnessed-past (-TI, bardım) and one inferential/remote (barbıt) statement of the same event, and say exactly what information source each encodes; (3) a possession claim (Miexe kinige baar) — then explain why Sakha needs no verb 'to have' and no genitive. Check every suffix's harmony variant by hand. Nothing was run against a corpus or speaker in this session — validate against Vinokur / Stachowski & Gusev and your own study.",
+    checkPrompt: "Without references: what Saxa tıla means and why Sakha is the most divergent Turkic language (the contact history); the eight short vowels, eight longs and four diphthongs, and why length is phonemic (as vs aas); the shifts y- > s- and s- > h/∅ and the uot/ot, suol/yol, en/sen comparisons; why Sakha has no native f/v/ts/š/z and what ostuol shows about clusters; the two harmony axes and the up-to-sixteen plural allomorphs (oğolor); how many cases and which are innovations or losses (genitive lost, dative = to+at, comparative -tağar, partitive -ta); possession without genitive (ağa ciete) and the possessive suffixes; kini vs ol; numbers 1–10, 100, 1000; the two present-future endings; witnessed -TI vs remote/inferential -BIT; the episodic and habitual pasts; future -IAX; immediate vs delayed imperatives; the voice suffixes from kör-; negation -BA and baar/suox; the converb -An and the posture-verb aspect system (ağaa turabın); SOV head-final order, participial relatives (min aağıbıt kinigem), question particle duo; the absence of 'have' and the zero copula; the four lexical strata and their sizes (Mongolic ~2,000–2,500 stems); alaas, ıhıax, olonxo, xomus, kımıs, serge; the five extra Cyrillic letters and the Novgorodov alphabet; Böhtlingk 1851 and Pekarsky's dictionary; the six advanced research themes including Dolgan.",
+    tier: 1,
+    complexity: 4,
+    references: [
+      "G. W. Nesselmann, Über die Sprache der Jakuten (review context); Otto Böhtlingk, Über die Sprache der Jakuten (1851)",
+      "E. K. Pekarsky, Slovar yakutskogo yazyka (the great lexicographic monument)",
+      "Semyon Novgorodov's alphabet papers (1917–1929) and the Cyrillic reform of 1939",
+      "Stanisław Kałużyński on Mongolic loans in Yakut (foundational etymology)",
+      "Stachowski & Gusev on Yakut grammar and Turkic typology; Gusev, The Yakut Language (2013)",
+      "Vinokur, On Yakut pastoral vocabulary; Dynamique des langues et lexique (sociolinguistics of Yakutia)",
+      "Sakha Wikipedia (sah.wikipedia.org) and the Sakha cinema movement — digital vitality sources"
+    ],
+    lesson: {
+      problem: "Sakha is treated either as an exotic Yakut curiosity or as just another Turkic language; both miss the point. The beginner drowns in suffix variants and undefined-looking words (suox, kini, ostuol) that make sense only through two lenses: contact history and strict rules. Reading it without knowing what Mongolic and Tungusic did to the Turkic skeleton, or without vowel harmony as a mechanical rule, leaves every form arbitrary.",
+      model: "A Turkic skeleton with reshaped flesh: a split-off northern branch rebuilt inside Siberia. Everything hangs on two mechanisms. Vowel harmony (backness × rounding axes) plus consonant assimilation makes every suffix a rule-computed variant, not a memorized form — oğolor is predictable. Contact restructured the categories: genitive lost and possession remade as juxtaposition + possessive suffixes, locative absorbed by the dative, comparative and partitive cases innovated, evidential pasts added. Vocabulary is a geological map: Turkic core (disguised by y->s and s->h/∅ shifts), enormous Mongolic layer, Tungusic taiga layer, two waves of Russian.",
+      mechanics: "Harmony computes suffixes: back stems take a/ı/o/u variants (oğo -> -lor), front stems e/i/ö/ü; suffix-initial l/t/d/n assimilate to stem-final consonants — up to sixteen plural realizations, all predictable. Sound shifts to spot: y->s (yıl/sıl), s->h/∅ (sen/en, sub/uu), no native f/v/ts/š/z — loans get prosthetic vowels (stol/ostuol). Cases: nominative unmarked; accusative -nı definite objects; dative -ğa covers both 'to' and 'at' (absorbed locative); ablative -ttan; instrumental -nan; comitative -lıın; comparative -tağar; partitive -ta for indefinite objects (uu ta). Possession: ağa ciete, x+possessive suffix; nouns conjugate for person (Min uçuutalbın). Verbs: present-future -Ar (barabın), witnessed -TI (bardım), remote/evidential -BIT (barbıt = 'turns out he went'), episodic and habitual -AAççı, future -IAX (barıağım); negation -BA before tense; existentials baar/suox (Xarçım suox). Voice stacking from kör-: körüs-, kördör-, körülün-. Converbs (-An) feed posture-aspect auxiliaries: ağaa turabın 'reading right now'. Syntax: SOV, head-final, participial relatives (min aağıbıt kinigem), yes/no particle duo, no verb 'to have' (Miexe kinige baar).",
+      pitfalls: [
+      "Memorizing suffix shapes instead of computing them: harmony (backness × rounding) plus stem-final assimilation predict every variant — a suffix is a rule, not a form.",
+      "Assuming the case system matches other Turkic languages: the genitive is gone, the dative covers 'to' and 'at', and comparative -tağar / partitive -ta are Sakha innovations.",
+      "Translating kini as 'it': it is human-only; animals and things take ol.",
+      "Treating the -BIT past as plain remote past: it carries evidential/inferential meaning — 'evidently went', known indirectly.",
+      "Building possession with a genitive or a 'have' verb: Sakha juxtaposes plus possessive suffixes (ağa ciete) and expresses possession existentially (Miexe kinige baar).",
+      "Ignoring diphthongs (ıa, ie, uo, üö) and length as decoration: length is phonemic (as 'food' vs aas 'pass by') and uot/suol are the language's signature sound.",
+      "Recognizing Russian loans without strata awareness: old loans are fully nativized (ostuol, çaaskı, kinige) while modern ones keep Russian texture — two different waves."
+      ],
+      whenNot: "This is a conceptual guide and field vocabulary — not a graded textbook with drills, not a full reference grammar (Böhtlingk, Pekarsky, and modern grammars do that), and nothing here was run with speakers or corpora; for etymological claims (the Mongolic layer size, Kałużyński's identifications) consult the original scholarship."
+    },
+  },
+];
 export const curriculum: readonly PracticeArea[] = [
   {
     id: "go",
@@ -2735,5 +2772,13 @@ export const curriculum: readonly PracticeArea[] = [
     tier: 1,
     dependencies: [],
     topics: oldEnglishTopics,
+  },
+  {
+    id: "sakha",
+    title: "Saxa tıla (Yakut)",
+    description: "The northernmost Turkic language: harmony and assimilation as a suffix machine, a restructured case system, evidential pasts, and a contact-layered lexicon — from sounds to olonxo.",
+    tier: 1,
+    dependencies: [],
+    topics: sakhaTopics,
   },
 ];
