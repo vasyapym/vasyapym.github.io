@@ -1054,3 +1054,35 @@ mobile top 390).
 - Code verification: `tsc --noEmit` clean; `vite build` clean; practice-map.check.mjs FULLY green (the previously documented pre-existing fails did not reproduce; the run includes the new fold legs + 320/390 mobile paths through the fold).
 - Open question: owner verdict — the dials are WINDOW=6 and MIN_HIDDEN=3 (folded default on desktop is part of the single rule; making the desktop list flatter is one constant); the pinned-row seam (non-contiguous ordinals when the active tier is deep) is the relay's accepted tradeoff.
 
+## Feedback F085
+- Round: R038
+- Verdict: REJECTED (fold window + tier order)
+- Scope: folded initial window size + tier list order, all viewports
+- Decision: initial showing 5 (WINDOW 6→5); astra-6-max 1st, astra-6-medium 2nd in the data array (tier order stays data order — content change only)
+- User source: «instead of by default (initial showing) showing 5 model tiers make it show 5. also astra-6-max and astra-6-medium position as 1st and 2nd»
+- Artifact: artifacts/R038/after/desktop-folded.png
+- Supersedes: the WINDOW dial of R038; the liked fold control itself is explicitly kept («i like the design of "show more"»)
+
+## Feedback F086
+- Round: none (owner bug report, same message)
+- Verdict: REJECTED (bug)
+- Scope: the panel column of the tier layout when the active tier has a single lesson
+- Decision: the single lesson card sits in the middle of the page instead of at the top — must sit at the top like any first lesson
+- User source: «also fix a bug - when there's only one lesson on the model tier it is positioned in the middle of the page (not on top as the first lesson should be positioned)»
+
+## Round R039
+- Goal: F085 + F086 — window 5, astra run first, and the centering fix; orchestrator-direct (one constant + data reorder + a layout-structure fix; no relay needed)
+- Preserved preferences: the fold mechanic and its control grammar (F085 keeps them); F066 list/search breath lockstep; F071 selection grammar; 44/40 floors
+- Changes:
+  - TierList.tsx — WINDOW 6→5 (MIN_HIDDEN=3 unchanged: 11−5=6 hidden ≥3, still folds; ≤8 tiers still flat).
+  - tiers.ts — astra-6-max 1st, astra-6-medium 2nd; every other entry keeps its relative data order (tier = data).
+  - tiers.css — the R039 layout decoupling: `.pg-layout` areas become `"list main" / "list main"`; TierPanel's search+panel are wrapped in one `.pg-main` (flex column) spanning both rows — the spanning list's height no longer distributes into the search row, so a short panel is not pushed down; the surplus lands below the panel. `.pg-tier-panel` gains margin-top:30px desktop (the row-gap visual it used to inherit); ≤700 dissolves the wrapper with `display:contents` and keeps the original F054/F060 stacked rhythm (areas "list" "search" "panel", margins 2px/1.5px).
+  - tests — retargets for the new geometry: label «show 6 more» (hidden 6 at 11 tiers), pinned row now the 6th `.pg-tier-row` (index 5, directly after the 5-row window), comments re-anchored (astra run leads; fable-5.1-low 5th row).
+- Diagnosis (F086): `.pg-tier-list` spans both auto rows of `.pg-layout`; a spanning item's min-content contribution distributes across the spanned tracks, so when the list was taller than the panel content (single lesson ≈ 250px vs list ≈ 413px) the search row inflated 56→102px and the panel started ~97px lower — the card floated toward the middle. Verified computed: row1 102.477px pre-fix → head top 434; post-fix head top 388 with rows 191.4/191.4 (distribution now irrelevant to the panel, which spans both rows).
+- Before: artifacts/R038/after/* + a pre-fix single-lesson measure (head 434, grid rows 102.477/280.359)
+- After: artifacts/R039/after/desktop-folded.png (astra 01–02 first, window 5, «+ show 6 more · 5 of 11»), single-lesson.png (fable-5.1-max: head/card at the top, one card, surplus below), mobile-folded.png (390 unchanged rhythm)
+- Visual inspection: performed — the single-lesson panel now reads identically to the multi-lesson tiers' top edge; the fold control and window read as in R038 with the shorter window
+- Code verification: `tsc --noEmit` clean; `vite build` clean; practice-map.check.mjs fully green (all legs incl. fold invariants, mobile 390/320)
+- Open question: none — the batch is fully worked; the pagination redesign of the fold (owner's next ask) starts a new round from this state.
+
+

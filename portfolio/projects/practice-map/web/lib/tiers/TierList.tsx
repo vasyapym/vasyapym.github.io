@@ -3,7 +3,7 @@ import type { Tier } from "./tiers";
 import { plural } from "./tiers";
 
 /** rows always shown when folded: the head of the data array. */
-const WINDOW = 6;
+const WINDOW = 5;
 /** a fold that hides fewer rows than this costs more than it saves, because the control is a row itself. */
 const MIN_HIDDEN = 3;
 

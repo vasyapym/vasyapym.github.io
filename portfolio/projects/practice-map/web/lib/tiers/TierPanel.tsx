@@ -176,7 +176,7 @@ export function TierPanel({
   }
 
   return (
-    <>
+    <div className="pg-main">
       <div className="pg-search">
         <input
           type="search"
@@ -194,6 +194,6 @@ export function TierPanel({
       <section className="pg-tier-panel" aria-live="polite" ref={panelRef}>
         {panelBody}
       </section>
-    </>
+    </div>
   );
 }

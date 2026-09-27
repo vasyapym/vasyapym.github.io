@@ -19,6 +19,8 @@ export type Tier = {
 export type { TopicCard };
 
 export const TIERS: readonly Tier[] = [
+  { id: "astra-6-max", name: "astra-6-max", band: "max", areas: ["akira-kurosawa-vocabulary", "kubernetes-first-principles", "subconscious-basics-to-advanced", "ddos", "lanthimos", "zeitgeist", "japan", "discourse"] },
+  { id: "astra-6-medium", name: "astra-6-medium", band: "medium", areas: ["rust", "php-frameworks"] },
   { id: "fable-5.1-max", name: "fable-5.1-max", band: "max", areas: ["docker"] },
   { id: "fable-5.1-high", name: "fable-5.1-high", band: "high", areas: ["kendrick-lamar-glossary", "kubernetes", "hitchcock", "agentic-programming", "agi", "redis", "merkle-trees-layered", "odyssey-nolan-2026", "roland-barthes-glossary"] },
   { id: "fable-5.1-low", name: "fable-5.1-low", band: "low", areas: ["go-first-principles-runtime", "go", "spirit-of-time", "darwin", "microservices", "scaling", "bloom-filters", "merkle-trees-intuition"] },
@@ -26,8 +28,6 @@ export const TIERS: readonly Tier[] = [
   { id: "opus-5.5-high", name: "opus-5.5-high", band: "high", areas: ["erykah-badu-analog-priestess", "go-first-principles-internals", "laravel-symfony-field-guide", "visceral-hypersensitivity-gut", "roland-barthes-guide"] },
   { id: "opus-5.5-medium", name: "opus-5.5-medium", band: "medium", areas: ["python-concurrency", "zombie-cinema", "kendrick-lamar-field-guide", "kubernetes-vocabulary", "kendrick-roman-v-golosah"] },
   { id: "opus-5-max", name: "opus-5-max", band: "max", areas: ["go-conceptual-vocabulary", "project-hail-mary-guide"] },
-  { id: "astra-6-max", name: "astra-6-max", band: "max", areas: ["akira-kurosawa-vocabulary", "kubernetes-first-principles", "subconscious-basics-to-advanced", "ddos", "lanthimos", "zeitgeist", "japan", "discourse"] },
-  { id: "astra-6-medium", name: "astra-6-medium", band: "medium", areas: ["rust", "php-frameworks"] },
   { id: "gpt-6-sol-max", name: "gpt-6-sol-max", band: "max", areas: ["sinners-2025-coogler", "project-hail-mary-film"] },
   {
     id: "opus-4.8-thinking",

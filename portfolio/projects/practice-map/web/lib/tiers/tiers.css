@@ -32,8 +32,16 @@
   /* F053+F055+F065: hero→body −10% / −5% / −4% (40→36→34→32.6px); mobile bands keep theirs */
   margin-top:32.6px; display:grid; gap:30px;  /* F073: list↔search (30px) = search↔name (was 28) */
   grid-template-columns:minmax(0,0.488fr) minmax(0,1.40fr);  /* F056 −7% + F067 −4% (0.57→0.515→0.488; fr-share math, not naive ×0.96) */
-  grid-template-areas:"list search" "list panel";
+  /* R039: the panel column is ONE spanning item (.pg-main) — the list's
+     height no longer distributes into the search row, so a short panel
+     (single-lesson tier) is not pushed into the middle of the page; the
+     surplus lands BELOW the panel instead */
+  grid-template-areas:"list main" "list main";
   align-items:start;
+}
+.pg-main{
+  grid-area:main; min-width:0;
+  display:flex; flex-direction:column; align-items:stretch;
 }
 
 /* tier list — ruled records (F033), unchanged geometry. */
@@ -199,7 +207,12 @@
 }
 
 /* ---------- 3. tier panel ---------- */
-.pg-tier-panel{grid-area:panel; min-width:0}
+.pg-tier-panel{
+  grid-area:panel; min-width:0;
+  /* R039: desktop re-anchor — the 30px gap the panel used to inherit from the
+     grid's row gap; ≤700/≤560 keep their F060 overrides below */
+  margin-top:30px;
+}
 .pg-tier-head{
   display:flex; align-items:center; gap:.8em; flex-wrap:wrap;
   padding-bottom:.81rem; margin-bottom:.88rem;  /* F064+F070+F072: −7% ×3 (pb+mb together) */
@@ -373,6 +386,9 @@
     grid-template-areas:"list" "search" "panel";
     gap:36px;                                  /* F054: was 34px — both stacked zones +5% */
   }
+  /* stacked flow: dissolve the R039 wrapper — search and panel return to
+     being direct grid items with the original F054/F060 rhythm */
+  .pg-main{display:contents}
   /* the bare-field search now carries its own hairline: it is its own quiet
      band, full-width, no centering trick (iOS-safe). */
   .pg-search{width:100%; max-width:none; margin-inline:0; padding-block:.35rem}

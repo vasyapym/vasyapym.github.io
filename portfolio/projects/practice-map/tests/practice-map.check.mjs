@@ -110,16 +110,16 @@ try {
 
   check(await appears(".pg-card"), "map renders");
 
-  // The map opens on the first tier (fable-5.1-max, the owner's fixed data
-  // order puts the fable run first).
+  // The map opens on the first tier (astra-6-max — the owner ordered the astra
+  // run 1st/2nd in the data array).
   // The thinking tier (opus-4.8-thinking) sorts LAST in the tier list — the
   // owner's fixed data order — and folds its 20 lessons into 5 volume faces.
   // The tier list folds past 8 tiers: the fold control is always the last
-  // child, so tier rows are picked by data-tier-id (11 tiers fold to 01–06 +
-  // "show 5 more"; expanding first is required to reach rows 07–11).
+  // child, so tier rows are picked by data-tier-id (11 tiers fold to 01–05 +
+  // "show 6 more"; expanding first is required to reach rows 06–11).
   check(await appears(".pg-tier-more"), "tier list folds (fold control renders)");
   const moreLabel = await page.$eval(".pg-tier-more-label", (el) => el.textContent.trim());
-  check(moreLabel === "show 5 more", `fold label counts the hidden tail (${moreLabel})`);
+  check(moreLabel === "show 6 more", `fold label counts the hidden tail (${moreLabel})`);
   await page.click(".pg-tier-more");
   await wait(400);
   check((await page.$eval(".pg-tier-more", (el) => el.getAttribute("aria-expanded"))) === "true", "fold control expands");
@@ -142,7 +142,7 @@ try {
     const rows = [...document.querySelectorAll(".pg-tier-row")];
     return rows.findIndex((r) => r.dataset.pinned === "true");
   });
-  check(pinnedIndex === 6, `pinned active row sits directly after the window (${pinnedIndex})`);
+  check(pinnedIndex === 5, `pinned active row sits directly after the window (${pinnedIndex})`);
   const pinnedOrdinal = await page.$eval('.pg-tier-row[data-pinned="true"] .pg-tier-index', (el) => el.textContent.trim());
   check(pinnedOrdinal === "11", `pinned row's ordinal marks the elision (${pinnedOrdinal})`);
   const activeVisible = await page.$eval('.pg-tier-row[aria-pressed="true"]', (el) => {
@@ -434,9 +434,9 @@ try {
 
   // curriculum[0] is the Go area: one flagship card whose deep lesson carries
   // the full 19-section course.
-  // The Go flagship lives in the fable-5.1-low tier (3rd row of TIERS data
-  // order — the fable run leads the list per the owner's request: fable-5.1-max
-  // first, then fable-5.1-high, fable-5.1-low, fable-5-high).
+  // The Go flagship lives in the fable-5.1-low tier (5th row of TIERS data
+  // order — the astra run leads the list per the owner's request: astra-6-max
+  // first, astra-6-medium second; the fable run follows).
   await page.click('.pg-tier-list .pg-tier-row[data-tier-id="fable-5.1-low"]');
   await wait(400);
   // The tier leads with the English Go lesson (owner's EN-first rule); the
