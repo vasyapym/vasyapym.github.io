@@ -2386,6 +2386,45 @@ const rolandBarthesGuideTopics: readonly TopicCard[] = [
     },
   },
 ];
+
+const pythonConcurrencyTopics: readonly TopicCard[] = [
+  {
+    id: "python-concurrency",
+    title: "Concurrency in Python: Concepts and Vocabulary, from First Principles to the Frontier",
+    summary: "A layered English guide to Python concurrency from first principles to the frontier: concurrency vs parallelism vs asynchrony, I/O-bound vs CPU-bound work, processes vs threads and preemptive vs cooperative scheduling; the hazards — race conditions, atomicity, critical sections, data race vs race condition, heisenbugs, and deadlock via the Coffman conditions (plus livelock, starvation, priority inversion); the GIL honestly explained — refcounting rationale, what it does and does not guarantee, GIL-releasing C extensions, the 5 ms switch interval, and the folklore of atomic built-in operations; the threading toolkit (Lock/RLock/Semaphore/Event/Condition with the wait-loop rule, Barrier, daemon threads, no thread.kill, excepthook), queue-based producer–consumer with backpressure and sentinels, executors and futures; multiprocessing by isolation — pickling costs, embarrassingly parallel workloads, start methods (fork's copy-on-write refcount trap and locked-lock deadlock, spawn, forkserver as the 3.14 Linux default); asyncio from the event loop and reactor/proactor patterns through coroutines (never awaited, weak task references), the cooperative contract (races impossible between awaits, never block the loop, function coloring), cancellation and structured concurrency with TaskGroup and ExceptionGroup, contextvars; theory — CSP vs the actor model, memory models and happens-before, lock-free/wait-free and the ABA trap, Amdahl/Gustafson/Little and the essential terms; the frontier — free-threaded Python (PEP 703: biased and deferred refcounting, immortal objects, mimalloc, per-object critical sections) and subinterpreters (PEP 684/734); and practice — choosing the tool per workload and seven principles of sound concurrent design.",
+    concepts: [],
+    practicePrompt: "Write a small Python module (3.12+) and exercise the vocabulary: (1) run 10 threads incrementing a shared counter and observe the lost update, then fix it with a Lock and with a queue-based pipeline; (2) demonstrate a deadlock from inconsistent lock ordering and break it with lock ordering or acquire timeouts; (3) time requests.get over 50 URLs sequentially vs ThreadPoolExecutor vs asyncio.gather with an async client, capping concurrency with asyncio.Semaphore; (4) run the same counter loop under a free-threaded 3.14 build if available. No Python was executed in this environment — run and verify it yourself.",
+    checkPrompt: "Without a terminal: distinguish concurrency/parallelism/asynchrony and I/O-bound vs CPU-bound work; name the four Coffman conditions and which practical prevention breaks which; explain what the GIL does (refcounts, released around blocking calls, switch interval) and — the core test — why it does not make your code thread-safe, and which built-in operations happen to be atomic under it; the wait-inside-a-loop rule for Condition and why spurious wakeups force it; what backpressure means and why bounded queues matter; fork vs spawn vs forkserver — the refcount copy-on-write trap, the locked-lock-in-child deadlock, and why spawn needs the __main__ guard; what happens between two awaits in asyncio and what still needs asyncio.Lock; the never-block-the-loop rule and the bridges to threads/processes; how cancellation really works and what structured concurrency guarantees (TaskGroup, ExceptionGroup, except*); contextvars vs threading.local; CSP vs the actor model; happens-before and why free-threaded Python makes it your problem; CAS and the ABA problem; Amdahl's ceiling at 95% parallel code and Little's law; and how biased/deferred refcounting and immortal objects make free threading viable.",
+    tier: 1,
+    complexity: 4,
+    references: [
+      "Python docs: threading, concurrent.futures, multiprocessing, asyncio, contextvars — https://docs.python.org/3/",
+      "What's new in Python 3.11/3.13/3.14 — TaskGroup, free-threading, forkserver default — https://docs.python.org/3/whatsnew/",
+      "PEP 703 (free-threaded CPython), PEP 683 (immortal objects), PEP 684 (per-interpreter GIL), PEP 734 (multiple interpreters), PEP 492 (async/await), PEP 567 (contextvars)",
+      "Nathaniel J. Smith, Notes on structured concurrency, or: go statement considered harmful — https://vorpus.org/blog/notes-on-structured-concurrency-or-go-statement-considered-harmful/",
+      "Rob Pike, Concurrency is not parallelism (2012)",
+      "Mike Jones, What really happened on Mars? (Mars Pathfinder priority inversion)",
+      "Amdahl (1967), Gustafson (1988), Little (1961)",
+      "uvloop — https://github.com/MagicStack/uvloop",
+      "Bob Nystrom, What Color is Your Function? — https://journal.stuffwithstuff.com/2015/02/01/what-color-is-your-function/"
+    ],
+    lesson: {
+      problem: "Python concurrency is taught as tool choices (threads vs asyncio vs processes) and learned as folklore (the GIL protects my data, list.append is atomic). Both habits fail at the frontier: the GIL never made user code thread-safe, free-threaded builds remove its statistical cover, and the tools only make sense once you can name the hazards — lost updates, check-then-act races, deadlock cycles — and the operating-system picture underneath (preemptive cores, cooperative coroutines).",
+      model: "Concurrency is structure; parallelism is execution. A concurrent program is independently progressing activities with overlapping lifetimes; asynchrony is just the mechanism (start now, result later). The load-bearing question is what your program waits on: I/O-bound work wants concurrency to fill idle waits, CPU-bound work wants true parallelism. Threads share memory (cheap communication, the root of every race); processes isolate (safety at the price of pickling). asyncio is a cooperative system layered on a preemptive OS — control changes hands only at await. The shared goal: constrain the space of possible interleavings until every remaining one is correct.",
+      mechanics: "Hazards: counter += 1 is load-add-store — two threads store 42 and a lost update vanishes; check-then-act pairs are racy even when each line is atomic (race condition without a data race); heisenbugs vanish under observation, so correctness is designed, not tested. Deadlock needs all four Coffman conditions — mutual exclusion, hold-and-wait, no preemption, circular wait; global lock ordering kills the cycle, timeouts turn hangs into failures; livelock spins without progress, starvation is denial of service by unfairness, priority inversion nearly sank Mars Pathfinder. The GIL exists because CPython refcounts memory; it releases around blocking calls, forces 5 ms handoffs, and is often released by C extensions (NumPy threads can truly parallelize) — but it protects interpreter consistency, not your invariants, and the atomicity of single built-in operations is folklore, now being formalized. Threading toolkit: Lock/RLock/Semaphore/Event/Condition (always wait in a loop rechecking the predicate — spurious wakeups and consumed conditions), Barrier, thread-locals, daemon threads dying without finally, no thread.kill, excepthook for silent thread deaths. Queues over shared state: producer–consumer, bounded queues as backpressure, sentinel shutdown, Queue.shutdown() in 3.13. Executors give futures; the thread/process pool interface is identical. multiprocessing: pickling costs, embarrassingly parallel shapes, Manager/Value/Array/shared_memory; start methods — fork's copy-on-write defeated by refcount writes and the locked-lock-copied-into-child deadlock (3.12 warns), spawn's clean re-import (the __main__ guard), forkserver as the 3.14 Linux default. asyncio: reactor vs proactor, the C10K economics; coroutines (calling async def does nothing — 'never awaited'), Tasks held only weakly (keep a reference or use TaskGroup), cooperative contract (races impossible between awaits; asyncio.Lock only for critical sections spanning awaits), never block the loop (to_thread/run_in_executor as the bridge, run_coroutine_threadsafe back), function coloring as the ergonomic tax; cancellation schedules CancelledError at the next await; structured concurrency (Trio's nurseries → TaskGroup 3.11) makes task lifetimes lexical — failures cancel siblings and surface as ExceptionGroup handled by except*; contextvars (PEP 567) replaces thread-locals. Theory: CSP (Hoare) vs the actor model (Hewitt); happens-before and memory barriers, which the GIL quietly provided and free threading does not; CAS, the ABA trap, wait-free above lock-free; Amdahl's ceiling (95% parallel ⇒ 20× max), Gustafson's scaling counterpoint, Little's law for sizing, contention beyond which more workers are slower. Frontier: free-threaded CPython (PEP 703) via biased + deferred refcounting, immortal objects (PEP 683), mimalloc, and per-object critical sections — 3.13 experimental (python3.13t), 3.14 officially supported, with GIL re-enabling for unready extensions; subinterpreters (PEP 684 per-interpreter GIL, PEP 734 concurrent.interpreters + InterpreterPoolExecutor) as the actor model inside one process.",
+      pitfalls: [
+      "Trusting the GIL for correctness: it guards interpreter internals, not your check-then-act logic — and free-threaded builds remove even the statistical cover.",
+      "Relying on atomic built-in operations as contract: that folklore (list.append is atomic) is exactly what free threading is forcing to be formalized.",
+      "Blocking the event loop with time.sleep, requests.get, or heavy CPU — one call freezes every task; use async-native libraries and to_thread.",
+      "Forgetting that fork copies only the calling thread: a lock held by another thread is copied locked, deadlocking the child — and refcount writes defeat copy-on-write.",
+      "Creating fire-and-forget asyncio tasks without storing references — the loop holds them weakly and may collect them mid-flight; use TaskGroup.",
+      "Building unbounded queues and unbounded concurrency: without backpressure and semaphores, the system degrades into memory exhaustion instead of gracefully slowing down.",
+      "Choosing a tool by fashion instead of by workload: asyncio for two requests, processes for NumPy-heavy work, or parallelism before fixing an algorithmic bottleneck."
+      ],
+      whenNot: "This is a vocabulary and decision map for concurrency in Python — not a tutorial on writing your first threaded program, not a distributed-systems guide (that discipline begins beyond one machine), and none of its examples were executed here; for production designs, benchmark and read the PEPs."
+    },
+  },
+];
 export const curriculum: readonly PracticeArea[] = [
   {
     id: "go",
@@ -2642,5 +2681,13 @@ export const curriculum: readonly PracticeArea[] = [
     tier: 1,
     dependencies: [],
     topics: rolandBarthesGuideTopics,
+  },
+  {
+    id: "python-concurrency",
+    title: "Concurrency in Python: from first principles to the frontier",
+    description: "A layered English essay on Python concurrency: hazards and the GIL, threads and queues, processes and start methods, the asyncio contract, theory (CSP, actor model, Amdahl), and the free-threaded frontier.",
+    tier: 1,
+    dependencies: [],
+    topics: pythonConcurrencyTopics,
   },
 ];

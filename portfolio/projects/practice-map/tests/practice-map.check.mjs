@@ -394,9 +394,10 @@ try {
 
   // curriculum[0] is the Go area: one flagship card whose deep lesson carries
   // the full 19-section course.
-  // The Go flagship lives in the fable-5.1-low tier (5th row of TIERS data
-  // order — opus-5.5-high was added first per the owner's request).
-  await page.click(".pg-tier-list button:nth-child(5)");
+  // The Go flagship lives in the fable-5.1-low tier (6th row of TIERS data
+  // order — opus-5.5-high and opus-5.5-medium were added first per the
+  // owner's request).
+  await page.click(".pg-tier-list button:nth-child(6)");
   await wait(400);
   const goCardTitle = await page.$eval(".pg-card h3", (el) => el.textContent.trim());
   check(/^Go/.test(goCardTitle), `Go area leads the fable-5.1-low tier's cards (${goCardTitle})`);
