@@ -2425,6 +2425,44 @@ const pythonConcurrencyTopics: readonly TopicCard[] = [
     },
   },
 ];
+
+const oldEnglishTopics: readonly TopicCard[] = [
+  {
+    id: "old-english",
+    title: "Old English: A Complete Conceptual Guide from Foundations to Advanced Scholarship",
+    summary: "A conceptual guide to Old English from foundations to advanced scholarship: what OE is and isn't (a fully inflected West Germanic language, Anglo-Frisian, 450–1150 CE); the alphabet's four special letters (thorn, eth, ash, wynn) plus yogh's multiple g's, palatal c/g, phonemic vowel length and gemination; the historical phonology — Grimm's and Verner's laws, i-mutation as the lexicon's fingerprint, breaking, gemination; the inflectional machine — four cases and arbitrary gender, the declension classes (a-stems, ō-stems, weak n-stems, root nouns), the two-fold adjective, the load-bearing demonstrative se/sēo/þæt, the dual pronoun, the seven strong-verb classes with ablaut and distinct past singulars, weak verbs' dental suffix, preterite-presents as the future modals, four anomalous verbs, two tenses and a live subjunctive; syntax — V2 main clauses, verb-final subordinates, negative concord, parataxis vs hypotaxis, the correlation crux of þā...þā; the native word-formation genius of compounding and calques, loanword strata (Latin waves, subterranean Norse and doublets, the scarce Celtic loans and the Celtic hypothesis); the poetic register — alliterative meter with Sievers types, kennings vs kend heiti, variation, litotes, oral-formulaic theory, scop, wyrd, comitatus, ubi sunt; dialects (Late West Saxon Schriftsprache vs Anglian ancestry) and periodization to the synthetic-to-analytic collapse; the corpus (four poetry codices, Alfredian prose, Ælfric, Wulfstan, glosses) and the scholarly apparatus (Mitchell–Robinson, Campbell, Bosworth-Toller, DOE, ASPR, Klaeber), the early-medieval terminology debate, and a Beowulf miniature that uses every tool.",
+    concepts: [],
+    practicePrompt: "Parse the Beowulf opening in section XI word by word: name each case, gender, number, verb class, and every device (compound, ge-, alliteration, clause-final verb) — then translate it twice, once with Hwæt as an interjection and once as Walkden's exclamative particle, and say which reading you find stronger and why. Then read Ælfric's Colloquy or a Chronicle entry with Clark Hall open. No text was read aloud or parsed by tooling in this environment — run it against your own study.",
+    checkPrompt: "Without references: why Shakespeare and Chaucer are NOT Old English and what family OE belongs to; the four special letters and why wynn is treacherous; the multiple pronunciations of g and c and what dotted ċ/ġ are; why vowel length is phonemic and who marks it; Grimm vs Verner and the s/r alternation; why i-mutation explains menn/fēt/mȳs and food/feed; the four cases and which absorbed the instrumental; strong vs weak vs athematic nouns and which plural endings descend to -s and -en; the strong/weak adjective choice and which modern language still has it; why se/sēo/þæt is the load-bearing wall; the dual pronoun; the four principal parts of a strong verb and what happened to sang/sungon; weak verbs' dental suffix; why 'she can' has no -s; the two tenses and the live subjunctive; V2 vs verb-final and negative concord; parataxis vs hypotaxis and the þā...þā crux; calques like gōdspell; the three Latin waves and why Norse is subterranean with doublets; the Celtic hypothesis; meter: half-lines, caesura, head-stave, Sievers types; kenning vs kend heiti, variation, litotes, oral-formulaic debate; wyrd's precise difficulty; the four poetry codices; Late West Saxon irony; leveling and synthetic→analytic; the DOE, ASPR, Klaeber; and the 'early medieval England' terminology debate.",
+    tier: 1,
+    complexity: 4,
+    references: [
+      "Bruce Mitchell and Fred C. Robinson, A Guide to Old English (8th ed.)",
+      "Peter S. Baker, Introduction to Old English (3rd ed.)",
+      "Alistair Campbell, Old English Grammar (1959); Bruce Mitchell, Old English Syntax (2 vols.)",
+      "Joseph Bosworth and T. Northcote Toller, An Anglo-Saxon Dictionary; Dictionary of Old English (Toronto) — doe.umd.umich.edu / doecorpus",
+      "George Philip Krapp and Elliot Van Kirk Dobbie, The Anglo-Saxon Poetic Records (ASPR, 6 vols.)",
+      "Frederick Klaeber, Klaeber's Beowulf (4th ed., Fulk, Bjork, Niles)",
+      "Eduard Sievers, Altgermanische Metrik; John C. Pope, The Rhythm of Beo­wulf; R. D. Fulk, A History of Old English Meter",
+      "M. S. Griffith / glosses and charms corpora; Walkden 2013 on Hwæt ('The status of hwæt in Old English')"
+    ],
+    lesson: {
+      problem: "Old English is filed either as 'old-fashioned English' — which makes Shakespeare and Chaucer 'Old English', a double error — or as an archaic curiosity, which hides that it is a fully inflected West Germanic language closer to German or Icelandic than to English. The beginner then drowns in arbitrary-looking forms (þe/þæt, sang/sungon, fōt/fēt) without seeing the system, and the specialist vocabulary of the field (i-mutation, Sievers types, cruxes) stays locked in grammars.",
+      model: "A foreign language that is the ancestor of your own, spoken 450–1150 CE and written in a four-letter-different alphabet. Its grammar is an inflectional machine: case and gender on nouns, a two-fold adjective chosen by syntax, a load-bearing demonstrative that does the work lost word order no longer does, and verbs split by ablaut (strong, seven classes with distinct past singular/plural vowels) versus the dental suffix (weak) — with preterite-presents fossilized into the modern modals. Sounds are a reconstructed system, not noise: Grimm and Verner, i-mutation's fingerprints (menn, fēt, mȳs), breaking, gemination. Poetry runs a parallel register: alliterative meter, kennings, variation, litotes. The point of the guide is conversion — from a list of arbitrary forms to a predictable system you can read, analyze, and argue about.",
+      mechanics: "Alphabet: þ/ð interchangeable th; æ a distinct phoneme from a; ƿ (wynn) the treacherous w; yogh conceals g's three pronunciations; dotted ċ/ġ are editorial, not manuscript; vowel length is phonemic and editor-marked; sc is always sh. Phonology: Grimm's law (p,t,k → f,þ,h; pater:fæder), Verner's voiced exceptions (wesan/wǣron), i-mutation (an i/j in the next syllable fronts the root vowel then vanishes — the fingerprint of food/feed, strong/strength, and the i-mutated plurals fōt/fēt, mann/menn, bōc/bēc), breaking before h/r+l clusters, West Germanic gemination (settan). Grammar: four cases with the dative absorbing the instrumental; strong a-stems give the -s plural, weak n-stems the -en, root nouns i-mutated forms; gender is arbitrary (wīf is neuter, wīfmann masculine); the two-fold adjective (gōd cyning vs se gōda cyning — German still does this); se/sēo/þæt inflects fully and signals grammatical relations; the dual pronoun (wit, git). Verbs: seven strong classes with four principal parts, past singular often ≠ past plural vowel; weak verbs innovate -ed; preterite-presents (cunnan, sculan, magan, mōtan, witan, āgan) become the modals with their no -s in 'she can' as a 1500-year fossil; four anomalous verbs (bēon/wesan with its habitual/future shade, dōn, gān, willan); two tenses only, a live subjunctive for hypothesis and indirect speech. Syntax: V2 main clauses (þā cōm se cyning), verb-final subordinates, negative concord (ne...nāht — whence 'not'), parataxis vs hypotaxis, and the correlation crux of þā...þā ('when...then'). Lexicon: compounding and calques over borrowing (gōdspell for evangelium, middangeard), prefixes/suffixes that survive as -dom/-hood/-ship/-ness; three Latin waves; subterranean Norse with doublets (shirt/skirt); scarce Celtic loans and the contested Celtic hypothesis. Poetry: two half-lines bound by head-stave alliteration, Sievers' five types; kenning vs kend heiti; variation (Robinson's appositive style); litotes; oral-formulaic composition debate; scop, wyrd, comitatus, ubi sunt, beasts of battle. Corpus and field: four poetry codices (Beowulf/Nowell, Exeter, Vercelli, Junius), Alfredian prose, Ælfric, Wulfstan, glosses; the apparatus by name — Mitchell–Robinson, Campbell, Mitchell's Syntax, Bosworth-Toller, Clark Hall, the DOE corpus, ASPR, Klaeber — plus the 'early medieval England' terminology debate. The Beowulf opening then exercises every tool at once: compounding, case, ablaut, meter, and the hwæt crux.",
+      pitfalls: [
+      "Calling Shakespeare or Chaucer 'Old English': they are Early Modern and Middle English; Old English is a foreign language with its own grammar.",
+      "Treating forms as arbitrary memorization: i-mutation, Verner's law and gemination predict the irregulars — food/feed, seek/sought, fōt/fēt are system, not chaos.",
+      "Assuming English-article habits transfer: there is no indefinite article; se/sēo/þæt does both 'the' and 'that', and its case endings carry the grammar.",
+      "Reading 'she can has no -s' as an error of English instead of a preterite-present fossil 1,500 years old.",
+      "Forgetting that manuscripts mark neither vowel length nor palatal dots — macrons and ċ are editor conveniences.",
+      "Flattening 'Anglo-Saxon' as a neutral synonym without knowing the current 'early medieval England' debate, or reading wyrd as plain pagan Fate.",
+      "Treating oral-formulaic theory as settled performance rather than the live debate it is — whether the surviving poems are transcribed oral texts or literate compositions in a traditional style.",
+      ],
+      whenNot: "This is a conceptual map and field vocabulary — not a graded textbook with exercises, not a grammar you can learn inflections from (Mitchell–Robinson and Baker do that), and not a translation guide; the corpus survived in fragments and many readings (hwæt, wyrd, the Celtic hypothesis) remain open scholarly arguments."
+    },
+  },
+];
 export const curriculum: readonly PracticeArea[] = [
   {
     id: "go",
@@ -2689,5 +2727,13 @@ export const curriculum: readonly PracticeArea[] = [
     tier: 1,
     dependencies: [],
     topics: pythonConcurrencyTopics,
+  },
+  {
+    id: "old-english",
+    title: "Old English: a conceptual guide",
+    description: "From alphabet to advanced scholarship: sounds and their history, the inflectional machine, the poetic register, dialects, the corpus, and the field's apparatus — with the Beowulf opening as a miniature of everything.",
+    tier: 1,
+    dependencies: [],
+    topics: oldEnglishTopics,
   },
 ];
