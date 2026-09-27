@@ -20,7 +20,7 @@ export type { TopicCard };
 
 export const TIERS: readonly Tier[] = [
   { id: "opus-5.5-high", name: "opus-5.5-high", band: "high", areas: ["erykah-badu-analog-priestess", "go-first-principles-internals", "laravel-symfony-field-guide", "visceral-hypersensitivity-gut", "roland-barthes-guide"] },
-  { id: "opus-5.5-medium", name: "opus-5.5-medium", band: "medium", areas: ["python-concurrency"] },
+  { id: "opus-5.5-medium", name: "opus-5.5-medium", band: "medium", areas: ["python-concurrency", "laravel-symfony-internals"] },
   { id: "astra-6-max", name: "astra-6-max", band: "max", areas: ["akira-kurosawa-vocabulary", "kubernetes-first-principles", "subconscious-basics-to-advanced", "ddos", "lanthimos", "zeitgeist", "japan", "discourse"] },
   { id: "astra-6-medium", name: "astra-6-medium", band: "medium", areas: ["rust", "php-frameworks"] },
   { id: "fable-5.1-high", name: "fable-5.1-high", band: "high", areas: ["kendrick-lamar-glossary", "kubernetes", "hitchcock", "agentic-programming", "agi", "redis", "merkle-trees-layered", "odyssey-nolan-2026", "roland-barthes-glossary"] },

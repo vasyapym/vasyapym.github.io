@@ -1,0 +1,332 @@
+<!-- lesson-meta: {"id":"laravel-symfony-internals","title":"Laravel and Symfony: A Field Guide from First Principles to Deep Internals","summary":"A layered English essay on the two PHP frameworks from first principles to deep internals: the shared-nothing execution model that shapes everything (bootstrap on every request, hence compiled containers, cached routes, preloaded classes); the shared ancestry — Laravel standing on Symfony's decoupled components (HttpFoundation, Console, Routing, Finder, Process, Mime/Mailer, VarDumper), with Drupal, phpBB, Magento, API Platform on the same substrate; the Composer/PSR substrate — PSR-3/6/16/7/11/14/15 and why neither framework uses PSR-7 natively (mutable HttpFoundation vs immutable HTTP messages); the front controller and kernel (HttpKernelInterface as composable contract, Laravel 11's bootstrap/app.php builder); two lifecycle models compared — Symfony's event-driven pipeline (kernel.request/exception/response/terminate) vs Laravel's middleware onion (Pipeline as nested closures, web/api groups, terminable middleware) and why the topological difference matters; routing compiled into a combined-regex matcher both frameworks share; argument resolution chains — route model binding vs value resolvers ([#MapQueryString], [#MapRequestPayload]); the service container as the real heart: Laravel's runtime, reflection-driven, flexible container (bind/singleton/scoped/instance, contextual binding, service-locator risk) vs Symfony's compiled, static, verifiable one (compiler passes, autowire/autoconfigure, tagged services, decoration, lazy services, private-by-default services); facades as static proxies and their trade-offs; service providers vs bundles and Symfony Flex recipes; configuration — env() after config:cache trap, kernel environments, layered env files, secrets vault; the great persistence divergence from Fowler — Eloquent's Active Record vs Doctrine's Data Mapper: everything in Eloquent from mass assignment and N+1 eager loading to soft deletes, observers and lazy collections; everything in Doctrine EntityManager: Unit of Work, Identity Map, repositories, DQL, proxies, owning/inverse side trap, hydration modes, embeddables, inheritance mapping, long-running-process clear(); migrations, factories (Foundry); templates (Blade vs Twig sandboxing) and the modern front-end story (Livewire, Inertia, UX/Turbo, AssetMapper); validation and forms (Form Request classes vs the Validator and the polarizing Form component); security — guards/user providers/gates/policies, Sanctum vs Passport, vs firewalls, authenticators with Passports and badges, hashers, voters with decision strategies; CSRF, signed URLs, rate limiting, parameter binding; decoupling: events (observers, subscribers, stopPropagation, spooky action caution), queues — jobs/chains/batches/Horizon/SerializesModels vs Messenger's envelopes, stamps, transports and CQRS-shaped buses, idempotency, transactional outbox; scheduling; tooling — Console, Profiler/Telescope/Pulse, testing (fakes, RefreshDatabase, DAMADoctrineTestBundle, Dusk/Panther); caching layers from Opcache/preloading to HTTP caching/ESI and cache stampede probabilistic early expiration; long-running runtimes — Octane (Swoole/RoadRunner/FrankenPHP) and Runtime component, the state-leak hazards and reset mechanisms (scoped bindings, kernel.reset); the design philosophies (Otwell's developer happiness and magic vs Potencier's explicitness, deprecation-first and LTS), the magic debate with Larastan and mature tests for when magic is fine; architecture beyond the framework — service layers, DTOs, DDD (and how DDD pairs with Data Mapper and strains with Eloquent), hexagonal architecture, CQRS/event sourcing; the framework shapes the path of least resistance and thirteenth: the unifying skeleton — request, kernel pipeline, router, resolver, container, persistence, events and messages, rendered response, everything cached or deferred, and on long-running runtimes the state-leak guard.","concepts":[],"tier":1,"complexity":4,"practicePrompt":"Trace one request GET /posts/42 in both frameworks in prose: front controller → kernel → pipeline (event vs middleware) → routing → argument resolution (route binding vs value resolver) → container-built controller → the ORM call (Eloquent Active Record vs Doctrine Unit of Work with Identity Map) → template render → response pipeline. Then, for each step, name one place the frameworks made an opposite choice and explain why. Nothing was run against a live server here — verify against symfony.com/doc and laravel.com/docs.","checkPrompt":"Without references: what shared-nothing means and why it explains compiled containers; the shared ancestry and which Symfony components Laravel borrows; the PSRs that matter and why PSR-7 isn't native to either; HttpKernelInterface as a composable contract; the kernel events in order and their Laravel middleware halves; the middleware onion and Pipeline as reduce; terminable middleware and kernel.terminate; why routes compile to combined regexes and who shares the matcher; route model binding vs the resolver chain ([#MapQueryString]/[#MapRequestPayload]); DI and IoC and why new StripeClient() is welded; the four Laravel binding types plus contextual binding; scoped bindings and why they matter under Octane; Symfony's compiled container dump, autowire/autoconfigure, private-by-default services, compiler passes, decoration, lazy services; facades as __callStatic proxies and their trade-offs; providers' register/boot rules vs bundles and Flex recipes; the env()-after-config:cache trap; Active Record vs Data Mapper trade-offs and which suits DDD; Eloquent: mass assignment guards, N+1 and eager loading, preventLazyLoading, scopes, casts, soft deletes, collections; Doctrine: persist/flush, Unit of Work changesets, Identity Map, repositories, DQL, proxies and N+1 fetch joins, owning/inverse side, hydration modes, clear() in workers; migrations and factories incl. Foundry; Blade vs Twig sandboxing and auto-escaping; Livewire/Inertia vs UX/Live Components/AssetMapper; Form Request classes vs Validator attributes vs the Form component's data transformers; authn vs authz; Laravel gates/policies, Sanctum vs Passport; Symfony firewalls, authenticators and Passport badges, hashers, voters and decision strategies; CSRF, signed URLs, rate limiters, parameter binding; events and MHAs' surprise of kernel.terminate; Messenger envelopes/stamps/buses vs Laravel jobs/chains/batches/Horizon/SerializesModels; idempotency, afterCommit vs DispatchAfterCurrentBusStamp, transactional outbox; the scheduler models; testing fakes and RefreshDatabase vs DAMA; the cache layers (Opcache, preload, framework, application, HTTP, ESI), stampede probabilistic early expiration; Octane/Runtime and the state-leak hazards with scoped bindings vs kernel.reset; the philosophy differences (facades and Larastan vs deprecation-first LTS); architecture proportional to complexity; and the unifying skeleton's steps.","references":["Martin Fowler, Patterns of Enterprise Application Architecture (2002) — Active Record, Data Mapper, Unit of Work, front controller","Symfony docs — symfony.com/doc/current/ (HttpKernel, DI, Messenger, Security) and Fabien Potencier's blog on the architecture","Laravel docs — laravel.com/docs (Container, Facades, Octane, Telescope, Horizon); Matt Stauffer, Laravel: Up and Running (3rd ed.)","PHP-FIG — PSR-3/6/7/11/14/15/16 specifications; Composer documentation (PSR-4, autoloading)","Doctrine ORM documentation on Unit of Work, Identity Map, DQL and proxy classes; Zenstruck Foundry","Kahneman-influenced but framework-focused: PHPStan/Larastan; Nystrom, Springboard architectures on hexagonal/CQRS — event sourcing refs: EventSauce, Ecotone; Taylor Otwell's Interconet writings on Octane and FranklinPHP"]} -->
+
+# Laravel and Symfony: A Field Guide from First Principles to Deep Internals
+
+A prose tour for people meeting these frameworks for the first time and for people who already read vendor/ for fun.
+
+## PART ONE: The Ground Beneath Both Frameworks
+
+### 1. What a web framework actually is
+
+At the most basic level, a web application does one thing: it receives an HTTP request and produces an HTTP response. Everything else is organization. A framework is an opinionated answer to the question "how should the code between request and response be structured so that it stays understandable as it grows?"
+
+PHP has a distinctive execution model that shapes both Laravel and Symfony. Traditionally PHP is "shared-nothing": each request boots a fresh process state, runs the script, and throws everything away. Nothing leaks between requests, which makes PHP forgiving and easy to scale horizontally. The cost is that the framework must bootstrap on every request. A great deal of the engineering in both frameworks exists to make that bootstrap cheap through compiled containers, cached configuration, cached routes, and precompiled templates. Keep this in mind: many design decisions that look strange make sense once you see them as ways to amortize startup cost.
+
+### 2. The shared ancestry
+
+Laravel and Symfony are often described as rivals, but it is more accurate to say Laravel stands partly on Symfony's shoulders. Symfony is two things at once: a full-stack framework and a library of decoupled, reusable components. Laravel uses many of those components directly. HttpFoundation supplies the Request and Response objects. Console underlies Artisan. Routing internals, the Finder, Process, Mime and Mailer, VarDumper (the dump() and dd() helpers), and parts of the error handling all come from Symfony. Drupal, phpBB, Magento/Adobe Commerce, and API Platform also build on Symfony components. When you learn one framework deeply, you learn a surprising amount of the other.
+
+### 3. Composer, autoloading, and PSRs
+
+Composer is PHP's dependency manager. You declare packages in composer.json: Composer resolves compatible versions, installs them into vendor/, records the exact resolved versions in composer.lock, and generates an autoloader. Autoloading means classes are loaded on demand when first referenced, rather than through manual require statements. The dominant convention is PSR-4, which maps a namespace prefix to a directory. App\Http\Controllers\UserController lives at app/Http/Controllers/UserController.php.
+
+PSRs (PHP Standard Recommendations, published by the PHP-FIG group) are interoperability contracts: PSR-3 covers logging, PSR-6 and PSR-16 cover caching, PSR-7 covers HTTP messages as immutable value objects, PSR-11 covers containers, PSR-14 covers event dispatching, and PSR-15 covers middleware. One subtle point for experts: neither framework uses PSR-7 as its native request object. Both use Symfony's mutable HttpFoundation Request and provide bridges to PSR-7 when needed. This was a pragmatic choice — immutability is elegant but awkward for the mutation-heavy middleware and listener patterns both frameworks rely on.
+
+### 4. The front controller and the kernel
+
+Both frameworks route every request through a single entry file: public/index.php. This is the front controller pattern. The web server sends all requests that don't match a static file to this script. The script boots the application and hands the request to a kernel.
+
+The kernel is the object that turns a Request into a Response. In Symfony this is literally the contract of HttpKernelInterface: a handle() method that takes a Request and returns a Response. This interface is small but powerful, because anything that implements it can be composed — Symfony's reverse-proxy HttpCache, for example, is a kernel that wraps another kernel. Laravel has an HTTP Kernel and a Console Kernel. In recent versions (Laravel 11 and later), much of their configuration moved into bootstrap/app.php using a fluent builder, but the concept is unchanged.
+
+## PART TWO: The Request Lifecycle
+
+### 5. Symfony's lifecycle: an event-driven kernel
+
+Symfony's HttpKernel is essentially a sequence of dispatched events. When a request enters, the kernel fires kernel.request: listeners here can do routing (the RouterListener matches the URL and stores the result in request attributes), set the locale, handle authentication, or short-circuit the whole process by returning a Response early. Next the kernel resolves a controller (kernel.controller), then resolves the controller's arguments (kernel.controller_arguments), then calls it. If the controller returns something other than a Response, such as an array or an object, kernel.view gives listeners a chance to convert it — this is how API Platform and templating attributes work. Then kernel.response lets listeners modify the outgoing response by adding headers, cookies, or debug toolbars. If anything throws, kernel.exception turns the exception into a response. After the response is sent, kernel.terminate runs slow tasks such as flushing logs or sending emails without making the user wait (under PHP-FPM, via fastcgi_finish_request).
+
+The mental model: Symfony's lifecycle is a pipeline of hooks, and you extend it by subscribing to events.
+
+### 6. Laravel's lifecycle: an onion of middleware
+
+Laravel's HTTP kernel sends the request through a stack of middleware, then to the router, which runs route-specific middleware, then the controller. Middleware is best pictured as layers of an onion. Each layer receives the request and a $next closure: it can act before calling $next (checking authentication, starting the session), after calling $next (adding headers to the response), or instead of calling $next (returning a redirect for unauthenticated users). Internally this is implemented with Laravel's Pipeline class, a functional-style reduce over an array of stages that nests closures.
+
+Middleware is grouped. The "web" group handles sessions, cookies, and CSRF; the "api" group is typically stateless with rate limiting; middleware can also be assigned per route. Terminable middleware has a terminate() method that runs after the response is sent, which is Laravel's analogue to kernel.terminate.
+
+### 7. Middleware versus event listeners: a conceptual comparison
+
+The two models are more equivalent than they look. An event listener on kernel.request corresponds to the "before" half of middleware; a listener on kernel.response corresponds to the "after" half. The difference is topological. Middleware explicitly wraps downstream execution, so the order is visible in a list and each layer can catch exceptions from inner layers; event listeners are flat and ordered by priority integers, which makes them more decoupled and easier to add from third-party bundles, but harder to reason about as a whole. Symfony provides the debug:event-dispatcher command because priority-ordered listeners are otherwise invisible. Laravel's middleware list is visible in configuration, but global behavior added by packages can still surprise you.
+
+## PART THREE: Routing and Controllers
+
+### 8. Routes
+
+A route maps an HTTP method and URL pattern to code. Patterns contain parameters such as /posts/{id} or /posts/{slug}, optionally with requirements (regex constraints) and defaults. Routes have names so that URLs can be generated rather than hardcoded — you write route('posts.show', $post) in Laravel or path('post_show', {slug: post.slug}) in Twig, so renaming a URL doesn't break every link in the application.
+
+Laravel usually defines routes in routes/web.php and routes/api.php with a fluent API: Route::get(...), Route::resource(...) for conventional CRUD sets, route groups with shared prefixes and middleware. Symfony's modern approach puts routes directly on controller methods using PHP 8 attributes, such as #[Route('/posts/{slug}', name: 'post_show', methods: ['GET'])]; YAML, XML, and PHP configuration files remain available.
+
+Under the hood, matching every URL against hundreds of regexes one at a time would be slow. Symfony compiles all routes into an optimized matcher — a single combined regex with static-route hash lookups — dumped to a cached PHP file. Laravel's route:cache command serializes the route collection and leverages this same compiled Symfony matcher: one of the clearest examples of Laravel borrowing Symfony engineering.
+
+### 9. Controllers
+
+A controller is the callable that handles a matched route: usually a class method, with invokable single-action controllers also common. Controllers should be thin. They translate HTTP into application operations and application results back into HTTP. Business logic in controllers is the most common beginner smell in both ecosystems.
+
+### 10. Getting data into controllers: binding and resolution
+
+Both frameworks can automatically turn a route parameter into a domain object. Laravel calls this route model binding: if a route has {post} and the controller method declares a Post $post parameter, Laravel queries the database for that Post and returns a 404 if it isn't found. You can bind by a different column ({post:slug}), scope child bindings to their parent, or define custom resolution logic.
+
+Symfony generalizes this through argument value resolvers. For each controller parameter, a chain of resolvers asks "can I supply this?" One resolver injects the Request; another injects services; the EntityValueResolver fetches Doctrine entities (the modern replacement for the older ParamConverter); others handle backed enums, dates, the current user, or map query strings and JSON bodies into typed DTOs (#[MapQueryString], #[MapRequestPayload]), with validation applied along the way. The resolver chain is extensible, so you can teach Symfony to inject anything.
+
+Laravel achieves something similar through method injection: its container resolves controller method parameters, so type-hinting a service or a Request subclass just works.
+
+## PART FOUR: The Service Container, the Real Heart of Both Frameworks
+
+### 11. Dependency injection and inversion of control
+
+If you understand one concept deeply, make it this one. A service is any object that does work: a mailer, a payment gateway client, a repository, a logger. Dependency injection means a class receives its collaborators from outside, usually through its constructor, rather than creating them itself. A class that calls new StripeClient() internally is welded to Stripe; a class that asks for a PaymentGateway interface in its constructor can be handed Stripe in production, a fake in tests, or PayPal next year.
+
+Inversion of Control is the broader principle: your code doesn't control the construction and wiring of its dependencies — something external does. That external thing is the service container (also called the DI container or IoC container). It knows how to build each service and its dependencies, recursively, and it knows each service's lifetime: whether to build a fresh instance every time or share one.
+
+Autowiring is the container's ability to figure out dependencies by reading constructor type hints through PHP's Reflection API, so you don't have to declare them manually. Both frameworks autowire. They do it in philosophically opposite ways.
+
+### 12. Laravel's container: runtime, dynamic, flexible
+
+Laravel's container (Illuminate\Container\Container, which the Application class extends) resolves services at runtime: when you ask for a class, it checks whether a binding exists; if not, it reflects on the constructor, resolves each parameter, and builds the object. Bindings come in several flavors:
+
+- bind: a new instance on every resolution.
+- singleton: one instance for the application's lifetime.
+- scoped: one instance per request or job lifecycle — this matters in long-running processes, discussed later.
+- instance: register an already-built object.
+
+You bind interfaces to implementations, so asking for PaymentGateway yields a StripeGateway. Contextual binding supplies different implementations to different consumers: "when PhotoController needs a Filesystem, give it the local disk; when VideoController needs one, give it S3." Extenders and resolving callbacks let you decorate or configure services after construction; tagging groups services for collective retrieval.
+
+The strength of this design is extreme flexibility and zero compile step. The costs are real, though: reflection runs on every request (mitigated by caching and fast modern PHP); misconfiguration surfaces only when the code path actually executes; and because anything can be resolved from anywhere, via app(Foo::class) or resolve(), it is easy to slide into the service locator anti-pattern, where classes pull dependencies from a global container instead of declaring them — which hides the dependency graph.
+
+### 13. Symfony's container: compiled, static, verifiable
+
+Symfony takes the opposite approach. During a build phase, it reads all service definitions from config/services.yaml, bundle extensions, and attributes; it runs compiler passes over this definition graph; then it dumps the entire container as optimized plain PHP code — a giant class with one method per service that contains literal new statements. At runtime there is no reflection and no resolution logic, only direct instantiation. This is why a Symfony application in production has a container that is essentially free.
+
+Key vocabulary:
+
+- Service definitions describe how to build a service: class, arguments, method calls, factory, tags.
+- autowire: true enables type-hint-based wiring; autoconfigure: true automatically applies tags based on interfaces implemented — implement EventSubscriberInterface and you become an event subscriber with no extra configuration.
+- Resource loading (App\: resource: '../src/') registers every class in a directory as a service automatically. This is what makes modern Symfony feel almost as convention-driven as Laravel.
+- Services are private by default. You cannot fetch them from the container by ID at runtime. You must inject them — this deliberately enforces real dependency injection, forbids the service locator pattern, and lets the compiler inline and remove unused services.
+- Parameters are named configuration values (%kernel.project_dir%) resolved at compile time. Environment variables are resolved at runtime through %env()% placeholders, with env var processors such as %env(int:PORT)% or %env(json:FILE:...)%.
+- Tags mark services for collection: a tag like twig.extension or console.command lets the framework discover all services of a kind.
+- Compiler passes are code that manipulates the container definition graph before dumping: they collect tagged services and inject them into a registry, validate configuration, or rewrite definitions. This is Symfony's deepest extension point — metaprogramming on the object graph itself.
+- Decoration (#[AsDecorator]) wraps an existing service with another that implements the same interface — the Decorator pattern wired declaratively.
+- Service locators (the legitimate kind) are small, explicitly scoped containers holding lazily loaded services, useful when you need one of N handlers chosen at runtime.
+- Lazy services are proxies that defer construction until first use, valuable for expensive dependencies that are often unused.
+
+Because the whole graph is known at build time, Symfony can detect circular references, missing services, and wrong types before any request runs. The trade-off is a compile step and a steeper learning curve; in the dev environment the container rebuilds automatically when configuration changes.
+
+### 14. Facades: Laravel's most debated idea
+
+Laravel's facades let you write Cache::get('key') or Mail::to($user)->send(...) as if calling static methods. They are not static. A facade is a class whose __callStatic magic method resolves an underlying service from the container and forwards the call to it. The name is a misnomer relative to the Gang of Four Facade pattern; "static proxy" is more accurate.
+
+Supporters argue facades are expressive, discoverable, and fully testable, since Cache::shouldReceive(...) swaps in a mock and Mail::fake() swaps in a fake. Critics argue facades hide dependencies (a class's constructor no longer tells you what it uses), couple code to the framework, and confuse static analysis tools without helper stubs. Real-time facades go further: prefix any class's namespace with Facades\ and it becomes a facade automatically. Laravel's helper functions (cache(), auth(), request()) serve a similar role.
+
+A mature view is that facades are a stylistic dial: they work well in controllers, routes, and glue code, and they are more questionable in domain logic you want to keep framework-agnostic. Constructor injection works perfectly well in Laravel for those who prefer it.
+
+### 15. Registering functionality: service providers versus bundles
+
+Laravel organizes bootstrapping through service providers. Each provider has a register() method, where you bind things into the container and must not use other services, because they may not be registered yet; it also has a boot() method, which runs after all providers are registered, where you can use services to register routes, event listeners, view composers, and so on. Deferred providers are loaded only when one of their services is actually requested; packages ship providers, and package auto-discovery registers them through composer.json metadata.
+
+Symfony organizes reusable functionality into bundles: a bundle can contribute services, configuration, routes, templates, and compiler passes. Its extension class loads and validates the bundle's configuration, which is schema-defined through a Configuration tree builder so that invalid config fails loudly with helpful messages. Modern Symfony discourages bundles for your own application code — your app is just src/; bundles are for sharing across projects.
+
+Symfony Flex is a Composer plugin that uses recipes: when you install a package, Flex automatically registers the bundle, adds default config files, and appends environment variables; uninstalling reverses it. This is why modern Symfony starts as a microframework-sized skeleton and grows only as you add packages, while Laravel starts fully equipped.
+
+## PART FIVE: Configuration and Environments
+
+### 16. Environments and .env
+
+Both frameworks use a .env file for environment-specific values such as database credentials, API keys, and debug flags, following the Twelve-Factor App principle of storing configuration in the environment. The .env file should never be committed with secrets.
+
+Laravel reads env values in config/*.php files, and the rest of the application reads config('app.name'). Running config:cache merges all config into a single cached file; after that, env() calls outside config files return null. This is a classic production bug for beginners and the reason for the rule "only call env() inside config files."
+
+Symfony has kernel environments (dev, prod, test), each with its own config overrides (config/packages/prod/) and its own compiled container. It supports layered env files (.env, .env.local, .env.prod, .env.prod.local) and a secrets vault that stores encrypted credentials in the repository, decryptable with a key held only in production; Laravel offers encrypted env files (env:encrypt) for a similar purpose.
+
+## PART SIX: Data and Persistence, Where the Philosophies Diverge Most
+
+### 17. Two patterns: Active Record and Data Mapper
+
+This is the single most important conceptual difference between the frameworks, and it comes from Martin Fowler's Patterns of Enterprise Application Architecture.
+
+In the Active Record pattern, used by Laravel's Eloquent, an object wraps a database row and knows how to persist itself: a User model represents a row in the users table and has methods like save(), delete(), and static query builders like User::where('active', true)->get(). Domain logic and persistence logic live in the same object. This is intuitive, fast to write, and wonderful for CRUD-heavy applications.
+
+In the Data Mapper pattern, used by Doctrine ORM (Symfony's default), domain objects called entities are plain PHP objects that know nothing about the database; a separate layer, the mapper, moves data between objects and tables. This keeps the domain model pure: entities can enforce invariants, hide setters, and model the business rather than the schema. The costs are more concepts and more ceremony.
+
+Neither is objectively superior. Active Record optimizes for development speed and simplicity when your domain resembles your tables; Data Mapper optimizes for complex domains where object behavior and relational structure diverge. Practitioners of Domain-Driven Design generally prefer Data Mapper because it allows persistence-ignorant aggregates.
+
+### 18. Eloquent in depth
+
+A Model maps by convention to a table: Post maps to posts, primary key id, timestamps created_at and updated_at. Important vocabulary:
+
+- Mass assignment: filling a model from an array, as in Post::create($request->all()). It is guarded by $fillable or $guarded to prevent attackers from setting fields like is_admin.
+- Relationships: hasOne, hasMany, belongsTo, belongsToMany (via a pivot table), hasManyThrough, and polymorphic relations (morphTo, morphMany), where one relation can point to multiple model types through a type-and-id column pair.
+- Lazy loading versus eager loading: accessing $post->comments triggers a query on first access. Looping over 100 posts and touching each one's comments produces 101 queries — the N+1 problem, the most common performance bug in ORM-based applications. Eager loading (Post::with('comments')->get()) fetches all comments in one extra query; Laravel can be configured to throw an exception on lazy loading in development (Model::preventLazyLoading()).
+- Query scopes: reusable query constraints. Local scopes are called explicitly (Post::published()); global scopes apply automatically to every query on a model.
+- Accessors, mutators, and casts: transform attributes on read or write. Casts turn a JSON column into an array, a string into an enum, or a value into a custom value object.
+- Soft deletes: set a deleted_at timestamp instead of deleting the row, implemented as a global scope that hides soft-deleted rows.
+- Model events and observers: hooks such as creating, updated, and deleted. They are convenient but can create hidden side effects, so use them judiciously.
+- Collections: query results come back as Collection objects with a rich functional API (map, filter, groupBy, pluck). Lazy collections use generators to stream huge datasets with constant memory.
+
+Beneath Eloquent sits the Query Builder, a fluent SQL abstraction usable without models; beneath that sits PDO.
+
+### 19. Doctrine in depth
+
+Doctrine has two layers: DBAL (Database Abstraction Layer) is a thin wrapper over PDO with a query builder and schema tools; ORM sits on top of it. Core ORM vocabulary:
+
+- Entities: plain classes mapped with attributes (#[ORM\Entity], #[ORM\Column], #[ORM\ManyToOne]).
+- EntityManager: the central object. You persist() new entities, remove() entities, and flush() changes.
+- Unit of Work: the key idea. The EntityManager tracks every entity it has loaded or been told about: when you call flush(), it computes the changeset by comparing current state to the original snapshot, orders the operations to respect foreign keys, and executes them in a single transaction. You don't "save" individual objects — you change objects and then commit the unit of work. This is transactional by design and eliminates many accidental partial writes.
+- Identity Map: within one EntityManager, loading the same database row twice returns the same PHP object instance. This guarantees consistency and saves queries.
+- Repositories: classes responsible for retrieving entities (findOneBy, custom query methods). By convention, query logic lives here.
+- DQL (Doctrine Query Language): an SQL-like language that queries objects and their associations rather than tables and columns; the QueryBuilder generates DQL fluently.
+- Proxies and lazy loading: associations are replaced by generated proxy classes that load data on first access. Doctrine is subject to the N+1 problem too — the solution is fetch joins in DQL or configured fetch modes.
+- Owning side versus inverse side: in bidirectional associations only the owning side, the one holding the foreign key, is consulted when persisting. Updating only the inverse side does nothing. This is a notorious beginner trap.
+- Hydration: turning result rows into objects, arrays, or scalars. Object hydration is the most expensive, so choosing array hydration or partial/DTO results for read-heavy screens is a legitimate optimization.
+- Lifecycle callbacks and listeners: prePersist, postUpdate, and so on, parallel to Eloquent's model events.
+- Embeddables: value objects such as Money or Address mapped into columns of the owning table.
+- Inheritance mapping: single table, class table (joined), and mapped superclass strategies for class hierarchies.
+
+A long-running-process caveat: the Identity Map means the EntityManager grows with every loaded entity. In workers and batch jobs you must clear() it periodically or memory balloons and stale data persists.
+
+### 20. Schema evolution: migrations, seeders, factories, fixtures
+
+Migrations are versioned, ordered scripts that evolve the database schema, so schema changes live in version control alongside code. Laravel migrations use a Schema builder DSL with up() and down() methods; Doctrine Migrations can generate a migration by diffing your entity mappings against the current database, so the entity is the source of truth and the migration is derived.
+
+Seeders (Laravel) and fixtures (Symfony, via DoctrineFixturesBundle) populate databases with initial or test data. Laravel's model factories generate fake model instances with Faker, including states and relationships; the Symfony community equivalent is Foundry (zenstruck/foundry), which brings a Laravel-like factory experience to Doctrine.
+
+## PART SEVEN: Presentation
+
+### 21. Templates: Blade and Twig
+
+Both frameworks compile templates into cached plain PHP, so templating adds almost no runtime overhead.
+
+Blade is Laravel's engine: a thin syntax over PHP with {{ $var }} for escaped output, {!! $var !!} for raw output, directives like @if, @foreach, and @auth, layout inheritance through @extends, @section, and @yield, and components written either as class-based or anonymous components with slots and attributes (<x-alert type="error">). Blade permits raw PHP, which is pragmatic but lets logic creep into views.
+
+Twig, Symfony's engine, is a sandboxable language with its own syntax: {{ var }}, {% for %}, filters like {{ name|upper }}, and template inheritance with blocks. Twig deliberately restricts what templates can do, so heavy logic must live in PHP through Twig extensions (custom functions, filters, and tests). This makes templates safe to hand to designers and even to users in sandbox mode.
+
+Both escape output by default. Auto-escaping is the primary defense against cross-site scripting (XSS).
+
+### 22. The modern front-end story
+
+Both ecosystems have grown answers to "how do I build interactive UIs without a separate SPA?" In Laravel, Livewire lets you write reactive components in PHP — state lives on the server and DOM diffs are sent over AJAX — often accompanied by Alpine.js; Inertia.js takes a different route, letting you build Vue, React, or Svelte pages while keeping Laravel's server-side routing and controllers, with no separate API needed. Vite handles asset bundling.
+
+In Symfony, Symfony UX provides Stimulus controllers, Turbo from the Hotwire family (page navigation and partial updates over HTML rather than JSON), Twig Components, and Live Components, which are conceptually close to Livewire. AssetMapper provides a no-build-step approach to JavaScript using native import maps, and Webpack Encore remains available.
+
+## PART EIGHT: Input, Validation, and Forms
+
+### 23. Validation
+
+Never trust input. Laravel offers $request->validate([...]) with a large rule vocabulary ('required|email|unique:users'); Form Request classes encapsulate the validation rules and an authorize() check for a given action and are injected into controllers, where they run automatically before the controller body. On failure, Laravel redirects back with errors for HTML requests or returns a 422 JSON response for API requests.
+
+Symfony's Validator component attaches constraints to classes as attributes (#[Assert\NotBlank], #[Assert\Email], #[Assert\Valid] for nested objects): you validate objects rather than arrays, which encourages validating DTOs or entities. Validation groups allow different rules in different contexts, and group sequences allow staged validation.
+
+### 24. The Symfony Form component
+
+Symfony's Form component is one of its most powerful and most polarizing pieces. A FormType describes fields, their types, options, and data transformers, which convert between representations such as a string in the HTML field and a DateTime in the model; the form maps submitted data onto an object, runs validation, and renders through Twig themes. It handles CSRF protection, nested collections, and complex widgets. It is heavy machinery that pays off for complex back-office forms and feels like overkill for simple ones. Laravel has no direct equivalent in core — it favors plain HTML plus validation, or reactive tools like Livewire.
+
+## PART NINE: Security
+
+### 25. Authentication versus authorization
+
+Authentication answers "who are you?" Authorization answers "what are you allowed to do?" Keeping these separate is foundational.
+
+### 26. Laravel's security model
+
+Guards define how users are authenticated for a request: a session guard for web, token guards for APIs. User providers define where users come from, either Eloquent or a raw database table. Starter kits scaffold authentication UIs: Breeze is minimal; Jetstream adds teams and two-factor authentication; recent Laravel versions ship React, Vue, and Livewire starter kits; Fortify is a headless authentication backend. For APIs, Sanctum provides lightweight token authentication and cookie-based SPA authentication; Passport is a full OAuth2 server built on league/oauth2-server.
+
+For authorization, Gates are closures answering yes or no for an ability ("can this user access the admin dashboard?"); Policies are classes grouping authorization logic around a model (PostPolicy::update(User $user, Post $post)). They are invoked through $user->can(...), $this->authorize(...), the can middleware, or @can in Blade.
+
+### 27. Symfony's security model
+
+Symfony's SecurityBundle is more explicit and more configurable. Firewalls define security zones by URL pattern, each with its own authentication mechanisms — an API firewall might be stateless with JWT while the main firewall uses sessions and a login form. Authenticators are classes that extract credentials from a request and produce a Passport: that passport carries badges, a UserBadge that identifies the user, a credentials badge (a password to verify), and extra badges such as CSRF token checks or remember-me behavior. User providers load users; password hashers handle hashing, with auto-selection of the best algorithm (currently bcrypt or Argon2id) and transparent rehashing on login when algorithms change.
+
+Authorization uses roles (ROLE_ADMIN), a role hierarchy, access_control rules by URL pattern, and, most importantly, voters. A voter answers "does this user have ATTRIBUTE on SUBJECT?" — for example EDIT on a Post. Every voter votes grant, deny, or abstain, and a configurable access decision strategy (affirmative, consensus, unanimous, priority) combines the votes. Voters are the Symfony analogue of Laravel policies, with a more formal aggregation model; you check them via isGranted() or #[IsGranted('EDIT', 'post')].
+
+### 28. Common protections in both frameworks
+
+CSRF protection means state-changing forms include a secret token tied to the session, so a malicious site cannot forge requests on a victim's behalf. Password hashing is one-way with salts and deliberately slow algorithms; encryption (Laravel's Crypt, keyed by APP_KEY) is reversible and uses authenticated encryption — different from hashing. Signed URLs let you create tamper-proof links, useful for email verification or temporary downloads. Rate limiting throttles requests per user or IP, supported by Laravel's RateLimiter and Symfony's RateLimiter component, which offers token bucket, fixed window, and sliding window algorithms. The ORMs and query builders use parameter binding (prepared statements), which prevents SQL injection unless you concatenate raw input into raw queries yourself.
+
+## PART TEN: Decoupling with Events and Messages
+
+### 29. Events and listeners
+
+An event is a message saying "something happened": OrderPlaced, UserRegistered. Listeners react to it by sending a receipt, updating analytics, or notifying a warehouse; the code that places the order doesn't need to know about any of the reactions. This is the Observer pattern and a primary tool for decoupling.
+
+Laravel's event system supports event discovery, which auto-registers listeners by scanning type hints; listeners can implement ShouldQueue to run asynchronously; event subscribers group several handlers in one class; model observers are a specialized form of listener.
+
+Symfony's EventDispatcher is PSR-14 compatible: listeners are registered with priorities; subscribers declare their own subscriptions through getSubscribedEvents() or the #[AsEventListener] attribute; events can call stopPropagation(). The framework itself is built on this dispatcher, so your listeners are peers of the framework's own internals.
+
+A professional caution: events make control flow implicit. Too many listeners with side effects create "spooky action at a distance." Use events for genuine cross-cutting reactions, not as a replacement for direct method calls in a single workflow.
+
+### 30. Queues and asynchronous processing
+
+Some work shouldn't happen during the HTTP request: sending emails, resizing images, calling slow third-party APIs. You push it onto a queue — a durable list of pending work stored in Redis, a database, Amazon SQS, RabbitMQ, or similar — and separate worker processes pull work from the queue and execute it.
+
+Laravel queues use jobs: classes with a handle() method dispatched via dispatch(). Features include delays, retries with backoff, timeouts, chains (run sequentially and abort on failure), batches (run in parallel and track completion, then run callbacks), unique jobs, job middleware such as rate limiting or overlap prevention, and a failed_jobs table for inspection and retry. Horizon is a dashboard and supervisor for Redis queues, handling balancing, metrics, and failure tracking. When a job accepts an Eloquent model, the SerializesModels trait stores only the model's identifier and re-fetches it when the job runs: that avoids stale snapshots, but the model might have changed or been deleted in between.
+
+Symfony Messenger is architecturally more general. You dispatch a message, a plain object, onto a message bus; the bus passes it through bus middleware (validation, Doctrine transaction wrapping, logging), then to one or more handlers (#[AsMessageHandler]); routing configuration decides whether a message is handled synchronously or sent to a transport (Doctrine, Redis, AMQP, SQS) to be consumed later by messenger:consume workers. Messages travel inside an envelope carrying stamps, which are metadata such as delay, retry count, transport name, or handled result; retry strategies and failure transports handle errors. Because you can define several buses, Messenger naturally supports CQRS: a command bus for state-changing operations, a query bus for reads, and an event bus for domain events, each with different middleware.
+
+Two principles apply to both systems. Queued work must be idempotent — safe to run more than once — because at-least-once delivery means retries and duplicates happen. And dispatching jobs inside a database transaction risks the worker running before the transaction commits: Laravel's afterCommit option and Messenger's DispatchAfterCurrentBusStamp exist to address this. Generalizing that concern leads to the transactional outbox pattern.
+
+### 31. Scheduling
+
+Laravel's scheduler lets you define recurring tasks in code (Schedule::command('reports:send')->dailyAt('08:00')), triggered by a single cron entry that runs every minute; it supports overlap prevention and single-server execution via cache locks. Symfony's Scheduler component, introduced in 6.3, integrates with Messenger: recurring schedules produce messages that flow through the normal bus and transport machinery.
+
+## PART ELEVEN: Tooling
+
+### 32. The console
+
+Artisan (php artisan) and Symfony's bin/console both run on the Symfony Console component. Both provide commands for generating code (make:controller, make:model in Laravel; make:entity in Symfony's MakerBundle), inspecting routes (route:list, debug:router), clearing and warming caches, running migrations, and more. Writing custom commands is trivial in both: Laravel uses a signature string DSL, Symfony uses attributes and a configure() method. Laravel's Tinker, built on PsySH, provides an interactive REPL with your application booted.
+
+### 33. Debugging and observability
+
+Symfony's Web Profiler toolbar and profiler panel are among the best debugging tools in any web framework: for each request they show timing, the executed queries, events dispatched, services instantiated, security decisions, cache hits, mailer output, and more (the Stopwatch component powers timing). Laravel offers Telescope (an introspection dashboard), Debugbar (a community package), Pulse (production performance monitoring), and the Laravel Idea and IDE-helper tools that help editors understand magic. Both use Monolog for logging, with channels and handlers.
+
+### 34. Testing
+
+Both use PHPUnit; Laravel also embraces Pest, a more expressive testing layer built on PHPUnit. Test types:
+
+- Unit tests exercise a class in isolation.
+- Integration or kernel tests boot the framework and use real services: Symfony's KernelTestCase provides access to a special test container where private services become accessible.
+- Feature or functional tests simulate HTTP requests through the kernel without a real server: Laravel offers $this->get('/posts')->assertOk(); Symfony's WebTestCase uses a client and a DOM crawler to navigate pages and submit forms.
+- Browser tests run a real browser: Laravel Dusk, Symfony Panther, or Pest's browser plugin.
+
+Laravel's fakes are a standout feature: Queue::fake(), Mail::fake(), Event::fake(), Http::fake(), and Storage::fake() replace infrastructure with recorders you can assert against. Database isolation is typically achieved by wrapping each test in a transaction that is rolled back: Laravel's RefreshDatabase trait, or DAMADoctrineTestBundle in Symfony.
+
+## PART TWELVE: Caching and Performance
+
+### 35. Caching layers
+
+Think of caching in layers. Opcache caches compiled PHP bytecode, which is essential in production; preloading (PHP 7.4 and later) loads framework classes into shared memory at server start — Symfony generates a preload file automatically. Framework caches cover compiled containers, routes, config, views, and event discovery. Application caches hold computed data in Redis, Memcached, APCu, files, or a database, accessed through Laravel's Cache facade or Symfony's Cache component (PSR-6 and PSR-16, with tag-aware adapters). HTTP caching uses Cache-Control, ETag, and Last-Modified headers so that browsers, CDNs, and reverse proxies (Varnish, or Symfony's PHP-based HttpCache) can serve responses without hitting your application; Symfony has first-class support for ESI (Edge Side Includes), which lets different fragments of a page have different cache lifetimes.
+
+A subtle problem worth knowing is the cache stampede: when a popular key expires, many concurrent requests recompute it simultaneously. Symfony's cache contracts implement probabilistic early expiration with locking; Laravel offers Cache::lock and, more recently, flexible stale-while-revalidate caching.
+
+### 36. Long-running runtimes: breaking the shared-nothing model
+
+The biggest performance shift in modern PHP is keeping the application booted between requests. Laravel Octane runs your application on Swoole, RoadRunner, or FrankenPHP workers: the framework boots once and serves thousands of requests from memory. Symfony's Runtime component abstracts over the execution environment, so the same application can run under PHP-FPM, RoadRunner, Swoole, FrankenPHP's worker mode, or AWS Lambda through Bref.
+
+The price is that you lose the safety of shared-nothing: a singleton holding request data such as the current user, a static array that accumulates entries, or an EntityManager filling its identity map can leak between requests — memory leaks, and worse, data leaks between users. Laravel's scoped bindings and Octane's resetting of known state, and Symfony's kernel.reset tag and ResetInterface for services that must be cleared between requests, exist precisely for this. Writing code safe for long-running processes is essentially writing stateless services, which is good design anyway.
+
+## PART THIRTEEN: Philosophy, Culture, and Architecture
+
+### 37. Two design philosophies
+
+Laravel, created by Taylor Otwell, optimizes for developer happiness and expressiveness: it favors convention over configuration, beautiful fluent APIs, batteries included, and a willingness to use PHP's magic (__get, __call, __callStatic, facades, macros) where it makes code read like prose. It has a vertically integrated commercial ecosystem: Forge for server provisioning, Vapor for serverless deployment, Laravel Cloud, Nova for admin panels, Cashier for billing, Reverb for WebSockets, Scout for search, and Socialite for OAuth login; the community also supplies Filament, a hugely popular admin panel builder. Laravel ships major versions yearly with a focus on smooth upgrades.
+
+Symfony, created by Fabien Potencier and backed by SensioLabs, optimizes for explicitness, decoupling, long-term maintainability, and standards: it has a strict, documented backward compatibility promise, a predictable release cycle (minor releases every six months, a major every two years, LTS versions with multi-year support), and a deprecation-first upgrade path — anything removed in the next major version triggers a deprecation notice in the current one. Its components are designed to be used independently; it favors explicit configuration, though with modern autowiring and attributes the gap has narrowed dramatically. It is heavily used in enterprise, government, and large long-lived systems; its ecosystem includes API Platform (a hypermedia- and OpenAPI-driven API framework), Sylius (e-commerce), EasyAdmin, and Shopware.
+
+The "magic" debate: magic reduces boilerplate but hides behavior from readers and from static analysis tools like PHPStan and Psalm. Laravel has invested heavily in closing this gap through generics annotations, Larastan, and IDE plugins; Symfony's explicitness makes static analysis nearly effortless. A useful mental test: magic is fine when it is consistent and well-documented, and dangerous when it surprises.
+
+### 38. Architecture beyond the framework
+
+Both frameworks default to an MVC-ish structure (Model, View, Controller), though "MVC" on the web is really a loose adaptation of the original Smalltalk pattern. As applications grow, teams layer additional architectural ideas on top:
+
+- A service layer or actions pulls business operations out of controllers into dedicated classes, such as a CreateOrder action. This is very popular in the Laravel world.
+- DTOs (Data Transfer Objects) are typed, immutable carriers of data between layers, replacing loose arrays: the spatie/laravel-data package and Symfony's payload mapping make them ergonomic.
+- Domain-Driven Design contributes bounded contexts, aggregates enforcing invariants, value objects, domain events, and repositories as collection-like abstractions. It pairs naturally with Doctrine's Data Map. With Eloquent it requires discipline or an additional mapping layer, because Active Record models are inherently persistence-aware.
+- Hexagonal architecture (Ports and Adapters) and Clean Architecture put the domain at the center, with frameworks, databases, and HTTP as replaceable adapters around it. In this view Laravel or Symfony becomes a delivery mechanism rather than the application itself: Symfony's DI container and Messenger make this style comfortable, Laravel supports it with more deliberate effort.
+- CQRS and Event Sourcing separate read and write models and, in the event-sourced case, store the history of changes as the source of truth: libraries like EventSauce, Ecotone, and Spatie's laravel-event-sourcing, or Symfony plus Messenger, support these patterns.
+
+The mature insight is that architecture should be proportional to complexity: a CRUD admin panel built with hexagonal layers is overengineering; a complex financial domain crammed into fat Eloquent models is underengineering. Both frameworks can go either way — the framework shapes the path of least resistance, not the ceiling.
+
+## PART FOURTEEN: A Unifying Mental Model
+
+Strip away the names and both frameworks share the same skeleton.
+
+A request enters through a front controller and becomes an object. A kernel moves it through a pipeline: middleware in Laravel, events in Symfony. A router matches it to a controller; a resolver supplies the controller's arguments, turning raw strings into models, DTOs, and services. A container has built every object involved, wiring dependencies by type — Laravel does this dynamically at runtime, Symfony does it statically at compile time. The controller delegates to domain logic, which reads and writes data through an ORM: Eloquent uses objects that save themselves (Active Record), Doctrine uses a Unit of Work that saves objects on your behalf (Data Mapper). Side effects radiate outward as events and asynchronous messages. A response is rendered through a compiled template or serialized to JSON, passes back through the pipeline, and is sent. Everything expensive is cached, compiled, or deferred — because in PHP every millisecond of bootstrap is paid on every request, unless you keep the process alive, in which case you must guard against state leaking between requests.
+
+Understand the container, the lifecycle, and the persistence pattern, and every other feature of both frameworks becomes a variation on themes you already know. The vocabulary differs (provider or bundle, policy or voter, job or message, Blade or Twig, Eloquent or Doctrine), but underneath there is a common set of solutions to the same problems: separating concerns, inverting dependencies, deferring work, and making the cost of each request as small as possible.
