@@ -1,0 +1,65 @@
+import type { LessonSection } from "../curriculum";
+
+export const sections: readonly LessonSection[] = [
+  {
+    heading: "The core idea in one breath",
+    blocks: [
+      {"kind":"p","text":"Every powerful technology so far has been built by humans. Steam engines did not design better steam engines; compilers, for all their cleverness, did not invent new compiler theory. Artificial intelligence is the first technology whose product—cognition—is also the input to its own construction. If a system can perform the intellectual work of AI research, then it can, in principle, perform that work *on itself*, and the improved version can do it again, faster or better. That loop is recursive self-improvement (RSI). Everything else in this lesson is a set of footnotes to that single observation: the output feeds back into the machinery that produced it."},
+    ],
+  },
+  {
+    heading: "Where the idea came from",
+    blocks: [
+      {"kind":"p","text":"The concept predates modern deep learning by decades. In 1965, the statistician I. J. Good, who had worked alongside Turing at Bletchley Park, wrote that an \"ultraintelligent machine\" could design even better machines, producing an \"intelligence explosion\" after which \"the intelligence of man would be left far behind.\" He added, with a dryness that has aged well, that this machine would be the last invention humanity need ever make, provided it was docile enough to tell us how to keep it under control."},
+      {"kind":"p","text":"Vernor Vinge popularized the phrase \"technological singularity\" in 1993, borrowing the mathematical image of a point past which prediction breaks down. Eliezer Yudkowsky and later Nick Bostrom, in *Superintelligence* (2014), gave the idea its most rigorous informal treatment, introducing vocabulary—takeoff speed, recalcitrance, optimization power—that still structures the conversation. What began as a speculative thought experiment has, since roughly 2022, become an engineering question that frontier labs discuss in their planning documents."},
+    ],
+  },
+  {
+    heading: "Anatomy of the loop",
+    blocks: [
+      {"kind":"p","text":"It helps to be precise about what \"improving itself\" could mean, because the phrase hides several distinct mechanisms."},
+      {"kind":"p","text":"The weakest form is **parameter-level improvement**: a model updates its own weights through continued training. This is just learning, and every neural network does it. It is only \"self\"-improvement in a thin sense, since the learning algorithm, the data pipeline, and the architecture are all fixed by humans."},
+      {"kind":"p","text":"A stronger form is **algorithmic self-improvement**: the system modifies its own training procedure, architecture, or search strategy. Neural architecture search and AutoML are primitive, human-supervised versions of this—a system that proposes model designs, evaluates them, and proposes better ones. Google's AlphaEvolve (2025) is a clearer instance: a language model writes code, an evaluator scores it, and the loop discovered genuinely new matrix-multiplication algorithms and improved the very data-center scheduling that runs Google's training jobs. The system improved infrastructure that its successors will run on."},
+      {"kind":"p","text":"The strongest form is **research-level self-improvement**: the system does the whole job of an AI scientist—forming hypotheses about why models fail, designing experiments, interpreting results, and implementing the next generation. This is the form Good had in mind, and it is the one that matters for the dynamics discussed below, because it is the only form in which the *rate* of improvement is itself subject to improvement."},
+      {"kind":"p","text":"A useful mental model is to distinguish the *object level* (what the system can do) from the *meta level* (how good it is at getting better). Ordinary learning improves the object level. RSI, properly speaking, improves the meta level, which is why the mathematics becomes interesting."},
+    ],
+  },
+  {
+    heading: "The mathematics of explosions and fizzles",
+    blocks: [
+      {"kind":"p","text":"Suppose a system's intelligence is I and its rate of improvement is proportional to its current intelligence: dI/dt = kI. The solution is exponential growth. Suppose instead that improvement scales *superlinearly*—more intelligence buys disproportionately more research productivity—so that dI/dt = kI², or some power above one. Then the solution has a vertical asymptote: I goes to infinity in finite time. That is the mathematical skeleton of the \"hard takeoff\" scenario, and it is the source of the word \"singularity.\""},
+      {"kind":"p","text":"But nothing physical goes to infinity, and the interesting debate is about which terms the toy equation omits. Bostrom framed it as a ratio: rate of change equals *optimization power* divided by *recalcitrance*, where recalcitrance is how hard the next increment of improvement is to find. If each doubling of capability requires more than twice the effort—diminishing returns, the pattern seen in most mature technologies—the loop settles into steady rather than explosive growth. If returns are increasing, because a smarter system finds shortcuts a dumber one could not, the loop accelerates."},
+      {"kind":"p","text":"The famous 2008 Hanson–Yudkowsky debate crystallized the two intuitions. Robin Hanson, an economist, argued from historical precedent: growth accelerations have happened (agriculture, industry), but they were broad, gradual, and distributed across many actors, never concentrated in a single self-improving project. Yudkowsky argued that human intelligence itself is evidence for a discontinuity—that the gap between chimpanzee and human brains is small in raw hardware yet produced civilization, so small improvements in cognitive architecture can have enormous effects. Neither position has been refuted, but the empirical record since then has been instructive. Progress has been fast and largely continuous, driven by scaling laws that are remarkably smooth—which supports Hanson's \"no discontinuity\" view—while also being concentrated in a handful of labs with access to enormous compute, which supports the concern about concentration."},
+    ],
+  },
+  {
+    heading: "The bottlenecks that slow the loop",
+    blocks: [
+      {"kind":"p","text":"Enthusiasts and skeptics often talk past one another because they focus on different constraints. Four deserve mention."},
+      {"kind":"p","text":"**Compute.** A model that designs a better architecture still has to train it, and training frontier models takes months on hardware that cannot be conjured by intelligence alone. Chip fabrication, power generation, and data-center construction operate on physical timescales. The loop can be fast in software and slow in atoms. This is why many analysts distinguish a *software intelligence explosion*—rapid gains from algorithmic efficiency at fixed compute—from a full one. Algorithmic progress has historically contributed roughly as much as hardware scaling, so the software-only loop is not trivial, but it likely hits a ceiling."},
+      {"kind":"p","text":"**Verification.** How does a system know its modification is an improvement? For a chess engine, self-play against the previous version provides a clean signal; AlphaZero's ascent from random play to superhuman strength in hours is the purest example of RSI ever demonstrated, precisely because the game supplies a perfect evaluator. For general intelligence, no such oracle exists. Benchmarks saturate, become contaminated, or fail to measure what matters. A system that optimizes its own training against a flawed metric will get very good at the metric. This *evaluation problem* is arguably the deepest technical barrier: improvement requires knowing which direction is up."},
+      {"kind":"p","text":"**Data.** Models trained on human text may be bounded by the quality of that text. Synthetic data—models generating their own training material—is the proposed escape, and techniques like STaR (Self-Taught Reasoner) show that a model can bootstrap its own reasoning ability by generating solutions, keeping those that verify correct, and retraining on them. But there is a known failure mode, sometimes called model collapse, in which repeated training on one's own outputs narrows the distribution and erodes capability. Whether synthetic data is a ladder or a treadmill depends on whether a filter of ground truth remains in the loop."},
+      {"kind":"p","text":"**The Löbian obstacle.** This is the most philosophically striking constraint, identified by researchers at the Machine Intelligence Research Institute. A rational agent modifying itself must trust that its successor will pursue the same goals. Ideally it would *prove* this. But Löb's theorem, a result in mathematical logic, shows that a sufficiently powerful formal system cannot prove its own soundness—it cannot establish that \"everything I prove is true.\" An agent reasoning purely by proof would therefore face a paradox: it cannot trust a successor that uses the same or stronger logic. Real systems will not be formal theorem-provers, so the obstacle may be more a warning than a wall, but it points at something real: self-modification and self-trust are in tension. The related notion of *Vingean reflection* asks how an agent can reason sensibly about a successor smarter than itself, when by definition it cannot predict the successor's specific decisions."},
+    ],
+  },
+  {
+    heading: "Why the loop worries people",
+    blocks: [
+      {"kind":"p","text":"The safety concern is not that a self-improving system will become malicious. It is subtler and comes in two parts."},
+      {"kind":"p","text":"First, **goal drift**. If a system modifies its own cognition, there is no guarantee that its values survive the modification unless value preservation is itself a stable goal. Instrumental convergence arguments suggest that most goals imply a sub-goal of *not having one's goals changed*—an agent that wants X will resist becoming an agent that does not want X—which is reassuring if the initial goals are good and alarming if they are subtly wrong, since it means errors are locked in and amplified. The system that improves itself will also improve its ability to defend whatever it happens to want."},
+      {"kind":"p","text":"Second, **loss of oversight**. Human supervision works because humans understand, roughly, what the system is doing and can intervene. A rapid loop erodes both conditions. Each generation is less legible to us than the last, and the interval in which we might notice a problem shrinks. This is why *corrigibility*—designing systems that accept correction and shutdown even when they could resist—is treated as a prerequisite rather than a nicety, and why current lab safety frameworks specifically identify \"automated AI research and development\" as a capability threshold that triggers heightened precautions. The concern is not any single model but the moment when the improvement loop no longer needs a human in it."},
+    ],
+  },
+  {
+    heading: "What is actually happening now",
+    blocks: [
+      {"kind":"p","text":"It would be a mistake to treat RSI as purely hypothetical. Language models write a substantial fraction of the code at the companies that build them. They generate training data, evaluate other models' outputs, red-team themselves, and propose research directions. Reinforcement learning from AI feedback replaces human raters with model raters. Agentic systems can be given a research task and iterate on experiments overnight. None of this is a closed loop yet—humans design the pipelines, choose what to train, and decide what counts as success—but the fraction of the work that is automated is rising, and the honest description of the current state is *partial, human-mediated recursive improvement*, accelerating."},
+    ],
+  },
+  {
+    heading: "The takeaway",
+    blocks: [
+      {"kind":"p","text":"Recursive self-improvement is best understood not as a science-fiction event but as a change in the derivative. Technologies have always improved; this is the first whose rate of improvement can be improved by the technology itself. Whether that yields an explosion or merely a steeper curve depends on questions that are empirical and still open: how returns scale with intelligence, how binding the physical and verificational bottlenecks prove, and whether we solve the problem of building systems that remain correctable while becoming more capable than their correctors. The mathematics says the loop *can* run away. The physics says it cannot run away without limit. The engineering will decide where between those two the truth lies, and the decision is being made now."},
+    ],
+  },
+];;
