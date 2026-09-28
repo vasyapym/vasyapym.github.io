@@ -174,3 +174,15 @@ Landing card-art history (split-brain Hub mark) is out of scope for the live pag
 - Code verification: `npm run typecheck` PASS.
 - Open question: none — owner-specified removals; round closed pending the
   owner's usual liked/rejected confirmation.
+
+## Feedback F005
+- Round: R002
+- Verdict: LIKED
+- Scope: R002 as a whole (title removal, legend-hint removal, readout-to-header)
+- Decision: the round stands with no changes; the finished-quality thread is
+  CLOSED. Active task complete: raft live page at portfolio-finished quality
+  (R001 + R002, commits 6db0f2d + c3eef14). The trim-thesis-copy register
+  (F001/F002 no-wordy-copy) and the sr-only heading remain standing rules.
+- User source: "like"
+- Artifact: artifacts/R002/*
+- Supersedes: none.
