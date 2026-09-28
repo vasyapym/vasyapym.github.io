@@ -27,6 +27,7 @@ function parseArgs(argv) {
     const a = argv[i];
     if (a === "--selftest") { args.selftest = true; continue; }
     if (a === "--dry") { args.dry = true; continue; }
+    if (a === "--front") { args.front = true; continue; }
     if (a.startsWith("--")) {
       const key = a.slice(2);
       const val = argv[++i];
@@ -48,6 +49,84 @@ function parseMeta(content, file) {
   } catch (e) {
     fail(`lesson-meta in ${file} is not valid JSON: ${e.message}`);
   }
+}
+
+// --- derivation: the orchestrator authors only practicePrompt/checkPrompt
+// (+ optional summary line); everything else comes from the essay itself ---
+
+function stripLeadingComments(content) {
+  return content.replace(/^(?:\s*<!--[\s\S]*?-->)+\s*/, "");
+}
+
+function deriveId(file) {
+  const base = path.basename(file).replace(/\.[^.]+$/, "");
+  let slug = base
+    .replace(/^\d+[-_]/, "")
+    .toLowerCase()
+    .replace(/[^a-z0-9]+/g, "-")
+    .replace(/^-+|-+$/g, "");
+  if (!slug) fail(`cannot derive area id from filename: ${file}`);
+  return slug;
+}
+
+function deriveTitle(content) {
+  const body = stripLeadingComments(content);
+  const m = body.match(/^#\s+(.+)$/m);
+  if (!m) fail("no H1 title in the lesson body to derive the card title from");
+  return m[1].trim();
+}
+
+function deriveSummary(content, cap = 500) {
+  const body = stripLeadingComments(content);
+  const lines = body.split("\n");
+  const start = lines.findIndex((l) => /^#\s+/.test(l.trim()));
+  let i = start + 1;
+  while (i < lines.length && lines[i].trim() === "") i++;
+  let para = [];
+  while (i < lines.length && lines[i].trim() !== "" && !/^#{1,6}\s/.test(lines[i].trim())) {
+    para.push(lines[i].trim());
+    i++;
+  }
+  let text = para.join(" ").trim();
+  if (!text) fail("no paragraph after the H1 to derive the summary from");
+  if (text.length > cap) {
+    const cut = text.slice(0, cap);
+    const lastSentence = Math.max(cut.lastIndexOf(". "), cut.lastIndexOf(".\u00a0"));
+    text = (lastSentence > 0 ? cut.slice(0, lastSentence + 1) : cut) + " …";
+  }
+  return text;
+}
+
+// --- theory: arrives with the essay as a second comment (preferred) or a /tmp TS file ---
+
+function parseTheoryComment(content, file) {
+  const m = content.match(/<!--\s*lesson-theory:([\s\S]*?)-->/);
+  if (!m) return null;
+  try {
+    return JSON.parse(m[1].trim());
+  } catch (e) {
+    fail(`lesson-theory in ${file} is not valid JSON: ${e.message}`);
+  }
+}
+
+function checkTheoryParses(text, file) {
+  try {
+    new Function(`return ({${text}})`);
+  } catch (e) {
+    fail(`theory snippet ${file} is not valid JS: ${e.message} (straight quotes inside a string?)`);
+  }
+}
+
+function buildTheoryBody(obj) {
+  const fields = ["problem", "model", "mechanics", "pitfalls", "whenNot"];
+  for (const f of fields) if (obj[f] === undefined) fail(`lesson-theory comment is missing field "${f}"`);
+  return [
+    `problem: ${JSON.stringify(obj.problem)},`,
+    `model: ${JSON.stringify(obj.model)},`,
+    `mechanics: ${JSON.stringify(obj.mechanics)},`,
+    `pitfalls: [\n${obj.pitfalls.map((p) => `  ${JSON.stringify(p)}`).join(",\n")}\n],`,
+    `whenNot: ${JSON.stringify(obj.whenNot)}`,
+  ].join("\n");
 }
 
 function readSections(file) {
@@ -72,6 +151,7 @@ function readTheory(file) {
       fail(`theory snippet ${file} is missing field "${field}"`);
     }
   }
+  checkTheoryParses(text, file);
   // normalize: strip common indent, re-indent to the card's 6 spaces
   const lines = text.replace(/\t/g, "  ").split("\n");
   const nonEmpty = lines.filter((l) => l.trim() !== "");
@@ -140,45 +220,65 @@ function spliceCurriculum(src, { base, areaId, topicId, meta, theory, areaTitle,
   return `${src.slice(0, first).trimEnd()}\n\n${topicsText}\n${newTail}`;
 }
 
-function spliceTiers(src, tierId, areaId) {
+function spliceTiers(src, tierId, areaId, front = false) {
   const esc = tierId.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
   const re = new RegExp(`(\\{ id: "${esc}", name: "${esc}", band: "[^"]+", areas: \\[)([^\\]]*)(\\])`);
   const m = src.match(re);
   if (!m) fail(`tiers.ts: no single-line tier entry for "${tierId}"`);
   const ids = m[2].split(",").map((s) => s.trim().replace(/^"|"$/g, "")).filter(Boolean);
   if (ids.includes(areaId)) fail(`tiers.ts: "${areaId}" already in tier "${tierId}"`);
-  ids.push(areaId);
+  if (front) ids.unshift(areaId); else ids.push(areaId);
   const rebuilt = m[1] + ids.map((i) => `"${i}"`).join(", ") + m[3];
   return src.slice(0, m.index) + rebuilt + src.slice(m.index + m[0].length);
 }
 
 function wire(opts) {
-  const meta = parseMeta(fs.readFileSync(opts.lessonPath, "utf8"), opts.lessonPath);
-  for (const k of ["id", "title", "summary", "tier", "complexity", "practicePrompt", "checkPrompt", "references"]) {
-    if (meta[k] === undefined) fail(`lesson-meta missing "${k}"`);
+  const content = fs.readFileSync(opts.lessonPath, "utf8");
+  const meta0 = parseMeta(content, opts.lessonPath);
+  for (const k of ["practicePrompt", "checkPrompt"]) {
+    if (meta0[k] === undefined) fail(`lesson-meta missing "${k}" (the only authored meta fields)`);
   }
-  if (!Array.isArray(meta.references)) fail("lesson-meta references must be an array");
-  if (Array.isArray(meta.concepts) && meta.concepts.length) {
+  if (!Array.isArray(meta0.references) && meta0.references !== undefined) fail("lesson-meta references must be an array");
+  if (Array.isArray(meta0.concepts) && meta0.concepts.length) {
     console.error("wire-lesson: warning: lesson-meta has concepts — cards never display them; wiring concepts: []");
   }
+  // derive what the chat model does not author; explicit meta wins (back-compat)
+  const meta = {
+    id: meta0.id === undefined ? deriveId(opts.lessonPath) : meta0.id,
+    title: meta0.title === undefined ? deriveTitle(content) : meta0.title,
+    summary: meta0.summary === undefined ? deriveSummary(content) : meta0.summary,
+    tier: meta0.tier === undefined ? 1 : meta0.tier,
+    complexity: meta0.complexity === undefined ? 4 : meta0.complexity,
+    references: meta0.references === undefined ? [] : meta0.references,
+    practicePrompt: meta0.practicePrompt,
+    checkPrompt: meta0.checkPrompt,
+  };
+  if (!Array.isArray(meta.references)) fail("lesson-meta references must be an array");
   const { base, arrText } = readSections(opts.sectionsPath);
-  const theory = readTheory(opts.theoryPath);
+  const theoryObj = parseTheoryComment(content, opts.lessonPath);
+  if (!theoryObj && !opts.theoryPath) {
+    fail("no lesson-theory comment in the lesson and no --theory file");
+  }
+  const theory = theoryObj ? buildTheoryBody(theoryObj) : readTheory(opts.theoryPath);
+  const topicId = opts.topicId || `${meta.id}-full`;
+  const areaTitle = opts.areaTitle || meta.title;
+  const areaDescription = opts.areaDescription || meta.summary;
   const lessonDataDir = path.join(path.dirname(opts.curriculumPath), "lesson-data");
-  const lessonDataPath = path.join(lessonDataDir, `${opts.topicId}.ts`);
-  const lessonDataText = buildLessonData(opts.topicId, arrText);
+  const lessonDataPath = path.join(lessonDataDir, `${topicId}.ts`);
+  const lessonDataText = buildLessonData(topicId, arrText);
   if (fs.existsSync(lessonDataPath)) {
     fail(`lesson chunk already exists: ${lessonDataPath} (delete it to rewire, or reuse its topic id)`);
   }
   let newCurriculum = spliceCurriculum(fs.readFileSync(opts.curriculumPath, "utf8"), {
     base,
     areaId: meta.id,
-    topicId: opts.topicId,
+    topicId,
     meta,
     theory,
-    areaTitle: opts.areaTitle,
-    areaDescription: opts.areaDescription,
+    areaTitle,
+    areaDescription,
   });
-  let newTiers = spliceTiers(fs.readFileSync(opts.tiersPath, "utf8"), opts.tier, meta.id);
+  let newTiers = spliceTiers(fs.readFileSync(opts.tiersPath, "utf8"), opts.tier, meta.id, Boolean(opts.front));
   if (!opts.dry) {
     fs.mkdirSync(lessonDataDir, { recursive: true });
     fs.writeFileSync(lessonDataPath, lessonDataText);
@@ -186,7 +286,7 @@ function wire(opts) {
     fs.writeFileSync(opts.tiersPath, newTiers);
   }
   const notes = [
-    `area "${meta.id}" → tier "${opts.tier}"; card "${opts.topicId}"; lazy chunk ${path.relative(path.dirname(opts.curriculumPath), lessonDataPath)} + ${base}Topics`,
+    `area "${meta.id}" → tier "${opts.tier}"${opts.front ? " (front)" : ""}; card "${topicId}"; lazy chunk ${path.relative(path.dirname(opts.curriculumPath), lessonDataPath)} + ${base}Topics`,
   ];
   if (opts.dry) notes.push("(dry run — nothing written)");
   return notes.join("; ");
@@ -310,6 +410,61 @@ function selftest() {
       braceThrew = true;
     }
     assert(braceThrew, "brace-wrapped theory snippet is rejected");
+
+    // --- minimal-meta wiring: chat model ships only practice/check prompts
+    // and a lesson-theory comment; id/title/summary/topic/area derive ---
+
+    const cur2 = curriculum.replace('id: "go",', 'id: "go-occupied",');
+    const cur2Path = path.join(dir, "curriculum2.ts");
+    const tiers2Path = path.join(dir, "tiers2.ts");
+    fs.writeFileSync(cur2Path, cur2);
+    fs.writeFileSync(tiers2Path, tiers);
+    const miniPath = path.join(dir, "099-mini-topic.md");
+    const miniMeta = { practicePrompt: "MP", checkPrompt: "MC" };
+    const miniTheory = { problem: "mp", model: "mm", mechanics: "mme", pitfalls: ["mp1", "mp2"], whenNot: "mw" };
+    const miniContent =
+      `<!--\nlesson-meta: ${JSON.stringify(miniMeta)}\n-->\n` +
+      `<!-- lesson-theory: ${JSON.stringify(miniTheory)} -->\n` +
+      "# Mini Topic Title\n\nFirst paragraph drives the summary.\n\n## Part One\n\nBody text.\n";
+    fs.writeFileSync(miniPath, miniContent);
+    const miniNote = wire({
+      curriculumPath: cur2Path, tiersPath: tiers2Path, lessonPath: miniPath,
+      sectionsPath, tier: "fable-5.1-low", front: true,
+    });
+    const cur2After = fs.readFileSync(cur2Path, "utf8");
+    const tiers2After = fs.readFileSync(tiers2Path, "utf8");
+    assert(miniNote.includes("card \"mini-topic-full\""), `minimal wiring derives the card id (${miniNote})`);
+    assert(cur2After.includes('id: "mini-topic"'), "minimal wiring derives the area id");
+    assert(cur2After.includes('title: "Mini Topic Title"'), "card title derived from H1");
+    assert(cur2After.includes('summary: "First paragraph drives the summary."'), "summary derived from the first paragraph");
+    assert(cur2After.includes("tier: 1,\n    complexity: 4,"), "tier 1 / complexity 4 defaulted");
+    assert(cur2After.includes("references: []"), "references defaulted to empty");
+    assert(cur2After.includes('title: "Mini Topic Title"') && cur2After.includes(`description: "First paragraph drives the summary."`), "area title/description derived");
+    assert(/id: "fable-5.1-low", name: "fable-5.1-low", band: "low", areas: \["mini-topic", "go"\]/.test(tiers2After), "front flag puts the area first in the tier");
+    const miniChunk = fs.readFileSync(path.join(dir, "lesson-data", "mini-topic-full.ts"), "utf8");
+    assert(miniChunk.includes("export const sections"), "minimal wiring emitted the lazy chunk");
+    assert(cur2After.includes('"mp1"') && cur2After.includes('"mp2"'), "theory comment reached the curriculum card");
+    let miniReThrew = false;
+    try {
+      wire({ curriculumPath: cur2Path, tiersPath: tiers2Path, lessonPath: miniPath, sectionsPath, tier: "fable-5.1-low" });
+    } catch {
+      miniReThrew = true;
+    }
+    assert(miniReThrew, "minimal wiring re-run is rejected (already wired)");
+
+    // pre-flight: unparseable theory file (straight quotes inside a string) fails before writing
+    const quoteTheoryPath = path.join(dir, "theory-quotes.ts");
+    fs.writeFileSync(quoteTheoryPath, `problem: "say "hello" loudly", model: "m", mechanics: "me", pitfalls: [], whenNot: "w"`);
+    const cur3Path = path.join(dir, "curriculum3.ts");
+    fs.writeFileSync(cur3Path, cur2);
+    let quotesThrew = false;
+    try {
+      wire({ curriculumPath: cur3Path, tiersPath: tiers2Path, lessonPath, sectionsPath, theoryPath: quoteTheoryPath, topicId: "never-written", tier: "fable-5.1-high" });
+    } catch {
+      quotesThrew = true;
+    }
+    assert(quotesThrew, "theory with stray straight quotes is rejected before writing");
+    assert(!fs.existsSync(path.join(dir, "lesson-data", "never-written.ts")), "rejected wire wrote no chunk");
     console.log(`selftest: PASS (${checks} checks)`);
   } finally {
     fs.rmSync(dir, { recursive: true, force: true });
@@ -319,7 +474,7 @@ function selftest() {
 function main() {
   const args = parseArgs(process.argv.slice(2));
   if (args.selftest) return void selftest();
-  for (const k of ["lesson", "sections", "theory", "topic-id", "area-title", "area-description", "tier"]) {
+  for (const k of ["lesson", "sections", "tier"]) {
     if (!args[k]) fail(`missing --${k}`);
   }
   const note = wire({
@@ -330,6 +485,7 @@ function main() {
     areaTitle: args["area-title"],
     areaDescription: args["area-description"],
     tier: args.tier,
+    front: Boolean(args.front),
     curriculumPath: args.curriculum || CURRICULUM_DEFAULT,
     tiersPath: args.tiers || TIERS_DEFAULT,
     dry: Boolean(args.dry),

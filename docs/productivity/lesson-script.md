@@ -1,8 +1,8 @@
 ## What it does
 
-`lesson-script` runs the fast pipeline that turns one relay round with a chat model into a published Practice Map lesson: a free-form Russian essay is drafted in a single round, then salvaged into the lessons directory, converted, and wired into the curriculum through repository scripts.
+`lesson-script` runs the fast pipeline that turns one relay round with a chat model into a published Practice Map lesson: a free-form Russian essay is drafted in a single round — together with its integration payload (practice prompt, check prompt, theory) — then salvaged into the lessons directory, converted, and wired into the curriculum through repository scripts.
 
-Its defining constraint is a **context budget**: the essay passes through the agent's window exactly once — the owner's reply written straight to the lesson file — and every bulky artifact after that (emitted TS, configs, diffs) stays in files inspected by `grep` and `diff`, with the wiring itself done by a script.
+Its defining constraint is a **context budget**: the essay never passes through the agent's window at all — the owner's reply is written straight to the lesson file, and the agent reads only converter diagnostics (counts, warning lines), editing by grep targets. The payload riding with the essay is what makes that possible: everything the curriculum card needs except the prose arrives in two HTML comments the chat model itself writes, and the wiring script derives the rest (id, title, summary, tier, complexity, references) mechanically.
 
 ## When to reach for it
 
@@ -11,7 +11,8 @@ You invoke this by typing `/lesson-script <topic>` — the agent won't reach for
 | Situation | Reach for |
 | --- | --- |
 | A topic needs a lesson now, from one relay round | `/lesson-script` |
-| The chat model's essay is already drafted and just needs integrating | `/lesson-script` |
+| The chat model's essay is already drafted (with its payload) and just needs integrating | `/lesson-script` |
+| A batch of drafted essays needs wiring into several model tiers | `/lesson-script` |
 | A lesson deserves the full planned, depth-audited, consistency-audited loop | [lesson-iteration](https://aihero.dev/skills-lesson-iteration) |
 | Interactive, one-subcard-at-a-time learning with proof projects | [custom-learning](https://aihero.dev/skills-custom-learning) |
 
@@ -21,7 +22,7 @@ The skill writes into the Practice Map workspace — `portfolio/projects/practic
 
 ## One round, then salvage
 
-The prompt is deliberately minimal — length routes the chat model to a stronger tier — and the essay comes back as one free-form piece with no template imposed on it. The defining move is the **salvage**: the reply is raw material whose structure wins as-is, kept only from being damaged — title fixed, markdown repaired, checkable claims verified against primary sources with one-line greps. The agent authors exactly one thing itself: the ~1–2 KB theory snippet that becomes the curriculum card. Everything else mechanical — conversion and wiring — is a script, so the run's context stays flat no matter how long the essay is.
+The prompt is deliberately minimal — length routes the chat model to a stronger tier — and the reply comes back as one free-form essay plus two trailing comment blocks: `lesson-meta` (the practice and check prompts, optionally a one-line summary) and `lesson-theory` (the card's five theory fields). Salvage is mechanical: place the file under its next number, move the comments to the top, fix what the converter's diagnostics flag. The agent authors **nothing**; the essay's structure wins as-is. Wiring is one script invocation — `--front` for English lessons (the EN-first rule: English areas lead a tier's lesson list), everything else derived — so a batch of lessons costs little more than a single one.
 
 ## Common questions
 
@@ -29,14 +30,18 @@ The prompt is deliberately minimal — length routes the chat model to a stronge
 
 lesson-iteration is the deep track: coverage ledger, depth audit, consistency audit, and the full quality loop — for a topic that deserves a deliberately authored lesson. lesson-script spends one relay round and integrates the result; its quality bar is the salvage depth bar (mechanisms explain their why, no invented citations or benchmark numbers), not the audited loop.
 
+**What stays manual?**
+
+By the agent: nothing. The chat model writes the three authored blocks in the relay round (practice prompt, check prompt, theory — plus an optional one-line summary); ids, titles, summaries and tier metadata are derived by the wiring script from the filename, the H1 and the first paragraph.
+
 **What if there's no environment to verify claims against?**
 
 They get marked as not executed and the delivery note says so honestly. Verification is done by grepping primary sources — never by pulling whole files into the agent's window.
 
 ## It's working if
 
-- The lesson lands as one new numbered file with valid `lesson-meta`, and the owner's essay structure survives untouched apart from recorded fact fixes.
-- The wiring step is a single script invocation — no lesson text ever re-pasted into a hand edit.
+- The lesson lands as one new numbered file whose comment blocks parse, and the owner's essay structure survives untouched apart from recorded fact fixes.
+- The wiring step is a single script invocation — no lesson text ever re-pasted into a hand edit; English lessons sit first in their tier's list.
 - Typecheck and build pass; the check script's no-Chrome skip is the expected outcome.
 - The delivery note names the lesson path, the area, the checks run, and anything not executed.
 

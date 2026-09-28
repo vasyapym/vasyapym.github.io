@@ -29,7 +29,8 @@ function parseMeta(content) {
 }
 
 function stripLeadingComment(content) {
-  return content.replace(/^\s*<!--[\s\S]*?-->\s*/, "");
+  // one or more leading HTML comments (lesson-meta, lesson-theory, …)
+  return content.replace(/^(?:\s*<!--[\s\S]*?-->)+\s*/, "");
 }
 
 // ---------------------------------------------------------------------------
