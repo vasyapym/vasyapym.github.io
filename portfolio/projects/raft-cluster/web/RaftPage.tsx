@@ -644,7 +644,7 @@ export default function RaftPage() {
     return (
       <div className="raft-field" ref={rootRef}>
         <header className="raft-head">
-          <h1>A full Raft state machine written in Rust.</h1>
+          <h1 className="raft-sr-title">Raft cluster</h1>
         </header>
         <section className="raft-panel raft-error" role="alert">
           <h2>Couldn’t start the cluster</h2>
@@ -660,7 +660,32 @@ export default function RaftPage() {
   return (
     <div className="raft-field" ref={rootRef}>
       <header className="raft-head">
-        <h1>A full Raft state machine written in Rust.</h1>
+        <h1 className="raft-sr-title">Raft cluster</h1>
+        <div className="raft-readout raft-mono" aria-live="polite" aria-atomic="true">
+          <span className="raft-stat">
+            <span className="raft-label">term</span>
+            <span className="raft-value">{d.term}</span>
+          </span>
+          <span className="raft-stat">
+            <span className="raft-label">leader</span>
+            <span className={leaderId !== null ? "raft-value raft-value-accent" : "raft-value"}>{leaderText}</span>
+          </span>
+          <span className="raft-stat">
+            <span className="raft-label">commit</span>
+            <span className="raft-value">{d.commit}</span>
+          </span>
+          <span className="raft-stat">
+            <span className="raft-label">applied</span>
+            <span className="raft-value">{d.applied}</span>
+          </span>
+          <span className="raft-stat">
+            <span className="raft-label">quorum</span>
+            <span className="raft-value">
+              {d.reach}/{d.total}
+            </span>
+            {quorumNote && <span className="raft-note">{quorumNote}</span>}
+          </span>
+        </div>
         <div className="raft-head-controls">
           <label className="raft-select">
             <span className="raft-label">cluster</span>
@@ -678,32 +703,6 @@ export default function RaftPage() {
 
       <div className="raft-grid">
         <section className="raft-stage" aria-label="Cluster visualization">
-          <div className="raft-readout raft-mono" aria-live="polite" aria-atomic="true">
-            <span className="raft-stat">
-              <span className="raft-label">term</span>
-              <span className="raft-value">{d.term}</span>
-            </span>
-            <span className="raft-stat">
-              <span className="raft-label">leader</span>
-              <span className={leaderId !== null ? "raft-value raft-value-accent" : "raft-value"}>{leaderText}</span>
-            </span>
-            <span className="raft-stat">
-              <span className="raft-label">commit</span>
-              <span className="raft-value">{d.commit}</span>
-            </span>
-            <span className="raft-stat">
-              <span className="raft-label">applied</span>
-              <span className="raft-value">{d.applied}</span>
-            </span>
-            <span className="raft-stat">
-              <span className="raft-label">quorum</span>
-              <span className="raft-value">
-                {d.reach}/{d.total}
-              </span>
-              {quorumNote && <span className="raft-note">{quorumNote}</span>}
-            </span>
-          </div>
-
           <canvas
             ref={canvasRef}
             className="raft-canvas"
@@ -735,7 +734,6 @@ export default function RaftPage() {
             <li>
               <i className="raft-g raft-g-open" />uncommitted
             </li>
-            <li className="raft-legend-hint">click a node; Link: click two</li>
           </ul>
         </section>
 

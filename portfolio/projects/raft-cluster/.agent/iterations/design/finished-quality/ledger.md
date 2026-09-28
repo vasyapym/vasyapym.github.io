@@ -133,3 +133,44 @@ Landing card-art history (split-brain Hub mark) is out of scope for the live pag
 - Open question: LIKED / REJECTED on the round (first-time fine view:
   what the cluster is doing reads without the feed; one system across all
   surfaces)?
+
+## Feedback F004
+- Round: R001
+- Verdict: LIKED (with removals)
+- Scope: R001 as a whole
+- Decision: the round stands; two explicit removals + one repositioning open
+  R002: (1) delete the legend hint "click a node; Link: click two", (2)
+  delete the visible h1 "A full Raft state machine written in Rust.",
+  (3) the readout row (term/leader/commit/applied/quorum) takes the title's
+  place at the top-left of the page. This supersedes the visible-title
+  decision that chrome-trim F003 carried for this page (owner's own text;
+  the sizing-curve rule dies with the visible title).
+- User source: "i like it. remove this - 'click a node; Link: click two'.
+  and this 'A full Raft state machine written in Rust.' text. so that this
+  'term 1 leader n7 commit 0 applied 0 quorum 7/7' would be positioned
+  above (on the level of the removed text) - replacing it"
+- Artifact: artifacts/R001/*
+- Supersedes: chrome-trim F003 (visible-title part) within this page's scope.
+
+## Round R002
+- Goal: the three F004 changes, integrated directly (owner-specified, trivial).
+- Preserved preferences: F004 (and through it F001/F002 copy register).
+- Changes:
+  - RaftPage.tsx: header h1 replaced by the moved readout row (id/classes
+    unchanged, aria-live kept); sr-only h1 "Raft cluster" keeps the
+    document outline on both the live page and the wasm-error page; the
+    stage's readout block deleted; legend hint li deleted.
+  - raft.css: .raft-head learns the hairline rule (border-bottom +
+    padding-bottom previously owned by .raft-readout inside the stage),
+    align-items flex-end → center for the baseline row; .raft-head h1
+    clamp/track rules and the coarse 1.075rem override die with the title;
+    .raft-sr-title sr-only utility added; .raft-legend-hint rules deleted.
+- Before: artifacts/R001/desktop-rest-1440.png
+- After: artifacts/R002/ (r002-desktop-rest-1440, -7nodes = owner's quoted
+  quorum 7/7 case, r002-mobile-rest-390)
+- Visual inspection: PERFORMED — readout sits at the old title level stats
+  left / controls right under one rule; no hint in the legend; mobile
+  wraps readout → controls → rule → canvas. No overflow at 390/1440.
+- Code verification: `npm run typecheck` PASS.
+- Open question: none — owner-specified removals; round closed pending the
+  owner's usual liked/rejected confirmation.

@@ -42,24 +42,30 @@
   box-sizing: border-box;
 }
 
-/* ---- header (h1 block frozen) --------------------------------------------- */
+/* ---- header ---------------------------------------------------------------- */
 
+/* The readout row replaces the stranger-facing headline: stats track left,
+   cluster controls right, one hairline rule under the whole header row. */
 .raft-head {
   display: flex;
   flex-wrap: wrap;
-  align-items: flex-end;
+  align-items: center;
   justify-content: space-between;
   gap: var(--raft-s4);
+  padding-bottom: var(--raft-s3);
+  border-bottom: 1px solid var(--raft-line);
   margin-bottom: var(--raft-s6);
 }
 
-.raft-head h1 {
-  flex: 1 1 340px;
-  min-width: 260px;
-  margin: 0;
-  font-size: clamp(1.075rem, 1.6vw, 1.5rem);
-  font-weight: 600;
-  letter-spacing: -0.01em;
+/* Visible headings retired by owner steer; the sr-only h1 keeps the outline. */
+.raft-sr-title {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  margin: -1px;
+  overflow: hidden;
+  clip-path: inset(50%);
+  white-space: nowrap;
 }
 
 .raft-head-controls {
@@ -123,8 +129,6 @@
   display: flex;
   flex-wrap: wrap;
   gap: var(--raft-s2) var(--raft-s6);
-  padding-bottom: var(--raft-s3);
-  border-bottom: 1px solid var(--raft-line);
 }
 
 .raft-stat {
@@ -162,10 +166,6 @@
   display: inline-flex;
   align-items: center;
   gap: 6px;
-}
-
-.raft-legend-hint {
-  margin-left: auto;
 }
 
 /* Legend glyphs: same tokens as the canvas marks. */
@@ -516,9 +516,6 @@
   .raft-feed ul {
     max-height: 22rem;
   }
-  .raft-legend-hint {
-    margin-left: 0;
-  }
 }
 
 @media (max-width: 560px) {
@@ -540,9 +537,6 @@
   .raft-field select,
   .raft-field input[type="text"] {
     font-size: 16px;
-  }
-  .raft-head h1 {
-    font-size: 1.075rem;
   }
 }
 
