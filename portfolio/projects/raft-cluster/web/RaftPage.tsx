@@ -1,6 +1,13 @@
-// web/RaftPage.tsx — React page: a live, interactive Raft cluster on canvas (revision 1).
+// web/RaftPage.tsx — React page: a live, interactive Raft cluster on canvas (revision 2).
 
-import { useCallback, useEffect, useRef, useState, type MouseEvent as ReactMouseEvent } from "react";
+import {
+  useCallback,
+  useEffect,
+  useRef,
+  useState,
+  type KeyboardEvent as ReactKeyboardEvent,
+  type MouseEvent as ReactMouseEvent,
+} from "react";
 import { loadRaftCore, type RaftCore } from "./raft-core";
 import { ClusterSim, type Snapshot } from "./cluster";
 import "./raft.css";
@@ -13,52 +20,54 @@ const SPEEDS = [0.25, 0.5, 1, 2, 4, 8] as const;
 type Mode = "select" | "link";
 /** Max UTF-8 bytes accepted by the propose input. */
 const MAX_PROPOSE_BYTES = 24;
+/** Most recent events kept in the feed. */
+const FEED_CAP = 14;
 
-/** Shared UTF-8 encoder for proposal payloads. */
 const ENCODER = new TextEncoder();
 
-/** Resolved canvas colours, read from the scoped CSS custom properties. */
+/** Resolved canvas colours + metrics, read from the scoped CSS custom properties each frame. */
 type Palette = {
-  text: string;
-  accent: string;
-  line: string;
-  node: string;
-  teal: string;
   bg: string;
+  text: string;
+  muted: string;
+  faint: string;
+  line: string;
+  lineSoft: string;
+  accent: string;
+  danger: string;
   /** Resolved mono font stack — canvas `ctx.font` cannot use `var()`. */
   fontMono: string;
+  /** Root rem in CSS px, so canvas type sizes track the page's type steps. */
+  rem: number;
 };
 
 /** Cached node geometry from the last draw, used for click hit-testing. */
 type Layout = { positions: Map<number, { x: number; y: number }>; nodeRadius: number };
 
-/** Generate a fresh 32-bit cluster seed (UI concern only — never used inside the sim's RNG path). */
 function freshSeed(): number {
   return (Math.random() * 0xffffffff) >>> 0;
 }
 
-/** Read the scoped ink palette from an element's computed style, with shell-token fallbacks. */
 function readPalette(el: HTMLElement | null): Palette {
   const cs = el ? getComputedStyle(el) : null;
   const get = (name: string, fallback: string): string => {
     const v = cs?.getPropertyValue(name).trim();
     return v && v.length > 0 ? v : fallback;
   };
+  const remRaw =
+    typeof document !== "undefined" ? parseFloat(getComputedStyle(document.documentElement).fontSize) : 16;
   return {
-    text: get("--ink-text", "#eeeae0"),
-    accent: get("--ink-accent", "#d39b61"),
-    line: get("--ink-line", "rgba(238,234,224,.14)"),
-    node: get("--raft-node", "rgba(238,234,224,.55)"),
-    teal: get("--raft-msg-vote", "#4bb3a7"),
-    bg: get("--ink-bg", "#0b1317"),
-    fontMono: get("--mono", "ui-monospace, SFMono-Regular, Menlo, monospace"),
+    bg: get("--raft-bg", "#0b1317"),
+    text: get("--raft-text", "#eeeae0"),
+    muted: get("--raft-muted", "rgba(238,234,224,.68)"),
+    faint: get("--raft-faint", "rgba(238,234,224,.48)"),
+    line: get("--raft-line", "rgba(238,234,224,.26)"),
+    lineSoft: get("--raft-line-soft", "rgba(238,234,224,.13)"),
+    accent: get("--raft-accent", "#d39b61"),
+    danger: get("--raft-danger", "#c85a54"),
+    fontMono: get("--mono", '"IBM Plex Mono", ui-monospace, SFMono-Regular, Menlo, monospace'),
+    rem: Number.isFinite(remRaw) && remRaw > 0 ? remRaw : 16,
   };
-}
-
-/** Stable term → colour map (committed entries full opacity, uncommitted dimmed). */
-function termColor(term: number, alpha: number): string {
-  const hue = (term * 47) % 360;
-  return `hsla(${hue}, 55%, 58%, ${alpha})`;
 }
 
 /** Ring position for node index `i` of `count`, starting at the top and going clockwise. */
@@ -67,10 +76,43 @@ function ringPosition(i: number, count: number, cx: number, cy: number, r: numbe
   return { x: cx + Math.cos(angle) * r, y: cy + Math.sin(angle) * r };
 }
 
+function linkKey(a: number, b: number): string {
+  return `${Math.min(a, b)}-${Math.max(a, b)}`;
+}
+
 /**
- * The Raft cluster page. Default-exported so the shell can lazy-load it.
- * Renders an inline explanation instead of throwing when the core can't load.
+ * Set of node ids the leader can message directly (itself plus un-cut, alive peers).
+ * The sim delivers frames only between directly linked nodes — there is no routing —
+ * so this one-hop projection, not a multi-hop BFS, is what an honest majority counts.
  */
+function reachableFrom(snap: Snapshot, start: number): Set<number> {
+  const seen = new Set<number>([start]);
+  for (const n of snap.nodes) {
+    if (n.alive && n.id !== start && !snap.cuts.includes(linkKey(start, n.id))) {
+      seen.add(n.id);
+    }
+  }
+  return seen;
+}
+
+/** Everything the readout, legend and canvas agree on, derived once per snapshot. */
+function derive(snap: Snapshot | null) {
+  if (!snap) {
+    return { term: 0, leaderId: null as number | null, commit: 0, applied: 0, reach: 0, total: 0, majority: 0, hasMajority: false, electing: false, reachable: new Set<number>() };
+  }
+  const total = snap.nodes.length;
+  const majority = Math.floor(total / 2) + 1;
+  const leaderId = snap.leaderId;
+  const leader = leaderId !== null ? snap.nodes.find((n) => n.id === leaderId) ?? null : null;
+  const term = snap.nodes.reduce((m, n) => Math.max(m, n.status.term), 0);
+  const commit = leader ? leader.status.commitIndex : snap.nodes.reduce((m, n) => Math.max(m, n.status.commitIndex), 0);
+  const applied = leader ? leader.status.lastApplied : snap.nodes.reduce((m, n) => Math.max(m, n.status.lastApplied), 0);
+  const reachable = leaderId !== null ? reachableFrom(snap, leaderId) : new Set<number>();
+  const reach = leaderId !== null ? reachable.size : snap.nodes.filter((n) => n.alive).length;
+  const electing = snap.nodes.some((n) => n.alive && n.status.role === "candidate");
+  return { term, leaderId, commit, applied, reach, total, majority, hasMajority: reach >= majority, electing, reachable };
+}
+
 export default function RaftPage() {
   const rootRef = useRef<HTMLDivElement | null>(null);
   const canvasRef = useRef<HTMLCanvasElement | null>(null);
@@ -89,18 +131,16 @@ export default function RaftPage() {
   const [selectedId, setSelectedId] = useState<number | null>(null);
   const [linkFirst, setLinkFirst] = useState<number | null>(null);
   const [proposeText, setProposeText] = useState("");
+  const [proposedTo, setProposedTo] = useState<number | null>(null);
 
   const [snapshot, setSnapshot] = useState<Snapshot | null>(null);
 
-  const [tabVisible, setTabVisible] = useState(
-    () => typeof document === "undefined" || !document.hidden,
-  );
+  const [tabVisible, setTabVisible] = useState(() => typeof document === "undefined" || !document.hidden);
   const [onscreen, setOnscreen] = useState(true);
   const [reducedMotion, setReducedMotion] = useState(
     () => typeof matchMedia !== "undefined" && matchMedia("(prefers-reduced-motion: reduce)").matches,
   );
 
-  // Refs mirroring state that the rAF loop / draw function read without re-subscribing.
   const speedRef = useRef(speed);
   speedRef.current = speed;
   const snapshotRef = useRef<Snapshot | null>(snapshot);
@@ -113,6 +153,8 @@ export default function RaftPage() {
   modeRef.current = mode;
   const reducedRef = useRef(reducedMotion);
   reducedRef.current = reducedMotion;
+  const pausedRef = useRef(paused);
+  pausedRef.current = paused;
 
   // ---- core load -----------------------------------------------------------
 
@@ -140,6 +182,7 @@ export default function RaftPage() {
     setSnapshot(sim.snapshot());
     setSelectedId(null);
     setLinkFirst(null);
+    setProposedTo(null);
     return () => {
       sim.dispose();
       simRef.current = null;
@@ -184,7 +227,7 @@ export default function RaftPage() {
     let raf = 0;
     let last = performance.now();
     const frame = (t: number): void => {
-      const dt = Math.min(t - last, 250); // clamp long gaps; the sim also caps its backlog
+      const dt = Math.min(t - last, 250);
       last = t;
       const sim = simRef.current;
       if (sim) {
@@ -219,13 +262,22 @@ export default function RaftPage() {
     ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
     ctx.clearRect(0, 0, w, h);
 
-    const palette = readPalette(rootRef.current);
-    const reduced = reducedRef.current;
+    const pal = readPalette(rootRef.current);
+    const d = derive(snap);
     const count = snap.nodes.length;
+
+    // Type steps on canvas: 0.875rem (ids) and 0.75rem (meta), same as the page.
+    const idPx = Math.round(pal.rem * 0.875);
+    const metaPx = Math.round(pal.rem * 0.75);
+    const fontId = `500 ${idPx}px ${pal.fontMono}`;
+    const fontMeta = `400 ${metaPx}px ${pal.fontMono}`;
+
+    // Composition: the ring fills the stage, leaving room for the log lane under each node.
+    const nodeRadius = Math.max(16, Math.min(26, Math.min(w, h) * 0.075));
+    const lane = nodeRadius + 40; // disc edge -> bottom of log lane + margin
+    const R = Math.max(40, Math.min(w / 2 - nodeRadius - 44, h / 2 - lane));
     const cx = w / 2;
-    const cy = h / 2;
-    const R = Math.min(w, h) * 0.33;
-    const nodeRadius = Math.max(14, Math.min(28, Math.min(w, h) * 0.08));
+    const cy = h / 2 + 4;
 
     const positions = new Map<number, { x: number; y: number }>();
     snap.nodes.forEach((node, i) => positions.set(node.id, ringPosition(i, count, cx, cy, R)));
@@ -233,28 +285,26 @@ export default function RaftPage() {
 
     const cutSet = new Set(snap.cuts);
 
-    // Links (behind everything).
+    // Links.
     ctx.lineWidth = 1;
-    for (let a = 0; a < snap.nodes.length; a++) {
-      for (let b = a + 1; b < snap.nodes.length; b++) {
+    for (let a = 0; a < count; a++) {
+      for (let b = a + 1; b < count; b++) {
         const idA = snap.nodes[a].id;
         const idB = snap.nodes[b].id;
         const pa = positions.get(idA);
         const pb = positions.get(idB);
         if (!pa || !pb) continue;
-        const cut = cutSet.has(`${Math.min(idA, idB)}-${Math.max(idA, idB)}`);
-        ctx.strokeStyle = palette.line;
-        if (cut) {
-          // Dashed line with a visible break in the middle.
+        if (cutSet.has(linkKey(idA, idB))) {
           const mx = (pa.x + pb.x) / 2;
           const my = (pa.y + pb.y) / 2;
           const dx = pb.x - pa.x;
           const dy = pb.y - pa.y;
-          const gap = 12;
           const len = Math.hypot(dx, dy) || 1;
           const ux = dx / len;
           const uy = dy / len;
-          ctx.setLineDash([4, 4]);
+          const gap = 14;
+          ctx.strokeStyle = pal.faint;
+          ctx.setLineDash([3, 5]);
           ctx.beginPath();
           ctx.moveTo(pa.x, pa.y);
           ctx.lineTo(mx - ux * gap, my - uy * gap);
@@ -262,7 +312,16 @@ export default function RaftPage() {
           ctx.lineTo(pb.x, pb.y);
           ctx.stroke();
           ctx.setLineDash([]);
+          // Break marks at the gap.
+          ctx.strokeStyle = pal.danger;
+          ctx.beginPath();
+          ctx.moveTo(mx - ux * gap - uy * 4, my - uy * gap + ux * 4);
+          ctx.lineTo(mx - ux * gap + uy * 4, my - uy * gap - ux * 4);
+          ctx.moveTo(mx + ux * gap - uy * 4, my + uy * gap + ux * 4);
+          ctx.lineTo(mx + ux * gap + uy * 4, my + uy * gap - ux * 4);
+          ctx.stroke();
         } else {
+          ctx.strokeStyle = pal.lineSoft;
           ctx.beginPath();
           ctx.moveTo(pa.x, pa.y);
           ctx.lineTo(pb.x, pb.y);
@@ -271,139 +330,200 @@ export default function RaftPage() {
       }
     }
 
-    // In-flight message dots.
-    if (!reduced) {
-      for (const m of snap.inflight) {
-        const from = positions.get(m.from);
-        const to = positions.get(m.to);
-        if (!from || !to) continue;
-        const span = m.deliverAt - m.sentAt;
-        const p = span > 0 ? Math.min(1, Math.max(0, (snap.nowMs - m.sentAt) / span)) : 1;
-        const x = from.x + (to.x - from.x) * p;
-        const y = from.y + (to.y - from.y) * p;
-        const isVote = m.kind === "rv" || m.kind === "rvr";
-        ctx.fillStyle = isVote ? palette.teal : palette.accent;
-        ctx.beginPath();
-        ctx.arc(x, y, 3, 0, Math.PI * 2);
+    // In-flight messages: chevrons pointing along travel. Append = accent, vote = ink;
+    // request = filled, reply = hollow. Positions come from the sim clock, so they are
+    // honest under reduced motion too (the only motion is the protocol's own).
+    for (const m of snap.inflight) {
+      const from = positions.get(m.from);
+      const to = positions.get(m.to);
+      if (!from || !to) continue;
+      const span = m.deliverAt - m.sentAt;
+      const p = span > 0 ? Math.min(1, Math.max(0, (snap.nowMs - m.sentAt) / span)) : 1;
+      const x = from.x + (to.x - from.x) * p;
+      const y = from.y + (to.y - from.y) * p;
+      const len = Math.hypot(to.x - from.x, to.y - from.y) || 1;
+      const ux = (to.x - from.x) / len;
+      const uy = (to.y - from.y) / len;
+      const isVote = m.kind === "rv" || m.kind === "rvr";
+      const isReply = m.kind === "rvr" || m.kind === "aer";
+      const colour = isVote ? pal.text : pal.accent;
+      ctx.beginPath();
+      ctx.moveTo(x + ux * 5, y + uy * 5);
+      ctx.lineTo(x - ux * 3 - uy * 3.5, y - uy * 3 + ux * 3.5);
+      ctx.lineTo(x - ux * 3 + uy * 3.5, y - uy * 3 - ux * 3.5);
+      ctx.closePath();
+      if (isReply) {
+        ctx.strokeStyle = colour;
+        ctx.lineWidth = 1.25;
+        ctx.stroke();
+      } else {
+        ctx.fillStyle = colour;
         ctx.fill();
       }
     }
 
-    // Nodes + badges + log bars.
+    // Nodes.
     for (const node of snap.nodes) {
       const p = positions.get(node.id);
       if (!p) continue;
       const alive = node.alive;
       const role = node.status.role;
+      const isolated = alive && d.leaderId !== null && !d.reachable.has(node.id);
 
       ctx.save();
-      if (!alive) ctx.globalAlpha = 0.4;
+      if (!alive || isolated) ctx.globalAlpha = 0.45;
 
       // Disc.
       ctx.beginPath();
       ctx.arc(p.x, p.y, nodeRadius, 0, Math.PI * 2);
-      if (role === "leader") {
-        ctx.fillStyle = palette.accent;
+      ctx.fillStyle = pal.bg;
+      ctx.fill();
+      if (!alive) {
+        ctx.lineWidth = 1;
+        ctx.strokeStyle = pal.line;
+        ctx.stroke();
+      } else if (role === "leader") {
+        ctx.fillStyle = pal.accent;
         ctx.fill();
-      } else {
-        ctx.fillStyle = palette.bg;
-        ctx.fill();
-        ctx.lineWidth = 1.5;
-        if (role === "candidate") {
-          ctx.strokeStyle = palette.accent;
-          ctx.setLineDash([5, 4]);
-          ctx.lineDashOffset = reduced ? 0 : -((snap.nowMs / 16) % 1000);
-          ctx.stroke();
-          ctx.setLineDash([]);
-          ctx.lineDashOffset = 0;
-        } else {
-          ctx.strokeStyle = palette.node;
+      } else if (role === "candidate") {
+        ctx.lineWidth = 2;
+        ctx.strokeStyle = pal.accent;
+        ctx.stroke();
+        // Vote spread: one arc segment per node, lit for each vote received this term.
+        const votes = snap.nodes.filter(
+          (n) => n.status.votedFor === node.id && n.status.term === node.status.term,
+        ).length;
+        const seg = (Math.PI * 2) / count;
+        const gapA = 0.18;
+        ctx.lineWidth = 2;
+        for (let i = 0; i < count; i++) {
+          const a0 = -Math.PI / 2 + i * seg + gapA / 2;
+          const a1 = a0 + seg - gapA;
+          ctx.strokeStyle = i < votes ? pal.accent : pal.lineSoft;
+          ctx.beginPath();
+          ctx.arc(p.x, p.y, nodeRadius + 7, a0, a1);
           ctx.stroke();
         }
-      }
-
-      // Id label.
-      ctx.fillStyle = role === "leader" ? palette.bg : palette.text;
-      ctx.font = `600 13px ${palette.fontMono}`;
-      ctx.textAlign = "center";
-      ctx.textBaseline = "middle";
-      ctx.fillText(`n${node.id}`, p.x, p.y);
-
-      // Term badge (top-right).
-      const bx = p.x + nodeRadius * 0.72;
-      const by = p.y - nodeRadius * 0.72;
-      ctx.beginPath();
-      ctx.arc(bx, by, nodeRadius * 0.46, 0, Math.PI * 2);
-      ctx.fillStyle = palette.bg;
-      ctx.fill();
-      ctx.lineWidth = 1;
-      ctx.strokeStyle = palette.node;
-      ctx.stroke();
-      ctx.fillStyle = palette.text;
-      ctx.font = `600 9px ${palette.fontMono}`;
-      ctx.fillText(String(node.status.term), bx, by);
-
-      // Crashed marker (X).
-      if (!alive) {
-        ctx.strokeStyle = "#c85a54";
-        ctx.lineWidth = 2;
-        const d = nodeRadius * 0.6;
-        ctx.beginPath();
-        ctx.moveTo(p.x - d, p.y - d);
-        ctx.lineTo(p.x + d, p.y + d);
-        ctx.moveTo(p.x + d, p.y - d);
-        ctx.lineTo(p.x - d, p.y + d);
+      } else {
+        ctx.lineWidth = 1.5;
+        ctx.strokeStyle = pal.muted;
         ctx.stroke();
       }
 
-      // Log bar under the node.
-      const barW = nodeRadius * 2.8;
-      const barH = 7;
-      const barX = p.x - barW / 2;
-      const barY = p.y + nodeRadius + 9;
-      ctx.fillStyle = palette.line;
-      ctx.fillRect(barX, barY, barW, barH);
+      // Id.
+      ctx.font = fontId;
+      ctx.textAlign = "center";
+      ctx.textBaseline = "middle";
+      ctx.fillStyle = alive && role === "leader" ? pal.bg : pal.text;
+      ctx.fillText(`n${node.id}`, p.x, p.y);
+
+      // Term, quiet, beside the disc.
+      ctx.font = fontMeta;
+      ctx.textAlign = "left";
+      ctx.fillStyle = pal.muted;
+      ctx.fillText(`t${node.status.term}`, p.x + nodeRadius + 6, p.y - nodeRadius * 0.55);
+
+      // Crash mark.
+      if (!alive) {
+        ctx.globalAlpha = 1;
+        ctx.strokeStyle = pal.danger;
+        ctx.lineWidth = 1.5;
+        const k = nodeRadius * 0.4;
+        ctx.beginPath();
+        ctx.moveTo(p.x - k, p.y - k);
+        ctx.lineTo(p.x + k, p.y + k);
+        ctx.moveTo(p.x + k, p.y - k);
+        ctx.lineTo(p.x - k, p.y + k);
+        ctx.stroke();
+        ctx.globalAlpha = 0.45;
+      }
+
+      // Log lane: fixed cells; wider gap at each term boundary; applied = solid accent,
+      // committed = half accent, uncommitted = outline; tick at the commit boundary.
       const n = node.logTerms.length;
-      if (n > 0) {
-        const committed = node.committedTerms.length;
-        const segW = barW / n;
-        for (let i = 0; i < n; i++) {
-          const isCommitted = i < committed;
-          ctx.fillStyle = termColor(node.logTerms[i], isCommitted ? 1 : 0.35);
-          ctx.fillRect(barX + i * segW, barY, Math.max(1, segW - 0.5), barH);
+      const committed = node.committedTerms.length;
+      const applied = Math.min(committed, Math.max(0, node.status.lastApplied));
+      const maxW = nodeRadius * 3.4;
+      const barH = 8;
+      const baseY = p.y + nodeRadius + 12 + barH;
+      const termBreaks = n > 0 ? node.logTerms.filter((t, i) => i > 0 && t !== node.logTerms[i - 1]).length : 0;
+      const cellGap = 1;
+      const termGap = 3;
+      const cellW = n > 0 ? Math.max(2, Math.min(6, (maxW - (n - 1) * cellGap - termBreaks * termGap) / n)) : 6;
+      const totalW = n > 0 ? n * cellW + (n - 1) * cellGap + termBreaks * termGap : 0;
+      const startX = p.x - Math.max(totalW, maxW) / 2;
+
+      ctx.lineWidth = 1;
+      ctx.strokeStyle = pal.lineSoft;
+      ctx.beginPath();
+      ctx.moveTo(startX, baseY + 1.5);
+      ctx.lineTo(startX + Math.max(totalW, maxW), baseY + 1.5);
+      ctx.stroke();
+
+      let x = startX;
+      let commitX: number | null = null;
+      for (let i = 0; i < n; i++) {
+        if (i > 0) x += cellGap + (node.logTerms[i] !== node.logTerms[i - 1] ? termGap : 0);
+        if (i === committed) commitX = x - (cellGap + 1) / 2;
+        const y = baseY - barH;
+        if (i < applied) {
+          ctx.fillStyle = pal.accent;
+          ctx.fillRect(x, y, cellW, barH);
+        } else if (i < committed) {
+          const a = ctx.globalAlpha;
+          ctx.globalAlpha = a * 0.5;
+          ctx.fillStyle = pal.accent;
+          ctx.fillRect(x, y, cellW, barH);
+          ctx.globalAlpha = a;
+        } else {
+          ctx.strokeStyle = pal.muted;
+          ctx.strokeRect(x + 0.5, y + 0.5, Math.max(1, cellW - 1), barH - 1);
         }
-        // Commit marker notch at the committed / uncommitted boundary.
-        if (committed > 0 && committed < n) {
-          ctx.strokeStyle = palette.text;
-          ctx.lineWidth = 1;
-          const nx = barX + committed * segW;
-          ctx.beginPath();
-          ctx.moveTo(nx, barY - 2);
-          ctx.lineTo(nx, barY + barH + 2);
-          ctx.stroke();
-        }
+        x += cellW;
+      }
+      if (commitX !== null && committed > 0) {
+        ctx.strokeStyle = pal.text;
+        ctx.beginPath();
+        ctx.moveTo(commitX, baseY - barH - 3);
+        ctx.lineTo(commitX, baseY + 3);
+        ctx.stroke();
       }
       ctx.restore();
 
-      // Selection / link-pending highlight.
+      // Selection (solid accent) / link-pending (dashed ink) rings — distinct glyphs.
       const selected = selectedRef.current;
       const pending = linkFirstRef.current;
-      if (node.id === selected || node.id === pending) {
-        ctx.strokeStyle = node.id === pending ? palette.teal : palette.accent;
-        ctx.lineWidth = 2;
+      if (node.id === pending) {
+        ctx.strokeStyle = pal.text;
+        ctx.lineWidth = 1.5;
+        ctx.setLineDash([3, 3]);
+        ctx.beginPath();
+        ctx.arc(p.x, p.y, nodeRadius + 5, 0, Math.PI * 2);
+        ctx.stroke();
+        ctx.setLineDash([]);
+      } else if (node.id === selected) {
+        ctx.strokeStyle = pal.accent;
+        ctx.lineWidth = 1.5;
         ctx.beginPath();
         ctx.arc(p.x, p.y, nodeRadius + 5, 0, Math.PI * 2);
         ctx.stroke();
       }
     }
+
+    // Paused: the clock is frozen — say so on the stage itself.
+    if (pausedRef.current) {
+      ctx.font = fontMeta;
+      ctx.textAlign = "right";
+      ctx.textBaseline = "top";
+      ctx.fillStyle = pal.muted;
+      ctx.fillText(`paused · ${(snap.nowMs / 1000).toFixed(1)} s`, w - 8, 8);
+    }
   }, []);
 
-  // Redraw on any visual state change.
   useEffect(() => {
     draw();
-  }, [draw, snapshot, selectedId, linkFirst, mode, reducedMotion]);
+  }, [draw, snapshot, selectedId, linkFirst, mode, reducedMotion, paused]);
 
-  // Redraw on resize.
   useEffect(() => {
     const canvas = canvasRef.current;
     if (!canvas || typeof ResizeObserver === "undefined") return;
@@ -414,40 +534,52 @@ export default function RaftPage() {
 
   // ---- interactions --------------------------------------------------------
 
+  const actOnNode = useCallback((hit: number): void => {
+    const sim = simRef.current;
+    if (modeRef.current === "select") {
+      setSelectedId(hit);
+      return;
+    }
+    const first = linkFirstRef.current;
+    if (first === null) {
+      setLinkFirst(hit);
+    } else if (first === hit) {
+      setLinkFirst(null);
+    } else {
+      sim?.toggleLink(first, hit);
+      setLinkFirst(null);
+      if (sim) setSnapshot(sim.snapshot());
+    }
+  }, []);
+
   const onCanvasClick = useCallback(
     (e: ReactMouseEvent<HTMLCanvasElement>): void => {
       const layout = layoutRef.current;
       const canvas = canvasRef.current;
-      const sim = simRef.current;
       if (!layout || !canvas) return;
       const rect = canvas.getBoundingClientRect();
       const x = e.clientX - rect.left;
       const y = e.clientY - rect.top;
-      let hit: number | null = null;
       for (const [id, pos] of layout.positions) {
-        if (Math.hypot(pos.x - x, pos.y - y) <= layout.nodeRadius) {
-          hit = id;
-          break;
+        if (Math.hypot(pos.x - x, pos.y - y) <= layout.nodeRadius + 4) {
+          actOnNode(id);
+          return;
         }
       }
-      if (hit === null) return;
-
-      if (modeRef.current === "select") {
-        setSelectedId(hit);
-        return;
-      }
-      // Link mode: pick two distinct nodes to toggle their link.
-      if (linkFirst === null) {
-        setLinkFirst(hit);
-      } else if (linkFirst === hit) {
-        setLinkFirst(null);
-      } else {
-        sim?.toggleLink(linkFirst, hit);
-        setLinkFirst(null);
-        if (sim) setSnapshot(sim.snapshot());
-      }
     },
-    [linkFirst],
+    [actOnNode],
+  );
+
+  // Keyboard path for the canvas affordance: digit keys address nodes by id.
+  const onCanvasKey = useCallback(
+    (e: ReactKeyboardEvent<HTMLCanvasElement>): void => {
+      const n = Number(e.key);
+      const snap = snapshotRef.current;
+      if (!snap || !Number.isInteger(n) || n < 1 || n > snap.nodes.length) return;
+      e.preventDefault();
+      actOnNode(n);
+    },
+    [actOnNode],
   );
 
   const rebuild = useCallback((): void => {
@@ -477,48 +609,48 @@ export default function RaftPage() {
 
   // ---- derived UI values ---------------------------------------------------
 
-  const leaderId = snapshot?.leaderId ?? null;
+  const d = derive(snapshot);
+  const leaderId = d.leaderId;
   const proposeBytes = ENCODER.encode(proposeText);
   const tooLong = proposeBytes.length > MAX_PROPOSE_BYTES;
   const proposeReason =
-    leaderId === null
-      ? "no leader"
-      : proposeText.length === 0
-        ? "type a value"
-        : tooLong
-          ? "> 24 bytes"
-          : "";
+    leaderId === null ? "no leader" : proposeText.length === 0 ? "type a value" : tooLong ? "> 24 bytes" : "";
   const proposeDisabled = proposeReason !== "";
+  // Helper policy: only speak after the visitor typed; "type a value" is never printed.
+  const proposeHelp = proposeText.length > 0 && proposeDisabled ? proposeReason : "";
 
   const submitPropose = useCallback((): void => {
     const sim = simRef.current;
     if (!sim || proposeDisabled) return;
     if (sim.propose(ENCODER.encode(proposeText))) {
       setProposeText("");
+      setProposedTo(leaderId);
       setSnapshot(sim.snapshot());
     }
-  }, [proposeDisabled, proposeText]);
+  }, [proposeDisabled, proposeText, leaderId]);
 
   const selectedNode = snapshot?.nodes.find((n) => n.id === selectedId) ?? null;
-  const aliveCount = snapshot ? snapshot.nodes.filter((n) => n.alive).length : 0;
-  const totalCount = snapshot ? snapshot.nodes.length : 0;
-  const cutCount = snapshot ? snapshot.cuts.length : 0;
+  const feed = snapshot ? snapshot.events.slice(-FEED_CAP).reverse() : [];
   const clockText = snapshot ? (snapshot.nowMs / 1000).toFixed(1) : "0.0";
-  const feed = snapshot ? snapshot.events.slice(-9).reverse() : [];
+  const seedHex = seed.toString(16).padStart(8, "0");
 
-  // ---- error / loading states ----------------------------------------------
+  const leaderText = leaderId !== null ? `n${leaderId}` : d.electing ? "electing" : "—";
+  const quorumNote =
+    leaderId !== null && !d.hasMajority ? "majority unreachable" : leaderId === null && d.electing ? "election" : "";
+
+  // ---- whole-page error state ---------------------------------------------
 
   if (loadError) {
     return (
       <div className="raft-field" ref={rootRef}>
-        <div className="raft-panel raft-error" role="alert">
+        <header className="raft-head">
+          <h1>A full Raft state machine written in Rust.</h1>
+        </header>
+        <section className="raft-panel raft-error" role="alert">
           <h2>Couldn’t start the cluster</h2>
-          <p>
-            The WebAssembly consensus core failed to load, so the live demo can’t run in this
-            browser.
-          </p>
-          <p className="raft-mono">{loadError}</p>
-        </div>
+          <p>The WebAssembly consensus core failed to load, so the live cluster can’t run in this browser.</p>
+          <p className="raft-mono raft-error-detail">{loadError}</p>
+        </section>
       </div>
     );
   }
@@ -530,19 +662,14 @@ export default function RaftPage() {
       <header className="raft-head">
         <h1>A full Raft state machine written in Rust.</h1>
         <div className="raft-head-controls">
-          <label className="raft-ctl">
-            <span>Cluster</span>
-            <select
-              value={size}
-              onChange={(e) => changeSize(Number(e.target.value) as Size)}
-              aria-label="Cluster size"
-            >
+          <label className="raft-select">
+            <span className="raft-label">cluster</span>
+            <select value={size} onChange={(e) => changeSize(Number(e.target.value) as Size)} aria-label="Cluster size">
               <option value={3}>3 nodes</option>
               <option value={5}>5 nodes</option>
               <option value={7}>7 nodes</option>
             </select>
           </label>
-          <span className="raft-seed raft-mono">seed 0x{seed.toString(16).padStart(8, "0")}</span>
           <button type="button" onClick={rebuild}>
             Reset cluster
           </button>
@@ -551,151 +678,204 @@ export default function RaftPage() {
 
       <div className="raft-grid">
         <section className="raft-stage" aria-label="Cluster visualization">
+          <div className="raft-readout raft-mono" aria-live="polite" aria-atomic="true">
+            <span className="raft-stat">
+              <span className="raft-label">term</span>
+              <span className="raft-value">{d.term}</span>
+            </span>
+            <span className="raft-stat">
+              <span className="raft-label">leader</span>
+              <span className={leaderId !== null ? "raft-value raft-value-accent" : "raft-value"}>{leaderText}</span>
+            </span>
+            <span className="raft-stat">
+              <span className="raft-label">commit</span>
+              <span className="raft-value">{d.commit}</span>
+            </span>
+            <span className="raft-stat">
+              <span className="raft-label">applied</span>
+              <span className="raft-value">{d.applied}</span>
+            </span>
+            <span className="raft-stat">
+              <span className="raft-label">quorum</span>
+              <span className="raft-value">
+                {d.reach}/{d.total}
+              </span>
+              {quorumNote && <span className="raft-note">{quorumNote}</span>}
+            </span>
+          </div>
+
           <canvas
             ref={canvasRef}
             className="raft-canvas"
+            tabIndex={0}
             onClick={onCanvasClick}
+            onKeyDown={onCanvasKey}
             aria-label="Raft cluster diagram (click nodes to select or link)"
           />
-          <div className="raft-strip raft-mono">
-            <span>{clockText}s</span>
-            <span>{speed}×</span>
-            <span>
-              {leaderId !== null
-                ? `leader: n${leaderId}`
-                : "no leader — a majority must be reachable"}
-            </span>
-            <span>
-              {aliveCount}/{totalCount} up
-            </span>
-            <span>{cutCount} links cut</span>
-          </div>
+
+          <ul className="raft-legend raft-mono" aria-label="Legend">
+            <li>
+              <i className="raft-g raft-g-leader" />leader
+            </li>
+            <li>
+              <i className="raft-g raft-g-follower" />follower
+            </li>
+            <li>
+              <i className="raft-g raft-g-candidate" />candidate
+            </li>
+            <li>
+              <i className="raft-g raft-g-down" />down
+            </li>
+            <li>
+              <i className="raft-g raft-g-applied" />applied
+            </li>
+            <li>
+              <i className="raft-g raft-g-committed" />committed
+            </li>
+            <li>
+              <i className="raft-g raft-g-open" />uncommitted
+            </li>
+            <li className="raft-legend-hint">click a node; Link: click two</li>
+          </ul>
         </section>
 
         <aside className="raft-side">
-          <div className="raft-panel">
+          <div className="raft-panel raft-controls">
             <div className="raft-row">
-              <span className="raft-label">Speed</span>
-              <div className="raft-seg" role="group" aria-label="Speed">
-                {SPEEDS.map((s) => (
+              <span className="raft-label">speed</span>
+              <div className="raft-row-end">
+                <div className="raft-seg" role="group" aria-label="Speed">
+                  {SPEEDS.map((s) => (
+                    <button
+                      key={s}
+                      type="button"
+                      className={s === speed ? "raft-on" : ""}
+                      aria-pressed={s === speed}
+                      onClick={() => setSpeed(s)}
+                    >
+                      {s}×
+                    </button>
+                  ))}
+                </div>
+                <button type="button" onClick={() => setPaused((p) => !p)} aria-pressed={paused}>
+                  {paused ? "Resume" : "Pause"}
+                </button>
+              </div>
+            </div>
+
+            <div className="raft-row">
+              <span className="raft-label">mode</span>
+              <div className="raft-row-end">
+                <div className="raft-seg" role="group" aria-label="Interaction mode">
                   <button
-                    key={s}
                     type="button"
-                    className={s === speed ? "raft-on" : ""}
-                    aria-pressed={s === speed}
-                    onClick={() => setSpeed(s)}
+                    className={mode === "select" ? "raft-on" : ""}
+                    aria-pressed={mode === "select"}
+                    onClick={() => {
+                      setMode("select");
+                      setLinkFirst(null);
+                    }}
                   >
-                    {s}×
+                    Select
                   </button>
-                ))}
-              </div>
-            </div>
-
-            <div className="raft-row">
-              <span className="raft-label">Clock</span>
-              <button type="button" onClick={() => setPaused((p) => !p)} aria-pressed={paused}>
-                {paused ? "Resume" : "Pause"}
-              </button>
-            </div>
-
-            <div className="raft-row">
-              <span className="raft-label">Mode</span>
-              <div className="raft-seg" role="group" aria-label="Interaction mode">
-                <button
-                  type="button"
-                  className={mode === "select" ? "raft-on" : ""}
-                  aria-pressed={mode === "select"}
-                  onClick={() => {
-                    setMode("select");
-                    setLinkFirst(null);
-                  }}
-                >
-                  Select
-                </button>
-                <button
-                  type="button"
-                  className={mode === "link" ? "raft-on" : ""}
-                  aria-pressed={mode === "link"}
-                  onClick={() => {
-                    setMode("link");
-                    setSelectedId(null);
-                  }}
-                >
-                  Link
-                </button>
-              </div>
-            </div>
-
-            {mode === "link" && (
-              <p className="raft-hint">
-                {linkFirst === null
-                  ? "Click two nodes to cut or re-join their link."
-                  : `n${linkFirst} chosen — click another node.`}
-              </p>
-            )}
-
-            {mode === "select" && (
-              <div className="raft-row">
-                <span className="raft-label">Node</span>
-                {selectedNode ? (
-                  <div className="raft-node-ctl">
-                    <span className="raft-mono">n{selectedNode.id}</span>
-                    {selectedNode.alive ? (
-                      <button type="button" onClick={() => doCrash(selectedNode.id)}>
-                        Crash
-                      </button>
-                    ) : (
-                      <button type="button" onClick={() => doRecover(selectedNode.id)}>
-                        Resume (recover)
-                      </button>
-                    )}
-                  </div>
-                ) : (
-                  <span className="raft-hint">Click a node to select it.</span>
+                  <button
+                    type="button"
+                    className={mode === "link" ? "raft-on" : ""}
+                    aria-pressed={mode === "link"}
+                    onClick={() => {
+                      setMode("link");
+                      setSelectedId(null);
+                    }}
+                  >
+                    Link
+                  </button>
+                </div>
+                {mode === "link" && linkFirst !== null && (
+                  <span className="raft-note raft-mono">n{linkFirst} chosen — click another node</span>
                 )}
               </div>
+            </div>
+
+            {mode === "select" && selectedNode && (
+              <div className="raft-row">
+                <span className="raft-label">node</span>
+                <div className="raft-row-end">
+                  <span className="raft-mono raft-value">
+                    n{selectedNode.id} · {selectedNode.alive ? selectedNode.status.role : "down"} · t
+                    {selectedNode.status.term}
+                  </span>
+                  {selectedNode.alive ? (
+                    <button type="button" onClick={() => doCrash(selectedNode.id)}>
+                      Crash
+                    </button>
+                  ) : (
+                    <button type="button" onClick={() => doRecover(selectedNode.id)}>
+                      Resume (recover)
+                    </button>
+                  )}
+                </div>
+              </div>
             )}
 
-            <div className="raft-propose">
+            <div className="raft-row">
               <label className="raft-label" htmlFor="raft-propose-input">
-                Propose value
+                propose
               </label>
-              <div className="raft-node-ctl">
+              <div className="raft-row-end raft-propose">
                 <input
                   id="raft-propose-input"
+                  className="raft-mono"
                   type="text"
                   value={proposeText}
                   maxLength={24}
-                  placeholder="value…"
-                  onChange={(e) => setProposeText(e.target.value)}
+                  placeholder="value"
+                  onChange={(e) => {
+                    setProposeText(e.target.value);
+                    setProposedTo(null);
+                  }}
                   onKeyDown={(e) => {
                     if (e.key === "Enter") submitPropose();
                   }}
+                  aria-label="Value to propose"
                 />
-                <button type="button" onClick={submitPropose} disabled={proposeDisabled}>
+                <button
+                  type="button"
+                  onClick={submitPropose}
+                  disabled={proposeDisabled}
+                  title={proposeDisabled ? proposeReason : undefined}
+                >
                   Propose
                 </button>
+                {proposeHelp && <span className="raft-note raft-mono">{proposeHelp}</span>}
+                {!proposeHelp && proposedTo !== null && proposeText.length === 0 && (
+                  <span className="raft-note raft-mono raft-note-accent">appended on n{proposedTo}</span>
+                )}
               </div>
-              {proposeDisabled && <p className="raft-hint">Disabled — {proposeReason}.</p>}
             </div>
           </div>
 
-          <div className="raft-panel raft-feed" aria-label="Event feed">
-            <h2 className="raft-label">Events</h2>
+          <section className="raft-feed" aria-label="Event feed">
+            <h2 className="raft-label">events</h2>
             <ul className="raft-mono">
               {feed.length === 0 ? (
-                <li className="raft-hint">nothing yet…</li>
+                <li className="raft-feed-empty">no events yet</li>
               ) : (
                 feed.map((ev, i) => (
-                  <li key={`${ev.tMs}-${i}`}>
-                    <span className="raft-t">{(ev.tMs / 1000).toFixed(1)}s</span> {ev.text}
+                  <li key={`${ev.tMs}-${i}`} data-kind={ev.kind}>
+                    <span className="raft-dot" aria-hidden="true" />
+                    <span className="raft-t">{(ev.tMs / 1000).toFixed(1)}</span>
+                    <span className="raft-ev">{ev.text}</span>
                   </li>
                 ))
               )}
             </ul>
-          </div>
+          </section>
         </aside>
       </div>
+
+      <footer className="raft-foot raft-mono">
+        seed {seedHex} · {clockText} s{paused ? " · paused" : ""}
+      </footer>
     </div>
   );
 }

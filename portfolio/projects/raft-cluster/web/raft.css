@@ -1,31 +1,37 @@
-/* web/raft.css — scoped styles for the live Raft cluster page (revision 1). */
+/* web/raft.css — scoped styles for the live Raft cluster page (revision 2). */
 
 .raft-field {
-  /* Local tokens, each falling back to a shell ink token. The --sans/--mono
-     families are NOT redefined here — the shell's :root already provides them
-     and a self-referential custom property is a guaranteed-invalid cycle. */
+  /* Local tokens over the shell's ink tokens. --sans/--mono are inherited, never redefined. */
   --raft-bg: var(--ink-bg, #0b1317);
   --raft-text: var(--ink-text, #eeeae0);
+  --raft-muted: var(--ink-muted, rgba(238, 234, 224, 0.68));
+  --raft-faint: var(--ink-faint, rgba(238, 234, 224, 0.48));
+  --raft-line: var(--ink-line, rgba(238, 234, 224, 0.26));
+  --raft-line-soft: var(--ink-line-soft, rgba(238, 234, 224, 0.13));
+  --raft-panel: var(--ink-panel, rgba(238, 234, 224, 0.045));
   --raft-accent: var(--ink-accent, #d39b61);
-  --raft-line: var(--ink-line, rgba(238, 234, 224, 0.14));
-  --raft-node: rgba(238, 234, 224, 0.55);
-  --raft-log: rgba(238, 234, 224, 0.14);
-  --raft-msg-vote: #4bb3a7;
+  /* The one new page token: danger (crash marks, cut breaks, error heading). */
   --raft-danger: #c85a54;
 
-  --raft-panel-bg: rgba(238, 234, 224, 0.03);
-  --raft-panel-line: var(--raft-line);
-  --raft-muted: rgba(238, 234, 224, 0.55);
-  --raft-radius: 8px;
-  --raft-gap: 16px;
+  /* Type steps: 0.75rem meta/labels · 0.875rem controls+feed · 1rem readout values · h1 (frozen). */
+  --raft-fs-meta: 0.75rem;
+  --raft-fs-ui: 0.875rem;
+  --raft-fs-value: 1rem;
+  /* Spacing key (4/8): 4 8 12 16 24 32. */
+  --raft-s1: 4px;
+  --raft-s2: 8px;
+  --raft-s3: 12px;
+  --raft-s4: 16px;
+  --raft-s6: 24px;
+  --raft-s8: 32px;
+  --raft-radius: 6px;
+  --raft-ctl-h: 32px;
 
   color: var(--raft-text);
   background: var(--raft-bg);
   font-family: var(--sans, "IBM Plex Sans", system-ui, sans-serif);
   line-height: 1.5;
   padding-block: clamp(16px, 3vw, 32px);
-  /* Site alignment: == min(100% - 72px, 1200px) centered, so the content
-     tracks .project-frame-nav (36px gutters, 1200px cap; 16px at <=560). */
   padding-inline: max(36px, calc((100% - 1200px) / 2));
   box-sizing: border-box;
 }
@@ -36,22 +42,17 @@
   box-sizing: border-box;
 }
 
-/* ---- header --------------------------------------------------------------- */
+/* ---- header (h1 block frozen) --------------------------------------------- */
 
 .raft-head {
   display: flex;
   flex-wrap: wrap;
   align-items: flex-end;
   justify-content: space-between;
-  gap: var(--raft-gap);
-  margin-bottom: var(--raft-gap);
+  gap: var(--raft-s4);
+  margin-bottom: var(--raft-s6);
 }
 
-/* The owner's one-line title — the removed hero headline's register,
-   back in the removed hero's geometry: text track left, controls right.
-   Size adapts to the simulation window: floor at the owner-liked mobile
-   size (1.075rem, = option texts x1.075), scaling with the viewport up to
-   1.5rem on wide desktops. */
 .raft-head h1 {
   flex: 1 1 340px;
   min-width: 260px;
@@ -65,127 +66,226 @@
   display: flex;
   flex-wrap: wrap;
   align-items: center;
-  gap: 10px;
+  gap: var(--raft-s2);
 }
 
-.raft-seed {
+/* ---- labels / values / notes ---------------------------------------------- */
+
+/* Labels are lowercase mono, matching the shell topbar's register; uppercase is retired. */
+.raft-label {
+  margin: 0;
+  font-family: var(--mono, ui-monospace, SFMono-Regular, monospace);
+  font-size: var(--raft-fs-meta);
+  font-weight: 400;
   color: var(--raft-muted);
-  font-size: 0.8rem;
+  letter-spacing: 0.02em;
+}
+
+.raft-value {
+  font-size: var(--raft-fs-value);
+  font-weight: 500;
+  color: var(--raft-text);
+  font-variant-numeric: tabular-nums;
+}
+
+.raft-value-accent {
+  color: var(--raft-accent);
+}
+
+.raft-note {
+  font-size: var(--raft-fs-meta);
+  color: var(--raft-muted);
+}
+
+.raft-note-accent {
+  color: var(--raft-accent);
 }
 
 /* ---- main grid ------------------------------------------------------------ */
 
 .raft-grid {
   display: grid;
-  grid-template-columns: 2fr 1fr;
-  gap: var(--raft-gap);
-  align-items: start;
+  grid-template-columns: minmax(0, 2fr) minmax(0, 1fr);
+  gap: var(--raft-s6);
+  align-items: stretch;
 }
 
-@media (max-width: 900px) {
-  .raft-grid {
-    grid-template-columns: 1fr;
-  }
-}
-
-@media (max-width: 560px) {
-  .raft-field {
-    /* Site 16px-gutter collapse (matches .section-shell at <=560). */
-    padding-inline: 16px;
-  }
-}
-
-/* ---- stage / canvas ------------------------------------------------------- */
+/* ---- stage ---------------------------------------------------------------- */
 
 .raft-stage {
   display: flex;
   flex-direction: column;
-  gap: 10px;
+  gap: var(--raft-s3);
   min-width: 0;
+}
+
+.raft-readout {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--raft-s2) var(--raft-s6);
+  padding-bottom: var(--raft-s3);
+  border-bottom: 1px solid var(--raft-line);
+}
+
+.raft-stat {
+  display: inline-flex;
+  align-items: baseline;
+  gap: var(--raft-s2);
+}
+
+.raft-stat .raft-value {
+  font-size: 1.125rem;
 }
 
 .raft-canvas {
   display: block;
   width: 100%;
   aspect-ratio: 4 / 3;
-  border: 1px solid var(--raft-panel-line);
-  border-radius: var(--raft-radius);
   background: var(--raft-bg);
+  border-radius: var(--raft-radius);
   touch-action: manipulation;
 }
 
-.raft-strip {
+.raft-legend {
   display: flex;
   flex-wrap: wrap;
-  gap: 6px 18px;
-  padding: 8px 12px;
-  border: 1px solid var(--raft-panel-line);
-  border-radius: var(--raft-radius);
-  background: var(--raft-panel-bg);
+  gap: var(--raft-s1) var(--raft-s4);
+  margin: 0;
+  padding: var(--raft-s3) 0 0;
+  border-top: 1px solid var(--raft-line);
+  list-style: none;
+  font-size: var(--raft-fs-meta);
   color: var(--raft-muted);
-  font-size: 0.8rem;
 }
 
-/* ---- side panels ---------------------------------------------------------- */
+.raft-legend li {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.raft-legend-hint {
+  margin-left: auto;
+}
+
+/* Legend glyphs: same tokens as the canvas marks. */
+.raft-g {
+  display: inline-block;
+  width: 10px;
+  height: 10px;
+  flex: none;
+}
+
+.raft-g-leader {
+  border-radius: 50%;
+  background: var(--raft-accent);
+}
+
+.raft-g-follower {
+  border-radius: 50%;
+  border: 1.5px solid var(--raft-muted);
+}
+
+.raft-g-candidate {
+  border-radius: 50%;
+  border: 2px solid var(--raft-accent);
+}
+
+.raft-g-down {
+  position: relative;
+  border-radius: 50%;
+  border: 1px solid var(--raft-line);
+}
+
+.raft-g-down::before,
+.raft-g-down::after {
+  content: "";
+  position: absolute;
+  left: 1px;
+  top: 3.5px;
+  width: 6px;
+  height: 1.5px;
+  background: var(--raft-danger);
+  transform: rotate(45deg);
+}
+
+.raft-g-down::after {
+  transform: rotate(-45deg);
+}
+
+.raft-g-applied {
+  width: 8px;
+  background: var(--raft-accent);
+}
+
+.raft-g-committed {
+  width: 8px;
+  background: var(--raft-accent);
+  opacity: 0.5;
+}
+
+.raft-g-open {
+  width: 8px;
+  border: 1px solid var(--raft-muted);
+}
+
+/* ---- side column ---------------------------------------------------------- */
 
 .raft-side {
   display: flex;
   flex-direction: column;
-  gap: var(--raft-gap);
+  gap: var(--raft-s6);
   min-width: 0;
+  min-height: 0;
 }
 
+/* The one bordered box on the page. */
 .raft-panel {
+  padding: var(--raft-s4);
+  border: 1px solid var(--raft-line);
+  border-radius: var(--raft-radius);
+  background: var(--raft-panel);
+}
+
+.raft-controls {
   display: flex;
   flex-direction: column;
-  gap: 14px;
-  padding: 14px;
-  border: 1px solid var(--raft-panel-line);
-  border-radius: var(--raft-radius);
-  background: var(--raft-panel-bg);
+  gap: var(--raft-s4);
 }
 
 .raft-row {
-  display: flex;
+  display: grid;
+  grid-template-columns: 3.75rem minmax(0, 1fr);
   align-items: center;
-  justify-content: space-between;
-  gap: 10px;
-  flex-wrap: wrap;
+  gap: var(--raft-s2);
 }
 
-.raft-label {
-  font-size: 0.75rem;
-  font-weight: 600;
-  text-transform: uppercase;
-  letter-spacing: 0.06em;
-  color: var(--raft-muted);
-}
-
-.raft-hint {
-  margin: 0;
-  color: var(--raft-muted);
-  font-size: 0.8rem;
-}
-
-.raft-node-ctl {
+.raft-row-end {
   display: flex;
-  align-items: center;
-  gap: 8px;
   flex-wrap: wrap;
+  align-items: center;
+  gap: var(--raft-s2);
+  min-width: 0;
 }
 
-/* ---- controls: buttons, selects, inputs ----------------------------------- */
+.raft-propose input {
+  flex: 1 1 8rem;
+}
+
+/* ---- controls ------------------------------------------------------------- */
 
 .raft-field button,
 .raft-field select,
 .raft-field input[type="text"] {
   font: inherit;
-  font-size: 0.85rem;
+  font-size: var(--raft-fs-ui);
+  line-height: 1.2;
+  min-height: var(--raft-ctl-h);
   color: var(--raft-text);
   background: transparent;
-  border: 1px solid var(--raft-panel-line);
-  border-radius: 6px;
-  padding: 6px 10px;
+  border: 1px solid var(--raft-line);
+  border-radius: var(--raft-radius);
+  padding: 0 var(--raft-s3);
   cursor: pointer;
   transition: border-color 0.12s ease, background-color 0.12s ease;
 }
@@ -193,7 +293,10 @@
 .raft-field input[type="text"] {
   cursor: text;
   min-width: 0;
-  flex: 1 1 auto;
+}
+
+.raft-field input[type="text"]::placeholder {
+  color: var(--raft-muted);
 }
 
 .raft-field button:hover:not(:disabled),
@@ -201,49 +304,58 @@
   border-color: var(--raft-accent);
 }
 
+.raft-field button[aria-pressed="true"]:not(.raft-seg button) {
+  border-color: var(--raft-accent);
+  color: var(--raft-accent);
+}
+
 .raft-field button:disabled {
-  opacity: 0.45;
+  color: var(--raft-muted);
+  border-color: var(--raft-line-soft);
   cursor: not-allowed;
 }
 
-.raft-field select {
-  appearance: none;
-  padding-right: 10px;
-}
-
-/* Prevent touch-focus auto-zoom without enlarging buttons or mouse-only UI. */
-@media (any-pointer: coarse) {
-  .raft-field select,
-  .raft-field input[type="text"] {
-    font-size: 16px;
-  }
-  /* Keep the title's +7.5% over the option texts in the 16px regime too. */
-  .raft-head h1 {
-    font-size: 1.075rem;
-  }
-}
-
-.raft-ctl {
+/* Native select, appearance reset, CSS chevron. */
+.raft-select {
+  position: relative;
   display: inline-flex;
   align-items: center;
-  gap: 6px;
-  font-size: 0.8rem;
-  color: var(--raft-muted);
+  gap: var(--raft-s2);
 }
 
-/* Segmented control (speed / mode). */
+.raft-select select {
+  appearance: none;
+  -webkit-appearance: none;
+  padding-right: calc(var(--raft-s3) + 16px);
+}
+
+.raft-select::after {
+  content: "";
+  position: absolute;
+  right: 13px;
+  top: calc(50% - 5px);
+  width: 6px;
+  height: 6px;
+  border-right: 1.5px solid var(--raft-muted);
+  border-bottom: 1.5px solid var(--raft-muted);
+  transform: rotate(45deg);
+  pointer-events: none;
+}
+
 .raft-seg {
   display: inline-flex;
-  border: 1px solid var(--raft-panel-line);
-  border-radius: 6px;
+  border: 1px solid var(--raft-line);
+  border-radius: var(--raft-radius);
   overflow: hidden;
 }
 
 .raft-seg button {
+  min-height: calc(var(--raft-ctl-h) - 2px);
   border: none;
   border-radius: 0;
-  border-left: 1px solid var(--raft-panel-line);
-  padding: 5px 9px;
+  border-left: 1px solid var(--raft-line);
+  padding: 0 6px;
+  font-variant-numeric: tabular-nums;
 }
 
 .raft-seg button:first-child {
@@ -256,17 +368,20 @@
   font-weight: 600;
 }
 
-/* Propose block. */
-.raft-propose {
+/* ---- event feed (unboxed; fills the column to the stage's bottom edge) ------ */
+
+.raft-feed {
+  flex: 1 1 auto;
+  min-height: 0;
   display: flex;
   flex-direction: column;
-  gap: 8px;
+  gap: var(--raft-s2);
+  overflow: hidden;
 }
 
-/* ---- event feed ----------------------------------------------------------- */
-
 .raft-feed h2 {
-  margin: 0;
+  padding-bottom: var(--raft-s2);
+  border-bottom: 1px solid var(--raft-line);
 }
 
 .raft-feed ul {
@@ -275,55 +390,110 @@
   list-style: none;
   display: flex;
   flex-direction: column;
-  gap: 4px;
-  font-size: 0.8rem;
+  gap: var(--raft-s1);
+  font-size: var(--raft-fs-ui);
+  line-height: 1.4;
+  overflow: hidden;
 }
 
 .raft-feed li {
+  display: grid;
+  grid-template-columns: 8px 3.5ch minmax(0, 1fr);
+  column-gap: var(--raft-s2);
+  align-items: baseline;
   color: var(--raft-text);
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
 }
 
-.raft-feed .raft-t {
+.raft-feed-empty {
   color: var(--raft-muted);
-  margin-right: 6px;
 }
 
-/* ---- shared utilities ----------------------------------------------------- */
+.raft-ev {
+  overflow-wrap: anywhere;
+}
+
+.raft-t {
+  color: var(--raft-muted);
+  font-variant-numeric: tabular-nums;
+  text-align: right;
+}
+
+/* Kind dots: ochre = commit (same meaning as committed cells), danger = crash, ink = everything else. */
+.raft-dot {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: var(--raft-muted);
+  align-self: center;
+}
+
+.raft-feed li[data-kind="commit"] .raft-dot {
+  background: var(--raft-accent);
+}
+
+.raft-feed li[data-kind="propose"] .raft-dot {
+  background: transparent;
+  border: 1px solid var(--raft-accent);
+}
+
+.raft-feed li[data-kind="crash"] .raft-dot {
+  background: var(--raft-danger);
+}
+
+.raft-feed li[data-kind="link"] .raft-dot,
+.raft-feed li[data-kind="recover"] .raft-dot {
+  background: transparent;
+  border: 1px solid var(--raft-muted);
+}
+
+.raft-feed li[data-kind="election"] .raft-dot {
+  background: var(--raft-text);
+}
+
+/* ---- footer --------------------------------------------------------------- */
+
+.raft-foot {
+  margin-top: var(--raft-s6);
+  font-size: var(--raft-fs-meta);
+  color: var(--raft-muted);
+}
+
+/* ---- shared utility ------------------------------------------------------- */
 
 .raft-mono {
   font-family: var(--mono, ui-monospace, SFMono-Regular, monospace);
   font-variant-numeric: tabular-nums;
 }
 
-/* ---- error panel ---------------------------------------------------------- */
+/* ---- whole-page error ----------------------------------------------------- */
 
 .raft-error {
-  border-color: var(--raft-danger);
   max-width: 60ch;
 }
 
 .raft-error h2 {
-  margin: 0 0 8px;
+  margin: 0 0 var(--raft-s2);
+  font-size: var(--raft-fs-value);
+  font-weight: 600;
   color: var(--raft-danger);
-  font-size: 1.1rem;
 }
 
 .raft-error p {
-  margin: 0 0 8px;
-  font-size: 0.9rem;
+  margin: 0 0 var(--raft-s2);
+  font-size: var(--raft-fs-ui);
 }
 
-.raft-error .raft-mono {
+.raft-error-detail {
+  margin: 0;
+  padding-top: var(--raft-s2);
+  border-top: 1px solid var(--raft-line);
   color: var(--raft-muted);
-  font-size: 0.8rem;
+  font-size: var(--raft-fs-meta);
   word-break: break-word;
   white-space: pre-wrap;
 }
 
-/* ---- focus visibility ----------------------------------------------------- */
+/* ---- focus ---------------------------------------------------------------- */
 
 .raft-field button:focus-visible,
 .raft-field select:focus-visible,
@@ -335,6 +505,45 @@
 
 .raft-field :focus:not(:focus-visible) {
   outline: none;
+}
+
+/* ---- responsive ----------------------------------------------------------- */
+
+@media (max-width: 900px) {
+  .raft-grid {
+    grid-template-columns: minmax(0, 1fr);
+  }
+  .raft-feed ul {
+    max-height: 22rem;
+  }
+  .raft-legend-hint {
+    margin-left: 0;
+  }
+}
+
+@media (max-width: 560px) {
+  .raft-field {
+    padding-inline: 16px;
+  }
+  .raft-canvas {
+    aspect-ratio: 1 / 1;
+  }
+  .raft-row {
+    grid-template-columns: minmax(0, 1fr);
+  }
+  .raft-stat .raft-value {
+    font-size: var(--raft-fs-value);
+  }
+}
+
+@media (any-pointer: coarse) {
+  .raft-field select,
+  .raft-field input[type="text"] {
+    font-size: 16px;
+  }
+  .raft-head h1 {
+    font-size: 1.075rem;
+  }
 }
 
 /* ---- reduced motion ------------------------------------------------------- */
