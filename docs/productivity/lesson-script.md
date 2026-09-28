@@ -22,7 +22,7 @@ The skill writes into the Practice Map workspace — `portfolio/projects/practic
 
 ## One round, then salvage
 
-The prompt is deliberately minimal — length routes the chat model to a stronger tier — and the reply comes back as one free-form essay plus two trailing comment blocks: `lesson-meta` (the practice and check prompts, optionally a one-line summary) and `lesson-theory` (the card's five theory fields). Salvage is mechanical: place the file under its next number, move the comments to the top, fix what the converter's diagnostics flag. The agent authors **nothing**; the essay's structure wins as-is. Wiring is one script invocation — `--front` for English lessons (the EN-first rule: English areas lead a tier's lesson list), everything else derived — so a batch of lessons costs little more than a single one.
+The prompt is deliberately minimal — length routes the chat model to a stronger tier — and the reply comes back as one free-form essay plus two trailing comment blocks: `lesson-meta` (the practice and check prompts) and `lesson-theory` (the card's five theory fields). Salvage is mechanical: place the file under its next number, move the comments to the top, fix what the converter's diagnostics flag. The agent authors **nothing**; the essay's structure wins as-is. Wiring is one script invocation — `--front` for English lessons (the EN-first rule: English areas lead a tier's lesson list), everything else derived, and `--summary` as the one-off rescue flag when a first paragraph turns out unrepresentative — so a batch of lessons costs little more than a single one.
 
 ## Common questions
 

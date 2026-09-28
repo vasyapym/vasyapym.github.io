@@ -242,14 +242,16 @@ function wire(opts) {
   if (Array.isArray(meta0.concepts) && meta0.concepts.length) {
     console.error("wire-lesson: warning: lesson-meta has concepts — cards never display them; wiring concepts: []");
   }
-  // derive what the chat model does not author; explicit meta wins (back-compat)
+  // derive what the chat model does not author; CLI overrides win, then explicit meta (back-compat), then derivation
   const meta = {
     id: meta0.id === undefined ? deriveId(opts.lessonPath) : meta0.id,
     title: meta0.title === undefined ? deriveTitle(content) : meta0.title,
-    summary: meta0.summary === undefined ? deriveSummary(content) : meta0.summary,
+    summary: opts.summary || meta0.summary || deriveSummary(content),
     tier: meta0.tier === undefined ? 1 : meta0.tier,
-    complexity: meta0.complexity === undefined ? 4 : meta0.complexity,
-    references: meta0.references === undefined ? [] : meta0.references,
+    complexity: opts.complexity ? Number(opts.complexity) : (meta0.complexity === undefined ? 4 : meta0.complexity),
+    references: opts.references
+      ? opts.references.split(",").map((s) => s.trim()).filter(Boolean)
+      : (meta0.references === undefined ? [] : meta0.references),
     practicePrompt: meta0.practicePrompt,
     checkPrompt: meta0.checkPrompt,
   };
@@ -452,6 +454,21 @@ function selftest() {
     }
     assert(miniReThrew, "minimal wiring re-run is rejected (already wired)");
 
+    // CLI overrides beat derivation and explicit meta
+    const mini2Path = path.join(dir, "098-mini-two.md");
+    fs.writeFileSync(mini2Path, miniContent.replace("Mini Topic Title", "Mini Two Title"));
+    const cur4Path = path.join(dir, "curriculum4.ts");
+    fs.writeFileSync(cur4Path, cur2);
+    wire({
+      curriculumPath: cur4Path, tiersPath: tiers2Path, lessonPath: mini2Path,
+      sectionsPath, tier: "fable-5.1-low", front: true,
+      summary: "Override summary", complexity: "3", references: "Ref A, Ref B",
+    });
+    const cur4After = fs.readFileSync(cur4Path, "utf8");
+    assert(cur4After.includes('summary: "Override summary"'), "summary override beats the derived first paragraph");
+    assert(/complexity: 3,/.test(cur4After) && !/complexity: 4,/.test(cur4After.split("Mini Two Title")[1] || ""), "complexity override lands on the card");
+    assert(cur4After.includes('"Ref A"') && cur4After.includes('"Ref B"'), "references override splits on commas");
+
     // pre-flight: unparseable theory file (straight quotes inside a string) fails before writing
     const quoteTheoryPath = path.join(dir, "theory-quotes.ts");
     fs.writeFileSync(quoteTheoryPath, `problem: "say "hello" loudly", model: "m", mechanics: "me", pitfalls: [], whenNot: "w"`);
@@ -484,6 +501,9 @@ function main() {
     topicId: args["topic-id"],
     areaTitle: args["area-title"],
     areaDescription: args["area-description"],
+    summary: args.summary,
+    complexity: args.complexity,
+    references: args.references,
     tier: args.tier,
     front: Boolean(args.front),
     curriculumPath: args.curriculum || CURRICULUM_DEFAULT,

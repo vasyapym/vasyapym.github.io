@@ -15,7 +15,7 @@ The essay must never pass through the agent's context: the owner's reply is writ
 
 ## What is authored where
 
-The chat model (relay round) authors the human payload appended to the essay: `practicePrompt`, `checkPrompt`, the theory object (`problem`/`model`/`mechanics`/`pitfalls`/`whenNot`), and optionally a one-line `summary`. `wire-lesson` derives everything else mechanically: `id` from the filename slug, `title` from the H1, `summary` from the first paragraph (the meta line wins when present), `tier: 1`, `complexity: 4`, `references: []`, card id `<id>-full`, area title/description from title/summary. The orchestrator authors nothing. A legacy full-meta lesson (all fields in the comment) wires unchanged — explicit meta wins over derivation.
+The chat model (relay round) authors the human payload appended to the essay: `practicePrompt`, `checkPrompt`, and the theory object (`problem`/`model`/`mechanics`/`pitfalls`/`whenNot`). `wire-lesson` derives everything else mechanically: `id` from the filename slug, `title` from the H1, `summary` from the first paragraph, `tier: 1`, `complexity: 4`, `references: []`, card id `<id>-full`, area title/description from title/summary. The orchestrator authors nothing. A non-representative first paragraph (e.g. a spoiler warning) is fixed at wire time with `--summary` — a one-off rescue flag, not a relay-contract item. A legacy full-meta lesson (all fields in the comment) wires unchanged — explicit meta wins over derivation.
 
 ## Ordered steps
 
