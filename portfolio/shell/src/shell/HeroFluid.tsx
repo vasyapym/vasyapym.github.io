@@ -23,7 +23,7 @@ export default function HeroFluid() {
     // #0b1317 sampled differently on canvas vs on a CSS block), which tinted
     // the hero a different colour than the rest of the page. The canvas stays
     // transparent and CSS (var(--ink-bg)) paints the flat ink behind it.
-    const ctx2d = canvasEl.getContext("2d", { alpha: true, colorSpace: "srgb" });
+    const ctx2d = canvasEl.getContext("2d", { alpha: true });
     if (!ctx2d) return;
     // Definite-type aliases: the hoisted function declarations below capture
     // these, and TS strict cannot carry the null-narrowing into them.
