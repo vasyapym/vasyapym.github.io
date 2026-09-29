@@ -23,18 +23,7 @@ export default function HeroFluid() {
     // #0b1317 sampled differently on canvas vs on a CSS block), which tinted
     // the hero a different colour than the rest of the page. The canvas stays
     // transparent and CSS (var(--ink-bg)) paints the flat ink behind it.
-    // willReadFrequently: true on purpose — in the owner's Yandex-macOS
-    // profile every GPU-composited canvas texture blends ocean-green over
-    // the page (probe-proven: CSS swatch correct, canvas fill green). The
-    // hint biases the canvas to the software path, which rendered correct
-    // colour in every engine we measured. The sim self-degrades (iterations,
-    // then render stride) if the software raster costs frames; revisit if
-    // 30fps ever fails on low-power machines.
-    const ctx2d = canvasEl.getContext("2d", {
-      alpha: true,
-      colorSpace: "srgb",
-      willReadFrequently: true,
-    });
+    const ctx2d = canvasEl.getContext("2d", { alpha: true, colorSpace: "srgb" });
     if (!ctx2d) return;
     // Definite-type aliases: the hoisted function declarations below capture
     // these, and TS strict cannot carry the null-narrowing into them.

@@ -484,14 +484,7 @@
 
 /* the floor: a fixed near-black gradient that ramps in over the last
    stretch of scroll — the mirror of the hero's --hero-exit fade. it gives
-   the resting chip an intentional zone instead of floating over cards.
-   Strength rides the gradient's own alpha (bottom stop = --realm-floor),
-   NOT element opacity: an animated opacity makes the compositor host the
-   strip as a render surface, and in the owner's Yandex-macOS profile every
-   GPU surface re-enters the display through a wrong colour path (the hero
-   canvas tints ocean-green there; this floor read as a transient ocean band
-   over the last card row). For a two-stop linear gradient, bottom alpha f
-   composites identical to element opacity f. */
+   the resting chip an intentional zone instead of floating over cards. */
 .realm-bottom-floor {
   position: fixed;
   left: 0;
@@ -500,7 +493,8 @@
   height: clamp(7rem, 22vh, 12rem);
   z-index: 20;
   pointer-events: none;
-  background: linear-gradient(to top, rgba(2, 6, 9, var(--realm-floor, 0)), rgba(2, 6, 9, 0));
+  opacity: var(--realm-floor, 0);
+  background: linear-gradient(to top, #020609, rgba(2, 6, 9, 0));
 }
 
 @media (prefers-reduced-motion: reduce) {
