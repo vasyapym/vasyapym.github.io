@@ -22,6 +22,7 @@
   --sans: "IBM Plex Sans", ui-sans-serif, system-ui, sans-serif;
   --mono: "IBM Plex Mono", ui-monospace, SFMono-Regular, monospace;
   --ink-bg: #0b1317;
+  --ink-bg-rgb: 11 19 23;
   --ink-text: #eeeae0;
   --ink-muted: rgba(238, 234, 224, 0.68);
   --ink-faint: rgba(238, 234, 224, 0.48);
@@ -238,7 +239,7 @@ textarea:focus-visible {
    is pulled back to editorial weight and sits over the ink on a flat (never
    blurred) scrim so contrast holds. Rows: header (absolute) · copy owns the
    centre · the beneath catalogue is a quiet rail at the bottom. --hero-exit
-   (set from JS) fades the whole first screen away as it scrolls off. */
+   (set from JS) paints the exit veil — see the ::after below. */
 .signal-index-hero-fluid {
   position: relative;
   display: grid;
@@ -251,14 +252,38 @@ textarea:focus-visible {
      gap equals the header→copy gap; the clamp is the no-JS fallback. */
   padding: clamp(3rem, 5vw, 4.5rem) 0 var(--hero-bottom-pad, clamp(2.5rem, 4vw, 3.5rem));
   isolation: isolate;
-  color: #eeeae0;
-  opacity: calc(1 - var(--hero-exit, 0));
-  /* --hero-exit is written per-frame from JS. On WebKit, main-thread scroll
-     starves rAF and coalesces scroll events, so during a fast scroll one
-     late write would otherwise snap the hero from invisible to visible (and
-     back). A short linear transition turns every write — however late it
-     lands — into a continuous ramp. */
-  transition: opacity 0.25s linear;}
+  color: #eeeae0;}
+
+/* The exit is painted, never composited: a ::after veil of page ink whose
+   alpha tracks scroll (rgb channels + alpha, not element opacity). Chromium
+   forks tint composited layers, and Windows Chrome flickered when the old
+   section opacity transition chased per-frame scroll writes — so the hero
+   itself never runs an animated opacity; background-color is repaint-only.
+   The 0.25s linear transition moves to the veil: on WebKit, main-thread
+   scroll starves rAF and coalesces scroll events, so one late --hero-exit
+   write would otherwise snap the veil from opaque to clear (the reentry-probe
+   pop). A short linear ramp on background-color turns every write — however
+   late it lands — into a continuous repaint, exactly as the old opacity
+   transition did, without ever promoting a layer. z-index 4 rides above the
+   header's 3: the veil covers every child. The --hero-exit law (0 → 1 over
+   the first 90% of hero height) and its writer are unchanged. */
+.signal-index-hero-fluid::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  z-index: 4;
+  pointer-events: none;
+  background-color: rgb(var(--ink-bg-rgb) / var(--hero-exit, 0));
+  transition: background-color 0.25s linear;}
+
+
+/* End state (exit = 1): exact ink — no float rounding — and children out of
+   paint and tab order (element opacity left them focusable). */
+.signal-index-hero-fluid[data-faded] {
+  background: var(--ink-bg);}
+
+.signal-index-hero-fluid[data-faded] > * {
+  visibility: hidden;}
 
 
 .signal-index-hero-fluid .signal-index-header {

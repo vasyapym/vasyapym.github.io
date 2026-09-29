@@ -643,7 +643,7 @@ export default function LandingPage({
     };
   }, [projects]);
 
-  useEffect(() => {
+  useLayoutEffect(() => {
     const hero = heroRef.current;
     if (!hero) {
       return;
@@ -663,6 +663,8 @@ export default function LandingPage({
       }
       const span = hero.offsetHeight * 0.9;
       const ratio = span > 0 ? Math.min(1, Math.max(0, window.scrollY / span)) : 0;
+      // Endpoint law rides outside the dead-band: data-faded must be exact.
+      hero.toggleAttribute("data-faded", ratio >= 1);
       if (Math.abs(ratio - lastValue) < 0.004) {
         return;
       }

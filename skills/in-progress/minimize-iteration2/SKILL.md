@@ -90,6 +90,10 @@ Rules that earned their place (edit only with evidence):
   findings only — never run H-verdict experiments through it.
 - Vary one signal per round (size band, register axis, ban list, contract
   shape); the row in results.md logs what moved.
+- Compression drops facts, never documented load-bearing constraints: a
+  brief that omits one reintroduces the regression the constraint
+  prevented (S26 — the webkit reentry gate caught the lost late-write
+  ramp at integration); carry constraints verbatim or lose the round.
 - Prose asks (readmes, copy): rails flatten voice. Carry ground truth +
   the owner's voice essence, then give explicit creative license and treat
   the material as raw notes, not a checklist; heavy ban lists beyond hard
