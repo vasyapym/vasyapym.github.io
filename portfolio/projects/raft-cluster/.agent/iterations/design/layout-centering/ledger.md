@@ -98,3 +98,36 @@ right (flex space-between); the legend tracked left-aligned under its rule.
   CSS-only change.
 - Open question: none from F001/F002 (the owner split the verdicts himself);
   awaiting the routine liked/rejected confirmation of THIS round's render.
+
+## Feedback F003
+- Round: R002
+- Verdict: REJECTED
+- Scope: ≤560px header controls size — the value, not the treatment.
+- Decision: the 22px/12px compact size is too small; the mobile header
+  controls grow ~20% (26px min-height, 14px text, token values). The mobile-
+  only scope, left alignment, and small-vs-desktop treatment of F002 stay.
+- User source: "make button in mobile bigger. currently it looks too small.
+  make it by around 20%"
+- Artifact: artifacts/R002/rest-mobile-390.png (state being revised)
+- Supersedes: F002's size values (12px/22px) within that record's mobile-
+  control-size scope; F002's mobile-only treatment itself stays liked.
+
+## Round R003
+- Goal: mobile header controls ~20% bigger than the F002 compact size.
+- Preserved preferences: F002 (mobile-only, small-vs-desktop, left layout);
+  F001 (no centring anywhere); finished-quality F004/F005.
+- Changes: web/raft.css ≤560px block only — select + Reset button font
+  var(--raft-fs-meta) 12px → var(--raft-fs-ui) 14px, min-height 22px → 26px
+  (+~20% on both axes), side padding unchanged 8px; field comment reworded
+  ("close to the label's visual size"). No other selector touched.
+- Before: artifacts/R002/rest-mobile-390.png
+- After: artifacts/R003/ (rest-desktop-1440, rest-desktop-980, rest-mobile-390)
+- Visual inspection: PERFORMED — read R003 mobile 390 and desktop 1440.
+  Mobile: select 85×26px, reset 102×26px, 14px text (vs 75×22/89×22/12px in
+  R002 ≈ +18% height, +17% text) — still visibly compact vs the desktop
+  32px/14px pill and the 12px label. Desktop 1440: measured select 95×32,
+  reset 110×32 (unchanged from R002); visually identical to the R002 render.
+- Code verification: `npm run typecheck` (portfolio/shell) PASS, exit 0.
+  CSS-only change. (One transient headless-goto timeout during the first
+  shot attempt; rerun succeeded — all three R003 PNGs written by the probe.)
+- Open question: LIKED / REJECTED on the round.

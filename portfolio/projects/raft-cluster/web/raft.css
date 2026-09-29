@@ -531,10 +531,10 @@
   .raft-stat .raft-value {
     font-size: var(--raft-fs-value);
   }
-  /* Header controls sit down to the same visual size as the "cluster" label. */
+  /* Header controls sit down close to the "cluster" label's visual size. */
   .raft-head .raft-select select {
-    font-size: var(--raft-fs-meta);
-    min-height: 22px;
+    font-size: var(--raft-fs-ui);
+    min-height: 26px;
     padding: 0 var(--raft-s2);
     padding-right: calc(var(--raft-s2) + 14px);
   }
@@ -542,8 +542,8 @@
     right: 10px;
   }
   .raft-head .raft-head-controls > button {
-    font-size: var(--raft-fs-meta);
-    min-height: 22px;
+    font-size: var(--raft-fs-ui);
+    min-height: 26px;
     padding: 0 var(--raft-s2);
   }
 }
