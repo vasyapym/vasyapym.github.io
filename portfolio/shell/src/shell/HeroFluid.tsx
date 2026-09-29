@@ -7,31 +7,38 @@ import { useEffect, useRef } from "react";
  * halftone marks. Liquid physics, printed rendering. Canvas2D only, no WebGL,
  * no blur. Self-driven by periodic emitters; pointer stirs it as a bonus layer.
  *
- * Presentation: the sim draws into an OFFSCREEN canvas (never in the DOM) and
- * publishes changed frames as PNG object URLs into an <img>. A live canvas
- * layer tints the page on some GPU-composited paths (Yandex-macOS, device-
- * proven); an <img> does not.
- *
- * Lifecycle: ~30fps fixed sim cadence, ≤20fps publish cadence with change
- * detection, graceful degradation (iterations first, then render stride),
- * IntersectionObserver + visibility pause, reduced-motion single warm static
- * frame, ResizeObserver realloc, and StrictMode-safe teardown (all state is
- * effect-local, outstanding object URLs revoked).
+ * Lifecycle: ~30fps fixed cadence with graceful degradation (iterations first,
+ * then render stride), IntersectionObserver + visibility pause, DPR cap 3,
+ * reduced-motion single warm static frame, ResizeObserver realloc, and
+ * StrictMode-safe teardown (all state is effect-local).
  */
 export default function HeroFluid() {
-  const imgRef = useRef<HTMLImageElement | null>(null);
+  const canvasRef = useRef<HTMLCanvasElement | null>(null);
 
   useEffect(() => {
-    const imgEl = imgRef.current;
-    if (!imgEl) return;
-    const canvas = document.createElement("canvas");
-    // alpha: true on purpose — the PNG stays transparent and CSS (var(--ink-bg))
-    // paints the flat ink behind it, so no canvas-vs-CSS colour-space mismatch.
-    const ctx2d = canvas.getContext("2d", { alpha: true, colorSpace: "srgb" });
+    const canvasEl = canvasRef.current;
+    if (!canvasEl) return;
+    // alpha: true on purpose — Safari composites opaque canvas pixels in a
+    // different colour space than CSS (verified via safaridriver: the same
+    // #0b1317 sampled differently on canvas vs on a CSS block), which tinted
+    // the hero a different colour than the rest of the page. The canvas stays
+    // transparent and CSS (var(--ink-bg)) paints the flat ink behind it.
+    // willReadFrequently: true on purpose — in the owner's Yandex-macOS
+    // profile every GPU-composited canvas texture blends ocean-green over
+    // the page (probe-proven: CSS swatch correct, canvas fill green). The
+    // hint biases the canvas to the software path, which rendered correct
+    // colour in every engine we measured. The sim self-degrades (iterations,
+    // then render stride) if the software raster costs frames; revisit if
+    // 30fps ever fails on low-power machines.
+    const ctx2d = canvasEl.getContext("2d", {
+      alpha: true,
+      colorSpace: "srgb",
+      willReadFrequently: true,
+    });
     if (!ctx2d) return;
     // Definite-type aliases: the hoisted function declarations below capture
     // these, and TS strict cannot carry the null-narrowing into them.
-    const img: HTMLImageElement = imgEl;
+    const canvas: HTMLCanvasElement = canvasEl;
     const ctx: CanvasRenderingContext2D = ctx2d;
 
     const reduceMq = window.matchMedia("(prefers-reduced-motion: reduce)");
@@ -43,8 +50,6 @@ export default function HeroFluid() {
     const MAX_GH = 96;
     const DT = 1 / 32;
     const STEP_MS = 1000 / 30;
-    const PUB_MS = 50; // publish cap: 20 frames/s
-    const PUB_MAX_W = 720; // publish width cap in css px; never upscaled
     const BUOY = 14;
     const AMB = 4.5;
     // warm off-white -> ochre ramp, opaque (tone is by bucket, never by alpha)
@@ -75,8 +80,8 @@ export default function HeroFluid() {
     let dv = new Float32Array(0);
     let levelBuf = new Int8Array(0);
 
-    let outW = 0;
-    let outH = 0;
+    let backW = 0;
+    let backH = 0;
     let simTime = 0;
 
     let emitters: { x: number; y: number; next: number }[] = [];
@@ -102,17 +107,6 @@ export default function HeroFluid() {
 
     let roTimer = 0;
 
-    // publish state
-    let pubLevels = new Int8Array(0); // levels as last published
-    let pubStride = 0;
-    let lastPub = 0;
-    let encoding = false;
-    let forceNext = false;
-    let gen = 0; // bumped on realloc so in-flight blobs of the old size are dropped
-    let disposed = false;
-    let shownUrl = ""; // loaded and on screen
-    let pendingUrls: string[] = []; // assigned to img.src, load not yet confirmed
-
     // ---- grid ---------------------------------------------------------------
     function allocGrid(cssW: number, cssH: number): void {
       GW = Math.max(24, Math.min(MAX_GW, Math.round(cssW / TARGET_CELL)));
@@ -127,8 +121,6 @@ export default function HeroFluid() {
       pr = new Float32Array(n);
       dv = new Float32Array(n);
       levelBuf = new Int8Array(n);
-      pubLevels = new Int8Array(n);
-      pubStride = 0;
       emitters = [
         { x: GW * 0.27, y: GH * 0.74, next: 0.6 },
         { x: GW * 0.52, y: GH * 0.84, next: 1.9 },
@@ -276,9 +268,9 @@ export default function HeroFluid() {
 
     function render(st: number): void {
       // Transparent clear, never a painted fill — see the alpha note above.
-      ctx.clearRect(0, 0, outW, outH);
-      const uw = outW / GW;
-      const uh = outH / GH;
+      ctx.clearRect(0, 0, backW, backH);
+      const uw = backW / GW;
+      const uh = backH / GH;
       const cw = uw * st;
       const ch = uh * st;
       for (let y = 0; y < GH; y += st) {
@@ -303,64 +295,6 @@ export default function HeroFluid() {
       }
     }
 
-    // ---- publish ------------------------------------------------------------
-    function fieldChanged(): boolean {
-      if (stride !== pubStride) return true;
-      const n = GW * GH;
-      for (let i = 0; i < n; i++) if (levelBuf[i] !== pubLevels[i]) return true;
-      return false;
-    }
-
-    function show(url: string): void {
-      // Never revoke a URL the browser may still be loading — that aborts the
-      // fetch and fires error, which would cascade into the successor. Failed
-      // and superseded URLs are revoked only after a later confirmed load.
-      pendingUrls.push(url);
-      img.src = url;
-    }
-
-    function onLoad(): void {
-      const latest = pendingUrls[pendingUrls.length - 1];
-      if (!latest) return;
-      if (shownUrl) URL.revokeObjectURL(shownUrl);
-      for (const u of pendingUrls) if (u !== latest) URL.revokeObjectURL(u);
-      pendingUrls = [];
-      shownUrl = latest;
-    }
-
-    function onError(): void {
-      // The failed URL stays in pendingUrls — revoked when the next frame
-      // loads (or at teardown). Revoking here could kill the successor.
-      forceNext = true;
-    }
-
-    function revokePending(): void {
-      for (const u of pendingUrls) URL.revokeObjectURL(u);
-      pendingUrls = [];
-    }
-
-    function publish(force: boolean): void {
-      if (force) forceNext = true;
-      if (encoding) return; // the in-flight callback drains forceNext
-      const now = performance.now();
-      if (!forceNext && now - lastPub < PUB_MS) return;
-      if (!forceNext && !fieldChanged()) return;
-      forceNext = false;
-      lastPub = now;
-      render(stride);
-      pubLevels.set(levelBuf);
-      pubStride = stride;
-      encoding = true;
-      const g = gen;
-      canvas.toBlob((blob) => {
-        encoding = false;
-        if (disposed) return;
-        if (blob && g === gen) show(URL.createObjectURL(blob));
-        else forceNext = true;
-        if (forceNext) publish(false);
-      }, "image/png");
-    }
-
     function warmUp(): void {
       vx.fill(0); vy.fill(0); vx0.fill(0); vy0.fill(0);
       dens.fill(0); dens0.fill(0); pr.fill(0); dv.fill(0);
@@ -368,22 +302,21 @@ export default function HeroFluid() {
       for (const e of emitters) e.next = Math.random() * 2;
       for (let s = 0; s < 68; s++) simulate(14);
       computeLevels();
+      render(stride);
     }
 
     function resize(): void {
-      const rect = img.getBoundingClientRect();
+      const rect = canvas.getBoundingClientRect();
       const cssW = Math.max(1, Math.round(rect.width));
       const cssH = Math.max(1, Math.round(rect.height));
-      // Publish at css resolution, capped in width; the img upscales pixelated.
-      const scale = Math.min(1, PUB_MAX_W / cssW);
-      outW = Math.max(1, Math.round(cssW * scale));
-      outH = Math.max(1, Math.round(cssH * scale));
-      canvas.width = outW;
-      canvas.height = outH;
-      gen++;
+      const dpr = Math.min(3, window.devicePixelRatio || 1);
+      backW = Math.max(1, Math.round(cssW * dpr));
+      backH = Math.max(1, Math.round(cssH * dpr));
+      canvas.width = backW;
+      canvas.height = backH;
+      ctx.imageSmoothingEnabled = false;
       allocGrid(cssW, cssH);
       warmUp();
-      publish(true);
     }
 
     function sync(): void {
@@ -400,7 +333,7 @@ export default function HeroFluid() {
       const t0 = performance.now();
       simulate(iters);
       computeLevels();
-      publish(false);
+      render(stride);
       const cost = performance.now() - t0;
       if (cost > 26) {
         slow++; fastRun = 0;
@@ -412,7 +345,7 @@ export default function HeroFluid() {
     }
 
     function onPointer(e: PointerEvent): void {
-      const rect = img.getBoundingClientRect();
+      const rect = canvas.getBoundingClientRect();
       const rx = e.clientX - rect.left;
       const ry = e.clientY - rect.top;
       if (rx < 0 || ry < 0 || rx > rect.width || ry > rect.height) { ptrActive = false; return; }
@@ -432,7 +365,7 @@ export default function HeroFluid() {
 
     function onReduce(e: MediaQueryListEvent): void {
       reduce = e.matches;
-      if (reduce) { warmUp(); publish(true); }
+      if (reduce) warmUp();
       sync();
     }
 
@@ -441,16 +374,14 @@ export default function HeroFluid() {
       for (const en of entries) onScreen = en.isIntersecting;
       sync();
     }, { threshold: 0 });
-    io.observe(img);
+    io.observe(canvas);
 
     const ro = new ResizeObserver(() => {
       window.clearTimeout(roTimer);
       roTimer = window.setTimeout(() => { resize(); }, 150);
     });
-    ro.observe(img);
+    ro.observe(canvas);
 
-    img.addEventListener("load", onLoad);
-    img.addEventListener("error", onError);
     window.addEventListener("pointermove", onPointer, { passive: true });
     document.addEventListener("visibilitychange", onVis);
     reduceMq.addEventListener("change", onReduce);
@@ -461,29 +392,15 @@ export default function HeroFluid() {
     raf = requestAnimationFrame(frame);
 
     return () => {
-      disposed = true;
       cancelAnimationFrame(raf);
       io.disconnect();
       ro.disconnect();
       window.clearTimeout(roTimer);
-      img.removeEventListener("load", onLoad);
-      img.removeEventListener("error", onError);
       window.removeEventListener("pointermove", onPointer);
       document.removeEventListener("visibilitychange", onVis);
       reduceMq.removeEventListener("change", onReduce);
-      if (shownUrl) URL.revokeObjectURL(shownUrl);
-      revokePending();
-      shownUrl = "";
     };
   }, []);
 
-  return (
-    <img
-      ref={imgRef}
-      className="signal-index-hero-fluid-canvas"
-      aria-hidden="true"
-      alt=""
-      style={{ imageRendering: "pixelated" }}
-    />
-  );
+  return <canvas ref={canvasRef} className="signal-index-hero-fluid-canvas" aria-hidden="true" />;
 }
