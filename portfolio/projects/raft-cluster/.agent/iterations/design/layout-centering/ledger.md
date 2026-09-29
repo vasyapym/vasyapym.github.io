@@ -131,3 +131,19 @@ right (flex space-between); the legend tracked left-aligned under its rule.
   CSS-only change. (One transient headless-goto timeout during the first
   shot attempt; rerun succeeded — all three R003 PNGs written by the probe.)
 - Open question: LIKED / REJECTED on the round.
+
+## Feedback F004
+- Round: R003
+- Verdict: LIKED
+- Scope: R003 as a whole — ≤560px header controls at 26px/14px; layout
+  otherwise as the liked R002-of-finished-quality baseline.
+- Decision: the round stands with no changes; the layout-centering thread is
+  CLOSED. Active task complete: mobile-only small header controls at 26px
+  min-height / var(--raft-fs-ui) 14px text, everything else per the liked
+  baseline (R002 state). Standing constraints: F001 (no centring of readout
+  or legend anywhere), F002/F003 (mobile-only, compact treatment),
+  trim-thesis-copy F001/F002 (wordy copy register), iOS zoom-on-focus
+  disclosure for the ≤16px select stands unless raised on a real device.
+- User source: "liked"
+- Artifact: artifacts/R003/rest-mobile-390.png
+- Supersedes: none.
