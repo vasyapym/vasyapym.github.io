@@ -96,37 +96,23 @@ const runScenario = async (browser, label, throughRealm) => {
 
   const post = await page.evaluate(() => {
     const hero = document.querySelector(".signal-index-hero-fluid");
-    // The exit is the ::after veil's alpha (rgb(var(--ink-bg-rgb) / exit)) —
-    // element opacity never moves; the veil is the visual surface of the law.
-    const veilAlpha = (el) => {
-      const bg = getComputedStyle(el, "::after").backgroundColor;
-      const parts = bg.replace(/[^0-9.]+/g, " ").trim().split(/\s+/).map(Number);
-      return parts.length >= 4 ? parts[3] : 1;
-    };
     return {
       scrollY: window.scrollY,
       computed: getComputedStyle(hero).getPropertyValue("--hero-exit").trim(),
-      opacity: veilAlpha(hero),
+      opacity: getComputedStyle(hero).opacity,
       span: hero.offsetHeight * 0.9,
     };
   });
   const expectedExit = Math.min(1, post.scrollY / post.span);
   check(`${label}: hero-exit is 1 at the offset below the hero`,
     Math.abs(parseFloat(post.computed || "0") - expectedExit) < 0.02,
-    `scrollY=${post.scrollY} computed=${post.computed || "(unset)"} veil=${post.opacity}`);
+    `scrollY=${post.scrollY} computed=${post.computed || "(unset)"} opacity=${post.opacity}`);
 
   // start a per-frame recorder, then fire a fast real wheel flick back up
   await page.evaluate(() => {
     window.__frames = [];
     window.__recOn = true;
     const hero = document.querySelector(".signal-index-hero-fluid");
-    const veilAlpha = (el) => {
-      // "rgb(11, 19, 23)" -> 1 (fully opaque); "rgba(11, 19, 23, 0.5)" -> 0.5.
-      // A naive trailing-number regex returns 23 on the opaque form.
-      const parts = getComputedStyle(el, "::after").backgroundColor
-        .replace(/[^0-9.]+/g, " ").trim().split(/\s+/).map(Number);
-      return parts.length >= 4 ? parts[3] : 1;
-    };
     const rec = () => {
       if (!window.__recOn) return;
       window.__frames.push({
@@ -135,7 +121,7 @@ const runScenario = async (browser, label, throughRealm) => {
         exit: Number.parseFloat(
           getComputedStyle(hero).getPropertyValue("--hero-exit").trim() || "0",
         ),
-        op: veilAlpha(hero),
+        op: Number.parseFloat(getComputedStyle(hero).opacity),
       });
       requestAnimationFrame(rec);
     };
@@ -168,14 +154,14 @@ const runScenario = async (browser, label, throughRealm) => {
     for (let i = 1; i < frames.length; i += 1) {
       const a = frames[i - 1];
       const b = frames[i];
-      if (a.op >= 0.85 && b.op <= 0.15 && b.y > 0 && b.y < span * 0.95) {
+      if (a.op <= 0.15 && b.op >= 0.85 && b.y > 0 && b.y < span * 0.95) {
         pop = { from: a, to: b };
         break;
       }
     }
     const settled = frames.length ? frames[frames.length - 1] : null;
     const settledOk = settled
-      ? Math.abs(settled.op - Math.min(1, Math.max(0, settled.y / span))) < 0.05
+      ? Math.abs(settled.op - (1 - Math.min(1, Math.max(0, settled.y / span)))) < 0.05
       : false;
     return {
       frameCount: frames.length,
