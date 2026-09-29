@@ -651,12 +651,6 @@ export default function LandingPage({
     if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) {
       return;
     }
-    // A/B (?no-fade): skip the scroll-linked exit entirely — --hero-exit is
-    // never written, the hero stays at opacity 1 and just scrolls off, so no
-    // composited animated-opacity group exists during scroll.
-    if (new URLSearchParams(window.location.search).has("no-fade")) {
-      return;
-    }
 
     let frame = 0;
     let cancelled = false;
