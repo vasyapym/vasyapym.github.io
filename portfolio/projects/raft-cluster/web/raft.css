@@ -44,14 +44,14 @@
 
 /* ---- header ---------------------------------------------------------------- */
 
-/* The readout row replaces the stranger-facing headline. The header mirrors the
-   main grid's 2fr/1fr columns (keep the two templates in sync) so the stats can
-   centre over the canvas column while the cluster controls keep the right edge. */
+/* The readout row replaces the stranger-facing headline: stats track left,
+   cluster controls right, one hairline rule under the whole header row. */
 .raft-head {
-  display: grid;
-  grid-template-columns: minmax(0, 2fr) minmax(0, 1fr);
+  display: flex;
+  flex-wrap: wrap;
   align-items: center;
-  gap: var(--raft-s4) var(--raft-s6);
+  justify-content: space-between;
+  gap: var(--raft-s4);
   padding-bottom: var(--raft-s3);
   border-bottom: 1px solid var(--raft-line);
   margin-bottom: var(--raft-s6);
@@ -72,7 +72,6 @@
   display: flex;
   flex-wrap: wrap;
   align-items: center;
-  justify-content: flex-end;
   gap: var(--raft-s2);
 }
 
@@ -129,7 +128,6 @@
 .raft-readout {
   display: flex;
   flex-wrap: wrap;
-  justify-content: center;
   gap: var(--raft-s2) var(--raft-s6);
 }
 
@@ -155,7 +153,6 @@
 .raft-legend {
   display: flex;
   flex-wrap: wrap;
-  justify-content: center;
   gap: var(--raft-s1) var(--raft-s4);
   margin: 0;
   padding: var(--raft-s3) 0 0;
@@ -515,13 +512,6 @@
 @media (max-width: 900px) {
   .raft-grid {
     grid-template-columns: minmax(0, 1fr);
-  }
-  .raft-head {
-    grid-template-columns: minmax(0, 1fr);
-    gap: var(--raft-s3) var(--raft-s6);
-  }
-  .raft-head-controls {
-    justify-content: center;
   }
   .raft-feed ul {
     max-height: 22rem;
