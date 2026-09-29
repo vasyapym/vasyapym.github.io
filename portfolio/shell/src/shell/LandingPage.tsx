@@ -214,20 +214,6 @@ export default function LandingPage({
     };
   }, []);
 
-  // A/B (backdrop-bug test): ?opaque-panels swaps both hero scrims to their
-  // pre-blended opaque equivalents. If the scroll tint on the two panels
-  // disappears with this, their translucency was reading the wrong backdrop.
-  useLayoutEffect(() => {
-    if (!new URLSearchParams(window.location.search).has("opaque-panels")) {
-      return;
-    }
-    const root = document.documentElement;
-    root.classList.add("opaque-panels");
-    return () => {
-      root.classList.remove("opaque-panels");
-    };
-  }, []);
-
   // A plain back-to-menu trip returns the visitor to the catalogue row they
   // left: consume the project-return intent before first paint. The realm's
   // own return path restores its offset elsewhere — never double-drive it.

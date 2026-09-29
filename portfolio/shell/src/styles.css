@@ -489,19 +489,6 @@ textarea:focus-visible {
 .signal-index-beneath-rule { display: none; }
 
 
-/* A/B (backdrop-bug test, ?opaque-panels): both hero scrims at their
-   pre-blended opaque equivalents (0.62 / 0.78 over ink #0b1317). The panels'
-   color stops depending on what the composited fade group reads as backdrop —
-   if the scroll tint disappears with these on, the translucency was blending
-   against the wrong backdrop. Must sit after both panel rules: equal
-   specificity, later wins. */
-.opaque-panels .signal-index-hero-copy {
-  background: #0a1114;}
-
-.opaque-panels .signal-index-beneath {
-  background: #091013;}
-
-
 /* "more ↓" — the overflow affordance when the catalogue exceeds the 6-row
    cap (all viewports). Always a centred full-width row under the grid — the
    downward arrow says the rest of the catalogue lives below the fold. With
