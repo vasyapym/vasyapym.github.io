@@ -3512,6 +3512,822 @@ const dopamineIbsDoubleLifeTopics: readonly TopicCard[] = [
     },
   },
 ];
+
+const frankensteinConceptsTopics: readonly TopicCard[] = [
+  {
+    id: "frankenstein-concepts-full",
+    title: "«Франкенштейн»: роман, основные понятия и то, что обычно упускают",
+    summary: "«Франкенштейн, или Современный Прометей» Мэри Шелли — одновременно готический роман, философский эксперимент, трагедия семейных отношений и один из основополагающих текстов научной фантастики. Его часто пересказывают как предупреждение: человек присвоил себе божественную власть, создал чудовище и был наказан. Это узнаваемое, но слишком бедное прочтение.",
+    concepts: [],
+    practicePrompt: "Перескажи сюжет как цепочку решений, где у каждого узла назван автор решения; после этого объясни в двух абзацах, почему эпизод с несозданной спутницей — самый трудный узел этой цепи.",
+    checkPrompt: "Уметь без подсказок назвать три рамки рассказчиков и что каждая скрывает; отделить вину создателя от судьбы творения; объяснить, почему эпизод со спутницей подрывает обе моральные позиции сразу.",
+    tier: 1,
+    complexity: 4,
+    references: [
+
+    ],
+    lesson: {
+problem: "Без рамки роман читается как хоррор про монстра, и трудные вопросы — кто виноват, как возникает чудовище, что значит отвечать за созданный разум — остаются без ответа.",
+model: "Роман устроен как вложенное свидетельство: три рамки рассказчика задают, кому читатель верит, а внутри них работает узел ответственности — создатель отказался и от создания, и от роли родителя. Творение не рождается злым: его жестокость собирается из отвержений, и роман просит судить её как цепочку решений.",
+mechanics: "Рамки Уолтона, Виктора и творения распределяют доверие: каждый рассказчик частично оправдывается. Сюжет узлов решений объясняет и вину, и неправоту одной и той же ситуации. Несозданная спутница сталкивает два обязательства напрямую: не бросать в мире и не умножать угрозы. Мифы Прометея, Адама и Сатаны дают три разных прочтения вины творения. Возвышенные пейзажи служат датчиком пределов контроля, а финал Уолтона превращает предупреждение в приговор.",
+pitfalls: [
+  "Называть творение монстром до чтения: роман показывает существо с разумом и потребностью в привязанности.",
+  "Слепо верить одному рассказчику: каждая рамка частично оправдывает её автора.",
+  "Карать Виктора за науку: роман карает не знание, а отказ от ответственности.",
+  "Читать мифологические отсылки как украшение: они спорят между собой о вине.",
+  "Не различать редакции 1818 и 1831 годов с их разными акцентами."
+],
+whenNot: "Урок не заменяет полный текст романа и не утверждает, что любой созданный разум обречён."
+    },
+  },
+];
+
+const universeConnectedMapTopics: readonly TopicCard[] = [
+  {
+    id: "universe-connected-map-full",
+    title: "Вселенная: связная карта основных идей",
+    summary: "Понять Вселенную — значит не столько запомнить названия галактик, сколько увидеть связь между пространством-временем, квантовыми полями, гравитацией, теплом и информацией. И постоянно различать три вещи: что непосредственно наблюдается, что надёжно выводится из проверенных теорий и что пока остаётся гипотезой.",
+    concepts: [],
+    practicePrompt: "Соберите на бумаге карту из шести узлов урока: наблюдаемая Вселенная, пространство-время, расширение, тёмная материя, рост структур, тёмная энергия; к каждому узлу припишите одно наблюдаемое предсказание.",
+    checkPrompt: "Уметь без подсказок ответить: чем видимая Вселенная отличается от всей; что именно расширяется; где в истории уместны материя, тёмная материя и тёмная энергия; почему у времени есть направление.",
+    tier: 1,
+    complexity: 4,
+    references: [
+
+    ],
+    lesson: {
+problem: "Без связки космология превращается в запас модных слов: инфляция и тёмная материя звучат знакомо, но не дают предсказаний даже в мыслях.",
+model: "Урок связывает картину одним хребтом: пространство-время расширяется само, материя привязывает плотность к будущему, тёмная материя держит каркас роста структур, а тёмная энергия меняет судьбу расширения в позднюю эпоху.",
+mechanics: "Наблюдаемая часть отличается от всей Вселенной только горизонтом, не природой. Расширение увеличивает расстояния между объектами, а не сами объекты. Тепловая история молодого мира даёт предсказание фонового излучения, недоступное другим аргументам. Гравитация строит каркасы неоднородностей, из которых рождаются звёзды и галактики. Направление времени приходит из начальных условий, а не из уравнений.",
+pitfalls: [
+  "Большой взрыв — не взрыв в готовом пространстве, а старт метрики и теплового режима.",
+  "Инфляция решает однородность и горизонты, а не проблему размера.",
+  "Тёмная материя не состоит из планет-невидимок: она выводится из наблюдений.",
+  "Расширение тянет расстояния, а не разгоняет объекты сквозь пространство.",
+  "Направление времени не следует из самих уравнений.",
+  "Чёрные дыры не отменяют космологию: у них свои пределы причинности."
+],
+whenNot: "Урок не заменяет математическую космологию и не заявляет, что инфляция доказана окончательно."
+    },
+  },
+];
+
+const kyrgyzstanConceptsTopics: readonly TopicCard[] = [
+  {
+    id: "kyrgyzstan-concepts-full",
+    title: "Кыргызстан: от базовой карты к исследовательскому пониманию",
+    summary: "Кыргызстан от базовой карты к исследовательскому пониманию: горы как инфраструктура жизни, вода как политика, границы как коридор посредничества, сменяемость власти без устойчивости институтов и суверенитет в условиях взаимозависимости.",
+    concepts: [],
+    practicePrompt: "Начертите дерево урока: горы как инфраструктура, вода как политика, границы как коридор, сменяемость власти; к каждому узлу припишите один конкретный факт, который его раскрывает и который не был обязан быть таким.",
+    checkPrompt: "Уметь без подсказок объяснить, почему горы — это жизнь, а не декорация, и почему вода соединяет географию с политикой; назвать, чем суверенитет отличается от самодостаточности; сказать, чего сменяемость власти сама по себе не гарантирует.",
+    tier: 1,
+    complexity: 4,
+    references: [
+
+    ],
+    lesson: {
+problem: "Без рамки страна читается как набор экзотических фактов, и тогда ни революции, ни миграция, ни горы не складываются в систему, которую можно объяснить и предсказать.",
+model: "Урок описывает Кыргызстан как маленькую систему между большими соседями: рельеф задаёт инфраструктуру жизни, вода переводит её в политику, а взаимозависимость делает суверенитет переговорным, а не абсолютным.",
+mechanics: "Горы распределяют людей, дороги и доступность регионов. Вода превращает географию в договор и делает политику водной регулярно, а не в кризис. Коридоры границ создают экономику посредничества и жизнь через рубеж. Язык и память задают, кто считается своим и каким образом гражданство живёт. Сменяемость власти доказала живость политики, но не устойчивость институтов.",
+pitfalls: [
+  "Свести страну к стеклу ярких фактов без механизма.",
+  "Считать горы лишь пейзажем, а не распределением людей и дорог.",
+  "Читать воду как бытовую тему, а не как политическую.",
+  "Смешивать сменяемость власти и устойчивость учреждений.",
+  "Думать, что суверенитет и самодостаточность — одно и то же."
+],
+whenNot: "Урок не заменяет полевые исследования и не даёт оценки, откуда должно быть удобнее стране развиваться."
+    },
+  },
+];
+
+const wongKarWaiTopics: readonly TopicCard[] = [
+  {
+    id: "wong-kar-wai-full",
+    title: "Wong Kar-wai: a conceptual vocabulary, from basic to advanced",
+    summary: "Wong Kar-wai is a Hong Kong filmmaker, born in Shanghai in 1958 and raised in Hong Kong from childhood. His work grows out of popular cinema—gangster films, romances, martial-arts films, comedy, pop music—but reorganizes those materials around unusually concentrated experiences of time, memory, and desire.",
+    concepts: [],
+    practicePrompt: "Take one scene from Chungking or In the Mood for Love and write down what three formal choices (step-printing, off-frame narration, non-sequential cutting) do to time in it; then swap one choice out and predict what your reading loses.",
+    checkPrompt: "Be able, without notes, to say why feelings rarely arrive together in a Wong film and how style makes that perceptible; distinguish chronology, montage and rhythm for two scenes; defend music and texture as part of the argument, not the decor.",
+    tier: 1,
+    complexity: 4,
+    references: [
+
+    ],
+    lesson: {
+problem: "Calling Wong Kar-wai «beautiful films about lonely people» closes the door: it explains neither why the films feel like time loops nor what the craft is doing.",
+model: "His stories are built on a mismatch: feelings, circumstances and chances arrive on different clocks, so the sides always miss one another. The formal system (narration, editing, music, texture) makes that mismatch perceivable instead of leaving it a sad fact.",
+mechanics: "Voiceover dates and misdates, so time is felt as unreliable from within. Off-frame movement keeps two futures in one room without letting them meet. Step-printing turns motion into emotional smear: it expresses conditions, not actions. Doors, corridors and narrow rooms are the geometry of missed chances. Music marks mood shifts without narrating them, and texture fixes the era on screen.",
+pitfalls: [
+  "Calling everything dreamlike: step-printing serves concrete stories, not drifting mood.",
+  "Assuming the narrator lies everywhere: unreliability has specific targets.",
+  "Reducing the films to a visual fashion instead of a system about time and repetition.",
+  "Expecting chronological order: late-arriving explanations are the point.",
+  "Naming melancholy and stopping: the films demand mechanism, not adjectives.",
+  "Crediting only the camera: sound, texture and line delivery carry the same effect."
+],
+whenNot: "This lens is for reading, not for dating influences; it does not claim every Wong film uses the same system."
+    },
+  },
+];
+
+const contractedGutVisceralHsTopics: readonly TopicCard[] = [
+  {
+    id: "contracted-gut-visceral-hs-full",
+    title: "The “contracted gut” and visceral hypersensitivity",
+    summary: "I’ll interpret **“visceral HS” as visceral hypersensitivity**, and “contracted gut” as a sensation of intestinal tightness, squeezing, or cramping. “Contracted gut” is not one precise medical diagnosis; a fixed narrowing or obstruction would be a different problem.",
+    concepts: [],
+    practicePrompt: "Draw the two dials of the model (motor wall vs sensory gain) on paper, mark on each one real symptom you know, then write one sentence about where the loop between the dials could get louder and where a treatment should break it.",
+    checkPrompt: "Be able, without notes, to explain why volume, pressure and pain are separate steps; name two places where sensory gain can rise; describe how tightening and hypersensitivity feed each other, and why treatment must match the mechanism, not the label.",
+    tier: 1,
+    complexity: 4,
+    references: [
+
+    ],
+    lesson: {
+problem: "People told that «the tests are normal» start believing their sensations are unreal, and treatment stays guesswork: nothing in the vocabulary connects the symptoms to a mechanism.",
+model: "The model separates the motor system (a wall that can tighten and change admitted volume and pressure) from the sensory system (an amplifier whose gain decides how much signal reaches awareness). Most cases are no broken hardware: two dials are mistuned, and each can mistune the other.",
+mechanics: "Volume, pressure and pain are different stages, so they rise by different routes. A tight wall alone lowers tolerance and creates intolerant feelings without any tissue damage. Gain can rise at the receptor side or at the interpretation side, which is why equal input gives unequal pain. Tightening raises input while gain multiplies it, so the loop self-sustains; IBS, hypersensitivity and anxiety are positions on this loop, not separate diseases.",
+pitfalls: [
+  "Treating visceral hypersensitivity as a synonym for IBS: it is one term of the loop.",
+  "Assuming pain means damage: gain rises with no tissue change.",
+  "Fixing diet while the wall tone and the gain stay untouched.",
+  "Expecting one dial to explain everything; the two can mistune independently.",
+  "Ignoring the feedback: the loop regenerates, so treatment breaks it somewhere, not everywhere.",
+  "Reading the body-mind split into the two dials: both belong to physiology."
+],
+whenNot: "The model interprets sensations, it does not diagnose or replace tests; inflammation and obstruction pass through the same organs and stay organic disease."
+    },
+  },
+];
+
+const parkChanWookTopics: readonly TopicCard[] = [
+  {
+    id: "park-chan-wook-full",
+    title: "Park Chan-wook: Form, Desire, and the Ethics of Looking",
+    summary: "Park Chan-wook is a South Korean filmmaker best known internationally for *Oldboy*, *The Handmaiden*, and *Decision to Leave*. His reputation emphasizes elegant images, disturbing violence, intricate plots, and dark humor. Those descriptions are accurate, but they do not yet explain what makes his filmmaking distinctive.",
+    concepts: [],
+    practicePrompt: "Pick two of the nine principles (attention, narration, symmetry, architecture, the gaze, editing, bodies, authorship) and apply them in writing to one concrete scene from Oldboy or The Handmaiden: what does each lens predict, and does the scene agree?",
+    checkPrompt: "Be able, without notes, to explain why revenge plots confuse symmetry with justice; name one scene where editing joins emotional neighbours instead of physical ones; say what architecture giving power a floor plan does to one location.",
+    tier: 1,
+    complexity: 4,
+    references: [
+
+    ],
+    lesson: {
+problem: "Calling Park's films «beautiful but twisted» explains nothing: you can not tell a formal intention from a mood, and every review says the same word.",
+model: "The lesson treats the style as an organizer of attention: framing, cutting, music and design all decide who knows what and who gets to look. Revenge is the recurring plot surface, but the deep subject is how symmetry pretends to be justice and how bodies pay for elegant theories.",
+mechanics: "Composition decides what you notice before dialogue explains anything. Narration manages knowledge: a scene reveals what a character has earned to know. Revenge structures fail because symmetry restores counts, not meaning. Architecture scripts the options: corridors, balconies and basements rank who may go where. The camera takes part in the desire plot because the film keeps asking who may look at whom.",
+pitfalls: [
+  "Reading the violence as the subject instead of as a bill the characters pay.",
+  "Taking by-plot symmetry as resolution when the films keep framing it as a trap.",
+  "Attributing the style to a solitary genius: Park works through teams, stars and genre industries.",
+  "Calling compressed time a flashback: emotional cuts do not announce themselves.",
+  "Judging characters while ignoring how architecture has already narrowed their options.",
+  "Treating the nine principles as a checklist that applies to every scene equally."
+],
+whenNot: "The lesson is a reading tool, not film history, and it does not claim Park is the only formally self-conscious director."
+    },
+  },
+];
+
+const spielbergCraftLayersTopics: readonly TopicCard[] = [
+  {
+    id: "spielberg-craft-layers-full",
+    title: "СТИВЕН СПИЛБЕРГ: МНОГОУРОВНЕВЫЙ РАЗБОР",
+    summary: "Стивен Спилберг по уровням: от порога понятного до киноведческого слоя — длинный план, монтаж тревоги и чудо-кадр как ремесло, плюс производственные must-know и практическая выжимка для снимающего.",
+    concepts: [],
+    practicePrompt: "Возьмите одну сцену Спилберга и пропустите её через три слоя урока: что в ней работает на порог понятного, что на ремесло, что на производственный уровень; по каждому слою запишите одно конкретное решение и его эффект.",
+    checkPrompt: "Уметь без подсказок объяснить: почему порог понятного у Спилберга — не упрощение, а решение; как длинный план и монтаж тревоги создают саспенс; как производственные решения (съёмка, дизайн, музыка) превращаются в систему поверх жанра.",
+    tier: 1,
+    complexity: 4,
+    references: [
+
+    ],
+    lesson: {
+problem: "Спилберга запоминают как режиссёра блокбастеров, и эта ярлычность прячет главное: его кино работает на нескольких уровнях сразу, и свести его к сказкам — потерять систему.",
+model: "Урок описывает режиссуру Спилберга как лестницу уровней: нулевой — для тех, кто не в теме; ремесленный — как это сделано; рабочий — производственные must-know; теоретический — киноведческий слой; практический навык — что взять себе человеку, снимающему самому.",
+mechanics: "Узнавание всегда стоит меньше, чем переживание: зритель вводится через тело, а не через сюжет. Длинные планы держат напряжением внутри кадра, а не только монтажом. Чудо показывает деталь крупно и объясняет без слов. Двухслойная работа с детьми и страх делает жанр человеческого. Музыка Уильямса переводит настроение в событие раньше картинки.",
+pitfalls: [
+  "Считать доступность слабостью, а не проектированием.",
+  "Свести Спилберга к сказкам: теоретический слой у него весомый.",
+  "Учить, что саспенс равен монтажной нарезке: длинный план делает иную работу.",
+  "Приписывать всё эстетике ностальгии, минуя ремесло.",
+  "Забывать производственный слой: где снято, кем и как — часть смысла."
+],
+whenNot: "Урок не заменяет киноведческий разбор конкретных картин и не охватывает поздний Спилберг целиком."
+    },
+  },
+];
+
+const discworldNewcomerTopics: readonly TopicCard[] = [
+  {
+    id: "discworld-newcomer-full",
+    title: "Discworld: An Introduction for the Intelligent Newcomer",
+    summary: "Discworld for the intelligent newcomer: why the flat-world comedy premise is a trap, what narrativium does, how the world's geography of ideas organizes 41 novels, and where to start reading.",
+    concepts: [],
+    practicePrompt: "Take any Discworld excerpt you can find and find one place where the joke is a mechanism (narrativium, bureaucracy, magic-as-capitalism), then explain it as an economic or physical rule rather than as a gag.",
+    checkPrompt: "Be able, without notes, to define narrativium; say why the premise «comedy fantasy about a flat world» is a trap; name two threads of the series worth starting with and why the world rewards intelligence.",
+    tier: 1,
+    complexity: 4,
+    references: [
+
+    ],
+    lesson: {
+problem: "Calling Discworld «funny fantasy about a flat world» keeps the books at the level of a punchline and explains neither why readers stay for 41 novels nor what the satire graph looks like.",
+model: "The lesson reads Discworld as a world of ideas: a disk carried by elephants where the operative force is narrativium — stories behaving like physics. Behind the jokes, every book is an argument about a real system.",
+mechanics: "Narrativium makes stories into causality: a lie rehearsed long enough starts working. The world sits at the edge of plausibility and so reasons like a laboratory. Objectives for printing, police and foreign office appear in successive books as technology and institutions arrive.",
+pitfalls: [
+  "Starting anywhere: threads matter, and the wrong entry book hides the world's argument.",
+  "Reading the books as improvisation: Pratchett's satire follows a thinking layer about technology.",
+  "Treating Death or Granny Weatherwax as comic bitmakers: both stories argue.",
+  "Skipping the footnotes: they carry a large share of world logic.",
+  "Confusing the satirical target with a villain: most books attack systems, not persons."
+],
+whenNot: "This is an entry reading tool, not a completist map, and it does not require any factual knowledge of fantasy publishing history."
+    },
+  },
+];
+
+const uzbekistanDeepDiveTopics: readonly TopicCard[] = [
+  {
+    id: "uzbekistan-deep-dive-full",
+    title: "Uzbekistan: A Conceptual Deep-Dive",
+    summary: "Uzbekistan as a conceptual deep-dive: double landlock, layered crossroads civilizations, the Soviet cotton machine, the Karimov closure, the Mirziyoyev opening, and the strategic picture that follows.",
+    concepts: [],
+    practicePrompt: "Retell the country through the lesson's chain — double-landlocked geography, layered civilizations, Soviet nation-making, cotton monoculture, the Karimov system, the Mirziyoyev opening — one sentence each, then mark the two links you would study further and why.",
+    checkPrompt: "Be able, without notes, to explain why being double-landlocked is an economic fact; how the Soviet layer manufactured a republic; what the Aral Sea says about monoculture; why succession was closed and then reopened.",
+    tier: 1,
+    complexity: 4,
+    references: [
+
+    ],
+    lesson: {
+problem: "Central Asia reads as a blur, and then the region's biggest country becomes an accident of news rather than a system you can think with.",
+model: "The lesson presents Uzbekistan as a nested case: geography sets the limits, history layers the identities, the Soviet machine assembled the modern republic, cotton monetized it, and the Karimov system sealed it before the Mirziyoyev opening changed the terms of closure.",
+mechanics: "Double landlock makes every export pay a toll, so geography predicts strategy. The Silk Road layer explains why cities predate the nation. Soviet delimitation manufactured a nation with borders nobody else wanted. Cotton and the Aral Sea show a monoculture paying its water bill in ecological collapse. The Karimov system closed succession, so economics stayed quiet and politics awaited 2016.",
+pitfalls: [
+  "Reading the country as Russia's shadow: the Soviet layer is its own machine here.",
+  "Treating the Silk Road as a brand, not as an urban network that shaped cities.",
+  "Calling the Aral Sea a natural disaster: it is a policy outcome.",
+  "Assuming the closing of the Karimov system was irrational: it was a designed succession trap.",
+  "Expecting the Mirziyoyev opening to be a worldview change instead of a term change."
+],
+whenNot: "The lesson is a conceptual map, not a travel guide; it does not predict election outcomes or cover the full regional diplomacy."
+    },
+  },
+];
+
+const darkSoulsConceptsTopics: readonly TopicCard[] = [
+  {
+    id: "dark-souls-concepts-full",
+    title: "Dark Souls: A Conceptual Primer from First Death to Frame Data",
+    summary: "Dark Souls as a system: death as currency, bonfires and estus as a pricing scheme, hollowing as resource pressure, the stamina-poise-frame combat grammar, shortcuts as level design, and fragmented lore as deliberate documentation.",
+    concepts: [],
+    practicePrompt: "Pick one boss fight you lost and narrate it as the lesson's model: what was currency (runs, time, estus), where rhythm failed, which stat or frame reality punished you; then propose one change to your build that attacks the actual mechanism.",
+    checkPrompt: "Be able, without notes, to explain death as currency rather than as punishment; how hollowing works mechanically; how stamina, poise and frame data make combat a grammar; why the world's shortcuts are the game's real level design.",
+    tier: 1,
+    complexity: 4,
+    references: [
+
+    ],
+    lesson: {
+problem: "Dark Souls is remembered as «the hard game», which teaches nothing: without the model you can not tell which failure is a stat problem, a rhythm problem, or a map problem.",
+model: "The lesson reads the game as an economy of risk: death is currency, estus and bonfires price your progress, and combat is a grammar of stamina, poise, and frames. Difficulty is not noise: each layer has its own mechanism you can read and use.",
+mechanics: "Runs are rent: every corpse is a decision about exposure. Estus prices preparation and teaches budgeting. Hollowing is resource pressure shaped as identity loss. Poise decides which trades you are allowed to win; frames time them. Shortcuts turn hostile geography into a recovery system. Fragmented lore is a design choice: the world explains itself only by inventory.",
+pitfalls: [
+  "Grinding as the answer: a build can not cure a rhythm problem.",
+  "Reading poise as armor: it decides trade dominance, not damage.",
+  "Calling the game opaque about lore: item text is documentation, not decoration.",
+  "Treating multiplayer invasions as optional chaos instead of a designed pressure system.",
+  "Assuming bonfires are checkpoints first: they are also a betting device."
+],
+whenNot: "The lesson covers Dark Souls 1's systems and does not pretend to balance across later titles' mechanics changes."
+    },
+  },
+];
+
+const euvLithographyTopics: readonly TopicCard[] = [
+  {
+    id: "euv-lithography-full",
+    title: "EUV Lithography: A Lesson",
+    summary: "EUV lithography from one constraint — at 13.5 nm almost nothing transmits — to the full toolchain: tin-droplet light source, reflective masks, stochastic resists, High-NA optics and the thirty-year path to manufacturing.",
+    concepts: [],
+    practicePrompt: "Draw the light path from the tin droplet to the wafer and label what can go wrong at each hop (droplet timing, mirror roughness, mask reflectivity, resist blur); then pick one link and write what the industry did to make it survivable.",
+    checkPrompt: "Be able, without notes, to say why 13.5 nm is a hostile wavelength; why the source fires at a droplet fifty thousand times a second; why mirrors replace lenses at this wavelength; what stochastic blur means for a single atom of dose.",
+    tier: 1,
+    complexity: 4,
+    references: [
+
+    ],
+    lesson: {
+problem: "Chip scaling looks like patience, but at the EUV node it is physics refusing to cooperate: light gets absorbed, mirrors get hot, and features approach the size of the working particle.",
+model: "The lesson's model: every EUV problem descends from one constraint — at 13.5 nm almost nothing transmits, so the machine must be built from the source out of high-precision reflectors, and each component manufactures a new failure mode.",
+mechanics: "Tin atoms emit EUV when hit by a laser, so the source is a synchronized weapon, not a lamp. The mask is a mirror stack, because absorption kills transmissive optics. Photoresists fight stochastic noise: dose noise becomes feature error as features shrink. Numerical aperture keeps rising, so the optics grow more layered and the depth of focus shrinks.",
+pitfalls: [
+  "Treating EUV as a smaller UV lamp: it is a different physical regime.",
+  "Ignoring that tin plasma flux also contaminates mirrors — a lifetime problem, not a one-time one.",
+  "Thinking the mask behaves like an older photomask: it reflects and has its own polishing budget.",
+  "Believing stochastic blur is a software defect: it is a dose-versus-signal physical trade.",
+  "Assuming High-NA only prints smaller: it also changes resists, inspection, and cost per layer."
+],
+whenNot: "This lesson stops at the lithography toolchain and does not extend to device design, fab economics, or packaging."
+    },
+  },
+];
+
+const mongoliaWidelyKnownTopics: readonly TopicCard[] = [
+  {
+    id: "mongolia-widely-known-full",
+    title: "Монголия: путеводитель по стране, которую все знают и почти никто не понимает",
+    summary: "Монголия как система: пространство как судьба и операционная система, кочевничество как технология, XX век между тремя революциями, недра и скот, Улан-Батор как полстраны и политика третьего соседа.",
+    concepts: [],
+    practicePrompt: "Соберите карту Монголии по узлам урока: пространство как судьба, кочевничество как система, XX век как три революции, недра и скот, третий сосед; к каждому узлу припишите текущие явление и его механизм.",
+    checkPrompt: "Уметь без подсказок объяснить, почему география Монголии — операционная система; чем кочевничество отличается от романтики; от чего зависит экономика с недрами и скотом; как устроена политика третьего соседа и почему Улан-Батор — полстраны.",
+    tier: 1,
+    complexity: 4,
+    references: [
+
+    ],
+    lesson: {
+problem: "Монголия живёт в голове двумя фактами — Чингисхан и пустота, и оба объясняют ровно ничего: без системы страна читается как декорация, а не как работающее общество.",
+model: "Урок строит Монголию как систему: пространство задаёт ограничения, кочевничество решает их, история выстраивает отношения с двумя большими соседями, а недра и скот определяют экономику с её зависимостями.",
+mechanics: "Пространство диктует плотность, маршруты и цену государственного контроля. Кочевничество работает как технология: передвижение решает ресурсы и риск, а не только вертикальные вкусе. XX век оперативно переключает систему: революции меняют отношения с Россией и Китаем. Недра и скот определяют долю экспорта и «голландскую болезнь». Третий сосед — это дизайн внешней политики, а не придорожный настрой.",
+pitfalls: [
+  "Сводить страну к героической истории империи.",
+  "Считать кочевничество романтикой, а не технологией выживания.",
+  "Думать, что скот и недра независимы: оба подчинены одной экономике.",
+  "Не понимать, почему пустота — это не отсутствие населения, а режим контроля.",
+  "Игнорировать «третий сосед» как конструкцию вместо вдруг рождения."
+],
+whenNot: "Урок не заменяет полевые исследования и не предсказывает цены на экспорт."
+    },
+  },
+];
+
+const norwayFirstTimerTopics: readonly TopicCard[] = [
+  {
+    id: "norway-first-timer-full",
+    title: "Norway for the First-Timer: A Conceptual Lesson",
+    summary: "Norway planned from constraints instead of destinations: transport density, season and light as the trip's operating system, region-tight plans, and the choices that keep cost and transit sane.",
+    concepts: [],
+    practicePrompt: "Draw your Norway plan as constraints instead of destinations: transport density, season, light, budget bands; then place three places you want on that constraint map and write which constraint rules each one.",
+    checkPrompt: "Be able, without notes, to explain why starting from a list of places is punished; what constraint orders the fjord, the north, and city stops; and one thing about light and season that makes the same trip succeed or collapse.",
+    tier: 1,
+    complexity: 4,
+    references: [
+
+    ],
+    lesson: {
+problem: "Norway punishes the ordinary trip plan: destinations-first thinking fills your days with transit that the landscape never asked for.",
+model: "The lesson starts from the constraint, not the destination: distances, transport density, season and light decide what kind of trip Norway allows, and the destinations are the consequence.",
+mechanics: "Geography is linear, so rout planning is an optimization, not a pick list. Season matters more than date: light defines what landscapes are available and for how many hours. Cities are anchors, not targets. Price bands decide whether the trip is a geography tour or a city tour.",
+pitfalls: [
+  "Planning Norway as a city-hopping trip: transit time is the hidden budget.",
+  "Ignoring that high-season versus shoulder-season changes price and light regimes at once.",
+  "Believing the fjords need one giant loop instead of region-tight plans.",
+  "Treating the north as an add-on: it is a different trip.",
+  "Booking interiors as if prices were flat: distance and season set the fare double."
+],
+whenNot: "This is a planning frame, not a logistics guide; it does not replace local schedules and pricing."
+    },
+  },
+];
+
+const ibsSpasmTopics: readonly TopicCard[] = [
+  {
+    id: "ibs-spasm-full",
+    title: "IBS Spasm: A Contracted Lesson",
+    summary: "IBS spasm as a control-loop problem: what a spasm physically is, the fifteen-minute rescue, reflex timing, gut substrate and gain hacking, pharmacology to discuss with a clinician, and the imposters that are not spasms.",
+    concepts: [],
+    practicePrompt: "Take your own (or a typical) spasm event and walk it through the lesson's hack classes in order — acute rescue, timing, substrate, gain — writing one concrete move per class and what part of the mechanism it attacks.",
+    checkPrompt: "Be able, without notes, to explain what a spasm physically is and why the colon is a control loop rather than a broken muscle; name one acute, one timing, one substrate and one gain hack with its target; say two imposter conditions and a red flag.",
+    tier: 1,
+    complexity: 4,
+    references: [
+
+    ],
+    lesson: {
+problem: "A spasm event feels like betrayal: you do not know what to do in the first 15 minutes, what to eat, what to avoid, or when it is something else entirely.",
+model: "The lesson treats the colon as a control loop whose gain is mistuned, and organizes all interventions as hacks on this loop: rescue the acute event, design the timing, feed the substrate, and lower the amplifier.",
+mechanics: "The spasm is a reflex loop with controllable inputs, not a muscle fault. Rescue has a protocol: warmth, relaxation, position, then re-entry from below. Timing exploits reflex refractory windows. Substrate changes shift what the fermenters make and how fast. Gain hacks lower the amplifier (pharmacology, sleep, stress mechanics), and imposters get their own differential.",
+pitfalls: [
+  "Trying to «cure» a spasm during an event instead of managing it.",
+  "Skipping the differential: gallbladder, appendicitis and ischemia imitate IBS.",
+  "Widening diet bans instead of testing one substrate variable at a time.",
+  "Believing 'managing' means living at rescue level forever.",
+  "Ignoring that gain work (sleep, anxiety mechanics) is not the soft option."
+],
+whenNot: "This is a management map on top of a diagnosis, not a diagnostic panel; new or atypical pain needs clinical evaluation."
+    },
+  },
+];
+
+const tolkienAllYouNeedTopics: readonly TopicCard[] = [
+  {
+    id: "tolkien-all-you-need-full",
+    title: "Толкин: всё, что нужно знать",
+    summary: "Толкин: философия вторичного творения и эвкатастрофы, языки как источник, устройство Легендариума, главные темы, инклинги, русская рецепция и экранизации — опорный скелет для входа и для речи о нём.",
+    concepts: [],
+    practicePrompt: "Соберите из урока опорный скелет Толкина: философия «вторичного творения» и эвкатастрофы, языки как источник, устройство Легендариума, три главные темы; по каждому узлу запишите одну деталь из Primary источников (биография, письма, эссе), которая её доказывает.",
+    checkPrompt: "Уметь без подсказок объяснить, что такое вторичное творение и почему эвкатастрофа — не хеппи-энд; откуда в конструкции языки; чем Легендариум отличается от «книги со продолжением»; почему у нас «свой» Толкин и что несёт рецепция.",
+    tier: 1,
+    complexity: 4,
+    references: [
+
+    ],
+    lesson: {
+problem: "Толкин остаётся в памяти как автор фэнтези-сериала, и при этом не читается как система: без рамки языка и философии непонятно, откуда растёт весь Легендариум и почему он держит литературоведческий вес.",
+model: "Урок собирает Толкина как устройство: философия задаёт правила мира, языки заполняют его, Легендариум собирается из редакций, а темы передаются от мифа к рецепции, включая русское прочтение и кино.",
+mechanics: "Вторичное творение определяет, что мир построен, а не скопирован, и читается по его правилам. Языки остаются источником: имена и грамматика предшествуют сюжету. Эвкатастрофа описывает внезапное разворачивание к радости, а не награду за старание. Легендариум собирается вокруг сборников, а не вокруг одного сквозного романа.",
+pitfalls: [
+  "Свести Толкина кScreen фэнтези-жанру, минуя филологическое ядро.",
+  "Считать киноведческий канон первичным, а не адаптацией.",
+  "Пропускать инклинги и контекст, в котором мир собирался как работа.",
+  "Читать «свой» Толкин по рецепции русской лишь как постороннюю шумиху.",
+  "Не различать редакции и неизданные материалы."
+],
+whenNot: "Урок не заменяет чтение самих книг и не покрывает все редакции Легендариума."
+    },
+  },
+];
+
+const mongoliaFieldGuideTopics: readonly TopicCard[] = [
+  {
+    id: "mongolia-field-guide-full",
+    title: "Mongolia: A Field Guide to the Concepts",
+    summary: "Mongolia as a field guide of concepts: terrain as the operating system, nomadism as technology, the empire briefly and accurately, the three-revolution century, herding and minerals as the economy, and the third-neighbour policy.",
+    concepts: [],
+    practicePrompt: "Build your own one-map Mongolia: terrain as operating system, nomadism as technology, the empire in one accurate sentence, the three-revolution twentieth century, and today's economy; attach one mechanism to each layer.",
+    checkPrompt: "Be able, without notes, to say why terrain is the operating system; what nomadism solves; how the empire actually ended; why the economy is a two-pillar system; and what «third neighbour» policy means.",
+    tier: 1,
+    complexity: 4,
+    references: [
+
+    ],
+    lesson: {
+problem: "You carry two facts about Mongolia — Genghis Khan and emptiness — and both are true but useless for thinking; neither explains the state, the economy, or the politics.",
+model: "The lesson reads Mongolia as a system where terrain sets the rules, nomadism is the technology that works within them, history forms the relations to two big neighbours, and the modern economy runs on two pillars: herding and minerals.",
+mechanics: "Terrain decides density, routes, and the price of state control. Nomadism is mobility as resource management, not nostalgia. The empire rise and fall is one chapter of a longer relation to geography. Socialism and democracy reshaped the same mobile society twice. Minerals and meat settle the export ledger, with volatility as a permanent resident.",
+pitfalls: [
+  "Reading emptiness as absence of society rather than as a control regime.",
+  "Treating nomadism as folklore instead of an economic technique.",
+  "Summing the empire in one sentence and skipping its end.",
+  "Forgetting Ulaanbaatar concentrate a full half of the population.",
+  "Assuming the mineral boom is permanent rather than a volatility source."
+],
+whenNot: "This is a conceptual field guide, not a travel handbook, and does not forecast commodity prices."
+    },
+  },
+];
+
+const uzbekistanHeartOfAsiaTopics: readonly TopicCard[] = [
+  {
+    id: "uzbekistan-heart-of-asia-full",
+    title: "Uzbekistan: A Conceptual Lesson",
+    summary: "Uzbekistan across nine concepts — geography as destiny then trap, layered inheritance, Russian-style colonialism, Soviet nation-making, cotton and the Aral, the Karimov system, the opening, mahalla and lived Islam, and the geopolitics of the middle.",
+    concepts: [],
+    practicePrompt: "Rebuild the country through the lesson's nine concepts as one chain sentence each (geography, layered inheritance, Russian-style colonialism, Soviet nation-making, cotton and the Aral, the Karimov system, the opening, the mahalla, middle geopolitics), then mark which concept explains today's news best.",
+    checkPrompt: "Be able, without notes, to explain geography as destiny-then-trap; how the Soviet manufacture of a nation differs from a colonial border; what the Aral Sea represents politically; why the mahalla matters for lived religion.",
+    tier: 1,
+    complexity: 4,
+    references: [
+
+    ],
+    lesson: {
+problem: "You keep one or two facts about Uzbekistan, and the country becomes a shapeless region instead of a case that trains your thinking about empire, water, and nation-building.",
+model: "The lesson makes Uzbekistan the demographic heart of Central Asia and reads it as nine claims: geography first sets destiny, then slowly becomes a trap; every later layer builds on the previous one.",
+mechanics: "Geography gives both the crossroads and the double-landlock bill. Civilizational layering explains why identities pre-date the republic. The Soviet layer nationalized the region's frame instead of merely ruling it. Cotton turned water policy into the Aral disaster. The Karimov and Mirziyoyev years show a closed system learning to open on its own terms.",
+pitfalls: [
+  "Calling the whole Soviet period just colonialism without the nation-making part.",
+  "Reading the Aral Sea as nature: it is a policy chosen and then kept.",
+  "Assuming the mahalla is a village custom instead of a social institution.",
+  "Expecting the opening to be a value change rather than a terms change.",
+  "Treating the region as one block and skipping Uzbekistan's demographic weight."
+],
+whenNot: "This is a conceptual lesson, not a policy forecast, and does not aim to cover daily politics."
+    },
+  },
+];
+
+const ibsSpasmContractedTopics: readonly TopicCard[] = [
+  {
+    id: "ibs-spasm-contracted-full",
+    title: "IBS Spasm — The Contracted Lesson",
+    summary: "IBS spasm, contracted: the one-paragraph control-loop model, what a spasm physically is, why pain is louder than harm, the ten-minute acute protocol, chronic retuning, the pharmacology map and the imposters with red flags.",
+    concepts: [],
+    practicePrompt: "Take one real flare-up and run the lesson's map over it: what class of input triggered it, which part of the protocol you already own for the ten minutes, what you would change in the substrate and the gain, and what you would still want to discuss with a clinician.",
+    checkPrompt: "Be able, without notes, to model IBS as a mistuned control system rather than a broken gut; to say what physically happens in a spasm and why it hurts more than it should; to list the ten-minute protocol's physios; and to name two imposters with red flags.",
+    tier: 1,
+    complexity: 4,
+    references: [
+
+    ],
+    lesson: {
+problem: "IBS feels like an unpredictable disease because flare-ups look random; without the control-loop model you can not connect inputs, timing, and the amplifier to one protocol.",
+model: "The lesson compresses IBS into one paragraph model: the hardware works, the control loop is mistuned; a spasm is a reflex event whose inputs and pain-setting you can partly manage, and everything else is retuning over weeks.",
+mechanics: "A spasm is a reflex contraction amplified by sensitized circuits, which explains pain-of-normal-events. Acute hacks use warmth, position and breathing to lower the reflex output fast. Chronic hacks retune the loop through substrate, sleep and graded exposure. Pharmacology has classes with targets, not a magic drug.",
+pitfalls: [
+  "Labeling your gut broken before checking the loop's inputs.",
+  "Skipping the ten-minute structure and improvising during pain.",
+  "Banning foods wholesale instead of one variable at a time.",
+  "Expecting one drug to fix the loop rather than one arm of it.",
+  "Ignoring red flags: blood, weight loss, night pain, fever change the game."
+],
+whenNot: "This is a management map, not a diagnosis; new symptoms, blood or weight loss need medical evaluation first."
+    },
+  },
+];
+
+const semiconductorPhysicsTopics: readonly TopicCard[] = [
+  {
+    id: "semiconductor-physics-full",
+    title: "Semiconductor Physics, Contracted",
+    summary: "Semiconductor physics compressed into one line per idea: bands and gaps, quasiparticles, Fermi statistics, doping, transport, recombination, junctions, the MOS system, light, and how devices actually get computed.",
+    concepts: [],
+    practicePrompt: "Draw the band diagram of one junction you know and step through the lesson's chain for it: gap, quasiparticles, doping, built-in field, transport, and recombination; mark the one step whose naming you would fail without notes.",
+    checkPrompt: "Be able, without notes, to name where bands and gaps come from; what a hole is mechanically; how the Fermi level is positioned; why doping is a rescaled hydrogen atom; and what breaks drift-diffusion's neat assumptions.",
+    tier: 1,
+    complexity: 4,
+    references: [
+
+    ],
+    lesson: {
+problem: "Semiconductor physics feels like a zoo of formulas because its ideas are usually given one at a time; without the chain you can not see which generalization causes what.",
+model: "The lesson compresses the subject to one model: crystals make bands, statistics place carriers, doping and fields steer them, junctions and MOS structures convert that steering into devices, and light is the same physics running in reverse.",
+mechanics: "Band formation is the periodic potential's doing, and the gap is the part with no states. Effective mass and holes are bookkeeping that saves entire derivations. Doping mirrors the hydrogen atom at rescaled constants. Transport is scattering-limited, so mobility is a budget rather than a constant. Recombination closes the loop between generation and current.",
+pitfalls: [
+  "Treating the Fermi level as a physical particle shelf rather than a statistics parameter.",
+  "Believing holes are real particles moving the other way: they carry charge and momentum bookkeeping.",
+  "Using drift-diffusion beyond its domain, where quantum and ballistic effects bite.",
+  "Reading junctions as one diode model: the current is recombination-driven on one side only.",
+  "Confusing quasi-Fermi levels with the equilibrium Fermi level."
+],
+whenNot: "This is a compression for orientation, not a proof course; it does not derive rigorously nor replace problem sets."
+    },
+  },
+];
+
+const kazakhstanResearchDisputesTopics: readonly TopicCard[] = [
+  {
+    id: "kazakhstan-research-disputes-full",
+    title: "Казахстан: от базовых фактов к исследовательским спорам",
+    summary: "Казахстан в пяти уровнях: от каркаса новичка до исследовательских споров — степь как понятийный аппарат, советское наследие как система, политический язык, экономика ренты и фонды, идентичность и открытые вопросы.",
+    concepts: [],
+    practicePrompt: "Соберите лестницу урока в свои пять строк — каркас, исторический хребет, понятийный аппарат степи, советское наследие, исследовательские споры; на каждом уровне напишите одно утверждение и одно сомнение к нему.",
+    checkPrompt: "Уметь без подсказок объяснить, чем степь является понятием, а не пейзажем; что советская национальная политика оставила в устройстве; как работает рента и фонд как система; почему идентичность и язык остаются спорами, а не фактами.",
+    tier: 1,
+    complexity: 4,
+    references: [
+
+    ],
+    lesson: {
+problem: "Без лестницы Казахстан читается двумя ноготками — факт «большой страны» и «успешной модернизации», и оба не дают механизмов.",
+model: "Урок строит страну как подъём по уровням: новичок получает каркас, любитель — исторический хребет, продвинутый — понятийный аппарат, эксперт — советскую систему, а дальше идут исследовательские оптики, где меняются сами вопросы.",
+mechanics: "Степь задаёт мобильность, дистанцию и формат государства. Советская национальная политика оставила границы, элиту и этническую арифметику. Рента и фонд переводят нефть в устойчивость института. Язык и идентичность задают стратегии граждан и экономику их выбора.",
+pitfalls: [
+  "Сводить страну к успешной модернизации или к авторитаризму, выбирая одно.",
+  "Считать степь картинкой, не инструментом.",
+  "Не различать долгосрочные фонды и бюджетную ренту.",
+  "Доверять одному измерению идентичности: их несколько и они спорят.",
+  "Игнорировать север-юг как внутреннюю линию споров."
+],
+whenNot: "Урок не заменяет политический обзор и не решает исследовательские споры окончательно."
+    },
+  },
+];
+
+const milkyWayOutlineTopics: readonly TopicCard[] = [
+  {
+    id: "milky-way-outline-full",
+    title: "Млечный Путь: большой очерк о нашей Галактике",
+    summary: "Большой очерк Галактики: что мы видим, как нашли своё место, анатомия диска и бара, межзвёздная среда, кривая вращения и тёмная материя, биография и соседи, Солнце как житель, диапазоны наблюдений и открытые вопросы.",
+    concepts: [],
+    practicePrompt: "Нарисуйте Галактику в разрезе по уровням урока: диск, балдж, бар, спиральные рукава, гало с тёмной материей; у каждого элемента подпишите одно наблюдение, которое его открывает.",
+    checkPrompt: "Уметь без подсказок объяснить, как мы узнали своё место в Галактике; из чего складывается её анатомия; почему кривая вращения выводит тёмную материю; что межзвёздная среда делает с картиной; и какие широкие вопросы остались открытыми.",
+    tier: 1,
+    complexity: 4,
+    references: [
+
+    ],
+    lesson: {
+problem: "Без модели Галактика остаётся картинкой из интернета: красивая, но не объясняющая ни своего устройства, ни того, как люди узнали, где мы находимся.",
+model: "Урок строит Галактику как систему: видимое — лишь часть, анатомия выводится из наблюдений разных диапазонов, межзвёздная среда работает как экосистема, а кривая вращения выводит невидимую массу.",
+mechanics: "Расстояния до объектов определяют всю картину, поэтому методы измерения — половина дела. Диск, балдж и бар показывают, что Галактика — это не одна форма. Газ, пыль и звёзды образуют взаимные циклы и объясняют свет. Кривая вращения упирается в необходимую невидимую массу. Будущее соседство с Андромедой станет событием всей структуры.",
+pitfalls: [
+  "Считать картинку сверху соответствием реальности: она построенная.",
+  "Путать рукава с неизменными образованиями: это волны плотности.",
+  "Забывать, что пыль прячет центр от глаза и открывает его радиоволнам.",
+  "Читать тёмную материю как догадку: кривая вращения её треидует.",
+  "Смешивать Галактику с Вселенной в морозных метафорах."
+],
+whenNot: "Урок не заменяет учебник астрофизики и не решает все открытые вопросы."
+    },
+  },
+];
+
+const gutIbsCondensedTopics: readonly TopicCard[] = [
+  {
+    id: "gut-ibs-condensed-full",
+    title: "The Gut and Irritable Bowel Syndrome: A Condensed Lesson",
+    summary: "The gut and IBS condensed: the gut as a machine of layers, the brain-gut wire in both directions, what IBS is by criteria, the four mechanisms, diagnosis and the treatment ladder.",
+    concepts: [],
+    practicePrompt: "Take your own symptom history and place each entry on the lesson's parts: machine (motility, secretion), wiring (the axis), definition (what IBS is), mechanism, diagnosis, treatment; mark the one part where your story and the model disagree.",
+    checkPrompt: "Be able, without notes, to describe the gut as a machine with layers; how the brain-gut wire works in both directions; why IBS is a diagnosis of criteria; which mechanisms produce symptoms; and what the treatment ladder looks like.",
+    tier: 1,
+    complexity: 4,
+    references: [
+
+    ],
+    lesson: {
+problem: "IBS pages read as a list of exclusions, and the reader leaves knowing what it is not and being unable to explain what happens in the body at all.",
+model: "The lesson compresses the gut into a machine with mechanical layers, an amplifier, and a two-way wire to the brain: IBS is what the machine looks like when the control system is mistuned but intact.",
+mechanics: "Motility, secretion and sensation are separable layers that misbehave independently. The gut-brain axis runs both ways, so stress is a mechanism, not a metaphor. Criteria (Rome) define IBS positively, not just by exclusion. Mechanisms: visceral hypersensitivity, dysmotility, dysbiosis, low-grade immune activity. Treatment climbs a ladder: diet, neuromodulators, agents per mechanism.",
+pitfalls: [
+  "Reading IBS as a garbage-bin diagnosis: criteria are positive rules.",
+  "Treating stress as psychological noise rather than as measurable gut input.",
+  "Assuming fiber helps all subtypes: it helps in one of them.",
+  "Expecting one pill to cover all mechanisms at once.",
+  "Ignoring red flags that end the IBS story and reopen diagnostics."
+],
+whenNot: "This is a condensed model, not a clinical protocol; confirmatory testing belongs to a clinician."
+    },
+  },
+];
+
+const hbmStackingTopics: readonly TopicCard[] = [
+  {
+    id: "hbm-stacking-full",
+    title: "HBM Stacking: How We Built Skyscrapers Out of Memory",
+    summary: "HBM stacking from problem to frontier: why bandwidth is a distance problem, DRAM anatomy, the stack with TSVs, bonding and yield, base die customization, the interposer, heat and yield realities, and why AI made HBM the memory that matters.",
+    concepts: [],
+    practicePrompt: "Sketch the HBM stack from the bottom up (base die, logic DRAM dies with TSVs, bonding, interposer, GPU) and label what the lesson's problem is at each level; then say which link today's yield drama lives in.",
+    checkPrompt: "Be able, without notes, to explain the problem HBM solves versus ordinary DRAM placement; what TSVs change; why bonding is the yield bottleneck; what the interposer buys; and why AI made HBM the memory that matters.",
+    tier: 1,
+    complexity: 4,
+    references: [
+
+    ],
+    lesson: {
+problem: "Processors compute faster than memory can feed them, and the usual fix (wider buses) stopped scaling; without a physical picture you can not reason about why bandwidth became the whole game.",
+model: "The lesson reads memory bandwidth as a distance problem: the shortest path from compute to data wins, so the industry stacks DRAM vertically with through-silicon vias and sets the stack on an interposer next to the processor.",
+mechanics: "Distances dominate bandwidth: an interposer beats a PCB by orders of magnitude. TSVs are vertical wires replacing peripheral bonds, so each die talks upward and downward. Die thinning makes stacking possible but is where yield gets expensive. The base die organizes the stack and is where customization arrives.",
+pitfalls: [
+  "Thinking capacity is the point: HBM trades raw size for bandwidth per watt.",
+  "Believing SiP is trivial: every extra bond is a new yield tax.",
+  "Assuming tooling fixes everything: stacking is a factory craft, not a tool menu.",
+  "Reading heat as an afterthought: a stack of dies heats worse than a flat one.",
+  "Forgetting the interposer is not a PCB: it is silicon, even at low complexity."
+],
+whenNot: "The lesson is a structural primer and does not cover DRAM internals like refresh or DDR/JEDEC protocols in depth."
+    },
+  },
+];
+
+const discworldMadeOfStoryTopics: readonly TopicCard[] = [
+  {
+    id: "discworld-made-of-story-full",
+    title: "Discworld: A World Made of Story",
+    summary: "Discworld as a world made of story: narrativium as the world's physics, the disk as a laboratory of ideas, and how belief and institutions — not villains — drive the novels.",
+    concepts: [],
+    practicePrompt: "Pick one Discworld subplot and retell it as the lesson's mechanism: which story-shape a character or institution is following, what reality bends because of it, where Pratchett breaks the shape for a laugh.",
+    checkPrompt: "Be able, without notes, to define narrativium; explain how the disk-and-turtles world is a laboratory of ideas; name two ways Pratchett argues about institutions; and say what the reader is training when reading Pratchett.",
+    tier: 1,
+    complexity: 4,
+    references: [
+
+    ],
+    lesson: {
+problem: "Calling Discworld «comic fantasy» explains neither why the books reward intelligence nor why more of the jokes land when you understand systems rather than local memes.",
+model: "The lesson reads Discworld as a world made of story: narrativium — the element whose behaviour is cause-as-story — makes the flat world a place where beliefs and traditions act like forces, and every book argues with one of those forces.",
+mechanics: "Pratchett builds tall tales with a physics of their own: a disk on elephants runs on narrative matter. Institutions (watch, post office, university) arrive one book at a time, each a story about how a real system bends people into one trap.",
+pitfalls: [
+  "Skipping the footnotes: they carry world logic.",
+  "Reading Pratchett's satire as nostalgia rather than argument.",
+  "Missing the two grand themes: belief and institutions.",
+  "Thinking the magic is the point instead of a tested rule.",
+  "Blaming the early books' tone for the later argument: both belong on the same ladder."
+],
+whenNot: "This is a reading map, not a completist bibliography, and it does not treat Pratchett's career as one undivided arc."
+    },
+  },
+];
+
+const futureOfHumanityTopics: readonly TopicCard[] = [
+  {
+    id: "future-of-humanity-full",
+    title: "The Future of Humanity: Concepts and Frameworks",
+    summary: "The future of humanity through frameworks: thinking tools against being wrong, deep time, the Kardashev energy scale, the Great Filter from Fermi, existential risk, transformative technologies, demographics and values, and the very long run.",
+    concepts: [],
+    practicePrompt: "Walk one of the lesson's eight parts and construct your own version of it: take two thinking tools, or deep time, or energy scales, and produce one estimate with explicit assumptions; state the assumption whose failure would change your answer the most.",
+    checkPrompt: "Be able, without notes, to explain why the future can not be studied like the past; what deep time changes in proportion; what the Kardashev scale measures; why the Great Filter is an argument about evidence, not a sci-fi prop; and what the «hinge of history» question asks.",
+    tier: 1,
+    complexity: 4,
+    references: [
+
+    ],
+    lesson: {
+problem: "Without frameworks, thinking about the future collapses into either technological optimism or doomerism, and neither is a method you can defend.",
+model: "The lesson treats the future as a set of questions with tools: forecasting has known failure modes, scale has anchors (deep time, energy), risk has structure (the filter, the precipice), and the human layer (demographics, values) constrains the rest.",
+mechanics: "Forecasting improves when named biases are held against a base rate. Deep time anchors how much future there might be. Energy scales (Kardashev) order civilizational ceilings without promising schedules. Fermi and the Great Filter turn silence into a statement about likelihoods. Existential risk gives precision to what must go right, not just wrong.",
+pitfalls: [
+  "Treating forecasts of decades as facts.",
+  "Reading the Filter as a monster instead of as an evidence argument.",
+  "Assuming energy ceilings say anything about timing.",
+  "Measuring risk only by probability without duration and irreversibility.",
+  "Confusing values change with values decline."
+],
+whenNot: "This is a frameworks lesson, not a prediction set; it does not endorse specific dates or single scenarios."
+    },
+  },
+];
+
+const stPetersburgParadoxTopics: readonly TopicCard[] = [
+  {
+    id: "st-petersburg-paradox-full",
+    title: "The St. Petersburg Paradox: When Infinity Meets Common Sense",
+    summary: "The St. Petersburg paradox as a workshop on expectation: the infinite-value game, five resolutions (utility, finite casino, repeated play, time vs ensemble averages, neglected tiny probabilities), and why each resolution fails somewhere.",
+    concepts: [],
+    practicePrompt: "Rebuild the calculation for yourself: write the payout schedule, the infinite series, and where it breaks the expectation rule; then walk the five resolutions and name, for each, one game it fails to fix.",
+    checkPrompt: "Be able, without notes, to derive the paradox in three lines; explain why diminishing marginal utility rescues intuition but not the bet; what the ensemble-vs-time-average argument actually claims; and why the paradox still matters.",
+    tier: 1,
+    complexity: 4,
+    references: [
+
+    ],
+    lesson: {
+problem: "Expected value is the first tool of probability, and the paradox breaks it in front of your eyes — a game of no infinite price with a finite value everyone trusts.",
+model: "The lesson treats the paradox as a fidelity check on expectation: the game's value is infinite in theory, finite in every real casino, and the five resolutions each pick a different reason the theory misprices this real one.",
+mechanics: "Payout doubling becomes an infinite sum, so the mean exists but diverges. Utility thresholds convert money into feeling and fix prices for humans but not for the theory. A finite bank's cap makes the game finite and the price moderate. Time averages support a different decision rule than ensemble averages.",
+pitfalls: [
+  "Calling the paradox a trick of bad math: the calculation is right and still misprices the real game.",
+  "Assuming utility theory settles it for every agent.",
+  "Confusing the law of large numbers with a reason to bet infinitely long.",
+  "Ignoring that tiny probabilities are not the whole problem.",
+  "Believing modern decision theory has one resolution everyone accepts."
+],
+whenNot: "This is a probability and decision-theory lesson; it does not cover the city's history beyond what the paradox needs."
+    },
+  },
+];
+
+const universeFieldGuideTopics: readonly TopicCard[] = [
+  {
+    id: "universe-field-guide-full",
+    title: "The Universe: A Field Guide from First Principles to the Frontier",
+    summary: "A field guide to the universe from first principles to the frontier: scale, expansion, relativity, content, cosmic history, structure formation, stars, black holes, messengers and methods, planets and life, the fate of the universe.",
+    concepts: [],
+    practicePrompt: "Pick one chapter number of the guide (scale, expansion, content, structure forming, stars, black holes, messengers, fate) and build your own one-page version of it: one mechanism, one observation, one open question, all in your own words.",
+    checkPrompt: "Be able, without notes, to say what expansion does and does not affect; what the universe is made of by epoch; how structure forms from small anisotropies; what a messenger (light, gravitational waves, neutrinos) adds that the others can not; and what the fate question really depends on.",
+    tier: 1,
+    complexity: 4,
+    references: [
+
+    ],
+    lesson: {
+problem: "Cosmology is encountered as a pile of wonders, and every wonder sounds equally unexplained; without a map you can not tell which facts depend on which.",
+model: "The guide walks a ladder: scale first, expansion second, theory third, then content and history, and only after them the structures and the frontier questions that tie the previous rungs together.",
+mechanics: "Scale is a trained instinct: powers of ten decide what a diagram actually claims. Expansion relates distances and time directly, so every deep object is a clock. Content changed by epoch: radiation, matter, dark energy lead in series. Small anisotropies seed today's galaxies, which is why the CMB matters. Fate follows total content, mostly from the dark energy equation.",
+pitfalls: [
+  "Picturing the Big Bang as an explosion inside pre-existing space.",
+  "Treating the CMB as a picture of stars rather than of the early plasma.",
+  "Assuming dark energy's pressure is a beauty number rather than a measured one.",
+  "Skipping scale practice and misreading every zoom picture.",
+  "Reading the fate question as philosophical rather than as a measurement task."
+],
+whenNot: "This is an orientation guide, not a technical derivation course; it never claims closed answers on open research questions."
+    },
+  },
+];
+
+const odysseyConceptsTopics: readonly TopicCard[] = [
+  {
+    id: "odyssey-concepts-full",
+    title: "The Odyssey: A Lesson in Concepts",
+    summary: "The Odyssey through its concept set: nostos, kleos, xenia, oikos and metis as the engine of every episode, the Homeric Question, the mid-start architecture, and the ending problem.",
+    concepts: [],
+    practicePrompt: "Take one episode you know (the Cyclops, Nausicaa, the bow test) and run the lesson's concept set on it: nostos, kleos, xenia, oikos, metis; write what each concept predicts the episode will reward or punish.",
+    checkPrompt: "Be able, without notes, to say what the Homeric Question asks; why starting in the middle matters; define xenia and metis with one scene each; and explain the ending problem — whether Odysseus changes by the last book.",
+    tier: 1,
+    complexity: 4,
+    references: [
+
+    ],
+    lesson: {
+problem: "The Odyssey is read as adventures without a grammar, and then its concepts (recognition, hospitality, cunning) look like decoration instead of the engine of the plot.",
+model: "The lesson treats the poem as a concept machine: five working ideas (nostos, kleos, xenia, oikos, metis) organize every episode and its ends, and the non-linear start is the poem's own instrument.",
+mechanics: "Nostos orders the homecoming as the plot's spine. Xenia tests strangers and is the poem's biggest crime-and-punishment grid. Metis explains why the weak hero wins: the plot rewards pranking leaders. Recognition runs the second half: scars, beds, and names.",
+pitfalls: [
+  "Reading the poem chronologically by filmed flashbacks.",
+  "Mixing Odysseus the storyteller with Odysseus the character.",
+  "Assuming the gods are plot hacks instead of social operators.",
+  "Treating the last book as closure when the poem leaves it cut short.",
+  "Skipping the poem's own irony: it knows its hero is unreliable."
+],
+whenNot: "This is a reading-frame lesson, not a translation comparison, and it does not settle the authorship debate."
+    },
+  },
+];
 export const curriculum: readonly PracticeArea[] = [
   {
     id: "go",
@@ -4008,5 +4824,229 @@ export const curriculum: readonly PracticeArea[] = [
     tier: 1,
     dependencies: [],
     topics: dopamineIbsDoubleLifeTopics,
+  },
+  {
+    id: "frankenstein-concepts",
+    title: "«Франкенштейн»: роман, основные понятия и то, что обычно упускают",
+    description: "«Франкенштейн, или Современный Прометей» Мэри Шелли — одновременно готический роман, философский эксперимент, трагедия семейных отношений и один из основополагающих текстов научной фантастики. Его часто пересказывают как предупреждение: человек присвоил себе божественную власть, создал чудовище и был наказан. Это узнаваемое, но слишком бедное прочтение.",
+    tier: 1,
+    dependencies: [],
+    topics: frankensteinConceptsTopics,
+  },
+  {
+    id: "universe-connected-map",
+    title: "Вселенная: связная карта основных идей",
+    description: "Понять Вселенную — значит не столько запомнить названия галактик, сколько увидеть связь между пространством-временем, квантовыми полями, гравитацией, теплом и информацией. И постоянно различать три вещи: что непосредственно наблюдается, что надёжно выводится из проверенных теорий и что пока остаётся гипотезой.",
+    tier: 1,
+    dependencies: [],
+    topics: universeConnectedMapTopics,
+  },
+  {
+    id: "kyrgyzstan-concepts",
+    title: "Кыргызстан: от базовой карты к исследовательскому пониманию",
+    description: "Кыргызстан от базовой карты к исследовательскому пониманию: горы как инфраструктура жизни, вода как политика, границы как коридор посредничества, сменяемость власти без устойчивости институтов и суверенитет в условиях взаимозависимости.",
+    tier: 1,
+    dependencies: [],
+    topics: kyrgyzstanConceptsTopics,
+  },
+  {
+    id: "wong-kar-wai",
+    title: "Wong Kar-wai: a conceptual vocabulary, from basic to advanced",
+    description: "Wong Kar-wai is a Hong Kong filmmaker, born in Shanghai in 1958 and raised in Hong Kong from childhood. His work grows out of popular cinema—gangster films, romances, martial-arts films, comedy, pop music—but reorganizes those materials around unusually concentrated experiences of time, memory, and desire.",
+    tier: 1,
+    dependencies: [],
+    topics: wongKarWaiTopics,
+  },
+  {
+    id: "contracted-gut-visceral-hs",
+    title: "The “contracted gut” and visceral hypersensitivity",
+    description: "I’ll interpret **“visceral HS” as visceral hypersensitivity**, and “contracted gut” as a sensation of intestinal tightness, squeezing, or cramping. “Contracted gut” is not one precise medical diagnosis; a fixed narrowing or obstruction would be a different problem.",
+    tier: 1,
+    dependencies: [],
+    topics: contractedGutVisceralHsTopics,
+  },
+  {
+    id: "park-chan-wook",
+    title: "Park Chan-wook: Form, Desire, and the Ethics of Looking",
+    description: "Park Chan-wook is a South Korean filmmaker best known internationally for *Oldboy*, *The Handmaiden*, and *Decision to Leave*. His reputation emphasizes elegant images, disturbing violence, intricate plots, and dark humor. Those descriptions are accurate, but they do not yet explain what makes his filmmaking distinctive.",
+    tier: 1,
+    dependencies: [],
+    topics: parkChanWookTopics,
+  },
+  {
+    id: "spielberg-craft-layers",
+    title: "СТИВЕН СПИЛБЕРГ: МНОГОУРОВНЕВЫЙ РАЗБОР",
+    description: "Стивен Спилберг по уровням: от порога понятного до киноведческого слоя — длинный план, монтаж тревоги и чудо-кадр как ремесло, плюс производственные must-know и практическая выжимка для снимающего.",
+    tier: 1,
+    dependencies: [],
+    topics: spielbergCraftLayersTopics,
+  },
+  {
+    id: "discworld-newcomer",
+    title: "Discworld: An Introduction for the Intelligent Newcomer",
+    description: "Discworld for the intelligent newcomer: why the flat-world comedy premise is a trap, what narrativium does, how the world's geography of ideas organizes 41 novels, and where to start reading.",
+    tier: 1,
+    dependencies: [],
+    topics: discworldNewcomerTopics,
+  },
+  {
+    id: "uzbekistan-deep-dive",
+    title: "Uzbekistan: A Conceptual Deep-Dive",
+    description: "Uzbekistan as a conceptual deep-dive: double landlock, layered crossroads civilizations, the Soviet cotton machine, the Karimov closure, the Mirziyoyev opening, and the strategic picture that follows.",
+    tier: 1,
+    dependencies: [],
+    topics: uzbekistanDeepDiveTopics,
+  },
+  {
+    id: "dark-souls-concepts",
+    title: "Dark Souls: A Conceptual Primer from First Death to Frame Data",
+    description: "Dark Souls as a system: death as currency, bonfires and estus as a pricing scheme, hollowing as resource pressure, the stamina-poise-frame combat grammar, shortcuts as level design, and fragmented lore as deliberate documentation.",
+    tier: 1,
+    dependencies: [],
+    topics: darkSoulsConceptsTopics,
+  },
+  {
+    id: "euv-lithography",
+    title: "EUV Lithography: A Lesson",
+    description: "EUV lithography from one constraint — at 13.5 nm almost nothing transmits — to the full toolchain: tin-droplet light source, reflective masks, stochastic resists, High-NA optics and the thirty-year path to manufacturing.",
+    tier: 1,
+    dependencies: [],
+    topics: euvLithographyTopics,
+  },
+  {
+    id: "mongolia-widely-known",
+    title: "Монголия: путеводитель по стране, которую все знают и почти никто не понимает",
+    description: "Монголия как система: пространство как судьба и операционная система, кочевничество как технология, XX век между тремя революциями, недра и скот, Улан-Батор как полстраны и политика третьего соседа.",
+    tier: 1,
+    dependencies: [],
+    topics: mongoliaWidelyKnownTopics,
+  },
+  {
+    id: "norway-first-timer",
+    title: "Norway for the First-Timer: A Conceptual Lesson",
+    description: "Norway planned from constraints instead of destinations: transport density, season and light as the trip's operating system, region-tight plans, and the choices that keep cost and transit sane.",
+    tier: 1,
+    dependencies: [],
+    topics: norwayFirstTimerTopics,
+  },
+  {
+    id: "ibs-spasm",
+    title: "IBS Spasm: A Contracted Lesson",
+    description: "IBS spasm as a control-loop problem: what a spasm physically is, the fifteen-minute rescue, reflex timing, gut substrate and gain hacking, pharmacology to discuss with a clinician, and the imposters that are not spasms.",
+    tier: 1,
+    dependencies: [],
+    topics: ibsSpasmTopics,
+  },
+  {
+    id: "tolkien-all-you-need",
+    title: "Толкин: всё, что нужно знать",
+    description: "Толкин: философия вторичного творения и эвкатастрофы, языки как источник, устройство Легендариума, главные темы, инклинги, русская рецепция и экранизации — опорный скелет для входа и для речи о нём.",
+    tier: 1,
+    dependencies: [],
+    topics: tolkienAllYouNeedTopics,
+  },
+  {
+    id: "mongolia-field-guide",
+    title: "Mongolia: A Field Guide to the Concepts",
+    description: "Mongolia as a field guide of concepts: terrain as the operating system, nomadism as technology, the empire briefly and accurately, the three-revolution century, herding and minerals as the economy, and the third-neighbour policy.",
+    tier: 1,
+    dependencies: [],
+    topics: mongoliaFieldGuideTopics,
+  },
+  {
+    id: "uzbekistan-heart-of-asia",
+    title: "Uzbekistan: A Conceptual Lesson",
+    description: "Uzbekistan across nine concepts — geography as destiny then trap, layered inheritance, Russian-style colonialism, Soviet nation-making, cotton and the Aral, the Karimov system, the opening, mahalla and lived Islam, and the geopolitics of the middle.",
+    tier: 1,
+    dependencies: [],
+    topics: uzbekistanHeartOfAsiaTopics,
+  },
+  {
+    id: "ibs-spasm-contracted",
+    title: "IBS Spasm — The Contracted Lesson",
+    description: "IBS spasm, contracted: the one-paragraph control-loop model, what a spasm physically is, why pain is louder than harm, the ten-minute acute protocol, chronic retuning, the pharmacology map and the imposters with red flags.",
+    tier: 1,
+    dependencies: [],
+    topics: ibsSpasmContractedTopics,
+  },
+  {
+    id: "semiconductor-physics",
+    title: "Semiconductor Physics, Contracted",
+    description: "Semiconductor physics compressed into one line per idea: bands and gaps, quasiparticles, Fermi statistics, doping, transport, recombination, junctions, the MOS system, light, and how devices actually get computed.",
+    tier: 1,
+    dependencies: [],
+    topics: semiconductorPhysicsTopics,
+  },
+  {
+    id: "kazakhstan-research-disputes",
+    title: "Казахстан: от базовых фактов к исследовательским спорам",
+    description: "Казахстан в пяти уровнях: от каркаса новичка до исследовательских споров — степь как понятийный аппарат, советское наследие как система, политический язык, экономика ренты и фонды, идентичность и открытые вопросы.",
+    tier: 1,
+    dependencies: [],
+    topics: kazakhstanResearchDisputesTopics,
+  },
+  {
+    id: "milky-way-outline",
+    title: "Млечный Путь: большой очерк о нашей Галактике",
+    description: "Большой очерк Галактики: что мы видим, как нашли своё место, анатомия диска и бара, межзвёздная среда, кривая вращения и тёмная материя, биография и соседи, Солнце как житель, диапазоны наблюдений и открытые вопросы.",
+    tier: 1,
+    dependencies: [],
+    topics: milkyWayOutlineTopics,
+  },
+  {
+    id: "gut-ibs-condensed",
+    title: "The Gut and Irritable Bowel Syndrome: A Condensed Lesson",
+    description: "The gut and IBS condensed: the gut as a machine of layers, the brain-gut wire in both directions, what IBS is by criteria, the four mechanisms, diagnosis and the treatment ladder.",
+    tier: 1,
+    dependencies: [],
+    topics: gutIbsCondensedTopics,
+  },
+  {
+    id: "hbm-stacking",
+    title: "HBM Stacking: How We Built Skyscrapers Out of Memory",
+    description: "HBM stacking from problem to frontier: why bandwidth is a distance problem, DRAM anatomy, the stack with TSVs, bonding and yield, base die customization, the interposer, heat and yield realities, and why AI made HBM the memory that matters.",
+    tier: 1,
+    dependencies: [],
+    topics: hbmStackingTopics,
+  },
+  {
+    id: "discworld-made-of-story",
+    title: "Discworld: A World Made of Story",
+    description: "Discworld as a world made of story: narrativium as the world's physics, the disk as a laboratory of ideas, and how belief and institutions — not villains — drive the novels.",
+    tier: 1,
+    dependencies: [],
+    topics: discworldMadeOfStoryTopics,
+  },
+  {
+    id: "future-of-humanity",
+    title: "The Future of Humanity: Concepts and Frameworks",
+    description: "The future of humanity through frameworks: thinking tools against being wrong, deep time, the Kardashev energy scale, the Great Filter from Fermi, existential risk, transformative technologies, demographics and values, and the very long run.",
+    tier: 1,
+    dependencies: [],
+    topics: futureOfHumanityTopics,
+  },
+  {
+    id: "st-petersburg-paradox",
+    title: "The St. Petersburg Paradox: When Infinity Meets Common Sense",
+    description: "The St. Petersburg paradox as a workshop on expectation: the infinite-value game, five resolutions (utility, finite casino, repeated play, time vs ensemble averages, neglected tiny probabilities), and why each resolution fails somewhere.",
+    tier: 1,
+    dependencies: [],
+    topics: stPetersburgParadoxTopics,
+  },
+  {
+    id: "universe-field-guide",
+    title: "The Universe: A Field Guide from First Principles to the Frontier",
+    description: "A field guide to the universe from first principles to the frontier: scale, expansion, relativity, content, cosmic history, structure formation, stars, black holes, messengers and methods, planets and life, the fate of the universe.",
+    tier: 1,
+    dependencies: [],
+    topics: universeFieldGuideTopics,
+  },
+  {
+    id: "odyssey-concepts",
+    title: "The Odyssey: A Lesson in Concepts",
+    description: "The Odyssey through its concept set: nostos, kleos, xenia, oikos and metis as the engine of every episode, the Homeric Question, the mid-start architecture, and the ending problem.",
+    tier: 1,
+    dependencies: [],
+    topics: odysseyConceptsTopics,
   },
 ];

@@ -1,0 +1,272 @@
+<!-- lesson-meta: {"practicePrompt":"Sketch the HBM stack from the bottom up (base die, logic DRAM dies with TSVs, bonding, interposer, GPU) and label what the lesson's problem is at each level; then say which link today's yield drama lives in.","checkPrompt":"Be able, without notes, to explain the problem HBM solves versus ordinary DRAM placement; what TSVs change; why bonding is the yield bottleneck; what the interposer buys; and why AI made HBM the memory that matters."} -->
+<!-- lesson-theory: {"problem":"Processors compute faster than memory can feed them, and the usual fix (wider buses) stopped scaling; without a physical picture you can not reason about why bandwidth became the whole game.","model":"The lesson reads memory bandwidth as a distance problem: the shortest path from compute to data wins, so the industry stacks DRAM vertically with through-silicon vias and sets the stack on an interposer next to the processor.","mechanics":"Distances dominate bandwidth: an interposer beats a PCB by orders of magnitude. TSVs are vertical wires replacing peripheral bonds, so each die talks upward and downward. Die thinning makes stacking possible but is where yield gets expensive. The base die organizes the stack and is where customization arrives.","pitfalls":["Thinking capacity is the point: HBM trades raw size for bandwidth per watt.","Believing SiP is trivial: every extra bond is a new yield tax.","Assuming tooling fixes everything: stacking is a factory craft, not a tool menu.","Reading heat as an afterthought: a stack of dies heats worse than a flat one.","Forgetting the interposer is not a PCB: it is silicon, even at low complexity."],"whenNot":"The lesson is a structural primer and does not cover DRAM internals like refresh or DDR/JEDEC protocols in depth."} -->
+
+# HBM Stacking: How We Built Skyscrapers Out of Memory
+
+## Part 1: The Problem HBM Solves
+
+Every modern processor has the same frustration: it can compute far faster than it can be fed. A GPU can perform many trillions of operations per second, but each operation needs data, and that data lives in memory. When memory can't deliver data fast enough, the processor sits idle. This gap has a name, the **memory wall**, and it has been widening for decades because logic performance has improved much faster than memory bandwidth.
+
+To see what HBM does differently, start with the one equation that governs memory bandwidth:
+
+$$\text{Bandwidth} = \text{Bus width (bits)} \times \text{Data rate per pin (bits/s)}$$
+
+There are two ways to increase bandwidth. You can make each wire faster, or you can use more wires.
+
+Graphics memory like GDDR takes the first approach. A GDDR6X chip has a narrow interface (32 bits) but pushes each pin to 20+ gigabits per second. That speed has costs. Signals travel several centimeters across a printed circuit board, through package pins and solder balls. At those frequencies, a PCB trace behaves like a transmission line with reflections, crosstalk, and losses. The chips need power-hungry drivers, equalization circuits, and careful signal integrity engineering. Energy per bit transferred stays stubbornly high.
+
+HBM takes the second approach to an extreme. Instead of 32 fast wires, it uses **1,024 wires per stack** (2,048 in HBM4), each running at a comparatively modest speed. The problem then becomes physical: you cannot route a thousand wires from a processor to a memory chip across a normal circuit board. There isn't room. The processor's edge, sometimes called its *beachfront* or *shoreline*, can only hold so many connections at conventional pitches.
+
+HBM solves this with two geometric tricks:
+
+1. **Stack the memory vertically**, so many memory dies share one small footprint.
+2. **Put the stack millimeters away from the processor** on a shared slab of silicon, where wires can be packed at microscopic density.
+
+Everything else in this lesson is the engineering needed to make those two ideas work.
+
+---
+
+## Part 2: A Quick Primer on DRAM (Why Not Just Put Memory on the GPU?)
+
+A reasonable question: why not just build the memory into the processor die itself?
+
+The answer lies in how DRAM works. A DRAM cell is almost absurdly simple: one transistor and one capacitor (the "1T1C" cell). The capacitor holds a tiny charge representing a 1 or a 0, and the transistor acts as a gate that connects it to a *bitline* when you want to read or write. Because capacitors leak, every cell must be read and rewritten, or *refreshed*, every few tens of milliseconds. Reading a cell is destructive and delicate. The stored charge is so small that a *sense amplifier* must detect a voltage difference of a few tens of millivolts on the bitline.
+
+To make this work at high density, DRAM manufacturers use a specialized process. They build tall, skinny capacitors with extreme aspect ratios and use transistors optimized for *extremely low leakage*, so charge stays put. Logic processes, like the ones TSMC uses for GPUs, optimize for the opposite: fast-switching transistors that leak a lot, plus a dozen or more layers of metal wiring. The two processes are fundamentally at odds. Building good DRAM on a logic process gives you poor density (embedded DRAM exists but never scaled well), and building good logic on a DRAM process gives you slow transistors.
+
+So the memory must stay on separate dies. The goal becomes getting those separate dies as physically close, and as densely connected, to the processor as possible.
+
+---
+
+## Part 3: Anatomy of an HBM Stack
+
+Here is a cross-section of a typical HBM system:
+
+```
+        ┌──────────────┐
+        │  DRAM die 12 │  ← core dies, each thinned to ~30–50 µm
+        ├──────────────┤
+        │     ...      │
+        ├──────────────┤     ┃ ┃ ┃  ← TSVs: vertical copper
+        │  DRAM die 2  │     ┃ ┃ ┃    wires through each die
+        ├──────────────┤
+        │  DRAM die 1  │
+        ├──────────────┤
+        │  Base die    │  ← logic/buffer die: PHY, test, repair
+        └──┬─┬─┬─┬─┬───┘
+   ┌───────┴─┴─┴─┴─┴───────────────────────────┬───────────────┐
+   │   SILICON INTERPOSER (dense wiring, ~1024+ signals)       │
+   │   ════════════════════════════════════════ → to GPU die   │
+   └──────────────┬─┬─┬─┬─────────────────────────────────────┘
+          PACKAGE SUBSTRATE (organic)
+                  ● ● ● ● ●   ← solder balls to the board
+```
+
+Four main components are at work.
+
+**Core dies.** These are the DRAM dies that actually store data, stacked 4, 8, 12, or 16 high. Each one is ground down from a standard wafer thickness of about 775 µm to roughly 30–50 µm, thinner than a human hair and flexible enough to bend.
+
+**Through-silicon vias (TSVs).** These vertical copper conductors pierce each die, carrying signals and power up and down the stack. They are the elevator shafts of the skyscraper.
+
+**Base die** (also called the logic die or buffer die). This sits at the bottom of the stack. It contains the physical interface (PHY) that talks to the processor, plus test circuitry, TSV repair logic, and power distribution.
+
+**Silicon interposer.** This is a large, thin piece of silicon with no transistors (in the classic version), only very fine wiring. The GPU and the HBM stacks sit side by side on it. This arrangement is called **2.5D packaging**: not true 3D stacking of logic on memory, but more integrated than separate chips on a board. TSMC's version, **CoWoS** (Chip-on-Wafer-on-Substrate), is the dominant implementation and is currently one of the most supply-constrained manufacturing steps in the semiconductor industry.
+
+### The Channel Structure
+
+A 1,024-bit interface is not used as one giant bus. It is divided into **independent channels**, each with its own command and address signals, so that many unrelated memory requests can proceed in parallel.
+
+- **HBM1/HBM2:** 8 channels × 128 bits. In *pseudo-channel mode*, each channel splits into two 64-bit halves that share command/address lines but operate semi-independently.
+- **HBM3/HBM3E:** 16 channels × 64 bits, each split into 2 pseudo-channels of 32 bits.
+- **HBM4:** 32 channels, doubling the total width to 2,048 bits.
+
+This matters because real workloads rarely stream perfectly sequential data. More independent channels means more concurrency and better utilization of the raw bandwidth.
+
+### A Worked Bandwidth Example
+
+HBM3 runs at 6.4 Gb/s per pin across 1,024 pins:
+
+$$1024 \times 6.4\ \text{Gb/s} = 6553.6\ \text{Gb/s} \div 8 = 819.2\ \text{GB/s per stack}$$
+
+A GPU with five or six such stacks gets several terabytes per second. The generational progression looks roughly like this:
+
+| Generation | Approx. year | Interface | Pin speed | Per-stack bandwidth |
+|---|---|---|---|---|
+| HBM1 | 2015 | 1024-bit | 1 Gb/s | 128 GB/s |
+| HBM2 | 2016 | 1024-bit | 2 Gb/s | 256 GB/s |
+| HBM2E | 2020 | 1024-bit | ~3.6 Gb/s | ~460 GB/s |
+| HBM3 | 2022 | 1024-bit | 6.4 Gb/s | ~819 GB/s |
+| HBM3E | 2024 | 1024-bit | ~9.2–9.8 Gb/s | ~1.2 TB/s |
+| HBM4 | 2025–26 | 2048-bit | ~8+ Gb/s | ~2 TB/s+ |
+
+Notice the HBM4 move: rather than pushing per-pin speed ever higher and fighting signal integrity, the industry doubled the width again. That is the HBM philosophy in a single design decision.
+
+---
+
+## Part 4: Through-Silicon Vias
+
+TSVs are the key enabling technology of HBM. Without them, you would have to connect stacked dies with wire bonds around the edges (as in older stacked flash packages), which caps the connection count at a few hundred and adds significant inductance.
+
+### How a TSV Is Made
+
+Most HBM uses a **via-middle** flow, meaning the TSVs are formed after the transistors are built (front-end-of-line) but before the metal wiring layers (back-end-of-line):
+
+1. **Etch.** A deep, narrow hole is carved into the silicon using *deep reactive ion etching*, typically the **Bosch process**. This technique alternates rapidly between etching downward with a fluorine plasma and depositing a protective polymer on the sidewalls, producing a nearly vertical hole with faintly scalloped walls. Typical dimensions are a few micrometers wide and tens of micrometers deep, an aspect ratio of about 10:1.
+2. **Insulate.** An oxide liner is deposited so the copper doesn't short to the surrounding silicon.
+3. **Barrier and seed.** A thin barrier layer (often tantalum/tantalum nitride) prevents copper from diffusing into the silicon, where it would poison transistors. A copper seed layer follows.
+4. **Fill.** The hole is filled with copper by electroplating. This is hard to do without leaving voids, and it requires special chemical additives that accelerate plating at the bottom of the hole and suppress it at the top, so the via fills from the bottom up.
+5. **Reveal.** Later, the wafer is flipped, bonded to a temporary carrier, and ground down from the back until the buried copper ends are exposed.
+
+### Why TSVs Are Harder Than They Look
+
+**Mechanical stress.** Copper expands with heat about six times more than silicon does (thermal expansion coefficients of roughly 17 vs. 2.6 ppm/°C). As the chip heats and cools, each TSV pushes and pulls on the silicon around it. Stress changes the mobility of charge carriers in silicon (the *piezoresistive effect*), which shifts transistor behavior. Designers therefore enforce a **keep-out zone** around each TSV where sensitive circuits cannot be placed. That area is lost to storage.
+
+**Area cost.** Thousands of TSVs per die, each with a keep-out zone, consume real estate. This is one reason an HBM die stores fewer bits per square millimeter than a standard DDR5 die. Industry estimates suggest HBM consumes roughly two to three times the wafer area per bit of conventional DRAM. That ratio is central to HBM's economics, and it is why HBM demand for AI tightens supply across the whole DRAM market.
+
+**Redundancy.** If one TSV in a column fails, the whole data path it carries is dead. HBM designs include spare TSVs and repair logic that can reroute signals around defective ones after assembly.
+
+**Power delivery.** Many TSVs carry power and ground rather than data. Twelve dies drawing current through a shared vertical path create voltage droop (IR drop), and the top dies are farthest from the power source. Power TSVs are a significant fraction of the total.
+
+---
+
+## Part 5: Bonding the Stack
+
+Having TSVs isn't enough; each die must be physically and electrically attached to the next. This is where the major HBM manufacturers (SK hynix, Samsung, Micron) have taken notably different approaches, and it's one of the main reasons for their differing competitive positions.
+
+### Microbumps
+
+The traditional connection is the **microbump**: a tiny copper pillar topped with a solder cap, at a pitch of roughly 40–55 µm in current products. When heated, the solder melts and fuses to a pad on the die below. The gaps between dies must then be filled with an insulating material (underfill) for mechanical strength and heat conduction.
+
+There are two main ways to do this.
+
+**TC-NCF (Thermocompression with Non-Conductive Film).** Used historically by Samsung and Micron. A thin adhesive film is laminated onto each die, and dies are bonded one at a time using a heated head that applies force. The film flows around the bumps and cures. This approach gives precise control and handles warpage well, but it is sequential (slow) and the film is a relatively poor thermal conductor.
+
+**MR-MUF (Mass Reflow Molded Underfill).** SK hynix's approach. Dies are stacked and tacked in place, then the whole stack is heated at once so all bumps reflow simultaneously. A liquid epoxy molding compound is then injected to fill every gap. This offers higher throughput and better heat dissipation, since the mold compound conducts heat better than the film. The challenge is controlling warpage when very thin dies are heated all at once. SK hynix's "Advanced MR-MUF" refinements for 12-high stacks are widely credited as part of why it led the HBM3/HBM3E generation.
+
+### The Height Budget
+
+JEDEC, the standards body, specifies a maximum stack height so that HBM remains compatible with standard package designs: about **720 µm** for HBM3E, relaxed to about **775 µm** for HBM4. Stacking 16 dies plus a base die within that height, including all the bump gaps, forces the dies to be extraordinarily thin (around 30 µm). Thinner dies warp more, crack more easily, and are harder to handle.
+
+### Hybrid Bonding: The Next Step
+
+The eventual answer is to eliminate bumps entirely. In **hybrid bonding**, two dies are polished so flat (surface roughness under a nanometer, via chemical-mechanical polishing) that their oxide surfaces bond directly through molecular forces at room temperature. The embedded copper pads are recessed very slightly. During a subsequent anneal, the copper expands more than the oxide around it, pushing the pads into contact, where they fuse into continuous metal.
+
+The benefits are substantial:
+- **Zero gap** between dies, recovering height for more layers.
+- **Pitch below 10 µm**, allowing many more connections.
+- **Better thermal conduction**, with no low-conductivity underfill layer.
+- **Lower parasitics**, meaning less capacitance and less energy per bit.
+
+The catch is that hybrid bonding is unforgiving. A single particle a fraction of a micrometer wide creates a void that can ruin the bond across a significant area. It needs semiconductor-fab-level cleanliness applied to a packaging step. It is expected to enter HBM around the 16-high HBM4E/HBM5 era, with manufacturers hedging between refined bump methods and hybrid bonding.
+
+---
+
+## Part 6: The Base Die and the "Custom HBM" Shift
+
+Through HBM3E, the base die was usually fabricated on a DRAM process by the memory maker. It did its job but was limited by those slow, low-leakage transistors.
+
+With HBM4, the base die moves to **logic foundry processes** (e.g., TSMC's 12nm or 5nm-class nodes). This has several consequences:
+
+- The PHY driving 2,048 signals can be faster and more power-efficient.
+- The base die gains room for extra logic, opening the door to **custom HBM**. Customers such as GPU and accelerator makers can request tailored features in the base die: specialized controllers, compression, reliability features, or even simple compute near the memory.
+- The memory maker and foundry now collaborate on a single product, which blurs the traditional line between the memory industry and the logic industry.
+
+This is a quiet but significant architectural change. The bottom of the memory stack is becoming a small processor in its own right.
+
+---
+
+## Part 7: The Interposer and Why Distance Is Everything
+
+The interposer is where HBM's energy advantage actually comes from.
+
+A silicon interposer is manufactured using the same lithography and metal-deposition tools as chip wiring, so it can have lines and spaces around a micrometer wide. Organic package substrates traditionally operate at around ten micrometers or more. That difference in density is what makes routing 1,024 (or 2,048) signals per stack physically possible.
+
+Just as important is **distance**. The HBM stack sits a few millimeters from the GPU die. At that length, the wire isn't a transmission line in the troublesome sense. It behaves more like a small capacitor that must be charged and discharged. The energy to switch a wire is approximately:
+
+$$E \approx C V^2$$
+
+Short wires have small capacitance *C*, and simple, low-swing signaling keeps *V* low. There is no need for elaborate equalization or high-speed SerDes circuitry. The result is energy per bit in the range of a few picojoules for HBM, compared to substantially more for GDDR, which must drive signals across centimeters of board. When you move terabytes per second, picojoules per bit add up to tens of watts.
+
+**Geek aside, a sanity check:** At 3 pJ/bit and 3 TB/s:
+$$3 \times 10^{12}\ \text{bytes/s} \times 8\ \text{bits/byte} \times 3 \times 10^{-12}\ \text{J/bit} = 72\ \text{W}$$
+Tens of watts just to move data, even with HBM. Double the energy per bit and you've lost the power budget of a whole CPU. This is why memory interface energy is a first-class design constraint.
+
+### Interposer Variants
+
+Silicon interposers are limited by the **reticle limit**, the maximum area a lithography scanner can expose in one shot, roughly 26 × 33 mm (~858 mm²). Modern AI accelerators need more area than that for a large GPU (or two) plus 6–8 HBM stacks. The solutions:
+
+- **Reticle stitching:** exposing multiple adjacent fields and connecting them, giving interposers several times the reticle limit (CoWoS-S).
+- **Local silicon bridges:** instead of one enormous silicon slab, embedding small silicon bridges only where dense die-to-die wiring is needed, within an organic or redistribution-layer interposer (TSMC's CoWoS-L, Intel's EMIB). This is cheaper and scales to larger packages.
+
+---
+
+## Part 8: Heat, Yield, and Other Hard Realities
+
+### Thermal Management
+
+A stack of a dozen dies is effectively a layered insulator, and it sits next to a GPU dissipating 700–1,000+ watts. Heat generated in the lower dies must travel up through every layer above to reach the heatsink.
+
+This is a particular problem for DRAM because **leakage rises with temperature**. Above about 85°C, the refresh interval is typically halved, meaning twice as many refresh operations. Refresh steals time from useful accesses and adds power, which adds heat, which is a feedback loop. Manufacturers add **dummy bumps** (thermal-only connections with no electrical function) to create more heat-conduction paths, and underfill thermal conductivity becomes a competitive differentiator.
+
+### Compound Yield
+
+Stacking multiplies risk. If each die independently has a 99% chance of being good after bonding, a 12-high stack has:
+
+$$0.99^{12} \approx 0.886$$
+
+About 11% of stacks fail, and a failed stack cannot be disassembled. The failure then propagates upward: if a bad stack is mounted on an interposer next to a large, expensive GPU die, the whole package may be lost.
+
+The defenses are:
+- **Known Good Die (KGD):** extensively testing each die at the wafer level *before* stacking.
+- **Built-in repair:** spare rows, columns, and TSVs that can be mapped in after assembly.
+- **Known Good Stack testing:** testing the finished stack before it is committed to a package.
+
+Yield management, more than raw technology, is often what separates the leading HBM supplier from the others in a given generation.
+
+---
+
+## Part 9: Why AI Made HBM the Most Important Memory on Earth
+
+Large language model inference shows clearly why bandwidth matters.
+
+When a model generates text one token at a time (the *decode* phase), it must read essentially **every weight in the model** for each token. With small batch sizes, it performs only a couple of arithmetic operations per byte loaded, so the compute units spend most of their time waiting on memory. The workload is **memory-bandwidth bound**.
+
+**Worked example:** a 70-billion-parameter model in 16-bit precision occupies:
+$$70 \times 10^9 \times 2\ \text{bytes} = 140\ \text{GB}$$
+On a GPU with 3.35 TB/s of HBM bandwidth (an H100 SXM), the minimum time to stream all weights once is:
+$$140\ \text{GB} \div 3350\ \text{GB/s} \approx 42\ \text{ms}$$
+That sets a ceiling of roughly **24 tokens per second** for a single request, *regardless of how many FLOPS the chip has*. (The model also doesn't fit on one 80 GB GPU, so in practice it is split across several, but the per-byte logic holds.)
+
+In the **roofline model**, a standard way to reason about performance, the achievable throughput is:
+
+$$\text{Performance} = \min(\text{Peak compute},\ \text{Bandwidth} \times \text{Arithmetic intensity})$$
+
+where *arithmetic intensity* is operations per byte moved. For low-intensity workloads like decode, bandwidth is the binding term. This is why each new accelerator generation advertises HBM bandwidth and capacity as prominently as compute: NVIDIA's B200 carries 192 GB of HBM3E at around 8 TB/s, and AMD's MI300X carries 192 GB of HBM3 at 5.3 TB/s. Capacity matters too. More HBM means larger models, longer context windows, and bigger key-value caches fit on fewer chips.
+
+---
+
+## Part 10: Where It's Heading
+
+**Taller stacks.** 16-high and eventually 20-high stacks, pushing die thickness and bonding technology to their limits.
+
+**Hybrid bonding.** Transitioning from microbumps to direct copper bonding for density, height, and thermal gains.
+
+**Smarter base dies.** Custom logic in the base die, potentially including **processing-in-memory** (PIM), which performs simple operations like multiply-accumulate inside the memory so that less data has to cross the interface at all. Samsung has demonstrated HBM-PIM prototypes.
+
+**True 3D integration.** Stacking memory directly on top of logic, rather than beside it, eliminating the interposer hop entirely. The obstacle is heat: putting DRAM directly above a hot processor makes the thermal problem much worse.
+
+**Optical I/O.** Co-packaged optics may eventually connect memory pools across greater distances, challenging the assumption that bandwidth requires physical proximity.
+
+---
+
+## Recap: The Mental Model
+
+If you remember one idea, remember this: **HBM trades speed-per-wire for number-of-wires, and pays for it with geometry.**
+
+- Many slow wires beat a few fast ones on energy, as long as the wires are short and dense.
+- Short, dense wires require the memory to sit millimeters from the processor on a silicon interposer.
+- Fitting enough capacity in that small footprint requires stacking dies vertically.
+- Stacking requires TSVs to carry signals through the silicon, and bonding technology (microbumps, MR-MUF, TC-NCF, and eventually hybrid bonding) to join the layers.
+- Every step introduces new problems (stress, heat, height limits, compound yield), and HBM's history is a series of clever solutions to those problems.
+
+The result is a small tower of silicon, thinner than a coin, that feeds the processors behind nearly every frontier AI system. In the current AI era, the performance of a chip is often determined less by how fast it can compute than by how quickly it can be fed, and HBM is what feeds it.

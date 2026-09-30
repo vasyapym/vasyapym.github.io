@@ -1,0 +1,51 @@
+import type { LessonSection } from "../curriculum";
+
+export const sections: readonly LessonSection[] = [
+  {
+    heading: "What a spasm actually is",
+    blocks: [
+      {"kind":"p","text":"An IBS \"spasm\" is not a malfunctioning muscle so much as a mis-tuned control loop. The colon is wrapped in two layers of smooth muscle governed by the enteric nervous system (~500 million neurons, a genuine second brain running on serotonin, acetylcholine, nitric oxide, and substance P), which is in constant dialogue with the central nervous system via the vagus nerve and spinal afferents. In IBS, three things drift out of spec. First, *motility* becomes erratic: high-amplitude propagating contractions fire at the wrong times, or segmenting contractions trap gas in pockets. Second, *visceral hypersensitivity* lowers the threshold at which distension is perceived as pain — balloon-distension studies show IBS patients report pain at volumes healthy controls barely notice, and fMRI shows amplified activity in the anterior cingulate and insula, the brain's alarm-and-salience circuitry. Third, the *gut-brain axis* is sensitised: stress hormones (CRF acting on mast cells) degranulate histamine and tryptase near enteric nerves, which further lowers thresholds. So a spasm is a gas pocket or contraction that would be silent in another gut, arriving in a nervous system that has turned the gain way up. Every lifehack below targets one of these three nodes — mechanics, threshold, or gain."},
+    ],
+  },
+  {
+    heading: "Acute rescue: the first fifteen minutes",
+    blocks: [
+      {"kind":"p","text":"Heat works, and not just as placebo. A heat pad on the abdomen activates TRPV1-bearing skin afferents that converge on the same spinal segments as the colon; the spinal \"gate\" gets flooded with a competing signal, and heat also relaxes smooth muscle directly. Pair it with position: lying on the left side or knees-to-chest changes the geometry of the sigmoid and lets trapped gas migrate toward an exit rather than pressing on a sensitised wall. A gentle clockwise abdominal massage follows the anatomical path of the colon (ascending on your right, transverse, descending on your left) and mechanically encourages transit."},
+      {"kind":"p","text":"Peppermint oil is the closest thing to an over-the-counter antispasmodic with a mechanism you can state at a whiteboard: L-menthol blocks L-type calcium channels in gut smooth muscle and agonises TRPM8, the cooling receptor, which dampens visceral afferent firing. Use enteric-coated capsules so it releases in the intestine rather than relaxing the lower oesophageal sphincter and gifting you reflux. Warm tea versions help somewhat, mostly via warmth and vagal engagement, but the dose is trivial."},
+      {"kind":"p","text":"Then breathe — specifically, slow diaphragmatic breathing at roughly six breaths per minute, long exhale. This is not relaxation folklore; it drives respiratory sinus arrhythmia, a measurable proxy for vagal tone, and the vagus is the parasympathetic brake on both stress signalling and gut hyperreactivity. Exhale-weighted breathing also physically massages the viscera via diaphragmatic excursion. Five minutes of it will not abort every spasm, but it reliably takes the edge off the gain problem while heat and menthol work on the mechanics."},
+    ],
+  },
+  {
+    heading: "Timing hacks: exploit the reflexes",
+    blocks: [
+      {"kind":"p","text":"The gastrocolic reflex is a built-in feature: food entering the stomach triggers colonic mass movements within minutes. In IBS this reflex is exaggerated, which is why the post-breakfast or post-lunch cramp is so stereotyped. You can't delete the reflex, but you can shrink its trigger. Large, fatty, cold, or rapidly eaten meals produce the biggest surge; smaller, warmer, slower meals produce a gentler one. Eating at consistent times trains the migrating motor complex — the housekeeping wave that sweeps the gut between meals — into a predictable rhythm, and predictable guts spasm less. Grazing all day, by contrast, never lets that housekeeping wave run."},
+      {"kind":"p","text":"Morning is when the colon is naturally most active (cortisol awakening response plus the first-meal reflex), so if you have any control over the day, schedule a calm, warm, unhurried breakfast and a possible bathroom window rather than sprinting to a commute with coffee on an empty stomach. Coffee itself is a potent colonic stimulant independent of caffeine — decaf still triggers motility within four minutes in manometry studies — so treat it as a drug with a timed effect, not a background beverage."},
+    ],
+  },
+  {
+    heading: "Substrate hacks: what you feed the fermenters",
+    blocks: [
+      {"kind":"p","text":"The FODMAP concept is elegantly simple once you see the mechanism. Fermentable oligo-, di-, monosaccharides and polyols are poorly absorbed in the small intestine, so they arrive in the colon intact, where bacteria ferment them into hydrogen, methane, and short-chain fatty acids, and where they osmotically draw in water. Gas plus water equals distension; distension in a hypersensitive colon equals spasm. The low-FODMAP diet is not a \"healthy diet\" — it is a diagnostic elimination protocol, meant to run four to six weeks and then be systematically reintroduced to find your specific offenders. Common heavy hitters are fructans (wheat, onion, garlic), lactose, excess fructose, and polyols (sorbitol, mannitol — check the sugar-free gum). Staying on it indefinitely starves beneficial *Bifidobacteria*, so treat it as a tool, not a lifestyle."},
+      {"kind":"p","text":"Fibre requires nuance. Insoluble fibre (bran, raw vegetable skins) is mechanically irritating and often worsens cramping. Soluble, viscous, minimally fermentable fibre — psyllium is the exemplar — forms a gel that normalises stool consistency in both directions and has the best trial evidence in IBS. Start low and titrate; a sudden fibre bolus into a gut full of fermenters is itself a spasm trigger."},
+    ],
+  },
+  {
+    heading: "Gain hacks: turning down the amplifier",
+    blocks: [
+      {"kind":"p","text":"Because pain in IBS is substantially a central-processing phenomenon, interventions on the brain side have effect sizes that embarrass many drugs. Gut-directed hypnotherapy, in randomised trials, produces durable improvement in over half of refractory patients, and it appears to work by reducing central amplification and normalising the exaggerated reflexes described above. Cognitive behavioural therapy tailored to IBS performs similarly. This is not \"it's in your head\" in the dismissive sense; it's that the volume knob lives in the head, and that knob is adjustable."},
+      {"kind":"p","text":"Sleep is upstream of everything. A single night of poor sleep measurably lowers visceral pain thresholds the next day. Aerobic exercise, moderate rather than exhaustive, improves transit and dampens stress reactivity. Alcohol is a triple threat — it increases intestinal permeability, irritates directly, and disrupts sleep architecture. Track triggers with an honest, boring log: symptom, food, stress, sleep, menstrual phase if applicable (oestrogen and progesterone modulate both motility and pain thresholds, which is why many people spasm predictably around menstruation)."},
+    ],
+  },
+  {
+    heading: "Pharmacology, briefly, so you can talk to your clinician",
+    blocks: [
+      {"kind":"p","text":"Antispasmodics come in flavours: anticholinergics (hyoscine, dicyclomine) block muscarinic receptors on smooth muscle but bring dry mouth and blurred vision; direct smooth-muscle relaxants (mebeverine, otilonium, alverine) are gentler. Low-dose tricyclic antidepressants (amitriptyline at 10–30 mg, far below antidepressant doses) work as visceral analgesics via noradrenergic modulation of spinal pain gates, and also slow transit — useful if diarrhoea predominates. For diarrhoea-predominant patterns, loperamide before known triggers; for constipation-predominant, secretagogues like linaclotide, which also directly reduce visceral pain through guanylate cyclase-C signalling. Rifaximin, a non-absorbed antibiotic, helps a subset with bloating, presumably by pruning small-bowel bacterial load. None of these are cures; they are ways to lower the amplitude while you fix the loop."},
+    ],
+  },
+  {
+    heading: "When it isn't a spasm",
+    blocks: [
+      {"kind":"p","text":"IBS is a diagnosis of pattern, not of exclusion by suffering. Pain that wakes you from sleep, blood in the stool, unintended weight loss, fever, onset after fifty, a family history of inflammatory bowel disease or colorectal cancer, or progressive rather than fluctuating symptoms are not IBS features and warrant investigation — coeliac serology, faecal calprotectin, and possibly endoscopy. The hacks above are for a gut whose wiring is over-tuned, not for one with a lesion. Get the diagnosis right, then optimise the loop."},
+    ],
+  },
+];;
