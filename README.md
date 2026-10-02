@@ -29,14 +29,4 @@ Projects are discovered at build time via `import.meta.glob` from `projects/*/pr
 
 The landing hero is a procedural Canvas 2D glyph field (domain-warped fBm) — no WebGL, no animation libraries. Every design and iteration decision is recorded in an append-only per-project graph (`scripts/`).
 
-## Development
-
-`npm --prefix portfolio install && npm --prefix portfolio run dev` starts the dev server.
-
-Raft core uses `cargo test`; other projects have Node check scripts under `portfolio/projects/<id>/tests/`; shell validates via typecheck, build, and headless-Chrome behavioural probes. No CI test step yet.
-
-## Agentic workflow
-
-All agentic orchestration, repository management, testing, and implementation is handled by GLM 5.3-Flash, which distributes scoped tasks and briefs to Claude Opus 4.8/5, Fable 5/5.1, and GPT Sol/6 Astra, then reconciles their outputs.
-
 [MIT License](LICENSE)
