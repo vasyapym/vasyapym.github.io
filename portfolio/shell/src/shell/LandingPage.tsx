@@ -766,7 +766,15 @@ export default function LandingPage({
   // read equal at any desktop height. The copy re-centres when the padding
   // changes; the measured-gap + current-pad pair solves that feedback in one
   // closed-form step, and re-running it after that is a no-op.
-  useEffect(() => {
+  // useLayoutEffect, not useEffect: the first settle must write the pad BEFORE
+  // the first paint. As a post-paint effect the first frame rendered the CSS
+  // fallback (56px at 1920w) and the settled write (~162px) then jumped the
+  // cluster up — the fresh-entry "hero moves below then up" flicker (owner,
+  // 2026-10-02, Windows big screen; slow machines exposed the race). React
+  // runs layout effects synchronously pre-paint, so frame 1 already carries
+  // the settled pad. Late settles (fonts/resize) re-run the no-op-when-
+  // settled math.
+  useLayoutEffect(() => {
     const hero = heroRef.current;
     if (!hero) {
       return;
@@ -790,15 +798,19 @@ export default function LandingPage({
         return;
       }
       const currentPad = parseFloat(getComputedStyle(hero).paddingBottom);
-      const free = gap + currentPad / 2;
-      const pad = Math.max(16, (2 / 3) * free);
+      // Exact one-step solve (R040): gap is linear in the pad (gap = K − pad),
+      // so pad* = (gap + currentPad) / 2 lands on the equilibrium immediately.
+      // The former ×2/3 form only converged over several writes, each one a
+      // separate painted frame — visible as the fresh-entry wobble.
+      const free = gap + currentPad;
+      const pad = Math.max(16, free / 2);
       hero.style.setProperty("--hero-bottom-pad", `${pad.toFixed(1)}px`);
     };
 
     settle();
-    // Late settles: webfonts reflow the copy/beneath heights, and browser
-    // resize (incl. crossing the 561px gate) re-runs the same no-op-when-
-    // settled math.
+    // Late settles: webfonts reflow the copy/beneath heights (a few px), and
+    // browser resize (incl. crossing the 561px gate) re-runs the same one-
+    // step solve — no-op when the geometry is unchanged.
     const t1 = window.setTimeout(settle, 300);
     document.fonts?.ready.then(() => {
       if (!cancelled) {

@@ -522,3 +522,22 @@ Task: rethink how the 6 project cards are presented on the main page (desktop). 
 - Visual inspection: performed on the real page (probe portfolio/probes/r039-headline.mjs, headless Chromium; shots at deviceScaleFactor 1). Measured 1920×1080: headline 64.96→58.46px (−10%), band rows 420→378px (−10%), rail box 284→255 (−10.2%), gaps 139/70/138→165/70/163 (copy block migrated the freed space to the two symmetric voids — the settle math held), peek 0; 1920×963: headline 62.6→56.3, band 336→300, peek 0; 1440×900 gate: every number byte-identical (50.4px, 264, 117/109/117). Inspected PNGs: composition reads tighter in display type and rail; copy panel narrower-reading; no threshold strip in the first screen at any height.
 - Code verification: tsc --noEmit green (CSS-only change).
 - Open question: owner verdict on the ×0.9 pair — especially the headline direction, which now runs OPPOSITE to the liked 110%-zoom frame (at 110% the headline rendered physically bigger, not smaller); either fork may win after the live look, and which member (type vs band) carries the final steer stays open.
+
+## Feedback F016
+- Round: R040
+- Verdict: REJECTED (bug report against the current behaviour, not an aesthetic steer)
+- Scope: hero cluster vertical position, fresh entry (cold load), large Windows screen (full-screen ~1920×1080); all zoom levels
+- Decision: on a fresh main-page entry the hero cluster visibly flickers — it sits low (CSS fallback pad) then jumps up to its settled position; must not move
+- User source: "when you enter the main page anew it there's a flickering movement of hero section. its position moves below then up to its position. is that because of our latest change? it looks like it is only on windows big screen"
+- Artifact: probe stdout (pre-fix gate: first-rAF pad 56px = CSS fallback vs final 162.6px settled → GATE_RED, deterministic even on a fast headless machine)
+- Supersedes: none (mechanism predates R039; R039 enlarged the visible delta at 1080p — settled pad 137.7→162.6 against the unchanged 56px fallback)
+
+## Round R040
+- Goal: F016 — kill the fresh-entry hero jump at its two engines: (1) the first settle ran as a post-paint effect, so frame 1 painted the 56px CSS fallback before the settled ~162px write; (2) the settle formula (×2/3 of gap + pad/2) converged over several writes, each one its own painted frame.
+- Preserved preferences: F002, F005, F006 (no peek), R024/F009 bottom-anchored cluster, R025/F010 tall-band scale-up, R039 ×0.9 steers — geometry untouched, only WHEN the pad lands.
+- Changes: `LandingPage.tsx` settle effect — `useEffect` → `useLayoutEffect` (React runs it synchronously pre-paint); formula replaced with the exact one-step solve `pad* = (gap + currentPad) / 2` (gap is linear in the pad: gap = K − pad, so equilibrium pad* = K/2; the ×2/3 form oscillated toward it over frames). Late settles (fonts.ready, 300ms, resize) unchanged — now true one-step no-ops when geometry is stable. CSS/JS measure logic otherwise byte-identical.
+- Before: probe stdout — pre-fix first-rAF pad 56 (fallback) → final 162.6, GATE_RED at 1920×1080 (race reproduced; pre-fix PNGs discarded — settled-state shots carry no timing information).
+- After: artifacts/R040/after-1920x1080.png, after-1920x963.png, after-1440x900.png
+- Visual inspection: performed on the real page (probe portfolio/probes/r040-settle-timing.mjs). Gates: 1920×1080 GATE_GREEN (first-rAF 166.6 → final 163.6, residual 3px — sub-perceptual); 1920×963 GATE_GREEN (0 residual); 1440×900 GATE_PARTIAL (15.1px — the fallback→Plex font swap reflows the note line on a cold cache and the fonts.ready re-settle corrects it; pre-existing FOUT class, NOT the settle race). Inspected PNGs: settled composition byte-identical to R039 (canvas plume positions differ — time-based simulation, disclosed).
+- Code verification: tsc --noEmit green; vite build green.
+- Open question: owner re-checks fresh entry on the Windows big screen (hard reload, cold cache). Residual: cold-cache font-swap micro-shift (≤15px at 1440×900, ~3px at 1080p) is a separate pre-existing FOUT mechanism — its lever (reveal-gate on fonts.ready, capped) is parked unless the owner still sees movement.
