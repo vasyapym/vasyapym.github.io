@@ -503,3 +503,22 @@ Task: rethink how the 6 project cards are presented on the main page (desktop). 
 - Visual inspection: performed on the real page (probe portfolio/probes/r038-hover.mjs). Hover computed: underline rgb(232,181,124) = --ink-accent-bright; text rgb(238,234,224) = full paper. Inspected the PNG: the hovered link reads clearly against the quiet rest hairlines.
 - Code verification: tsc --noEmit green.
 - Open question: owner verdict on the +20% step (the bright rung is one ladder step, not a new colour).
+
+## Feedback F015
+- Round: R039
+- Verdict: REJECTED (partials — two scoped steers, everything else kept)
+- Scope: (a) hero display headline size, wide tall screens (macOS Safari full-screen 1920×1080 + other large desktops ≥900w/≥950h); (b) beneath-surface rail height same band
+- Decision: (a) the "small machines w/ buttons & bugs" display type must be physically smaller on big displays (~−10%); other texts unchanged; (b) the beneath-surface band ~10% shorter in height; observed route: the owner found browser-zoom 110% proportions better, which measures to headline 65→71.5px and rail 284→259 — the band part matches, the type part inverts
+- User source: "when i do the size of the page 110% instead of 100% in browser proportions look much better" + Clarifications: 'text "small machines w/..." gets physically smaller. other texts - no. i want to make "small machines..." text a bit smaller on big screens. 2. i don't know. let's try minimal change and maybe we will reverse' (band verdict deferred to render inspection)
+- Artifact: artifacts/R039/before-1920x1080.png (the zoom observation, unrecorded visually)
+- Supersedes: none yet (narrows F010's headline cap churn pending the owner's verdict on R039; the band part provisionally reverses the 2026-09-24 rail-grow round, explicitly tentative)
+
+## Round R039
+- Goal: F015 minimal-change trial — tall-band members ×0.9: headline growing member and rail band (row/more heights, gaps, paddings, label ramp) shrink ~10% on ≥900w/≥950h; everything else untouched (width-driven headline fallback intact, row floors 44px kept, mobile and ≤949h byte-identical).
+- Preserved preferences: F002 (corridor), F005 (restraint), F006 (no peek), the ≤949-height composition; hero frame stays 100svh (F006 geometry — shrink lives inside the composition);
+- Changes: styles.css tall block only — headline `max(base, calc(min(6.5vh, 3.68vw, 4.06rem) * 0.9))`; rail `--beneath-row-h 12vh−60 cap84 → 10.8vh−54 cap76`, `--beneath-more-h 8vh−32 cap64 → 7.2vh−29 cap58`, row-gap/paddings/label clamps ×0.9 with floors kept.
+- Before: artifacts/R039/before-1920x1080.png, before-1920x963.png, before-1440x900.png
+- After: artifacts/R039/after-1920x1080.png, after-1920x963.png, after-1440x900.png
+- Visual inspection: performed on the real page (probe portfolio/probes/r039-headline.mjs, headless Chromium; shots at deviceScaleFactor 1). Measured 1920×1080: headline 64.96→58.46px (−10%), band rows 420→378px (−10%), rail box 284→255 (−10.2%), gaps 139/70/138→165/70/163 (copy block migrated the freed space to the two symmetric voids — the settle math held), peek 0; 1920×963: headline 62.6→56.3, band 336→300, peek 0; 1440×900 gate: every number byte-identical (50.4px, 264, 117/109/117). Inspected PNGs: composition reads tighter in display type and rail; copy panel narrower-reading; no threshold strip in the first screen at any height.
+- Code verification: tsc --noEmit green (CSS-only change).
+- Open question: owner verdict on the ×0.9 pair — especially the headline direction, which now runs OPPOSITE to the liked 110%-zoom frame (at 110% the headline rendered physically bigger, not smaller); either fork may win after the live look, and which member (type vs band) carries the final steer stays open.

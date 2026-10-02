@@ -1487,12 +1487,13 @@ body:has(.ab) { background: #0b1317; }
   }
 
   /* Never smaller than the approved width-driven size; grows with height;
-     the vw guard keeps narrow-but-tall windows at the base size; hard cap
-     4.75rem keeps the display type restrained. */
+     the vw guard keeps narrow-but-tall windows at the base size. R039 owner
+     micro-steer (2026-10-02): the growing member runs ×0.9 — at 1080p the
+     65px display type read oversized against the liked Safari-110% frame. */
   .signal-index-hero-fluid .signal-index-hero-headline {
     font-size: max(
       clamp(1.5rem, calc((100vw - 72px) / 22.7), 3.15rem),
-      min(6.5vh, 3.68vw, 4.06rem)
+      calc(min(6.5vh, 3.68vw, 4.06rem) * 0.9)
     );
   }
 
@@ -1508,18 +1509,21 @@ body:has(.ab) { background: #0b1317; }
      grew). The band now holds the rail at ~25% of viewport height; row
      fonts stay at the base size — the widest in-band column is 308.7px at
      every width and 0.80rem needs 307–320px for the longest row, so density
-     comes from height and centring, not bigger data (relay brief 17). */
+     comes from height and centring, not bigger data (relay brief 17).
+     R039 owner micro-steer (2026-10-02): every growing member ×0.9 — the
+     rail share steps back to ~22%; the 44px floors stay (small tall windows
+     keep tappable rows); label keeps its own ramp. */
   .signal-index-hero-fluid .signal-index-beneath {
-    --beneath-row-h:  clamp(44px, calc(12vh - 60px), 84px);
-    --beneath-more-h: clamp(44px, calc(8vh - 32px), 64px);
-    row-gap:        clamp(0.2rem, calc(1.6vh - 12px), 0.75rem);
-    padding-top:    clamp(1.1rem, calc(4.4vh - 20px), 2.5rem);
-    padding-bottom: clamp(0.6rem, calc(2.4vh - 11px), 1.5rem);
+    --beneath-row-h:  clamp(44px, calc(10.8vh - 54px), 76px);
+    --beneath-more-h: clamp(44px, calc(7.2vh - 29px), 58px);
+    row-gap:        clamp(0.2rem, calc(1.44vh - 11px), 0.675rem);
+    padding-top:    clamp(1.1rem, calc(3.96vh - 18px), 2.25rem);
+    padding-bottom: clamp(0.6rem, calc(2.16vh - 10px), 1.35rem);
   }
 
   .signal-index-hero-fluid .signal-index-beneath-label {
-    margin-bottom: clamp(0.5rem, calc(2vh - 8px), 1.25rem);
-    font-size:     clamp(0.64rem, calc(1.6vh - 4px), 0.9rem);
+    margin-bottom: clamp(0.5rem, calc(1.8vh - 7px), 1.125rem);
+    font-size:     clamp(0.64rem, calc(1.44vh - 4px), 0.81rem);
     /* full-width, no wrap risk: 19 ch × (0.6+0.28)em × 14.4px ≈ 241px ≪ 830px */
   }
 
