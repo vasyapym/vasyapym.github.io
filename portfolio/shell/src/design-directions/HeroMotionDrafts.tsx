@@ -1,6 +1,6 @@
 import type { ProjectModule } from "../../../contracts/project-module";
-import referencePhoto from "../../../../reference-images/reference-1.jpg";
-import liquidGlassPhoto from "../../../../reference-images/young-korean-artists-liquid-glass-sea.png";
+import referencePhoto from "../assets/reference-1.jpg";
+import liquidGlassPhoto from "../assets/young-korean-artists-liquid-glass-sea.png";
 import "./hero-motion-drafts.css";
 
 type HeroMotionDraftsProps = {
