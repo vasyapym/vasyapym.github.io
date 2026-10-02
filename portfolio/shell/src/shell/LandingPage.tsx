@@ -843,6 +843,7 @@ export default function LandingPage({
               <span className="signal-index-identity-divider" aria-hidden="true">|</span>
               <a className="signal-index-contact" href="mailto:vasyapym@gmail.com">vasyapym@gmail.com</a>
             </div>
+            <span className="signal-index-count">{projects.length.toString().padStart(2, "0")}</span>
           </header>
 
           <HeroFluid />
