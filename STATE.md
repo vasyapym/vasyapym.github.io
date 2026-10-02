@@ -17,7 +17,7 @@ Read this first. One screen; everything else is pointed to, not copied.
 
 1. kitty-run knight direction — owner steer pending; chase stale handoff **h3** (acknowledged, never closed), don't fork around it.
 2. evening-forest — owner listen-pass pending (n33).
-3. main page hero — 3×2 catalogue held through 900–1199px (n148, brief 11 REFINE); owner look pending.
+3. ~~main page hero — 3×2 catalogue held through 900–1199px (n148, brief 11 REFINE); owner look pending.~~ CLOSED n304 (2026-10-02): the hero sizing/flicker line accepted live — R039 ×0.9 tall-band sizes, R040 settle timing, R041 reveal gate ("it looks good", F015–F019; ledger `portfolio/shell/.agent/iterations/design/main-page-presentation/`).
 4. main page realm — owner device checks pending; the per-round lists live in `docs/briefs/ROUNDS.md` (r8–r19 rows): iOS/macOS Safari bands, iOS close glyph under Dynamic Type + safe area, iPhone exit cards, proximity greet feel, project-backed flood feel, doors 6–7 reach, side-flip feel, reduced framing snap.
 5. practice-map — migrate next deep-lesson route pair; owner re-checks shadow-typing on a real iPhone (n35).
 

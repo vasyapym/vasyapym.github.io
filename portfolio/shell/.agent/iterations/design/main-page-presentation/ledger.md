@@ -560,3 +560,21 @@ Task: rethink how the 6 project cards are presented on the main page (desktop). 
 - Visual inspection: performed on the real page in BOTH engines (probe portfolio/probes/r041-reveal-gate.mjs — chromium-1134 headless + webkit-2104 via playwright-core). Gates: 1920×1080 GATE_GREEN (chromium first-visible-pad 163.6 == final 163.6, race 0; webkit 164.1 == 164.1); 1440×900 GATE_GREEN (chromium 117.3 == 117.3; webkit 118 == 118) — the former 15px FOUT shift now happens entirely behind the gate; gate actually opens (class dropped, copy opacity 1, no stuck-hidden state); during the gated window copy opacity was 0 on every gated frame (no half-revealed state). Inspected PNGs: revealed composition byte-identical to R039/R040 settled states.
 - Code verification: tsc --noEmit green; vite build green.
 - Open question: owner re-checks fresh cold entry (hard reload / private window) on the Windows big screen and macOS Safari; if anything misbehaves, the named fallback applies — revert to the R040 state (28cafe3).
+
+## Feedback F018
+- Round: R041
+- Verdict: LIKED
+- Scope: hero reveal on fresh cold entry (reveal gate), both owner machines (Windows big screen, macOS Safari smaller display), all zoom levels
+- Decision: "it looks good" — the flicker line closes here: the R041 reveal gate is accepted; the named revert contract (back to 28cafe3) expires unused; no further hero-reveal work
+- User source: "it looks good. thanks"
+- Artifact: artifacts/R041/webkit-after-1440x900.png (deployed R041)
+- Supersedes: none (closes F016/F017)
+
+## Feedback F019
+- Round: R041
+- Verdict: LIKED (narrow)
+- Scope: shipped hero composition at the owner's 1920×1080 full-screen view as of this session — the R039 ×0.9 tall-band sizes (headline ~58.5px, rail ~255px) are part of what was looked at and accepted
+- Decision: the ×0.9 headline + rail sizes are accepted as the tall-band state; F015's open verdict closes; per-element re-steers remain open as always
+- User source: "it looks good. thanks" (general look at the live page carrying R039+R040+R041)
+- Artifact: artifacts/R041/chromium-after-1920x1080.png (deployed state)
+- Supersedes: none (closes F015's open question)
