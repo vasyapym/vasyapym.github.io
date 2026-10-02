@@ -226,13 +226,6 @@ textarea:focus-visible {
   color: var(--ink-accent-bright);}
 
 
-.signal-index-count {
-  color: var(--ink-faint);
-  font-family: var(--mono);
-  font-size: 0.72rem;
-  letter-spacing: 0.06em;}
-
-
 /* Fluid hero — a live incompressible-fluid simulation (HeroFluid) is the main
    object, a full-bleed crisp ordered-dithered raster behind the copy. The type
    is pulled back to editorial weight and sits over the ink on a flat (never
@@ -714,10 +707,6 @@ textarea:focus-visible {
 
   .signal-index-contact {
     font-size: 0.7rem;
-  }
-
-  .signal-index-count {
-    font-size: 0.68rem;
   }
 
   .signal-index-projects {
