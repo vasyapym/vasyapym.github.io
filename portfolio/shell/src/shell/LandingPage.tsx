@@ -15,6 +15,7 @@ import {
   readProjectReturnScrollY,
 } from "./project-return-intent";
 import { resolveScrollBarTreatment } from "./scrollbarTreatment";
+import { useHeroRevealGate } from "./useHeroRevealGate";
 import "./realm.css";
 
 type LandingPageProps = {
@@ -766,6 +767,45 @@ export default function LandingPage({
   // read equal at any desktop height. The copy re-centres when the padding
   // changes; the measured-gap + current-pad pair solves that feedback in one
   // closed-form step, and re-running it after that is a no-op.
+  //
+  // Exact one-step solve (R040): gap is linear in the pad (gap = K − pad), so
+  // pad* = (gap + currentPad) / 2 lands on the equilibrium immediately. The
+  // former ×2/3 form only converged over several writes, each one a separate
+  // painted frame — visible as the fresh-entry wobble.
+  //
+  // Extracted as a callable (R041) so the reveal gate can converge the pad
+  // pre-reveal too; the loop absorbs rounding and any mid-write reflow while
+  // the cluster is still hidden (each step halves the error).
+  const settleHero = useCallback(() => {
+    const hero = heroRef.current;
+    if (!hero) {
+      return;
+    }
+    const desktop = window.matchMedia("(min-width: 561px)");
+    if (!desktop.matches) {
+      return;
+    }
+    const header = hero.querySelector<HTMLElement>(".signal-index-header");
+    const copy = hero.querySelector<HTMLElement>(".signal-index-hero-copy");
+    if (!header || !copy) {
+      return;
+    }
+    for (let i = 0; i < 8; i += 1) {
+      const gap =
+        copy.getBoundingClientRect().top - header.getBoundingClientRect().bottom;
+      if (gap <= 0) {
+        return;
+      }
+      const currentPad = parseFloat(getComputedStyle(hero).paddingBottom) || 0;
+      const pad = Math.max(16, (gap + currentPad) / 2);
+      const next = `${pad.toFixed(1)}px`;
+      if (hero.style.getPropertyValue("--hero-bottom-pad") === next) {
+        return;
+      }
+      hero.style.setProperty("--hero-bottom-pad", next);
+    }
+  }, []);
+
   // useLayoutEffect, not useEffect: the first settle must write the pad BEFORE
   // the first paint. As a post-paint effect the first frame rendered the CSS
   // fallback (56px at 1920w) and the settled write (~162px) then jumped the
@@ -779,52 +819,38 @@ export default function LandingPage({
     if (!hero) {
       return;
     }
-
     let cancelled = false;
-    const desktop = window.matchMedia("(min-width: 561px)");
-
-    const settle = () => {
-      if (cancelled || !desktop.matches) {
-        return;
+    const runSettle = () => {
+      if (!cancelled) {
+        settleHero();
       }
-      const header = hero.querySelector<HTMLElement>(".signal-index-header");
-      const copy = hero.querySelector<HTMLElement>(".signal-index-hero-copy");
-      if (!header || !copy) {
-        return;
-      }
-      const gap =
-        copy.getBoundingClientRect().top - header.getBoundingClientRect().bottom;
-      if (gap <= 0) {
-        return;
-      }
-      const currentPad = parseFloat(getComputedStyle(hero).paddingBottom);
-      // Exact one-step solve (R040): gap is linear in the pad (gap = K − pad),
-      // so pad* = (gap + currentPad) / 2 lands on the equilibrium immediately.
-      // The former ×2/3 form only converged over several writes, each one a
-      // separate painted frame — visible as the fresh-entry wobble.
-      const free = gap + currentPad;
-      const pad = Math.max(16, free / 2);
-      hero.style.setProperty("--hero-bottom-pad", `${pad.toFixed(1)}px`);
     };
 
-    settle();
+    settleHero();
     // Late settles: webfonts reflow the copy/beneath heights (a few px), and
     // browser resize (incl. crossing the 561px gate) re-runs the same one-
     // step solve — no-op when the geometry is unchanged.
-    const t1 = window.setTimeout(settle, 300);
+    const t1 = window.setTimeout(runSettle, 300);
     document.fonts?.ready.then(() => {
-      if (!cancelled) {
-        settle();
-      }
+      runSettle();
     });
-    window.addEventListener("resize", settle);
+    window.addEventListener("resize", runSettle);
 
     return () => {
       cancelled = true;
       window.clearTimeout(t1);
-      window.removeEventListener("resize", settle);
+      window.removeEventListener("resize", runSettle);
     };
-  }, []);
+  }, [settleHero]);
+
+  // R041 reveal gate: on a cold cache the first visible paint still used
+  // fallback font metrics, and the swap reflow shifted the pad after reveal
+  // (measured 15px @1440×900, 3px @1080p). The hook holds the cluster hidden
+  // and the entrances paused until the fonts are loaded AND the settle has
+  // converged — or the 600ms cap opens it regardless (a stalled font CDN
+  // must never blank the page). Return mounts resolve to "settled": no gate,
+  // no replay.
+  const phase = useHeroRevealGate(settleHero);
 
   useEffect(() => {
     scheduleIdleWarm(() => {
@@ -843,7 +869,7 @@ export default function LandingPage({
       >
         <section
           ref={heroRef}
-          className={`signal-index-hero signal-index-hero-fluid${returnVisitRef.current ? " signal-index-hero-settled" : ""}`}
+          className={`signal-index-hero signal-index-hero-fluid${returnVisitRef.current ? " signal-index-hero-settled" : ""}${phase === "gated" ? " signal-index-hero-gated" : ""}`}
           aria-labelledby="signal-index-title"
         >
           <header className="signal-index-header">

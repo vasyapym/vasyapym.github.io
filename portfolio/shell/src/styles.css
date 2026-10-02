@@ -376,6 +376,28 @@ textarea:focus-visible {
   opacity: 1;}
 
 
+/* R041 reveal gate — cold-cache font swap: the first paint renders fallback
+   metrics, and when IBM Plex lands the copy reflows and the settle shifts
+   the pad (measured 15px @1440×900, 3px @1080p). The gate holds the cluster
+   invisible and the entrances paused — animation-play-state does not
+   inherit, so pause the animated leaves themselves (kicker, rising line
+   spans, note, canvas); paused delays do not tick, the stagger starts from
+   zero when the class drops. Fonts + converged settle open the gate, cap
+   600ms so a stalled font CDN can't blank the page. The masthead header
+   stays visible; the hero-exit opacity contract on the container is
+   untouched. Open logic: useHeroRevealGate. */
+.signal-index-hero-gated .signal-index-hero-copy,
+.signal-index-hero-gated .signal-index-beneath,
+.signal-index-hero-gated .signal-index-hero-fluid-canvas {
+  opacity: 0;}
+
+.signal-index-hero-gated .signal-index-hero-kicker,
+.signal-index-hero-gated .signal-index-hero-line-in,
+.signal-index-hero-gated .signal-index-hero-note,
+.signal-index-hero-gated .signal-index-hero-fluid-canvas {
+  animation-play-state: paused;}
+
+
 .signal-index-hero-note {
   display: flex;
   flex-wrap: wrap;
