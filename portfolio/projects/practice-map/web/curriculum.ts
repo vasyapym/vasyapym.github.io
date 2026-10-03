@@ -4328,6 +4328,411 @@ whenNot: "This is a reading-frame lesson, not a translation comparison, and it d
     },
   },
 ];
+
+const newYorkCultureTopics: readonly TopicCard[] = [
+  {
+    id: "new-york-culture-full",
+    title: "New York Culture: How the City Produces a Way of Life",
+    summary: "Here, “New York” means **New York City**, rather than the whole state, whose regions have distinct cultures. The aim is to understand the city—not just recognize its landmarks.",
+    concepts: [],
+    practicePrompt: "Take one ordinary block you personally know — near home, work, or a place you visit — and read it with the essay's questions: who lives there versus who merely visits, which businesses serve daily needs versus outside spending, where people gather without buying anything, which workers make the block function, and what rising rent would put at risk. Write your answers down as a short cultural analysis.",
+    checkPrompt: "Without notes, you should be able to explain why density produces local etiquette and civil inattention (and why briskness can be helpfulness, not hostility), how overlapping networks differ from the melting-pot picture, what agglomeration and cultural capital mean for opportunity, why scenes rather than lone geniuses produce art, and why calling a place authentic is really a claim about belonging.",
+    tier: 1,
+    complexity: 4,
+    references: [
+
+    ],
+    lesson: {
+problem: "A newcomer expects New York to be one personality and tries to memorize stereotypes or landmark facts. That misses that the city's traits are byproducts: density turns small actions into public events, many separate social worlds share one small territory, and status, belonging, and creativity all work through networks under unequal power.",
+model: "New York is a dense network of overlapping social worlds; the essay climbs a ladder of interacting forces: historical layers, density, diversity without mixing, networked opportunity, scenes, authenticity as an argument about who belongs.",
+mechanics: "Density raises the social cost of small actions, so brevity and civil inattention become courtesy rather than coldness. Overlapping networks mean people share space without sharing worlds, so neighborhoods persist and the food question is how a dish became ordinary here. Agglomeration and cultural capital explain professional intensity and multiple status ladders, while scenes supply the hidden infrastructure under celebrated work. Since the city always changes, authenticity debates and gentrification become the question of who shapes change, who benefits, and who can afford to stay.",
+pitfalls: [
+  "Equating New York with Manhattan and ignoring the five boroughs' distinct worlds.",
+  "Reading briskness and curtness as hostility instead of dense-situation etiquette.",
+  "Believing the melting-pot myth that proximity automatically blends everyone into one culture.",
+  "Assuming everyone competes on a single status ladder instead of many parallel status systems.",
+  "Treating authenticity as an objective property of a place rather than a claim about belonging."
+],
+whenNot: "This material is about New York City only, not New York State or other cities; it is descriptive cultural analysis, not a tourist checklist, and density-based etiquette explains behavior but does not excuse actual cruelty."
+    },
+  },
+];
+
+const ibsVisceralCourseTopics: readonly TopicCard[] = [
+  {
+    id: "ibs-visceral-course-full",
+    title: "IBS and Visceral Hypersensitivity",
+    summary: "A",
+    concepts: [],
+    practicePrompt: "From the essay's Lesson 3, write out the trigger table in your own words: for each of the four trigger rows, give one food from your own life and what you would change — split it, shrink the fat dose, check supplement ingredients, or identify the fermentable carbohydrate — without removing the food group entirely.",
+    checkPrompt: "Without notes, explain why a feeling of a «closed» bowel in IBS is not proof of a physical obstruction, why weight gain fails more often at the intake stage than at absorption, and why concentrating many calories into one large fatty meal can backfire even though «more calories with less volume» is generally useful.",
+    tier: 1,
+    complexity: 4,
+    references: [
+
+    ],
+    lesson: {
+problem: "Newcomers read a tight, constricted gut as proof the intestine is physically blocked, and think gaining weight requires «opening» the bowel or forcing bigger meals — both ideas backfire.",
+model: "A corrective ladder: IBS with visceral hypersensitivity means ordinary gut events (stretch, gas, contractions) are amplified, so constriction is a sensation, not a blockage; the weight-gain obstacle is intake, not absorption; triggers are dose-shaped, not absolute; management has two tracks — short-term load reduction that keeps nutrition, and long-term broadening plus gut–brain care.",
+mechanics: "Key moving parts: the gut–brain loop that amplifies normal stretch and gas into real pain; the intake cycle Eating → discomfort → smaller portions → inadequate energy → no weight gain; the three costs of «just eat more» (volume, nutrient load, trigger exposure) plus the gastrocolic response; the two-track plan — split meals and substitutions now, then dietitian-guided broadening, bowel-pattern treatment, gut-directed CBT.",
+pitfalls: [
+  "Constriction means obstruction — usually it reflects sensitivity, contractions, distension, or bracing, not a fixed narrowing.",
+  "A tight gut blocks calorie absorption — absorption is intact in uncomplicated IBS; the problem is intolerable intake.",
+  "The post-meal urge means food is rushing through — the gastrocolic response moves material already in the colon.",
+  "Fat and FODMAPs are the same trigger — a low-FODMAP meal can still carry a big fat load that delays stomach emptying.",
+  "Rescue relief and «safe food» lists equal management — the goal is the broadest diet that sustains nutrition, not the smallest list."
+],
+whenNot: "Not for red flags — severe or worsening pain, repeated vomiting, a swollen abdomen with no gas or stool, unexplained weight loss, bleeding, anemia, night-waking diarrhea — nor for confirmed malabsorption, IBD, or mechanical obstruction."
+    },
+  },
+];
+
+const hermitageIntroTopics: readonly TopicCard[] = [
+  {
+    id: "hermitage-intro-full",
+    title: "The Hermitage: What It Is, Why It Matters, and How to Think About It",
+    summary: "The Hermitage began as Catherine II's private retreat beside the Winter Palace and was pried open over 250 years into a universal museum whose every epoch — imperial, Soviet, post-Soviet — re-used it as an instrument of state self-image.",
+    concepts: [],
+    practicePrompt: "Pick three artefacts or rooms named in the essay (the Peacock Clock, the Malachite Room, Rembrandt's Danaë, the atlas portico) and for each write two sentences: how the object or room got its present form, and which of the three lenses (palace-museum problem, provenance as power, museum as self-image) explains it best.",
+    checkPrompt: "Without notes, explain why the largest encyclopaedic museum in Russia began as a private retreat, how its ownership moved from Catherine through imperial, Soviet and post-Soviet hands, and retell two episodes (the 1837 fire, the 1928-1934 sales, the 1941 evacuation, trophy art) that changed what the museum is.",
+    tier: 1,
+    complexity: 4,
+    references: [
+
+    ],
+    lesson: {
+problem: "Beginners picture one building with one linear history, but the Hermitage is an ensemble of buildings carrying overlapping stories (private retreat, imperial palace, public museum, Soviet treasury), so it is hard to know which story explains what you see in the galleries.",
+model: "One paradox organises everything: a hermitage built to escape court ceremony became the public face of an empire. Each episode (1764, the 1852 opening, 1917, the Soviet sales, the siege, today's isolation) is a move in the tug-of-war between retreat and display.",
+mechanics: "West to east along the Neva: the Winter Palace, the Small Hermitage (Catherine's pavilion with lifting tables), the Old Hermitage, the Hermitage Theatre, and the 1852 New Hermitage, first Russian building designed from scratch as a public museum, plus the General Staff wing across the square. The Old Master canon arrived in whole pre-shaped cabinets (Brühl, Crozat, Walpole); Shchukin and Morozov later brought the French moderns. Ownership changed hands more often than the art: dynastic, nationalised in 1917, partly sold in 1928-1934, partly augmented by trophy art in 1945 that stands disputed.",
+pitfalls: [
+  "Equating the Hermitage with the Winter Palace alone; it is an ensemble including the General Staff wing across Palace Square",
+  "Taking the 1917 storming at face value: it was a near-bloodless infiltration; Eisenstein's film created the myth",
+  "Thinking the Baroque interiors are Rastrelli originals; most are Stasov and Briullov's reconstruction after the 1837 fire",
+  "Casting it as only victim or only looter; it has been on every side of art-and-power transfers, from buying to selling to holding trophy art",
+  "Assuming the galleries are the collection; only a few percent of some 3 million items are on display"
+],
+whenNot: "Covers the institution's history and guiding idea, not visit planning; it will not help with tickets, routes, room numbers, or a two-hour itinerary."
+    },
+  },
+];
+
+const langchainGroundUpTopics: readonly TopicCard[] = [
+  {
+    id: "langchain-ground-up-full",
+    title: "LangChain, From the Ground Up",
+    summary: "LangChain sits between your code and a language model, and this essay teaches it by separating load-bearing abstractions — role-tagged messages, chat-model interfaces, tool-call schemas, documents, the runnable protocol, and LangGraph state graphs — from the churny convenience layer of deprecated chains and one-liners that wraps them.",
+    concepts: [],
+    practicePrompt: "Build, in about twenty lines of Python, a small RAG pipeline that splits two sample documents into overlapped chunks, embeds and indexes them in a vector store, builds a retriever, and feeds retrieved chunks through a two-step LCEL chain (prompt template | chat model | parser) answering one question. Then break it on purpose: wrap a plain function step into the chain and watch streaming stop, and append to a LangGraph message key without the default reducer to see state grow silently.",
+    checkPrompt: "Without notes, explain why an LCEL chain gets streaming, batching, async, retries, fallbacks, and tracing for free, why agents cannot be LCEL and need a state graph with reducers and checkpointing, and name three concrete places where the provider-portability abstraction leaks (content shapes, tool-call rules, structured-output tiers).",
+    tier: 1,
+    complexity: 4,
+    references: [
+
+    ],
+    lesson: {
+problem: "LangChain looks like one-line convenience, but hides two layers: load-bearing abstractions that survive any rewrite, and an unstable recipe layer of deprecated chains and memory classes — newcomers cannot tell what to depend on, while the one-liners hide provider disagreements.",
+model: "Strip the library to what survives a rewrite: messages, chat-model interface, tool-call schema, document, runnable protocol, and state graph are commitments; named chains, memory classes, agent executors, and templates are recipes. Each concept is asked three questions: what problem it solves, what portability it buys, where it leaks.",
+mechanics: "Runnables unify invoke, batch, and stream (sync and async); LCEL pipes compose prompts, models, parsers, and retrievers into DAGs that keep the whole protocol for free. Agents are loops, so they live in LangGraph: typed state with per-key reducers, nodes returning partial updates, conditional edges, Pregel-style super-steps, and a checkpointer per thread id giving memory, durability, and human interrupts. Around this sit role-tagged messages, structured output, tool calling, the document pipeline, and callback tracing.",
+pitfalls: [
+  "Thinking prompt templates guard against injection — they are plain substitution; injection is a property of the model.",
+  "Assuming content is always a string and one prompt shape works everywhere — providers disagree, and the error comes from the provider.",
+  "Expecting the agent constructor to run tools or terminate itself — nothing executes without a loop; add an iteration cap.",
+  "Treating conversational memory as learning or embedder swaps as free — the model is unchanged, and new embeddings force a full reindex."
+],
+whenNot: "Skip it for one fixed provider answering a plain prompt in a single stateless call, or scripts with no streaming, tools, or retrieval — the abstractions pay off only when composition, persistence, or portability matter."
+    },
+  },
+];
+
+const langchainAbstractionsLeakTopics: readonly TopicCard[] = [
+  {
+    id: "langchain-abstractions-leak-full",
+    title: "LangChain, from the Ground Up: Concepts, Vocabulary, and Where the Abstractions Leak",
+    summary: "A full tour of LangChain as of the 1.0 era — messages, chat models, tools, LCEL, tracing, retrieval, agents, and LangGraph — organized around a single verdict axis: which abstractions are load-bearing and which are incidental churn. The recurring lesson is that the framework normalizes mechanics well but leaks wherever provider or model judgment is involved.",
+    concepts: [],
+    practicePrompt: "Build a minimal tool-calling agent by hand: define a tool with the @tool decorator, bind it to a chat model, then write your own loop that executes each tool_calls entry, appends the result as a ToolMessage with the matching id, and calls the model again until it replies with no tool calls. Then run the same flow with a checkpointer and a thread_id in the config and verify a second invoke resumes the first one's state.",
+    checkPrompt: "Be able, without notes, to name the load-bearing abstractions (role-tagged messages, the chat-model interface, the tool-call schema, documents and retrievers, the runnable protocol, the LangGraph state graph) and for each say what it normalizes and where it leaks.",
+    tier: 1,
+    complexity: 4,
+    references: [
+
+    ],
+    lesson: {
+problem: "The framework has been rewritten in place several times, so tutorials and docs mix four eras of the same API — prompt-parsing agents, AgentExecutor, old memory classes, the LangGraph stack — all still indexed by search engines. Newcomers cannot tell the stable center from churning surface.",
+model: "A three-layer map (langchain-core plus partner packages below, LangGraph in the middle, the slimmed langchain agent API on top, LangSmith aside) crossed with a verdict axis: load-bearing versus incidental — abstractions that normalize mechanics survive, those that normalize judgment leak.",
+mechanics: "Messages are the provider-neutral unit of conversation state; chat models normalize tool_calls and structured output, and streaming rides mergeable chunks. Every component is a Runnable sharing a config whose callbacks carry tracing. LangGraph adds state with reducers, nodes and edges; checkpointers snapshot state per superstep into threads, enabling memory, fault tolerance, time travel, and interrupts. An agent is a tool-calling loop over that state.",
+pitfalls: [
+  "A message list built for one provider is not valid for another once multimodal or reasoning content is involved.",
+  "Structured output and tool calling do not end prompt engineering — tool descriptions are prompts in disguise, and providers drop schema constraints.",
+  "Silent streaming or tracing failures usually mean broken config propagation fragmenting the run tree into disconnected roots.",
+  "LCEL pipe syntax is incidental — it hides coercions, blocks streaming at RunnableLambda, and cannot express loops; LangGraph exists for that.",
+  "ConversationBufferMemory and AgentExecutor in tutorials are historical artifacts; conversation state is a message list you persist and curate."
+],
+whenNot: "For a single-shot call to one provider, a provider SDK plus a tracing tool serves just as well — the payoffs are provider swapping, tracing, and durable multi-step workflows."
+    },
+  },
+];
+
+const cannabisFirstPrinciplesTopics: readonly TopicCard[] = [
+  {
+    id: "cannabis-first-principles-full",
+    title: "Cannabis: A First-Principles Introduction",
+    summary: "A ground-up tour of cannabis from plant chemistry (THCA→THC decarboxylation) through the endocannabinoid system, route-of-administration effects, and the indica/sativa label problem, ending with risks and established medical uses.",
+    concepts: [],
+    practicePrompt: "Pick one mechanism from the essay — decarboxylation, retrograde signaling, first-pass metabolism, or chemotype classification — and re-derive it from first principles in three or four sentences without notes, then sketch the pathway or feedback loop on paper, labeling every step with a concrete example the essay gives.",
+    checkPrompt: "Without notes, explain why raw cannabis flower barely intoxicates, what a retrograde messenger does and how THC is a clumsy version of one, why edibles are slow, long, and unpredictable, and why indica/sativa labels poorly predict effects. Also name one established medical use and two real harms that coexist with the absence of lethal THC overdose.",
+    tier: 1,
+    complexity: 4,
+    references: [
+
+    ],
+    lesson: {
+problem: "Two folk models fail the newcomer: cannabis as moralized danger, or as a harmless herb classified by indica and sativa labels. Both hide the actual mechanism, so nothing correctly predicts effects or duration — and the edible double-dose trap turns that confusion into emergency-room visits.",
+model: "A ladder from plant to molecule to body: one species cut by an arbitrary legal THC threshold; acidic precursors that heat turns into actives; a retrograde, on-demand feedback network (the ECS) that THC hijacks broadly; then route of administration and receptor density as the multipliers shaping every downstream effect.",
+mechanics: "The plant builds CBGA, the mother cannabinoid, and enzymes steer it into THCA, CBDA, or CBCA; heat drives decarboxylation into the actives. Endocannabinoids like anandamide and 2-AG are made on demand and travel backward from the receiving neuron to the sending one, where CB1 activation dampens further neurotransmitter release; THC floods the whole brain for hours instead of tuning single synapses for milliseconds. Route changes everything: inhaled THC peaks in minutes and fades in two to four hours, while oral THC becomes 11-hydroxy-THC in the liver — slower, longer, less predictable. Sparse CB1 in brainstem breathing centers explains why no fatal THC overdose is established, even as dependence, psychosis risk, CHS, and impaired driving remain real.",
+pitfalls: [
+  "Raw flower gets you high — no, THCA barely intoxicates until heat decarboxylates it.",
+  "Indica relaxes and sativa energizes — morphology labels at best, often mismatched to genetics; chemotype is the meaningful classifier.",
+  "Feeling nothing after 45 minutes means another dose is safe — delayed edible onset plus first-pass 11-hydroxy-THC is the classic double-dose trap.",
+  "No fatal overdose means harmless — dependence, high-potency psychosis risk, CHS, and impaired driving are real.",
+  "Urine positives mean current impairment — lipophilic THC lingers for days to weeks, and blood levels correlate poorly with impairment."
+],
+whenNot: "Not dosing or medical advice for a specific person or jurisdiction, not a cultivation guide; findings from pre-2010s low-potency research should not be assumed to transfer cleanly to today's concentrates exceeding 60–90% THC."
+    },
+  },
+];
+
+const megapolisCultureTopics: readonly TopicCard[] = [
+  {
+    id: "megapolis-culture-full",
+    title: "Megapolis Culture: How Very Large Cities Shape the Way People Live and Think",
+    summary: "A lesson on megapolis culture: the vocabulary (megacity, megalopolis, global city), Wirth's engine of size, density, and heterogeneity amplified by power-law scaling, the coping mind (blasé reserve, civil inattention), subcultures and weak ties, culture built into streets and third places, the global-vs-generic tension, and the corrections of informality, inequality, and planetary urbanization — a megacity is a machine for multiplying encounters, and culture is what encounters produce.",
+    concepts: [],
+    practicePrompt: "Pick one very large city you know from life, film, or a street-view walk and read it with the closing toolkit: classify it by scale (megacity, megalopolis, or global city, or some combination), then name its third places, one informal system where people act as infrastructure, and one fracture of who is connected and who is bypassed.",
+    checkPrompt: "Without notes, you should be able to explain the difference between megacity, megalopolis, and global city; Wirth's three variables and why superlinear scaling makes cities intensify everything that depends on contact; how blasé reserve, overload, and civil inattention let minds survive density; why critical mass and weak ties breed subcultures and fast ideas; and how informality, splintering urbanism, and the right to the city correct the classic picture.",
+    tier: 1,
+    complexity: 4,
+    references: [
+
+    ],
+    lesson: {
+problem: "Megapolis, megalopolis, megacity, and global city sound interchangeable, so a newcomer cannot even name the subject — and the classic picture contradicts informal megacities: Berlin 1903 shows cold strangers, Lagos shows intense interdependence.",
+model: "A megacity is a machine that multiplies human contact, and culture is what that contact produces; the lesson climbs from vocabulary through Wirth's engine and the coping mind to subcultures, space and rhythm, the global layer, and the corrections of informality and inequality.",
+mechanics: "Wirth's variables make relationships partial and negotiable, and power-law scaling amplifies both output (about 1.15) and friction like crime and disease. The mind copes with blasé reserve, overload filtering, and civil inattention — a cooperative technology that buys freedom. Critical mass turns outliers into subcultures and weak ties move ideas; space encodes culture through mental maps and third places; where formal infrastructure is weak, people become the infrastructure.",
+pitfalls: [
+  "Megapolis, megalopolis, megacity, and global city are not synonyms: headcount, connected territory, and network power differ.",
+  "Urban reserve and civil inattention are not coldness: they are cooperative technologies that buy personal freedom.",
+  "Big cities do not destroy community: critical mass multiplies and specializes communities into subcultures.",
+  "Informality is not chaos: it is a mode of urbanization where people act as infrastructure on trust and negotiation.",
+  "Superlinear benefits are not the whole story: the same scaling amplifies crime, disease, and stress."
+],
+whenNot: "This applies to very large cities — megacities, megalopolises, global-city-scale places — not to small or mid-size cities, towns, or villages, where Wirth's engine runs too weak to produce these effects; it describes patterns, not individual behavior."
+    },
+  },
+];
+
+const react19Next16Topics: readonly TopicCard[] = [
+  {
+    id: "react-19-next-16-full",
+    title: "React 19 и Next.js 16: концептуальный разбор",
+    summary: "Материал устроен в два слоя. Блоки **«Интуиция»** объясняют идею простым языком, без предварительных знаний. Блоки **«Глубже»** предназначены для профессионалов: там речь идёт о механизмах, компромиссах и теоретических основаниях. Начинающему достаточно первого слоя, опытному разработчику интереснее второй.",
+    concepts: [],
+    practicePrompt: "Соберите по образцу раздела 2.2 страницу из трёх блоков: статическая оболочка, список товаров внутри 'use cache' с cacheLife и cacheTag и корзина внутри <Suspense>, читающая cookies(). Добавьте серверный экшен создания товара с updateTag и убедитесь, что после отправки формы список обновляется сразу, а оболочка остаётся статической.",
+    checkPrompt: "Без подглядывания объясните, что именно отмечает 'use client' и почему директиву ставят на листья интерактивности; чем revalidateTag, updateTag и refresh отличаются по семантике согласованности; и почему request-API вроде cookies() и params стали обязательными асинхронными.",
+    tier: 1,
+    complexity: 4,
+    references: [
+
+    ],
+    lesson: {
+problem: "Тема запутывает, потому что граница React/Next.js размыта: половина «фич фреймворка» — примитивы React, кеш до 16-й версии вел себя магически и «залипал», а большинство материалов всё ещё описывают модель SSG/SSR, middleware и синхронные params, которых больше нет. Отсюда типичные ложные вопросы: почему данные не обновились, куда положить авторизацию, откуда ошибка сборки.",
+model: "Лестница эссе: сначала разделение ролей (React — язык описания интерфейса, Next.js — продакшен-каркас), затем примитивы React 19 (чистота рендера, Server Components, Server Functions, Actions, use, Suspense, Compiler) и поверх них собственные концепции Next.js 16, где всё сводится к явности: всё динамично, пока вы явно не попросили кеш.",
+mechanics: "Серверные компоненты исполняются на сервере и в бандл не попадают; клиентский подграф начинается с 'use client'. Через границу летит RSC Payload (протокол Flight): серверные части уже развёрнуты в элементы, клиентские — ссылки на модули с сериализуемыми пропсами, а 'use server' превращает функцию в публичный POST-эндпоинт. Cache Components делают страницу статической оболочкой с динамическими дырами: 'use cache' закешировывает блок, чтение request-API (params, cookies) становится асинхронной точкой перехода в динамику, а Suspense-дыры дорендериваются и стримятся в тот же ответ.",
+pitfalls: [
+  "'use client' отмечает границу модульного графа, а не один компонент: всё, что импортирует этот файл, уходит на клиент, поэтому директиву ставят на листья интерактивности",
+  "Server Function — публичный HTTP-эндпоинт: «спрятанность» внутри компонента ничего не гарантирует, авторизацию и валидацию проверяют внутри самой функции",
+  "RSC не отменяют SSR: SSR строит HTML первого кадра, RSC определяет, где исполняется код компонента, — это ортогональные механизмы",
+  "В Next.js 16 всё динамично по умолчанию, а внутри 'use cache' нельзя вызывать cookies() и headers(): скрытые входы делают кеш некорректным, персональные данные передают аргументом",
+  "Промис для use() должен быть стабильным: новый промис на каждом рендере даёт бесконечную приостановку и вечный fallback"
+],
+whenNot: "Не для проектов на Pages Router и Next.js ≤15 без cacheComponents: там другая модель кеша и Middleware. Не для чисто клиентских SPA без сервера (Vite/CRA), где RSC, 'use cache' и Server Actions недоступны. Мало пользы и когда почти все данные персональные и стримятся по запросу — выигрыш от Cache Components в таком приложении минимален."
+    },
+  },
+];
+
+const kantMindBuildsWorldTopics: readonly TopicCard[] = [
+  {
+    id: "kant-mind-builds-world-full",
+    title: "Immanuel Kant: A Lesson in How the Mind Builds a World",
+    summary: "Kant flips the question from what reality is like to what any mind must contribute before a world can appear at all. His answer — the mind is a constructor, not a mirror — secures science against Hume but limits knowledge to appearances, making room for freedom and morality.",
+    concepts: [],
+    practicePrompt: "Write down five judgments of your own invention and sort each one with Kant's two axes (a priori/a posteriori and analytic/synthetic). Then pick out the synthetic a priori one and defend in three sentences how it both extends knowledge and holds necessarily.",
+    checkPrompt: "Without notes, explain the Copernican revolution: how the flip from knowledge conforming to objects toward objects conforming to our cognition is supposed to make synthetic a priori judgments possible, and what price it pays in limiting knowledge to appearances. Be able to give one example (mathematics or a principle of physics) and say why Kant insists the noumenon is a boundary marker, not a known thing.",
+    tier: 1,
+    complexity: 4,
+    references: [
+
+    ],
+    lesson: {
+problem: "The vocabulary looks like ordinary English used strangely: a priori is not guessed in advance, intuition is not gut feeling, transcendental is not transcendent, critique is not a complaint. Beginners expect a theory about physics or psychology, while Kant asks what any mind must contribute before experience of a world is possible.",
+model: "A ladder: two judgment axes (how we know; what it says) create the third category, synthetic a priori, which poses the master question. The Copernican flip answers it — the mind supplies the form of experience — then the ladder climbs through space and time, the categories, the Deduction, the noumena boundary, the Dialectic, practical reason.",
+mechanics: "Sensibility receives intuitions in space and time; the understanding combines them under categories, so nothing shows up for us as an object without obeying that structure. This secures causality against Hume — objective time-order depends on causal law — but knowledge reaches only appearances, never things in themselves, which makes room for the moral law.",
+pitfalls: [
+  "Reading transcendental idealism as the world being in your head; Kant pairs it with empirical realism, not Berkeley",
+  "Confusing transcendental (a priori conditions of possible experience) with transcendent (beyond experience, unknowable)",
+  "Treating Kant's forms as psychological facts or evolved priors — the psychologizing move Kantians resist",
+  "Thinking Kantian morality requires hating good deeds; the shopkeeper case is about what grounds moral worth",
+  "Treating non-Euclidean geometry and relativity as total refutation; the relativized a priori keeps the core insight"
+],
+whenNot: "Not a practical manual for moral decisions, not a psychological or neuroscience model of perception, not settled logic doctrine: the two-world versus two-aspect debate stays open, and post-Quine readers dispute the coherence of the analytic/synthetic distinction."
+    },
+  },
+];
+
+const terraformGroundUpTopics: readonly TopicCard[] = [
+  {
+    id: "terraform-ground-up-full",
+    title: "Terraform, Explained From the Ground Up",
+    summary: "Terraform is a tool for infrastructure as code, the practice of describing servers, networks, databases, DNS records, and anything else a cloud API can create, in text files that are versioned and reviewed like software.",
+    concepts: [],
+    practicePrompt: "Write two `.tf` resources where one references the other - e.g. an instance pulling an id from a subnet - run `terraform plan`, read the proposed diff like a pull request, then rename one resource behind a `moved` block and confirm the plan no longer proposes destroy-and-recreate.",
+    checkPrompt: "Without notes, explain what configuration, state, and providers each are and what happens during plan and apply, and why removing the first element of a count-based list makes Terraform recreate every later instance while for_each touches only the one removed.",
+    tier: 1,
+    complexity: 4,
+    references: [
+
+    ],
+    lesson: {
+problem: "Beginners meet Terraform as a pile of syntax - blocks, meta-arguments, functions - and miss the single idea underneath: the tool keeps a private record of what it created and reconciles your files against reality, so renaming or renumbering an address is indistinguishable from destroying and recreating the object.",
+model: "One load-bearing ladder: declarative reconciliation. Configuration in HCL states the desired end; state stores which real objects map to which addresses; providers translate generic create-read-update-delete into API calls; plan compares desired against actual and proposes a diff; apply executes it - and nearly every other feature is either a consequence of this model or a patch where the model leaks.",
+mechanics: "Resource blocks declare objects, and expressions between them build a dependency graph that fixes ordering, parallelism, and destruction order. State is a JSON cache mapping addresses to real identifiers; backends share and lock it, and the moved, import, and removed blocks exist purely to repair that mapping. Count and for_each multiply resources, but state identity by address makes count-based lists fragile, and both require the key set to be known at plan time, which is where unknown values force workarounds.",
+pitfalls: [
+  "Sensitive is cosmetic, not security: values are redacted from CLI output but written to state in plaintext, so state needs the same access control as the secrets themselves.",
+  "Renaming a resource looks like a safe refactor but plans a destroy and create unless a moved block declares it the same object.",
+  "count and for_each are not interchangeable: both need their keys or numbers known at plan time, so for_each over a list of ids that only exists after apply fails.",
+  "A plan is not complete truth: much of it can be deferred as known-after-apply, and real-world dependencies not written as references need depends_on because the graph only sees configuration.",
+  "Data sources are not live lookups that always see fresh values; they read during plan and may miss objects created in the same run, so reference the resource directly to keep the dependency in the graph."
+],
+whenNot: "Skip this framing when the task is imperative orchestration or app-level provisioning: HCL is deliberately not Turing-complete, provisioners are discouraged in favour of cloud-init or configuration management, and anything about licenses, OpenTofu parity, or the hosted platform needs a fresh date before you rely on it."
+    },
+  },
+];
+
+const pytorchConceptsMindsetTopics: readonly TopicCard[] = [
+  {
+    id: "pytorch-concepts-mindset-full",
+    title: "PyTorch: концепции и способ мышления",
+    summary: "Если снять с PyTorch весь слой документации, туториалов и экосистемы, останутся три идеи, склеенные между собой. Первая — библиотека многомерных массивов (тензоров), которая выглядит как NumPy, но умеет считать на видеокарте.",
+    concepts: [],
+    practicePrompt: "Проделайте руками autograd-пример из эссе: создайте два тензора с requires_grad=True, соберите скалярную потерю, вызовите .backward() и напечатайте .grad обоих тензоров; затем в REPL сравните .stride() и .is_contiguous() тензора до и после .T, убедившись, что транспонирование не копирует данные.",
+    checkPrompt: "Могу ли я без подглядывания объяснить, почему view после транспонирования падает, а reshape молча копирует; зачем перед каждой итерацией zero_grad; почему CrossEntropyLoss ждёт сырые логиты, а не softmax; и почему total_loss += loss без .item() съедает память видеокарты.",
+    tier: 1,
+    complexity: 4,
+    references: [
+
+    ],
+    lesson: {
+problem: "Новичок копирует канонический цикл обучения заклинанием: ошибки про формы, типы, устройства и in-place операции кажутся случайными, а беззвучные промахи — двойной softmax, забытый eval, молчаливый broadcasting — просто незаметны до первого мусора на тесте.",
+model: "PyTorch — не фреймворк, а язык дифференцируемого программирования на трёх опорах: тензор, autograd и слой организации (nn.Module, torch.optim, DataLoader); лестница эссе: от strides и представлений к динамическому графу, от графа к циклу обучения, от цикла — к устройствам, компиляции и масштабированию.",
+mechanics: "Тензор — метаданные (shape, strides, dtype, device) поверх линейного буфера, поэтому транспонирование, expand и broadcasting меняют strides, а не копируют данные; при requires_grad=True каждая операция вешает grad_fn на результат, строится ациклический граф, а loss.backward() обходит его от конца к началу по цепному правилу (vector-Jacobian product), заполняя .grad только у листовых тензоров. nn.Module через перегруженный __setattr__ ведёт реестр параметров и буферов (отсюда state_dict, to, parameters), оптимизатор читает .grad и обновляет веса под no_grad, DataLoader собирает батчи параллельными рабочими; CUDA исполняет команды асинхронно, а torch.compile сливает элементные операции в одно ядро поверх eager-графа.",
+pitfalls: [
+  "Broadcasting молчалив: вектор формы (N,) плюс столбец формы (N, 1) дают матрицу N×N, и функция потерь спокойно считает бессмыслицу",
+  "Градиенты накапливаются, а не перезаписываются: забытый zero_grad растит потерю от эпохи к эпохе",
+  "softmax перед CrossEntropyLoss — двойной softmax: функция потерь ждёт сырые логиты, а не вероятности",
+  "Обычный Python-список слоёв не регистрируется в модуле: оптимизатор и .to() их не видят; нужны ModuleList или ModuleDict",
+  "eval() и no_grad() решают разные задачи: забытый eval() оставляет Dropout и батчевые статистики BatchNorm в тренировочном режиме на валидации"
+],
+whenNot: "Не годится как первый контакт с нейросетями или с Python: эссе предполагает, что читатель понимает производную и матричное умножение и уже умеет запускать Python-код; это карта мышления, а не пошаговый туториал по установке, подготовке данных или обучению конкретной модели."
+    },
+  },
+];
+
+const fastapiConceptsTopics: readonly TopicCard[] = [
+  {
+    id: "fastapi-concepts-full",
+    title: "FastAPI: A Conceptual Lesson",
+    summary: "Most web frameworks treat your function signature as a formality — a place to catch whatever the router throws at you. FastAPI treats the signature as the specification. The types you annotate are simultaneously the parser, the validator, the serializer, the documentation, and the editor autocomplete.",
+    concepts: [],
+    practicePrompt: "Build a tiny FastAPI app with one GET route that combines an int path parameter and an optional query parameter constrained via Annotated and Query(max_length=50), exercise it through the /docs Swagger UI, and confirm that a bad value returns 422 with the offending field named in the error body.",
+    checkPrompt: "Without notes, explain how FastAPI infers whether a parameter is a path parameter, query parameter, or request body; why response_model is a fail-closed filter rather than mere documentation; and why a plain def handler with a blocking driver beats an async def handler that calls the same blocking driver.",
+    tier: 1,
+    complexity: 4,
+    references: [
+
+    ],
+    lesson: {
+problem: "A handler signature looks like a passive formality, so FastAPI reading that signature as the full specification seems like magic: one line silently controls coercion, validation, error bodies, and docs, while def vs async def and response_model filtering add behavior people guess at instead of reason about.",
+model: "One declaration, five consequences: the annotated types are simultaneously the parser, validator, serializer, OpenAPI documentation, and editor autocomplete; everything else (Pydantic as data layer, Starlette as transport, dependency injection binding them) is machinery in service of that single design commitment.",
+mechanics: "FastAPI inspects annotations to classify each parameter (path placeholder match, Pydantic body, scalar query, Depends, Starlette special), and Pydantic v2 coerces and validates at the boundary, returning a 422 that names the failing field. response_model projects outputs fail-closed, dropping anything undeclared; dependencies form a memoized per-request DAG whose yield-based setup/teardown reappears at application scope as lifespan. async def handlers run on the event loop, plain def handlers on a threadpool.",
+pitfalls: [
+  "Blocking sync calls (time.sleep, requests, sync database drivers) inside async def stall the entire event loop; a plain def handler is strictly safer",
+  "One shared Pydantic model for input and output leaks passwords and internal fields; separate schemas are the typed security boundary",
+  "response_model is a fail-closed filter, not decoration; skipping it works until the day a handler returns something it should not",
+  "BackgroundTasks are not a durable job queue — same process, no retries, tasks evaporate on restart",
+  "Validation is a boundary, not a sprinkle: validate once at the edge, then trust the parsed type downstream (parse, do not validate)"
+],
+whenNot: "Not for CPU-bound request work (the GIL serializes threadpools — image resizing, PDF generation, and model inference belong in a process pool or a worker behind a queue), not for teams needing a batteries-included platform like Django, and no framework fixes a bottleneck that is a slow database JOIN."
+    },
+  },
+];
+
+const reneClementGuideTopics: readonly TopicCard[] = [
+  {
+    id: "rene-clement-guide-full",
+    title: "Рене Клеман: путеводитель для новичков и специалистов",
+    summary: "Рене Клеман (1913–1996) — один из самых титулованных и самых недооценённых режиссёров Франции. У него два Гран-при Венеции («Запрещённые игры» и, если считать премии жюри и критики, «Жервеза»), несколько наград Канн, два почётных «Оскара».",
+    concepts: [],
+    practicePrompt: "Возьмите два фильма из маршрута для новичка — «Запрещённые игры» и «На ярком солнце» — и выберите в каждом одну ключевую сцену: финал на площади или сцену с диапроектором. Опишите выбранную сцену в 5–7 предложениях, опираясь только на собственный просмотр: как кадр, свет и звук выражают тему невинности и зла или присвоения чужой личности. Затем сверьте наблюдения с разделом «Ключевые понятия и темы» и запишите, что заметили сами, а что прошло мимо.",
+    checkPrompt: "Без подглядывания объясните, почему «новая волна» записала Клемана в «традицию качества» и почему эта оценка сегодня считается устаревшей; в чём состоит его «невидимое авторство» — метод поиска формы, адекватной материалу, вместо повторяющихся тем. Назовите три постоянных мотива и три фильма из стартового маршрута с одним аргументом за каждый.",
+    tier: 1,
+    complexity: 4,
+    references: [
+
+    ],
+    lesson: {
+problem: "Новичку Клеман непонятен: он меняет жанр и стиль от фильма к фильму, за ним «не видно авторского почерка», а история кино, написанная «новой волной», записала его в «кинематограф папочек» — и потому режиссёр с двумя Гран-при Венеции и двумя почётными «Оскарами» остаётся на полях учебников.",
+model: "Организующая идея — конфликт двух представлений о режиссуре: мастер формы, ищущий под каждый материал адекватный язык, versus автор с личной мифологией; авторство Клемана — в самом методе («невидимое авторство»). Лестница: биография (архитектор + документалист) → фильмография в три периода → полемика о «традиции качества» и мотивы → влияние → маршруты просмотра.",
+mechanics: "Архитектурная мизансцена и документальная фактура: пространство как несущая конструкция, натура, работа с непрофессионалами. Далее: моральная клаустрофобия замкнутых пространств («Проклятые», яхта, прачечная); «солнечный нуар», где свет обнажает зло; идентичность как копируемая поверхность (Рипли с диапроектором); композиция как этика — отказ от рамки в «Запрещённых играх» меняет смысл финала.",
+pitfalls: [
+  "«Клеман — только технарь»: «Господин Рипуа» со скрытой камерой и ненадёжным рассказчиком предвосхищает приёмы «новой волны» за годы до неё.",
+  "«Раз критиковал Трюффо, фильмы плохие»: спор был о том, кто автор — сценаристы Оранш–Бост или режиссёр; Клеман не главная мишень, а Базен — доброжелателен.",
+  "«На ярком солнце» — просто красивый триллер: это ещё классовое насилие, гомоэротический подтекст и мимесис как метафора кино.",
+  "«Битва на рельсах» — нейтральная хроника: это сконструированный «миф о Сопротивлении» и документ политики памяти.",
+  "«Нет тем — нет авторства»: мотивы есть (невинность и зло, двойники, замкнутые пространства), просто авторство — в методе, а не в сюжете."
+],
+whenNot: "Не заменяет просмотр: без хотя бы четырёх фильмов маршрута разбор останется набором имён. Не учит съёмке и монтажу и не курс по «политике авторов» в целом — за кадром остаются Отан-Лара, Деланнуа и другие мишени Трюффо."
+    },
+  },
+];
+
+const postgresqlDbThinkingTopics: readonly TopicCard[] = [
+  {
+    id: "postgresql-db-thinking-full",
+    title: "PostgreSQL: A Lesson in How a Database Thinks",
+    summary: "You can learn PostgreSQL the way most people do: memorize SELECT, INSERT, UPDATE, and DELETE, copy some CREATE TABLE statements from Stack Overflow, and get surprisingly far. Eventually, though, you hit things that feel like folklore.",
+    concepts: [],
+    practicePrompt: "Create a small accounts table, open two side-by-side psql sessions, and update the same row from one while selecting from the other; inspect ctid, xmin, and xmax after several updates, then run VACUUM and EXPLAIN ANALYZE and describe what changed.",
+    checkPrompt: "Without notes, explain why an UPDATE creates a new row version instead of overwriting, and what xmin, xmax, and a snapshot make visible; why a table holding 2 GB of data can occupy 40 GB and what plain VACUUM does and does not reclaim; and why a query can be fast on Tuesday and slow on Wednesday, citing stale statistics and estimated-versus-actual row divergence in EXPLAIN.",
+    tier: 1,
+    complexity: 4,
+    references: [
+
+    ],
+    lesson: {
+problem: "SQL looks like a set of simple commands over a tidy file cabinet, so when Postgres returns rows in a shuffled order, a 2 GB table grows to 40 GB on disk, or a query flips between fast and slow from one day to the next, it feels like folklore — nothing in the syntax explains it.",
+model: "A ladder from idea to machinery: you specify results declaratively, and Postgres alone turns that specification into a program. Underneath sit four load-bearing decisions — tables as unordered version sets, an append-only WAL as the truth of record, per-snapshot visibility of versions, and a statistics-driven cost plan.",
+mechanics: "A table's heap stores tuples inside 8 KB pages (TOAST handles oversized values), cached in shared buffers. Every change first lands in the Write-Ahead Log, giving durability, checkpoints, crash recovery, replication, and point-in-time recovery. MVCC makes UPDATE and DELETE create new versions marked by xmin and xmax; a per-transaction snapshot decides visibility, so readers never block writers, and VACUUM reclaims dead tuples while guarding transaction ID wraparound. Above that, the planner picks scans, joins, and indexes from column statistics, and EXPLAIN ANALYZE shows where estimates break from reality.",
+pitfalls: [
+  "Rows come back in a stable order — without ORDER BY no order is ever promised",
+  "UPDATE and DELETE overwrite rows in place — they create new versions and dead tuples, which is how 2 GB of data becomes 40 GB",
+  "Plain VACUUM shrinks the file — it only frees space inside it; real compaction needs VACUUM FULL or pg_repack",
+  "Long idle transactions are harmless — one open snapshot can stall cleanup across the whole database",
+  "More indexes are always better — every index is maintained on writes, making unused ones pure cost"
+],
+whenNot: "Skip this when you need a SQL syntax primer or step-by-step DBA operations (replication setup, backups, cloud tuning) — the tour stops at mechanisms and points to the official docs for the rest. The picture is also Postgres-specific: do not map its WAL/MVCC/VACUUM gears onto MySQL or SQLite."
+    },
+  },
+];
 export const curriculum: readonly PracticeArea[] = [
   {
     id: "go",
@@ -5048,5 +5453,117 @@ export const curriculum: readonly PracticeArea[] = [
     tier: 1,
     dependencies: [],
     topics: odysseyConceptsTopics,
+  },
+  {
+    id: "new-york-culture",
+    title: "New York Culture: How the City Produces a Way of Life",
+    description: "Here, “New York” means **New York City**, rather than the whole state, whose regions have distinct cultures. The aim is to understand the city—not just recognize its landmarks.",
+    tier: 1,
+    dependencies: [],
+    topics: newYorkCultureTopics,
+  },
+  {
+    id: "ibs-visceral-course",
+    title: "IBS and Visceral Hypersensitivity",
+    description: "A",
+    tier: 1,
+    dependencies: [],
+    topics: ibsVisceralCourseTopics,
+  },
+  {
+    id: "hermitage-intro",
+    title: "The Hermitage: What It Is, Why It Matters, and How to Think About It",
+    description: "The Hermitage began as Catherine II's private retreat beside the Winter Palace and was pried open over 250 years into a universal museum whose every epoch — imperial, Soviet, post-Soviet — re-used it as an instrument of state self-image.",
+    tier: 1,
+    dependencies: [],
+    topics: hermitageIntroTopics,
+  },
+  {
+    id: "langchain-ground-up",
+    title: "LangChain, From the Ground Up",
+    description: "LangChain sits between your code and a language model, and this essay teaches it by separating load-bearing abstractions — role-tagged messages, chat-model interfaces, tool-call schemas, documents, the runnable protocol, and LangGraph state graphs — from the churny convenience layer of deprecated chains and one-liners that wraps them.",
+    tier: 1,
+    dependencies: [],
+    topics: langchainGroundUpTopics,
+  },
+  {
+    id: "langchain-abstractions-leak",
+    title: "LangChain, from the Ground Up: Concepts, Vocabulary, and Where the Abstractions Leak",
+    description: "A full tour of LangChain as of the 1.0 era — messages, chat models, tools, LCEL, tracing, retrieval, agents, and LangGraph — organized around a single verdict axis: which abstractions are load-bearing and which are incidental churn. The recurring lesson is that the framework normalizes mechanics well but leaks wherever provider or model judgment is involved.",
+    tier: 1,
+    dependencies: [],
+    topics: langchainAbstractionsLeakTopics,
+  },
+  {
+    id: "cannabis-first-principles",
+    title: "Cannabis: A First-Principles Introduction",
+    description: "A ground-up tour of cannabis from plant chemistry (THCA→THC decarboxylation) through the endocannabinoid system, route-of-administration effects, and the indica/sativa label problem, ending with risks and established medical uses.",
+    tier: 1,
+    dependencies: [],
+    topics: cannabisFirstPrinciplesTopics,
+  },
+  {
+    id: "megapolis-culture",
+    title: "Megapolis Culture: How Very Large Cities Shape the Way People Live and Think",
+    description: "A lesson on megapolis culture: the vocabulary (megacity, megalopolis, global city), Wirth's engine of size, density, and heterogeneity amplified by power-law scaling, the coping mind (blasé reserve, civil inattention), subcultures and weak ties, culture built into streets and third places, the global-vs-generic tension, and the corrections of informality, inequality, and planetary urbanization — a megacity is a machine for multiplying encounters, and culture is what encounters produce.",
+    tier: 1,
+    dependencies: [],
+    topics: megapolisCultureTopics,
+  },
+  {
+    id: "react-19-next-16",
+    title: "React 19 и Next.js 16: концептуальный разбор",
+    description: "Материал устроен в два слоя. Блоки **«Интуиция»** объясняют идею простым языком, без предварительных знаний. Блоки **«Глубже»** предназначены для профессионалов: там речь идёт о механизмах, компромиссах и теоретических основаниях. Начинающему достаточно первого слоя, опытному разработчику интереснее второй.",
+    tier: 1,
+    dependencies: [],
+    topics: react19Next16Topics,
+  },
+  {
+    id: "kant-mind-builds-world",
+    title: "Immanuel Kant: A Lesson in How the Mind Builds a World",
+    description: "Kant flips the question from what reality is like to what any mind must contribute before a world can appear at all. His answer — the mind is a constructor, not a mirror — secures science against Hume but limits knowledge to appearances, making room for freedom and morality.",
+    tier: 1,
+    dependencies: [],
+    topics: kantMindBuildsWorldTopics,
+  },
+  {
+    id: "terraform-ground-up",
+    title: "Terraform, Explained From the Ground Up",
+    description: "Terraform is a tool for infrastructure as code, the practice of describing servers, networks, databases, DNS records, and anything else a cloud API can create, in text files that are versioned and reviewed like software.",
+    tier: 1,
+    dependencies: [],
+    topics: terraformGroundUpTopics,
+  },
+  {
+    id: "pytorch-concepts-mindset",
+    title: "PyTorch: концепции и способ мышления",
+    description: "Если снять с PyTorch весь слой документации, туториалов и экосистемы, останутся три идеи, склеенные между собой. Первая — библиотека многомерных массивов (тензоров), которая выглядит как NumPy, но умеет считать на видеокарте.",
+    tier: 1,
+    dependencies: [],
+    topics: pytorchConceptsMindsetTopics,
+  },
+  {
+    id: "fastapi-concepts",
+    title: "FastAPI: A Conceptual Lesson",
+    description: "Most web frameworks treat your function signature as a formality — a place to catch whatever the router throws at you. FastAPI treats the signature as the specification. The types you annotate are simultaneously the parser, the validator, the serializer, the documentation, and the editor autocomplete.",
+    tier: 1,
+    dependencies: [],
+    topics: fastapiConceptsTopics,
+  },
+  {
+    id: "rene-clement-guide",
+    title: "Рене Клеман: путеводитель для новичков и специалистов",
+    description: "Рене Клеман (1913–1996) — один из самых титулованных и самых недооценённых режиссёров Франции. У него два Гран-при Венеции («Запрещённые игры» и, если считать премии жюри и критики, «Жервеза»), несколько наград Канн, два почётных «Оскара».",
+    tier: 1,
+    dependencies: [],
+    topics: reneClementGuideTopics,
+  },
+  {
+    id: "postgresql-db-thinking",
+    title: "PostgreSQL: A Lesson in How a Database Thinks",
+    description: "You can learn PostgreSQL the way most people do: memorize SELECT, INSERT, UPDATE, and DELETE, copy some CREATE TABLE statements from Stack Overflow, and get surprisingly far. Eventually, though, you hit things that feel like folklore.",
+    tier: 1,
+    dependencies: [],
+    topics: postgresqlDbThinkingTopics,
   },
 ];
