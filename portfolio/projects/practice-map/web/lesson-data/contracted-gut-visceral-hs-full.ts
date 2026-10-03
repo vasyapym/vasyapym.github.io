@@ -2,13 +2,6 @@ import type { LessonSection } from "../curriculum";
 
 export const sections: readonly LessonSection[] = [
   {
-    heading: null,
-    blocks: [
-      {"kind":"p","text":"I’ll interpret **“visceral HS” as visceral hypersensitivity**, and “contracted gut” as a sensation of intestinal tightness, squeezing, or cramping. “Contracted gut” is not one precise medical diagnosis; a fixed narrowing or obstruction would be a different problem."},
-      {"kind":"p","text":"The central idea is this: **a gut that feels tightly contracted is not necessarily contracting excessively.** The sensation can come from abnormal muscle activity, increased sensitivity to otherwise ordinary activity, or both."},
-    ],
-  },
-  {
     heading: "1. Separate the motor system from the sensory system",
     blocks: [
       {"kind":"p","text":"Your gastrointestinal tract is an actively controlled muscular tube. Its smooth muscle contracts and relaxes to mix food, move contents forward, and temporarily store material. Circular muscle narrows a segment; longitudinal muscle changes its length. Enteric neurons—the nervous system embedded in the gut wall—coordinate these movements, with timing influenced by specialized pacemaker cells."},

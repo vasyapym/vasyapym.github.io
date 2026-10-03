@@ -3634,7 +3634,7 @@ whenNot: "This lens is for reading, not for dating influences; it does not claim
 const contractedGutVisceralHsTopics: readonly TopicCard[] = [
   {
     id: "contracted-gut-visceral-hs-full",
-    title: "The “contracted gut” and visceral hypersensitivity",
+    title: "Contracted Gut: Sensation, Not Spasm",
     summary: "I’ll interpret **“visceral HS” as visceral hypersensitivity**, and “contracted gut” as a sensation of intestinal tightness, squeezing, or cramping. “Contracted gut” is not one precise medical diagnosis; a fixed narrowing or obstruction would be a different problem.",
     concepts: [],
     practicePrompt: "Draw the two dials of the model (motor wall vs sensory gain) on paper, mark on each one real symptom you know, then write one sentence about where the loop between the dials could get louder and where a treatment should break it.",
@@ -3694,7 +3694,7 @@ whenNot: "The lesson is a reading tool, not film history, and it does not claim 
 const spielbergCraftLayersTopics: readonly TopicCard[] = [
   {
     id: "spielberg-craft-layers-full",
-    title: "СТИВЕН СПИЛБЕРГ: МНОГОУРОВНЕВЫЙ РАЗБОР",
+    title: "Стивен Спилберг: разбор по слоям",
     summary: "Стивен Спилберг по уровням: от порога понятного до киноведческого слоя — длинный план, монтаж тревоги и чудо-кадр как ремесло, плюс производственные must-know и практическая выжимка для снимающего.",
     concepts: [],
     practicePrompt: "Возьмите одну сцену Спилберга и пропустите её через три слоя урока: что в ней работает на порог понятного, что на ремесло, что на производственный уровень; по каждому слою запишите одно конкретное решение и его эффект.",
@@ -4013,7 +4013,7 @@ whenNot: "This is a conceptual lesson, not a policy forecast, and does not aim t
 const ibsSpasmContractedTopics: readonly TopicCard[] = [
   {
     id: "ibs-spasm-contracted-full",
-    title: "IBS Spasm — The Contracted Lesson",
+    title: "IBS Spasm: What the Contraction Really Is",
     summary: "IBS spasm, contracted: the one-paragraph control-loop model, what a spasm physically is, why pain is louder than harm, the ten-minute acute protocol, chronic retuning, the pharmacology map and the imposters with red flags.",
     concepts: [],
     practicePrompt: "Take one real flare-up and run the lesson's map over it: what class of input triggered it, which part of the protocol you already own for the ten minutes, what you would change in the substrate and the gain, and what you would still want to discuss with a clinician.",
@@ -4362,7 +4362,7 @@ const ibsVisceralCourseTopics: readonly TopicCard[] = [
   {
     id: "ibs-visceral-course-full",
     title: "IBS and Visceral Hypersensitivity",
-    summary: "A",
+    summary: "A five-lesson introductory course on IBS and visceral hypersensitivity: why a tight-feeling gut is usually amplified sensation rather than a physical blockage, why weight gain fails at the intake stage rather than absorption, how meal size, fat load, FODMAPs, and abdominal pressure act as dose-shaped triggers, and how short-term relief differs from long-term management built on tolerable nutrition and gut–brain care.",
     concepts: [],
     practicePrompt: "From the essay's Lesson 3, write out the trigger table in your own words: for each of the four trigger rows, give one food from your own life and what you would change — split it, shrink the fat dose, check supplement ingredients, or identify the fermentable carbohydrate — without removing the food group entirely.",
     checkPrompt: "Without notes, explain why a feeling of a «closed» bowel in IBS is not proof of a physical obstruction, why weight gain fails more often at the intake stage than at absorption, and why concentrating many calories into one large fatty meal can backfire even though «more calories with less volume» is generally useful.",
@@ -5264,7 +5264,7 @@ export const curriculum: readonly PracticeArea[] = [
   },
   {
     id: "contracted-gut-visceral-hs",
-    title: "The “contracted gut” and visceral hypersensitivity",
+    title: "Contracted Gut: Sensation, Not Spasm",
     description: "I’ll interpret **“visceral HS” as visceral hypersensitivity**, and “contracted gut” as a sensation of intestinal tightness, squeezing, or cramping. “Contracted gut” is not one precise medical diagnosis; a fixed narrowing or obstruction would be a different problem.",
     tier: 1,
     dependencies: [],
@@ -5280,7 +5280,7 @@ export const curriculum: readonly PracticeArea[] = [
   },
   {
     id: "spielberg-craft-layers",
-    title: "СТИВЕН СПИЛБЕРГ: МНОГОУРОВНЕВЫЙ РАЗБОР",
+    title: "Стивен Спилберг: разбор по слоям",
     description: "Стивен Спилберг по уровням: от порога понятного до киноведческого слоя — длинный план, монтаж тревоги и чудо-кадр как ремесло, плюс производственные must-know и практическая выжимка для снимающего.",
     tier: 1,
     dependencies: [],
@@ -5368,7 +5368,7 @@ export const curriculum: readonly PracticeArea[] = [
   },
   {
     id: "ibs-spasm-contracted",
-    title: "IBS Spasm — The Contracted Lesson",
+    title: "IBS Spasm: What the Contraction Really Is",
     description: "IBS spasm, contracted: the one-paragraph control-loop model, what a spasm physically is, why pain is louder than harm, the ten-minute acute protocol, chronic retuning, the pharmacology map and the imposters with red flags.",
     tier: 1,
     dependencies: [],
@@ -5465,7 +5465,7 @@ export const curriculum: readonly PracticeArea[] = [
   {
     id: "ibs-visceral-course",
     title: "IBS and Visceral Hypersensitivity",
-    description: "A",
+    description: "A five-lesson introductory course on IBS and visceral hypersensitivity: why a tight-feeling gut is usually amplified sensation rather than a physical blockage, why weight gain fails at the intake stage rather than absorption, how meal size, fat load, FODMAPs, and abdominal pressure act as dose-shaped triggers, and how short-term relief differs from long-term management built on tolerable nutrition and gut–brain care.",
     tier: 1,
     dependencies: [],
     topics: ibsVisceralCourseTopics,
