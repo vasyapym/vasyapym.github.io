@@ -9,7 +9,7 @@ Each harness excludes a user-invoked skill from the model's reach in its own way
 
 Every skill also carries an `agents/openai.yaml` beside its `SKILL.md`. It holds Codex UI metadata — `interface.display_name` and `interface.short_description` for the skill picker — and, for user-invoked skills, the `policy.allow_implicit_invocation: false` that pairs with `disable-model-invocation`. Keep the two in sync: a skill is user-invoked in both harnesses or neither.
 
-Bucket `README.md`s and the top-level `README.md` group entries into **User-invoked** and **Model-invoked**.
+Bucket `README.md`s group entries into **User-invoked** and **Model-invoked**.
 
 ## Dependencies between them
 

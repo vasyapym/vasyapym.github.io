@@ -79,6 +79,20 @@
       "message": "My lesson commit 7fbd416 also published 20 previously-uncommitted lines of the shared root graph: design-iteration nodes n75-n84 + edges (main page R027-R038 rounds). I staged only my own paths, but the root graph was already dirty in the working tree and my add-node had appended to it, so git add .project-history/graph.jsonl captured the whole diff. No content edited or reordered - the lines ride verbatim. Owner action: none (the rounds belong to the main-page design-iteration session; it may ack this report).",
       "ackBy": null,
       "ackAt": null
+    },
+    {
+      "id": "mi3-q34-rows-ride-in-4a8c519-and-mi4-commit",
+      "ts": "2026-10-04T16:00:16Z",
+      "kind": "sweep-report",
+      "agent": "opencode (orchestrator session, mi4 founding round)",
+      "commit": "PENDING",
+      "files": [
+        "skills/in-progress/minimize-iteration3/SKILL.md",
+        "skills/in-progress/minimize-iteration3/results.md"
+      ],
+      "message": "My minimize-iteration4 commit carries the earlier relay session's uncommitted Q3/Q4 practice rows + SKILL.md practice edit for minimize-iteration3 verbatim (they sat modified in the shared tree). No content edited. Owner action: none; the earlier session may ack this report.",
+      "ackBy": null,
+      "ackAt": null
     }
   ]
 }

@@ -1,6 +1,6 @@
 # In Progress
 
-Beta. These skills are public on purpose — try them and tell me what breaks. They're excluded from the plugin and the top-level README until they graduate to a stable bucket, they get no docs pages, and they can change or disappear without warning.
+Beta. These skills are public on purpose — try them and tell me what breaks. They're excluded from the plugin until they graduate to a stable bucket, they get no docs pages, and they can change or disappear without warning.
 
 The plugin won't give you these. Install one directly:
 
@@ -17,3 +17,4 @@ npx skills@latest add mattpocock/skills --skill=<name>
 - **[bug-iteration](./bug-iteration/SKILL.md)** — Fix a reported bug — especially a recurring regression — by reproducing it, diagnosing the root cause, shipping a regression gate with every fix, and stating exactly what was and wasn't verified. User-invoked.
 - **[minimize-iteration2](./minimize-iteration2/SKILL.md)** — Run minimal-pair A/B experiments against the relay to test whether human register, provenance phrases, or markdown density shift the routing tier. User-invoked.
 - **[minimize-iteration3](./minimize-iteration3/SKILL.md)** — Fallback relay shape for the randomized routing chat model when the instruction-style minimal prompt fails: one question sentence ("what will be the finished better version of the artifact below..."), everything inside one code block — the bad artifact carries the contract by example, integration is salvage.
+- **[minimize-iteration4](./minimize-iteration4/SKILL.md)** — The orchestrator brief: the heavy relay format for real design/code work — TASK / CONTEXT / verbatim material / HARD CONSTRAINTS / OUTPUT CONTRACT in plain unmasked prose; routed well on its first draw.

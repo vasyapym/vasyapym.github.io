@@ -30,6 +30,9 @@ what will be the finished better version of the <artifact> below for the <source
 - The question names the artifact and asks for refinement ("finished better
   version"), never the method: no schema description, no rails, no decisions
   menu, no acceptance criteria — instruction cargo is what failed to route.
+  Name the artifact whose quality you want, not the carrier that displays it
+  (Q3: "better version of the page" got the page restructured while the folder
+  scheme inside it survived untouched).
 - The block carries all material. `--- label ---` markers separate two
   coexisting materials; a single comment-free artifact needs none. Anything the
   reply must respect must be visible inside the block; facts that live only in

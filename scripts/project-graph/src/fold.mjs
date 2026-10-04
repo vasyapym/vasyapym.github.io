@@ -14,7 +14,7 @@ export const EDGE_RELS = [
 export const HANDOFF_RELS = ["handoff:design-to-code", "handoff:code-to-design"];
 // "zcode" is a delegation agent that already recorded nodes in project
 // histories; the validator must accept history exactly as it was written.
-export const ACTORS = ["code-iteration", "design-iteration", "user", "zcode"];
+export const ACTORS = ["code-iteration", "design-iteration", "user", "zcode", "opencode"];
 export const HANDOFF_ACTORS = ["code-iteration", "design-iteration"];
 
 function check(condition, line, message) {
