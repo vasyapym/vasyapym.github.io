@@ -5,6 +5,7 @@ Agent instructions for this repo — a personal portfolio site that also ships a
 - My requests may lack full awareness of technical implications or codebase architecture. Be pragmatic — if something entails significant changes and a simpler alternative would yield a comparable result, surface it. Discuss trade-offs, don't follow blindly. But use judgment: only flag what meaningfully affects the outcome, make reasonable assumptions, and keep moving.
 - Before starting a somewhat non-trivial task, answer first and act second: what can we do about this, and is it trivial or non-trivial to fix? Recommend a way forward before touching anything.
 - Before patching a local issue (when the task presupposes a fix), first look for a way to simplify the codebase and make it more consistent, so the fix fits the existing code structure without hacks, duplications, or special cases.
+- Consistency pass (when the task presupposes a design): the same element must look identical everywhere; no one-off values remain. Organic: transitions are continuous, nothing jumps; proportions feel intentional; no default browser/framework styling leaks through.
 
 ## Response preferences
 
