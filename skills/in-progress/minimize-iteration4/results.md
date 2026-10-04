@@ -10,4 +10,4 @@ keeps originals.
 
 | round | task | prompt | outcome |
 | --- | --- | --- | --- |
-| M1 | author the four files of the new /orchestrate skill (SKILL.md + agents/openai.yaml + docs page + router entry) | docs/briefs/chat-model-prompt-46-orchestrate-skill-brief.md | worked first draw, unmasked: the orchestrator-brief format (dense prose, verbatim owner text, hard rails, single-block output contract) routed well; the leet/HTML variants prepared for the same ask were skipped unsent; owner verdict good; integration pending the reply's paste-back into the orchestrator session |
+| M1 | author the four files of the new /orchestrate skill (SKILL.md + agents/openai.yaml + docs page + router entry) | docs/briefs/chat-model-prompt-46-orchestrate-skill-brief.md | worked first draw, unmasked: the orchestrator-brief format (dense prose, verbatim owner text, hard rails, single-block output contract) routed well; the leet/HTML variants prepared for the same ask were skipped unsent; reply integrated same-session — verbatim body byte-identical, description/yaml/docs/router landed, promoted wiring + router insertion done |

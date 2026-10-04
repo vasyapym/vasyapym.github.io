@@ -1,0 +1,3 @@
+interface:
+  display_name: "Orchestrate"
+  short_description: "Relay one brief at a time to a specialist chat and salvage-integrate replies"
