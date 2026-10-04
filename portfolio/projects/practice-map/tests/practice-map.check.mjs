@@ -108,7 +108,10 @@ try {
   // networkidle0 never settles on this dev app, and 45s of it times out.
   await page.goto(`${BASE}/projects/practice-map`, { waitUntil: "domcontentloaded", timeout: 150000 });
 
-  check(await appears(".pg-card"), "map renders");
+  check(await appears(".pg-face-head"), "map renders (first tier folds into folder faces)");
+  await page.click(".pg-face-head");
+  await wait(400);
+  check(await appears(".pg-card"), "first folder opens into cards");
 
   // The map opens on the first tier (astra-6-max — the owner ordered the astra
   // run 1st/2nd in the data array).
@@ -456,6 +459,12 @@ try {
   const goTierRows = await page.$$('.pg-tier-row[data-tier-id="fable-5.1-low"]');
   check(goTierRows.length === 1, `the fable-5.1-low tier is reachable (${goTierRows.length})`);
   await goTierRows[0].click();
+  await wait(400);
+  // The tier folds into folder faces (owner's 8+ fold rule); the Go flagship
+  // lives in the tech folder — the first face in the data.
+  await page.click(".pg-face-head");
+  await wait(400);
+  // the flagship card is picked by its title, not by position.
   const goCardTitles = await page.$$eval(".pg-card h3", (els) => els.map((el) => el.textContent.trim()));
   check(goCardTitles.some((t) => t === "Go с нуля до глубокого понимания"), `flagship card sits in the fable-5.1-low tier (${goCardTitles.join(" | ").slice(0, 120)})`);
   const goCardHandles = await page.$$(".pg-card");
@@ -532,7 +541,7 @@ try {
 
   // domcontentloaded returns before React mounts — wait for the map first
   // (networkidle0 used to buy this implicitly).
-  check(await appears(".pg-card"), "map renders at 390px");
+  check(await appears(".pg-face-head"), "map renders at 390px (folder faces)");
   // The pinned-close / copy-button laws were tuned on the Linux deep reader:
   // reach it the way the tier design does — thinking tier (last row), vol 01.
   // The tier list pages at 5 rows: page to page 3 first, then pick the row.
@@ -644,7 +653,7 @@ try {
   );
   check(noOverflowNarrow, "no horizontal overflow on the map at 320px");
 
-  check(await appears(".pg-card"), "map renders at 320px");
+  check(await appears(".pg-face-head"), "map renders at 320px (folder faces)");
   await page.tap('[data-turn="next"]');
   await wait(300);
   await page.tap('[data-turn="next"]');
