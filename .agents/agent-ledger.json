@@ -85,7 +85,7 @@
       "ts": "2026-10-04T16:00:16Z",
       "kind": "sweep-report",
       "agent": "opencode (orchestrator session, mi4 founding round)",
-      "commit": "PENDING",
+      "commit": "7209e22",
       "files": [
         "skills/in-progress/minimize-iteration3/SKILL.md",
         "skills/in-progress/minimize-iteration3/results.md"
