@@ -1,4 +1,19 @@
-Skills are organized into bucket folders under `skills/`:
+Agent instructions for this repo — a personal portfolio site that also ships a collection of agent skills as a Claude Code plugin. `AGENTS.md` is a symlink to this file, so the same text serves every harness.
+
+## Working style
+
+- My requests may lack full awareness of technical implications or codebase architecture. Be pragmatic — if something entails significant changes and a simpler alternative would yield a comparable result, surface it. Discuss trade-offs, don't follow blindly. But use judgment: only flag what meaningfully affects the outcome, make reasonable assumptions, and keep moving.
+- Before starting a somewhat non-trivial task, answer first and act second: what can we do about this, and is it trivial or non-trivial to fix? Recommend a way forward before touching anything.
+- Before patching a local issue (when the task presupposes a fix), first look for a way to simplify the codebase and make it more consistent, so the fix fits the existing code structure without hacks, duplications, or special cases.
+
+## Response preferences
+
+- Explain code and technical changes in simple Russian unless the user asks for another language.
+- The user is learning programming and experimenting: explain every block of code as to a beginner, fairly comprehensively. Use the `teach` skill (the repo's learning skill) when teaching programming concepts.
+
+## Skills
+
+Skills live in bucket folders under `skills/`:
 
 - `engineering/` — daily code work
 - `productivity/` — daily non-code workflow tools
@@ -6,25 +21,18 @@ Skills are organized into bucket folders under `skills/`:
 - `in-progress/` — beta: public on purpose, feedback wanted, not shipped in the plugin
 - `deprecated/` — no longer used
 
-Every skill in `engineering/` or `productivity/` (the **promoted** buckets) must have a reference in the top-level `README.md` and an entry in `.claude-plugin/plugin.json`'s `skills` array (the Claude Code plugin ships exactly the promoted set). Skills in `misc/`, `in-progress/`, and `deprecated/` must not appear in either.
+`engineering/` and `productivity/` are the **promoted** buckets. Every promoted skill needs a reference in the top-level `README.md`, an entry in `.claude-plugin/plugin.json`'s `skills` array (the plugin ships exactly the promoted set), and a human-facing docs page; skills in `misc/`, `in-progress/`, and `deprecated/` get none of the three.
 
-Install commands are copied verbatim from [.agents/install-block.md](./.agents/install-block.md). `.claude-plugin/marketplace.json` makes the repo its own single-plugin marketplace — a fallback the install block explains, not the documented route. Run `claude plugin validate . --strict` after touching either manifest. Why a Claude plugin but not (yet) a Codex one lives in [.agents/adr/0002-ship-as-a-claude-code-plugin.md](./.agents/adr/0002-ship-as-a-claude-code-plugin.md).
-
-Each skill entry in the top-level `README.md` must link the skill name to its `SKILL.md`.
-
-Each bucket folder has a `README.md` that lists every skill in the bucket with a one-line description, with the skill name linked to its `SKILL.md`. The promoted buckets' `README.md`s and the top-level `README.md` group entries into **User-invoked** and **Model-invoked**; non-promoted bucket `README.md`s (`misc/`, `in-progress/`) use a flat list.
-
-Skills in `engineering/` and `productivity/` also have a human-facing docs page at `docs/<bucket>/<skill-name>.md` (the docs tree mirrors those two bucket folders under `skills/`). The published URL is `https://aihero.dev/skills-<skill-name>` regardless of bucket — the docs path is repo organisation only. When you add, rename, or change the behaviour of a skill in `engineering/` or `productivity/`, create or re-sync its docs page following [.agents/writing-docs.md](./.agents/writing-docs.md). A finished page carries four sections — **What it does**, **When to reach for it**, **Common questions**, **It's working if** — and `writing-docs.md` holds the template, the section order, and where to hunt for the questions. Skills in the non-promoted buckets (`misc/`, `in-progress/`, `deprecated/`) get **no** docs page.
-
-Every `SKILL.md` is either user-invoked (`disable-model-invocation: true` plus `policy.allow_implicit_invocation: false` in `agents/openai.yaml`, reachable only by the human) or model-invoked (model- or user-reachable). See [.agents/invocation.md](./.agents/invocation.md).
-
-[`ask-matt`](./skills/engineering/ask-matt/SKILL.md) is the router that maps every user-reachable skill and how they relate. The same trigger that re-syncs a docs page applies to it: whenever you add, rename, remove, or change how a user-reachable skill fits the flows, re-read `ask-matt`'s `SKILL.md` and update it so the map stays accurate — a new skill it never mentions, or a stale one it still routes to, is a router that lies.
-
-To (re)link every skill into the local harness skill directories (`~/.claude/skills`, `~/.agents/skills`), run `scripts/link-skills.sh`. Each entry is a symlink into this repo, so a `git pull` keeps installed skills current; re-run the script after adding, removing, or renaming a skill.
+- Install: commands are copied verbatim from [.agents/install-block.md](./.agents/install-block.md). `.claude-plugin/marketplace.json` makes the repo its own single-plugin marketplace — a fallback the install block explains, not the documented route. Run `claude plugin validate . --strict` after touching either manifest. Why a Claude plugin but not (yet) a Codex one: [.agents/adr/0002-ship-as-a-claude-code-plugin.md](./.agents/adr/0002-ship-as-a-claude-code-plugin.md).
+- READMEs: each bucket `README.md` lists every skill in the bucket with a one-line description; every entry there and in the top-level `README.md` links the skill name to its `SKILL.md`. The top-level and promoted-bucket READMEs group entries into **User-invoked** and **Model-invoked**; non-promoted bucket READMEs (`misc/`, `in-progress/`) use a flat list.
+- Docs pages: `docs/<bucket>/<skill-name>.md` mirrors the two promoted bucket folders; the published URL is `https://aihero.dev/skills-<skill-name>` regardless of bucket (the docs path is repo organisation only). When you add, rename, or change the behaviour of a promoted skill, create or re-sync its page per [.agents/writing-docs.md](./.agents/writing-docs.md). A finished page carries four sections — **What it does**, **When to reach for it**, **Common questions**, **It's working if** — and that file holds the template, the section order, and where to hunt for the questions.
+- Invocation: every `SKILL.md` is either user-invoked (`disable-model-invocation: true` plus `policy.allow_implicit_invocation: false` in `agents/openai.yaml`; reachable only by the human) or model-invoked (model- or user-reachable). See [.agents/invocation.md](./.agents/invocation.md).
+- Router: [`ask-matt`](./skills/engineering/ask-matt/SKILL.md) maps every user-reachable skill and how they relate. Whenever you add, rename, remove, or change how a user-reachable skill fits the flows, re-read `ask-matt`'s `SKILL.md` and update the map — a new skill it never mentions, or a stale one it still routes to, is a router that lies.
+- Local install: `scripts/link-skills.sh` (re)links every skill into `~/.claude/skills` and `~/.agents/skills` as symlinks into this repo, so `git pull` keeps installed skills current; re-run it after adding, removing, or renaming a skill.
 
 ## Workflow principles
 
-The former workflow principles were removed from this file in commit `cb6a358` with the intention of moving them into invokable skills. Use [`/design-iteration`](./skills/productivity/design-iteration/SKILL.md) for an existing visual feedback round, [`/design-planning`](./skills/productivity/design-planning/SKILL.md) to compare alternatives and settle a direction, then [`/planning`](./skills/productivity/planning/SKILL.md) to make the implementation and verification loop reproducible. These skills keep delivery separate from mid-task work: `/design-iteration` closes every presented round by committing and pushing its own paths in the same session without waiting for an explicit request — owner setting: the repo stays current with every round, and a rejection opens the next round and its own commit (per the git rules below) — while `/design-planning` and `/planning` never commit, push, or change external systems on their own.
+The full workflow principles live in invokable skills: [`/design-iteration`](./skills/productivity/design-iteration/SKILL.md) for a visual feedback round on existing work, [`/design-planning`](./skills/productivity/design-planning/SKILL.md) to compare alternatives and settle a direction, then [`/planning`](./skills/productivity/planning/SKILL.md) to make the implementation and verification loop reproducible. Their delivery rules differ on purpose: `/design-iteration` closes every presented round by committing and pushing its own paths in the same session without waiting for an explicit request (owner setting: the repo stays current with every round; a rejection opens the next round and its own commit, under the git rules below), while `/design-planning` and `/planning` never commit, push, or change external systems on their own.
 
 ## Agent skills
 
@@ -46,34 +54,27 @@ This is a single-context repo: read root `CONTEXT.md` and `docs/adr/` for domain
 
 ### Project graph
 
-Iterations, decisions, plans, and handoffs append to a per-project history log (`.project-history/graph.jsonl`) via `scripts/project-graph`. Any session that settles something important — a direction, a plan, a verdict, a pass — records **one** node before wrapping up (never one per commit; a multi-commit pass is one `git-range` artifact). There is no auto-record hook: no commit exists purely to carry graph bookkeeping. Recording is unconditional but bounded: node `summary` ≤ 200 chars at write time — detail belongs in `--meta`, the design handoff, or a brief, not in the log. See `docs/agents/project-graph.md`.
+Iterations, decisions, plans, and handoffs append to a per-project history log (`.project-history/graph.jsonl`) via `scripts/project-graph` — never by editing the JSONL by hand. Any session that settles something important (a direction, a plan, a verdict, a pass) records **one** node before wrapping up: never one per commit (a multi-commit pass is one `git-range` artifact), and there is no auto-record hook, so no commit exists purely to carry graph bookkeeping. Recording is unconditional but bounded: node `summary` ≤ 200 chars at write time — detail belongs in `--meta`, the design handoff, or a brief, not in the log. See `docs/agents/project-graph.md`.
 
 ### Agent ledger
 
-Several agents may work in this repo in parallel and share one working tree. Before every commit, stage only your own files by name; if another agent's changes end up in your commit anyway, append a `sweep-report` entry to `.agents/agent-ledger.json` and push it immediately — that report is how the owner finds out without archaeology. If your work was committed by someone else, read the ledger and `ack` it; never unilaterally revert another agent's commit. Schema and etiquette: `docs/agents/agent-ledger.md`. The ledger is a mailbox, not an archive: entries older than ~14 days (acked or not) are removed by `node scripts/ledger-gc.mjs` at each compaction checkpoint — git history keeps the originals.
+Several agents may work in this repo in parallel and share one working tree. Before every commit, check `git status` and stage only your own files by name. If another agent's changes end up in your commit anyway, append a `sweep-report` entry to `.agents/agent-ledger.json` and push it in the same operation — that report is how the owner finds out without archaeology. If your work was committed by someone else, read the ledger and `ack` it; never unilaterally revert another agent's commit. Schema and etiquette: `docs/agents/agent-ledger.md`. The ledger is a mailbox, not an archive: entries older than ~14 days (acked or not) are removed by `node scripts/ledger-gc.mjs` at each compaction checkpoint — git history keeps the originals.
 
 ### Artifact hygiene
 
 - **Briefs** (`BRIEF-*.md`, relay handoffs): the working tree holds only **open** ones. Once the outcome is recorded (graph node + `docs/briefs/ROUNDS.md` row), delete the file — text stays in git history. New briefs are written to `docs/briefs/`, never to the repo root (the root keeps only the open kitty-run direction round inputs, per `STATE.md`).
-- **Binaries**: build outputs (`*.wasm`, dist trees) are never committed — they are reproducible. Per-round PNG artifacts under `.agent/iterations/` are kept for the **last 2 rounds per project**, older rounds are deleted (git remembers).
+- **Binaries**: build outputs (`*.wasm`, dist trees) are never committed — they are reproducible. Per-round PNG artifacts under `.agent/iterations/` are kept for the **last 2 rounds per project**; older rounds are deleted (git remembers).
 - **Scratch** (probes, screenshots, `reference-images/`, debug scripts): local-only, never staged. One-off probe scripts live in `portfolio/probes/` (gitignored).
 - `node scripts/janitor.mjs` reports violations of the above (orphans, stale probes, oversized `.agent` artifact trees) — run it at session close when unsure.
 - `STATE.md` is a one-screen index (~40 lines max): per-project detail lives in each graph's `head`, not in the central file.
 
-## Response preferences
+## Git delivery
 
-- Explain code and technical changes in simple Russian unless the user asks for another language.
-- The user is currently learning programming and experimenting. Explain every block of code as if they are a beginner, somewhat comprehensively. Use the `teach` skill (the repository's learning skill) when teaching programming concepts.
-
-## Git delivery preferences
-
-- Sync with GitHub at the start and finish of every session. Before reading or editing anything, `git pull --ff-only origin main` — the working tree must match `origin/main`; a stale tree wastes entire rounds (one full card-artwork pass was built 18 commits behind and had to be discarded). When a task ends with accepted changes, commit and push its paths in the same session — this closing commit+push is pre-approved by this rule and needs no separate ask; mid-task or speculative commits still wait for an explicit request.
-- On this machine `/usr/local/bin/git` is broken for network operations (compiled with an empty prefix — no `git-remote-https` helper, `--exec-path` resolves to `//libexec/git-core`). Local commands work; for fetch/push use `/usr/bin/git push origin main` (Apple Git). Do not diagnose this again — it is already known.
-- Run the relevant checks for completed code or documentation changes, but do not stage, commit, push, open a pull request, or merge unless the current user explicitly asks for that delivery step.
-- Keep delivery separate from implementation so a reviewed working tree can be paused, compared, or handed to another agent without changing repository history.
-- Never include `.DS_Store`, unrelated files, or changes made by another agent. Stop and report failures, conflicts, missing authentication, or branch protection instead of forcing a delivery operation.
-- Several agents share this working tree. Check `git status` before staging and take only your own paths; if another agent's changes end up in your commit anyway, record a `sweep-report` in `.agents/agent-ledger.json` (see `docs/agents/agent-ledger.md`) and push it in the same operation.
-
+- Sync with GitHub at the start and finish of every session. Before reading or editing anything, `git pull --ff-only origin main` — the working tree must match `origin/main`; a stale tree wastes entire rounds (one full pass was once built 18 commits behind and had to be discarded).
+- On this machine `/usr/local/bin/git` is broken for network operations (compiled with an empty prefix — no `git-remote-https` helper, `--exec-path` resolves to `//libexec/git-core`). Local commands work; for fetch/push use Apple Git, e.g. `/usr/bin/git push origin main`. Do not diagnose this again — it is already known.
+- Keep delivery separate from implementation: run the relevant checks on completed code or documentation changes, and never fold commits into the work itself, so a reviewed working tree can be paused, compared, or handed to another agent without changing repository history.
+- Exactly one delivery is pre-approved: when a task ends with accepted changes, commit and push its own paths in the same session without a separate ask (`/design-iteration` applies this per presented round). Every other delivery step — mid-task or speculative commits, pushes, pull requests, merges — waits for an explicit request from the current user.
+- Never include `.DS_Store`, unrelated files, or another agent's changes; take only your own paths, per the agent ledger rules above. Stop and report failures, conflicts, missing authentication, or branch protection instead of forcing a delivery operation.
 
 <!-- autoclaw:skill-path-guidance -->
 ## Installing Skills
