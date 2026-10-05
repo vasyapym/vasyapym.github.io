@@ -340,8 +340,10 @@ dialog::backdrop{background:rgba(0,0,0,.55)}
 #tree.drop-target{outline:2px dashed var(--acc);outline-offset:-2px;border-radius:6px}
 #tree .folder.drop-target>summary{background:var(--bg3);outline:2px solid var(--acc);outline-offset:-2px}
 #tree .rename{flex:1;min-width:0;font:inherit;font-weight:400;padding:1px 4px;background:var(--bg);border:1px solid var(--acc);border-radius:4px;outline:none;color:var(--fg)}
-/* touch: row actions always shown (no hover), pill stays beside them */
-@media (hover:none){.acts{opacity:1;pointer-events:auto}}
+/* touch: row actions pinned right (no hover needed). The count pill is
+   dropped — its variable digit width put every row's + at a different x
+   (owner). Desktop keeps the pill. */
+@media (hover:none){.acts{opacity:1;pointer-events:auto}.folder>summary>.n{display:none}}
 
 /* owner ask: the desktop scrollbar read white/prominent in macOS Safari.
    Practice-map precedent (lesson-scroll): webkit-pseudo styling with a
