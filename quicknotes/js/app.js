@@ -194,19 +194,19 @@ function renderTree() {
     const name = escapeHtml(f.name);
     d.innerHTML =
       `<summary title="${escapeHtml(f.path)}"><span class="twisty"></span><span class="label">${name}</span>` +
-      `<span class="n">${f.count}</span><span class="acts">` +
+      `<span class="acts">` +
       `<button type="button" data-act="new" title="New note in ${name}" aria-label="New note in ${name}">+</button>` +
       `<button type="button" data-act="menu" title="Folder actions" aria-label="Actions for ${name}">⋯</button>` +
-      `</span></summary><div class="children"></div>`;
+      `</span><span class="n">${f.count}</span></summary><div class="children"></div>`;
     const c = d.lastElementChild;
-    for (const n of f.notes) c.appendChild(noteRow(n));
     for (const k of kids(f)) c.appendChild(folderRow(k));
+    for (const n of f.notes) c.appendChild(noteRow(n));
     return d;
   };
 
   const frag = document.createDocumentFragment();
-  for (const n of root.notes) frag.appendChild(noteRow(n));
   for (const k of kids(root)) frag.appendChild(folderRow(k));
+  for (const n of root.notes) frag.appendChild(noteRow(n));
   el.tree.appendChild(frag);
   el.count.textContent = `${all.length} notes · ${folderCount} folders`;
 }
