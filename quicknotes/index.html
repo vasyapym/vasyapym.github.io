@@ -122,13 +122,26 @@ body.drawer-lock{overflow:hidden}
 #tree{overflow:auto;overscroll-behavior:contain;padding:0 4px 8px}
 .tree-empty{display:flex;flex-direction:column;align-items:center;gap:10px;padding:24px 8px;color:var(--fg2);font-size:12px;text-align:center}
 .tree-empty svg{width:120px;height:120px;opacity:.85}
-.folder{margin-top:6px}
-/* item 5 — folder labels read as secondary list text: normal case + no
-   tracking (the prominence came from uppercase+letter-spacing, not the size).
-   Muted colour + 12px keep them below the 14px .note-item rows. ▸/▾ kept. */
-.folder>summary{cursor:pointer;color:var(--fg2);font-size:12px;padding:4px 8px;list-style:none;user-select:none}
-.folder>summary::before{content:"▸ "}
-.folder[open]>summary::before{content:"▾ "}
+/* N037: nested tree. Folder rows = flex summary (twisty + name + count pill,
+   hover swaps in +/⋯); children indent under a guide line. Root notes list
+   flat at the top — no "(root)" header row. */
+.folder{margin-top:2px}
+.folder>summary{display:flex;align-items:center;gap:6px;min-width:0;cursor:pointer;color:var(--fg2);font-size:12px;font-weight:600;padding:4px 6px;border-radius:5px;list-style:none;user-select:none}
+.folder>summary::-webkit-details-marker{display:none}
+.folder>summary:hover{background:var(--bg3)}
+.folder>summary:focus-visible{outline:1px solid var(--acc)}
+.twisty{flex:none;width:10px;text-align:center;font-weight:400}
+.twisty::before{content:"▸"}
+.folder[open]>summary>.twisty::before{content:"▾"}
+.folder>summary>.label{flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.folder>summary>.n{flex:none;font-size:10px;font-weight:400;line-height:16px;padding:0 6px;border-radius:8px;background:var(--bg3);color:var(--fg2)}
+.acts{display:none;gap:2px;flex:none}
+.acts button{width:22px;height:22px;padding:0;border:0;border-radius:4px;background:transparent;color:var(--fg2);font:inherit;font-size:14px;line-height:1;cursor:pointer}
+.acts button:hover{background:var(--bg);color:var(--acc)}
+.folder>summary:is(:hover,:focus-within)>.acts{display:flex}
+.folder>summary:is(:hover,:focus-within)>.n{display:none}
+/* nesting: children are indented under a guide line */
+.children{margin-left:11px;padding-left:4px;border-left:1px solid var(--border)}
 .note-item{display:block;width:100%;text-align:left;background:none;border:0;border-radius:5px;padding:5px 10px;cursor:pointer;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .note-item:hover{background:var(--bg3)}
 .note-item.active{background:var(--bg3);color:var(--acc)}
@@ -231,7 +244,8 @@ dialog::backdrop{background:rgba(0,0,0,.55)}
   .btn{min-height:34px;padding:6px 10px;font-size:13px}
   #drawer-toggle{min-width:38px;justify-content:center}
   .note-item{padding:11px 12px}
-  .folder>summary{padding:10px 8px}
+  .folder>summary{padding:8px 6px;font-size:13px}
+  .acts button{width:34px;height:34px;font-size:18px}
   #sort{min-height:34px}
 
   /* meta: mobile-first — title+toggle+delete on row 1, path reflows below.
@@ -321,8 +335,12 @@ dialog::backdrop{background:rgba(0,0,0,.55)}
 .ctx-sep{height:1px;margin:4px 8px;background:var(--border)}
 
 #tree [data-folder],#tree [data-id]{-webkit-touch-callout:none;user-select:none}
-#tree .drop-target{outline:2px solid var(--acc);outline-offset:-2px;border-radius:6px}
-#tree .rename{font:inherit;width:100%;padding:1px 4px;background:var(--bg);border:1px solid var(--acc);border-radius:4px;outline:none}
+#tree .dragging{opacity:.5}
+#tree.drop-target{outline:2px dashed var(--acc);outline-offset:-2px;border-radius:6px}
+#tree .folder.drop-target>summary{background:var(--bg3);outline:2px solid var(--acc);outline-offset:-2px}
+#tree .rename{flex:1;min-width:0;font:inherit;font-weight:400;padding:1px 4px;background:var(--bg);border:1px solid var(--acc);border-radius:4px;outline:none;color:var(--fg)}
+/* touch: row actions always visible (no hover), count pill yields */
+@media (hover:none){.acts{display:flex}.folder>summary>.n{display:none}}
 
 /* owner ask: the desktop scrollbar read white/prominent in macOS Safari.
    Practice-map precedent (lesson-scroll): webkit-pseudo styling with a
@@ -363,7 +381,8 @@ dialog::backdrop{background:rgba(0,0,0,.55)}
 <div id="layout">
   <aside id="sidebar">
     <div class="side-head">
-      <button id="new-btn" class="btn" title="New note (Ctrl+N)">+ New</button>
+      <button id="new-btn" class="btn" title="New note in the current folder (Ctrl+N)">+ Note</button>
+      <button id="new-folder-btn" class="btn" title="New folder in the current folder">+ Folder</button>
       <button id="export-btn" class="btn" title="Export (Ctrl+Shift+E)">↓ Zip</button>
     </div>
     <div class="side-sort">

@@ -4,11 +4,12 @@ import { render } from "./markdown.js";
 import { makeZip, download } from "./zip.js";
 import { initDrawer } from "./drawer.js";
 import { initTreeActions } from "./tree-actions.js";
+import { folderOf } from "./paths.js";
 
 const $ = s => document.querySelector(s);
 const el = {
   search: $("#search"), sync: $("#sync"), user: $("#user"), authBtn: $("#auth-btn"),
-  newBtn: $("#new-btn"), exportBtn: $("#export-btn"), tree: $("#tree"), sort: $("#sort"),
+  newBtn: $("#new-btn"), newFolderBtn: $("#new-folder-btn"), exportBtn: $("#export-btn"), tree: $("#tree"), sort: $("#sort"),
   empty: $("#empty"), editor: $("#editor"), title: $("#title"), path: $("#path"),
   delBtn: $("#delete-btn"), viewToggle: $("#view-toggle"), copyBtn: $("#copy-btn"),
   panes: $("#panes"), body: $("#body"), preview: $("#preview"),
@@ -27,11 +28,30 @@ const VIEWS = new Set(["edit", "split", "view"]);
 const savedView = localStorage.getItem("view");
 const SORTS = new Set(["updated", "created", "title"]);
 const savedSort = localStorage.getItem("sort");
+// ---- N037 fold memory: open-set model, persisted ----
+// Folders start COLLAPSED (the always-expanded tree was the "too many folders"
+// mess); what the user opens is remembered across reloads. When a note opens,
+// its folder chain opens once so the active note is never hidden.
+const OPEN_KEY = "qn.openFolders";
+const loadOpen = () => { try { return JSON.parse(localStorage.getItem(OPEN_KEY)) || []; } catch { return []; } };
+const saveOpen = () => { try { localStorage.setItem(OPEN_KEY, JSON.stringify([...state.openFolders])); } catch {} };
+function expandFolder(path) {
+  let changed = false;
+  for (let d = path || ""; d; d = folderOf(d))
+    if (!state.openFolders.has(d)) { state.openFolders.add(d); changed = true; }
+  if (changed) saveOpen();
+}
+function remapOpenFolders(oldP, newP) {
+  const next = new Set();
+  for (const p of state.openFolders)
+    next.add(p === oldP ? newP : p.startsWith(oldP + "/") ? newP + p.slice(oldP.length) : p);
+  state.openFolders = next; saveOpen();
+}
 const state = {
   uid: "local", user: null, notes: {}, activeId: null, filter: "",
   view: VIEWS.has(savedView) ? savedView : "split",
   sort: SORTS.has(savedSort) ? savedSort : "updated",
-  unsubNotes: null, openFolders: new Set()
+  unsubNotes: null, openFolders: new Set(loadOpen())
 };
 
 // max-width:760px is the single source of truth for "mobile" in JS too
@@ -122,48 +142,83 @@ function switchUser(user) {
 function escapeHtml(s) { return s.replace(/[&<>"']/g, c => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c])); }
 
 function renderTree() {
+  if (el.tree.querySelector("input.rename")) return; // inline naming open; its commit re-renders
   const q = state.filter.toLowerCase();
-  const notes = live().filter(n => !q || (n.title + " " + n.path + " " + n.body).toLowerCase().includes(q))
-    .sort(cmpNotes());
-  const groups = new Map();
-  for (const n of notes) { const p = n.path || ""; if (!groups.has(p)) groups.set(p, []); groups.get(p).push(n); }
-  const paths = [...groups.keys()].sort((a, b) => (a === "" ? -1 : b === "" ? 1 : a.localeCompare(b)));
+  const all = live();
+  const notes = all.filter(n => !q || (n.title + " " + n.path + " " + n.body).toLowerCase().includes(q)).sort(cmpNotes());
 
   el.tree.innerHTML = "";
   if (!notes.length) {
-    el.tree.innerHTML =
-      '<div class="tree-empty">' +
-      '<svg viewBox="0 0 64 64" aria-hidden="true">' +
-      '<g fill="none" stroke-linecap="round" stroke-linejoin="round">' +
-      '<path d="M11 47V19h14l4 5h24v23Z" stroke="#3b4261" stroke-width="1.25"/>' +
-      '<path d="M11 30h42" stroke="#7aa2f7" stroke-width="1.5"/>' +
-      '<circle cx="32" cy="30" r="2" fill="#16161e" stroke="#7aa2f7" stroke-width="1.5"/>' +
-      "</g></svg><span>No notes yet — Ctrl+N to create the first one.</span></div>";
+    el.tree.innerHTML = q
+      ? `<div class="tree-empty"><span>No notes match “${escapeHtml(state.filter)}”.</span></div>`
+      : '<div class="tree-empty">' +
+        '<svg viewBox="0 0 64 64" aria-hidden="true">' +
+        '<g fill="none" stroke-linecap="round" stroke-linejoin="round">' +
+        '<path d="M11 47V19h14l4 5h24v23Z" stroke="#3b4261" stroke-width="1.25"/>' +
+        '<path d="M11 30h42" stroke="#7aa2f7" stroke-width="1.5"/>' +
+        '<circle cx="32" cy="30" r="2" fill="#16161e" stroke="#7aa2f7" stroke-width="1.5"/>' +
+        "</g></svg><span>No notes yet — Ctrl+N to create the first one.</span></div>";
     el.count.textContent = "0 notes · 0 folders";
     return;
   }
-  for (const p of paths) {
-    const d = document.createElement("details");
-    d.className = "folder";
-    d.dataset.folder = p;
-    d.open = q ? true : !state.openFolders.has("closed:" + p);
-    d.addEventListener("toggle", () => d.open ? state.openFolders.delete("closed:" + p) : state.openFolders.add("closed:" + p));
-    const s = document.createElement("summary");
-    s.innerHTML = `<span class="label">${escapeHtml(p || "(root)")}</span>`;
-    d.appendChild(s);
-    for (const n of groups.get(p)) {
-      const b = document.createElement("button");
-      b.className = "note-item" + (n.id === state.activeId ? " active" : "");
-      b.dataset.id = n.id;
-      b.dataset.path = n.path || "";
-      b.innerHTML = (n._dirty && state.user ? '<span class="dirty">● </span>' : "") + escapeHtml(n.title || "Untitled");
-      b.onclick = () => { openNote(n.id); drawer.close(); };
-      d.appendChild(b);
+
+  // One pass over the (already sorted) notes builds a real tree of Maps —
+  // still cheap per keystroke. Root notes list flat at the top (no "(root)"
+  // header row); every folder carries its subtree note count.
+  const mk = (path, name) => ({ path, name, notes: [], folders: new Map(), count: 0 });
+  const root = mk("", ""); let folderCount = 0;
+  for (const n of notes) {
+    let node = root; node.count++;
+    if (n.path) for (const seg of n.path.split("/")) {
+      let c = node.folders.get(seg);
+      if (!c) { node.folders.set(seg, c = mk(node.path ? node.path + "/" + seg : seg, seg)); folderCount++; }
+      node = c; node.count++;
     }
-    el.tree.appendChild(d);
+    node.notes.push(n);
   }
-  el.count.textContent = `${live().length} notes · ${paths.filter(Boolean).length} folders`;
+  const kids = node => [...node.folders.values()].sort((a, b) => collator.compare(a.name, b.name));
+
+  const noteRow = n => {
+    const b = document.createElement("button");
+    b.type = "button"; b.draggable = true;
+    b.className = "note-item" + (n.id === state.activeId ? " active" : "");
+    b.dataset.id = n.id; b.dataset.path = n.path || "";
+    b.innerHTML = (n._dirty && state.user ? '<span class="dirty">● </span>' : "") + escapeHtml(n.title || "Untitled");
+    b.onclick = () => { openNote(n.id); drawer.close(); };
+    return b;
+  };
+  const folderRow = f => {
+    const d = document.createElement("details");
+    d.className = "folder"; d.dataset.folder = f.path; d.draggable = true;
+    d.open = !!q || state.openFolders.has(f.path);
+    const name = escapeHtml(f.name);
+    d.innerHTML =
+      `<summary title="${escapeHtml(f.path)}"><span class="twisty"></span><span class="label">${name}</span>` +
+      `<span class="n">${f.count}</span><span class="acts">` +
+      `<button type="button" data-act="new" title="New note in ${name}" aria-label="New note in ${name}">+</button>` +
+      `<button type="button" data-act="menu" title="Folder actions" aria-label="Actions for ${name}">⋯</button>` +
+      `</span></summary><div class="children"></div>`;
+    const c = d.lastElementChild;
+    for (const n of f.notes) c.appendChild(noteRow(n));
+    for (const k of kids(f)) c.appendChild(folderRow(k));
+    return d;
+  };
+
+  const frag = document.createDocumentFragment();
+  for (const n of root.notes) frag.appendChild(noteRow(n));
+  for (const k of kids(root)) frag.appendChild(folderRow(k));
+  el.tree.appendChild(frag);
+  el.count.textContent = `${all.length} notes · ${folderCount} folders`;
 }
+
+// Fold state syncs from the <details> toggle event (capture — toggle doesn't
+// bubble). During a search the tree renders open and writes nothing.
+el.tree.addEventListener("toggle", e => {
+  const p = e.target.dataset?.folder;
+  if (p == null || state.filter) return;
+  e.target.open ? state.openFolders.add(p) : state.openFolders.delete(p);
+  saveOpen();
+}, true);
 
 function renderEditor() {
   const n = active();
@@ -197,7 +252,9 @@ function renderAll() { renderTree(); renderEditor(); }
 
 // ---------- note ops ----------
 function openNote(id) {
-  state.activeId = id; renderAll();
+  state.activeId = id;
+  expandFolder(state.notes[id]?.path); // N037: folders start collapsed — open the chain so the note shows
+  renderAll();
   if (state.view === "view") focusEl(el.preview);
   else {
     // N022: deterministic caret — engines differ on programmatic-focus caret
@@ -232,33 +289,40 @@ function updateActive(patch) {
   schedulePersist();  // was: persist() synchronously every keystroke
   schedulePush(n.id); // Firebase push already debounced at 800ms (unchanged)
 }
-function deleteActive() {
-  const n = active(); if (!n) return;
-  if (!confirm(`Delete "${n.title || "Untitled"}"?`)) return;
-  n.deleted = true; n.updatedAt = Date.now(); n._dirty = true;
-  persist(); schedulePush(n.id);
-  state.activeId = null; renderAll(); focusEl(el.search);
+// N037: note deletion is instant (owner ask: no approval). Soft delete, syncs
+// like any edit; the folder menu's bulk delete funnels through here too.
+function deleteNotes(ids) {
+  const now = Date.now(), done = [];
+  for (const id of ids) {
+    const n = state.notes[id]; if (!n || n.deleted) continue;
+    n.deleted = true; n.updatedAt = now; n._dirty = true; done.push(id);
+    if (state.activeId === id) state.activeId = null;
+  }
+  if (!done.length) return;
+  persist(); for (const id of done) schedulePush(id);
+  renderAll(); if (!state.activeId) focusEl(el.search);
 }
-function softDeleteNote(id) {
-  const n = state.notes[id]; if (!n || n.deleted) return;
-  if (!confirm(`Delete "${n.title || "Untitled"}"?`)) return;
-  n.deleted = true; n.updatedAt = Date.now(); n._dirty = true;
-  persist(); schedulePush(id);
-  if (state.activeId === id) state.activeId = null;
-  renderAll(); focusEl(el.search);
-}
+function deleteActive() { if (state.activeId) deleteNotes([state.activeId]); }
 
 // ---------- tree actions (context menus, long-press, drag&drop) ----------
-const commit = ids => { persist(); for (const id of ids) schedulePush(id); renderTree(); };
-initTreeActions({
+// N037: a moved ACTIVE note must drag the editor's path field along → renderAll.
+const commit = ids => {
+  persist();
+  for (const id of ids) schedulePush(id);
+  ids.includes(state.activeId) ? renderAll() : renderTree();
+};
+const treeActions = initTreeActions({
   tree: el.tree,
   getNotes: () => state.notes,
   commit,
   onOpen: id => { openNote(id); drawer.close(); },
-  onDelete: id => softDeleteNote(id),
+  onDelete: ids => deleteNotes(ids),
   createNote: path => { const n = createNote({ path }); drawer.close(); return n; },
+  expand: expandFolder,
+  remapOpen: remapOpenFolders,
   notify: m => alert(m)
 });
+el.newFolderBtn.onclick = () => treeActions.newFolder(active()?.path || "");
 function followWiki(title) {
   const n = byTitle(title);
   openNote(n ? n.id : createNote({ title }).id);
@@ -440,11 +504,32 @@ el.body.addEventListener("keydown", e => {
 el.search.addEventListener("keydown", e => {
   if (e.key === "Enter" || e.key === "ArrowDown") { e.preventDefault(); focusEl(el.tree.querySelector(".note-item")); }
 });
+// N037: walk visible rows (notes + folder summaries); ←→ / h l fold/unfold.
+const visibleRows = () => [...el.tree.querySelectorAll(".note-item, .folder[data-folder] > summary")].filter(r => {
+  for (let p = r.parentElement; p && p !== el.tree; p = p.parentElement)
+    if (p.tagName === "DETAILS" && !p.open && r !== p.firstElementChild) return false;
+  return true;
+});
 el.tree.addEventListener("keydown", e => {
-  const items = [...el.tree.querySelectorAll(".note-item")];
-  const i = items.indexOf(document.activeElement);
-  if (e.key === "ArrowDown" || e.key === "j") { e.preventDefault(); focusEl(items[Math.min(i + 1, items.length - 1)]); }
-  if (e.key === "ArrowUp" || e.key === "k") { e.preventDefault(); if (i <= 0) focusEl(el.search); else focusEl(items[i - 1]); }
+  if (e.target.closest("input")) return;
+  const rows = visibleRows(), cur = document.activeElement, i = rows.indexOf(cur);
+  const go = r => { if (r) { focusEl(r); r.scrollIntoView({ block: "nearest" }); } };
+  const isFolder = cur?.tagName === "SUMMARY";
+  switch (e.key) {
+    case "ArrowDown": case "j": e.preventDefault(); go(rows[Math.min(i + 1, rows.length - 1)]); break;
+    case "ArrowUp": case "k": e.preventDefault(); if (i <= 0) focusEl(el.search); else go(rows[i - 1]); break;
+    case "ArrowRight": case "l":
+      if (!isFolder) break;
+      e.preventDefault();
+      if (!cur.parentElement.open) cur.parentElement.open = true; else go(rows[i + 1]);
+      break;
+    case "ArrowLeft": case "h":
+      if (!cur) break;
+      e.preventDefault();
+      if (isFolder && cur.parentElement.open) cur.parentElement.open = false;
+      else go(cur.closest(".children")?.parentElement.querySelector(":scope>summary"));
+      break;
+  }
 });
 
 document.addEventListener("keydown", e => {

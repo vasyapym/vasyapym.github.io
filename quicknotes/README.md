@@ -22,12 +22,15 @@ Without a config the app runs fully local (localStorage). Signing in later migra
 | Ctrl+E | cycle edit / split / preview |
 | Ctrl+Shift+E | export zip (all or folder) |
 | Ctrl+S | sync now |
-| Ctrl+D | delete note |
+| Ctrl+D | delete note (no confirmation) |
 | Esc | back to search |
 | ↑↓ / j k | move in list |
+| ←→ / h l | fold / unfold folder |
 
 ## Notes
-- Folders are virtual: the **path** field (`work/ideas`) groups notes; export preserves it as directories.
+- Folders are virtual: the **path** field (`work/ideas`) groups notes; export preserves it as directories. The sidebar renders them as a nested tree; folders start collapsed and their open state is remembered.
+- Folder actions: `+` on a folder row creates a note inside it; `⋯` (or right-click / long-press) opens the menu — rename, move, "Remove folder (keep notes)" moves contents one level up. `+ Folder` in the sidebar header creates a folder (typed inline, `a/b` creates both levels) by placing its first note.
+- Dragging a note moves only that note; dragging a folder moves everything under it. Dropping onto a note targets that note's folder; mouse-only.
 - `[[Title]]` links open (or create) a note by title; red dashed = missing.
 - Rendering escapes all HTML first, so raw HTML/script in notes is inert; only `http(s):`/`mailto:` URLs are linkified.
 - Sync is last-write-wins by `updatedAt`; deletes are soft (`deleted: true`) so they propagate across devices.
