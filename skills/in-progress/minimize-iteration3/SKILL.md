@@ -61,10 +61,13 @@ routed badly); a runnable draft keeps it. Kin to the spec-framing move in
 - The prompt is one question sentence plus one block, with no instruction prose
   outside the block.
 - The reply lands as a near-final artifact: salvage repairs conventions, it
-  doesn't rewrite.
+  doesn't rewrite. When a source block carries owner-verbatim copy, that
+  wording is part of the contract — a reply that polishes it away gets its
+  structure salvaged and the original text re-applied by hand at integration.
 
 ## Rounds
 
 Log one row per relay round in `results.md` (minimal-log rule, family practice
 from `minimize-iteration2`); a row that changes practice edits this file in the
-same pass.
+same pass. A row is self-contained — task and outcome in words, no prompt
+paths: the brief is not an artifact, the chat transcript is its only record.
