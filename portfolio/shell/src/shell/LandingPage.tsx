@@ -887,7 +887,7 @@ export default function LandingPage({
               target="_blank"
               rel="noreferrer"
             >
-              digital card
+              my card
             </a>
           </header>
 
