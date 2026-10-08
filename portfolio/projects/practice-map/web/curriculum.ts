@@ -4733,6 +4733,764 @@ whenNot: "Skip this when you need a SQL syntax primer or step-by-step DBA operat
     },
   },
 ];
+
+const linkedinEvidencePackageTopics: readonly TopicCard[] = [
+  {
+    id: "linkedin-evidence-package-full",
+    title: "A practical guide: Russian-speaking software developer → hired through LinkedIn",
+    summary: "A practical guide for a Russian-speaking developer seeking international work through LinkedIn: separating language, citizenship and authorization facts, choosing one positioning, building a profile as an evidence package, and diagnosing the hiring funnel where conversions actually stall.",
+    concepts: [],
+    practicePrompt: "Pick one target role and market, read about twenty real job descriptions for it, then rewrite a headline plus an About block stating what you build, one inspectable piece of evidence, your actual city and country, and your accurate work-authorization status. Check: a stranger reading only the profile can say which team would benefit from hiring you, at what level, and can verify at least one claim by opening a link.",
+    checkPrompt: "Reproduce from memory that hiring is uncertainty reduction under information asymmetry: a profile is an evidence package that connects claims to inspectable proof, and the process is a funnel where each transition has a conditional conversion rate. State how 'Russian-speaking', 'Russian citizen' and 'working from Russia' describe different facts, why remote does not mean work-from-any-country, and how you would diagnose whether applications, technical rounds or offers are the real bottleneck.",
+    tier: 1,
+    complexity: 4,
+    references: [
+
+    ],
+    lesson: {
+problem: "A developer new to international hiring mistakes keyword lists for a strategy: a profile listing every stack communicates uncertainty, titles like 'engineer' get read as seniority signals, eligibility facts about language, citizenship and current location get blended into one label, and an impressive metric such as p95 latency collapses under the first interviewer question about workload and measurement method.",
+model: "Hiring is uncertainty reduction under information asymmetry: you know your abilities better than the employer, the employer knows the real job better than you, and both sides reduce uncertainty with imperfect evidence. A profile is therefore an evidence package, not persuasive writing — every claim should have something a reviewer can open, run or inspect. The process is a funnel — opportunity, application, screening, technical assessment, final discussion, offer — where each transition has a conditional conversion rate, so the useful fix depends on where conversions stall. Eligibility facts such as location, work authorization and payment route are constraints that no keyword padding can compensate for.",
+mechanics: "Positioning before optimization: choose one primary hiring story and read roughly twenty target-market job descriptions to separate recurring responsibilities and hard authorization constraints from wish-list items. Headline and About built as claim-plus-evidence templates naming role, stack, one verified result, city and truthful authorization status; a truthful junior profile beats a senior label that collapses under questioning. Proof instead of tutorial copies: one finished project whose repository explains behavior, assumptions and limitations and includes a case study with alternatives, failures and improvements; demos explicitly distinguished from production experience. Evidence hygiene: p95 latency counts only with workload, period, environment and error behavior; confidential work becomes sanitized accounts of migrations, incidents and decisions; verification cost is the deep principle — make it easy for another engineer to check you. Funnel diagnosis: applications without conversations point at targeting, eligibility or clarity; failed technical rounds point at skills; failed finals point at level, compensation or headcount. Offer and scam literacy: base versus total compensation, gross versus net, contractor invoices not comparable to employee take-home, recruiter verification through official channels, and warning signs like payment demands, equipment checks and technical assignments run outside isolated environments.",
+pitfalls: [
+  "Treating discovery as hiring: polishing profile views instead of tracking useful conversations and stages",
+  "Listing 'Python, Java, frontend, backend, AI' as one identity — it communicates uncertainty, not versatility",
+  "Trusting titles: 'senior' maps differently across companies and 'engineer' does not mean more senior",
+  "Blending 'Russian-speaking', citizenship and residence into one claim, or stating a desired destination as current residence",
+  "Assuming 'remote' means any country, or that an EOR removes immigration, tax, sanctions or export-control limits",
+  "Describing coursework as commercial employment, or claiming workload numbers only reproduced in a local test",
+  "Keyword stuffing and hidden keywords instead of truthful, aligned terminology",
+  "Paying for a job, cashing an 'equipment' check, or running an untrusted assignment with personal SSH keys and cloud secrets available",
+  "Reading three rejections as proof of a cause while optimizing the wrong funnel stage"
+],
+whenNot: "Not legal, tax or immigration advice for specific jurisdictions; not for candidates who already have a hiring commitment through personal contact; not a tool for automated mass applications — it cannot outrun a hard work-authorization restriction, and no platform setting guarantees absolute confidentiality of a confidential search."
+    },
+  },
+];
+
+const typescriptStaticToScaleTopics: readonly TopicCard[] = [
+  {
+    id: "typescript-static-to-scale-full",
+    title: "# TypeScript: from basic vocabulary to type-level programming and large-system design",
+    summary: "The most useful way to understand TypeScript is to separate three things: what JavaScript does at runtime, what the type checker can establish before runtime, and what engineering practices make those static conclusions trustworthy.",
+    concepts: [],
+    practicePrompt: "Design a discriminated union for an async request's states (loading, success with data, failure with error), then write handlers for each state and add a fourth variant. Check: adding the variant without handling it produces an exhaustiveness error from never in every consumer, and no runtime code changed.",
+    checkPrompt: "Reproduce from memory the chapter list in order: static layer over JavaScript runtime, assignability, primitives and optional/readonly semantics, structural typing, unions and discriminated states, inference and widening, assertions vs satisfies overloads async narrowing control flow analysis and exhaustiveness. Name the failure modes: as and any suppress checking, unknown must be validated before use, readonly is a shallow view not freezing, generic constraints do not let you manufacture a T, strictNullChecks and noUncheckedIndexedAccess close specific gaps, and runtime validation is required at boundaries because annotations never validate.",
+    tier: 1,
+    complexity: 4,
+    references: [
+
+    ],
+    lesson: {
+problem: "Without a clear model, a developer treats TypeScript as JavaScript with decorative annotations: an interface is mistaken for a runtime validator, any spreads unchecked assumptions, boolean flags encode states that cannot exist, and external data flows straight from JSON.parse into trusted types the checker never verified.",
+model: "Separate three layers: what JavaScript does at runtime, what the checker can prove before runtime, and the practices that make those conclusions trustworthy. A useful first model is types as sets of possible values, with assignability as the compatibility relation between them; structural typing makes object types open rather than exact. Unions and discriminated variants model meaningful states so invalid combinations become unrepresentable. Generics describe relationships, not vagueness: T connects input to output, a constraint states what you may assume, and parse<T> cannot conjure evidence from a caller's annotation. Variance explains substitution through containers: covariance for outputs, contravariance for inputs, invariance when both. Trust is layered — inference and narrowing preserve information, runtime validation establishes facts at boundaries, and assertions, brands and d.ts files are proof obligations somebody must actually discharge.",
+mechanics: "Type-space versus value-space: interfaces exist only for the checker and cannot be inspected at runtime, a class contributes both an instance type and a constructor. Narrowing through typeof, instanceof, equality, discriminants and early returns; truthiness checks quietly exclude empty string, zero and false; exhaustiveness checking with never turns forgotten variants of a discriminated union into compile errors at every incomplete consumer. keyof, indexed access, mapped types and utility types describe computations over descriptions — Omit<User, password> does not delete the password, serialization still exposes it. Conditional types distribute over naked type parameters: T extends string filters union members, [T] extends [U] asks about the whole union, and never interacts with distribution so never-testing needs a non-distributive formulation. infer is structural pattern matching that derives contracts from other contracts, bounded by recursion budgets and widening: once a literal has widened to string no utility recovers it. Config as contract: strictNullChecks, noUncheckedIndexedAccess, exactOptionalPropertyTypes and verbatimModuleSyntax each encode an assumption; fast dev tooling strips types without checking, so a dedicated check step in CI is required. Architecture: separate domain entities from database rows and API responses even when fields coincide, place explicit types at public boundaries, keep advanced type computation away from error messages humans must read, and review type-level changes as breaking API changes.",
+pitfalls: [
+  "Believing an interface becomes a runtime validator — annotations never enforce runtime contracts",
+  "Using any where unknown is meant: unknown forces narrowing, any lets assumptions propagate silently",
+  "Several independent booleans over a union of states: they allow contradictory combinations like loading plus failed plus loaded",
+  "Trusting that a generic parameter in the return type alone justifies itself — parse<T> conceals an assertion without a schema",
+  "Confusing narrowing of a value with establishing every related constraint: the checker's static view is not an exhaustive inventory of runtime structure",
+  "Believing Omit or DeepReadonly protects data — these are shallow computations over descriptions, redaction needs a runtime transformation",
+  "Assuming paths aliases rewrite emitted imports, or that a dev build passing means the checker passed",
+  "Wrapping assertions until errors disappear instead of redesigning with a discriminated union or a clearer generic relationship",
+  "Shipping type-level tricks whose generated diagnostics cost more for hundreds of consumers than the five lines they saved"
+],
+whenNot: "Not for extremely hot runtime loops where the type layer's cost is irrelevant anyway; not a formal proof system — TypeScript deliberately sacrifices full soundness, so security-critical claims still need runtime evidence; and not a guide to any's escape hatches."
+    },
+  },
+];
+
+const terraformStatePlanModelTopics: readonly TopicCard[] = [
+  {
+    id: "terraform-state-plan-model-full",
+    title: "Infrastructure as Code с Terraform и OpenTofu: от деклараций до управления распределённой системой",
+    summary: "Terraform и OpenTofu как управление частично наблюдаемым внешним миром: код выражает намерение, state хранит идентичность объектов, провайдер задаёт доступную модель реальности, а plan/apply строят и выполняют распределённое изменение без общей транзакции. Урок ведёт от HCL и графов зависимостей до drift, блокировок, воспроизводимости и пределов проверок.",
+    concepts: [],
+    practicePrompt: "Составьте для одного небольшого проекта схему из двух-трёх ресурсов с явной зависимостью через ссылку на атрибут, выполните init, fmt, validate, сохраните план через tofu plan -out и примените его. Проверка: устно воспроизведите, что именно записано в state, какие две идентичности получает инфраструктурный объект и почему план — прогноз, а не обязательство.",
+    checkPrompt: "По памяти объясните, что хранит state и почему это не кэш, чем работа count отличается от for_each в привязке идентичности экземпляров, почему apply не является транзакцией, что означают drift, refresh-only, import и блок moved, и как границы state определяются владельцем, правами и радиусом воздействия, а не количеством ресурсов.",
+    tier: 1,
+    complexity: 4,
+    references: [
+
+    ],
+    lesson: {
+problem: "Без этой темы Terraform представляется новичку исполняемой версией скрипта: инструмент якобы при каждом запуске просматривает облако и сам сопоставляет его с файлами, порядок блоков в файле воспринимается как порядок выполнения, а apply — как транзакция с откатом. Отсюда удаление state «для чистоты», ручные правки в консоли и потерянные объекты после первого же сбоя.",
+model: "Центральная модель: код выражает намерение, state хранит идентичность управляемых объектов и последнюю известную картину, провайдер задаёт, какую реальность инструмент вообще способен видеть, plan вычисляет гипотезу перехода, а apply выполняет распределённый процесс, не обязанный быть атомарным. Инструмент работает не с миром напрямую, а с наблюдениями через схему провайдера: пустой план означает лишь отсутствие требуемых изменений в наблюдаемой модели. Именно поэтому декларативность и сходимость — условные свойства, требующие стабильных входов, непротиворечивого владения и работоспособного API, а не следствие одного лишь декларативного синтаксиса.",
+mechanics: "Архитектура: конфигурация на HCL выражает желаемое, ядро строит граф зависимостей и план, провайдер знает конкретный API и правила замены, backend хранит state и блокировки. Plan выполняет refresh известных объектов — это не инвентаризация облака, а частично символический прогноз: ID ещё не созданного объекта известен только по типу. HCL — язык вычисления значений: файлы одного модуля образуют общую конфигурацию без порядка выполнения, различие null (известное отсутствие) и unknown (появится позже) даёт частичное вычисление выражений. Идентичность экземпляров: count привязывает адрес к позиции в списке, for_each — к устойчивому ключу; смена ключа выглядит как удаление и создание, перенос идентичности оформляется блоком moved. Замена признака обновления может уничтожать объект с данными, поэтому в плане читают тип действия, а apply не даёт ни общей транзакции, ни автоматического rollback — после ошибки сначала устанавливают фактическое состояние, а не восстанавливают старый state. Drift, refresh-only, import, moved и удаление записи из state — разные операции с разными последствиями; границы state выбирают по владельцу, правам, жизненному циклу и радиусу воздействия, а модульность кода и изоляция управления — разные оси. Секреты: sensitive управляет выводом, но state и планы остаются конфиденциальными артефактами, а конфигурация способна исполнять код, так что даже план чужого PR — не безопасная операция.",
+pitfalls: [
+  "Считать state кэшем и удалять его: инфраструктура останется, но инструмент попробует создать дубликаты",
+  "Считать refresh полной инвентаризацией облака: неуправляемые объекты остаются невидимыми",
+  "Читать план как список новых значений, не смотря на тип действия: замена уничтожает объект с данными",
+  "Было убеждение, что изъятие ресурса из конфигурации и из state — одно и то же; удаление записи лишь прекращает отслеживание, объект продолжает существовать",
+  "count с индексной идентичностью вместо for_each со смысловыми ключами: удаление первого элемента сдвигает все адреса",
+  "Ожидать, что блокировка state сериализует всю инфраструктуру: она не мешает правкам через консоль и другим проектам",
+  "Править объекты консолью и держать ignore_changes как способ спрятать неприятный diff",
+  "Считать провайдера просто HTTP-обёрткой: его версия меняет нормализацию, замены и поведение всей системы",
+  "Разделять один объект между Terraform и GitOps-контроллером без разделения полей — конфликтующие контуры обратной связи",
+  "Считать secrets в state несуществующими лишь потому, что стоит sensitive"
+],
+whenNot: "Подход не распространяется на постоянно работающие контроллеры вроде Kubernetes-операторов: Terraform — запускаемый по событию механизм согласования, а не демон наблюдения. Он также не заменяет сборку образов, конфигурационное управление ОС, оркестрацию данных и миграций, и не даёт юридических гарантий лицензирования при выборе между Terraform и OpenTofu — там решают управление проектом и интеграции."
+    },
+  },
+];
+
+const goConcurrencySaturationTopics: readonly TopicCard[] = [
+  {
+    id: "go-concurrency-saturation-full",
+    title: "Go for High-Performance Cloud Services",
+    summary: "Why Go's cheap concurrency does not automatically produce fast cloud services: performance as constrained optimization, from queueing theory and admission control to goroutine ownership, downstream budgets, memory economics and evidence-based profiling.",
+    concepts: [],
+    practicePrompt: "Build a small HTTP service with admission control, propagated deadlines and bounded dependency concurrency, then load-test four conditions: normal dependency latency, ten times that latency, a burst above sustainable throughput, and intermittent failures. Check: compare against an unbounded version and explain each difference in goodput, p99, rejections, in-flight work and heap using Little's law and fan-out math rather than intuition.",
+    checkPrompt: "Reproduce from memory that a queue postpones rather than creates capacity, that waiting grows sharply near saturation and variance matters more than the mean, that fan-out multiplies tail risk as F(t)^n, that retries 3^3=27 can multiply overload, and that every goroutine needs an owner, a stop condition and a waiter. One line each on why GOMAXPROCS, GOGC and GOMEMLIMIT do not bound what newcomers expect.",
+    tier: 1,
+    complexity: 4,
+    references: [
+
+    ],
+    lesson: {
+problem: "Without this framing, engineers equate performance with a benchmark score: they maximize goroutine counts to buy throughput, give every layer a fresh full-length timeout, treat the connection pool and the CPU quota as infinite, and discover at 3 am that the service dies precisely when a dependency slows down.",
+model: "A shared model: concurrency is cheap to express in Go but capacity is finite, so high performance is optimization of a system under constraints, not a single number. Performance decomposes into latency, throughput, goodput, efficiency and resilience, and percentiles beat averages because users experience individual requests. Queueing theory explains why raising concurrency near saturation makes latency explode, and why service-time variance inflates queues beyond what means predict. Every downstream resource is shared capacity; deadlines are budgets, not decorations; and metrics must aggregate histograms, since p99 values cannot be averaged across replicas.",
+mechanics: "Define the objective: state SLO as p99 latency and goodput under bounded CPU and memory budgets, not requests per second. Understand goroutines: GOMAXPROCS bounds threads running Go code, not goroutines; the netpoller parks waiters without OS threads; CPU-bound work cannot scale past cores; containers may throttle quota silently. Structure concurrency: ownership — one writer for shared mutable state via mutexes, channels for transferring ownership, atomics only for simple invariants; every goroutine must have an owner, a stop trigger and a completion waiter. Admission control: use a semaphore with immediate 503/429 rejection instead of an internal waiting queue, distinguish load shedding from tenant quota failure, and remember cancellation is cooperative. Tail latency: fan-out multiplies failure probability as F(t)^n — 100 parallel calls at 99% uptime leave roughly a 37% chance all succeed; retries can multiply load 3^3=27 fold when stacked per layer. Resource care: reuse http.Client and Transport, size pools for the fleet not the pod, distinguish connect, TLS, headers and body timeouts; propagate parent deadlines rather than handing each dependency the full budget. Memory: allocation rate A = lambda*b, GOGC and GOMEMLIMIT trade heap growth against collection cost, and sync.Pool is best-effort, not a bound; subslices can pin whole arrays. Observability: pick the profile type matching the question (CPU, heap, goroutine, mutex, block, trace), prefer open-loop load tests to closed-loop, and guard against coordinated omission.",
+pitfalls: [
+  "Confusing concurrency with parallelism and adding goroutines as a cure for a saturated dependency",
+  "Reading GOMAXPROCS as a levers of `goroutines must equal CPUs` rule; it bounds runnable threads, not tasks or connections",
+  "Untimed calls into third-party services — always attach a parent-derived deadline before every retry",
+  "Per-layer retries stacked without budgets amplify tail latency and overload the very thing that is slow",
+  "Assuming a timeout proves the remote call never happened, then retrying side effects without an idempotency key",
+  "Letting load tests hide overload behind coordinated omission or warmup noise — prefer open-loop rate-driven traffic",
+  "Believing race detector clean means race-free forever; it only covers races exercised by those tests",
+  "Ignoring that GC assists and background workers cost CPU even when pause times look fine",
+  "Changing one thing in code and profiling after the system drifted — invalid benching"
+],
+whenNot: "Not for single-process, non-concurrent CLI tools where none of this capacity plumbing matters. Not a Go syntax tutorial — form, channels, and package layout are assumed prerequisites. Not generic distributed-systems theory without code: the lesson ties every mechanism to a Go runtime or standard-library detail."
+    },
+  },
+];
+
+const renderNeonPortfolioTopics: readonly TopicCard[] = [
+  {
+    id: "render-neon-portfolio-full",
+    title: "Render + Neon: pet projects that demonstrate senior-level engineering",
+    summary: "Six senior-level portfolio projects on Render + Neon — from durable workflows and double-entry ledgers to CRDT collaboration and preview-environment reconciliation — each designed to demonstrate correctness under failure rather than a feature list.",
+    concepts: [],
+    practicePrompt: "Pick one of the six project shapes (durable workflow engine, financial ledger, collaborative incident workspace, permission-aware search, telemetry with SLOs, preview-environment control plane) and define one invariant, one failure mode, and the demonstration that proves recovery. Verify: actually kill the worker after an external side effect and show what idempotency, the outbox and reconciliation do for you; a five-minute failure demo beats twenty screenshots of the happy path.",
+    checkPrompt: "From memory reproduce the core boundary: a PostgreSQL transaction makes database changes all-or-nothing but cannot cover the outgoing HTTP call bundled with them — hence the transactional outbox, idempotency keys and reconciliation instead of any exactly-once promise. Add double-entry postings in integer minor units, RLS for tenancy, CRDT merge versus transactional authorization, event time versus processing time, and reconciliation as the control-plane mental model.",
+    tier: 1,
+    complexity: 4,
+    references: [
+
+    ],
+    lesson: {
+problem: "Pet projects easily turn into showcases of technologies: a pretty dashboard, a workflow editor, a chat with PDFs — yet they collapse when a senior engineer asks what happens if the service dies after moving money. The pain is a weak correctness story, not missing features: without an answer the project looks advanced but does not demonstrate senior engineering.",
+model: "Render is the execution layer: it runs the API, background workers, cron jobs and static sites; Neon is the durable memory: managed PostgreSQL that survives crashes and deployments. Keep application instances mostly stateless, store durable state in the database, keep large files in object storage. A project's strength comes not from the number of technologies but from the ability to explain: what must always be true, what can fail, how the system behaves when it does, and where the evidence is. The central boundary: a PostgreSQL transaction makes database changes all-or-nothing but cannot include an ordinary outgoing HTTP request — that is where serious backend engineering lives. Six flavors of correctness appear across the projects: reliable execution via a durable workflow engine, financial consistency in a double-entry ledger, collaborative convergence with CRDTs, information security in permission-aware retrieval, time-dependent telemetry with SLOs, and infrastructure reconciliation in a preview-environment control plane.",
+mechanics: "Durable workflow engine: a durable state machine in the database, job claiming with FOR UPDATE SKIP LOCKED, leases with expiry for recovering abandoned work, conditional updates against obsolete workers, idempotency, a transactional outbox, and pinning executions to a workflow version. Financial ledger: double-entry accounting with balanced postings per currency committed together, integer minor units or defined decimals, immutable journal entries with reversing corrections, ordered account locks or serializable transactions with retries, authoritative balances for spending rules, and a CQRS-style read projection rebuilt for verification. Collaborative incident workspace: Yjs CRDTs for mergeable text, transactional commands for permissions and sensitive actions, pub/sub for ephemeral presence, and recovery from persisted updates after a restart. Permission-aware search: hybrid full-text and pgvector retrieval, versioned chunking during reingestion, authorization enforced before content reaches the model, retrieved documents treated as untrusted input, and an evaluation dataset with an abstention policy. Telemetry and SLOs: explicit event time versus processing time, deduplication without double-counting, schema versioning, backpressure under lag, measured PostgreSQL optimizations, and mergeable histograms because p95s cannot be averaged. Preview control plane: reconciliation of desired versus actual state across GitHub, Render and Neon, retryable provisioning stages, cleanup and expiry policy, and database branches created from sanitized data with credentials kept away from pull-request code.",
+pitfalls: [
+  "A beautiful editor with no failure story: whether the project looks advanced or senior depends on evidence of recovery",
+  "Believing the outbox gives exactly-once delivery: local effects can be deduplicated, external effects need the receiver's cooperation or reconciliation",
+  "Storing money in floats: integer minor units and an immutable journal are the entry fee",
+  "Editing a running workflow's definition without version pinning, silently changing the meaning of in-flight executions",
+  "Relying on application filters alone for tenancy: row-level security with a non-owner runtime role catches forgotten WHERE clauses",
+  "Branching a production database into preview environments as if it were sanitized",
+  "Treating every piece of collaborative state as a CRDT: permissions and workflow actions deserve transactional commands, since mergeable does not mean authorized",
+  "Letting the model guard secrets: access control must constrain retrieval and source fetching before content reaches the model",
+  "Averaging p95 latency values across replicas or workers instead of merging histograms",
+  "Hiding known limitations and failing to publish the workload and measurement method behind performance claims"
+],
+whenNot: "Seniority is demonstrated by decisions, not by a fashionable language or a microservice map: a modular monolith plus one worker is the sane default, and Render or Neon are not zero-cost or production-like at free tiers, so plan limits, cold starts, polling costs and connection pooling need checking up front."
+    },
+  },
+];
+
+const terraformOpentofuStateEngineTopics: readonly TopicCard[] = [
+  {
+    id: "terraform-opentofu-state-engine-full",
+    title: "Infrastructure as Code: Terraform и OpenTofu — от первых шагов до глубин архитектуры",
+    summary: "Terraform и OpenTofu описаны как единый движок согласования: от декларативности и жизненного цикла init-plan-apply через state, граф зависимостей и выразительность HCL до модулей, декомпозиции на масштабе, устройства провайдеров, тестирования и современного расхождения форка.",
+    concepts: [],
+    practicePrompt: "Разверните тестовую конфигурацию Terraform/OpenTofu из пары ресурсов, прогоните init-plan-apply, затем измените один атрибут и один forcing-replacement параметр и снова прочитайте план: найдите в нём update in-place и замену. Проверка: объясните коллеге вслух, зачем нужен state, что сравнивают три источника plan, чем count отличается от for_each, и продемонстрируйте дрифт, сделав правку руками в консоли.",
+    checkPrompt: "По памяти воспроизведите жизненный цикл init-plan-apply-destroy и назначение каждого шага; объясните три функции state (mapping, кэш, метаданные зависимостей); покажите, как строится DAG зависимостей и что означают known after apply; сформулируйте правила декомпозиции state по границам команд и скоростей изменения.",
+    tier: 1,
+    complexity: 4,
+    references: [
+
+    ],
+    lesson: {
+problem: "Без этой темы инфраструктура живёт как ручные снежинки: никто не может воспроизвести окружение, заревьюить изменение или понять, почему у одного сервера открыт порт, а у другого нет; правки в консоли молча расходятся с тем, что записано в файлах.",
+model: "Terraform и OpenTofu — движок согласования: из декларативного описания он строит DAG желаемого состояния, сравнивает его со снимком реальности (state) и с самой реальностью (refresh), вычисляет минимальную дельту, предъявляет её как контракт (plan) и исполняет через провайдеры-плагины по gRPC, идёмпотентно при каждом прогоне.",
+mechanics: "Трёхстороннее сравнение plan: конфигурация против state против refresh-опроса API провайдера; классификация действий плана на create, update in-place и replace по ForceNew-метаданным схемы провайдера; неявный вывод зависимостей из ссылок в выражениях, топологическая сортировка и параллельная обработка независимых ветвей графа; state как mapping конфигурационных адресов на реальные идентификаторы облака плюс кэш и метаданные зависимостей; удалённый бэкенд с блокировкой вместо локального файла; count для условного создания против for_each со стабильными строковыми ключами; модули как параметризуемые функции над инфраструктурой с SemVer; декомпозиция state по границам команд, окружений и скоростей изменения; lifecycle-контроли: create_before_destroy, prevent_destroy, ignore_changes, replace_triggered_by; декларативный рефакторинг через блоки moved и import; план как контракт между plan и apply; ephemeral-значения для секретов, не попадающих в state.",
+pitfalls: [
+  "Хранить state в git: там секреты открытым текстом, а параллельная запись без блокировки ломает файл.",
+  "Редактировать ресурсы руками в консоли: это дрифт, который всплывает чужим планом.",
+  "Читать HCL как императивный скрипт сверху вниз: порядок исполнения диктует граф зависимостей, а не строки файла.",
+  "Использовать count для наборов из середины которых удаляют элементы: индексы сдвигаются и Terraform пересоздаёт хвост; нужен for_each.",
+  "Считать план консультацией: между просмотром и apply реальность меняется — в автоматизации сохраняйте план в файл и применяйте именно его.",
+  "Ставить provisioners как норму: они императивны, непредсказуемы и оставляют ресурс tainted; настройку уносите в образы или cloud-init.",
+  "Собирать модуль-обёртку вокруг одного ресурса или модуль с полсотней проброшенных насквозь переменных: слой косвенности без абстракции.",
+  "Резать систему на вложенные модули глубже двух-трёх уровней: отладка выражения через четыре интерфейса мучительна.",
+  "Писать конфигурацию, где count и for_each зависят от значений known after apply: план уже не может определить количество ресурсов."
+],
+whenNot: "Не тяните модель plan и apply туда, где нужен непрерывный reconciliation в стиле Kubernetes с контроллерами и собственными операторами, а также туда, где вся конфигурация уже живёт в иммутабельных образах и описывается другой системой — Terraform там станет вторым слоем правды."
+    },
+  },
+];
+
+const goGoroutineSchedulerGcTopics: readonly TopicCard[] = [
+  {
+    id: "go-goroutine-scheduler-gc-full",
+    title: "Go for High-Performance Cloud Services",
+    summary: "Go occupies a deliberate optimum in cloud infrastructure: the G-M-P scheduler and netpoller make blocking-style code scale, the concurrent GC trades total CPU for sub-millisecond pauses, and static single-binary deployment compounds at organizational scale. Each layer is tuned for the same target — I/O-bound, container-deployed services — which is why the modern cloud's control plane is written in it.",
+    concepts: [],
+    practicePrompt: "Write a small HTTP service in Go, deliberately add a goroutine that blocks forever on a channel, then run it under load and pull the goroutine profile from pprof to find the leak. Check: reduce hot-path allocations with sync.Pool and preallocation, run your test suite under -race, and observe how GOMEMLIMIT changes container behavior on a real deployment.",
+    checkPrompt: "From memory, reproduce the G-M-P scheduler model including work stealing and what happens to M and P when a goroutine blocks on a syscall; explain why an unbuffered channel send establishes a happens-before edge; justify why Go's GC targets pause time rather than throughput and what GOGC and GOMEMLIMIT each tune; describe the characteristic goroutine leak and the errgroup plus context discipline that prevents it.",
+    tier: 1,
+    complexity: 4,
+    references: [
+
+    ],
+    lesson: {
+problem: "Without this topic, a networked service either pays megabytes-per-thread costs that make 100,000 connections impossible, or shatters into callback fragments — the stack-ripping style — and tail latency stays mysterious; language choices then get justified by folklore instead of mechanism.",
+model: "Go occupies a deliberate optimum: near systems-language I/O scalability with a fraction of the cognitive and operational overhead. Its runtime multiplexes cheap goroutines onto few OS threads via a G-M-P scheduler with work stealing and an integrated netpoller; its concurrent, tri-color mark-and-sweep GC trades compaction and total CPU for sub-millisecond pauses; it compiles to a single static binary. Every layer — scheduler, GC, compiler, deployment, profiling toolchain — is tuned for the same target: I/O-bound, massively parallel, container-deployed services. Alignment is the summary.",
+mechanics: "G-M-P scheduling: each P keeps a local run queue and idle Ps steal work, avoiding one contended global lock; on a blocking syscall the runtime detaches the M from its P and hands the P to another thread, so blocking I/O never idles the machine; the netpoller (epoll, kqueue, IOCP) turns straight-line blocking code into event-driven execution underneath; an unbuffered channel send is a rendezvous that creates a happens-before edge in the formally specified memory model; the concurrent tri-color mark-and-sweep collector with write barriers holds stop-the-world pauses under a millisecond, tuned by GOGC (heap growth target) and GOMEMLIMIT (soft ceiling against cgroup OOM kills, since Go 1.19); escape analysis (go build -gcflags=-m) routes values between stack and heap, and allocation avoidance — sync.Pool reuse, preallocated slices, fewer boxed interfaces — yields order-of-magnitude wins; deployment economics: statically linked binary, FROM scratch images, GOOS/GOARCH cross-compilation for mixed x86 and ARM fleets; the profiling stack: pprof over net/http/pprof for CPU, heap, and goroutine profiles, go tool trace for scheduler and GC phases, go test -race on ThreadSanitizer for data races, testing.B plus benchstat for sound benchmarks.",
+pitfalls: [
+  "Forcing every shared-state problem through channels: idiomatic Go uses channels for ownership transfer, pipelines, and signaling, but sync.Mutex or sync/atomic for shared state and hot counters.",
+  "Treating sync.Pool as a general cache: it only helps values reused in hot paths between GCs, and its contents can be dropped at any time.",
+  "Assuming every blocking call parks cheaply: cgo calls and some syscalls can pin a whole OS thread.",
+  "Tuning the GC as if it were a throughput collector: there is no compaction, fragmentation is fought by a size-segregated tcmalloc-derived allocator, and GOMEMLIMIT is a soft ceiling that can still be exceeded.",
+  "Leaving goroutines with no owner: one blocked receive on a channel nobody closes leaks a goroutine forever; use errgroup and context cancellation.",
+  "Choosing Go for hard-real-time or huge-heap lowest-latency workloads like HFT: the GC ceiling is real, even though CockroachDB and Prometheus show it sits high.",
+  "Declaring code race-free because tests pass plainly: races are only likely to be caught under go test -race, which should run on every suite."
+],
+whenNot: "Not the fit for absolute lowest-latency huge-heap systems (HFT, some databases), for GPU-heavy numerical compute, for domains where you need Rust-style static proof of the absence of data races, or for scripting-style glue where startup language ergonomics matter more than deployable single binaries."
+    },
+  },
+];
+
+const saintPetersburgDeepMapTopics: readonly TopicCard[] = [
+  {
+    id: "saint-petersburg-deep-map-full",
+    title: "Saint Petersburg: A Reader's Deep Map of Russia's Deliberate City",
+    summary: "A deep map of Saint Petersburg built from its load-bearing words and layers: the decreed founding on marsh, the political chronicle of its names, granite embankments and well courtyards, the peterburgsky tekst, revolution and the 872-day siege, and the modern high-rise periphery.",
+    concepts: [],
+    practicePrompt: "Draw a timeline of the city's four names with their date ranges and the events that forced each rename, then memorize the Russian vocabulary list: five river-and-stone words, five hidden-city words, and the concept of the Petersburg text — and retell the city's story using only those terms. Check yourself: you should be able to explain from memory why the city was founded where it could not exist, what the Bronze Horseman poem already contains of the whole tradition, and what dvor-kolodets, blokada, and chelovejnik each mean.",
+    checkPrompt: "Reproduce from memory: the founding logic (1703, Peter I, Ingria, window to Europe, city built on bones), the name timeline Sankt-Peterburg 1703-1914, Petrograd 1914-1924, Leningrad 1924-1991, back to Sankt-Peterburg, plus Piter as the insider nickname; the four architectural eras from Petrine Baroque through Soviet layers and the ensemble principle under the height limits; the plot of The Bronze Horseman and the meaning of peterburgsky tekst; the dates and human cost of Bloody Sunday, the two revolutions of 1917, and the 872-day siege with the Road of Life.",
+    tier: 1,
+    complexity: 4,
+    references: [
+
+    ],
+    lesson: {
+problem: "Without this framework, Saint Petersburg collapses into a guidebook list of palaces and canals: the visitor cannot say why the city feels theatrical and unnatural, why its literature is so dark, or how the center relates to the concrete high-rises across the border.",
+model: "The city is read as a deliberate, willed artifact — a capital decreed against geography — whose founding logic, artificiality, and layered renaming explain everything else: its ruler-and-compass geometry, its hidden courtyards behind parade facades, its white nights and floods, its architecture as legible layers, its literature as a single super-text (the peterburgsky tekst), its revolutions and siege as wounds, and its modern sprawl as the newest version of facade-versus-reality.",
+mechanics: "The founding gesture: Peter I decrees a port and a Europe-facing capital on captured marsh in 1703, the capital from 1712, built at catastrophic human cost — the city built on bones; the name timeline as political chronicle — Sankt-Peterburg honoring Saint Peter, Petrograd as a Slavicized wartime calque in 1914, Leningrad as the shrine-city of the revolution in 1924, the 1991 referendum restoration with Leningrad Region kept, and the insider nickname Piter; geography as ideology: the Neva delta of ostrova, granite naberezhnaya embankments from the 1760s, prospekts radiating from the Admiralty spire versus Moscow's organic rings; the hidden city: dvor-kolodets well courtyards, paradnaya versus podyezd, porebrik versus bordyur, shaverma, kommunalka, the 1824 flood; climate as protagonist: white nights, razvod mostov bridge raising, the grey-sky default state at almost 60 degrees north; architecture as walkable strata: Trezzini's Petrine Baroque, Rastrelli's Elizabethan Baroque and the Winter Palace, Neoclassicism and the Empire style of Zakharov, Rossi, Montferrand, the ensemble principle and the horizontal skyline, Moderne, Constructivism, Stalinist monumentalism; the peterburgsky tekst: Toporov's concept, Pushkin's Bronze Horseman, Gogol's Nevsky Prospekt and The Overcoat, Dostoevsky's most abstract and intentional city, Bely's Petersburg; revolution and siege chronology: Bloody Sunday 1905, February and October 1917, the Aurora myth made by Eisenstein, the capital's move to Moscow in 1918, the 872-day blokada with the Road of Life; the contemporary contrast: UNESCO-listed low center versus Kudrovo and Murino high-rise sprawl, the word chelovejnik, the deepest-metro stations, the cultural-capital institutions from Hermitage to the Leningrad Rock Club and Tsoi.",
+pitfalls: [
+  "Assuming the city was named after Peter the tsar: strictly it honors his heavenly patron, Saint Peter the Apostle.",
+  "Thinking Petersburg grew like other capitals: it was decreed on unsuitable marsh; organic-growth intuition misleads everywhere here.",
+  "Mixing up which name covered which era: Petrograd is the wartime 1914-1924 name, Leningrad 1924-1991, restored since 1991 while Leningrad Region remains on the map.",
+  "Missing dual power in 1917: the Provisional Government and the Petrograd Soviet overlapped in the same city and even the same building.",
+  "Believing the Winter Palace storming of film myth: the October seizure was low-casualty and chaotic, and the heroic version was largely made by Eisenstein's cinema.",
+  "Dating the four-century Romanov end to the wrong year: February 1917 ends three centuries of rule — a week of bread riots and mutiny, not a decade of war.",
+  "Reducing the siege to a number: the dead were mostly civilians starved in the first winter, the ration fell to 125 grams of cellulose-padded bread, the surviving generation is called blokadnik.",
+  "Reading the architecture as isolated masterpieces: the ensemble principle and height limits keyed to the Winter Palace make the skyline, not single buildings.",
+  "Skipping insider shibboleths: paradnaya, porebrik, and shaverma are genuine local-identity markers, not trivia.",
+  "Forgetting the modern periphery: Kudrovo and Murino and the word chelovejnik are the newest layer of the facade-versus-reality theme."
+],
+whenNot: "A chronological art catalog or a general history of Russia will not reproduce the city's logic; the deep-map lens also does not substitute for practical travel logistics or for suburban palace residences outside the city proper."
+    },
+  },
+];
+
+const louisArmstrongFirstPrinciplesTopics: readonly TopicCard[] = [
+  {
+    id: "louis-armstrong-first-principles-full",
+    title: "Louis Armstrong from First Principles: New Orleans Grammar, the Hot Five Records, and How a Soloist Became the Subject",
+    summary: "Louis Armstrong: a concepts-and-vocabulary guide, from basics to advanced",
+    concepts: [],
+    practicePrompt: "Включите запись «West End Blues» 1928 года и разберите её по элементам: найдите на слух каденцию, брейки, хорусы и терминальное вибрато. Затем письменно объясните, почему стоп-тайм в последнем припеве «Potato Head Blues» превращает соло в драму, и сверьте свой разбор с текстом урока.",
+    checkPrompt: "По памяти воспроизведите словарь эры Армстронга: каденция, брейк, стоп-тайм, хорус, скэт, блю-ноты, свинговые восьмые, two-beat против four-beat, обязательная линия и tailgate-тромбон, AABA с turnaround, терминальное вибрато. Затем изложите главный аргумент эссе: почему после Hot Five джаз стал искусством солиста, а не ансамбля, и какую роль в этом сыграли фонограф и брошюры 1927 года с расшифрованными соло.",
+    tier: 1,
+    complexity: 4,
+    references: [
+
+    ],
+    lesson: {
+problem: "Без словаря эры Армстронга — каденции, брейков, стоп-тайма, скэта, блю-нотов и терминального вибрато — его записи складываются в приятный старый шум: вы слышите, что «West End Blues» велик, но не можете сказать, почему, и шарнир, на котором повернулась история джаза, остаётся невидимым.",
+model: "Армстронг усвоил коллективную грамматику Нового Орлеана — корнет-лид, кларнет-облигато, tailgate-тромбон над рэгтайм-стрейнами и двенадцатитактовым блюзом, брейки и two-beat, растущий в four-beat, — и превратил импровизированный хорус в композицию: вступление, развитие, кульминация, развязка. Записи Hot Five и Hot Seven 1925–1928 годов — лаборатория этого переворота, а «West End Blues» с его каденцией и вокально-трубным диалогом — парадный экспонат; приём синтеза пел и играл, как пел, и его инструментальные фразы дышали, как вокальные. С тех пор запись стала консерваторией джаза, а солист — главным героем музыки.",
+mechanics: "Вокабуляр формы: каденция (вступление без оркестра), брейк (все молчат два такта), стоп-тайм (ритм-секция дёргает аккорды раз в два такта — приём из степа), хорус (проход через форму), AABA и turnaround как взлётная полоса для входа солиста. Две техники звука: терминальное вибрато (прямая нота, вибрато распускается лишь к концу) и вокализация атаки — всё, что у него мельчит, вибрирует и «глотает», пришло из голоса. Две записи-экспоната: «West End Blues» — каденция как декларация и диалог кларнета со скэтом как call-and-response, финальное си-бемоль как кульминация; «Potato Head Blues» — стоп-тайм как учебный пример ритмической свободы против сетки. Два исторических сдвига: two-beat в four-beat и одиночный импровизатор как субъект; фонограф (вплоть до плавки пластинок новичками и брошюр «50 Hot Choruses» 1927 года) делает соло текстом для изучения.",
+pitfalls: [
+  "New Orleans jazz, dixieland и hot jazz — не синонимы: dixieland несёт печать белой ODJB и формульного возрождения 1940-х, ярлык, который Армстронг не любил.",
+  "Вступление «West End Blues» — каденция, а не брейк: ничего ещё не началось; и не стоп-тайм, потому что никто не аккомпанирует.",
+  "Хроники легенды о «Heebie Jeebies» 1926 года (упавшая лирика) не подтверждены; скэт старше Армстронга.",
+  "«Potato Head Blues» — не блюз на twelve bars, несмотря на название: главная секция — тридцатидвухтактная песенная форма.",
+  "Дата рождения — 4 августа 1901 года, бапт record, найденный Тэда Джонса; 4 июля 1900 года — из старых книг.",
+  "1923-й Creole Jazz Band — коллективная полифония, а не сольное искусство; Hot Five — студийная группа, Hot Seven 1927-го добавил бас-тубу из-за акустической рупорной записи.",
+  "Записи 1928 года (с Эрлом Хайнсом) — не прежний квинтет, хотя лейбл тот же.",
+  "Лучшие хорусы оттачивались от перформанса к перформансу: соло звучат как композиции не потому, что случайны, а потому, что они выработаны.",
+  "Эпитет «Pops» и «Satchmo» как брэнд — история 1932 года с гэду «Hello, Satchmo», рассказанная как легенда; не факт."
+],
+whenNot: "Гайд сознательно ограничен эрами Armstrong: он не учит гармонии бибопа, аранжировкам свин-эры, деталям дискографии или классической медной технике; для этих целей нужен другой текст."
+    },
+  },
+];
+
+const ragFirstPrinciplesTopics: readonly TopicCard[] = [
+  {
+    id: "rag-first-principles-full",
+    title: "Retrieval-Augmented Generation through the eyes of a Russian developer: the vocabulary, the mechanics, the arguments",
+    summary: "If you sit in on a stand-up at any Moscow or Yerevan-relocated ML team today, you will hear a strange dialect: a Russian grammatical skeleton wearing English technical flesh. \"Надо перечанковать документы, эмбеддинги уехали, ретривер тащит мусор, реранкер не спасает.\" Translated: we need to re-chunk the documents, the embeddings drifted, the retriever is pulling garbage, the reranker isn't saving us. …",
+    concepts: [],
+    practicePrompt: "Вёрстка мини-RAG вручную: 30 документов, чанкинг по границам абзацев, эмбеддинги multilingual-e5, Qdrant, BM25 как sparse-половина гибрида, RRF, кросс-энкодер на топ-50, инструкция «отвечай только по контексту» с цитированием. Затем сломайте систему двумя способами из текста — смените модель эмбеддингов (сценарий «эмбеддинги уехали») и уберите нужный чанк из топ-50 (сценарий «реранкер не спасает») — и запишите, какую диагностику (recall или precision) вы запускаете в каждом случае.",
+    checkPrompt: "По памяти зарисуйте пайплайн RAG в две фазы: офлайн (парсинг, чанкинг fixed/recursive/semantic/parent-child, эмбеддер, HNSW с параметрами M и ef_search, метаданные) и онлайн (кодирование запроса той же моделью, плотный поиск плюс BM25, RRF, реранкер-кросс-энкодер, промпт с цитированием, генерация). Затем одним предложением на приём: multi-query, HyDE, step-back, декомпозиция, роутинг, contextual retrieval, сжатие контекста, self-RAG/CRAG, agentic RAG, GraphRAG, мультимодальный ColPali; и метрики: recall@k, MRR, nDCG, faithfulness против золотого набора.",
+    tier: 1,
+    complexity: 4,
+    references: [
+
+    ],
+    lesson: {
+problem: "Без этого словаря разговор о RAG распадается: команда говорит «перечанковать», «эмбеддинги уехали», «реранкер не спасает», а вы не можете ни понять, что именно сломано, ни отличить ошибку поиска от ошибки генерации, ни прочитать половину практических материалов — англоязычные статьи и русские каналы пользуются разными словами для одной и той же вещи.",
+model: "RAG — это классическая информационно-поисковая система с LLM в роли финального слоя представления. Офлайн: парсинг, чанкинг (fixed-size, рекурсивный, семантический, parent-child), эмбеддинги (для русского — multilingual-e5, BGE-M3, sbert_large_nlu_ru, бенчмарк ruMTEB), векторная база с ANN-индексом HNSW (слоистый граф, параметры M и ef_search, торговля recall против latency) или IVF/PQ. Онлайн: запрос кодируется той же моделью, гибридный поиск объединяет плотную выдачу с BM25 через RRF, кросс-энкодер переранжирует кандидатов, промпт собирается с контекстом, цитированием и инструкцией «отвечай только по контексту», а генерация измеряется по faithfulness и релевантности против золотого набора. Диагностика всегда начинается с вопроса «в каком слое ошибка»: ретривер принёс не то — это recall; генератор плохо прочитал правильное — это precision и верность контексту.",
+mechanics: "Гранулярность запросов диктует размер чанка; parent-child индексирует мелкое для поиска, отдаёт LLM крупный родитель для контекста. Модель эмбеддингов у запроса и у документов обязана быть одной и той же: смена модели — принудительная переиндексация всего. Гибридный поиск нужен, потому что плотный вектор слеп к точным строкам (коды ошибок, статьи, фамилии): BM25 чинит именно это, а для русского обязательна лемматизация (pymorphy, Snowball), иначе формы слова «договор» не склеятся в одно слово. Роли у би-энкодера и кросс-энкодера разные: би-энкодер быстр и глуп, читает порознь; кросс-энкодер точен, но дорог — поэтому retrieve-50, rerank-to-5. Структура промпта: LLM читает лучше начало и конец длинного контекста («Lost in the Middle»), порядок чанков важен; длинное окно не отменяет поиск — сжимает стог сена, а не убирает его.",
+pitfalls: [
+  "Индексация начинается с парсинга: таблицы, потерянные заголовки и OCR-ошибки на кириллических сканах отравляют всё ниже по потоку.",
+  "Англоцентричные эмбеддеры плохо трактуют кириллицу; русский корпус — это ruMTEB и мультиязычные модели, а не английский лидерборд.",
+  "Смена модели эмбеддингов без переиндексации — классическая авария: старые вектора и новые запросы живут в разных пространствах.",
+  "Гибридный поиск без лемматизации: формы слова «договор» у токенизатора разные; типовой провал — английский анализатор в Elasticsearch.",
+  "Реранкер спасает от шума в выдаче, а не от отсутствия: если нужного чанка нет в top-50, переоценка порядка бессильна (recall, не precision).",
+  "Больше контекста — не лучше: LLM теряет середину, и рост окна удорожает каждый запрос.",
+  "LLM-судья систематически снисходителен к многословности и к моделям своей семьи; метрики нужно калибровать руками.",
+  "Разграничение доступа на уровне ретривера — самое частое enterprise-дырка: семантическая близость без прав поднимет чужому сотруднику чужие документы.",
+  "Промпт-инъекция через найденные документы — реальная поверхность атаки: ваша база знаний становится противником."
+],
+whenNot: "Текст не про файнтюнинг, не про выбор LLM и не про агентные фреймворки без поиска: всё это упоминается лишь по касательной. Он и не про классический поисковый движок без генератора — вся механика здесь про корпус документов, который надо найти и подать генератору с гарантиями против выдумок."
+    },
+  },
+];
+
+const cloudNativeWorkingVocabularyTopics: readonly TopicCard[] = [
+  {
+    id: "cloud-native-working-vocabulary-full",
+    title: "Cloud-Native Architecture: A Working Vocabulary from First Principles to the Frontier",
+    summary: "A system is cloud-native not because it runs on someone else's computers but because it is designed around the assumptions of the cloud: infrastructure is ephemeral and programmable, failure is normal rather than exceptional, capacity is elastic and metered, and the unit of deployment is small and independently replaceable. Everything else in this vocabulary — containers, orchestration, networking, storage, identity, delivery — follows from that shift.",
+    concepts: [],
+    practicePrompt: "Спроектируйте на бумаге сервис из трёх зон доступности: Kubernetes-кластер, управляемая Postgres, очередь, объектное хранилище — и подпишите каждую стрелку словарём эссе (регионы и AZ как домены отказа, поды и Deployment, Service и Ingress, VPC и подсети, at-least-once плюс идемпотентные потребители, SLI/SLO/бюджет ошибок). Затем напишите историю двух аварий — потеря AZ и плохой деплой — и для каждой укажите, какой паттерн (репликация по зонам, canary, bulkhead, cell-based architecture) ограничивает радиус поражения и где наивные ретраи усилили бы сбой.",
+    checkPrompt: "По памяти воспроизведите лестницу решений: IaaS — PaaS — FaaS и линия shared responsibility; compute от цен VM (on-demand, reserved, spot) через контейнеры и объекты Kubernetes (pod, Deployment, StatefulSet, Service, Ingress, reconciliation loop, Operator/CRD) до serverless с его cold starts; три формы хранения (object, block, file); словарь распределённости (CAP и PACELC, кворумы, линейность против eventual, идемпотентность); очередь-топик-лог как примитивы с семантикой доставки; IAM least privilege и workload identity; три сигнала наблюдаемости и error budget; декларативность и drift против GitOps; resilience-набор (таймауты, джиттер в ретраях, circuit breaker, bulkhead) и DR через RTO/RPO.",
+    tier: 1,
+    complexity: 4,
+    references: [
+
+    ],
+    lesson: {
+problem: "Облачные платформы выглядят как гигантские мешки с маркетинговыми существительными: новички либо заучивают названия сервисов без модели за ними, либо переносят в облако онпремисные привычки — «питомцев» вместо скота, периметровое доверие, латание живых серверов, — и именно это, а не экзотические отказы, объясняет большинство инцидентов: неправильно понятые домены отказа, линия общей ответственности и ретраи без бюджета.",
+model: "Cloud-native — это не адрес хостинга, а дизайн-постулат: инфраструктура эфемерна и программируема, отказ — норма, ёмкость упругая и метрируемая, единица деплоя мала и заменяема независимо; серверы — не питомцы, а скот. Из постулата вырастает весь словарь: регионы и зоны доступности как вложенные домены отказа (минимум три зоны ради кворума); лестница вычислений от VM с их on-demand/reserved/spot через контейнеры к Kubernetes, где декларативный YAML правится контроллерами через reconciliation loop, и до serverless с cold starts; софт-дефайн ткань сети (VPC, балансировщики, service mesh с sidecar); три формы покоящихся данных (object, block, file) с polyglot persistence; очереди, топики и лог-стримы, развязывающие сервисы во времени, с честной семантикой at-least-once плюс идемпотентность; identity везде с least privilege, временными креденшелами workload identity и zero trust; наблюдаемость как metrics-logs-traces под управлением SLI, SLO и error budget; и декларативная доставка — IaC против drift, progressive delivery (blue-green, canary), GitOps с Git как единственным источником истины.",
+mechanics: "Домены отказа вложены: AZ < region < мир; дизайн начинается с трёх зон и кворума, multi-region добавляет цену скорости света и компромиссы согласованности. Kubernetes превращает императивные операции в декларацию желаемого состояния, которую контроллеры непрерывно сближают с фактическим — тот же приём GitOps применяет к поставке. Данные хранятся по паттерну доступа: object-хранилище для неизменяемых блобов и классов хранения, block и file — только когда без них нельзя, назначение хранилища под каждый сервис. Сообщения: очередь — одному потребителю, топик — многим, лог-стрим — переигрываемая история партий; exactly-once — это at-least-once плюс идемпотентные потребители, а саги с компенсациями заменяют двухфазный коммит. Resilience — это не надежда, а набор: таймауты, ретраи с экспоненциальной задержкой и джиттером (наивные ретраи усиливают аварию), circuit breakers, bulkheads, load shedding, graceful degradation, cell-based архитектура, static stability и chaos engineering для проверки всего этого эмпирически.",
+pitfalls: [
+  "Большинство облачных брешей — по вашу сторону линии shared responsibility: данные, идентичности, конфигурация, а не физика провайдера.",
+  "Spot-инстансы дёшевы ровно потому, что их могут отобрать: нагрузка обязана тихо переживать потерю машины — иначе это не cloud-native.",
+  "Горячие партиции: перекошенные ключи плавят один шард DynamoDB; доступ проектируется вокруг partition key заранее.",
+  "Exactly-once delivery — маркетинг: правда at-least-once плюс идемпотентные потребители, иначе дубли зарплат и двойные списания.",
+  "Наивные ретраи без джиттера и бюджета превращают локальную деградацию в полный отказ усилием самих клиентов.",
+  "Service mesh по умолчанию — тяжёлая привычка: оправдан, когда есть конкретная проблема, а не «как у взрослых».",
+  "Ручные правки через консоль порождают drift — расхождение между декларированным и фактическим состоянием.",
+  "Автоскейлинг не спасает при потере AZ, если система не статически стабильна и не держит заранее выделенную ёмкость.",
+  "Стоимость — не бухгалтерия, а сигнал: юнит-экономика часто первая показывает архитектурный дефект."
+],
+whenNot: "Это словарь и карта паттернов, а не учебник: здесь нет пошаговых туториалов по конкретным провайдерам, расчётов ёмкости, пути изучения Kubernetes с нуля, комплаенс-деталей (PCI и подобные) и спора о том, начинать ли с монолита — микросервисность здесь принята как данность."
+    },
+  },
+];
+
+const pythonAiMlWorkingVocabularyTopics: readonly TopicCard[] = [
+  {
+    id: "python-ai-ml-working-vocabulary-full",
+    title: "Python for AI/ML Services: A Working Vocabulary, from First Principles to Production",
+    summary: "What follows is a guided tour of the words and ideas you need in order to build, read, and reason about Python services that serve machine learning models, with FastAPI and asynchronous programming as the spine. It is written so that a newcomer can follow the thread from beginning to end, while an experienced engineer can skim for the sharp edges. Where there is a trap that people fall into in practice, it is named explicitly. …",
+    concepts: [],
+    practicePrompt: "Соберите минимальный честный FastAPI-сервис: модель-заглушка загружается в lifespan, warm-up при старте, readiness отдаёт 200 только после прогрева, /predict гоняет инференс через asyncio.to_thread под Semaphore. Добавьте динамический батчинг поверх asyncio.Queue (max batch и max wait) и напишите тест с dependency_overrides, где фейковая модель подменяет настоящую. Сверьте каждое решение с руководством: не блокируете ли вы цикл между await, осознанно ли выбрали sync def против async def, ограничили ли очередь и где у вас бэкпрешер.",
+    checkPrompt: "По памяти объясните несущие конструкции CPython: GIL растёт из подсчёта ссылок; потоки дают переплетение, а не параллелизм — кроме кода в GIL-releasing расширениях (NumPy, PyTorch, tokenizers); процессы дают настоящий параллелизм чистому Python-коду. Затем словарь asyncio: await — единственная точка переключения, blocking the event loop — причина номер один (p99 растёт с конкурентностью, CPU простаивает), TaskGroup и отмена как cooperative, семафоры и bounded queues как явная ёмкость. И продакшен-словарь: модель — синглтон в lifespan и warm-up против readiness/liveness, динамический батчинг, thread oversubscription (OMP_NUM_THREADS и TOKENIZERS_PARALLELISM), единственный httpx-клиент с таймаутами, идемпотентные ключи, SSE и отключение буферизации прокси, структурные логи с request ID, перцентели вместо средних и ASGITransport с dependency_overrides для тестов.",
+    tier: 1,
+    complexity: 4,
+    references: [
+
+    ],
+    lesson: {
+problem: "Без этого словаря ML-сервис — демо, падающее под реальным трафиком: блокирующий вызов замирает весь event loop, четыре воркера молча держат четыре копии модели, от потоков ждут параллелизма, которого GIL не даёт, а первая серьёзная нагрузка превращает latency в мистику — потому что слова GIL, event loop, blocking, backpressure, batching и warm-up не были частью проектного разговора.",
+model: "Сервис строится вокруг реальной модели исполнения CPython. GIL существует из-за подсчёта ссылок, поэтому потоки дают конкурентность (чередование), а не параллелизм — кроме работы внутри GIL-releasing расширений вроде NumPy или PyTorch; настоящий параллелизм чистому Python дают процессы. asyncio — это один поток и один цикл: сопрограмма — приостановленное вычисление, await — единственная точка переключения, и любой блокирующий вызов между await держит все остальные запросы в заложниках, поэтому ремесло в том, чтобы держать цикл свободным (to_thread, пулы, семафоры) и представлять реальную ёмкость явно. FastAPI читает тип-hint'ы в рантайме и из них выводит валидацию, документацию, dependency injection и выбор между sync и async endpoint'ами; модель загружается один раз в lifespan, прогревается, gate читает readiness, а пропускная способность GPU добирается динамическим батчингом; контракт эксплуатации — структурные логи с request id, персентильные метрики, трассировка OpenTelemetry, пиннутые зависимости и graceful shutdown — делает сервис скучным в продакшене, что и есть высшая похвала.",
+mechanics: "GIL — следствие refcounting; исключение — C-расширения, отпускающие GIL (NumPy в больших операциях, PyTorch при тензорных ядрах и GPU-вызовах, tokenizers на Rust при батч-энкодинге), поэтому «GIL-bound ли ваш инференс» решается измерением доли C-времени в горячем пути. Task — сопрограмма, поставленная в расписание; TaskGroup (3.11) даёт структурную конкурентность и складывает ошибки в ExceptionGroup; отмена кооперативная — глотать CancelledError нельзя, иначе ломаются таймауты и graceful shutdown. Блокировка цикла — главный async-антепаттерн: time.sleep, requests или тяжёлый json.dumps между await замораживают все запросы; лечение — asyncio.to_thread, executors, а sync def endpoint'ы FastAPI гоняет в дефолтном пуле AnyIO на сорок потоков. Модель — синглтон на процесс: загрузка в lifespan (не на импорте), warm-up до readiness, изоляция или блокировка для состояния (KV-кэш, токенизатор с состоянием); пропускная способность GPU — очередь плюс Future плюс маленькое окно ожидания (динамический батчинг), а semaphore размером с реальные реплики или потоки GPU — честное представление ёмкости. Один переиспользуемый httpx.AsyncClient с явными таймаутами (connect/read/write/pool), ретраи с джиттером, идемпотентные ключи для неидемпотентных операций, aiolimiter для исходящих квот; SSE через text/event-stream и X-Accel-Buffering: no, остановка генерации при отключении клиента.",
+pitfalls: [
+  "Вызов async-функции без await создаёт классическое «coroutine was never awaited» — ничего не выполнилось.",
+  "time.sleep, requests или синхронный драйвер между await'ами морозят весь event loop; диагностический сигнал — p99 растёт с конкурентностью, а CPU почти простаивает.",
+  "Четыре воркера — четыре копии модели в RAM; для GPU — один процесс на карту или очередь, а не N процессов за одинаковые веса.",
+  "Примитивы asyncio (Lock, Semaphore, Queue) координируют сопрограммы одного цикла; они не потокобезопасны между воркерами.",
+  "Брошенный create_task может быть собран GC в полёте; храните задачи или используйте TaskGroup.",
+  "Передача больших массивов через границу процесса — это pickle: дорого для массивов, невозможно для CUDA-тензоров и открытых соединений.",
+  "BackgroundTasks умирают с процессом — это не очередь задач; для длинных работ нужен Celery/arq и job id для поллинга.",
+  "Прокси буферизуют по умолчанию и превращают SSE-поток в одну задержанную каплю; выключается X-Accel-Buffering: no.",
+  "Пер-процессные кэши и functools.lru_cache исчезают при рестарте и дублируются на каждый воркер; общий кэш — Redis, а stampede лечится single-flight на ключ."
+],
+whenNot: "Гайд про питоновский слой выдачи, а не про обучение моделей, CUDA-ядра, Kubernetes-эксплуатацию, дата-инженерию или внутренности трансформеров; и он не про распределённые паттерны вне границы запроса — те лишь упомянуты по касательной."
+    },
+  },
+];
+
+const postgresqlAnatomyTopics: readonly TopicCard[] = [
+  {
+    id: "postgresql-anatomy-full",
+    title: "Анатомия PostgreSQL: кортежи, снимки и журнал",
+    summary: "От файлов к СУБД-архитектуре: почему простые файлы не гарантируют долговечность и целостность, и как устроен PostgreSQL — postmaster и буферный кэш, отношения и кортежи, ACID и MVCC со снимками, уровни изоляции, WAL, VACUUM и bloat, B-tree через EXPLAIN.",
+    concepts: [],
+    practicePrompt: "Разыграйте по памяти сценарий UPDATE одной строки: что происходит с версиями кортежа (xmin, xmax, ctid-цепочка), что попадает в WAL и в какой момент COMMIT возвращает успех, какой мусор остаётся на страницах и что его убирает. Затем словами сформулируйте правило видимости через снимок и проиграйте три исхода конкурента-update (ещё выполняется, зафиксировался, откатился) — сверьте свой разбор с текстом.",
+    checkPrompt: "По памяти напишите: устройство страницы и heap-файла; правило видимости версии (xmin/xmax + снимок + pg_xact/hint bits); чем Read Committed отличается от Repeatable Read и Serializable (когда делается снимок, ошибка 40001 и повтор, write skew и предикатные блокировки SSI); зачем WAL, контрольная точка и full page write; что делает VACUUM (мёртвые версии, карта видимости, горизонт, заморозка против wraparound); и когда планировщик выбирает Seq Scan, Index Only Scan, bitmap scan — что именно показывают EXPLAIN и EXPLAIN ANALYZE.",
+    tier: 1,
+    complexity: 4,
+    references: [
+
+    ],
+    lesson: {
+problem: "Без механизмов внизу PostgreSQL выглядит как чёрный ящик с капризами: UPDATE одного байта распухает таблицу, чтение порождает запись на диск, забытая транзакция делает базу необслуживаемой, а через полгода счётчик транзакций однажды «обойдёт круг» — и каждый такой сюрприз это MVCC, WAL или горизонт, о которых никто не подумал.",
+model: "PostgreSQL не меняет строки на месте: INSERT пишет новую версию, DELETE проставляет xmax (он же — метка блокировки строки), UPDATE — это DELETE плюс INSERT с копией всей строки, а статусы транзакций живут в pg_xact с hint bits в заголовках. Видимость решает правило через снимок: версия видна, если создатель (xmin) зафиксирован до снимка, а удаливший (xmax) отсутствует или не виден; отсюда читающие никогда не блокируют пишущих, откат почти бесплатен (undo-журнала нет), но накапливается мусор, который выметает VACUUM, а горизонт — самый старый активный снимок — решает, что уже мертво. Долговечность обеспечивает WAL: изменение страницы в буферном кэше сопровождается последовательной записью журнала, COMMIT считается выполненным по fsync журнала, восстановление идёт от контрольной точки с полными образами страниц. Уровни изоляции — разные политики снимков и поведения на конфликте: Read Committed перечитывает и перевыбирает, Repeatable Read держит один снимок и при конфликте записи даёт 40001, Serializable (SSI) ловит write skew предикатными блокировками ценой ложных срабатываний; индексы — B-tree со ссылками на ctid, не знающие о видимости, а EXPLAIN показывает решения планировщика на статистике ANALYZE.",
+mechanics: "Всё хранение — страницы по 8 КБ: heap не упорядочен, порядок даёт только индекс; ctid — номер страницы плюс номер элемента — физический адрес кортежа. Три операции через xmin/xmax: INSERT пишет xmin, DELETE пишет xmax, UPDATE кладёт xmax на старую версию и в её заголовок — ссылку на ctid новой; отсюда UPDATE копирует строку целиком и оставляет мёртвую версию. Правило видимости: xmin видима И (xmax отсутствует ИЛИ не видима); снимок — нижняя граница, верхняя и список активных; статус в pg_xact (два бита на транзакцию), но первый SELECT после массовой вставки пишет hint bits и делает страницы грязными. WAL: грязную страницу можно писать на диск лишь после журнала до её LSN; COMMIT — fsync журнала; после контрольной точки первым изменением страницы пишется полный образ (full page write), закрывающий неатомарность оборудования; synchronous_commit жертвует долговечностью «хвоста», но не целостностью. Уровни: Read Committed — снова снимок на каждую команду и перечитывание после ожидания; Repeatable Read — снимок при первой команде (не на BEGIN), фантомов нет, конфликт записи — ошибка 40001 и обязательный повтор; Serializable — предикатные блокировки вместо ожиданий, ложные срабатывания в обмен на полноту гарантии. VACUUM чистит мёртвые версии, чистит карту видимости для index-only сканов, уплотняет и замораживает старые xmin против wraparound; bloat растёт не от выключенного вакансуума, а от долгих транзакций, держащих горизонт.",
+pitfalls: [
+  "xmax как «метка блокировки строки» — сознательное упрощение: реально существуют режимы блокировок и мультитранзакции, и в деталях оно неточно.",
+  "Снимок Repeatable Read делается при первой команде транзакции, а не на BEGIN — частая ошибка в рассуждениях.",
+  "Read Committed спасает от потерянного обновления лишь внутри одной команды; сценарий «прочитал — посчитал в приложении — записал» не защищён ничем.",
+  "UNIQUE по умолчанию считает два NULL разными: пустых значений может быть сколько угодно строк.",
+  "UPDATE копирует всю строку даже ради одного байта и оставляет мёртвую версию — источник bloat и работы для VACUUM.",
+  "Обычный VACUUM не возвращает место ОС; VACUUM FULL переписывает таблицу под исключительной блокировкой — редкий инструмент.",
+  "Забытая транзакция (idle in transaction) держит горизонт и делает VACUUM бессильным — одна из частых причин деградации.",
+  "EXPLAIN ANALYZE реально выполняет запрос; для UPDATE оборачивайте его в транзакцию с откатом.",
+  "Wraparound сервер не допустит молча: предупреждения, затем отказ в новых идентификаторах, пока не выполнена заморозка."
+],
+whenNot: "Текст сознательно об одном сервере с одной базой: репликация, partitioning, планировщик изнутри, JSONB и GIN, расширения, TOAST, детальные блокировки, права и бэкапы лишь названы; и это не руководство по тюнингу конкретной инсталляции — путь от механизмов к настройкам здесь только намечен."
+    },
+  },
+];
+
+const eventDrivenSharpEdgesTopics: readonly TopicCard[] = [
+  {
+    id: "event-driven-sharp-edges-full",
+    title: "Event-Driven Architecture: From First Principles to the Sharp Edges",
+    summary: "Start with the simplest possible picture. In a request-driven system, one component asks another to do something and waits for the answer: \"charge this card, tell me when you're done.\" In an event-driven system, a component instead announces that something has happened—\"an order was placed\"—and goes back to its business without knowing or caring who is listening. That shift, from *commanding* to *announcing*, is the whole idea. …",
+    concepts: [],
+    practicePrompt: "Sketch the dual-write bug on paper: a handler that inserts a row and then publishes an event, with both failure windows marked (publish lost after commit; event sent for a rolled-back write). Then redraw it as a transactional outbox with a relay and name the piece that must still be idempotent on the consumer side. Check: can you state from memory why at-least-once delivery plus an idempotent consumer yields effectively-once outcomes, and where the deduplication key comes from?",
+    checkPrompt: "From memory: event vs command vs message; notification vs state-transfer and domain vs integration events; Kafka as an append-only log - partitions, offsets, ordering only per key, partition-resize hazards; consumer groups, rebalances, committed offsets, consumer lag; acks and min.insync.replicas; at-most-once vs at-least-once, why exactly-once across a network is impossible, and effectively-once = at-least-once delivery + idempotent processing; DLQ vs head-of-line blocking; the transactional outbox with polling vs CDC and the mirror inbox pattern; when event sourcing and CQRS pay off and when a plain monolith is the right answer.",
+    tier: 1,
+    complexity: 4,
+    references: [
+
+    ],
+    lesson: {
+problem: "Glue services together with synchronous commands and every caller waits on every callee; bolt a broker on without understanding ordering and idempotency and you trade that for silent duplicates, lost updates and out-of-order reads you cannot reproduce in tests.",
+model: "The shift is from commanding to announcing: components publish immutable facts about the past - events named in the past tense - instead of instructing a specific service, and a broker turns point-to-point coupling into a hub. Reliability hangs off one picture, the append-only log (partitions totally ordered within, offsets, consumer groups with committed offsets), plus the honesty that exactly-once across a network is impossible: systems deliver at-least-once and consumers must be idempotent for effectively-once outcomes. The dual-write problem cannot be solved by ordering two writes cleverly, because no distributed transaction spans a database and a broker - so the transactional outbox solves it locally, and the mirror inbox pattern finishes the job on the consumer side.",
+mechanics: "Kafka orders records only within a partition chosen by hashing a key - all events for customer-42 share a partition and a total order, and raising the partition count quietly breaks ordering across the resize boundary. Consumer groups bound parallelism by partition count, track committed offsets in __consumer_offsets so independent groups read at their own speed, and consumer lag is the primary health metric; rebalances reassign partitions. acks=all with min.insync.replicas=2 on replication factor 3 lets one broker die without losing acknowledged data, while the idempotent producer's sequence numbers kill retry duplicates and transactions make multi-partition writes plus offset commits atomic - exactly-once holds only inside the Kafka ecosystem, not between Kafka and your database. The outbox pattern inserts the event into the same local transaction as the state change; a relay (polling with SELECT ... FOR UPDATE SKIP LOCKED, or Debezium CDC tailing the WAL) publishes afterwards, may republish after a crash, and that is why the outbox row's ID becomes the consumer's dedup key. Backoff with jitter, escalating retry topics and finally a DLQ keep one poison message from head-of-line blocking a partition, at the accepted cost of broken strict ordering for that key. Schemas are contracts: add only optional fields, never rename or repurpose, enforce compatibility at a registry, and carry correlation plus causation IDs in the envelope so async tracing stays possible.",
+pitfalls: [
+  "Events that are really commands to one specific downstream service - request-driven coupling wearing a costume",
+  "Assuming ordering across partitions: there is none, and OrderPlaced before OrderShipped needs a shared key",
+  "Non-idempotent consumers caught out during rebalances, restarts and timeouts - redelivery is the normal operating condition, not a corner case",
+  "Dual-writing to a database and a broker in one handler and hoping try/catch survives a crash between the two writes",
+  "Notification-only payloads that force synchronous call-backs, reintroducing exactly the coupling they were meant to remove",
+  "Raising partition counts casually and silently breaking per-key ordering across the resize boundary",
+  "Retries without backoff, jitter or a DLQ until one poison message freezes the partition at the head of the line",
+  "Renaming or repurposing an event field because only one team supposedly uses it - integration events belong to strangers",
+  "Adding one more consumer until the event graph is an unreadable tangle nobody dares change"
+],
+whenNot: "Not for a monolith with a well-structured domain, a synchronous call and no temporal decoupling to gain; not when nothing needs replay, audit or throughput - the broker's operational weight and cognitive load (idempotency, ordering, eventual consistency) cost more than they return."
+    },
+  },
+];
+
+const typescriptTypeLevelSkyTopics: readonly TopicCard[] = [
+  {
+    id: "typescript-type-level-sky-full",
+    title: "TypeScript, from the ground up to the type-level sky",
+    summary: "TypeScript is JavaScript with a statically verified, wholly erased layer of types: the product is not speed or runtime safety but mechanical proof that claims about value shapes hold across the codebase, built on a set-theoretic, structural model.",
+    concepts: [],
+    practicePrompt: "Model a small order state machine as a discriminated union with a literal kind property and write a switch whose default branch assigns to a never-typed variable; then add a new variant and watch the unchanged check fail the build. Check: reproduce from memory the narrowing walkthrough - what typeof, in and truthiness do to string | number inside a branch - and explain what satisfies preserves that an annotation does not.",
+    checkPrompt: "From memory: types as sets with structural compatibility; any vs unknown vs never; narrowing and flow-sensitive typing; the discriminated union as a sum type with exhaustiveness checking; type guards and assertion functions; generics with extends, keyof and indexed access T[K]; variance and contravariance under strictFunctionTypes; mapped, conditional (with distribution), template-literal and recursive types plus infer; as const, satisfies and deriving types from values; branded types; the deliberate unsoundness holes (bivariance, unchecked assertions, extra properties flowing through); and the strict tsconfig flags - strict, noUncheckedIndexedAccess, exactOptionalPropertyTypes - plus how project references, declaration files and a schema-plus-inference setup hold at scale.",
+    tier: 1,
+    complexity: 4,
+    references: [
+
+    ],
+    lesson: {
+problem: "Without static types the guarantees about your data live in comments and test cases; every refactor and every payload arriving from a network is an unchecked gamble, and the cost of wrong shapes is paid at runtime, by users, instead of being paid at compile time by you.",
+model: "TypeScript is JavaScript with a static type layer that is entirely erased before the code runs: annotations, interfaces and generics vanish, so the product is not speed or runtime safety but mechanical verification that claims about value shapes stay consistent across the whole codebase - a proof system that runs before your code. The central model is types as sets of possible values under structural compatibility: unions widen the set, intersections and narrowing shrink it, generics abstract over which set, conditional and mapped types compute new sets from old ones, and never is the empty set that signals a contradiction or a completed proof. The system is intentionally unsound in known places, because adoption mattered more than provable safety - so knowing where it lies is part of professional use.",
+mechanics: "Erasure pushes validation to the edges: type guards written as x is SomeType and assertion functions asserts x is SomeType teach the compiler about runtime checks it cannot infer, which it then simply trusts. Narrowing is flow-sensitive - typeof, instanceof, in, equality and truthiness refine a variable line by line - and the discriminated union with a literal kind property plus a never-typed default yields exhaustiveness checking that turns forgotten variants into build errors. Generics express relationships instead of loosening types: extends constrains, keyof produces key-literal unions, indexed access T[K] makes a getProperty fully safe with zero annotations at call sites. The type-level toolkit is a language in its own right: mapped types with key remapping and the -? syntax, conditional types that distribute over bare type parameters, infer as pattern matching behind ReturnType and Parameters, template literal types deriving handler names, recursive conditionals for JSON and DeepPartial. satisfies checks conformance while preserving the narrower inference, as const pins literals into readonly tuples, deriving a union via typeof arr[number] keeps one source of truth, and string intersected with a phantom symbol-keyed property brands UserId and OrderId as distinct.",
+pitfalls: [
+  "any as an infection vector: whatever it touches goes unchecked and spreads - reach for unknown and prove it",
+  "Believing an annotation validates runtime data: types are erased, JSON needs real validation code the checker trusts blindly",
+  "Passing UserId where OrderId is expected because structural typing sees both as plain string - no branding in place",
+  "Duplicating types by hand instead of deriving them from the canonical value or one definition, so forms drift apart",
+  "Treating as assertions as checked casts - they are unchecked downcasts, and the compiler believes the lie",
+  "Dropping the never default from a discriminated-union switch, silently losing exhaustiveness checking",
+  "Deep recursive conditionals and giant unions until checks slow down or type instantiation is excessively deep hits",
+  "Assuming object types are sealed - extra properties flow in everywhere except on fresh object literals at annotated sites",
+  "Indexing without noUncheckedIndexedAccess and living with element types that hide a possible undefined"
+],
+whenNot: "Not where nothing holds the checker: plain JavaScript run once, or the unsound seams that need runtime validation rather than cleverer types. Heavyweight type-level programming earns its keep in libraries and large codebases, not in everyday application code, where inference plus a few discriminated unions already carry the load."
+    },
+  },
+];
+
+const zeroTrustLateralMovementTopics: readonly TopicCard[] = [
+  {
+    id: "zero-trust-lateral-movement-full",
+    title: "Zero Trust Architecture: From First Principles to the Frontier",
+    summary: "Zero Trust is best understood not as a product you buy but as a change in the default assumption a security system makes about any request it receives. For most of computing's history, networks were built like medieval cities: a hard wall at the edge, a gate with guards, and relative freedom of movement once you were inside. This is the *perimeter model*, and its implicit rule was \"trust by location.\" If a packet came from an internal IP address, it was presumed friendly. …",
+    concepts: [],
+    practicePrompt: "Take one plausible access request - a contractor's personal laptop opening a finance dashboard from a hotel network - and walk it through the PDP/PEP loop aloud: which signals the Policy Engine weighs, what the Policy Administrator configures, where the enforcement point sits. Then redesign the same flow as a flat-network VPN login and name exactly what stopped mattering. Check: reproduce from memory the three maxims, the least-privilege chain (JIT, JEA, PAM, zero standing privileges), and why fail-closed vs fail-open is a deliberate per-enforcement-point decision.",
+    checkPrompt: "From memory: perimeter model vs never trust always verify and why lateral movement is the target; NIST 800-207 vocabulary - subject, resource, PDP (Policy Engine + Policy Administrator), PEP, control vs data plane; identity as the anchor - phishing-resistant MFA (FIDO2/WebAuthn, passkeys), continuous authentication, workload identity via SPIFFE/SVID; device posture and remote attestation with a TPM hardware root of trust; risk-based adaptive access with ABAC, policy as code in Rego or Cedar, least privilege; microsegmentation, default-deny, blast radius, assume breach, mTLS service meshes; ZTNA replacing the VPN and BeyondCorp lineage; SASE/SSE as market taxonomy; data-centric controls (classification, confidential computing enclaves, tokenization); the telemetry-UEBA-XDR feedback loop; the CISA maturity pillars; and the honest hard parts - legacy proxies, policy sprawl, PDP availability, UX friction, and trust that is relocated rather than eliminated.",
+    tier: 1,
+    complexity: 4,
+    references: [
+
+    ],
+    lesson: {
+problem: "The perimeter model presumes friendliness by location; once attackers hold an insider's credentials they move laterally from a low-value foothold to a high-value target with almost no resistance, and the dissolving edge - remote work, multi-cloud, partner APIs, personal phones - leaves the wall guarding almost nothing.",
+model: "Zero Trust is a change in the default assumption a system makes about any request, not a product: no request is granted access merely because of where it originates or what it was allowed a moment ago - every decision is made freshly, on evidence, and as narrowly as possible. The canonical grammar is the PDP (a Policy Engine computing the decision and a Policy Administrator enacting it) plus distributed PEPs in the data path, fed by a control plane of signals - identity, device posture, threat intelligence, activity logs. Identity becomes the anchor, the device a witness whose posture must be attested, the network demoted from trust boundary to transport, and data the thing actually protected; the goal is minimizing blast radius under assume breach.",
+mechanics: "Decisions centralize while enforcement distributes: PEPs are reverse proxies, identity-aware gateways, mesh sidecars or host agents told what to do by the PDP, keeping the data plane fast while policy stays rich and context-aware. Authentication strength becomes a policy input - FIDO2/WebAuthn passkeys bind credentials to the legitimate origin so fake login pages cannot harvest them, while push MFA invites fatigue attacks; workload identity replaces static API keys with short-lived verifiable SVIDs attesting to where and how a service runs. Device posture moves from self-reported checklists to remote attestation, a TPM-signed measurement of the boot chain that a compromised host cannot falsify. Adaptive access combines impossible-travel, geolocation and session behavior into a risk score answered proportionately - silent allow, step-up, read-only, record, deny - with policy as code in Rego or Cedar, tested and versioned like software; JIT elevation, JEA scope and PAM brokering chase zero standing privileges. Microsegmentation makes every flow default-deny so a compromised web server reaches exactly the one application server and port it needs; mTLS meshes authenticate both ends of every connection, and ZTNA brokers per-application access so the user never receives an internal network address. The feedback loop - telemetry into UEBA and XDR, detections automatically forcing re-authentication or quarantine - is what makes authentication continuous rather than episodic.",
+pitfalls: [
+  "Buying a product and calling it Zero Trust - it is a change in default assumptions, not a SKU",
+  "Keeping location-based shortcuts: internal IP presumed friendly, VPN placing the device on the network as if physically present",
+  "Self-reported posture trusted from a compromised host - without hardware-rooted attestation an attacker falsifies exactly that",
+  "Push-notification MFA treated as phishing-resistant and worn down by fatigue attacks",
+  "Old systems left exposed because modernizing is inconvenient - unreachable legacy needs proxies or compensating controls",
+  "Policy sprawl: thousands of fine-grained rules as unmaintainable as the flat network they replaced, without policy as code and testing",
+  "A PDP engineered like an afterthought - if the decision plane is down, fail-closed means nothing works",
+  "Friction ignored until users build unmonitored workarounds",
+  "Forgetting that trust was relocated, not eliminated - the identity provider, attestation chain and signal integrity are the new anchors an attacker would subvert"
+],
+whenNot: "Not a one-off project or a replacement for basics like patching and encryption at rest; a mature perimeter with strict internal segmentation and few, well-controlled flows may get most of the blast-radius benefit for far less operational load. It also does not eliminate insider risk - it makes moving with it expensive, and trust merely relocates to the identity and attestation chain."
+    },
+  },
+];
+
+const embeddingsVectorSearchTriangleTopics: readonly TopicCard[] = [
+  {
+    id: "embeddings-vector-search-triangle-full",
+    title: "Vector Databases and Embeddings: From First Principles to the Frontier",
+    summary: "An embedding is a learned map from data into a high-dimensional space where proximity encodes semantic relatedness, trained contrastively; vector databases make nearest-neighbor search over that geometry fast by trading exactness for structure while remaining real databases.",
+    concepts: [],
+    practicePrompt: "Take one modest corpus, chunk it two different ways, embed with a small model and query for a paraphrase plus for an exact error string; run pure dense against a hybrid score and count where each wins. Check: can you explain from memory why a cross-encoder cannot be the retrieval stage, what recall@k means against a flat index, and why switching embedding models forces a full re-embed?",
+    checkPrompt: "From memory: an embedding as a learned geometric map trained with contrastive InfoNCE and hard negatives, dense vs sparse (SPLADE) vs multi-vector ColBERT late interaction; L2 vs dot product vs cosine and when they coincide; flat brute force vs ANN and the recall-latency-memory triangle; IVF (centroids, nprobe, drift at Voronoi boundaries), HNSW (layers like a skip list, M, ef_construction, ef_search, tombstoned deletions), DiskANN on SSD, product quantization with codebooks and rescoring; post- vs pre-filtering and filtered ANN; RRF hybrid fusion; bi-encoder retrieval with cross-encoder reranking; the record model (payloads, namespaces, upserts, segments, sharding); the FAISS-pgvector-Pinecone-Weaviate-Milvus-Qdrant landscape; RAG chunking with parent-document and contextual retrieval; offline metrics (MRR, NDCG) and embedding drift on model upgrades.",
+    tier: 1,
+    complexity: 4,
+    references: [
+
+    ],
+    lesson: {
+problem: "Keyword search fails the moment meaning matters: a user asks one thing and the document that answers it uses different words - paraphrases, cross-lingual queries, images versus text - and no amount of keyword tuning recovers relevance that lexical overlap simply cannot see.",
+model: "An embedding turns meaning into geometry: a learned function maps any item to a point in a high-dimensional space such that proximity equals semantic relatedness, and the geometry is a direct artifact of contrastive training pairs (positives pulled together, hard negatives pushed apart via InfoNCE). A vector database makes nearest-neighbor search over that geometry survive at scale by trading exactness for structure - the recall-latency-memory triangle carved up by index families - while remaining a real database with payloads, upserts, segments, filtering, sharding and multi-tenancy. System quality is bounded more by the embedding model, the chunking and the evaluation discipline than by the choice of index.",
+mechanics: "ANN indexes carve the recall-latency-memory triangle differently: IVF k-means buckets scanned by nprobe, HNSW hierarchical proximity graphs descended skip-list style with ef_search as the recall-latency dial, DiskANN keeping the graph on SSD with compressed in-RAM guides, and PQ compressing vectors into sub-space codebook IDs refined by exact rescoring on a shortlist. Hybrid search fuses dense and lexical runs with Reciprocal Rank Fusion because BM25 and cosine scores are incomparable, and the default production pattern retrieves with a fast bi-encoder then reranks the shortlist with a cross-encoder that attends across query and document together. Filtering is the quiet hard problem: post-filtering starves under selective predicates, pre-filtering degrades to brute force, and filtered ANN modifies graph traversal to skip disallowed nodes without losing connectivity - the sharpest differentiator among products. The store side behaves like an LSM engine: in-memory write buffer, sealed segments, compaction, sharding with scatter-gather, and often only eventual searchability for fresh writes. The ingestion pipeline holds its own quality dials - chunk size and overlap, semantic or late chunking, parent-document retrieval, HyDE and multi-query transformations - and evaluation runs on recall@k, MRR and NDCG against brute-force ground truth, monitored at the tail.",
+pitfalls: [
+  "Switching or upgrading the embedding model without re-embedding everything - vectors from different models live in incompatible spaces and silently poison results",
+  "Borrowing the metric: using L2 or dot product when the model was trained for cosine on unnormalized vectors",
+  "Oversized chunks whose embeddings become blurry averages of several topics, undersized chunks that lose all context",
+  "Post-filtering a selective predicate and returning fewer than k or nothing, then blaming the index",
+  "Assuming recall numbers transfer to your domain - a general model may crush fine distinctions into one tiny region",
+  "Forgetting HNSW's RAM bill (1.5-2x raw vectors) and its tombstone-and-rebuild approach to deletions",
+  "Ignoring tail latency, which graph indexes spike under memory pressure when the average looks fine",
+  "Treating freshly upserted vectors as searchable everywhere when segments have not flushed into the ANN structure yet",
+  "Adding one more consumer... of vectors: evaluating the index without a labeled ground-truth set, so quality changes are invisible"
+],
+whenNot: "Not for small corpora where a flat scan or plain Postgres with pgvector already answers in milliseconds - the specialized engine pays off only at billions of vectors, heavy throughput and complex filtering; also not when exact keyword match alone suffices, or when a long-context model can hold the entire corpus for less than the retrieval pipeline costs."
+    },
+  },
+];
+
+const pythonCoordinationLanguageTopics: readonly TopicCard[] = [
+  {
+    id: "python-coordination-language-full",
+    title: "Python for AI/ML Services: A Conceptual Lexicon",
+    summary: "A prose map of Python for ML serving built on one thesis: Python is a coordination language wearing a computation language's clothes, so the event loop coordinates, native code computes, and validation lives at the edge.",
+    concepts: [],
+    practicePrompt: "Pick one thesis from the essay (for example, that the GIL serializes interpreter work, not all work) and explain in three sentences how it changes a concrete design decision in an ML serving service. Then check yourself against the section where that thesis is argued.",
+    checkPrompt: "From memory: name the three kinds of parallelism Python offers and which one fits GPU inference; state the FastAPI sync/async dispatch rule; and sketch the single-consumer dynamic batching pattern with a bounded queue.",
+    tier: 1,
+    complexity: 4,
+    references: [
+
+    ],
+    lesson: {
+problem: "Without a mental map of the Python runtime, teams serving models chase the wrong bottlenecks: they scale workers until four copies of the weights no longer fit on the GPU, block the event loop with synchronous calls, and treat type annotations as decoration while frameworks read them at runtime.",
+model: "Python is a coordination language wearing a computation language's clothes: almost no useful arithmetic happens in bytecode, so Python describes structure (what a request means, when to wait, when to batch, when to give up) while C, CUDA, or Rust compute. Everything in serving follows from that: the event loop coordinates thousands of cheap waits on one thread, threads parallelize only work released below the C boundary, and one process per GPU feeds a single serialized batcher. Types are configuration, validation lives at the edge, and the queue is where latency actually hides.",
+mechanics: "Names bind to objects (reference semantics), so identity vs equality and mutable default arguments explain a whole bug family; reference counting plus a cycle collector frees memory instantly except for cycles that pin CUDA tensors; the GIL is released by blocking IO and native extensions, so threads parallelize NumPy or PyTorch work but not pure Python loops; FastAPI runs async def handlers on the loop and plain def handlers in AnyIO's 40-slot threadpool, making the declaration itself the central latency decision; a single consumer drains a bounded asyncio.Queue and runs dynamic batches, trading a few milliseconds of latency for an order of magnitude of GPU throughput; cancellation surfaces as CancelledError at the next suspension point, so a client disconnect must propagate through TaskGroups to stop abandoned GPU work.",
+pitfalls: [
+  "lru_cache on an async def function caches the coroutine object, so the second await raises cannot reuse already awaited coroutine",
+  "an async def endpoint calling a blocking model.predict() serializes the whole worker behind every inference",
+  "loading a large model at import time makes it load during test collection, when printing CLI help, and once per forked worker",
+  "forking after CUDA initialization causes hangs and CUDA initialization errors; use spawn or forkserver and import-safe modules",
+  "each uvicorn worker holds its own event loop, weights copy, and CUDA context, so four workers on one GPU will not fit",
+  "forgetting eval() and inference_mode silently changes dropout and batchnorm and wastes autograd bookkeeping",
+  "a careless except Exception swallows CancelledError (it derives from BaseException since 3.8); cleanup code must re-raise",
+  "conflating liveness and readiness probes produces restart loops under heavy load",
+  "gzip or proxy buffering defeats token streaming, and unbounded queues hide backpressure until latency grows without bound"
+],
+whenNot: "This map is about serving AI models from Python, not about training pipelines or notebooks, not a general Python tutorial, and it only sketches the native-extension layer rather than teaching how to write one."
+    },
+  },
+];
+
+const cloudNativeFirstPrinciplesTopics: readonly TopicCard[] = [
+  {
+    id: "cloud-native-first-principles-full",
+    title: "Cloud-Native Architecture: From First Principles to the Frontier",
+    summary: "Cloud-native is a design philosophy, not a hosting location: systems that assume the environment is elastic, programmable, failure-prone, and billed by the second, and turn those properties into advantages. The essay follows the CNCF map — containers, service meshes, microservices, immutable infrastructure, declarative APIs — from first principles to the frontier.",
+    concepts: [],
+    practicePrompt: "Pick one service you actually run and sketch its full cloud-native redesign on paper: region and AZ layout, compute choice, storage primitive per dataset, IaC tooling, and one event queue between two components. For every layer, write down which line of the shared responsibility model it touches and which failure domain it assumes.",
+    checkPrompt: "Reproduce the essay's backbone from memory: pets vs cattle and elasticity vs scalability, region/AZ/edge hierarchy, the three primitives (compute, storage shapes, VPC flavors per provider), declarative IaC and the reconciliation loop, container internals and Kubernetes control vs data plane, delivery semantics with idempotency and the transactional outbox, CAP and PACELC, and the resilience patterns (timeouts, backoff with jitter, circuit breaker, bulkhead, cells, shuffle sharding, static stability).",
+    tier: 1,
+    complexity: 4,
+    references: [
+
+    ],
+    lesson: {
+problem: "Without this model the cloud becomes an expensive stranger's server: you keep datacenter habits for pets, patch servers by hand, and cannot predict why outages spread or bills explode — while paying cloud prices the whole time.",
+model: "Cloud-native is a design philosophy that assumes elastic, programmable, failure-prone, per-second-billed infrastructure and turns those properties into advantages. Infrastructure stops being an asset you own and becomes software you call: you declare desired state, control loops continuously reconcile reality against it, and resources are cattle — numbered, identical, replaced rather than repaired. Every other idea in the essay is either a boundary that contains blast radius (zones, accounts, cells, bulkheads) or a loop that keeps the system converged with declared state.",
+mechanics: "Failure domains first: regions split into AZs with independent power and low-latency replication, and multi-AZ is the baseline of resilience. Declaration plus reconciliation: IaC (Terraform-style) and GitOps keep desired state in Git, controllers compare desired vs actual and converge — the reconciliation loop is what makes Kubernetes self-healing. Immutability: you never patch a running server; you build a new image, deploy, destroy the old, eliminating configuration drift and snowflakes. Distributed messaging: queues, pub/sub and event logs differ in delivery and replayability; at-least-once delivery forces idempotent consumers, the transactional outbox beats dual writes, and sagas replace fragile two-phase commit. Priced consistency: CAP says partitions force a choice, PACELC adds the everyday latency-vs-consistency trade, Spanner buys external consistency with hardware clocks, Aurora makes the log the database, DynamoDB demands access-pattern-first keys to avoid hot partitions. Shrinking blast radius: timeouts, retries with exponential backoff and jitter, circuit breakers, bulkheads, load shedding, cell-based architecture and shuffle sharding, plus static stability so the data plane survives control-plane failure. Cost as architecture: egress shapes data locality, spot capacity rewards stateless fault-tolerant design, unit economics and ARM chips are engineering levers, not accounting.",
+pitfalls: [
+  "Lifting a VM and calling it cloud-native without redesigning for replaceability and elasticity",
+  "Confusing scalability with elasticity — a system can grow if fed but never grow itself",
+  "Misreading the shared responsibility line: the publicly readable bucket is the canonical breach",
+  "Trusting mutable tags over pinned digests for reproducible deployments",
+  "Imperative scripts and hand-patched servers recreate drift and snowflakes",
+  "Naive retries without backoff and jitter amplify load and lock a system into metastable failure",
+  "Building a distributed monolith: network calls between services with no domain boundaries",
+  "Expecting exactly-once delivery from the network instead of engineering idempotency and deduplication",
+  "Designing to 100% reliability without an SLO and error budget — infinitely expensive, imperceptible to users"
+],
+whenNot: "Not the right machinery for small, steady-load applications with one engineer: a managed VPS or a plain monolith is cheaper and simpler than Kubernetes and its cognitive load. And it never overrides physics: latency, data gravity and cost remain constraints to be negotiated, not magic."
+    },
+  },
+];
+
+const typescriptGroundUpTypeLevelTopics: readonly TopicCard[] = [
+  {
+    id: "typescript-ground-up-type-level-full",
+    title: "TypeScript, From the Ground Up to the Type Level",
+    summary: "A complete conceptual tour of TypeScript: static types that erase at runtime, types treated as sets of values, narrowing, variance, generics, and the programmable type level, closing with the unsound corners and large-codebase practices.",
+    concepts: [],
+    practicePrompt: "Model one real-world state of yours (an API response, a UI screen) as a discriminated union with a literal discriminant, add a switch with a default branch assigning to never, then deliberately add a new variant and watch compilation fail exactly where the fix belongs. After that, guard one external boundary with a schema library and derive the static type from the schema instead of annotating.",
+    checkPrompt: "Reproduce from memory: type erasure and why types vanish at runtime, the any-unknown-never trio and their set semantics, narrowing plus type predicates and exhaustiveness checking, structural typing with branding for ids, function variance (contravariant parameters, covariant returns, bivariant methods, covariant arrays), the distributivity rule for conditional types with infer, the list of unsound corners, and why parse-dont-validate closes the gap between model and reality.",
+    tier: 1,
+    complexity: 4,
+    references: [
+
+    ],
+    lesson: {
+problem: "Plain JavaScript fails late and far from the cause: wrong shapes flow through API boundaries, refactors silently miss call sites, and impossible states surface at runtime in front of users — because nothing checks the model before the program runs.",
+model: "TypeScript is JavaScript plus a static type system that is fully erased before execution: types are a model of the program, not its machinery, so data crossing boundaries must be validated by real runtime code. Types are sets of values — assignability is subset, unions are set union, never is the empty set (bottom), unknown is the top — and the checker is pragmatic rather than sound: it trades completeness for describing how JavaScript is actually written. Control flow analysis narrows types wherever you have checked them, and the type level itself is a small programmable language of mapped, conditional, template-literal and recursive types.",
+mechanics: "Erasure: annotations disappear before running, so runtime validation at trust boundaries is your responsibility — parse, dont validate. Narrowing and control flow analysis: typeof, instanceof, in, truthiness and user-written type predicates refine types per branch; discriminated unions with a common literal discriminant give exhaustive switch, and a default branch of never turns forgotten variants into compile errors. The set model explains surprises: object intersections shrink the set of acceptable values, keyof of a union keeps only common keys, string and number intersects to never, and any exits the lattice entirely (the dynamic type of gradual typing), which is why unknown is the honest choice. Structural typing plus branding: shapes match regardless of origin, and a phantom brand property on ids restores nominal-style safety; excess property checking is a freshness exception for literals, not a general rule. Variance: functions are covariant in returns and contravariant in parameters under strictFunctionTypes, while method syntax stays bivariant and mutable arrays stay covariant — deliberate unsoundness for usability, made safe by readonly. Type-level programming: typeof and keyof lift values into types, mapped types iterate keys, conditional types distribute over naked parameters and infer pattern-matches substructures, template literals parse strings, and tail-recursive conditionals scale recursion — Turing complete, but bought with compile time and readability. Scale discipline: strict flags from day one, @ts-expect-error over @ts-ignore, nodenext or bundler resolution, isolatedModules and verbatimModuleSyntax for per-file transpilers, project references with incremental builds in monorepos, interfaces over deep intersections, annotated return types, and the 2025 Go-native port for order-of-magnitude speedups.",
+pitfalls: [
+  "Reaching for any and letting it spread silently through inference instead of unknown plus narrowing",
+  "Treating x as User as a check — assertions are claims, and double assertions permit anything",
+  "Reading arr[5] as always T without noUncheckedIndexedAccess, the optimistic indexed-access default",
+  "Assigning a type to JSON.parse or fetch().json() output and calling the boundary validated",
+  "Forgetting method parameters stay bivariant even under strictFunctionTypes, unlike function-typed properties",
+  "Losing literal precision through plain annotations where const, as const or satisfies would keep it",
+  "Confusing optional x?: T with absent keys until exactOptionalPropertyTypes tightens the model",
+  "Stacking clever conditional types that buy precision at the price of unreadable errors and compile time",
+  "Trusting declaration files: a .d.ts is a human promise never verified against the implementation"
+],
+whenNot: "Not worth it for genuinely throwaway scripts, or where runtime shapes never cross a boundary and no team will maintain the code. And none of the static machinery removes the duty of runtime validation for external data — the compiled output is still JavaScript doing exactly what it always did."
+    },
+  },
+];
+
+const profileAsSearchResultTopics: readonly TopicCard[] = [
+  {
+    id: "profile-as-search-result-full",
+    title: "The Profile That Gets You Hired",
+    summary: "A recruiter-side guide to CV and LinkedIn: how the search, skim and read funnel actually works, the 14 profile moves ranked by how much they convert into interviews, and where effort is wasted.",
+    concepts: [],
+    practicePrompt: "Write your one-sentence positioning statement, collect 10–15 real postings for the target role, and extract the repeated keywords from them; then rewrite three of your duty bullets into XYZ form (accomplished X, measured by Y, by doing Z), hunting numbers through volume, time, money, quality and before-vs-after. Check yourself: would a recruiter filtering on the posting's exact title, location and keywords actually land on your profile?",
+    checkPrompt: "Reproduce the funnel from memory — the machine search stage, the ~7-second skim, the 1–3 minute read — assign each of the 14 ranked moves to the stage it serves, and state the honest title-translation rule, the LinkedIn-vs-CV consistency rule, the headline formula with its 220-character front-loading, and the two conversion habits (referrals and early, direct outreach) that the profile alone does not replace.",
+    tier: 1,
+    complexity: 4,
+    references: [
+
+    ],
+    lesson: {
+problem: "Profiles fail because they are written from the candidate's side as a list of duties for an imagined careful reader; in reality nobody even finds them in recruiter search, and the tired 7-second skim never stops on them, so the effort never converts into interviews.",
+model: "A profile is, in order, a search result first, a sales page second, and a reference document third: it must contain the words recruiters actually filter on, then convince a skimming human with title, photo and impact, and only then serve an interested reader with measured evidence. Everything follows from picking one concrete target — title, level, domain, edge — and mirroring the exact language of real postings in every field a search engine reads.",
+mechanics: "Positioning before writing: answer role title, level, domain, location and edge in writing, then mine 10–15 postings for repeated keywords, tools and seniority signals. Search optimization: headline, current and past titles, skills and location are the weighted or hard-filter fields; mirror exact phrasing, include both acronym and full term, put keywords in context rather than lists. Impact bullets: the XYZ formula (accomplished X as measured by Y, by doing Z) converts duties into evidence, with volume, scale, time, money, quality, rank and before-after as number sources, calibrated to seniority level. The skim zone: a 220-character headline in the target-title-first pattern, honestly translated standard titles, promotion lines listed separately, and a photo, location setting and Open to Work details that recruiters actually filter on. The CV as a tailored document: single-column ATS-parseable format, 1–2 pages, tailored in 15–20 minutes per application from a master document by reordering summary and bullets and aligning vocabulary. Conversion beyond the profile: referrals, short direct messages with one piece of matching proof, early applications and a tracked pipeline — while gaps, layoffs and career changes get one neutral line plus evidence.",
+pitfalls: [
+  "Writing for any job — a vague profile is optimized for no search and no reader",
+  "Believing the robots-auto-reject ATS myth; the real killers are human keyword search and sheer applicant volume",
+  "Listing duties instead of measured impact — every other title-holder did the same things",
+  "Wasting the headline on the default job title, aspirational labels like aspiring-X, or keyword-stuffed pipe walls",
+  "Inventing numbers or inflating titles that collapse under interview probing and background checks",
+  "Fancy templates, columns, graphics and skill bars that scramble ATS parsing and impress no one",
+  "Leaving employment gaps unexplained so the recruiter imagines the worst instead of reading a neutral one-liner",
+  "Chasing endorsements and certificate counts nobody weighs, instead of recommendations, proof and referrals",
+  "Editing with network notifications on, and never checking the profile as the public and on mobile see it"
+],
+whenNot: "Not for academic CVs and formal government, medical or research application formats with their own conventions, nor where a portfolio fully replaces documents. And none of it works if you never apply, never message anyone, and wait to be found — the profile is the top of the funnel, not the funnel itself."
+    },
+  },
+];
+
+const cloudIdentityPerimeterTopics: readonly TopicCard[] = [
+  {
+    id: "cloud-identity-perimeter-full",
+    title: "Cloud Security: A Field Guide to IAM, Secrets Management, and CSPM",
+    summary: "A field guide resting on one insight: in the cloud the API is the perimeter and identity is the key, which makes IAM, secrets management, and CSPM three views of one problem.",
+    concepts: [],
+    practicePrompt: "Take one identity in your account (real or imagined) and derive its effective permissions by walking every applicable layer: identity policy, resource policy, permissions boundary, SCP. Then check whether any iam-level permission in the set lets the identity rewrite its own policy; if yes, it is effectively an administrator.",
+    checkPrompt: "From memory: state the three evaluation rules (default deny, explicit deny wins, explicit allow must pass every layer); separate granting from limiting policy types; and explain why a role's trust policy is a different control from its permissions policy.",
+    tier: 1,
+    complexity: 4,
+    references: [
+
+    ],
+    lesson: {
+problem: "Cloud estates rarely get breached in the cinematic sense; they leak credentials and drift into misconfiguration, and without a model of IAM, secrets, and posture you cannot even answer who can do what to which resource.",
+model: "In the cloud the API is the perimeter and identity is the key to the API: control-plane credentials, reachable from anywhere, can create, read, or destroy anything you own. Three disciplines are three views of that one problem. IAM composes policies into a decision where explicit deny always wins and limiting layers only intersect; secrets management replaces long-lived keys with short-lived, federated credentials the platform vouches for; CSPM continuously audits the declared configuration against the intent you meant to express.",
+mechanics: "Policy evaluation: default deny, explicit deny always wins, and an explicit allow must pass every applicable layer, so boundaries, SCPs, RCPs, and session policies intersect but never grant; roles split authority into a permissions policy (what it may do) and a trust policy (who may become it), and both halves must be reasoned about together; STS issues temporary credentials with bounded exposure, and workload identity federation exchanges OIDC tokens pinned to repository and branch for CI; the confused deputy is defused by external IDs and condition keys such as aws:SourceArn that pin a request to one customer; permissions compose transitively, so iam:PassRole plus ec2:RunInstances, or iam:CreatePolicyVersion, quietly equals administrator; RBAC grows into role explosion, ABAC shifts correctness onto tag integrity, and ReBAC (Zanzibar) decides from relationship graphs.",
+pitfalls: [
+  "wildcard actions or resources written under deadline pressure harden into permanent privilege creep",
+  "granted permissions routinely exceed used permissions (often under five percent), and every unused grant is latent attacker capital",
+  "a trust policy accepting any token from an OIDC issuer lets any repository on earth assume the role; pin repository and branch",
+  "auditing by policy text misses transitive escalation paths because effective power is everything reachable, not what the document says",
+  "static access keys pasted into CI secret stores remain the classic leak vector that federation removes",
+  "cross-account access requires a two-sided handshake; forgetting the second side either breaks access or over-opens it",
+  "treating the control plane as plumbing misses that an attacker can snapshot your database without one packet touching your firewall",
+  "shared responsibility never moves identity, access, and configuration onto the provider, no matter the service model"
+],
+whenNot: "This is cloud IAM, secrets, and posture management; it does not teach application-level product authorization beyond ReBAC vocabulary, network packet forensics, or on-premises hardening."
+    },
+  },
+];
+
+const polanskiEnclosureVocabularyTopics: readonly TopicCard[] = [
+  {
+    id: "polanski-enclosure-vocabulary-full",
+    title: "Roman Polanski: The Concepts and Vocabulary",
+    summary: "A conceptual vocabulary for Polanski's cinema: one recurring machine of a bounded space, rising pressure, and endings without release, read through critical terms and competing framings.",
+    concepts: [],
+    practicePrompt: "Choose three Polanski films from different decades and, from memory, name for each the enclosed space, the rising pressure, and who ends up holding power. Then check the endings: does any of them grant release, or only continuation?",
+    checkPrompt: "From memory: define claustrophobic space, entrapment, nightmare logic, restricted focalization, and the uncanny, and give the three reasons the Apartment Trilogy label misleads.",
+    tier: 1,
+    complexity: 4,
+    references: [
+
+    ],
+    lesson: {
+problem: "Polanski's films get filed as scattered genre work (horror here, noir there, a comedy next), so viewers miss the single machine that makes five decades of varied material feel like one body of work.",
+model: "The machine: a handful of people, a bounded space, a pressure that rises, a shift in who holds power, and an ending that refuses release. The apartment becomes a picture of the psyche, so deformation of the set reads as deformation of the mind; absurd comedy and dread coincide; identity dissolves into doubles and borrowed roles; and genre conventions are entered in good faith, then pressed toward the director's preoccupations. Critics built a vocabulary for the variations (claustrophobic space, entrapment, nightmare logic, the uncanny, restricted focalization), and the mature stance holds trauma, auteurist, and formalist readings as competing lenses, saying openly which one is in use.",
+mechanics: "Claustrophobic space stages rooms as pictures of the mind, so Repulsion's rotting rabbit, cracking plaster, and groping wall-hands are Carol's breakdown externalized; entrapment turns the trap from a third-act plot device into a worldview where exits lead only to other enclosures; nightmare logic orders events by emotional rather than causal connection, keeping delusion versus reality genuinely open, as Rosemary's Baby does until its final scene; doubling and the uncanny dissolve the self into a previous occupant's cigarettes, dress, and window, closing the loop in The Tenant; black comedy fuses with horror so laughter stops relieving tension and marks the world's indifference; pastiche enters noir, Shakespeare, or the occult thriller and inverts the restoring hero, so in Chinatown every discovery makes things worse.",
+pitfalls: [
+  "the Apartment Trilogy is a critics' retrospective grouping, not a planned series, and it quarantines a theme that saturates the whole career",
+  "The Trial (1962) is Orson Welles's Kafka, not Polanski's; his Kafkaesque is domestic and social, never baroque architecture",
+  "absurd carries two senses (tonal deadpan cruelty and a metaphysical world without guarantees), and most films have the second without the first",
+  "his Kafkaesque is inscrutable because it is social, a web of disapproval, not because the system is complicated",
+  "misanthropy here means declining to flatter anyone, including victims, and treating decency as a thin coating pressure will crack",
+  "trauma readings can explain anything and risk converting deliberate choices into symptoms, which is why formalism answers that a precise film is evidence of craft",
+  "authorship is contested: Brach, Towne, Komeda, the cinematographers, and the source novels shape much of the consistency credited to the auteur",
+  "the 1977 case and later allegations shadow reception; an honest account states the facts and returns to the films"
+],
+whenNot: "This vocabulary reads Polanski's films; it is not a biography, not a legal discussion of the 1977 case, and it does not transfer to directors whose enclosures are literal sets rather than a worldview."
+    },
+  },
+];
 export const curriculum: readonly PracticeArea[] = [
   {
     id: "go",
@@ -5565,5 +6323,189 @@ export const curriculum: readonly PracticeArea[] = [
     tier: 1,
     dependencies: [],
     topics: postgresqlDbThinkingTopics,
+  },
+  {
+    id: "linkedin-evidence-package",
+    title: "A practical guide: Russian-speaking software developer → hired through LinkedIn",
+    description: "A practical guide for a Russian-speaking developer seeking international work through LinkedIn: separating language, citizenship and authorization facts, choosing one positioning, building a profile as an evidence package, and diagnosing the hiring funnel where conversions actually stall.",
+    tier: 1,
+    dependencies: [],
+    topics: linkedinEvidencePackageTopics,
+  },
+  {
+    id: "typescript-static-to-scale",
+    title: "# TypeScript: from basic vocabulary to type-level programming and large-system design",
+    description: "The most useful way to understand TypeScript is to separate three things: what JavaScript does at runtime, what the type checker can establish before runtime, and what engineering practices make those static conclusions trustworthy.",
+    tier: 1,
+    dependencies: [],
+    topics: typescriptStaticToScaleTopics,
+  },
+  {
+    id: "terraform-state-plan-model",
+    title: "Infrastructure as Code с Terraform и OpenTofu: от деклараций до управления распределённой системой",
+    description: "Terraform и OpenTofu как управление частично наблюдаемым внешним миром: код выражает намерение, state хранит идентичность объектов, провайдер задаёт доступную модель реальности, а plan/apply строят и выполняют распределённое изменение без общей транзакции. Урок ведёт от HCL и графов зависимостей до drift, блокировок, воспроизводимости и пределов проверок.",
+    tier: 1,
+    dependencies: [],
+    topics: terraformStatePlanModelTopics,
+  },
+  {
+    id: "go-concurrency-saturation",
+    title: "Go for High-Performance Cloud Services",
+    description: "Why Go's cheap concurrency does not automatically produce fast cloud services: performance as constrained optimization, from queueing theory and admission control to goroutine ownership, downstream budgets, memory economics and evidence-based profiling.",
+    tier: 1,
+    dependencies: [],
+    topics: goConcurrencySaturationTopics,
+  },
+  {
+    id: "render-neon-portfolio",
+    title: "Render + Neon: pet projects that demonstrate senior-level engineering",
+    description: "Six senior-level portfolio projects on Render + Neon — from durable workflows and double-entry ledgers to CRDT collaboration and preview-environment reconciliation — each designed to demonstrate correctness under failure rather than a feature list.",
+    tier: 1,
+    dependencies: [],
+    topics: renderNeonPortfolioTopics,
+  },
+  {
+    id: "terraform-opentofu-state-engine",
+    title: "Infrastructure as Code: Terraform и OpenTofu — от первых шагов до глубин архитектуры",
+    description: "Terraform и OpenTofu описаны как единый движок согласования: от декларативности и жизненного цикла init-plan-apply через state, граф зависимостей и выразительность HCL до модулей, декомпозиции на масштабе, устройства провайдеров, тестирования и современного расхождения форка.",
+    tier: 1,
+    dependencies: [],
+    topics: terraformOpentofuStateEngineTopics,
+  },
+  {
+    id: "go-goroutine-scheduler-gc",
+    title: "Go for High-Performance Cloud Services",
+    description: "Go occupies a deliberate optimum in cloud infrastructure: the G-M-P scheduler and netpoller make blocking-style code scale, the concurrent GC trades total CPU for sub-millisecond pauses, and static single-binary deployment compounds at organizational scale. Each layer is tuned for the same target — I/O-bound, container-deployed services — which is why the modern cloud's control plane is written in it.",
+    tier: 1,
+    dependencies: [],
+    topics: goGoroutineSchedulerGcTopics,
+  },
+  {
+    id: "saint-petersburg-deep-map",
+    title: "Saint Petersburg: A Reader's Deep Map of Russia's Deliberate City",
+    description: "A deep map of Saint Petersburg built from its load-bearing words and layers: the decreed founding on marsh, the political chronicle of its names, granite embankments and well courtyards, the peterburgsky tekst, revolution and the 872-day siege, and the modern high-rise periphery.",
+    tier: 1,
+    dependencies: [],
+    topics: saintPetersburgDeepMapTopics,
+  },
+  {
+    id: "louis-armstrong-first-principles",
+    title: "Louis Armstrong from First Principles: New Orleans Grammar, the Hot Five Records, and How a Soloist Became the Subject",
+    description: "Louis Armstrong: a concepts-and-vocabulary guide, from basics to advanced",
+    tier: 1,
+    dependencies: [],
+    topics: louisArmstrongFirstPrinciplesTopics,
+  },
+  {
+    id: "rag-first-principles",
+    title: "Retrieval-Augmented Generation through the eyes of a Russian developer: the vocabulary, the mechanics, the arguments",
+    description: "If you sit in on a stand-up at any Moscow or Yerevan-relocated ML team today, you will hear a strange dialect: a Russian grammatical skeleton wearing English technical flesh. \"Надо перечанковать документы, эмбеддинги уехали, ретривер тащит мусор, реранкер не спасает.\" Translated: we need to re-chunk the documents, the embeddings drifted, the retriever is pulling garbage, the reranker isn't saving us. …",
+    tier: 1,
+    dependencies: [],
+    topics: ragFirstPrinciplesTopics,
+  },
+  {
+    id: "cloud-native-working-vocabulary",
+    title: "Cloud-Native Architecture: A Working Vocabulary from First Principles to the Frontier",
+    description: "A system is cloud-native not because it runs on someone else's computers but because it is designed around the assumptions of the cloud: infrastructure is ephemeral and programmable, failure is normal rather than exceptional, capacity is elastic and metered, and the unit of deployment is small and independently replaceable. Everything else in this vocabulary — containers, orchestration, networking, storage, identity, delivery — follows from that shift.",
+    tier: 1,
+    dependencies: [],
+    topics: cloudNativeWorkingVocabularyTopics,
+  },
+  {
+    id: "python-ai-ml-working-vocabulary",
+    title: "Python for AI/ML Services: A Working Vocabulary, from First Principles to Production",
+    description: "What follows is a guided tour of the words and ideas you need in order to build, read, and reason about Python services that serve machine learning models, with FastAPI and asynchronous programming as the spine. It is written so that a newcomer can follow the thread from beginning to end, while an experienced engineer can skim for the sharp edges. Where there is a trap that people fall into in practice, it is named explicitly. …",
+    tier: 1,
+    dependencies: [],
+    topics: pythonAiMlWorkingVocabularyTopics,
+  },
+  {
+    id: "postgresql-anatomy",
+    title: "Анатомия PostgreSQL: кортежи, снимки и журнал",
+    description: "От файлов к СУБД-архитектуре: почему простые файлы не гарантируют долговечность и целостность, и как устроен PostgreSQL — postmaster и буферный кэш, отношения и кортежи, ACID и MVCC со снимками, уровни изоляции, WAL, VACUUM и bloat, B-tree через EXPLAIN.",
+    tier: 1,
+    dependencies: [],
+    topics: postgresqlAnatomyTopics,
+  },
+  {
+    id: "event-driven-sharp-edges",
+    title: "Event-Driven Architecture: From First Principles to the Sharp Edges",
+    description: "Start with the simplest possible picture. In a request-driven system, one component asks another to do something and waits for the answer: \"charge this card, tell me when you're done.\" In an event-driven system, a component instead announces that something has happened—\"an order was placed\"—and goes back to its business without knowing or caring who is listening. That shift, from *commanding* to *announcing*, is the whole idea. …",
+    tier: 1,
+    dependencies: [],
+    topics: eventDrivenSharpEdgesTopics,
+  },
+  {
+    id: "typescript-type-level-sky",
+    title: "TypeScript, from the ground up to the type-level sky",
+    description: "TypeScript is JavaScript with a statically verified, wholly erased layer of types: the product is not speed or runtime safety but mechanical proof that claims about value shapes hold across the codebase, built on a set-theoretic, structural model.",
+    tier: 1,
+    dependencies: [],
+    topics: typescriptTypeLevelSkyTopics,
+  },
+  {
+    id: "zero-trust-lateral-movement",
+    title: "Zero Trust Architecture: From First Principles to the Frontier",
+    description: "Zero Trust is best understood not as a product you buy but as a change in the default assumption a security system makes about any request it receives. For most of computing's history, networks were built like medieval cities: a hard wall at the edge, a gate with guards, and relative freedom of movement once you were inside. This is the *perimeter model*, and its implicit rule was \"trust by location.\" If a packet came from an internal IP address, it was presumed friendly. …",
+    tier: 1,
+    dependencies: [],
+    topics: zeroTrustLateralMovementTopics,
+  },
+  {
+    id: "embeddings-vector-search-triangle",
+    title: "Vector Databases and Embeddings: From First Principles to the Frontier",
+    description: "An embedding is a learned map from data into a high-dimensional space where proximity encodes semantic relatedness, trained contrastively; vector databases make nearest-neighbor search over that geometry fast by trading exactness for structure while remaining real databases.",
+    tier: 1,
+    dependencies: [],
+    topics: embeddingsVectorSearchTriangleTopics,
+  },
+  {
+    id: "python-coordination-language",
+    title: "Python for AI/ML Services: A Conceptual Lexicon",
+    description: "A prose map of Python for ML serving built on one thesis: Python is a coordination language wearing a computation language's clothes, so the event loop coordinates, native code computes, and validation lives at the edge.",
+    tier: 1,
+    dependencies: [],
+    topics: pythonCoordinationLanguageTopics,
+  },
+  {
+    id: "cloud-native-first-principles",
+    title: "Cloud-Native Architecture: From First Principles to the Frontier",
+    description: "Cloud-native is a design philosophy, not a hosting location: systems that assume the environment is elastic, programmable, failure-prone, and billed by the second, and turn those properties into advantages. The essay follows the CNCF map — containers, service meshes, microservices, immutable infrastructure, declarative APIs — from first principles to the frontier.",
+    tier: 1,
+    dependencies: [],
+    topics: cloudNativeFirstPrinciplesTopics,
+  },
+  {
+    id: "typescript-ground-up-type-level",
+    title: "TypeScript, From the Ground Up to the Type Level",
+    description: "A complete conceptual tour of TypeScript: static types that erase at runtime, types treated as sets of values, narrowing, variance, generics, and the programmable type level, closing with the unsound corners and large-codebase practices.",
+    tier: 1,
+    dependencies: [],
+    topics: typescriptGroundUpTypeLevelTopics,
+  },
+  {
+    id: "profile-as-search-result",
+    title: "The Profile That Gets You Hired",
+    description: "A recruiter-side guide to CV and LinkedIn: how the search, skim and read funnel actually works, the 14 profile moves ranked by how much they convert into interviews, and where effort is wasted.",
+    tier: 1,
+    dependencies: [],
+    topics: profileAsSearchResultTopics,
+  },
+  {
+    id: "cloud-identity-perimeter",
+    title: "Cloud Security: A Field Guide to IAM, Secrets Management, and CSPM",
+    description: "A field guide resting on one insight: in the cloud the API is the perimeter and identity is the key, which makes IAM, secrets management, and CSPM three views of one problem.",
+    tier: 1,
+    dependencies: [],
+    topics: cloudIdentityPerimeterTopics,
+  },
+  {
+    id: "polanski-enclosure-vocabulary",
+    title: "Roman Polanski: The Concepts and Vocabulary",
+    description: "A conceptual vocabulary for Polanski's cinema: one recurring machine of a bounded space, rising pressure, and endings without release, read through critical terms and competing framings.",
+    tier: 1,
+    dependencies: [],
+    topics: polanskiEnclosureVocabularyTopics,
   },
 ];

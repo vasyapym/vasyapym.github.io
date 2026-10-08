@@ -19,3 +19,12 @@
   - Future lesson additions to these six tiers are invisible until hand-added to a volume (documented in lesson-pipeline.md — the enforcement is procedural, not runtime).
   - Lesson card numbering (tier-wide 01..N) now follows folder order; visual sanity of the renumbered cards NOT RUN (no design-iteration round this pass; open .agent screenshots only).
 - Next action: task complete pending owner review; design-iteration round offered if the renumbered card faces need a visual pass.
+
+## Pass C002 — VERIFIED (batch wire, script-lesson fast track)
+- Objective and scope: owner batch — 23 captured essays from `3_new_lEssons/` wired by lesson-script: `portfolio/projects/practice-map/lessons/104-…126-*.md` → one area + one `<slug>-full` card each, tier from the capture name; then volumes hand-slotting so the owner's folder rules hold (8+ tiers stay fully foldered; nothing orphaned).
+- Changes:
+  - `web/curriculum.ts` + 23 lazy chunks in `web/lesson-data/` + eager consts (wire-lesson runs: 104–126; EN lessons `--front`, RU 106/109/116 appended; author-side summary overrides passed for 15 lessons, derive for 112/113/117/119/122-outlined... derive held for 112/113/117/119, override passed for 122).
+  - `web/lib/tiers/tiers.ts` — new ids appended into existing volumes; straddlers 104/124 (developer job-hunting) got a NEW global slug `career` (owner picked the recommended variant over society/tech): astra-6-max career [linkedin-evidence-package-full], opus-5.5-high career [profile-as-search-result-full]. opus-5-max stays flat (6 < 8) so 121 is intentionally vol-less.
+  - `docs/agents/lesson-pipeline.md` — global slug set now reads …games/career.
+- Verification: payload JSON of all 23 (zero straight quotes in values, pitfalls 7–10); coverage gate PASS (card/area/volume/areas-row counts, flat exception 121); typecheck/build/practice-map.check.mjs green — details and per-lesson rows in `agent2/RELAY-new-lessons-2026-10-log.md`.
+- Design constraints: free-form essays untouched (open whale: one-section converters for 104/105/111/113/115/126 after ### and bold-lead promotion found none); no Chrome browser pass this round.
