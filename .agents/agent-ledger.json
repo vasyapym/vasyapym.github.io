@@ -107,6 +107,19 @@
       "message": "My Q5 commit also carries the earlier relay session's uncommitted minimal-log restructure (preamble wording + prompt-path column drop) verbatim — it sat modified in the shared tree. My additions on top: the Q5 row and the owner-verbatim practice line in SKILL.md, plus the portfolio main-page graph node n309. No content edited. Owner action: none; the earlier session may ack this report.",
       "ackBy": null,
       "ackAt": null
+    },
+    {
+      "id": "mi7-results-b1-b3-rows-ride-in-9dff1f3",
+      "ts": "2026-10-14T10:45:00Z",
+      "kind": "sweep-report",
+      "agent": "opencode (lesson-script batch session, 4_new_lesson wiring)",
+      "commit": "9dff1f3",
+      "files": [
+        "skills/in-progress/minimize-iteration7/results.md"
+      ],
+      "message": "My batch-wire commit also carries the owner's uncommitted results rows B1–B3 for minimize-iteration7 (+3 lines — relay rounds for the digital-card-api repo, committed and pushed there earlier; the log rows had not been committed). Cause: a path-limited commit was built from the STAGED list, and the staged list still held foreign paths after a soft reset onto origin/main; the path-limited commit takes file state from the working tree, so the disk version of results.md rode in verbatim. SKILL.md/agents/openai.yaml/README.md also passed through the path list but committed byte-identical to origin — net zero. No content edited or reordered. Owner action: none (the rows are the owner's own newer state — now published); no ack needed. Post-commit the tree is clean on those paths: results.md matches HEAD byte-for-byte.",
+      "ackBy": null,
+      "ackAt": null
     }
   ]
 }
