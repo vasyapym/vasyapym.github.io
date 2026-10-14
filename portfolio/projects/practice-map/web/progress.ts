@@ -46,7 +46,7 @@ export function loadPracticeState(areas: readonly PracticeArea[]): PracticeState
   }
 
   try {
-    const stored = JSON.parse(window.localStorage.getItem(STORAGE_KEY) ?? "null") as {
+    const stored = JSON.parse(readStateRaw() ?? "null") as {
       topics?: Record<string, Partial<TopicProgress>>;
     } | null;
 
@@ -80,7 +80,34 @@ export function savePracticeState(state: PracticeState) {
     return;
   }
 
-  window.localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
+  // Quota guard (NQ01, owner report: Edge Windows + iOS Safari "hit a snag"):
+  // once the shared-origin localStorage is full, this write used to throw
+  // inside the mount effect and the page's error boundary killed the whole
+  // project view. The progress blob is tiny (~16KB), the memory is what is
+  // full (free-reading full-text blobs + shared-origin tenants), so the
+  // correct behavior is the same degradation freeReading/scrollProgress
+  // already use: keep the state for this session, never kill the page.
+  try {
+    window.localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
+    practiceStateMemoryFallback.delete(STORAGE_KEY);
+  } catch {
+    practiceStateMemoryFallback.set(STORAGE_KEY, JSON.stringify(state));
+  }
+}
+
+// load reads through to the fallback so a session-only state survives
+// re-renders even when nothing can be persisted.
+const practiceStateMemoryFallback = new Map<string, string>();
+
+function readStateRaw(): string | null {
+  if (practiceStateMemoryFallback.has(STORAGE_KEY)) {
+    return practiceStateMemoryFallback.get(STORAGE_KEY) as string;
+  }
+  try {
+    return window.localStorage.getItem(STORAGE_KEY);
+  } catch {
+    return null;
+  }
 }
 
 export function toggleTopicFeedback(

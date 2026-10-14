@@ -740,10 +740,71 @@ try {
     "Escape closes after the 320px free-reading leg",
   );
 
+  // --- desktop: storage-quota resilience (NQ01) ------------------------------
+  // Owner report: on Edge Windows + iOS Safari the shared-origin localStorage
+  // was already full, the first mount write (progress v1) threw and the
+  // ProjectFrame error boundary killed the project ("hit a snag"). The guard
+  // fix is progress.ts's try/catch + memory fallback; this leg reproduces the
+  // full-storage start in Chrome and pins the two behaviors: the map opens,
+  // the crash view never mounts.
+  const quotaPage = await browser.newPage();
+  const quotaProblems = [];
+  quotaPage.on("pageerror", (err) => quotaProblems.push(`pageerror: ${err.message}`));
+  quotaPage.on("console", (msg) => {
+    if (msg.type() === "error") quotaProblems.push(`console.error: ${msg.text()}`);
+  });
+  await quotaPage.setViewport({ width: 1440, height: 900 });
+  // 1) mount on the dev-server origin so the filler targets THE app's storage
+  //    (evaluateOnNewDocument would fill about:blank — a different origin).
+  await quotaPage.goto(`${BASE}/projects/practice-map`, { waitUntil: "domcontentloaded", timeout: 150000 });
+  check(await appears(".pg-card", 30000), "quota leg: app mounts before the fill (NQ01)");
+  // 2) reconstruct the owner's incident: the origin is at its quota, the
+  //    STORED progress blob is SMALL (the pre-batch state), and the mount's
+  //    rewrite is BIGGER (the batch added topics). A growth vs an at-quota
+  //    storage is the case that throws on ALL engines. Park a tiny valid
+  //    blob in the app's own key, then fill the remaining space with small
+  //    keys so no headroom remains, and reload: the mount's rewrite must
+  //    pass only via the save guard (before the guard this was the reported
+  //    "hit a snag"). Small filler keys keep the tail free-space under 4KB.
+  await quotaPage.evaluate(() => {
+    window.localStorage.setItem("practice-map:progress:v1", '{"topics":{}}');
+    const filler = "x".repeat(4096);
+    for (let i = 0; ; i++) {
+      try {
+        window.localStorage.setItem(`quota-filler:${i}`, filler);
+      } catch {
+        return `tail jammed at ${i * 4}KB leftovers`;
+      }
+    }
+  });
+  const parked = await quotaPage.evaluate(() => window.localStorage.getItem("practice-map:progress:v1")?.length ?? 0);
+  const items = await quotaPage.evaluate(() => window.localStorage.length);
+  check(parked === 13 && items > 1, `storage at quota with a small valid progress blob (blob ${parked}B, ${items} keys)`);
+  await quotaPage.goto(`${BASE}/projects/practice-map`, { waitUntil: "domcontentloaded", timeout: 150000 });
+  await quotaPage.waitForSelector(".pg-card", { timeout: 30000 }).catch(() => {});
+  const opened = await appears(".pg-card");
+  if (!opened) {
+    // failure diagnostics: what actually rendered under a full storage
+    const dump = await quotaPage.evaluate(() => ({
+      cardCount: document.querySelectorAll(".pg-card").length,
+      crashCount: document.querySelectorAll(".project-crash").length,
+      crashDetail: document.querySelector(".project-crash-detail")?.textContent?.trim()?.slice(0, 200) ?? null,
+      progressLen: window.localStorage.getItem("practice-map:progress:v1")?.length ?? -1,
+      parkedLen: 0,
+    }));
+    console.log(`quota leg failure dump: ${JSON.stringify(dump)}`);
+    await quotaPage.screenshot({ path: join(SHOTS, "quota-failure.png") });
+  }
+  check(opened, "map opens with a full localStorage (NQ01 quota guard)");
+  check((await quotaPage.$(".project-crash")) === null, "no crash boundary behind a full storage (NQ01)");
+
+  quotaPage.close();
+
   await page.close();
   await browser.close();
 
   problems.push(...consoleProblems);
+  problems.push(...quotaProblems);
 
   if (problems.length > 0) {
     console.error(`\n${problems.length} problem(s):`);
