@@ -5491,6 +5491,1263 @@ whenNot: "This vocabulary reads Polanski's films; it is not a biography, not a l
     },
   },
 ];
+
+const edgeComputingCdnArchitecturesTopics: readonly TopicCard[] = [
+  {
+    id: "edge-computing-cdn-architectures-full",
+    title: "Edge Computing & CDN Architectures: From First Principles to the Frontier",
+    summary: "Why latency is a physics problem rather than a server-speed problem: how CDNs and edge platforms move content, computation and state closer to users — cache keys and hierarchies, anycast routing, isolates and edge KV.",
+    concepts: [],
+    practicePrompt: "Pick one slow endpoint of a real site and sketch its path through a CDN: where TLS terminates, what the cache key includes, and which Cache-Control directives apply. Then trace a cache miss through the hierarchy — edge to origin shield to origin — and count the round trips saved versus going direct. Finish by explaining when you would purge by surrogate key instead of by URL.",
+    checkPrompt: "Without notes, reproduce the request path — DNS or anycast routing to a PoP, hit versus miss with ETag revalidation returning 304, and request coalescing on a hot expired object. Also state the isolation versus startup versus density tradeoff from VMs to isolates, and where mutable state can live at the edge (KV, Durable Objects, replicas, CRDTs) with the consistency cost of each.",
+    tier: 1,
+    complexity: 4,
+    references: [
+
+    ],
+    lesson: {
+problem: "Without this model, latency looks like a server-speed problem, so teams buy bigger machines while users in another hemisphere still wait hundreds of milliseconds. Cache headers, state placement, and origin protection are then chosen blindly, and the bill arrives as a melted origin during the first stampede.",
+model: "The central model is the cloud-to-thing continuum, driven by one immovable fact: light is only so fast, so latency is dominated by distance and round trips, not by server speed. The whole discipline moves content, computation, and — hardest of all — state closer to users along that continuum. Caching solves read proximity, edge functions extend the move to compute proximity, and the unsolved hard core is write and state proximity.",
+mechanics: "Caching: Cache-Control directives (max-age, s-maxage, stale-while-revalidate, stale-if-error), TTL with ETag/Last-Modified revalidation returning 304, hit ratio as the central metric, cache keys with Vary, surrogate keys for targeted purges. Hierarchies: edge misses go to an origin shield that aggregates misses, request coalescing collapses a hot expired object into one origin fetch, consistent hashing spreads objects within a PoP, eviction plus admission policies protect cache space. Routing: DNS-based (with EDNS Client Subnet) versus anycast over BGP, then GSLB steering by health, capacity, and latency. Protocols: TLS terminated at the edge, warmed keep-alive connections across the middle mile, HTTP/3 over QUIC removing TCP head-of-line blocking with 0-RTT resumption and connection migration. Programmable edge: V8 isolates, Wasm plus WASI, and microVMs trade isolation against startup time and density; edge functions do routing, JWT validation, personalization, and bot mitigation in the request path. State: eventually consistent edge KV, single-authority Durable Objects (actor model), read replicas with bounded staleness, CRDTs for coordination-free merges — with PACELC pricing every choice.",
+pitfalls: [
+  "Believing faster servers fix latency when round trips over distance dominate",
+  "Confusing bandwidth with latency on a high-bandwidth, high-RTT link",
+  "Treating edge computing as one lineage instead of CDN, telecom MEC, and device edge",
+  "Writing Cache-Control without s-maxage and ignoring how shared caches see it",
+  "Designing cache keys that fragment content or leak one user's personalized page to another",
+  "Expecting an expired hot object to mean thousands of origin hits and missing request coalescing",
+  "Expecting edge KV writes to be instantly visible everywhere; they are eventually consistent",
+  "Placing mutable, coordination-heavy state at hundreds of PoPs and hitting CAP and PACELC costs",
+  "Assuming anycast picks the lowest-latency PoP when it picks the nearest in BGP terms",
+  "Ignoring data gravity and pushing heavy state to the edge without a hybrid plan"
+],
+whenNot: "The lesson does not claim the edge is always the answer: data gravity pulls computation back toward large datasets, and hybrid designs (edge for interaction, core for heavy state) are often correct. It maps telecom and IoT edge vocabulary into the continuum but does not cover 5G radio internals or device firmware in depth. A single-region app with local users needs only the caching basics, not the full distributed machinery."
+    },
+  },
+];
+
+const opentelemetryInstrumentationTopics: readonly TopicCard[] = [
+  {
+    id: "opentelemetry-instrumentation-full",
+    title: "OpenTelemetry Instrumentation: From First Principles to the Deep End",
+    summary: "OpenTelemetry as a correlation machine: traces, metrics and logs tied together by propagated context, the API/SDK split, semantic conventions, span anatomy and the Collector pipeline that lets you instrument once and send telemetry anywhere.",
+    concepts: [],
+    practicePrompt: "Instrument a small multi-service demo end to end: install the SDK with OTLP export to a Collector, add one manual span around a business operation, and push an error through the flow. Then break context propagation in one service and watch the trace split into orphaned subtrees — fix it and verify the waterfall is whole again.",
+    checkPrompt: "From memory, explain the API versus SDK split and who installs which, and draw a span tree whose context crosses an HTTP hop via the W3C traceparent header and a queue hop via message headers with a link instead of a parent. Also choose the right instrument (Counter, UpDownCounter, Histogram, Gauge) for three given measurements and justify the cardinality of each attribute you add.",
+    tier: 1,
+    complexity: 4,
+    references: [
+
+    ],
+    lesson: {
+problem: "Without shared telemetry vocabulary, every incident becomes archaeology across disconnected dashboards: logs without trace IDs, metrics without exemplars, and no single answer to what happened to one specific request. Teams re-instrument for every vendor and still cannot see the system as one coherent story.",
+model: "The central model is OpenTelemetry as a correlation machine. A stable, no-op-by-default API is separated from an SDK that processes, samples, and exports; signals — traces, metrics, logs, emerging profiles — are tied together by shared context, a trace ID propagated across every hop. Semantic conventions and Resource attributes give the data a shared, queryable vocabulary, and a Collector pipeline carries it anywhere: instrument once, send anywhere.",
+mechanics: "Signals: traces answer what happened to one request (spans in a tree via SpanContext — trace ID, span ID, flags), metrics answer aggregate behavior cheaply over time, logs are bridged from existing frameworks and enriched with trace context. Span anatomy: attributes, events (with standardized exception attributes), status (usually Unset; Error on failure), span kind (SERVER/CLIENT, PRODUCER/CONSUMER) that tells tools how to interpret roles, and links for fan-in causality outside the strict tree. Context and propagation: in-process via thread-locals, contextvars, or explicit context objects; across processes via the W3C traceparent header; baggage carries user key-values but must hold no secrets and is not auto-attached to spans. Shared vocabulary: semantic conventions (route templates like GET /users/{id}, never raw URLs) plus Resource attributes with service.name as the most important, populated by resource detectors. Metrics model: Counter, UpDownCounter, Histogram, Gauge with synchronous and observable variants; views reshape aggregation and bucket boundaries; high-cardinality dimensions stay on spans while exemplars link metric spikes to representative traces. Pipeline and economics: BatchSpanProcessor to OTLP (gRPC 4317 or HTTP 4318) into Collector pipelines of receivers, processors, exporters, and connectors like spanmetrics, run as agent and gateway tiers; head sampling (ParentBased plus TraceIdRatioBased) caps volume, tail sampling in a Collector keeps all errors and slow traces.",
+pitfalls: [
+  "Instrumenting library code against the SDK and forcing a vendor on users instead of the API",
+  "Leaving spans open on early returns or exceptions instead of ending them via language idioms",
+  "Recording an exception but forgetting to set Error status — they are separate acts",
+  "Naming HTTP spans with raw URLs instead of route templates, exploding span names",
+  "Putting user IDs or raw URLs on metric attributes and causing cardinality explosion",
+  "Assuming baggage is secure and auto-attached to spans — it is neither",
+  "Skipping one hop such as a queue producer or consumer and shipping orphaned traces",
+  "Sampling data without realizing aggregates skew unless computed before sampling or extrapolated",
+  "Running SimpleSpanProcessor in production and paying per-span export overhead",
+  "Inventing attribute names instead of semantic conventions, then needing per-team queries"
+],
+whenNot: "OpenTelemetry supplies the raw material of observability but does not make an unhealthy architecture observable, and it is not a backend, dashboard, or alerting product. For a single-process monolith with no distributed hops, the full tracing machinery is overkill; structured logs and basic metrics may suffice. It also does not replace error trackers or profilers, though profiles are converging there."
+    },
+  },
+];
+
+const darkSoulsArchitectureOfDifficultyTopics: readonly TopicCard[] = [
+  {
+    id: "dark-souls-architecture-of-difficulty-full",
+    title: "Dark Souls: A Primer in the Architecture of Difficulty",
+    summary: "Dark Souls as a design argument where failure is a first-class mechanic: the souls economy turns greed and impatience into the antagonist, every death is legible and fair, and shortcuts, buried lore and asynchronous multiplayer teach the same lesson.",
+    concepts: [],
+    practicePrompt: "Replay one boss attempt (or watch a video of one) and after every death name the single thing the game showed you beforehand — a tell, a suspicious item placement, a telegraph. Then build a tiny risk-economy table for your own session: souls carried, nearest bonfire, and your greed threshold for pressing on versus banking. Play ten minutes honoring the table and note how your deaths change.",
+    checkPrompt: "Without notes, explain the core loop — souls as a single currency, dropped at death with exactly one recovery chance, bonfires that bank progress but resurrect enemies — as a risk-assessment problem. Then reproduce the fairness versus unforgiving distinction and how shortcuts, item-description archaeology, and asynchronous multiplayer each carry the same argument.",
+    tier: 1,
+    complexity: 4,
+    references: [
+
+    ],
+    lesson: {
+problem: "Without this model, difficulty reads as a knob to turn down or a wall to resent, and the design lessons — failure as feedback, earned competence, legible challenge — stay invisible. You also miss why the word became a genre rather than a marketing label for hardness.",
+model: "The central model: difficulty is the medium, not the obstacle. Dark Souls makes failure a first-class mechanic — the souls economy turns your own greed and impatience into the antagonist — while near-fanatic fairness (legible telegraphs, foreshadowed traps, never repeated) makes every death a lesson. The world, the buried story, and even the multiplayer are built on the same principle: meaning is excavated, not delivered, and competence earned under pressure is the reward.",
+mechanics: "Souls economics: one currency for experience and money, carried unbanked, dropped where you fall with exactly one recovery chance — loss aversion and sunk-cost reasoning become level design. Bonfires bank progress but resurrect every ordinary enemy, keeping the risk calculus alive after every checkpoint. Honest communication: visual tells, suspicious item placements, telegraphed attacks; the game never lies but never repeats itself. Level design as rhetoric: one folded, interconnected world whose shortcuts reframe your mental map, so spatial understanding is real progression. Archaeological storytelling: lore distributed across item descriptions, corpse placement, and cryptic NPC dialogue, with load-bearing ambiguity (hermeneutic gameplay, ludonarrative harmony through Hollowing — the undead die of giving up). Asynchronous solidarity: template-constrained messages, bloodstain replays, phantoms, summoning and invasion.",
+pitfalls: [
+  "Summarizing the game as merely hard and stopping there",
+  "Calling it unfair when it is unforgiving — every death is legible in retrospect",
+  "Treating death as an error state instead of the grammar of the experience",
+  "Reading shortcuts as conveniences rather than rhetoric that reframes the map",
+  "Expecting a narrated plot instead of excavating lore from item descriptions",
+  "Blaming reflexes when the real test is patience and one named lesson per death",
+  "Assuming a wall demands more skill when it usually demands lateral exploration",
+  "Overlooking that bonfires resurrect enemies, keeping banked progress risky",
+  "Ignoring the asynchronous multiplayer layer as a social design rather than a bolt-on",
+  "Reducing the theme to gothic imagery instead of entropy, purpose, and hollowing"
+],
+whenNot: "This lesson analyzes a game's design; it does not claim difficulty is a virtue in work tools, UX, or learning materials, where friction is usually cost rather than communication. It does not teach how to beat specific bosses or build characters, and it does not argue every game should adopt such stakes. Soulslikes like Elden Ring and Sekiro are referenced as descendants, not covered."
+    },
+  },
+];
+
+const softwareSupplyChainSecurityTopics: readonly TopicCard[] = [
+  {
+    id: "software-supply-chain-security-full",
+    title: "Software Supply Chain Security: SBOM, Signing, and Provenance",
+    summary: "Modern software is assembled, not written: the lesson maps where the supply chain gets attacked and shows how SBOMs, Sigstore signing and SLSA provenance close the gap between what you assume about an artifact and what you can verify.",
+    concepts: [],
+    practicePrompt: "Pick one artifact your project actually ships - a container image or an npm package - and generate its SBOM with Syft or Trivy; then for three incidents (event-stream, SolarWinds, dependency confusion) name which pipeline stage each exploited. Write the exact identity string a verifier of your signatures should expect, and check one real artifact against it with cosign verify.",
+    checkPrompt: "Without notes, state the single question an SBOM, a signature, and a provenance attestation each answer; explain what a keyless Sigstore signature proves and what it does not; and say which SLSA level defeats a compromised build step and why. Also explain why a policy of must-be-signed is nearly meaningless under keyless signing.",
+    tier: 1,
+    complexity: 4,
+    references: [
+
+    ],
+    lesson: {
+problem: "Almost no modern software is written; it is assembled from millions of lines pulled from registries, base images, and build toolchains nobody audited, so when a hijacked maintainer account, build server, or name-resolution rule runs malicious code in production, the organization cannot even answer whether it ships the affected component. The whole discipline is about closing the gap between what people assume about an artifact and what can actually be verified about it.",
+model: "Treat the supply chain as a pipeline of transformations - source, build, artifact, distribution, consumer - where every arrow is a place where the output may not be what you expected. Three instruments close that gap at different points: an SBOM answers what is in this, a signature answers who vouches for it and whether it is unmodified, and provenance answers how, where, and from what it was made. None is sufficient alone, and all three are worthless unless someone verifies them at the moment an artifact is about to be trusted - metadata nobody checks is theater.",
+mechanics: "1) SBOM as an ingredients label: an SPDX or CycloneDX inventory keyed by PURL identifiers, generated by source analysis (declared), build-time hooks (actually resolved, most accurate), or binary analysis with tools like Syft and Trivy (heuristic, for artifacts you did not build); VEX statements then turn a flood of scanner matches into machine-readable not-affected or affected answers. 2) Keyless signing with Sigstore: an ephemeral key bound by Fulcio to an OIDC identity, the signature and certificate published to the append-only Rekor transparency log, verified with Cosign; it proves bytes are unmodified since a named identity signed them and nothing about their quality. 3) Provenance as signed in-toto attestations in a DSSE envelope (subjects, predicate type, predicate), graded by SLSA v1.0 levels: L1 provenance may be self-generated, L2 comes from a hosted build platform, L3 runs in an isolated environment so build steps cannot forge the claim. 4) Ecosystem hygiene: lockfiles with hashes treated as code changes, GitHub Actions pinned by commit SHA, private namespaces configured against dependency confusion, OpenSSF Scorecard and OSV for dependency health, TUF-style update metadata so a single compromised key cannot serve stale or malicious packages. 5) Enforcement at consumption points: admission controllers such as Kyverno verifyImages and Sigstore policy-controller reject images whose signature identity, provenance source and branch, or SBOM attestation fails an explicit policy. 6) Reproducible builds as the north star: deterministic output lets anyone rebuild and compare hashes, turning provenance from belief into a checkable claim.",
+pitfalls: [
+  "Treating an SBOM as proof that software is safe rather than as an inventory to join against vulnerability data",
+  "Trusting a declared or binary-analysis SBOM as if it were build-time accurate; the fidelity gap hides real surprises",
+  "Believing a valid signature means safe or built from the source you think; a compromised CI pipeline signs backdoors with a perfectly valid identity",
+  "Writing policy as must-be-signed; under keyless signing anyone can sign anything, so the exact expected identity string is the real control",
+  "Forgetting why Rekor matters: the ten-minute Fulcio certificate expires, and the log is what proves signing happened while it was valid",
+  "Pinning GitHub Actions by mutable tag instead of commit SHA; the tj-actions compromise hit exactly those projects",
+  "Scanning only direct dependencies instead of the transitive closure, where the real risk lives",
+  "Confusing SLSA levels: L1 provenance may be generated by the project itself, and only L3 stops build steps from influencing the claim",
+  "Treating reproducible builds as a checkbox every language can hit rather than an aspirational north star",
+  "Assuming technical controls cover the social layer; the xz backdoor came from a legitimate maintainer with valid signatures and clean provenance"
+],
+whenNot: "This lesson is not a tooling tutorial and does not claim that generating metadata makes a supply chain secure - unverified metadata is theater. It also does not defeat the human layer of attacks like xz, and it is not a vulnerability-management guide for code you wrote yourself."
+    },
+  },
+];
+
+const laravelEloquentDeepPerformanceTopics: readonly TopicCard[] = [
+  {
+    id: "laravel-eloquent-deep-performance-full",
+    title: "Продвинутый Eloquent и производительность базы данных в Laravel",
+    summary: "Eloquent не прячет базу данных, а откладывает её: модель «сколько запросов → сколько данных → как исполнится», жадная загрузка без JOIN, цена гидратации, ловушки chunk() и курсора, индексы по правилу ESR.",
+    concepts: [],
+    practicePrompt: "Возьмите один медленный эндпоинт в своём Laravel-проекте: откройте его с Debugbar, посчитайте количество запросов и найдите N+1; самый тяжёлый запрос выведите через toRawSql() и прогоните EXPLAIN ANALYZE. По плану решите, что лечит проблему — with()/withCount(), выборка колонок или индекс, — и внесите одно изменение. Проверка: счётчик запросов и время страницы до и после.",
+    checkPrompt: "Без подглядываний объясните, сколько запросов делает Post::with('author')->get() и почему это не JOIN; назовите, что ломает индекс в whereDate() и LIKE '%…%'. Напишите по памяти составной индекс под запрос вида «равенство → диапазон → сортировка» (правило ESR) и объясните, почему select() после withCount() теряет счётчик, а жадную загрузку на 100 000 родителей надо чанкать.",
+    tier: 1,
+    complexity: 4,
+    references: [
+
+    ],
+    lesson: {
+problem: "Eloquent выглядит бесплатной абстракцией, пока таблица не дорастёт до пары миллионов строк и страница не начнёт открываться три секунды; без понимания того, какой SQL генерирует красивая объектная модель, причину не найти. Интуиция здесь ошибается удручающе часто: люди оптимизируют запрос за 2 мс и не замечают 400 запросов по 1 мс.",
+model: "Центральная модель — конвейер из трёх проверок в порядке приоритета: сколько запросов уйдёт в базу, сколько строк и байт вернётся и будет гидратировано в PHP-объекты, как база исполнит каждый запрос — по индексу или полным сканом, с сортировкой в памяти или без. К ней добавляются два принципа: разделение труда (СУБД работает с множествами, PHP — с объектами по одному) и «измеряй, не угадывай». Под всем лежит четырёхслойный стек Eloquent Builder → Query Builder → Grammar → Connection/PDO: Eloquent не прячет базу данных, он её откладывает.",
+mechanics: "1) Жадная загрузка — не JOIN: with('author') делает по одному запросу на уровень вложенности и сопоставляет ключи в PHP; в select() оставляйте внешний ключ, вызывайте select() до withCount(), а limit внутри with() с Laravel 11 режет по родителям через ROW_NUMBER(). 2) Гидратация: каждая строка PDO становится тяжёлой моделью (десятки МБ памяти на 10 000 моделей), касты и аксессоры применяются лениво и дают N+1 внутри toArray() и API-ресурсов; DB::table() и ->pluck() в разы дешевле. 3) Строгий режим Model::shouldBeStrict() вне прода запрещает ленивую загрузку и тихие потери атрибутов; в ресурсах — whenLoaded(), чтобы связь уходила в ответ только когда загружена. 4) Большие выборки: chunk() со сдвигом OFFSET опасен при модификации данных в коллбэке — берите chunkById()/lazyById(); cursor() не экономит память при буферизованном PDO MySQL и не умеет жадную загрузку. 5) Индексы: правило левого префикса и порядок «равенство → диапазон → сортировка» (ESR); whereDate(), LIKE '%…%', orWhere и неявное приведение типов ломают план; на Postgres индекс по внешнему ключу не создаётся автоматически, зато есть частичные и GIN-индексы. 6) Запись и гонки: insert()/upsert() вместо create() в цикле (события и timestamps вручную), increment() атомарен, уникальность обеспечивает уникальный индекс базы, внутри транзакции диспатчьте через afterCommit(), дедлоки лечатся фиксированным порядком захвата и attempts: 3.",
+pitfalls: [
+  "Считать, что with() делает JOIN, — на самом деле это отдельный запрос на каждый уровень вложенности",
+  "Вызывать select() после withCount() и терять счётчик; забывать внешний ключ в select() при жадной загрузке",
+  "Оптимизировать сложный на вид запрос за 2 мс и не замечать 400 запросов по 1 мс — угадывать вместо измерения",
+  "Фильтровать и суммировать коллекцию в PHP там, где это должно быть where или агрегат в SQL",
+  "Доверять limit() внутри with() в старом Laravel — там он применялся ко всей выборке, а не на каждого родителя",
+  "Использовать chunk() там, где коллбэк меняет данные, — страница сдвигается и строки молча пропускаются",
+  "Ждать, что Postgres сам создаст индекс по внешнему ключу, или строить составной индекс в порядке, не совпадающем с условием",
+  "Писать $model->views++; $model->save() вместо increment() — конкурентные операции теряют инкремент",
+  "Полагаться на firstOrCreate без уникального индекса в базе — дубли неизбежны, инвариант обеспечивает СУБД",
+  "Диспатчить задачи и события внутри транзакции без afterCommit() — воркер может не найти ещё не закоммиченную запись"
+],
+whenNot: "Урок не про администрирование СУБД — репликацию, шардирование, тюнинг сервера — и не заменяет DBA на экстремальных нагрузках. Он также не утверждает, что Eloquent медленный или что сырой SQL всегда быстрее: граница между ними решается по читаемости и плану исполнения, а не по догме."
+    },
+  },
+];
+
+const darkSoulsConceptsPrimerTopics: readonly TopicCard[] = [
+  {
+    id: "dark-souls-concepts-primer-full",
+    title: "Dark Souls: A Primer in Concepts",
+    summary: "Dark Souls explained as a coherent design philosophy rather than a hardness test: difficulty as symptom, the souls-and-bonfire risk economy, stamina-gated combat as commitment, an interconnected world without markers, and mechanics fused with meaning through hollowing.",
+    concepts: [],
+    practicePrompt: "Play or rewatch one area of any Soulslike and annotate its design: where the risk economy lives (souls carried, bonfire spacing, Estus budget), which tells one enemy telegraphs before each attack, and which shortcut retied the map. Then state, in one sentence per element, what decision the game was teaching. Check yourself: every death you recount should be attributable to a specific decision of yours, not to unfairness.",
+    checkPrompt: "Without notes, explain why difficulty is a symptom rather than the design goal; how the soul drop and corpse run, bonfire enemy respawn, and stamina-gated commitment each turn a rule into a felt lesson; and why mechanics and meaning are unified - hollowing is giving up, kindling is sacrifice. Name what Fire, Dark, and hollowing each map to mechanically.",
+    tier: 1,
+    complexity: 4,
+    references: [
+
+    ],
+    lesson: {
+problem: "Dark Souls is routinely reduced to being hard, and newcomers bounce off blaming unfairness. Without the conceptual frame the game reads as a masochism test instead of the coherent design argument about legibility, commitment, and risk that reshaped a whole genre.",
+model: "The central model is consistency: every system - souls as XP and currency dropped at your death spot, bonfires that heal you but respawn the world, stamina-gated combat with uncancelable animations, an interconnected world without maps or markers - is built so encounters are legible and every death is attributable to a decision. Difficulty is the symptom, not the goal; the goal is a demanding but scrupulously fair teacher. Mechanics and meaning are unified: a fiction about persistence in a declining world is played through systems that demand persistence in failure.",
+mechanics: "1) Souls double as XP and currency and drop at your death spot with one reclaim chance, so arithmetic becomes felt tension and the corpse run teaches composure; most souls are lost on the panicked second attempt, not the first death. 2) Bonfires restore HP and Estus but respawn every ordinary enemy, so healing is never free - you constantly weigh pushing forward depleted against re-fighting the gauntlet, and the fiction of sitting by a dying flame fuses with the mechanic. 3) Stamina gates every attack, dodge, block, and sprint, and animations cannot be cancelled, so combat is commitment: enemies telegraph with consistent tells, and bosses become learnable sentences rather than reflex tests. 4) The world is one contiguous space looped by shortcuts, elevators, and unlocked doors, with no map, quest log, or markers - direction arrives through the environment, and the player is trusted to notice. 5) Story is relocated from exposition to interpretation: item descriptions, corpse placement, and unreliable NPC remarks make lore an archaeology, and the gaps are deliberate, echoing Miyazaki's half-comprehended childhood reading. 6) Multiplayer is asynchronous and oblique - phantoms, fixed-vocabulary ground messages, bloodstains, covenants - building a social ecology where earnest cooperation like Solaire coexists with live invasion.",
+pitfalls: [
+  "Reading the game as primarily hard; difficulty is the symptom, while legibility and attributable deaths are the goal",
+  "Calling deaths unfair randomness instead of lessons about a decision you made",
+  "Treating bonfires as pure checkpoints and forgetting they respawn every ordinary enemy",
+  "Hoarding souls through unfamiliar territory; the system prices recklessness on purpose",
+  "Mashing buttons as in a pure action game - uncancelable animations make every press a promise you must keep",
+  "Expecting a map or quest log and calling the absence bad UX; environmental direction is the design",
+  "Reading lore theories as canon; the story is deliberately incomplete and contested, closer to archaeology than literature",
+  "Taking hollowing as body-horror flavor; it is a failure of will, and the mechanics reproduce its pressures on you",
+  "Pigeonholing multiplayer as co-op or PvP; it is asynchronous and oblique - phantoms, messages, bloodstains, covenants",
+  "Summarizing the fiction as kill the bad guy; the real question is whether perpetuating a dying order is heroism or cowardice"
+],
+whenNot: "This is a concepts primer, not a walkthrough, build guide, or boss strategy, and it gives no advice on specific bosses or stat spreads. It also does not claim later games copy these systems faithfully, and it analyzes the first game's design rather than reviewing the series."
+    },
+  },
+];
+
+const laravelTaughtLikePractitionerTopics: readonly TopicCard[] = [
+  {
+    id: "laravel-taught-like-practitioner-full",
+    title: "Laravel, Taught Like a Practitioner",
+    summary: "A practitioner's deep tour of Laravel — the request lifecycle, the service container, Eloquent's sharp edges, authorization as the real security layer, queues, testing and production readiness — built so you can debug the framework and defend decisions, not just scaffold apps.",
+    concepts: [],
+    practicePrompt: "Build the small CRUD blog from the Practice Path — policies, FormRequests, factories, Pest feature tests — including one test that proves another user is forbidden from editing a post. Then deliberately create an N+1, catch it with preventLazyLoading, fix it with eager loading, and move one notification into a queued job dispatched afterCommit, with a test proving it is pushed and idempotent.",
+    checkPrompt: "Without notes, draw the request lifecycle from public/index.php to the response and place form requests, route-model binding and middleware on it; explain why env() outside config returns null after config:cache; and say what makes a queued job idempotent under at-least-once delivery — including the SerializesModels and afterCommit mechanics.",
+    tier: 1,
+    complexity: 4,
+    references: [
+
+    ],
+    lesson: {
+problem: "Without this model Laravel feels like magic that intermittently betrays you in production: N+1 queries, authorization that only hides a button, jobs running before a transaction commits, workers never restarted after deploys. You can scaffold an app, but you cannot debug it or defend your decisions in a review.",
+model: "Laravel is not magic: it is the request lifecycle plus a service container plus conventions. A request flows from public/index.php through providers, middleware, the router and a form request into a thin controller and Eloquent, then back out; facades are container lookups, Blade compiles to plain PHP, and validation is UX while database constraints are the real integrity. The senior dividing line is the second machine — long-lived processes (queue workers, scheduler, Octane) that break the fresh-request assumption.",
+mechanics: "Lifecycle: bootstrap/app.php in the 11/12 skeleton wires routing, middleware and exceptions in one fluent call, and the app boots per request under FPM but once per worker, Octane or scheduler. Container: bind, singleton and scoped bindings resolve by type-hint; register() only binds while boot() may use other services; scoped bindings exist precisely for Octane and queue workers. Eloquent: casts() replaces the old $casts property, with() and withCount() fight the N+1 that preventLazyLoading throws on, mass update()/delete() bypass model events, chunkById() replaces chunk() when rows move. Security: FormRequest authorize() plus policies plus can: middleware make server-side authorization, validated() is the only trusted input, and unique indexes decide races that validation cannot. Jobs and events: SerializesModels stores only the id and re-fetches, afterCommit defers dispatch until commit, tries/backoff/timeout and ShouldBeUnique are per-job policy, scheduling lives in routes/console.php with onOneServer() and withoutOverlapping() relying on cache locks. Production: config:cache, queue:restart after deploys, Redis-backed queues and cache, Horizon monitoring, feature tests through HTTP with Queue::fake() and the same DB engine as prod.",
+pitfalls: [
+  "Calling env() anywhere outside config after config:cache and reading null.",
+  "Treating a hidden button in Blade as authorization instead of a server-side policy check.",
+  "Passing $request->all() into create() or update() and opening mass assignment.",
+  "Fixing N+1 lazily in the view instead of eager loading at the query.",
+  "Expecting model events and observers to fire on mass update() or delete().",
+  "Using chunk() while updating rows and silently skipping records instead of chunkById().",
+  "Dispatching inside a transaction without afterCommit and racing the worker.",
+  "Assuming SerializesModels freezes the model rather than storing only the id.",
+  "Storing request state in singletons or statics that leak on Octane and queue workers.",
+  "Building a separate API plus SPA for a single frontend where Inertia or Livewire ships faster."
+],
+whenNot: "This is a practitioner's map for current Laravel 11/12 on PHP 8.2+, not a PHP or SQL primer and not a guide to the legacy 10-era skeleton or other frameworks. It also does not crown one service-layer style — Action classes, services, fat models and the repository question are presented as a contested argument in their own section."
+    },
+  },
+];
+
+const symfonyOneDeepLessonTopics: readonly TopicCard[] = [
+  {
+    id: "symfony-one-deep-lesson-full",
+    title: "Symfony — One Deep Lesson",
+    summary: "Assume you're rusty on modern PHP/Symfony but not a beginner programmer. This lesson aims to get you operating credibly at a mid-to-senior level: understanding the mental model seniors actually debug with, the vocabulary, what's under the abstractions, and where the real tradeoffs live.",
+    concepts: [],
+    practicePrompt: "On a fresh Symfony app, inspect the machinery first: debug:container on one service, debug:autowiring, debug:event-dispatcher kernel.request, and open the compiled container class in var/cache to see how your controller gets built. Then build one feature end to end — an invokable controller with a #[MapRequestPayload] DTO, a service flushing through Doctrine, and a Messenger message carrying only ids — with a kernel-level test proving it.",
+    checkPrompt: "Without notes, walk the HttpKernel event pipeline and say where routing, firewalls, argument resolution, exceptions and terminate listeners sit; explain why no per-request state may live in a service property, and what breaks under Messenger workers or FrankenPHP worker mode. Also explain Doctrine's unit of work: what persist() schedules, when flush() runs and in which transaction, and why the EntityManager closes after a DB exception.",
+    tier: 1,
+    complexity: 4,
+    references: [
+
+    ],
+    lesson: {
+problem: "Without this model Symfony reads as a pile of YAML and bundles held together by magic: when wiring breaks, Doctrine flushes at the wrong moment, or a worker corrupts state, there is nowhere to look. You copy tutorials instead of debugging the way seniors do — by inspecting the container, the routes and the profiler timeline.",
+model: "Symfony is a dependency-injection container plus an HTTP event pipeline, compiled ahead of time into plain PHP; routing, security, forms, Doctrine and Messenger are services and event listeners plugged into those two machines. Two questions replace memorized magic: which service does this and how was it wired into the container, and which lifecycle event is firing right now and who is listening. The framework's personality is being unusually inspectable — debug:container, debug:router and the profiler timeline are the daily instruments.",
+mechanics: "Container compile: definitions come from services.yaml, bundle extensions and attributes; autowiring matches type-hints, autoconfigure tags by interfaces (EventSubscriberInterface, #[AsMessageHandler]), compiler passes wire and prune, and the result is dumped as a generated PHP class in var/cache — services private and shared per request by default, so unused ones silently vanish and per-request state is forbidden. Wiring ambiguity, the number-one error, is resolved with aliases, binds or #[Autowire(service:...)]; decoration and lazy services extend behavior without forking. HttpKernel: kernel.request routes and secures, the ControllerResolver asks the container, the ArgumentResolver materializes Request, #[CurrentUser], entities by id, #[MapRequestPayload] and #[MapQueryString] from type-hints, kernel.view/response/terminate bracket the controller, and exceptions jump to kernel.exception. Configuration: parameters versus env vars versus bundle config, the .env cascade with the real environment winning, %env(bool:...)% processors, dump-env prod and the Secrets vault. Doctrine: identity map, persist scheduling, one flush() transaction, the EM closing after a DB exception and resetting in workers, repositories owning DQL with join fetches against N+1. Messenger: a middleware bus (validation, doctrine_transaction, dispatch_after_current_bus), messages carrying ids not entities, failure transport and retries, the outbox against phantom messages — with firewalls, authenticators and voters on the security side and the unit/Kernel/WebTestCase tiers on the testing side.",
+pitfalls: [
+  "Storing per-request state in service properties — fatal under workers and FrankenPHP worker mode.",
+  "Fetching services with $container->get() instead of constructor injection; private services may not even exist.",
+  "Expecting two implementations of one interface to autowire silently.",
+  "Calling flush() in a loop or expecting persist() to touch the database.",
+  "Using the EntityManager after a DB exception closed it, without resetting it.",
+  "Treating .env as a secrets store or committing .env.local.",
+  "Hand-casting APP_DEBUG=false and shipping a truthy string instead of %env(bool:...)%.",
+  "Running doctrine:schema:update --force in production instead of reading generated migrations.",
+  "Confusing authentication (firewall, authenticator) with authorization (voters, access_control).",
+  "Believing Doctrine or annotations are Symfony core rather than separate projects and replaced history."
+],
+whenNot: "The lesson targets the modern baseline — Symfony 6.4/7.x with attributes — and does not teach the annotation-and-Guard era except as translation notes, nor Doctrine itself in depth. It is also not a claim that Symfony is MVC: the Model layer stays your own design, and the survey of Messenger, Mailer, Cache, Scheduler and friends is orientation, not a manual."
+    },
+  },
+];
+
+const typescriptSeniorPractitionerTopics: readonly TopicCard[] = [
+  {
+    id: "typescript-senior-practitioner-full",
+    title: "TypeScript: A Senior Practitioner's Lesson",
+    summary: "TypeScript is a compile-time system for describing sets of JavaScript values: it checks your program, then erases itself completely — and senior practice keeps asking what is real at runtime, what the compiler can actually prove, and where untrusted data is validated.",
+    concepts: [],
+    practicePrompt: "Take one fetch call you own: route the response through unknown, validate it with a Zod schema and z.infer, and brand the id type so the classic swapped-string-ids bug becomes a compile error. Then rewrite a boolean-soup state object as a discriminated union with a never-based exhaustive switch, add a new variant, and count every place the compiler flags — that count is the value of the pattern.",
+    checkPrompt: "Without notes, state the four-way difference between annotation, satisfies, as and as const on the same object literal, and explain why a lying type predicate or a parse<T>(json): T generic compiles anyway. Define in one sentence each: assignable, widening, narrowing, discriminated union, exhaustiveness, type predicate and branded type — and say where the checker's known unsoundness lives (covariant arrays, bivariant methods, assertions).",
+    tier: 1,
+    complexity: 4,
+    references: [
+
+    ],
+    lesson: {
+problem: "Without this model TypeScript reads as an unreliable horror: types lie at boundaries, errors look like noise, and any plus assertions hide the bugs the compiler was supposed to catch. The cost lands at runtime, in production, exactly where you thought you were safe — because nobody could say where checking stops.",
+model: "TypeScript is a compile-time system for describing sets of JavaScript values: it checks your program against those sets, then erases itself completely. Types are sets — assignability is subset inclusion, unknown is the universal set, never the empty set, any a hole that silences the checker transitively — and structural typing means shape, not names. Senior practice is three questions asked constantly: what values can actually be here at runtime, what can the compiler prove at this exact point of control flow, and where does untrusted data enter — because types offer zero runtime protection there.",
+mechanics: "Two programs per file: the runtime JavaScript and the type program checked then deleted, so tsc is the only checker while bundlers merely strip types. Set semantics: unions, intersections, literal singletons, unknown, never and any, with strictNullChecks removing null and undefined from every set. Structural typing with two declaration spaces (a value and a type may share one name), excess property checking only on fresh object literals, and private fields making classes partially nominal. Control-flow narrowing: typeof, instanceof, in and truthiness, discriminated unions, exhaustive never switches, type predicates and assertion functions whose word the compiler takes — with narrowing that does not survive into closures over let. The pin-down quartet: annotation widens, satisfies checks and keeps the narrow type, as asserts with the proof on you, as const freezes the deepest literals — plus widening as the default behavior to manage. Type-level toolbox: constraints via K extends keyof T, indexed access T[K], distribution over naked type parameters, infer, mapped types with key remapping, template literal types, shallow Partial and Readonly, Omit's unconstrained keys. Boundaries: validate once at the edge with Zod and z.infer, brand the validated result with one quarantined assertion, respect the erasable-syntax limits (enums, namespaces, parameter properties), and run the strict bundle plus tsc --noEmit in CI with typescript-eslint catching floating promises.",
+pitfalls: [
+  "Believing an API response typed User is a User before runtime validation.",
+  "Reaching for any where unknown plus narrowing is the honest move.",
+  "Expecting private or readonly to do anything at runtime.",
+  "Casting Object.keys(obj) to keyof typeof obj and calling it sound.",
+  "Trusting arr[0] without noUncheckedIndexedAccess.",
+  "Writing parse<T>(json): T — an assertion wearing a generic costume.",
+  "Making a type parameter appear only in the return position.",
+  "Forgetting that Partial and Readonly are shallow.",
+  "Suppressing with @ts-ignore instead of @ts-expect-error and letting stale suppressions rot.",
+  "Fighting the model with as unknown as T instead of fixing the types."
+],
+whenNot: "The lesson covers the language and its toolchain, not any framework's typing conventions (React, Angular and Nest appear only as class- and decorator-context). It explicitly does not promise soundness — it names the holes — and it does not prescribe schema validation between your own internal functions, only at trust boundaries; where the honest answer is team consistency, it says so instead of picking sides."
+    },
+  },
+];
+
+const laravelHorizonRedisQueuesTopics: readonly TopicCard[] = [
+  {
+    id: "laravel-horizon-redis-queues-full",
+    title: "Laravel Horizon + Redis Queues: The Deep Lesson",
+    summary: "Laravel queues from a layer below the abstraction: Redis as mailbox and ledger, workers as long-lived PHP clerks, Horizon as the floor manager — dispatch serialization, atomic Lua reservation, the retry_after/timeout race and what makes a job honest.",
+    concepts: [],
+    practicePrompt: "Run Horizon locally against real Redis and dispatch a deliberately slow job: set a job timeout longer than retry_after, reproduce the duplicate-execution race, and watch the same payload get reserved twice. Then make one payment-shaped job honest — idempotent via a unique DB constraint, afterCommit dispatch, explicit tries and backoff — and prove it twice over: with Queue::fake() asserting intent, and with a sync-driver integration test that actually serializes the payload.",
+    checkPrompt: "Without notes, walk a dispatch from PHP serialize() and SerializesModels through the JSON envelope, the LPUSH onto queues:default, the atomic Lua reservation into the reserved sorted set, and the release and fail paths — and name the five numbers (delay, retry_after, timeout, tries, backoff) with the rule that retry_after must exceed the longest timeout. Also explain why a worker never sees new code until restart, what horizon:terminate does and does not interrupt, and why Redis being flushed means the jobs are gone while a dead Horizon means they just wait.",
+    tier: 1,
+    complexity: 4,
+    references: [
+
+    ],
+    lesson: {
+problem: "Without the layer-under-queues model, incidents look supernatural: jobs double-charge after a timeout nobody sized, payloads vanish when cache and queue share one Redis, deploys strand old serialized payloads, and nobody can say whether Horizon is the queue. You scale by vibes instead of reading wait, throughput and runtime off the dashboard.",
+model: "Redis is the mailbox and ledger, workers are long-lived single-threaded PHP clerks pulling one envelope at a time, and Horizon is the floor manager that hires and fires clerks, watches wait times and keeps the scoreboard — three layers people constantly conflate with the Laravel Queue abstraction above and the OS supervisor below. The durability asymmetry tells you where risk lives: if Horizon dies, jobs sit untouched; if Redis dies or is flushed, the jobs are gone.",
+mechanics: "Dispatch anatomy: the job is PHP-serialized (SerializesModels stores only class and id, re-fetching at run time), wrapped in a JSON envelope and LPUSHed onto the queues:{name} list — FIFO, push left, pop right. Reservation: an atomic Lua script pops and ZADDs into queues:{name}:reserved scored by now plus retry_after; delayed jobs and releases wait in the delayed sorted set; exhausted attempts land in the failed_jobs table as the de facto dead-letter store; reserve, release, fail and delete are the four lifecycle verbs. Worker reality: boots Laravel once, one job per process, concurrency equals process count, static state and memory persist across jobs, priority is polling order never preemption, and timeout kills via PCNTL. Horizon control plane: master supervisor over supervisors over workers, balance simple versus auto with autoScalingStrategy on wait or size, balanceMaxShift and balanceCooldown against flapping, horizon:snapshot feeding the metrics, waits thresholds firing LongWaitDetected, tags for tenant search, and the viewHorizon gate guarding payloads. Job design: thin handle() delegating to services, ids not the world, idempotency under at-least-once via state checks and unique constraints, ShouldBeUnique versus UntilProcessing versus WithoutOverlapping versus RateLimited as three different tools, chains for ordered pipelines and batches for fan-out (needing the job_batches table even on Redis), afterCommit against the transaction race. Operations: separate cache Redis from queue Redis with noeviction and persistence, retry_after above the longest timeout, drain-or-compatible deploys with serialized classes, the bottleneck arithmetic (DB, APIs, CPU) before maxProcesses, and never MONITOR on a busy production Redis.",
+pitfalls: [
+  "Setting retry_after below the job timeout and manufacturing duplicate concurrent execution.",
+  "Assuming exactly-once delivery and skipping idempotency guards.",
+  "Sharing one Redis between cache and queues with an eviction policy that eats payloads.",
+  "Deploying breaking changes to job classes while old serialized payloads sit in the queue.",
+  "Trusting Queue::fake() alone, which skips serialization entirely.",
+  "Running raw queue:work daemons and Horizon on the same queues as double consumers.",
+  "Forgetting horizon:snapshot so balancing and graphs silently degrade.",
+  "Reading queue priority as preemption; a running low job is never interrupted.",
+  "Smuggling a Request, a huge collection or a closure into the job constructor.",
+  "Raising maxProcesses while the database or a third-party API is the real wall."
+],
+whenNot: "The lesson is scoped to Redis-backed Laravel queues under Horizon; SQS, the database driver and Beanstalkd appear only as contrasts, and general distributed-systems theory is assumed. It does not claim Horizon is required for jobs to run — it is not, and it is not a queue driver — and it presents the Kubernetes-versus-Horizon tension as a live design choice, not a settled answer."
+    },
+  },
+];
+
+const laravelHorizonProductionModelTopics: readonly TopicCard[] = [
+  {
+    id: "laravel-horizon-production-model-full",
+    title: "Laravel Horizon + Redis Queues: The Production Mental Model",
+    summary: "The one-sentence model experienced Laravel developers carry is this: **Redis is the broker and timer system, queue workers are competing single-threaded PHP executors, a job is a serialized message with at-least-once delivery semantics, and Horizon is the supervisor and telemetry layer that manages those workers.** Almost every design decision and production incident in this stack becomes clearer once you keep those four roles separate.",
+    concepts: [],
+    practicePrompt: "Implement the essay's ProcessStripeWebhook: ShouldBeUniqueUntilProcessing keyed by the provider event id, the event id stored under a unique index before processing, an explicit backoff array, and afterCommit dispatch — then run the handler twice in a test and prove the second pass is a no-op. Next, sketch the queue keys in redis-cli (LLEN, ZCARD, ZRANGE WITHSCORES) and read one dashboard incident aloud, deciding whether it is a backlog, a saturated downstream, a retry storm, or a poison job.",
+    checkPrompt: "Without notes, recite the five timing numbers (delay, retry_after, timeout, tries, backoff or retryUntil) and the burned-in rule that retry_after must exceed the longest timeout on the connection. Explain the difference between unique (a dispatch-time cache lock), WithoutOverlapping (execution-time serialization) and RateLimited (downstream protection), and say what happens at deploy: horizon:terminate, running jobs finishing on old code, and payloads stranded by renamed job classes.",
+    tier: 1,
+    complexity: 4,
+    references: [
+
+    ],
+    lesson: {
+problem: "Treating queues as run-it-later produces incidents you cannot even name: duplicate concurrent executions from a mis-sized retry_after, webhooks redelivered into double charges, poison jobs cycling workers one by one, deploys stranding old serialized payloads. Without the production model you cannot tell which of the five meanings of it-errored actually happened.",
+model: "One sentence: Redis is the broker and timer system, queue workers are competing single-threaded PHP executors, a job is a serialized message with at-least-once delivery semantics, and Horizon is the supervisor and telemetry layer that manages those workers. Every design decision and production incident gets clearer once those four roles stay separate; the precise vocabulary — connection versus queue, reserved versus released versus failed, Horizon supervisor versus the OS supervisor — is the debugging instrument.",
+mechanics: "Redis structures per queue: a ready list (LPUSH, RPOP, FIFO within the queue), delayed and reserved sorted sets scored by availability and reservation expiry, an attempts hash, a notify list for blocking pops — with expired items migrated lazily by the next worker poll and Lua making pop-plus-reserve atomic under competition; this is not Redis Streams. The timing contract: delay, retry_after as the visibility timeout, timeout enforced by PCNTL as a PHP-level alarm rather than an OS kill, tries against retryUntil against maxExceptions — and the burned-in rule that retry_after must exceed the longest timeout, with genuinely long work segregated onto its own queue and connection. At-least-once handling: check state before acting, lean on database unique constraints as the final authority, wrap local multi-writes in transactions, pass idempotency keys to external systems like Stripe, store webhook event ids under unique indexes first, and escalate to a transactional outbox when a database write and an external effect must co-survive. Dispatch hygiene: afterCommit against the pre-commit race, constructors that survive PHP serialize — ids, enums, DTO-like values — and never a Request, session, user or closure, since workers have no HTTP context. Composition: ShouldBeUnique locks the dispatch and needs uniqueFor with a Redis-backed cache store, WithoutOverlapping serializes execution per explicit key, RateLimited and ThrottlesExceptions live in middleware(); chains are ordered pipelines, not transactions; batches track fan-out in the job_batches table with cooperative cancellation; chunk size is the real negotiation. Production: Horizon environments and balance arithmetic (Little's law for worker counts), queues separated by runtime and criticality profile, a dedicated queue Redis with noeviction and persistence, horizon:terminate deploys treating job class changes like schema migrations, tenant fairness built from topology, a failure playbook distinguishing backlog, saturated downstream, retry storm and poison job — plus Queue::fake() honesty and the QUEUE_CONNECTION=sync trap.",
+pitfalls: [
+  "Setting retry_after under the longest timeout, duplicating still-running work.",
+  "Conflating unique, WithoutOverlapping and RateLimited — three different tools at three different points.",
+  "Leaving a uniqueness lock in the array cache driver in production.",
+  "Writing handlers that are not safe to run twice under at-least-once delivery.",
+  "Dispatching inside a transaction without afterCommit and racing the commit.",
+  "Expecting FIFO completion order once more than one worker exists.",
+  "Trusting the queue timeout alone instead of also timing HTTP clients and DB statements.",
+  "Deploying without horizon:terminate or renaming job classes while payloads sit in flight.",
+  "Scaling worker counts while the database or a rate-limited API is the constraint.",
+  "Developing only with QUEUE_CONNECTION=sync, an environment that hides nearly every queue bug."
+],
+whenNot: "This is a production mental model for Redis queues in Laravel, not a Horizon UI tutorial and not a general message-broker theory course; SQS visibility semantics and the database driver appear only as contrasts. It never claims exactly-once anywhere — it states the opposite — and it deliberately leaves the Redis-versus-SQS-versus-database choice open as a question of throughput, durability and ordering requirements."
+    },
+  },
+];
+
+const laravelMultiTenancyOneLessonTopics: readonly TopicCard[] = [
+  {
+    id: "laravel-multi-tenancy-one-lesson-full",
+    title: "Multi-Tenancy в Laravel: один урок",
+    summary: "Если вы думаете, что multi-tenancy — это «добавить `tenant_id` в таблицы», вы мыслите на уровне junior/middle. На уровне senior multi-tenancy — это не фича, а **архитектурный режим всего приложения**: почти каждый запрос, job, команда, кэш, файл, лог и миграция начинают зависеть от неявного вопроса — *в контексте какого тенанта мы сейчас работаем?*",
+    concepts: [],
+    practicePrompt: "Соберите минимальный row-level мультитенант: middleware идентифицирует тенанта, трейт BelongsToTenant с global scope и заполняющим tenant_id creating-событием, составная уникальность unique(['tenant_id','email']) и индексы с tenant_id первым. Затем напишите тесты на утечку — два тенанта, объект второго, каждый эндпоинт обязан отдавать 404 или пустоту — и прогоните один job в воркере, доказав, что контекст инициализируется до handle() и сбрасывается после.",
+    checkPrompt: "Не подглядывая: расскажите цикл Identify → Resolve → Initialize → Bootstrap → Execute → Teardown и объясните, почему teardown критичен именно в Octane и воркерах. Назовите четыре вещи, которые делают пакеты под капотом (purge и reconnect соединения, префикс кэша, префикс файловой системы, tenant_id в payload очереди), и объясните, почему поддомен или X-Tenant-ID — это заявка, а не право, проверяемая через membership.",
+    tier: 1,
+    complexity: 4,
+    references: [
+
+    ],
+    lesson: {
+problem: "Без этой модели мультитенантность строится как «добавим tenant_id в таблицы» — и в проде всплывают чужие кэши, job-ы в чужом контексте, утёкшие файлы и незамеченные утечки между тенантами. Senior-уровень начинается там, где tenancy признают архитектурным режимом всего приложения, а не фичей.",
+model: "Tenant context — это ambient state, глобальная переменная окружения на стероидах: как auth()->user() или локаль, только опаснее — она переключает базу, кэш, файловую систему, очереди и права доступа. Система делится на central/control plane (реестр тенантов, биллинг, provisioning, платформенная админка) и tenant/data plane (бизнес-логика конкретного клиента), а изоляция — спектр, а не бинарный выбор: shared schema, DB per tenant, schema per tenant и шардирование по группам между ними.",
+mechanics: "Классификация и жизненный цикл: каждая таблица объявляется central-only, tenant-owned или глобальным справочником, а любой вход проходит Identify → Resolve → Initialize → Bootstrap → Execute → Teardown, где teardown обязателен в long-lived процессах. Три модели изоляции с эвристикой выбора: row-level — дисциплина кода и дешёвые тысячи мелких тенантов; DB per tenant — изоляция на уровне инфраструктуры ценой N миграций, schema version skew и ×N эксплуатации; schema per tenant — search_path в Postgres с ловушкой пулинга; гибрид с шардами — ответ на вопрос «что делать с тенантом, который вырос в сто раз». Механика пакетов: переключение соединения через config() + DB::purge() + reconnect (забытый purge в воркере — утечка между тенантами), префиксы кэша и Redis, суффиксы файловой системы и tenant_id, записанный в payload job-а и инициализируемый воркером до handle(). Row-level вручную: global scope работает только в Eloquent (DB::table, raw-запросы, Scout и экспорты его обходят), составные уникальности и индексы с tenant_id первым, scoped binding отдаёт 404 на чужой id, RLS в Postgres как вторая линия обороны. Идентификация и membership: поддомен, кастомный домен, путь, аутентифицированный юзер или header — идентификатор из запроса всегда заявка, проверяемая membership-ом; вебхуки, scheduler и CLI-команды не имеют HTTP-идентификации и требуют явного цикла по тенантам; impersonation супер-админа требует одноразового токена и аудита. Эксплуатация: идемпотентный provisioning-воркфлоу, expand/contract миграции по тысячам баз, tenant_id в каждом логе через Log::withContext, бэкап и удаление одного тенанта как операция над одной базой, cross-tenant leakage tests как главная стратегия тестирования.",
+pitfalls: [
+  "Кэш без тенантного префикса: один тенант читает кэш другого.",
+  "Job без контекста: воркер выполняет его в центральной БД или в контексте предыдущего job-а.",
+  "Забытый DB::purge() или teardown в Octane и воркерах очередей.",
+  "Singleton-ы и статика, закэшировавшие данные тенанта при инициализации приложения.",
+  "X-Tenant-ID из запроса, принятый без проверки membership.",
+  "Глобальный unique по email в shared-БД вместо составного с tenant_id.",
+  "Raw-запросы, отчёты, Scout и экспорты, обходящие Eloquent global scope.",
+  "Storage::url() без тенантного префикса: чужие вложения по прямому URL.",
+  "Scheduler без цикла по тенантам: ежедневный отчёт уходит в никуда.",
+  "Вера в то, что пакет гарантирует изоляцию: пакет переключает инфраструктуру, а не дисциплину."
+],
+whenNot: "Урок — про архитектурный режим, а не про установку конкретного пакета: он не утверждает, что DB per tenant всегда лучше, и не заменяет документацию stancl/tenancy или spatie/laravel-multitenancy. Для тридцати мелких клиентов без регуляторных требований DB per tenant — over-engineering, о чём эссе прямо предупреждает; hyn/multi-tenant упоминается только как легаси на миграцию."
+    },
+  },
+];
+
+const eldenRingCompleteGuideTopics: readonly TopicCard[] = [
+  {
+    id: "elden-ring-complete-guide-full",
+    title: "Elden Ring: The Complete Guide from Maidenless to Elden Lord",
+    summary: "A beginner-to-scholar explanation of the world, vocabulary, systems, combat mathematics, multiplayer dialect, and themes of Elden Ring. Contains major spoilers.",
+    concepts: [],
+    practicePrompt: "Build one character until the argument it makes is legible: pick a build (say, Strength, or an Arcane bleed specialist), level toward the soft caps, push one weapon up a notable upgrade threshold, and equip talismans and an Ash of War that serve the same verbs. Then fight one mid-game boss three times and, using the combat vocabulary, say in one sentence per death why it happened — panic roll, missed stance break, or split-damage mismatch.",
+    checkPrompt: "Without notes, define and use correctly: i-frames, recovery frames, poise versus stance, Guard Boost versus negation, motion values, soft caps, scaling grades and split damage, and the bloodstain rule of the rune economy. Also explain in one paragraph each what the Elden Ring actually is (runes as law, not jewelry) and why the Golden Order's removal of Destined Death produced stagnation rather than paradise.",
+    tier: 1,
+    complexity: 4,
+    references: [
+
+    ],
+    lesson: {
+problem: "Without the underlying grammar, Elden Ring punishes with apparent cruelty: deaths feel random, stats feel arbitrary, and the lore looks unreadable — so players either bounce off or brute-force the game blind. The confusion comes from taking decoration at face value when almost everything here is a machine: law, language, and combat mathematics.",
+model: "The central model: runes are both language and law — a written sign that also functions as physics — so the Elden Ring is a constitution of reality rather than a magic ring, and the metaphysics rhyme with the mechanics (grafting, thresholds, order as control). At the play layer every action has startup, active frames and recovery, every boss is a teacher of delayed timing, and every build is an argument about which verbs you want available. The game deliberately leaves history incomplete, treating the player as an archaeologist of item descriptions and ruins.",
+mechanics: "Rune economy: runes are XP and currency at once, death drops them at a recoverable bloodstain — die again first and they vanish forever — converting failure into geography, memory and risk; Sites of Grace versus Stakes of Marika set the checkpoint services. Numbers: three bars (HP, FP, stamina), eight attributes with Vigor first to about 40 and offense through 55-80, soft caps over raw totals, equipment load bands from light-roll to fat-roll, and the i-frames inside the roll as the real skill surface. Combat language: startup, active and recovery frames; panic roll versus roll catch; poise as your defensive flinch threshold with hyperarmor, versus stance as the enemy's invisible bar broken for criticals; guard counters, parry windows, and status meters (bleed, frostbite, scarlet rot, madness) as percentage-of-HP threshold weapons driven by Arcane. Builds: requirements, E-to-S scaling grades, upgrade stones (+25 normal, +10 Somber) beating early attribute scaling, split damage paying enemy defenses twice, Ashes of War and affinities as modular combat verbs, talismans, two-handing's 1.5x Strength, and Fashion Souls as a legitimate statistic. World grammar: the Erdtree as church, capital, power station and afterlife; Great Runes as laws; the removal of Destined Death as the source of stagnation, Deathroot and Those Who Live in Death; Outer Gods as competing philosophies of blood, rot, moon and frenzied flame; and the endings as distinct answers — Ranni's distant Moon, Marika's preserved order, the Frenzied Flame's arson. Community layer and expansion: message templates, jolly cooperation and invasion ambushes, meta levels around 125-150, folklore like Maidenless and Let Me Solo Her; Shadow of the Erdtree's Scadutree Fragments as mandatory local progression and Miquella's discarded love as the lore's darkest argument.",
+pitfalls: [
+  "Panic rolling at the wind-up and eating the deliberately delayed second swing.",
+  "Skipping Vigor early and blaming the game for one-shot deaths.",
+  "Reading the displayed split-damage total as real damage; enemy defenses are paid twice.",
+  "Confusing poise (your flinch threshold) with stance (the enemy's invisible bar).",
+  "Treating runes as disposable XP and ignoring upgrade thresholds.",
+  "Expecting a quest log: NPC quests have no journal, no markers, no mercy.",
+  "Ignoring Scadutree Fragments and blaming the expansion for the damage you take.",
+  "Reading item descriptions as literal truth instead of archaeology with canon, inference, and theory.",
+  "Assuming one ending is presented as the correct utopia; none is.",
+  "Judging status builds without checking which attribute drives the meter."
+],
+whenNot: "This is a game walkthrough for a games section, not a software lesson; it contains major spoilers by design and is not a complete build wiki, a PvP frame-data database, or a definitive lore resolution. The essay itself insists that some conclusions are canon, some strong inference, and some fan theory — and it does not claim the Shadow of the Erdtree reading settles Miquella."
+    },
+  },
+];
+
+const serviceMeshNetworkStackTopics: readonly TopicCard[] = [
+  {
+    id: "service-mesh-network-stack-full",
+    title: "Service Mesh: сетевой стек, который вы не писали",
+    summary: "Разбор service mesh от первого принципа: sidecar-прокси и control plane делают ретраи, mTLS, канарейки и метрики свойством среды, не касаясь кода приложения, — и честный ответ, когда этот стек не нужен.",
+    concepts: [],
+    practicePrompt: "Подними локальный kind-кластер, поставь Linkerd по шагам практикума, внедри sidecar'ы в namespace и прогони канарейку двух версий службы с весами 95/5, наблюдая трафик через linkerd viz. Затем умышленно сломай upstream (неверный хост в маршруте) и найди причину 503 по response_flags в логах прокси, а не приложения. Финальная проверка: останови control plane и покажи, что трафик продолжает идти на последней известной конфигурации.",
+    checkPrompt: "Уметь без подсказок объяснить разницу data plane и control plane и что происходит при падении control plane; показать путь трафика в поде (mutating webhook и iptables-редирект); подсчитать усиление нагрузки от ретраев на нескольких уровнях; и сформулировать, какие операции безопасно повторять и почему это забота приложения, а не mesh.",
+    tier: 1,
+    complexity: 4,
+    references: [
+
+    ],
+    lesson: {
+problem: "Каждый сетевой вызов — отправка сообщения в среду без гарантий: может не дойти, дойти дважды или потерять ответ, и код об этом не узнает. Без service mesh единая сетевая политика либо дублируется в каждой кодовой базе, либо обновляется кварталами, пока уязвимость открыта.",
+model: "Service mesh — это сетевой стек уровней 5–7 как свойство среды, по аналогии с TCP: рядом с каждым экземпляром приложения запускается sidecar-прокси, через который принудительно проходит весь трафик, а конфигурацию раздаёт control plane. Код приложения возвращается к наивному виду вызова, а ретраи, дедлайны, шифрование и метрики становятся свойством слоя под ним. При этом mesh даёт механизм, но не политику: что безопасно повторять, решает приложение через идемпотентность — инфраструктура от проектирования не освобождает.",
+mechanics: "1) Sidecar-внедрение: mutating admission webhook добавляет прокси-контейнер, init-контейнер прописывает iptables-редирект всего TCP-трафика пода в прокси — приложение не знает и знать не должно. 2) Две плоскости: data plane (Envoy на C++ или linkerd2-proxy на Rust) обрабатывает каждый байт каждого запроса, control plane (istiod, у Linkerd — destination/identity) наблюдает за кластером и раздаёт конфигурацию через xDS; при падении control plane прокси работают на последней известной конфигурации. 3) Идентичность и mTLS: каждому поду выдаётся короткоживущий SPIFFE-сертификат, где SAN — ServiceAccount, а не IP; авторизация по principals даёт zero trust без изменения кода. 4) Управление трафиком: канареечные веса, дедлайны и таймауты, outlier detection и circuit breaking, fault injection, mirroring продового трафика на новую версию. 5) Балансировка на L7: power of two choices плюс peak EWMA выводит медленные реплики из-под нагрузки и снижает хвостовые p99. 6) Наблюдаемость: золотые сигналы rate/errors/duration по парам источник→назначение бесплатно; трассировка же требует проброса заголовков контекста самим приложением.",
+pitfalls: [
+  "Ожидать от mesh распределённую трассировку без изменения кода: метрики даёт, а заголовки контекста пробрасывает приложение.",
+  "Ставить ретраи на каждом уровне вызовов: усиление перемножается (четыре уровня по три попытки — коэффициент 81), вплоть до метастабильного отказа.",
+  "Ретраить неидемпотентный POST: mesh не понимает семантику, идемпотентные ключи — забота приложения.",
+  "Включать STRICT mTLS сразу вместо PERMISSIVE: без 100% покрытия подключения массово падают.",
+  "Полагаться на L4-балансировку kube-proxy: подвисший под продолжает исправно получать свою долю запросов.",
+  "Привязывать идентичность к IP: поды живут минуты, идентичность должна быть на ServiceAccount (SPIFFE).",
+  "Забывать цену sidecar: память и добавленная задержка умножаются на число подов; единственный честный источник — свой нагрузочный тест.",
+  "Оставлять конфликтующие VirtualService на один хост: трафик идёт не туда; диагностировать через istioctl proxy-config, а не наугад.",
+  "Считать mesh заменой прикладной авторизации и WAF: он решает, кто с кем разговаривает, а не что можно делать с данными."
+],
+whenNot: "Урок не утверждает, что mesh обязателен для взрослой архитектуры: при 10–15 сервисах на одном языке, без комплаенса и без платформенной команды его вносимая сложность больше устраняемой, и лучше подойдут resilience-библиотеки, OpenTelemetry и NetworkPolicy. Он также не отменяет идемпотентность и прикладную авторизацию. Критерий один и подсчитываемый: сложность, которую вносит mesh, должна быть меньше сложности, которую он устраняет."
+    },
+  },
+];
+
+const messageQueuesAsyncWorkflowsTopics: readonly TopicCard[] = [
+  {
+    id: "message-queues-async-workflows-full",
+    title: "Message Queues and Asynchronous Workflows: From First Principles to the Deep End",
+    summary: "Message queues from first principles: why durable buffers decouple producers and consumers in space, time, and synchronization, and the machinery — delivery semantics, idempotency, ordering, outbox, backpressure — that makes asynchrony survivable.",
+    concepts: [],
+    practicePrompt: "Build a small pipeline on a real broker: a producer, a consumer with manual acks, a dead-letter destination, and an idempotent handler keyed on a business-level idempotency key. Then break it on purpose — kill the consumer mid-processing, redeliver, process the same message twice — and assert the final state is identical every time. Verify by explaining where exactly your ack commit point sits and why a visibility timeout shorter than p99.9 processing time produces concurrent duplicates.",
+    checkPrompt: "Be able to reproduce without notes: the delivery-semantics trichotomy and which ack timing creates each; the dual-write problem solved by the transactional outbox (polling publisher versus log tailing) with the inbox pattern on the consumer side; and per-entity ordering via partition keys including what it costs (head-of-line blocking, hot keys). Also compute a drain time with Little's Law and explain why 90 percent utilization degrades latency hyperbolically.",
+    tier: 1,
+    complexity: 4,
+    references: [
+
+    ],
+    lesson: {
+problem: "A synchronous call across a network loses locality: availability multiplies downward, tail latency dominates, and caller and callee must be alive at the same instant. Without a model for asynchrony, every outage becomes ambiguous (did it arrive? did the response get lost?) and duplicates, ordering violations, and backlogs read as mysteries instead of chosen trade-offs.",
+model: "A queue is a durable buffer that decouples producer and consumer along three independent axes — space, time, and synchronization. Because delivery over a lossy channel is irreducibly ambiguous (the Two Generals regress), you must choose between losing messages and duplicating them, and the sane default is at-least-once delivery with idempotent effects. Exactly-once delivery is a theorem-level impossibility; exactly-once effects are achievable through idempotency plus atomic commitment of the work and the record that it was done. Ordering, retries, dead letters, the outbox, and sagas are all applications of that single move.",
+mechanics: "1) Delivery semantics are set by ack timing: ack before processing gives at-most-once, ack after all effects are durable gives at-least-once, and duplicates are the accepted price. 2) Idempotency machinery: business-level idempotency keys derived from what the operation means, a dedup store whose check-and-insert is atomic (unique constraint, conditional write, SET NX), and an explicitly stated retention bound. 3) Ordering: global order is almost never available, so you partition by entity (partition key, MessageGroupId, session ID) and pay with head-of-line blocking and hot keys — competing consumers destroy ordering even on a perfectly ordered queue. 4) Failure plumbing: classify retryable versus deterministic errors, jittered exponential backoff with caps and retry budgets, tiered retry topics, and a dead-letter queue with alarms, retention, and redrive. 5) Dual-write elimination: the transactional outbox writes event and state in one ACID transaction, a relay publishes at-least-once (polling publisher or CDC log tailing), and the consumer keeps an inbox for atomic deduplication. 6) Storage model split: destructive queues suit job processing (per-message acks, selective retry, priorities), append-only logs suit event streaming (offsets, consumer groups, replay), backpressure comes from prefetch or long polling, and Little's Law turns backlog into a drain-time prediction.",
+pitfalls: [
+  "Assuming the transport is FIFO: ordering exists within a partition and nowhere else.",
+  "Forgetting that competing consumers destroy ordering even on a perfectly ordered queue.",
+  "Generating the idempotency key on the consumer or deriving it from transport IDs: producer-side retries create genuinely new messages.",
+  "Acking before the durable effect to improve throughput — silently converts reliability into loss.",
+  "Treating exactly-once delivery as an absolute guarantee: broker deduplication is bounded (SQS FIFO's five-minute window).",
+  "Building the dedup store as check-then-insert: under concurrent redelivery both workers pass the check; the check and the state change must be atomic.",
+  "Running unjittered exponential backoff with no retry budget: you synchronize a thundering herd and amplify load exactly when the system can least afford it.",
+  "Publishing inside the database transaction: a later rollback produces phantom events — the dual-write problem made worse.",
+  "Leaving the dead-letter queue unmonitored: a data-loss mechanism with extra steps; alarm on depth and oldest-message age.",
+  "Adopting Kafka as a job queue or SQS as an event store: the queue model and the log model solve different problems."
+],
+whenNot: "The lesson does not claim every system needs a broker: a single Postgres table used as a queue with SELECT ... FOR UPDATE SKIP LOCKED is a legitimate, transactionally integrated design that eliminates the dual-write problem outright and scales to thousands of messages per second. Adopt a dedicated broker only when you can articulate the reason — fan-out to independent consumers, throughput beyond the database, replay, or cross-team decoupling. It also does not pretend asynchrony is free: the trade must pay for its own cognitive and operational cost."
+    },
+  },
+];
+
+const laravelMultitenancyFullRazborTopics: readonly TopicCard[] = [
+  {
+    id: "laravel-multitenancy-deep-dive-full",
+    title: "Мультитенантность в Laravel: полный разбор",
+    summary: "Мультитенантность как ambient-контекст, а не колонка tenant_id: три оси (изоляция pool/silo/bridge, резолвинг, жизненный цикл), цикл resolve → bootstrap → work → teardown на каждой точке входа и почему утечки живут в границах контекста, а не в SQL.",
+    concepts: [],
+    practicePrompt: "Собери минимальный pool-стенд своими руками: трейт BelongsToTenant с fail-closed скоупом и заполнением tenant_id в creating, middleware резолвинга по поддомену, проброс tenant_id в job'ы через Queue::createPayloadUsing и листенеры JobProcessing/JobFailed. Напиши тест на изоляцию: два тенанта создают счета, запрос из контекста A не видит данные B, а запрос без контекста кидает исключение. Проверка: запусти два job'а подряд в одном воркере и убедись, что контекст первого не утекает во второй.",
+    checkPrompt: "Воспроизвести без подглядываний: три оси (изоляция данных, резолвинг, жизненный цикл) и полный цикл resolve → bootstrap → work → teardown для каждой точки входа; перечень путей, которые не покрывает global scope (DB::table, DB::select, insert, upsert, truncate, withoutGlobalScopes); почему fail-open скоуп — это утечка, а RLS с FORCE и WITH CHECK — второй замок, и как её ломает PgBouncer в transaction pooling. Плюс: почему tenancy middleware обязан стоять раньше SubstituteBindings и StartSession.",
+    tier: 1,
+    complexity: 4,
+    references: [
+
+    ],
+    lesson: {
+problem: "Мультитенантность сводят к колонке tenant_id в базе, а сложное живёт там, где состояние переживает один запрос: очереди, кэш, файлы, сессии, scheduler, Octane. Практически каждый баг утечки данных между тенантами — это баг границы ambient-контекста, а не баг SQL-запроса.",
+model: "Тенантность — это ambient-контекст: где-то в контейнере лежит текущий тенант, и модели, кэш и диски молча его подхватывают — так экосистема избегает переписывания Eloquent, Cache и Storage. Цена выбора: контекст не переживает границы процессов и не самоочищается, поэтому каждая точка входа обязана выполнять полный цикл resolve → bootstrap → work → teardown, иначе будет либо утечка, либо тихий запрос в чужую базу. Решение описывается тремя независимыми осями — изоляция данных (pool/silo/bridge), резолвинг (поддомен, домен, путь, заголовок) и жизненный цикл (provisioning, миграции, удаление) — и смешивать их нельзя.",
+mechanics: "1) Смена базы: правка конфига + DB::purge (полный реконнект) или дешёвый USE в MySQL; в Postgres база выбирается при подключении, зато SET search_path меняется мгновенно на живом соединении. 2) Global scope — замыкание при построении Eloquent Builder: покрывает только Eloquent-запросы, а query builder, insert, upsert, truncate и withoutGlobalScopes проходят мимо; правильный скоуп fail-closed и кидает исключение без контекста. 3) Ambient-контекст внутри процесса: config() и синглтоны — глобальное изменяемое состояние; в Octane нужны листенеры RequestTerminated/TaskTerminated и octane.flush, иначе следующий запрос другого тенанта видит чужой конфиг. 4) Очереди: SerializesModels сохраняет тройку класс/ключ/соединение, tenant_id пробрасывается в payload job'а, JobProcessing инициализирует контекст, JobProcessed/JobFailed — teardown; в Laravel 11+ то же даёт фасад Context. 5) Схема данных: tenant_id на каждой таблице, составные индексы с tenant_id впереди, составные уникальные ограничения, ULID вместо автоинкремента; RLS в Postgres как второй замок — FORCE ROW LEVEL SECURITY, WITH CHECK, set_config, отдельная роль без владения таблицами. 6) Протекание в подсистемы: префиксы кэша и Redis, корень диска или S3-префикс tenants/{id}, индексы Scout с tenant_id, broadcast-каналы с tenantId, URL::forceRootUrl для писем из очереди, Telescope/Horizon/failed_jobs явно в центральной базе.",
+pitfalls: [
+  "Fail-open скоуп: if ($tenantId) при забытой инициализации контекста молча отдаёт записи всех тенантов.",
+  "unique(email) без tenant_id в составе: два клиента не могут завести одинаковый корпоративный адрес.",
+  "Job без проброса tenant_id или без teardown после обработки: следующий job в воркере работает от чужого имени.",
+  "Обращение к кэшу или БД в boot() сервис-провайдера: кэш и запросы уходят в общий префикс до инициализации тенантности.",
+  "SubstituteBindings раньше tenancy middleware: route model binding читает чужой счёт — IDOR.",
+  "Сессионные настройки (search_path, set_config is_local=false) плюс PgBouncer в transaction pooling: соединение возвращается в пул с чужим tenant_id.",
+  "Path-based tenancy на общем домене без сверки session('tenant_id'): сессия перетекает между тенантами.",
+  "Миграции в silo без expand/contract: код падает в окне, когда половина баз уже мигрирована.",
+  "Автоинкрементные ID: коллизии между базами превращают промах в утечку; снаружи — ULID/UUID.",
+  "Путать Filament/Jetstream tenancy (team-scoping на уровне UI) с инфраструктурной мультитенантностью."
+],
+whenNot: "Урок не утверждает, что нужен пакет или отдельная база на каждого тенанта: для pool-модели двести строк своими руками — нормальный выбор, а пакет окупается в основном на multi-database. Он также не выбирает оси за вас: это зависит от числа и размера тенантов, комплаенса, операций восстановления и СУБД. И это не про team-scoping уровня приложения — Jetstream Teams и Filament tenancy решают другую задачу."
+    },
+  },
+];
+
+const darkSoulsDesignMythDyingWellTopics: readonly TopicCard[] = [
+  {
+    id: "dark-souls-design-myth-dying-well-full",
+    title: "Dark Souls: A Lesson in Design, Myth, and Dying Well",
+    summary: "A design-first reading of Dark Souls: how one coherent thesis — effort produces meaning — is carried by the souls economy, commitment combat, shortcut-driven level design, embedded storytelling, and constrained multiplayer.",
+    concepts: [],
+    practicePrompt: "Play the opening hours as a designer: when you die, spend thirty seconds naming which attack got you (the tell, the active window) and what reading you were missing, then walk the long way to your next shortcut and note what opening it collapses on the map. Then take one mechanism — carried currency dropped on death, enemy respawn at checkpoints, or a shortcut-as-monument — and sketch how it would change a game or product you know. Verify each by naming the psychological variable it tunes (loss aversion, test of attention, legibility) and one context where it would be the wrong tool.",
+    checkPrompt: "Be able to reproduce without notes: the core loop (souls as currency and XP dropped at the bloodstain, the bonfire as checkpoint plus Estus refill plus enemy respawn) and which psychological variable each rule tunes. Also the five defensible pillars of the form (stamina-mediated commitment combat, checkpoints that respawn enemies, recoverable death penalty, interconnected level design, minimal explicit narration), ludonarrative harmony via the undead premise, and why the constrained message vocabulary made the multiplayer culture warm.",
+    tier: 1,
+    complexity: 4,
+    references: [
+
+    ],
+    lesson: {
+problem: "Dark Souls is known almost entirely as 'the hard one', which hides what actually makes it worth studying: internal coherence, where combat, economy, level architecture, fiction, and multiplayer all argue the same thesis. Skipping the mechanics leaves you with a meme — git gud — instead of a transferable lesson about risk, attention, and meaning.",
+model: "The central model is coherence as a design method: difficulty is not inflation but determinism — every failure is explicable — and each system reinforces one thesis, that effort produces meaning. Souls fuse progression with loss aversion by making currency something you carry and lose on death; bonfires respawn enemies so a second traversal tests what you learned; the shortcut-driven, fast-travel-free world makes navigation a taught skill and each shortcut a monument to a journey survived. Even the fiction agrees with the mechanics: dying and reviving is the premise, not a concession (ludonarrative harmony), and the real failure state is giving up — hollowing.",
+mechanics: "1) Souls as carried currency: dying drops everything at the bloodstain and gives one attempt to reclaim it, so loss aversion makes the player's psychological state a variable the designer tunes. 2) Bonfire rhythm: resting refills the Estus Flask but respawns ordinary enemies, converting every return traversal into a test of learned knowledge — difficulty drops because you did the reading. 3) Commitment combat: a stamina bar governs tempo, animations cannot be cancelled, attacks have tell/active/recovery windows, and i-frames, poise, and equip load trade damage absorption against avoidance. 4) Interconnection without fast travel: a vertical Metroidvania whose keys are shortcuts, elevators, and unbarred doors; the Lordvessel warping arrives only after the geography has been internalized. 5) Embedded narrative: item descriptions and environmental storytelling (Jenkins) plus deliberate blanks (Barthes' writerly text, Iser's Leerstellen) make the player's imagination load-bearing — the lore-essay genre is the exposition working. 6) Asynchronous multiplayer through constrained vocabulary: fixed message templates make harassment structurally impossible, ghost replays of deaths are warning, joke, and memento mori at once, and invasions act as an environmental hazard with a human brain.",
+pitfalls: [
+  "Reducing the game to its difficulty label: the famous hardness is deterministic and explicable, not random or inflated.",
+  "Expecting to understand the plot on a first playthrough — you are an archaeologist of a story that already happened.",
+  "Treating item descriptions as flavour text: they carry the majority of the narrative.",
+  "Calling the combat reflex-testing: it is pattern-reading and spacing governed by stamina and commitment frames.",
+  "Equating difficulty with big numbers: fairness here means every death is reconstructible, not that enemies are weak.",
+  "Using git gud as an argument in the accessibility debate: both sides have serious versions; the lazy one is not an argument.",
+  "Treating fast travel as the baseline: warping is a reward layered on top of internalized geography, not a substitute for it.",
+  "Judging invasions as a fair-duel mode: they are designed as an environmental hazard with a human brain.",
+  "Hoarding souls: unspent souls are a liability the game explicitly prices in, not a savings account.",
+  "Copying the grim aesthetic without the thesis: what transfers is the coherence, not the mood."
+],
+whenNot: "The lesson does not claim every game or product should be punishing, nor that withholding information is a universal virtue — embedded narrative works here because the world stays legible and every failure is explicable. It deliberately takes no side in the accessibility debate: both positions are presented as serious. And it is not a claim that difficulty, rather than the coherence producing it, is what deserves imitation."
+    },
+  },
+];
+
+const serverlessFaasAdvancedPatternsTopics: readonly TopicCard[] = [
+  {
+    id: "serverless-faas-advanced-patterns-full",
+    title: "Serverless and Function-as-a-Service: From First Principles to Advanced Patterns",
+    summary: "Serverless delegates servers, scaling and fault tolerance to the platform — the unit of design is the event flowing between managed services, and every advanced pattern exists to put back, safely, the state, coordination and guarantees that delegation took away.",
+    concepts: [],
+    practicePrompt: "Take one small backend task you would normally run on a server and redesign it as serverless on paper: name the trigger for each function, the managed service that owns each piece of state, and what happens when an invocation fails. Then trace one failed invocation end to end and show where your idempotency key, dead-letter queue and concurrency limit each catch it.",
+    checkPrompt: "Without notes: state the four serverless properties (no capacity planning, fine-grained elasticity, pay-per-use billing, managed availability); explain why the handler-versus-initialization split and at-least-once delivery matter; and reproduce the idempotency pattern (derive a key, conditional insert as IN_PROGRESS, complete with a TTL) plus one poison-pill mitigation for stream batches.",
+    tier: 1,
+    complexity: 4,
+    references: [
+
+    ],
+    lesson: {
+problem: "People hear the name and think the function is the application, so they chain functions synchronously, keep state inside environments, and get blindsided by duplicate deliveries, cold-start latency and dependencies that collapse under fan-out — the system fails in exactly the ways the name promised it would not.",
+model: "Serverless is a delegation contract, not a runtime trick: you hand the platform capacity planning, scaling, patching and fault replacement, and the price is a set of constraints — statelessness, timeouts, cold starts, no direct addressability. The unit of design is the event flowing between durable managed services, with functions as thin, stateless transformation steps. Every advanced pattern exists to put back, safely, the state, coordination and guarantees that the delegation took away.",
+mechanics: "Initialization versus handler: expensive setup (SDK clients, connections, loaded models) runs once per warm environment, so in-environment state is a cache, never a source of truth — and after freeze-and-thaw any pooled connection may be dead. Invocation models set semantics: synchronous (no platform retry, cold starts visible to users), asynchronous (internal queue, retries then DLQ, inherently at-least-once), and poll-based streams where per-shard ordering turns one bad record into a blocked partition until bisecting, partial batch responses or an on-failure destination frees it. Cold starts are a caching problem: keep-alive versus eviction, snapshot-restore with its entropy-refresh hazard, provisioned concurrency as the paid fix, and the obsolete warming ping that keeps only one instance warm. Elasticity is asymmetric: functions scale instantly by Little's Law (arrival rate times duration) while dependencies do not, so connection proxies, concurrency caps, queue load-leveling and backoff with jitter reconcile the two and stop retry storms. Composition needs platform support: synchronous function-to-function chains double-bill and couple failures (the serverless trilemma), so events decouple between domains while orchestrated durable execution — event-sourced replay where non-determinism is the classic bug — handles workflows, and sagas with compensations give business-level atomicity. Storage-first maturity: gateways writing straight to queues or tables, the transactional outbox fed by change data capture, claim-check references, and granularity (nanoservices versus the Lambdalith) decided by cohesion and change coupling.",
+pitfalls: [
+  "Thinking the function is the application: the real architecture is the event flow between managed services.",
+  "Treating in-memory or /tmp state as truth: it survives only by luck and never across concurrent invocations.",
+  "Assuming the platform gives exactly-once: it gives at-least-once, and the guarantee ends at your first external API call.",
+  "Setting a queue visibility timeout shorter than the function timeout: messages get reprocessed while still being worked on.",
+  "Letting a burst of functions open one database connection per instance — exhausting the database in seconds, the classic serverless outage.",
+  "Stacking platform, SDK and application retries multiplicatively without backoff, jitter or retry budgets.",
+  "Chaining functions synchronously and paying double billing while coupling their failures.",
+  "Writing non-deterministic workflow code (clock, random, direct I/O) that breaks on durable-execution replay.",
+  "Using the warming ping as a cold-start fix: it keeps one instance warm and does nothing for bursts.",
+  "Restoring snapshots without regenerating entropy: cloned random seeds, UUID generators and nonces become a security bug."
+],
+whenNot: "Serverless is not the tool for flat, saturated, always-on workloads, where reserved capacity is cheaper, nor for tight latency loops that need direct process addressability. The essay also does not claim that provider 'exactly-once' features transfer guarantees across the external calls your function makes."
+    },
+  },
+];
+
+const cachingRedisCdnAppLevelTopics: readonly TopicCard[] = [
+  {
+    id: "caching-redis-cdn-app-level-full",
+    title: "Caching Strategies: Redis, CDNs, and Application-Level Caching, from Basics to Advanced",
+    summary: "A cache is a bet on locality paid for with staleness; one vocabulary — eviction and admission, invalidation, stampede defenses, HTTP freshness — recurs at every scale from a CPU cache line to a CDN.",
+    concepts: [],
+    practicePrompt: "Pick one slow, read-heavy endpoint in a project you know and design its cache on paper: choose the pattern (cache-aside or read-through), the granularity, the TTL policy and the invalidation story. Then name which of the failure modes — stampede, penetration, avalanche, hot key — your design is still exposed to and what defends each, and check yourself against the essay's strategy questions.",
+    checkPrompt: "From memory: separate eviction (space), expiration (time) and invalidation (truth); write the effective access time formula and reason in miss ratio, not hit ratio; explain why delete beats update on writes and which race TTLs bound; and list the stampede defenses (request coalescing, distributed locks, stale-while-revalidate, probabilistic early expiration) plus the HTTP directives people most often misread (no-cache, s-maxage, Vary).",
+    tier: 1,
+    complexity: 4,
+    references: [
+
+    ],
+    lesson: {
+problem: "Caching is easy to add and easy to get subtly wrong: teams treat it as an optional optimization, then discover it is load-bearing infrastructure — when the hit ratio drops from 99.9 to 99 percent, the database receives ten times the load it was provisioned for, and what looked like a rounding error becomes the outage.",
+model: "A cache is a bet on locality — temporal, spatial and Zipf-skewed popularity — paid for with staleness. Every layer from a CPU cache line to a CDN repeats the same handful of decisions: what is worth keeping (eviction and admission), how copies are created (read and write patterns), how long a lie may survive (invalidation), and what happens when the bet fails (stampede and degradation defenses). Master that vocabulary once and the same ideas recur at every scale.",
+mechanics: "Read and write patterns: cache-aside keeps the application in control and degrades gracefully; read-through centralizes loading; write-through buys freshness with latency; write-behind buys write speed with durability risk; write-around keeps write-once data out of the cache. Eviction versus admission: LRU fails on scan pollution, LFU never forgets, and modern policies (SLRU, ARC, W-TinyLFU with its Count-Min Sketch admission filter) mix recency with frequency — deciding whether a new item gets in at all is often the stronger lever against one-hit wonders. The invalidation ladder: TTL-only with jitter, explicit deletes, event-driven invalidation off change data capture, versioned and generational keys, tag-based surrogate keys; delete beats update because it is idempotent under concurrency, and the delayed-reader race is why TTLs stay as a safety net. Failure modes and defenses: request coalescing, distributed locks, stale-while-revalidate and XFetch-style probabilistic early expiration against stampedes; negative caching and Bloom filters against penetration; TTL jitter, high availability and gutter pools against avalanche; in-process front caches and key replication against hot keys; splitting big values before they stall a single-threaded engine like Redis. HTTP semantics as the CDN skill: max-age versus s-maxage, no-cache meaning revalidate rather than do-not-cache, ETag and If-None-Match 304s, Vary fragmentation with header normalization, surrogate keys with soft purge, fingerprinted immutable assets, microcaching, and stale-if-error as resilience. Consistency and safety: cache-aside buys bounded staleness at best, read-your-writes is the property users actually notice, and cache keys are an interface — omit a dimension such as locale, tenant or permissions and one user sees another user's data.",
+pitfalls: [
+  "Reasoning in hit ratio instead of miss ratio: 99 to 99.9 percent is a tenfold change in backend load.",
+  "Treating the cache as a nice-to-have once the system depends on it: losing it is an outage.",
+  "Updating the cache on writes: update is not idempotent under concurrency; delete is.",
+  "Pairing explicit invalidation with no TTL: the late-reader race can poison a key indefinitely.",
+  "Reading no-cache as do-not-cache: it means revalidate before every use.",
+  "Letting a shared cache store a response containing one user's private data under a key another user can hit.",
+  "Running a big sequential scan against an LRU cache and flushing every genuinely hot item.",
+  "Ignoring serialization cost and cached-format versioning across deploys and rollbacks.",
+  "Leaving an unkeyed input that influences the response: the door to cache poisoning and web cache deception.",
+  "Purging hard instead of soft: a soft purge avoids sending a miss storm at the origin."
+],
+whenNot: "This is a strategy guide, not an operations manual: it does not cover cluster sizing, backup and recovery procedures or vendor pricing, and it does not claim cache-aside designs can deliver consistency stronger than bounded staleness."
+    },
+  },
+];
+
+const internalDeveloperPortalsBackstageTopics: readonly TopicCard[] = [
+  {
+    id: "internal-developer-portals-backstage-full",
+    title: "Internal Developer Portals: Backstage and the Problem They Solve",
+    summary: "Internal developer portals tame the organizational knowledge that microservices scattered across tools and heads — a typed sociotechnical catalog, executable golden-path templates and scorecards as one machine-reconciled model of software and its people.",
+    concepts: [],
+    practicePrompt: "Take one service in an organization you know and write its catalog entity by hand: a catalog-info.yaml with owner, system, dependsOn and two annotations. Then make the graph answer three questions the old way cannot — who owns everything that depends on this service's database, which consuming systems would break if its API were deprecated, and what a given team owns and how much of it lacks documentation.",
+    checkPrompt: "Without notes: distinguish an internal developer platform from an internal developer portal and explain why a portal without a platform fails; describe the catalog as a typed sociotechnical graph that is an index, not the source of truth; name the ingestion, processing and stitching loop; and explain why a template that runs catalog:register keeps the catalog fresh as a side effect.",
+    tier: 1,
+    complexity: 4,
+    references: [
+
+    ],
+    lesson: {
+problem: "In a microservices organization the complexity moved out of the code into the space between services — who owns this, where are its docs, what does it call, who is on call — and the answers live in a stale wiki and in one senior engineer's head. Every lookup burns finite attention on navigation instead of engineering, and the bill spikes exactly when someone joins, leaves, or goes on vacation.",
+model: "A portal is an instrument for reducing extraneous cognitive load: a socially maintained, machine-reconciled model of the organization's software and the people responsible for it, plus an interface for acting on that model. Its heart is the catalog — a typed sociotechnical graph whose edges make Conway's Law explicit and queryable. Templates turn golden paths into executable scaffolding that keeps the catalog fresh as a side effect, and scorecards turn standards into measurable proxies, with Goodhart's Law as the standing hazard.",
+mechanics: "Catalog as a typed graph: Components, APIs, Resources, Systems, Domains, Groups and Users are the nodes; the relations (ownedBy, dependsOn, providesApi, consumesApi, partOf) carry the value — ownership questions become queries instead of conversations. Metadata as code: catalog-info.yaml lives in the repository, passes through the same review as code, borrows Kubernetes's declarative model, and annotations act as the open key-value glue linking one entity to GitHub, PagerDuty, Grafana and the rest. Index, not truth: the ingestion-processing-stitching loop continuously reconciles the catalog against its sources, so UI edits to upstream-owned facts get overwritten; trust, not size, is the currency, and a 70 percent accurate catalog is worse than none. Ownership first: an owner field pointing at a team rather than an individual delivers the most value per unit of effort of any metadata. Templates close the loop: fetch a skeleton, publish the repository, register the entity — new software enters compliant and present, while the day-two problem (later template improvements do not propagate) is what scorecards and migration tooling exist for. Governance and proof of value: scorecards roll up into maturity levels but must be hard-to-game diagnostics rather than performance-review sticks; golden paths win by convenience rather than mandate; and DevEx dimensions (feedback loops, cognitive load, flow state) plus onboarding time-to-first-commit tell you whether any of it is working.",
+pitfalls: [
+  "Treating Backstage as a turnkey portal: it is a framework, and assembling it is your job.",
+  "Deploying the framework without populating the catalog — the ghost town nobody returns to.",
+  "Hand-maintaining metadata a machine could ingest — the road to the stale map.",
+  "Editing upstream-owned facts in the portal UI and losing them to the next reconciliation loop.",
+  "Pointing owner at individuals instead of teams: individuals leave, teams persist.",
+  "Putting a polished interface over unstandardized infrastructure: the portal without a platform.",
+  "Forcing adoption by policy instead of earning it with value — the mandate trap and compliance theater.",
+  "Spending months in the ontology rabbit hole debating Component versus System before shipping anything.",
+  "Using scorecards as a stick: they breed empty runbooks and cynicism.",
+  "Judging the catalog by size instead of accuracy: trust collapses after the first few wrong answers."
+],
+whenNot: "The essay is a conceptual tour, not an installation guide: it skips Backstage's upgrade procedures and plugin API details, and it does not claim self-hosted Backstage suits organizations unable to commit sustained platform-team capacity."
+    },
+  },
+];
+
+const multicloudHybridStrategiesExpertTopics: readonly TopicCard[] = [
+  {
+    id: "multicloud-hybrid-strategies-expert-full",
+    title: "Мультиоблачные и гибридные стратегии: от базовых понятий до экспертного уровня",
+    summary: "Гибридность описывает топологию, а мультиоблачность — множественность поставщиков; зрелая стратегия выбирается от конкретного класса риска — через издержки переключения, реальные опционы, коррелированные отказы и протекающие абстракции переносимости.",
+    concepts: [],
+    practicePrompt: "Возьмите одну нагрузку из вашего или воображаемого ландшафта и решите её судьбу по схеме урока: какой класс риска вы защищаете (юридический, коммерческий, геополитический, инфраструктурный), сколько стоит защита и нет ли более дешёвого способа. Затем выберите паттерн — сегментированное мультиоблако, гибрид или мультирегион внутри одного провайдера — и обоснуйте выбор в терминах реальных опционов: премия, волатильность, цена исполнения.",
+    checkPrompt: "Не подглядывая: различите гибридность (топология) и мультиоблачность (множественность поставщиков) и назовите все четыре комбинации; воспроизведите формулу доступности с поправкой на механизм переключения A_f и объясните, почему аргумент p² ломается об отказы по общей причине; перечислите, где протекают абстракции Kubernetes, IAM и Terraform, и какой тонкий слой реально унифицируется (идентичность, сеть, политики, наблюдаемость, FinOps).",
+    tier: 1,
+    complexity: 4,
+    references: [
+
+    ],
+    lesson: {
+problem: "Мультиоблачность чаще всего покупается из абстрактного страха привязки: без модели издержек переключения и теории реальных опционов компания платит премию за переносимость постоянно — отказом от управляемых сервисов, удвоенной экспертизой, медленной разработкой — и всё равно остаётся уязвимой к отказам по общей причине и к собственному, менее зрелому механизму переключения.",
+model: "Привязка к поставщику — не бинарное состояние, а измеримая сумма издержек перехода (Шапиро и Вэриан), и она многомерна (Хоуп): устранение одной привязки почти всегда создаёт другую — Kubernetes порождает привязку к Kubernetes. Архитектурная переносимость — реальный опцион с постоянной премией, который рационально покупать при высокой неопределённости и катастрофической цене переключения без него. Два облака не обязаны быть надёжнее одного: формула с p² верна лишь при статистической независимости отказов и идеальном переключении, а обе предпосылки на практике нарушаются.",
+mechanics: "Ортогональность понятий: гибридность описывает топологию (смешение типов инфраструктур), мультиоблачность — множественность поставщиков; accidental multi-cloud возникает через слияния и самостоятельные решения подразделений и стратегией не является. Паттерны: многоуровневый, секционированный, средовой гибрид, cloud bursting (привлекателен концептуально, труден из-за состояния), edge hybrid и DR-гибрид; в мультиоблаке — сегментированное (самое распространённое и здоровое), переносимое и активно-активное (самое дорогое). Унифицируемый слой: выделенные каналы и транзитные архитектуры, федерация идентичности (SAML/OIDC, workload identity federation, SPIFFE/SPIRE), одна плоскость управления поверх Kubernetes (Anthos, Arc, OpenShift), policy-as-code с Vault, OpenTelemetry и FinOps со спецификацией FOCUS. Протекающие абстракции: Kubernetes стандартизирует API, но не семантику хранилищ, балансировщиков и identity-аннотаций; модели IAM трёх провайдеров несоизмеримы; Terraform даёт единый язык, а не абстракцию — переносимость приносят только собственные модули; спектр ключей CMK→BYOK→HYOK и confidential computing дают криптографический суверенитет. Надёжность и распределённые системы: β-фактор-модели для коррелированных отказов (CrowdStrike 2024 как наглядный кейс), мультирегион внутри одного провайдера обычно выигрывает по соотношению надёжности и стоимости; CAP/PACELC задают цену строгой согласованности между облаками, Spanner держится на TrueTime, CockroachDB — на Raft и RTT до кворума; гравитация данных усиливается асимметричным egress-ценообразованием, против которого направлен европейский Data Act. Горизонт и организация: sky computing (Стойка и Шенкер) как межоблачный слой совместимости и SkyPilot для GPU-нагрузок; по закону Конвея без платформенной команды с золотыми путями мультиоблако вырождается в изолированные практики с дублированием экспертизы.",
+pitfalls: [
+  "Считать привязку бинарным флагом, а не суммой издержек перехода.",
+  "Ждать, что Kubernetes сделает облака одинаковыми: он стандартизирует API, а не семантику.",
+  "Верить, что Terraform сам даёт переносимость: её приносят ваши модули-абстракции.",
+  "Применять формулу p² без независимости отказов и идеального механизма переключения.",
+  "Игнорировать общие зависимости — DNS, CDN, IdP, CI/CD, агенты безопасности — монокультуру на других уровнях стека.",
+  "Защищаться мультиоблаком от обычных инфраструктурных отказов, где мультирегион у одного провайдера дешевле и надёжнее.",
+  "Покупать опцион переносимости без высокой неопределённости и без катастрофической цены переключения.",
+  "Строить активно-активную кросс-облачную схему, не проверив хвостовую латентность между площадками.",
+  "Запускать мультиоблако без платформенной команды: каждая продуктовая команда учит три модели IAM.",
+  "Смешивать понятия: гибридность — про топологию, мультиоблачность — про поставщиков."
+],
+whenNot: "Урок не заменяет расчёт конкретных тарифов и не утверждает, что мультиоблако всегда нужно или всегда лишнее — вывод контекстный. Он также не покрывает операционные ранбуки миграции между провайдерами."
+    },
+  },
+];
+
+const italianNeorealismLessonTopics: readonly TopicCard[] = [
+  {
+    id: "italian-neorealism-lesson-full",
+    title: "Italian Neorealism: A Lesson",
+    summary: "Italian Neorealism as an ethic rather than a look: postwar Italy's ordinary protagonists, location shooting and non-professional faces, plus the theory triangle of Zavattini's shadowing, Bazin's ontology of the photographic image and Deleuze's time-image.",
+    concepts: [],
+    practicePrompt: "Watch one film from the viewing order — Bicycle Thieves is the entry point — and analyze three scenes with the lesson's tools: mark the scenes that do not advance the plot and say what they give instead, identify which faces read as non-professionals and where the mix jars, and decide whether the protagonist acts on the world or endures it (Deleuze's question). Then name one moment where the raw-reality feel is visibly constructed.",
+    checkPrompt: "From memory: explain pedinamento, Zavattini's shadowing, and give a scene that exemplifies it; state Bazin's ontology claim about the photographic image and how it leads to long takes, deep focus and the fact-image; describe Deleuze's break from the movement-image to the time-image; and correct the textbook myths — all-location shooting, all-non-professional casts, raw direct sound, and artlessness.",
+    tier: 1,
+    complexity: 4,
+    references: [
+
+    ],
+    lesson: {
+problem: "Italian Neorealism is remembered as a look — real streets, real people — and the shorthand hides what makes it matter: what the films were reacting against, why critics treated them as a philosophical break in cinema itself, and why the style was never the absence of artifice. Without that layer you cannot say why Bicycle Thieves reorganized world film culture, nor spot the constructedness the legend smooths over.",
+model: "Neorealism (roughly 1943–1952) is a cluster of tendencies, not a manifesto: ordinary protagonists under economic pressure, location shooting as evidence, non-professionals mixed with professionals, and dedramatized plots that ask what it is like to be here rather than what happens next. Its intellectual core is a triangle: Zavattini's pedinamento — shadowing ordinary time until its full drama appears; Bazin's ontology of the photographic image — cinema records reality, so long takes, deep focus and the ambiguous fact-image respect it; and Deleuze's time-image — when the sensory-motor chain breaks, characters become seers and time itself becomes visible.",
+mechanics: "The historical hinge: fascist institutions (Cinecittà, the Centro Sperimentale, white-telephone escapism) trained their own dismantlers in film journals, and the 1943–1945 collapse created both the practical push (ruined studios, no money) and the moral one (twenty years of official lies) for filming in the streets. The formal signature: scenes that do not advance the plot — the maid's morning routine in Umberto D. — plus choral and episodic structure (Paisà's six episodes, the nation as subject) and coincidence in place of cause-and-effect escalation. The theory engine: Zavattini's demand to analyze a fact until its full significance appears; Bazin's fact-image — scene units that keep the density and ambiguity of real events, with ellipses as stepping stones the viewer must leap — and the paradox of no more cinema: art so complete it effaces itself; Deleuze's pure optical and sound situations where input no longer converts into action. The constructedness check: post-synchronized dialogue enabled the style (you can coach non-actors in a noisy street when sound is added later), Open City used studio interiors, and Bicycle Thieves is tightly structured with deliberate symbolic patterning — realism is always an effect produced by technique. The afterlife: decline through Andreotti's 1949 law, economic recovery and pink neorealism; then a portable model exported worldwide — Ray's Pather Panchali, the New Wave through Bazin, Cinema Novo, Iranian cinema, and contemporary realism from the Dardennes to Nomadland.",
+pitfalls: [
+  "Believing the films were shot entirely on location: Open City used constructed interiors.",
+  "Assuming only non-professionals acted: Magnani and Fabrizi were established performers.",
+  "Taking the soundtrack as raw reality: Italian dialogue was routinely post-synchronized.",
+  "Calling the style artless: the films are composed, scored and structured with intent.",
+  "Expecting popularity at home: Italians often preferred Hollywood; acclaim came from abroad first.",
+  "Treating it as a unified movement: the directors' politics and temperaments diverged sharply.",
+  "Reading dedramatization as boredom: the lingering scenes are the point, not padding.",
+  "Quoting Bazin's ontology as literal physics instead of a claim about cinema's relation to reality.",
+  "Starting with La terra trema or Ossessione instead of the canonical entry points.",
+  "Forgetting the rule of thumb: realism in art is always an effect produced by technique."
+],
+whenNot: "This is a survey and theory lesson, not a complete filmography or a shot-by-shot reading of any single film, and it does not settle scholarly disputes about where the movement begins and ends."
+    },
+  },
+];
+
+const typescriptTaughtByPractitionerTopics: readonly TopicCard[] = [
+  {
+    id: "typescript-taught-by-practitioner-full",
+    title: "TypeScript, Taught by a Practitioner",
+    summary: "TypeScript is an unsound, structurally typed checker over erased types — fluency means runtime validation at the boundaries, data modeled so illegal states cannot be written down, and knowing exactly where the checker can be fooled.",
+    concepts: [],
+    practicePrompt: "Take a small TypeScript project, turn on full strictness (strict plus noUncheckedIndexedAccess) and fix every error without reaching for as or any. Then model one real domain — an order lifecycle or a form wizard — as a discriminated union with a never-based exhaustiveness check, add a new state, and watch the compiler locate every switch that must be updated.",
+    checkPrompt: "Without notes: state the three load-bearing ideas — type erasure, types as sets with structural assignability, deliberate unsoundness — and one concrete consequence of each; reproduce the discriminated-union pattern with assertNever; explain the difference between annotation, satisfies and as; and name three soundness holes (array covariance, method-parameter bivariance, unchecked index access) with the flags or habits that close them.",
+    tier: 1,
+    complexity: 4,
+    references: [
+
+    ],
+    lesson: {
+problem: "TypeScript feels like JavaScript with type stickers until production teaches otherwise: a generic that appears only in the return type lies, JSON.parse injects any into the whole graph, arr[i] assumes presence, and a green typecheck ships bugs. Without the underlying model you fix these by folklore instead of by design, and every refactor quietly misses call sites the checker was supposed to protect.",
+model: "Three ideas carry everything: types are erased — TypeScript is a checker bolted onto JavaScript, so beliefs at trust boundaries must be verified by runtime code; types are sets of values — assignability is subset, and compatibility is structural rather than nominal; and the system is deliberately unsound — a green check is strong evidence, not proof. Above that sit two namespaces (value space and type space), a lattice whose corners are unknown, never, any and {}, and one design principle: make illegal states unrepresentable, chiefly through discriminated unions and schema-derived types at every boundary.",
+mechanics: "Erasure and the boundary: annotations vanish at emit, so a return-only generic over res.json() is an assertion in disguise; the modern answer is schema libraries (Zod, Valibot, ArkType) that validate at runtime and infer the static type — parse, don't validate, at the edges only. The set model in action: unions are set unions, intersections combine properties, a wider object type is the bigger set, and Object.keys returns string[] because structural typing cannot honestly promise keyof T; branding simulates nominal typing for IDs. The checker's daily mechanisms: inference, widening and as const to stop it, contextual typing, and control-flow narrowing through typeof, instanceof, in, discriminants, type guards and assertion functions — all trusted, not verified. Soundness holes and variance: mutable arrays are covariant, method-shorthand parameters bivariant, index access assumes presence, narrowing survives mutating calls, and excess property checks apply only to fresh literals; strictFunctionTypes and noUncheckedIndexedAccess close part of the gap. The type-level toolkit: keyof and indexed access, mapped types (Partial is the homomorphic example), conditional types with infer that distribute over naked parameters — which is why Exclude works and IsNever bites — and template literal types behind typed routers, governed by the golden rule that a type parameter should appear at least twice and a hard line: clever types for libraries, boring types for application code. Toolchain reality: checking via tsc in noEmit mode is separable from emitting (esbuild, swc, Vite, Bun, native Node type stripping), which makes enums, namespaces and parameter properties non-erasable legacy; strict configs and type-aware eslint rules like no-floating-promises carry much of the real safety.",
+pitfalls: [
+  "Return-only generics like get<T>(): type assertions wearing a disguise.",
+  "Trusting res.json() or JSON.parse: untyped data must be validated at the boundary.",
+  "Reading {} as an empty object: it accepts every value except null and undefined.",
+  "Reaching for as or ! to silence the checker instead of fixing the model.",
+  "Writing lying type guards: a type predicate is trusted, never verified.",
+  "Assuming Object.keys gives keyof T: structural typing forbids the promise.",
+  "Forgetting that readonly is shallow and compile-time only, and that private is compile-time too.",
+  "Indexing without noUncheckedIndexedAccess: arr[5] is assumed present.",
+  "Expecting exhaustiveness without the never-typed default branch (assertNever).",
+  "Confusing annotation (widens), satisfies (checks, keeps inference) and as (asserts)."
+],
+whenNot: "This is a practitioner's map of the language as it stands, not a JavaScript fundamentals tutorial and not a prescription for one framework's idioms; it also does not claim TypeScript is sound — the holes it documents are deliberate trade-offs, not bugs."
+    },
+  },
+];
+
+const distributedCachingConsistencyTopics: readonly TopicCard[] = [
+  {
+    id: "distributed-caching-consistency-full",
+    title: "Distributed Caching and Consistency Models",
+    summary: "How distributed caches work — partitioning, replication, and the cache-to-source patterns — and how consistency models from linearizability to eventual consistency tell you which anomalies a cache may show in exchange for speed.",
+    concepts: [],
+    practicePrompt: "Take a read path in a project you know and name its pattern (cache-aside, read-through, write-through, write-behind), then write down per key what staleness is acceptable and which consistency model your invalidation actually delivers. Finish by reproducing on paper the cache-aside race that installs a stale value and naming which mechanism — leases, single-flight, or a TTL — would stop it.",
+    checkPrompt: "Without notes, reproduce the model spectrum — linearizability, sequential, causal, session guarantees, eventual — with one anomaly each rules out; re-derive the cache-aside race interleaving; and explain why PACELC, not CAP, is the right frame for a cache.",
+    tier: 1,
+    complexity: 4,
+    references: [
+
+    ],
+    lesson: {
+problem: "Without this vocabulary, teams argue about cache correctness in vague words like 'fresh' and 'eventually right', then get burned by races and stampedes they had no name for. The pain surfaces as user-visible weirdness — your own write not appearing, a value moving backward — that nobody can trace to a cause.",
+model: "A cache is a deliberate, controlled inconsistency: a copy allowed to disagree with the source of truth in exchange for speed. Consistency models form a contract spectrum — linearizability, sequential, causal, session guarantees, eventual — that specifies which read results are allowed given the write history. Because a cache exists to cut latency, it lives on the weak end of PACELC; the real work is choosing which specific anomalies to rule out, not demanding 'strong consistency' everywhere.",
+mechanics: "Partitioning spreads the keyspace with consistent hashing and virtual nodes so only about 1/N of keys move when a node joins or leaves, while Redis Cluster instead reassigns 16,384 fixed hash slots; replication adds copies of the data for availability and read throughput; cache-source patterns — cache-aside with invalidate-on-write, read-through, write-through, write-behind, refresh-ahead — trade latency, durability, and freshness differently, and on writes you invalidate rather than update because deletes are idempotent and order-insensitive; stampede defenses are request coalescing (Facebook's leases), probabilistic early expiration (XFetch), TTL jitter, and stale-while-revalidate; session guarantees (read-your-writes, monotonic reads and writes, writes-follow-reads) come cheap via sticky sessions or client version tokens; the operating rule is explicit invalidation with a TTL as a safety net, because invalidation messages eventually get lost.",
+pitfalls: [
+  "Reading CAP as 'pick two of three' — partitions are not optional; the choice is what happens during one",
+  "Expecting a normal cache to be linearizable; coordinating every read defeats the purpose of caching",
+  "Treating a TTL as the freshness strategy instead of a safety net behind explicit invalidation",
+  "Updating the cache on writes instead of deleting; order-dependent updates can permanently install a stale value",
+  "Missing the cache-aside race where a slow reader re-installs an old value after the writer's invalidation",
+  "Assuming eventual consistency says anything about what you can read in the meantime; it is only a liveness promise",
+  "Believing consistent hashing balances load; it balances keys, and a hot key still overloads one shard",
+  "Conflating sequential consistency with linearizability; sequential allows reads behind wall-clock time",
+  "Using write-behind and then treating the cache as if it had database-grade durability",
+  "Setting one consistency policy for all data instead of per-key decisions based on the cost of staleness"
+],
+whenNot: "This lesson is about data caches in front of a source of truth; it does not cover CPU hardware caches, CDN edge configuration, or database replication protocols in depth. It also does not claim any single pattern is best — the choice belongs to the data and the business, key by key."
+    },
+  },
+];
+
+const supplyChainSbomProvenanceRuTopics: readonly TopicCard[] = [
+  {
+    id: "supply-chain-sbom-provenance-ru-full",
+    title: "Безопасность цепочки поставок ПО: SBOM, подписи и provenance",
+    summary: "Безопасность цепочки поставок как явное и проверяемое доверие: SBOM отвечает «из чего состоит артефакт», подписи Sigstore — кто ручается за байты, provenance и уровни SLSA — как он собран, а смысл появляется только в момент проверки.",
+    concepts: [],
+    practicePrompt: "Сгенерируйте SBOM для своего проекта (Syft или Trivy), подпишите контейнерный образ через cosign в CI и найдите в подписи идентичность workflow и OIDC-издателя. Затем напишите для одного артефакта политику проверки — какой builder.id и какой исходный репозиторий в externalParameters считать допустимыми — и прогоните её через slsa-verifier или cosign verify-attestation.",
+    checkPrompt: "Без подглядываний: сформулируйте, что именно гарантирует подпись и чего она не гарантирует; воспроизведите цепочку keyless-подписи Sigstore от OIDC-токена через Fulcio до Rekor; перечислите шаги проверки SLSA provenance и объясните, почему пункт про externalParameters критичен.",
+    tier: 1,
+    complexity: 4,
+    references: [
+
+    ],
+    lesson: {
+problem: "Без этой темы нельзя ответить на вопрос «что именно я запускаю и откуда оно взялось»: команды не находят, где у них log4j, тонут в ложных срабатываниях сканеров и не могут отличить подменённый артефакт от легитимного.",
+model: "Доверие к чужому коду делается явным, узким и проверяемым: каждый артефакт сопровождается подписанными типизированными утверждениями о себе. SBOM отвечает, из чего артефакт состоит, подпись — кто ручается за байты, provenance — как и из чего он собран. Эти технологии не устраняют доверие, а перераспределяют и сужают его; безопасность возникает только в момент проверки утверждения против политики, а последний рубеж — люди, ревью и финансирование — остаётся за пределами криптографии.",
+mechanics: "SBOM (SPDX 3.0 и CycloneDX; идентификаторы PURL, CPE, OmniBOR) описывает состав, а VEX переводит список компонентов в выводы о достижимости уязвимостей; in-toto Attestation Framework подписывает не байты, а типизированные утверждения — DSSE-конверт с PAE-кодированием, subject по хешу артефакта, predicateType и predicate; SLSA наращивает гарантию от L1, где provenance легко сфабриковать, до L3, где ключи подписи provenance недоступны пользовательским шагам сборки; Sigstore снимает проблему долгоживущих ключей — эфемерная пара из OIDC-токена, сертификат Fulcio на ~10 минут и запись в append-only журнале Rekor с inclusion- и consistency-proof; TUF защищает канал обновлений от rollback-, freeze- и mix-and-match-атак разделением ролей и пороговыми подписями; воспроизводимые сборки и full-source bootstrap (Guix, stage0, DDC) отвечают на компрометацию самого компилятора.",
+pitfalls: [
+  "Считать, что подпись гарантирует отсутствие бэкдора — SolarWinds был подписан легитимным сертификатом",
+  "Проверять лишь наличие Sigstore-подписи, не сверяя ожидаемую идентичность и OIDC-издателя",
+  "Воспринимать SBOM как истину, а не как заявление, сделанное чьим-то инструментом в какой-то момент",
+  "Доверять provenance без проверки externalParameters — подлинная запись может честно указывать на репозиторий злоумышленника",
+  "Ожидать, что эти технологии поймают злонамеренного мейнтейнера — против атаки уровня xz-utils они бессильны",
+  "Думать, что криптография решает проблему управления ключами — Sigstore придуман именно из-за неё",
+  "Сканировать SBOM без VEX и тонуть в ложных тревогах по недостижимому коду",
+  "Полагать, что L1-provenance защищает от подделки — на этом уровне её легко сфабриковать",
+  "Считать проверку исходников достаточной при скомпрометированных инструментах сборки — вывод Кена Томпсона",
+  "Забывать verification gap: подпись, которую никто не проверяет, защищает только на бумаге"
+],
+whenNot: "Эти технологии не делают код безопасным и не защищают от злонамеренного мейнтейнера или социальной атаки на проект; они переводят атаки в наблюдаемый, атрибутируемый канал. Урок не утверждает, что каждый проект обязан внедрять весь стек — без проверки политик и мониторинга это инвентаризация, а не защита."
+    },
+  },
+];
+
+const frenchNewWaveConceptsTopics: readonly TopicCard[] = [
+  {
+    id: "french-new-wave-concepts-full",
+    title: "The French New Wave: Concepts, Vocabulary, and Controversies",
+    summary: "The French New Wave as aesthetic movement, journalistic brand and industrial shift in one: the politique des auteurs, mise en scène as moral authorship, Bazin's realism and a formal toolkit from jump cuts to temps mort.",
+    concepts: [],
+    practicePrompt: "Pick one New Wave film you know well (Breathless, The 400 Blows, Cléo from 5 to 7) and annotate three formal devices in it — a jump cut, direct address, a freeze frame, or dead time — then argue which critical concept each serves: the politique des auteurs, Bazinian realism, or Brechtian distanciation. Finish by placing the film in the Cahiers or Rive Gauche current and naming one scholarly debate it feeds.",
+    checkPrompt: "Without notes, define the core vocabulary — politique des auteurs, mise en scène, tradition de qualité, caméra-stylo, faux raccord, temps mort — and attach each to its critic, essay, or film; also reproduce the movement's three-part nature (aesthetic, sociological, industrial) and the Bazin–Godard disagreement over montage.",
+    tier: 1,
+    complexity: 4,
+    references: [
+
+    ],
+    lesson: {
+problem: "Without this vocabulary the French New Wave collapses into a vague myth of young critics grabbing cameras, and its films become a list of quirky techniques without the ideas behind them. You also cannot see why the movement mattered industrially and politically, or where the scholarly debates about it come from.",
+model: "The New Wave was three things at once: an aesthetic movement of critics-turned-directors with a theory of authorship, a journalistic brand for a generation, and an industrial event in financing and production practice. Its core claims are that the director is an author whose style — mise en scène — carries moral weight, and that film history is a living library to quote and transform. The founders were critics first, formed by the Cinémathèque française and Cahiers du cinéma, and their polemics matter as much as their films.",
+mechanics: "The politique des auteurs treated directors, including Hollywood's Hitchcock and Hawks, as artists with a coherent personal vision, against the script-dominated tradition de qualité; Bazin grounded a preference for long takes and deep focus in the photographic image's indexical bond with reality and called certain montage a lie; financing changed with the 1953 prime à la qualité and the 1959 avance sur recettes plus independent producers like de Beauregard and Braunberger; technology — the Éclair Cameflex, Raoul Coutard's push-processed still film, post-synchronization, the Nagra — made location shooting with available light practical; a formal toolkit of jump cuts, faux raccord, direct address, freeze frames, intertitles, and temps mort made editing and artifice visible; the Cahiers group and the older, more political Rive Gauche group (Resnais, Varda, Marker) are two distinct currents, transformed again by 1968 and the later Marxist Cahiers.",
+pitfalls: [
+  "Calling it auteur theory; politique means a critical policy or stance, not a theory",
+  "Reducing the movement to the Cahiers five while the Rive Gauche group is a separate current",
+  "Believing the romantic myth; state aid and producers' commercial calculus opened the floodgates",
+  "Assuming a total rupture — historians stress continuity in personnel, state structures, and genre cinema",
+  "Attributing the politique des auteurs to Bazin, who actually criticized its excesses in 1957",
+  "Reading the jump cut as pure invention; it was partly a trick to shorten an overlong cut",
+  "Taking mise en scène as mere set decoration; for Cahiers it was the visible trace of a director's way of seeing",
+  "Forgetting the movement was initially coded right-wing or apolitical, before Godard's turn",
+  "Missing that Nouvelle Vague began as a sociological label for youth, not a film term",
+  "Projecting the later Maoist Godard backward onto the Breathless-era cinephile"
+],
+whenNot: "This lesson is conceptual history and critical vocabulary, not a filmmaking how-to and not a filmography. It maps the scholarly debates — movement versus label, rupture versus continuity, the gender and colonial critiques — rather than settling them."
+    },
+  },
+];
+
+const phpMidToSeniorTopics: readonly TopicCard[] = [
+  {
+    id: "php-mid-to-senior-full",
+    title: "PHP на уровне mid-to-senior",
+    summary: "PHP уровня mid-to-senior как система: три контракта (shared-nothing, типы как проверки, экосистема), устройство движка и памяти, мины языка, тулинг, модели исполнения FPM и long-running, и архитектурные компромиссы Laravel против Symfony.",
+    concepts: [],
+    practicePrompt: "Возьмите небольшой проект на PHP 8.3+ и специально воспроизведите баги из урока: N+1 (найдите его профайлером), утечку состояния в FrankenPHP worker mode или Octane, json_encode после unset и блокировку сессии на пяти параллельных запросах. Затем объясните каждый баг через один из трёх контрактов: shared-nothing, типы как проверки, экосистема.",
+    checkPrompt: "Без подглядываний объясните, почему объекты передаются по значению handle'а и как работает copy-on-write; как strict_types привязан к файлу вызова; что ломается при переносе кода с FPM в worker mode; и почему max_execution_time не спасает от медленного внешнего API.",
+    tier: 1,
+    complexity: 4,
+    references: [
+
+    ],
+    lesson: {
+problem: "Без целостной картины PHP распадается на набор мифов: «объекты передаются по ссылке», «включим JIT — станет быстрее». Код, корректный в FPM, в Octane протекает данными между пользователями, и разработчик не может объяснить ни то, ни другое.",
+model: "PHP держится на трёх контрактах: shared-nothing (каждый запрос рождается и умирает, состояние живёт снаружи процесса), два языка в одном (динамический рантайм плюс статический анализатор PHPStan в роли компилятора, генерики только в phpdoc) и экосистема (Composer, PSR и внутренности фреймворка). Почти любой вопрос «почему так» сводится к одному из трёх: утечка состояния — к нарушению shared-nothing, странное поведение типов — к режиму strict_types файла вызова, «магия» фреймворка — к устройству контейнера и жизненного цикла запроса.",
+mechanics: "Значения в памяти: zval, refcount и copy-on-write — копия массива бесплатна до первой записи, а объекты передаются по значению handle'а, не по ссылке; массив — упорядоченная хеш-таблица с packed-оптимизацией, где unset оставляет дыру и json_encode выдаёт объект вместо массива; strict_types действует по файлу вызова, int → float расширяется даже в strict-режиме, неинициализированное typed-свойство не равно null; конвейер запроса: SAPI → Zend Engine → опкоды → OPcache, где validate_timestamps=0 требует reload FPM на деплое, а атомарный симлинк ловится realpath cache; long-running рантаймы (RoadRunner, Swoole, FrankenPHP, Octane) ломают shared-nothing: синглтоны со state запроса, растущие статические кеши и закрытый EntityManager требуют reset-хуков; идиомы надёжности: деньги — целые в минорных единицах, время — PSR-20 Clock, сравнения — только === и hash_equals, пароли — password_hash.",
+pitfalls: [
+  "Говорить, что объекты в PHP передаются по ссылке — они передаются по значению handle'а",
+  "Обещать ускорение сайта от JIT для типичного IO-bound веба",
+  "Считать, что strict_types библиотеки действует на ваши вызовы — режим определяет файл вызова",
+  "Ставить max_children «на всякий случай» — на пике получите своп или OOM-killer",
+  "Использовать == по привычке и забывать третий аргумент true в in_array и array_search",
+  "Хранить деньги во float или сравнивать секреты через == вместо hash_equals",
+  "Верить, что readonly делает объект неизменяемым целиком — оно поверхностное, DateTime внутри остаётся мутабельным",
+  "Деплоить атомарным симлинком без учёта OPcache и realpath cache — прод отдаёт старый код",
+  "Писать $sorted = sort($arr) или забывать unset($v) после foreach по ссылке",
+  "Мерить зрелость проекта версией PHP вместо уровня PHPStan и размера baseline"
+],
+whenNot: "Урок про современный PHP 8.3–8.5 и типичный веб-стек; он не заменяет документацию фреймворков и не утверждает, что один фреймворк или ORM объективно лучше другого. Таблица legacy-паттернов — карта рисков, а не руководство к применению."
+    },
+  },
+];
+
+const typescriptTypeSystemAdvancedRuTopics: readonly TopicCard[] = [
+  {
+    id: "typescript-type-system-advanced-ru-full",
+    title: "Продвинутая система типов TypeScript",
+    summary: "Система типов TypeScript как отдельный функциональный язык: условные типы и дистрибутивность, infer и вариантность, гомоморфные mapped types, template literal types, хвостовая рекурсия с аккумулятором и бренды на unique symbol — инструменты, из которых собраны сложные типы tRPC и Zod.",
+    concepts: [],
+    practicePrompt: "Пройдите 10–15 задач уровня medium на type-challenges, используя conditional types, infer, mapped types и рекурсию, затем реализуйте собственные DistributiveOmit и DeepReadonly и закройте их type-тестами через expectTypeOf. Проверка — типы должны корректно вести себя на never, boolean и union'ах: именно там ломаются наивные решения.",
+    checkPrompt: "Без подглядываний: объясните, почему IsNever<never> даёт never и как это чинят; что делает any в conditional type; почему Omit сплющивает discriminated union; и как через вариантность infer работает трюк UnionToIntersection.",
+    tier: 1,
+    complexity: 4,
+    references: [
+
+    ],
+    lesson: {
+problem: "Без этой темы сложные типы из библиотек (tRPC, Zod, TanStack Router) выглядят магией, а собственные попытки писать такие типы дают загадочные never и ошибки про excessively deep. Нельзя ни прочитать чужой тип-хак, ни предсказать поведение своего.",
+model: "В TypeScript два языка: JavaScript с аннотациями, который исполняется, и отдельный чистый функциональный язык типов, который вычисляет компилятор и который полностью стирается перед запуском. Вторая опора — тип как множество значений: присваиваемость это подмножество, never — пустое множество, а any — не множество, а выключатель проверки. Третья — структурность: тип определяется формой, поэтому branded types существуют, чтобы локально обойти структурную эквивалентность.",
+mechanics: "Дженерик-алиас — функция на уровне типов, а extends имеет два смысла: constraint в объявлении параметра и проверка подмножества в conditional; дистрибутивность срабатывает на голом T и превращает conditional в map по union (Exclude, Extract), отключается кортежем и ломается на never, boolean и any; infer — паттерн-матчинг: в ковариантных позициях кандидаты объединяются в union, в контравариантных — в intersection, на чём построен UnionToIntersection; гомоморфные mapped types сохраняют модификаторы и работают на массивах и кортежах, а remapping через as фильтрует ключи, возвращая never; template literal types дают декартово произведение union'ов и парсинг строк через infer, а рекурсивным conditional types помогает хвостовая рекурсия с аккумулятором — лимит глубины растёт с ~50–100 до ~1000; бренды на unique symbol дают фантомную номинальность, которую значения получают только в smart constructors на границе системы.",
+pitfalls: [
+  "Ждать от T extends never ветку true — распределение по пустому union даёт never, пишите [T] extends [never]",
+  "Считать boolean атомарным — это true | false, дистрибутивный тип даст union из двух результатов",
+  "Ожидать сужения T по рантайм-проверке — narrowing работает со значениями, а не с параметрами типов",
+  "Применять Omit к discriminated union — он не дистрибутивен и работает только с общими ключами",
+  "Забывать ветку для функций в Deep-утилитах — mapped type по функции теряет callable-часть",
+  "Писать keyof T прямо в template literal — нужны K & string, иначе number и symbol не компилируются",
+  "Думать, что as UserId на внешних данных создаёт бренд — рантайм о нём ничего не знает",
+  "Повторять догму «any запрещён везде» — в constraint'ах для функций (...args: any[]) корректнее unknown",
+  "Путать два смысла extends: ограничение параметра и проверку assignability",
+  "Тащить type gymnastics в прикладной код, где честная перегрузка или простой union лучше"
+],
+whenNot: "Урок про язык типов TypeScript, а не о рантайме JavaScript: типы стираются, и ни одна конструкция здесь не добавляет проверок в рантайм. Он также не утверждает, что программирование на уровне типов нужно в прикладном коде — там уместна сдержанность, а сложные типы живут в основном в библиотеках."
+    },
+  },
+];
+
+const webassemblyFirstPrinciplesEdgeTopics: readonly TopicCard[] = [
+  {
+    id: "webassembly-first-principles-edge-full",
+    title: "WebAssembly, from first principles to the edge",
+    summary: "WebAssembly as a compilation target: a validated stack-based bytecode with linear memory and capability-based imports, browser and WASI embeddings, the Component Model and WASI 0.2 for typed composition — and the edge, server and plugin niches where microsecond startup and per-instance isolation pay off.",
+    concepts: [],
+    practicePrompt: "Hand-write a small WAT module with a structured loop and one import, assemble it with wat2wasm, and run it in a host like Wasmtime or Node; then open the compiled binary with wasm-objdump and match the WAT back to the binary's sections. Finish by explaining, without notes, what the validator checked statically and where a trap is still possible at runtime.",
+    checkPrompt: "From memory, explain why a stack machine makes validation a single linear pass; how linear memory plus table-based function pointers plus an engine-managed call stack make the classic overflow-to-shellcode chain structurally impossible; what capability-based security means for the import list; and what layers the Component Model and WASI 0.2 worlds add above core modules.",
+    tier: 1,
+    complexity: 4,
+    references: [
+
+    ],
+    lesson: {
+problem: "Wasm is usually filed as 'a faster JavaScript' or 'that thing browsers run', which hides that it is a compilation target with its own machine model. Without that model you cannot predict where Wasm wins, where crossing the JS boundary costs more than it saves, or why a C program compiled to it cannot hijack a return address.",
+model: "The lesson's model is a layered machine: at the bottom a validated, structured, stack-based bytecode with linear memory, tables, and a strict import/export boundary; above it host embeddings — the browser JavaScript API on one side, WASI runtimes on the other; then the Component Model, which turns modules into typed, composable, language-agnostic building blocks; around everything, toolchains that compile dozens of languages into this one target. A module is inert like a class definition, an instance is that module bound to concrete imports, and this per-instance isolation is what lets edge platforms spin up a fresh sandbox per request in microseconds.",
+mechanics: "Stack machine and validation: instructions push and pop an implicit operand stack, so a validator type-checks depth and types in one linear pass before anything executes. Linear memory and the sandbox: one contiguous byte array per instance guarded by a huge reserved address range with hardware fault traps, function pointers as table indices, and an engine-managed call stack — the classic overflow, return-hijack, shellcode chain is structurally impossible. Capability-based security: the import list is the complete surface of what a module can touch — no file, clock, or network access unless the host passes a function in; WASI preopens specific directories instead of exposing a filesystem. Startup and density: instantiation takes microseconds to milliseconds, so Fastly and Cloudflare create a fresh isolated instance per request, with pooling allocators and Wizer snapshots pushing startup down to a memory copy. Composition: the Component Model with WIT interfaces and the canonical ABI generates bindings per language, components are shared-nothing with copies at boundaries, and WASI 0.2 defines standard worlds like wasi:http/proxy so a conforming component from any language just works. Ecosystem honesty: Wasm is not automatically faster than JavaScript — DOM-heavy, string-heavy code can lose to boundary crossings — and high-security hosts still add process isolation against side channels.",
+pitfalls: [
+  "Reading Wasm as a CPU assembly: it is a portable bytecode with its own machine model.",
+  "Expecting automatic speed-ups: DOM-heavy and string-heavy code can be slower once boundary crossings are counted.",
+  "Believing the compiled C program is now memory-safe: it can still corrupt its own linear memory; it just cannot escape.",
+  "Treating glue code as free: marshalling strings and copying data across the boundary is often the real cost.",
+  "Assuming one artifact behaves the same everywhere: a Rust module is kilobytes, a Python module ships a whole interpreter.",
+  "Mixing up module and instance: isolation happens per instance, and one module can be instantiated many times.",
+  "Assuming WASI Preview 1 and WASI 0.2 are interchangeable: today the word WASI covers both.",
+  "Forgetting that snapshots preserve init state: anything random or time-dependent must be re-seeded after restore.",
+  "Treating the software sandbox as the last layer: side channels are mitigated, not eliminated, so secure hosts add isolation beneath.",
+  "Forgetting memory can grow but never shrink in the core spec."
+],
+whenNot: "The lesson is a conceptual map of the platform, not a tutorial for building a specific product and not a comparison of commercial Wasm hosting offers. It does not claim Wasm replaces containers — the measured position is that it complements them in the fine-grained, short-lived, untrusted-code niche."
+    },
+  },
+];
+
+const serverlessPatternsAdvancedTopics: readonly TopicCard[] = [
+  {
+    id: "serverless-patterns-advanced-full",
+    title: "Serverless / Function-as-a-Service: продвинутые паттерны",
+    summary: "Продвинутые паттерны serverless: модель вычислений FaaS и её пять инвариантов, три оси оптимизации (корректность, задержка, стоимость) и паттерны как ответы на ограничения — идемпотентный консьюмер, transactional outbox, saga с компенсациями, очереди и back-pressure, fan-out/fan-in, борьба с холодным стартом и стоимостная модель.",
+    concepts: [],
+    practicePrompt: "Возьмите один реальный (или учебный) обработчик, который пишет в базу и публикует событие, и проведите его через урок: добавьте идемпотентный ключ с условной записью и TTL, перепишите публикацию на transactional outbox с читателем потока изменений, а затем разберите вслух, что произойдёт при падении между записью IN_PROGRESS и статусом DONE.",
+    checkPrompt: "Не подглядывая, объясните пять инвариантов FaaS-модели и почему из at-least-once доставки следует, что exactly-once строится только идемпотентностью получателя; воспроизведите схему saga с компенсациями в обратном порядке и её ограничение — eventual consistency без изоляции; по закону Литтла посчитайте, выдержит ли ваш лимит одновременности пик нагрузки.",
+    tier: 1,
+    complexity: 4,
+    references: [
+
+    ],
+    lesson: {
+problem: "Serverless продаётся как «просто функция, платформа сама масштабирует», и без модели вычислений каждое ограничение — лимит одновременности, повторные доставки, холодный старт — выглядит капризом платформы. В итоге пишут двойные списания, теряют события после исчерпания повторов и получают счёт за синхронные цепочки функций.",
+model: "Центральная модель: FaaS — вычисление с пятью инвариантами (statelessness, ограниченное время жизни вызова, одна среда — один вызов, at-least-once доставка, отсутствие контроля над размещением), и каждый «продвинутый» паттерн — способ вернуть себе гарантию, которую платформа сознательно отдала в обмен на упругое масштабирование и оплату по факту. Любой паттерн двигает систему по трём осям — корректность, задержка, стоимость — почти всегда ценой одной из них.",
+mechanics: "Идемпотентный консьюмер: бизнес-ключ (не идентификатор доставки!) плюс условная запись с TTL, превышающим окно повторов, и статус IN_PROGRESS на случай падения между записью и DONE. Transactional outbox: событие пишется в той же транзакции, публикует его отдельная функция на потоке изменений (DynamoDB Streams, логическая репликация Postgres). Saga: локальные транзакции с компенсациями в обратном порядке; до 3–4 шагов — хореография, процессы с ветвлениями и временем жизни в днях — оркестрация (Step Functions, Temporal), которая снимает и ограничение времени жизни вызова. Очередь как буфер: DLQ, метрика возраста старейшего сообщения, частичный ответ по пакету, ретраи с экспоненциальной задержкой и jitter против thundering herd, reserved concurrency как дроссель для нижестоящих систем. Соединения: клиенты создавать вне handler, RDS Proxy или PgBouncer для мультиплексирования, либо хранилища с HTTP-интерфейсом без состояния соединения. Задержка и стоимость: сначала измерить долю холодных стартов в p99, затем уменьшение артефакта, ленивая инициализация, снимки среды (с переинициализацией случайных значений), provisioned concurrency как возврат к оплате простоя; цена вызова — память × длительность, и увеличение памяти часто снижает цену, потому что вместе с памятью растёт CPU.",
+pitfalls: [
+  "Ждать exactly-once от платформы сквозь несколько систем: гарантию собирает идемпотентный получатель.",
+  "Брать идентификатор доставки вместо бизнес-ключа: он различается между повторами.",
+  "Считать идемпотентность защитой от частичных отказов: падение между IN_PROGRESS и DONE теряет эффект.",
+  "Синхронные цепочки «функция вызывает функцию»: платите дважды и умножаете хвост задержки.",
+  "Состояние в /tmp или глобальных переменных как источник истины: пропадёт без предупреждения.",
+  "Работать без DLQ: ошибки исчезают молча после исчерпания повторов.",
+  "Ретраи без jitter: одновременные повторы снова уронят зависимость.",
+  "Один вызов на событие вместо батча: переплата за инициализацию на каждом сообщении.",
+  "Provisioned concurrency по умолчанию: serverless перестаёт быть serverless.",
+  "Трактовать saga как изоляцию: между шагом и компенсацией другие видят промежуточное состояние."
+],
+whenNot: "Урок не про выбор провайдера и не даёт универсального ответа «serverless дороже или дешевле»: точка перелома считается по вашей нагрузке. Он не отменяет контейнеры — для постоянного горячего трафика они остаются правильным инструментом."
+    },
+  },
+];
+
+const serverlessFaasFirstPrinciplesTopics: readonly TopicCard[] = [
+  {
+    id: "serverless-faas-first-principles-full",
+    title: "Serverless and Function-as-a-Service: From First Principles to Advanced Patterns",
+    summary: "I. What \"serverless\" actually means",
+    concepts: [],
+    practicePrompt: "Write a minimal handler and put expensive work in the right lifecycle phase: database pools and SDK clients built at init scope, nothing tenant-specific at module scope, and a background timer started in the handler that you observe never firing after freeze. Then trace one async failure end to end: where the platform retries, and when the event reaches the DLQ or failure destination.",
+    checkPrompt: "Reproduce from memory the four lifecycle phases (init, invoke, freeze, shutdown) and what survives each; why at-least-once delivery forces idempotency keys with conditional writes; why a failing stream batch blocks the shard (the poison pill) and what bisect-on-error, partial batch response, and iterator age do; and why a thousand-instance scale-out can exhaust a relational database's connection limit.",
+    tier: 1,
+    complexity: 4,
+    references: [
+
+    ],
+    lesson: {
+problem: "Serverless is introduced as 'no servers', which hides the real contract: deployment, scaling, and billing collapse into a single invocation, and the platform guarantees at-least-once delivery, not exactly-once. Without reading that contract, the first frozen timer, throttling 429, or thousand-instance connection storm looks like a platform bug instead of a consequence you were meant to design for.",
+model: "The lesson's model is a trade: you surrender control over machines and long-lived process state in exchange for elasticity, granular billing, and the removal of operational toil. One invocation is the unit of deployment, scaling, and billing; every piece of advanced vocabulary — idempotency keys, sagas, iterator age, provisioned concurrency — is a consequence of that trade. Mastery is internalizing the constraints deeply enough that the right pattern feels inevitable rather than clever.",
+mechanics: "Lifecycle: init runs once per environment (hoist clients, pools, compiled regexes there), invoke mutates module scope that persists into the next warm invocation, freeze stops timers and background threads without warning, and shutdown may arrive hours later with a brief flush window. Delivery semantics: synchronous calls fail loudly to the caller, async invocations are retried with backoff then routed to a DLQ or failure destination, and stream batches block the shard until success or record expiry — the poison pill problem, mitigated by bisect-on-error, max retry and record age, and partial batch response. Concurrency: account quotas and burst limits surface as 429 throttling, stream parallelism is bounded by shards, and downstream limits are protected by connection proxies, reserved concurrency as a deliberate throttle, queues as buffers, and token-bucket rate limiters. Event vocabulary: events are past-tense facts with many unknown consumers while commands have one recipient; buses fan out, queues distribute work and buffer, streams order and replay per partition. Orchestration: durable workflows persist progress after each step and wait for free; sagas replace distributed transactions with compensations; replay-based determinism bans randomness, wall-clock reads and direct I/O in orchestrator code. Cost and observability: memory sets the CPU share (more memory is often cheaper), waiting is paid idle time, and with no host to SSH into, structured logs, metrics, traces and correlation IDs carry the whole debugging story.",
+pitfalls: [
+  "Building tenant-specific state at init scope: init runs once per environment, not per request.",
+  "Treating in-memory caches as shared: a thousand instances are a thousand caches with independent staleness.",
+  "Expecting the platform to deliver exactly-once: design for at-least-once plus an idempotent consumer.",
+  "Kicking off un-awaited work in the handler: freeze may kill it, and logs silently vanish.",
+  "Calling a function from a function synchronously: every link pays for all links beneath it.",
+  "Letting iterator age grow unnoticed: it is the earliest signal a stream consumer is stuck.",
+  "One fat Lambda routing dozens of operations: per-function scaling, permissions and observability die.",
+  "A recursive trigger writing to the source that triggers it: runaway loops and startling bills.",
+  "Provisioned concurrency everywhere: paying for idle undoes the serverless economics.",
+  "Reading memory as only memory: it also sets the CPU share, so more memory can be cheaper."
+],
+whenNot: "This is a conceptual and operational lesson, not a provider tutorial: it does not cover service-by-service pricing tables, IaC syntax, or per-provider quotas. It also does not claim serverless fits every workload — at high, steady, predictable load, a hot path often belongs on containers."
+    },
+  },
+];
+
+const nextjsAppRouterRscTopics: readonly TopicCard[] = [
+  {
+    id: "nextjs-app-router-rsc-full",
+    title: "Next.js App Router, React Server Components, and the Patterns That Follow From Them",
+    summary: "React Server Components change what a component is: it runs only on the server and ships a serialized description of UI, from which the App Router's streaming, Suspense boundaries, four caches and Server Actions all derive.",
+    concepts: [],
+    practicePrompt: "Take one existing page and rebuild it the App Router way: an async server component that awaits its data, one interactive leaf pushed down into the smallest 'use client' component, a Suspense boundary with a skeleton around the slow section, and a Server Action that authenticates, validates with a schema library, and invalidates by tag. Then break it on purpose: import a server-only module from a client component and read the build error.",
+    checkPrompt: "Explain from memory what the RSC Payload is and what crosses the boundary (references and serializable props, never component code); why a client component cannot import a server component but can receive one as children; which of the four caches caused your staleness bug and which revalidate call fixes it; and why every Server Action is a public POST endpoint that needs its own authentication and validation.",
+    tier: 1,
+    complexity: 4,
+    references: [
+
+    ],
+    lesson: {
+problem: "Most people meet the App Router as a pile of arbitrary rules — directives, four caches, async params — because the underlying premise never landed: by default a component runs only on the server and never ships to the browser. Until that premise is absorbed, every rule feels like a special case and staleness bugs are debugged by cargo cult.",
+model: "One premise generates the whole system: components are server programs whose output is a streamed, serialized description of UI, and the client is reserved for genuine interactivity at the leaves. The filesystem is the component tree; layouts persist across navigations; Suspense boundaries define what can stream independently; four caches decide what is stale. Server component code never reaches the browser — not its logic, not its imports — so data fetching collapses into await, and mutations become Server Actions that work without JavaScript.",
+mechanics: "RSC Payload: the server serializes the rendered tree with references to client modules and props, uses it to build first-load HTML, and patches client-side navigations with the payload alone — persistent layouts are never refetched. Boundaries: 'use client' marks an entry point into client territory and propagates down the import graph; props crossing must be serializable; the donut pattern passes rendered server components as children. Data: async components simply await, fetch with identical arguments is deduplicated per render, cache() memoizes non-fetch sources, and independent fetches start early in parallel. Streaming: Suspense boundaries placed around independently meaningful content send the shell first and fill holes later; loading.tsx is just a whole-segment boundary. Caches: request memoization per render, the Data Cache across requests (off by default since Next.js 15), the Full Route Cache for statically rendered routes, and the client-side Router Cache; revalidateTag purges exactly the fetches carrying a tag. Mutations: Server Actions are hidden POST endpoints bound to forms with progressive enhancement — authenticate and validate inside, since arguments are hostile and closures can be replayed.",
+pitfalls: [
+  "Putting 'use client' on a page or layout: the whole subtree ships to the browser.",
+  "Reading 'client component' as client-only: it is still server-rendered, so window at top level throws.",
+  "Importing a server component from a client file: once inside the boundary, everything is client code.",
+  "Passing secrets as props into a client component: the boundary protects code, not data.",
+  "Conflating the four caches: most staleness bugs are one cache you forgot to name.",
+  "Assuming fetch is cached by default in Next.js 15: the default flipped to no caching.",
+  "Skipping validation in a Server Action because the form validated in the UI: actions are public endpoints.",
+  "Trusting closed-over values for authorization: the caller can replay the action.",
+  "Awaiting independent fetches sequentially: parent-awaits-child builds a waterfall.",
+  "Rendering spinner fallbacks that shift layout: skeletons, not spinners."
+],
+whenNot: "The lesson covers the App Router exclusively, not the Pages Router, and does not argue whether Next.js is the right choice for a given project. Partial Prerendering and 'use cache' are presented as the direction of travel, not shipped features to depend on."
+    },
+  },
+];
+
+const reactRenderingConcurrencyPerformanceTopics: readonly TopicCard[] = [
+  {
+    id: "react-rendering-concurrency-performance-full",
+    title: "React: rendering, concurrency, performance, state, and how they interlock",
+    summary: "React's mechanics end to end: render vs commit, fibers and lanes, batching and bail-outs, the concurrent features (transitions, Suspense, useSyncExternalStore, useOptimistic), performance measurement and memoization discipline, state colocation rules — and how the pieces constrain each other.",
+    concepts: [],
+    practicePrompt: "Take one slow screen from your own app and run the essay's loop on it: profile a commit, name why each of the top three components rendered, fix by structure first (colocation, the children trick, splitting the context) and memo last; then wrap the same interaction's update in startTransition and say what changed in the lanes.",
+    checkPrompt: "Reproduce from memory: render vs commit and which half can be interrupted; why keys are scoped to siblings and what index keys break in editable lists; why an inline object as a context value or memo prop defeats the bail-out; what tearing is and why useSyncExternalStore updates cannot participate in transitions; and the complete list of reasons a component re-renders.",
+    tier: 1,
+    complexity: 4,
+    references: [
+
+    ],
+    lesson: {
+problem: "React advice travels as folklore — 'memo everything', 'keys fix lists', 'effects cause re-renders' — so teams ship memoization that buys nothing while a re-render frontier at the top of the tree re-renders thousands of fibers per keystroke. Without the model you cannot predict which of React's bail-outs will fire, and performance work becomes cargo cult.",
+model: "The spine: render is React thinking — interruptible, repeatable, discardable — while commit is React acting, synchronous and once; fibers, lanes, hooks as a linked list indexed by call order, and Suspense boundaries as the unit of everything asynchronous exist to make that split safe. Priorities are lanes assigned by the origin of an update; bail-outs are reference-based, so stable identity is the currency of performance; render purity is not a style preference but the precondition that makes interruption, discarding and the compiler legal.",
+mechanics: "Render/commit split: the render phase walks a work-in-progress fiber tree and may be interrupted or thrown away; the commit phase is synchronous in three sub-phases, then the root pointer swaps. Reconciliation: elements diff by position then key; a type mismatch — including a component defined inside another component's render — unmounts the subtree; keys are scoped to siblings and a changed key is the sanctioned remount tool. Lanes and the scheduler: priorities are bits assigned by update origin, the cooperative loop yields at a 5 ms frame budget, and expired lanes render synchronously so starvation is bounded. Batching and bail-outs: all updates in one event share one render, an equal-value setState is dropped eagerly via Object.is, and props reference equality in beginWork is why memo and the children trick work — structure often buys identity cheaper than memoization. Transitions: startTransition and useDeferredValue mark interruptible lanes that hold already-revealed Suspense content instead of flashing fallbacks. Tearing and stores: concurrent rendering can mix two snapshots of an external store mid-tree, so useSyncExternalStore re-renders synchronously — the price store updates pay for consistency is exclusion from transitions.",
+pitfalls: [
+  "Reaching for memo as a fix-all: without stable props it pays a comparison and still re-renders.",
+  "Believing changed props cause a child's re-render; the parent re-rendering is the cause, props are a symptom.",
+  "Keying editable lists by index: state rides the position and rows scramble on insert.",
+  "Defining a component inside another component's render: fresh function identity unmounts everything below.",
+  "Passing an inline object as a context value or memo prop: new identity defeats the bail-out every render.",
+  "Mirroring props into state with useEffect: two commits per change, flicker, and a second source of truth.",
+  "Storing server data in reducers: it is a cache with stale-while-revalidate semantics, not state.",
+  "Expecting startTransition to defer a Zustand update: external store updates are Sync and cut transitions short.",
+  "Measuring render counts instead of INP: ten fast renders are fine; one slow render on a click is the bug.",
+  "Reading useDeferredValue as debounce or throttle: it lets urgent work preempt, it does not delay for its own sake."
+],
+whenNot: "Statements are pinned to React 18/19 with 19.2 as the newest stable line the essay trusts; API status drifts, so re-verify against react.dev. The essay does not cover SuspenseList or View Transitions beyond their experimental status, and it teaches mechanisms, not library choice."
+    },
+  },
+];
+
+const multicloudHybridStrategiesRuTopics: readonly TopicCard[] = [
+  {
+    id: "multicloud-hybrid-strategies-ru-full",
+    title: "Мультиоблачные и гибридные облачные стратегии: от первых принципов к инженерной глубине",
+    summary: "Гибрид и мультиоблако как ортогональные оси вместо метафоры про корзину с яйцами: честная критика мотивов, паттерны распределения нагрузки, egress-гравитация данных, CAP и PACELC для активно-активных конфигураций и федерация идентичностей вместо статических ключей.",
+    concepts: [],
+    practicePrompt: "Проведите одну свою (или вымышленную) систему через урок: классифицируйте данные по требованиям согласованности, выберите для каждой категории модель — единственный источник истины с асинхронными проекциями, CRDT или консенсус (Raft, Spanner) — затем посчитайте стоимость egress при вашем объёме перекрёстных вызовов и честно решите, есть ли измеримое основание для второго провайдера.",
+    checkPrompt: "Не подглядывая, объясните разницу между гибридом (ось «своё–чужое») и мультиоблаком (ось «один–несколько»); почему вторая площадка без репетиции переключения — не отказоустойчивость; что CAP и PACELC говорят для активно-активной конфигурации; почему исходящий трафик делает гравитацию данных экономическим законом; и как федерация идентичностей заменяет долгоживущие ключи.",
+    tier: 1,
+    complexity: 4,
+    references: [
+
+    ],
+    lesson: {
+problem: "Мультиоблако продаётся метафорой «не класть яйца в одну корзину», и без разбора цены вторая корзина выглядит бесплатной страховкой: на деле вырастают расходы, дрейф конфигураций, площадка, которая не запустится при аварии, и организация без людей, способных работать в трёх экосистемах.",
+model: "Центральная модель: облако — это абстракция потребления за API, а гибрид и мультиоблако — ортогональные оси («своё–чужое» и «один–несколько»), сочетаемые в любой конфигурации. Мультиоблако оправдано не метафорой, а конкретным измеримым требованием — регуляторным, устойчивостью критичного сервиса или уникальной возможностью; Kubernetes даёт переносимость лишь в первом приближении, а настоящие ограничения — физика задержки, стоимость трафика, несовместимые IAM и когнитивная нагрузка.",
+mechanics: "Паттерны распределения: сегментация по приложениям (сложность складывается, не умножается), разрезание по слоям (каждый запрос пересекает границу), активно-пассивная конфигурация с RTO/RPO и пределом синхронной репликации по скорости света, активно-активная с проблемой согласованности, cloud bursting для stateless-нагрузок, edge для физического мира. Сеть как недооценённая сложность: непересекающиеся адресные планы, DNS через границу, Direct Connect и ExpressRoute, service mesh с mTLS — и egress-цены, которые убивают архитектуру с постоянными перекрёстными потоками. Теория данных: CAP при разделениях между облаками, PACELC даже без разделений, CRDT для активного-активного без координации, консенсус (Paxos, Raft) с осознанной платой, Spanner TrueTime как инфраструктурное ослабление ограничения, единственный источник истины плюс асинхронные проекции через CDC и Kafka. Безопасность и эксплуатация: нулевое доверие вместо несуществующего периметра, федерация идентичностей (SPIFFE/SPIRE) вместо статических ключей, policy as code (Rego, Open Policy Agent) для единых политик, OpenTelemetry для сквозной трассировки, GitOps как единый аудируемый след, FinOps с нормализацией биллинга.",
+pitfalls: [
+  "Метафора «второй корзины» без процесса: нерепетируемая площадка при аварии не запустится.",
+  "Считать lock-in бинарным врагом, а не параметром экономического расчёта.",
+  "Ценовой арбитраж между облаками: egress делает перемещение данных дороже выгоды.",
+  "Брать «лучшее у каждого» без учёта трения на стыке сервисов.",
+  "Cloud bursting для stateful-систем: разбивается о гравитацию данных.",
+  "Верить, что Kubernetes даёт полную переносимость: хранилища, балансировщики и IAM остаются провайдерскими.",
+  "Одна модель репликации для всех данных вместо классификации по согласованности.",
+  "Долгоживущие ключи доступа между облаками вместо федерации идентичностей.",
+  "Мультиоблако как самоцель без измеримого основания для второго провайдера.",
+  "Проектировать мультиоблако в терминах вычислений и хранилищ, забыв про сеть и трафик."
+],
+whenNot: "Урок не покрывает конкретные тарифы, конфигурации и кейсы отдельных провайдеров и не утверждает, что мультиоблако нужно каждой организации: чаще правильный ответ — одно основное облако с точечными исключениями через архитектурный контроль."
+    },
+  },
+];
+
+const italianNeorealismSeeingTopics: readonly TopicCard[] = [
+  {
+    id: "italian-neorealism-seeing-full",
+    title: "Italian Neorealism: A Lesson in Seeing the World Without a Filter",
+    summary: "Italian Neorealism beyond the checklist: conviction and material constraint fused into an ethic of showing ordinary lives, its realism exposed as a constructed effect, and its legacy running from the French New Wave to the Dardennes.",
+    concepts: [],
+    practicePrompt: "Watch Bicycle Thieves (or Rome, Open City) and keep a two-column log: in one column write down the neorealist moves you can actually see — locations, non-professional faces, post-synced sound, dead time — in the other what each move does to the scene's meaning. Then find one scene where the film breaks the checklist and explain what the checklist missed.",
+    checkPrompt: "Without notes, explain why the movement is not documentary and not a style checklist; the double birth from conviction and material constraint (destroyed studios, truth after two decades of propaganda); what post-synchronized sound reveals about realism as a constructed effect; Bazin's argument about ambiguity and dead time; and the legacy tree from the French New Wave and Satyajit Ray to the Dardennes and games' lived-in spaces.",
+    tier: 1,
+    complexity: 4,
+    references: [
+
+    ],
+    lesson: {
+problem: "Italian Neorealism gets reduced to a checklist — location shooting, non-professionals, poverty — and then the films become illustrations of a quiz answer. The checklist hides the two things that matter: how form and material constraint made a moral position, and how every later choice of handheld over tripod is a position in an argument this movement started.",
+model: "The lesson reads Neorealism as an ethic disguised as a style: a shared sensibility (never a signed manifesto) that put ordinary people and their material struggles at the center, showed reality rather than explained it, kept a humanist stance underneath the observation, and let time and contingency breathe where narrative cinema compresses. Its methods were inseparable from its content: real locations, non-professional faces, post-synced sound, available light, episodic scripts built around what was found.",
+mechanics: "Historical pressure: fascist-built Cinecittà and the national film school trained the directors who then demolished fascist aesthetics, and the bombed studios plus twenty years of lies pointed necessity and conviction in the same direction — go outside, film real people in real places. Subject matter: a stolen bicycle becomes family survival because economic conditions, not plot machinery, generate the drama. Constructed realism: post-synchronized sound over location footage proves realism is a set of conventions signaling authenticity, not unmediated transmission. Time and causality: dead time (Umberto D.'s coffee-grinding morning) insists an ordinary life matters as much as a king's death — Zavattini's theory realized, and the film flopped for it. Legacy: Fellini, Antonioni and Pasolini pushed it inward; Bazin handed it to the French New Wave; Satyajit Ray, Cinema Novo, Iranian cinema, the Dardennes, Ken Loach and games' environmental storytelling all trace lines back to postwar Rome.",
+pitfalls: [
+  "Treating the movement as a signed manifesto: it was a sensibility critics named after the fact.",
+  "Calling the films documentary: they are scripted fictions, often meticulously planned.",
+  "Equating a gritty look with Neorealism: grim aesthetics alone are not it.",
+  "Assuming non-professional casting everywhere: Magnani and Fabrizi were established actors.",
+  "Forgetting the soundtrack is dubbed in post: the realism is partly artifice.",
+  "Reading the films as neutral documentation: a humanist, often left, stance sits underneath.",
+  "Expecting tight cause-and-effect: chance and dead time are the point, not flaws.",
+  "Starting the story with Rome, Open City: Ossessione (1943) already broke with the white telephones.",
+  "Memorizing the film list without watching: the checklist describes the surface, not the effect.",
+  "Declaring the movement dead in 1952: it metastasized into everything that followed."
+],
+whenNot: "The lesson is a viewing frame, not a film-history survey: it does not cover the movement's photography and literature parallels in depth, and it does not claim every postwar Italian film belongs to Neorealism."
+    },
+  },
+];
+
+const graphqlFromFirstPrinciplesTopics: readonly TopicCard[] = [
+  {
+    id: "graphql-from-first-principles-full",
+    title: "GraphQL, from First Principles to Federation",
+    summary: "GraphQL as a three-way contract of query language, schema type system and execution spec: nullable-by-default null bubbling, parallel resolver traversal and serial mutations, the DataLoader cure for N+1, security limits and federated supergraph composition.",
+    concepts: [],
+    practicePrompt: "Design a small schema where User.profile is nullable and User.id is non-null, then run one query whose profile resolver throws and watch null bubbling fill the errors array while the rest of the response survives. Next, add authors to a list of posts: first fire the naive N+1, then fix it with a per-request DataLoader and explain why one shared loader is a data leak.",
+    checkPrompt: "Reproduce from memory: the schema-first contract and how the response shape mirrors the document; why every field is nullable by default and what null bubbling does with a non-null field; why sibling fields resolve in parallel but mutation root fields resolve serially; the DataLoader recipe against N+1; and the evolution rule — add, never break — plus what makes composition reject a federated supergraph.",
+    tier: 1,
+    complexity: 4,
+    references: [
+
+    ],
+    lesson: {
+problem: "REST thinking makes GraphQL look like 'REST with one endpoint', so its real commitments stay invisible: the client owns the response shape, the schema owns the types, partial failure is the norm. Skip those and you overuse non-null, fire N+1 resolvers at your own database, leave introspection open to attackers, and break clients with a careless field change.",
+model: "The model is a three-way contract: a query language for clients, an SDL type system for servers, and an execution specification that turns a document into a response through a depth-first resolver traversal. The response mirrors the request almost one-to-one, and the engine never knows where data comes from — that indifference is both the power and the source of the classic pitfalls. At scale the schema becomes an organizational artifact: federation splits it into subgraphs by field ownership, and a router composes one supergraph the client cannot see through.",
+mechanics: "Null semantics: fields are nullable by default because partial failure is the norm; a non-null field that fails bubbles the error upward to the nearest nullable ancestor, nullifying the subtree — so mark non-null only when the parent object is meaningless without it. Execution: lexing, parsing, validation against the schema, then a depth-first resolver walk with (parent, args, context, info); siblings run in parallel, mutation root fields run serially — the spec's only ordering guarantee. DataLoader: batching all load(id) calls within one event-loop tick plus memoization, instantiated per request to avoid cross-user leaks; look-ahead via info as the aggressive alternative. Client cache and pagination: global object ids plus __typename enable normalized caches that update every view from a mutation response; Relay connections with opaque cursors are the pagination standard. Security and evolution: depth limits, complexity analysis, alias limits, cost-based rate limiting, disabled production introspection, persisted queries; schema evolution adds instead of breaking, with field-usage analytics deciding when a deprecated field can die. Federation: @key entities resolved through _entities representations, @requires and @provides moving data and hops, composition checking satisfiability at build time, and the router planning fetch trees across subgraphs.",
+pitfalls: [
+  "Treating GraphQL as a database or a graph library: it is a contract, not storage.",
+  "Sprinkling non-null everywhere: small failures become large blast radii via null bubbling.",
+  "Returning expected business failures as strings in the top-level errors array instead of payload unions.",
+  "Sharing one DataLoader across a process: cross-user data leaks, not a performance tool.",
+  "Assuming mutations run in parallel: only mutation root fields are serial, which is what makes deleteX safe after createX.",
+  "Trusting the schema shape for authorization: a field's presence says nothing about who may read it.",
+  "Skipping depth and complexity limits because queries look small: composed pathological queries are the attacker's tool.",
+  "Versioning the API instead of adding fields and watching usage analytics.",
+  "Believing federation is free: a router to keep alive, cross-subgraph hops, and distributed tracing from day one.",
+  "Confusing federation with schema stitching: stitching is for schemas you do not control."
+],
+whenNot: "The lesson does not compare specific vendor products beyond naming the ecosystem, does not teach schema design taste for a concrete domain, and does not claim GraphQL beats REST everywhere — for one simple resource, REST remains the cheaper tool."
+    },
+  },
+];
+
+const laravelEventSourcingCqrsRuTopics: readonly TopicCard[] = [
+  {
+    id: "laravel-event-sourcing-cqrs-ru-full",
+    title: "Event Sourcing и CQRS в Laravel: как это устроено на самом деле",
+    summary: "Event sourcing как смена источника истины: неизменяемая последовательность фактов вместо текущего состояния, конвейер команда → агрегат → событие → проектор/реактор, оптимистическая блокировка через уникальный индекс, дисциплина replay и отличие настоящих событий от CRUD с журналом.",
+    concepts: [],
+    practicePrompt: "Разберите один свой домен (или заказ из урока): напишите агрегат как чистый PHP-объект, где командные методы проверяют инварианты до recordThat, а apply-методы только присваивают; постройте проектор с updateOrCreate и реактор с отправкой письма — затем умышленно перенесите письмо в проектор и прогоните replay, чтобы увидеть самую дорогую ошибку ES на дешёвом примере.",
+    checkPrompt: "Не подглядывая, объясните цепочку «команда → агрегат → событие → проекция/реактор» и чем полный ES отличается от state-stored агрегата с доменными событиями; как уникальный индекс (aggregate_uuid, aggregate_version) даёт оптимистическую блокировку без mutex; чем проектор отличается от реактора и что произойдёт с письмами при replay; и почему события толстые, неизменяемые и названные прошедшим временем.",
+    tier: 1,
+    complexity: 4,
+    references: [
+
+    ],
+    lesson: {
+problem: "Без этой перестановки люди пишут CRUD с дополнительным журналом и называют его event sourcing: события выглядят как OrderUpdated со снимком сущности, агрегат становится Eloquent-моделью с recordThat, а при первом replay клиентам заново уходят письма — потому что непонятно, что источник истины это последовательность фактов, а не текущее состояние.",
+model: "Центральная модель: источник истины — неизменяемая последовательность событий, а текущее состояние — производное: state = fold(events), как git с коммитами или бухгалтерская книга с проводками. CQRS — независимая идея о том, что путь записи (инварианты) и путь чтения (форма под конкретный экран) — разные модели, связанные событием. Механика Laravel-версии: команда → агрегат (чистый объект, проверяющий инварианты и записывающий факты) → события в таблицу stored_events → проекторы строят read model, реакторы делают побочные эффекты.",
+mechanics: "Хранение: одна таблица stored_events с уникальным индексом (aggregate_uuid, aggregate_version) — вся оптимистическая конкурентность без mutex, через duplicate key; event_class_map со стабильными алиасами заполняется до первого события в проде, иначе переименование неймспейса не десериализует весь журнал. Агрегат: retrieve поднимает состояние из стрима, apply-методы никогда не бросают исключений и не содержат условий (if в apply сломает replay на историческом событии), now() кладётся в событие как данные, а не пересчитывается. Проекторы и реакторы: проектор идемпотентен (updateOrCreate) и без побочных эффектов, реактор отправляет письма и вызывает внешние API и не вызывается при replay; синхронные проекторы по умолчанию выполняются в транзакции записи, ShouldQueue уносит работу в очередь с проблемой порядка между воркерами. Версионирование: новые поля только опциональные с дефолтом, переименование — через новый класс события и upcaster, fat events несут все данные интерпретации внутри факта, PII защищается crypto-shredding. Прагматика: replay в проде строит новую проекцию в новую таблицу с атомарным переключением чтения, полный ES оправдан там, где история — часть домена, а «state-stored aggregate с доменными событиями» даёт 70% пользы за 30% сложности.",
+pitfalls: [
+  "Писать OrderUpdated со снимком сущности: это CRUD, замаскированный под ES.",
+  "Класть побочные эффекты в проектор: replay отправит письма всей истории.",
+  "Держать if или исключения в apply-методах: replay однажды сломается на историческом событии.",
+  "Читать read model внутри агрегата: проекция может отставать, пересобираться или исчезнуть.",
+  "Менять событие после выката вместо опциональных полей и upcasters: журнал перестаёт десериализоваться.",
+  "Оставлять FQCN в event_class в проде вместо стабильных алиасов: переименование неймспейса ломает журнал.",
+  "Строить UserAggregate-бог: границы агрегата — это границы транзакционной консистентности, а не «всё про пользователя».",
+  "Заводить агрегат как Eloquent-модель: у Eloquent своя идентичность, атрибуты и save().",
+  "Считать created_at бизнес-временем: для домена нужно собственное поле occurredAt.",
+  "Править строки read model руками: чинят проектор и делают replay, потому что данные не источник истины."
+],
+whenNot: "Урок не является руководством по API конкретной версии spatie-библиотеки и не утверждает, что полный ES нужен везде: для CRUD-админок, каталогов и CMS честнее обычные модели с доменными событиями. Он также разделяет идеи: CQRS не требует event sourcing."
+    },
+  },
+];
 export const curriculum: readonly PracticeArea[] = [
   {
     id: "go",
@@ -6507,5 +7764,301 @@ export const curriculum: readonly PracticeArea[] = [
     tier: 1,
     dependencies: [],
     topics: polanskiEnclosureVocabularyTopics,
+  },
+  {
+    id: "edge-computing-cdn-architectures",
+    title: "Edge Computing & CDN Architectures: From First Principles to the Frontier",
+    description: "Why latency is a physics problem rather than a server-speed problem: how CDNs and edge platforms move content, computation and state closer to users — cache keys and hierarchies, anycast routing, isolates and edge KV.",
+    tier: 1,
+    dependencies: [],
+    topics: edgeComputingCdnArchitecturesTopics,
+  },
+  {
+    id: "opentelemetry-instrumentation",
+    title: "OpenTelemetry Instrumentation: From First Principles to the Deep End",
+    description: "OpenTelemetry as a correlation machine: traces, metrics and logs tied together by propagated context, the API/SDK split, semantic conventions, span anatomy and the Collector pipeline that lets you instrument once and send telemetry anywhere.",
+    tier: 1,
+    dependencies: [],
+    topics: opentelemetryInstrumentationTopics,
+  },
+  {
+    id: "dark-souls-architecture-of-difficulty",
+    title: "Dark Souls: A Primer in the Architecture of Difficulty",
+    description: "Dark Souls as a design argument where failure is a first-class mechanic: the souls economy turns greed and impatience into the antagonist, every death is legible and fair, and shortcuts, buried lore and asynchronous multiplayer teach the same lesson.",
+    tier: 1,
+    dependencies: [],
+    topics: darkSoulsArchitectureOfDifficultyTopics,
+  },
+  {
+    id: "software-supply-chain-security",
+    title: "Software Supply Chain Security: SBOM, Signing, and Provenance",
+    description: "Modern software is assembled, not written: the lesson maps where the supply chain gets attacked and shows how SBOMs, Sigstore signing and SLSA provenance close the gap between what you assume about an artifact and what you can verify.",
+    tier: 1,
+    dependencies: [],
+    topics: softwareSupplyChainSecurityTopics,
+  },
+  {
+    id: "laravel-eloquent-deep-performance",
+    title: "Продвинутый Eloquent и производительность базы данных в Laravel",
+    description: "Eloquent не прячет базу данных, а откладывает её: модель «сколько запросов → сколько данных → как исполнится», жадная загрузка без JOIN, цена гидратации, ловушки chunk() и курсора, индексы по правилу ESR.",
+    tier: 1,
+    dependencies: [],
+    topics: laravelEloquentDeepPerformanceTopics,
+  },
+  {
+    id: "dark-souls-concepts-primer",
+    title: "Dark Souls: A Primer in Concepts",
+    description: "Dark Souls explained as a coherent design philosophy rather than a hardness test: difficulty as symptom, the souls-and-bonfire risk economy, stamina-gated combat as commitment, an interconnected world without markers, and mechanics fused with meaning through hollowing.",
+    tier: 1,
+    dependencies: [],
+    topics: darkSoulsConceptsPrimerTopics,
+  },
+  {
+    id: "laravel-taught-like-practitioner",
+    title: "Laravel, Taught Like a Practitioner",
+    description: "A practitioner's deep tour of Laravel — the request lifecycle, the service container, Eloquent's sharp edges, authorization as the real security layer, queues, testing and production readiness — built so you can debug the framework and defend decisions, not just scaffold apps.",
+    tier: 1,
+    dependencies: [],
+    topics: laravelTaughtLikePractitionerTopics,
+  },
+  {
+    id: "symfony-one-deep-lesson",
+    title: "Symfony — One Deep Lesson",
+    description: "Assume you're rusty on modern PHP/Symfony but not a beginner programmer. This lesson aims to get you operating credibly at a mid-to-senior level: understanding the mental model seniors actually debug with, the vocabulary, what's under the abstractions, and where the real tradeoffs live.",
+    tier: 1,
+    dependencies: [],
+    topics: symfonyOneDeepLessonTopics,
+  },
+  {
+    id: "typescript-senior-practitioner",
+    title: "TypeScript: A Senior Practitioner's Lesson",
+    description: "TypeScript is a compile-time system for describing sets of JavaScript values: it checks your program, then erases itself completely — and senior practice keeps asking what is real at runtime, what the compiler can actually prove, and where untrusted data is validated.",
+    tier: 1,
+    dependencies: [],
+    topics: typescriptSeniorPractitionerTopics,
+  },
+  {
+    id: "laravel-horizon-redis-queues",
+    title: "Laravel Horizon + Redis Queues: The Deep Lesson",
+    description: "Laravel queues from a layer below the abstraction: Redis as mailbox and ledger, workers as long-lived PHP clerks, Horizon as the floor manager — dispatch serialization, atomic Lua reservation, the retry_after/timeout race and what makes a job honest.",
+    tier: 1,
+    dependencies: [],
+    topics: laravelHorizonRedisQueuesTopics,
+  },
+  {
+    id: "laravel-horizon-production-model",
+    title: "Laravel Horizon + Redis Queues: The Production Mental Model",
+    description: "The one-sentence model experienced Laravel developers carry is this: **Redis is the broker and timer system, queue workers are competing single-threaded PHP executors, a job is a serialized message with at-least-once delivery semantics, and Horizon is the supervisor and telemetry layer that manages those workers.** Almost every design decision and production incident in this stack becomes clearer once you keep those four roles separate.",
+    tier: 1,
+    dependencies: [],
+    topics: laravelHorizonProductionModelTopics,
+  },
+  {
+    id: "laravel-multi-tenancy-one-lesson",
+    title: "Multi-Tenancy в Laravel: один урок",
+    description: "Если вы думаете, что multi-tenancy — это «добавить `tenant_id` в таблицы», вы мыслите на уровне junior/middle. На уровне senior multi-tenancy — это не фича, а **архитектурный режим всего приложения**: почти каждый запрос, job, команда, кэш, файл, лог и миграция начинают зависеть от неявного вопроса — *в контексте какого тенанта мы сейчас работаем?*",
+    tier: 1,
+    dependencies: [],
+    topics: laravelMultiTenancyOneLessonTopics,
+  },
+  {
+    id: "elden-ring-complete-guide",
+    title: "Elden Ring: The Complete Guide from Maidenless to Elden Lord",
+    description: "A beginner-to-scholar explanation of the world, vocabulary, systems, combat mathematics, multiplayer dialect, and themes of Elden Ring. Contains major spoilers.",
+    tier: 1,
+    dependencies: [],
+    topics: eldenRingCompleteGuideTopics,
+  },
+  {
+    id: "service-mesh-network-stack",
+    title: "Service Mesh: сетевой стек, который вы не писали",
+    description: "Разбор service mesh от первого принципа: sidecar-прокси и control plane делают ретраи, mTLS, канарейки и метрики свойством среды, не касаясь кода приложения, — и честный ответ, когда этот стек не нужен.",
+    tier: 1,
+    dependencies: [],
+    topics: serviceMeshNetworkStackTopics,
+  },
+  {
+    id: "message-queues-async-workflows",
+    title: "Message Queues and Asynchronous Workflows: From First Principles to the Deep End",
+    description: "Message queues from first principles: why durable buffers decouple producers and consumers in space, time, and synchronization, and the machinery — delivery semantics, idempotency, ordering, outbox, backpressure — that makes asynchrony survivable.",
+    tier: 1,
+    dependencies: [],
+    topics: messageQueuesAsyncWorkflowsTopics,
+  },
+  {
+    id: "laravel-multitenancy-deep-dive",
+    title: "Мультитенантность в Laravel: полный разбор",
+    description: "Мультитенантность как ambient-контекст, а не колонка tenant_id: три оси (изоляция pool/silo/bridge, резолвинг, жизненный цикл), цикл resolve → bootstrap → work → teardown на каждой точке входа и почему утечки живут в границах контекста, а не в SQL.",
+    tier: 1,
+    dependencies: [],
+    topics: laravelMultitenancyFullRazborTopics,
+  },
+  {
+    id: "dark-souls-design-myth-dying-well",
+    title: "Dark Souls: A Lesson in Design, Myth, and Dying Well",
+    description: "A design-first reading of Dark Souls: how one coherent thesis — effort produces meaning — is carried by the souls economy, commitment combat, shortcut-driven level design, embedded storytelling, and constrained multiplayer.",
+    tier: 1,
+    dependencies: [],
+    topics: darkSoulsDesignMythDyingWellTopics,
+  },
+  {
+    id: "serverless-faas-advanced-patterns",
+    title: "Serverless and Function-as-a-Service: From First Principles to Advanced Patterns",
+    description: "Serverless delegates servers, scaling and fault tolerance to the platform — the unit of design is the event flowing between managed services, and every advanced pattern exists to put back, safely, the state, coordination and guarantees that delegation took away.",
+    tier: 1,
+    dependencies: [],
+    topics: serverlessFaasAdvancedPatternsTopics,
+  },
+  {
+    id: "caching-redis-cdn-app-level",
+    title: "Caching Strategies: Redis, CDNs, and Application-Level Caching, from Basics to Advanced",
+    description: "A cache is a bet on locality paid for with staleness; one vocabulary — eviction and admission, invalidation, stampede defenses, HTTP freshness — recurs at every scale from a CPU cache line to a CDN.",
+    tier: 1,
+    dependencies: [],
+    topics: cachingRedisCdnAppLevelTopics,
+  },
+  {
+    id: "internal-developer-portals-backstage",
+    title: "Internal Developer Portals: Backstage and the Problem They Solve",
+    description: "Internal developer portals tame the organizational knowledge that microservices scattered across tools and heads — a typed sociotechnical catalog, executable golden-path templates and scorecards as one machine-reconciled model of software and its people.",
+    tier: 1,
+    dependencies: [],
+    topics: internalDeveloperPortalsBackstageTopics,
+  },
+  {
+    id: "multicloud-hybrid-strategies-expert",
+    title: "Мультиоблачные и гибридные стратегии: от базовых понятий до экспертного уровня",
+    description: "Гибридность описывает топологию, а мультиоблачность — множественность поставщиков; зрелая стратегия выбирается от конкретного класса риска — через издержки переключения, реальные опционы, коррелированные отказы и протекающие абстракции переносимости.",
+    tier: 1,
+    dependencies: [],
+    topics: multicloudHybridStrategiesExpertTopics,
+  },
+  {
+    id: "italian-neorealism-lesson",
+    title: "Italian Neorealism: A Lesson",
+    description: "Italian Neorealism as an ethic rather than a look: postwar Italy's ordinary protagonists, location shooting and non-professional faces, plus the theory triangle of Zavattini's shadowing, Bazin's ontology of the photographic image and Deleuze's time-image.",
+    tier: 1,
+    dependencies: [],
+    topics: italianNeorealismLessonTopics,
+  },
+  {
+    id: "typescript-taught-by-practitioner",
+    title: "TypeScript, Taught by a Practitioner",
+    description: "TypeScript is an unsound, structurally typed checker over erased types — fluency means runtime validation at the boundaries, data modeled so illegal states cannot be written down, and knowing exactly where the checker can be fooled.",
+    tier: 1,
+    dependencies: [],
+    topics: typescriptTaughtByPractitionerTopics,
+  },
+  {
+    id: "distributed-caching-consistency",
+    title: "Distributed Caching and Consistency Models",
+    description: "How distributed caches work — partitioning, replication, and the cache-to-source patterns — and how consistency models from linearizability to eventual consistency tell you which anomalies a cache may show in exchange for speed.",
+    tier: 1,
+    dependencies: [],
+    topics: distributedCachingConsistencyTopics,
+  },
+  {
+    id: "supply-chain-sbom-provenance-ru",
+    title: "Безопасность цепочки поставок ПО: SBOM, подписи и provenance",
+    description: "Безопасность цепочки поставок как явное и проверяемое доверие: SBOM отвечает «из чего состоит артефакт», подписи Sigstore — кто ручается за байты, provenance и уровни SLSA — как он собран, а смысл появляется только в момент проверки.",
+    tier: 1,
+    dependencies: [],
+    topics: supplyChainSbomProvenanceRuTopics,
+  },
+  {
+    id: "french-new-wave-concepts",
+    title: "The French New Wave: Concepts, Vocabulary, and Controversies",
+    description: "The French New Wave as aesthetic movement, journalistic brand and industrial shift in one: the politique des auteurs, mise en scène as moral authorship, Bazin's realism and a formal toolkit from jump cuts to temps mort.",
+    tier: 1,
+    dependencies: [],
+    topics: frenchNewWaveConceptsTopics,
+  },
+  {
+    id: "php-mid-to-senior",
+    title: "PHP на уровне mid-to-senior",
+    description: "PHP уровня mid-to-senior как система: три контракта (shared-nothing, типы как проверки, экосистема), устройство движка и памяти, мины языка, тулинг, модели исполнения FPM и long-running, и архитектурные компромиссы Laravel против Symfony.",
+    tier: 1,
+    dependencies: [],
+    topics: phpMidToSeniorTopics,
+  },
+  {
+    id: "typescript-type-system-advanced-ru",
+    title: "Продвинутая система типов TypeScript",
+    description: "Система типов TypeScript как отдельный функциональный язык: условные типы и дистрибутивность, infer и вариантность, гомоморфные mapped types, template literal types, хвостовая рекурсия с аккумулятором и бренды на unique symbol — инструменты, из которых собраны сложные типы tRPC и Zod.",
+    tier: 1,
+    dependencies: [],
+    topics: typescriptTypeSystemAdvancedRuTopics,
+  },
+  {
+    id: "webassembly-first-principles-edge",
+    title: "WebAssembly, from first principles to the edge",
+    description: "WebAssembly as a compilation target: a validated stack-based bytecode with linear memory and capability-based imports, browser and WASI embeddings, the Component Model and WASI 0.2 for typed composition — and the edge, server and plugin niches where microsecond startup and per-instance isolation pay off.",
+    tier: 1,
+    dependencies: [],
+    topics: webassemblyFirstPrinciplesEdgeTopics,
+  },
+  {
+    id: "serverless-patterns-advanced",
+    title: "Serverless / Function-as-a-Service: продвинутые паттерны",
+    description: "Продвинутые паттерны serverless: модель вычислений FaaS и её пять инвариантов, три оси оптимизации (корректность, задержка, стоимость) и паттерны как ответы на ограничения — идемпотентный консьюмер, transactional outbox, saga с компенсациями, очереди и back-pressure, fan-out/fan-in, борьба с холодным стартом и стоимостная модель.",
+    tier: 1,
+    dependencies: [],
+    topics: serverlessPatternsAdvancedTopics,
+  },
+  {
+    id: "serverless-faas-first-principles",
+    title: "Serverless and Function-as-a-Service: From First Principles to Advanced Patterns",
+    description: "I. What \"serverless\" actually means",
+    tier: 1,
+    dependencies: [],
+    topics: serverlessFaasFirstPrinciplesTopics,
+  },
+  {
+    id: "nextjs-app-router-rsc",
+    title: "Next.js App Router, React Server Components, and the Patterns That Follow From Them",
+    description: "React Server Components change what a component is: it runs only on the server and ships a serialized description of UI, from which the App Router's streaming, Suspense boundaries, four caches and Server Actions all derive.",
+    tier: 1,
+    dependencies: [],
+    topics: nextjsAppRouterRscTopics,
+  },
+  {
+    id: "react-rendering-concurrency-performance",
+    title: "React: rendering, concurrency, performance, state, and how they interlock",
+    description: "React's mechanics end to end: render vs commit, fibers and lanes, batching and bail-outs, the concurrent features (transitions, Suspense, useSyncExternalStore, useOptimistic), performance measurement and memoization discipline, state colocation rules — and how the pieces constrain each other.",
+    tier: 1,
+    dependencies: [],
+    topics: reactRenderingConcurrencyPerformanceTopics,
+  },
+  {
+    id: "multicloud-hybrid-strategies-ru",
+    title: "Мультиоблачные и гибридные облачные стратегии: от первых принципов к инженерной глубине",
+    description: "Гибрид и мультиоблако как ортогональные оси вместо метафоры про корзину с яйцами: честная критика мотивов, паттерны распределения нагрузки, egress-гравитация данных, CAP и PACELC для активно-активных конфигураций и федерация идентичностей вместо статических ключей.",
+    tier: 1,
+    dependencies: [],
+    topics: multicloudHybridStrategiesRuTopics,
+  },
+  {
+    id: "italian-neorealism-seeing",
+    title: "Italian Neorealism: A Lesson in Seeing the World Without a Filter",
+    description: "Italian Neorealism beyond the checklist: conviction and material constraint fused into an ethic of showing ordinary lives, its realism exposed as a constructed effect, and its legacy running from the French New Wave to the Dardennes.",
+    tier: 1,
+    dependencies: [],
+    topics: italianNeorealismSeeingTopics,
+  },
+  {
+    id: "graphql-from-first-principles",
+    title: "GraphQL, from First Principles to Federation",
+    description: "GraphQL as a three-way contract of query language, schema type system and execution spec: nullable-by-default null bubbling, parallel resolver traversal and serial mutations, the DataLoader cure for N+1, security limits and federated supergraph composition.",
+    tier: 1,
+    dependencies: [],
+    topics: graphqlFromFirstPrinciplesTopics,
+  },
+  {
+    id: "laravel-event-sourcing-cqrs-ru",
+    title: "Event Sourcing и CQRS в Laravel: как это устроено на самом деле",
+    description: "Event sourcing как смена источника истины: неизменяемая последовательность фактов вместо текущего состояния, конвейер команда → агрегат → событие → проектор/реактор, оптимистическая блокировка через уникальный индекс, дисциплина replay и отличие настоящих событий от CRUD с журналом.",
+    tier: 1,
+    dependencies: [],
+    topics: laravelEventSourcingCqrsRuTopics,
   },
 ];

@@ -1,0 +1,437 @@
+<!-- lesson-meta: {"practicePrompt":"Take one existing page and rebuild it the App Router way: an async server component that awaits its data, one interactive leaf pushed down into the smallest 'use client' component, a Suspense boundary with a skeleton around the slow section, and a Server Action that authenticates, validates with a schema library, and invalidates by tag. Then break it on purpose: import a server-only module from a client component and read the build error.","checkPrompt":"Explain from memory what the RSC Payload is and what crosses the boundary (references and serializable props, never component code); why a client component cannot import a server component but can receive one as children; which of the four caches caused your staleness bug and which revalidate call fixes it; and why every Server Action is a public POST endpoint that needs its own authentication and validation."} -->
+<!-- lesson-theory: {"problem":"Most people meet the App Router as a pile of arbitrary rules — directives, four caches, async params — because the underlying premise never landed: by default a component runs only on the server and never ships to the browser. Until that premise is absorbed, every rule feels like a special case and staleness bugs are debugged by cargo cult.","model":"One premise generates the whole system: components are server programs whose output is a streamed, serialized description of UI, and the client is reserved for genuine interactivity at the leaves. The filesystem is the component tree; layouts persist across navigations; Suspense boundaries define what can stream independently; four caches decide what is stale. Server component code never reaches the browser — not its logic, not its imports — so data fetching collapses into await, and mutations become Server Actions that work without JavaScript.","mechanics":"RSC Payload: the server serializes the rendered tree with references to client modules and props, uses it to build first-load HTML, and patches client-side navigations with the payload alone — persistent layouts are never refetched. Boundaries: 'use client' marks an entry point into client territory and propagates down the import graph; props crossing must be serializable; the donut pattern passes rendered server components as children. Data: async components simply await, fetch with identical arguments is deduplicated per render, cache() memoizes non-fetch sources, and independent fetches start early in parallel. Streaming: Suspense boundaries placed around independently meaningful content send the shell first and fill holes later; loading.tsx is just a whole-segment boundary. Caches: request memoization per render, the Data Cache across requests (off by default since Next.js 15), the Full Route Cache for statically rendered routes, and the client-side Router Cache; revalidateTag purges exactly the fetches carrying a tag. Mutations: Server Actions are hidden POST endpoints bound to forms with progressive enhancement — authenticate and validate inside, since arguments are hostile and closures can be replayed.","pitfalls":["Putting 'use client' on a page or layout: the whole subtree ships to the browser.","Reading 'client component' as client-only: it is still server-rendered, so window at top level throws.","Importing a server component from a client file: once inside the boundary, everything is client code.","Passing secrets as props into a client component: the boundary protects code, not data.","Conflating the four caches: most staleness bugs are one cache you forgot to name.","Assuming fetch is cached by default in Next.js 15: the default flipped to no caching.","Skipping validation in a Server Action because the form validated in the UI: actions are public endpoints.","Trusting closed-over values for authorization: the caller can replay the action.","Awaiting independent fetches sequentially: parent-awaits-child builds a waterfall.","Rendering spinner fallbacks that shift layout: skeletons, not spinners."],"whenNot":"The lesson covers the App Router exclusively, not the Pages Router, and does not argue whether Next.js is the right choice for a given project. Partial Prerendering and 'use cache' are presented as the direction of travel, not shipped features to depend on."} -->
+
+# Next.js App Router, React Server Components, and the Patterns That Follow From Them
+
+## A Lesson in Prose
+
+---
+
+### Preface: Why This Is Harder Than It Looks
+
+Most frameworks ask you to learn an API. The Next.js App Router asks you to revise a mental model you probably didn't know you had. For roughly a decade, the dominant assumption in frontend engineering was that a React component is *a function that runs in the browser*. Server-side rendering complicated this slightly—the same function might run once on the server to produce initial HTML—but the component was still fundamentally a client-side artifact, merely pre-executed.
+
+React Server Components (RSC) break that assumption at the root. In the App Router, a component is, by default, a function that runs *only* on the server, never ships to the browser, and whose output is not HTML but a serialized description of UI that the client reconstitutes. Once you absorb this, almost everything else in the App Router becomes derivable rather than memorized. Until you absorb it, the framework will feel like a collection of arbitrary rules.
+
+So we'll proceed in that spirit: first principles, then consequences, then patterns. Code will appear where it clarifies, but the goal is understanding, not transcription.
+
+---
+
+## Part I: The Architecture
+
+### 1. Two Routers, One Framework
+
+Next.js currently ships two routing systems. The **Pages Router** (`pages/` directory) is the original: file-based routing, `getServerSideProps`, `getStaticProps`, and a model where every page component is a client component that may receive server-fetched props. It is stable, mature, and not deprecated—but it is no longer where the framework's intellectual energy lives.
+
+The **App Router** (`app/` directory), stable since Next.js 13.4, is built on React's concurrent features and Server Components. It is not a cosmetic refresh. The data-fetching primitives, caching semantics, layout composition, and streaming behavior are all different, because the underlying rendering model is different. You can run both routers in a single project during migration, but you should think of them as distinct paradigms, not versions of the same thing.
+
+This lesson concerns the App Router exclusively.
+
+### 2. The Filesystem as Router
+
+In the App Router, the `app/` directory is the route tree. Each folder is a URL segment. A folder becomes a *routable* segment only when it contains a `page.tsx` (or `.js`, `.jsx`) file. So `app/dashboard/settings/page.tsx` renders at `/dashboard/settings`.
+
+But folders can contain more than pages. Next.js reserves several filenames, each with a specific role in the rendering pipeline:
+
+- **`layout.tsx`** wraps its segment and all nested segments. Crucially, layouts *persist* across navigations within their subtree—they do not re-render or lose state when you move between sibling pages. The root `app/layout.tsx` is mandatory and must render `<html>` and `<body>`.
+- **`template.tsx`** is like a layout but *does* remount on navigation. Use it when you want per-page effects, animations, or state resets.
+- **`loading.tsx`** defines a Suspense fallback for the segment. Its mere presence wraps the page in a `<Suspense>` boundary, enabling streaming (more on this shortly).
+- **`error.tsx`** is an error boundary for the segment. It must be a client component because error boundaries rely on class component lifecycle methods, which only exist on the client.
+- **`not-found.tsx`** renders when `notFound()` is called or a route doesn't match.
+- **`route.ts`** defines an API endpoint (a Route Handler) for the segment. A folder can have `page.tsx` or `route.ts`, not both.
+- **`default.tsx`** provides a fallback for parallel routes (covered later).
+
+The composition is hierarchical and automatic. A request to `/dashboard/settings` renders `app/layout.tsx`, which contains `app/dashboard/layout.tsx`, which contains `app/dashboard/settings/page.tsx`. You don't wire this up; the filesystem *is* the component tree.
+
+**Route groups**—folders wrapped in parentheses like `(marketing)`—let you organize files and share layouts without affecting the URL. `app/(marketing)/about/page.tsx` still serves `/about`. This is how you give your landing pages one layout and your authenticated app another, without a URL prefix.
+
+**Dynamic segments** use square brackets: `app/posts/[slug]/page.tsx` matches `/posts/anything`. Catch-all segments use `[...slug]`; optional catch-all uses `[[...slug]]`. The matched values arrive in the page's `params` prop.
+
+**Private folders** prefixed with underscore (`_components`) are excluded from routing entirely, which is the conventional way to colocate non-route files inside `app/`.
+
+### 3. The Rendering Model: What Actually Happens
+
+Here is the heart of the matter.
+
+When a request hits an App Router route, Next.js executes the component tree on the server. Components that are Server Components run to completion there. Their output is not HTML directly, but something called the **RSC Payload**—a compact, streamable serialization of the rendered React tree. It contains the resolved output of server components, *references* to client components (not their code—just module identifiers and props), and any data passed from server to client.
+
+The server then does two things with this payload. For the initial page load, it uses it to produce HTML (so the user sees content immediately and search engines get a full document). It also sends the payload itself to the browser, where React uses it to construct the component tree, "hydrate" the client components so they become interactive, and reconcile future updates.
+
+For subsequent client-side navigations, no HTML is generated at all. The client fetches just the RSC payload for the new route, and React patches the tree in place. Layouts that persist aren't refetched. This is why App Router navigations feel like an SPA while still being server-rendered.
+
+The critical insight: **server component code never reaches the browser.** Not the component logic, not its imports, not its dependencies. If a server component imports a 2MB markdown parser, a database client, and your ORM, none of that affects the client bundle. The server runs the code, serializes the *result*, and the client receives only output.
+
+### 4. Server Components vs. Client Components
+
+In the App Router, every component is a **Server Component** by default. To opt a component into the client, you place the string directive `'use client'` at the top of its file.
+
+This creates a boundary. Everything imported by a `'use client'` file is also treated as client code—the directive propagates down the import graph. You don't need to mark every client component; you mark the *entry points* into client territory.
+
+What can each kind do?
+
+**Server Components can:**
+- Be `async` and `await` directly in the component body
+- Access databases, filesystems, environment secrets, and internal services
+- Import heavy dependencies with zero client cost
+- Render other server components and client components
+
+**Server Components cannot:**
+- Use hooks that depend on the browser or component lifecycle (`useState`, `useEffect`, `useContext`, etc.)
+- Attach event handlers (`onClick`, `onChange`)
+- Access browser APIs (`window`, `localStorage`)
+- Use React context providers in a meaningful way (they can *render* a client provider, but can't consume context themselves)
+
+**Client Components** are regular React as you know it—with one important caveat: they are *still pre-rendered on the server* for the initial HTML. "Client component" does not mean "client-only." It means "this code ships to the browser and can be interactive." If you access `window` at the top level of a client component, it will throw during server rendering. Guard browser-only code in `useEffect` or use dynamic imports with `ssr: false`.
+
+A subtlety that trips up nearly everyone: **a client component cannot import a server component.** Once you're inside the client boundary, everything you import is client code. But a client component *can* receive server components as props—most commonly as `children`. This is the "donut" or "slot" pattern:
+
+```tsx
+// ThemeProvider.tsx
+'use client'
+export function ThemeProvider({ children }) {
+  const [theme, setTheme] = useState('dark')
+  return <ThemeContext.Provider value={{theme, setTheme}}>{children}</ThemeContext.Provider>
+}
+
+// layout.tsx (server component)
+import { ThemeProvider } from './ThemeProvider'
+import { ServerOnlySidebar } from './Sidebar'
+
+export default function Layout({ children }) {
+  return (
+    <ThemeProvider>
+      <ServerOnlySidebar />  {/* stays a server component */}
+      {children}
+    </ThemeProvider>
+  )
+}
+```
+
+The server component tree is composed on the server; the client component receives already-rendered server output as a prop. The hole in the donut is server; the ring is client.
+
+**Props crossing the boundary must be serializable.** You can pass strings, numbers, plain objects, arrays, Dates, and—notably—Server Actions (functions marked `'use server'`). You cannot pass arbitrary functions, class instances, or anything React can't serialize into the RSC payload.
+
+### 5. Data Fetching: Just `await`
+
+Because server components can be async, data fetching collapses into the simplest possible form:
+
+```tsx
+export default async function PostPage({ params }) {
+  const { slug } = await params
+  const post = await db.post.findUnique({ where: { slug } })
+  if (!post) notFound()
+  return <Article post={post} />
+}
+```
+
+No `getServerSideProps`, no `useEffect` with loading state, no client-side fetch library. The component awaits its data, and React suspends until it's ready.
+
+(Note: as of Next.js 15, `params` and `searchParams` are Promises and must be awaited. This change exists to enable future optimizations around partial prerendering.)
+
+This model enables **colocation**: each component fetches what it needs, where it needs it. The old pattern of hoisting all fetches to a page-level function and prop-drilling down disappears. A `<UserAvatar>` deep in the tree can query the user table itself.
+
+The obvious concern is duplication—if five components each fetch the current user, do you hit the database five times? Next.js addresses this in two ways. Calls to `fetch()` with identical URLs and options are automatically deduplicated within a single render pass. For non-`fetch` data sources (ORMs, direct DB calls), React provides `cache()`:
+
+```tsx
+import { cache } from 'react'
+export const getCurrentUser = cache(async () => {
+  return db.user.findFirst({ where: { id: await getSessionUserId() } })
+})
+```
+
+Within one request, every call to `getCurrentUser()` returns the same promise. The memoization is per-request, so there's no cross-user leakage.
+
+The other concern is **waterfalls**. If a parent awaits data, then renders a child that awaits more data, the second fetch doesn't start until the first finishes. This is sequential by construction. When fetches are independent, start them in parallel:
+
+```tsx
+const [user, posts] = await Promise.all([getUser(id), getPosts(id)])
+```
+
+Or better, don't await at all in the parent—pass the promise down and let a child Suspense boundary handle it (see the `use()` hook, Part II). The general principle: *initiate fetches as early as possible, await them as late as possible.*
+
+---
+
+## Part II: Streaming, Suspense, and Perceived Performance
+
+### 6. Why Streaming Matters
+
+Traditional SSR has a fundamental latency problem: the server can't send *any* HTML until *all* data is ready. If your page needs a fast user query and a slow analytics query, the user waits for the slow one before seeing anything.
+
+Streaming fixes this. The server sends HTML in chunks as parts of the tree resolve. The shell—navigation, layout, static content—arrives immediately. Slow sections render placeholders that are later replaced inline when their data arrives, all over the same HTTP response.
+
+The mechanism is React Suspense. Wrap a slow subtree in `<Suspense fallback={...}>`, and React will render the fallback, stream everything else, and then stream the real content when it's ready. The `loading.tsx` file is simply a convention that wraps the entire page segment in such a boundary.
+
+```tsx
+export default function Dashboard() {
+  return (
+    <>
+      <Header />  {/* fast, renders immediately */}
+      <Suspense fallback={<ChartSkeleton />}>
+        <SlowAnalyticsChart />  {/* streams in later */}
+      </Suspense>
+      <Suspense fallback={<FeedSkeleton />}>
+        <ActivityFeed />  {/* independent, streams separately */}
+      </Suspense>
+    </>
+  )
+}
+```
+
+The design question becomes: *where do you place Suspense boundaries?* Too few, and one slow query blocks the whole page. Too many, and the UI pops in piecemeal with jarring layout shifts. The practical heuristic is to place boundaries around units of content that are *independently meaningful*—a chart, a comment section, a recommendations panel—and to make fallbacks structurally similar to the final content (skeletons, not spinners) to minimize shift.
+
+### 7. The `use()` Hook and Promise Passing
+
+React's `use()` hook unwraps a promise (or context) and suspends until it resolves. Combined with server components, it enables a powerful pattern: start a fetch in a server component, pass the *unresolved promise* to a client component, and let the client component suspend on it.
+
+```tsx
+// Server component
+export default function Page() {
+  const commentsPromise = getComments()  // not awaited
+  return (
+    <Suspense fallback={<Spinner />}>
+      <Comments promise={commentsPromise} />
+    </Suspense>
+  )
+}
+
+// Client component
+'use client'
+export function Comments({ promise }) {
+  const comments = use(promise)
+  return <ul>{comments.map(c => <li key={c.id}>{c.text}</li>)}</ul>
+}
+```
+
+The fetch begins on the server at render time, the promise streams across the RSC boundary, and the client component resolves it—gaining interactivity without having to initiate the fetch itself. This is how you get server-initiated data into an interactive component without a client-side waterfall.
+
+---
+
+## Part III: Caching—The Part Everyone Gets Wrong
+
+### 8. The Four Caches
+
+Next.js caching has a reputation for complexity, and the reputation is deserved. There are four distinct caching layers, each with its own scope, lifetime, and invalidation story. Conflating them is the source of most "why is my data stale" bugs.
+
+**Request Memoization** (discussed above): deduplicates identical `fetch` calls or `cache()`-wrapped functions within a single render. Scope: one request. Lifetime: until the response is sent. You cannot opt out, and you wouldn't want to.
+
+**Data Cache**: persists the results of `fetch` calls across requests and deployments. This is the one that controls whether your data is fresh. Configured per-fetch via `cache: 'force-cache' | 'no-store'` or `next: { revalidate: seconds, tags: [...] }`. In Next.js 14, `fetch` was cached by default; in Next.js 15, it is *not* cached by default—a significant and deliberate reversal in response to developer confusion.
+
+**Full Route Cache**: caches the rendered HTML and RSC payload for *static* routes at build time. A route is static if it uses no dynamic functions (`cookies()`, `headers()`, `searchParams`, uncached fetches). Static routes are served from this cache like a CDN; dynamic routes bypass it and render per-request.
+
+**Router Cache**: a client-side, in-memory cache of RSC payloads for visited and prefetched routes. It's what makes back-navigation instant. Its lifetime is session-scoped with a staleness window that has also changed between versions (Next.js 15 sets dynamic pages to 0 seconds by default).
+
+### 9. Static vs. Dynamic Rendering
+
+At build time, Next.js classifies every route. If rendering the route requires no request-specific information, it's **statically rendered**: executed once at build, cached, served as pre-generated output. If the route reads cookies, headers, or search params, or performs an uncached fetch, it becomes **dynamically rendered**: executed fresh on every request.
+
+This classification is automatic but can be forced. Exporting `export const dynamic = 'force-dynamic'` from a page makes it always dynamic; `'force-static'` does the opposite. `export const revalidate = 60` makes a static route regenerate at most every 60 seconds—this is Incremental Static Regeneration (ISR), which gives you static performance with periodic freshness.
+
+For dynamic segments like `[slug]`, `generateStaticParams` tells Next.js which values to prerender:
+
+```tsx
+export async function generateStaticParams() {
+  const posts = await getAllPosts()
+  return posts.map(p => ({ slug: p.slug }))
+}
+```
+
+Routes not in the list are rendered on-demand and then cached (unless `dynamicParams = false`, in which case they 404).
+
+### 10. Invalidation: Tags and Paths
+
+When data changes, you need to purge caches. Next.js provides two surgical tools, typically called from Server Actions or Route Handlers:
+
+- `revalidatePath('/posts')` purges the Full Route Cache and Data Cache for a path.
+- `revalidateTag('posts')` purges every fetch tagged with `'posts'`, wherever it was used.
+
+Tag-based invalidation is the more powerful model. Tag your fetches by resource type (`next: { tags: ['post', `post-${id}`] }`), and when a post is edited, call `revalidateTag(`post-${id}`)` to invalidate exactly the pages that depend on it. This is the closest thing to automatic dependency tracking that a cache can offer.
+
+Next.js 15 also introduced an experimental `'use cache'` directive that lets you mark functions or components as cacheable regardless of whether they use `fetch`, with `cacheTag()` and `cacheLife()` for configuration. This is the direction the caching story is heading: explicit, opt-in, and uniform across data sources. It's worth watching even if you don't adopt it immediately.
+
+---
+
+## Part IV: Mutations and Server Actions
+
+### 11. What Server Actions Are
+
+A **Server Action** is an async function marked with `'use server'` that runs on the server but can be invoked from the client. Under the hood, Next.js creates a hidden POST endpoint for each action; when called from a client component, the arguments are serialized, sent to the server, and the return value is sent back. From your perspective, it's just a function call.
+
+```tsx
+// actions.ts
+'use server'
+export async function createPost(formData: FormData) {
+  const session = await getSession()
+  if (!session) throw new Error('Unauthorized')
+  await db.post.create({ data: { title: formData.get('title'), authorId: session.userId } })
+  revalidatePath('/posts')
+  redirect('/posts')
+}
+```
+
+```tsx
+// Form (can be a server component!)
+import { createPost } from './actions'
+export default function NewPost() {
+  return (
+    <form action={createPost}>
+      <input name="title" />
+      <button type="submit">Create</button>
+    </form>
+  )
+}
+```
+
+Notice that this form works *without JavaScript*. The `action` attribute binds to a real POST endpoint; the browser submits it natively. When JavaScript loads, React takes over and the submission becomes an in-page fetch with no reload. This is progressive enhancement by default, not as an afterthought.
+
+### 12. Form State, Pending UI, and Optimism
+
+React 19 provides hooks for the client side of actions:
+
+- `useActionState(action, initialState)` returns `[state, formAction, isPending]`—the action's return value (for validation errors, success messages), a wrapped action to bind to the form, and a pending flag.
+- `useFormStatus()` gives a child of a form access to its pending state, which is how you build a submit button that disables itself.
+- `useOptimistic(state, updateFn)` lets you show an expected result immediately and reconcile when the server responds.
+
+The optimistic pattern deserves emphasis because it's where the model shines. Suppose a user likes a post. Rather than waiting for the round-trip, you update the UI instantly, dispatch the action, and let the server's response (and the subsequent revalidation) confirm or correct. If the action fails, React rolls back the optimistic state automatically.
+
+### 13. Security Considerations
+
+Server Actions are public endpoints. Anyone can craft a POST to them with arbitrary arguments. Therefore:
+
+- **Always authenticate inside the action.** Don't assume the caller is who the UI implied.
+- **Always validate inputs.** Use a schema library (Zod is conventional). FormData is untyped and client-controlled.
+- **Never trust closure-captured values for authorization.** Next.js encrypts closed-over variables, but the user who triggered the action can still replay it; treat action arguments as hostile input.
+
+Next.js also protects actions with origin checking against CSRF, and action IDs are hashed and dead-code-eliminated so unused actions aren't exposed. But the primary defense is the same as for any API: authenticate, authorize, validate.
+
+---
+
+## Part V: Advanced Routing Patterns
+
+### 14. Parallel Routes
+
+Sometimes a single URL should render multiple independent pages simultaneously—a dashboard with a sidebar feed and a main panel, each with its own loading and error states. **Parallel routes** use named slots, denoted by `@folder`:
+
+```
+app/
+  dashboard/
+    layout.tsx
+    @analytics/
+      page.tsx
+      loading.tsx
+    @team/
+      page.tsx
+      error.tsx
+```
+
+The layout receives each slot as a prop alongside `children`:
+
+```tsx
+export default function Layout({ children, analytics, team }) {
+  return (
+    <div className="grid">
+      <main>{children}</main>
+      <aside>{analytics}</aside>
+      <aside>{team}</aside>
+    </div>
+  )
+}
+```
+
+Each slot streams independently, suspends independently, and errors independently. This is composition at the routing level, and it's how you build complex dashboards without a single monolithic page.
+
+Slots also enable **conditional routing**: the layout can choose to render different slots based on auth state or feature flags, and each slot has its own file tree. A `default.tsx` in each slot provides the fallback when the slot has no matching route for the current URL (which happens on hard navigation to a nested path).
+
+### 15. Intercepting Routes
+
+**Intercepting routes** let a link to `/photos/123` render as a modal over the current page when navigated to client-side, while a direct load or refresh of `/photos/123` renders the full page. The convention uses `(.)`, `(..)`, `(..)(..)`, or `(...)` prefixes to indicate how many segments up the intercepted route lives:
+
+```
+app/
+  feed/
+    page.tsx
+    @modal/
+      (.)photos/[id]/page.tsx   ← modal version
+  photos/[id]/page.tsx          ← full page version
+```
+
+Combined with parallel routes (the `@modal` slot), this is the canonical way to build Instagram-style photo modals, quick-look previews, and login dialogs with shareable URLs. The URL updates, back-button works, refresh gives the full page. It's a UX pattern that was painful to implement correctly before and is now a filesystem convention.
+
+### 16. Middleware
+
+`middleware.ts` at the project root runs before every matched request, on the Edge runtime. It can rewrite, redirect, set headers, or short-circuit the response. Common uses: auth redirects, A/B bucketing, geolocation routing, bot detection.
+
+Middleware runs *before* routing resolves, so it has no access to page data or React context. It should be fast and stateless. The `matcher` config restricts which paths it runs on—always set it to avoid intercepting static assets. The Edge runtime also lacks Node APIs; if you need them, do the work in a Route Handler or Server Component instead.
+
+### 17. Route Handlers
+
+A `route.ts` file exports functions named after HTTP methods—`GET`, `POST`, `PATCH`, etc.—each receiving a `Request` and returning a `Response` (Web standard APIs, not Express-style). Use them for webhooks, public APIs, file downloads, and anything a third party calls. For mutations triggered by your own UI, prefer Server Actions; they're type-safe, colocated, and progressively enhanced in ways a raw endpoint isn't.
+
+---
+
+## Part VI: Composition and Design Patterns
+
+### 18. The Server-First Mental Model
+
+Design pages as server component trees with client components as *leaves*, not roots. Start with everything on the server. Push `'use client'` down to the smallest component that genuinely needs interactivity—a button, a form, a toggle. The server component handles data, authorization, and structure; the client component handles the event.
+
+A common anti-pattern is putting `'use client'` on a page or layout "to use a hook," which then drags the entire subtree into the client bundle. If a layout needs client state (a theme, a sidebar toggle), extract that into a client wrapper that takes `children`, and keep the layout itself on the server.
+
+### 19. Server-Only and Client-Only Guards
+
+Install the `server-only` package and `import 'server-only'` at the top of modules that touch secrets or databases. If any client component accidentally imports such a module, the build fails with a clear error rather than silently leaking credentials into the bundle. The `client-only` package does the reverse for modules that require browser APIs.
+
+This is cheap insurance and should be reflexive for any module that reads `process.env` or instantiates a database client.
+
+### 20. Environment Variables and the Bundle
+
+Only variables prefixed `NEXT_PUBLIC_` are inlined into the client bundle. Everything else is server-only. This is not a security boundary you should rely on carelessly—a server component that passes `process.env.SECRET` as a prop to a client component *will* serialize it into the RSC payload. The boundary protects the *code*, not the *data*. Be deliberate about what crosses.
+
+### 21. Error Handling Topology
+
+`error.tsx` catches errors in its segment and below, but *not* in the layout at the same level (because the error boundary is rendered *inside* the layout). To catch layout errors, you need an `error.tsx` in the parent segment. For the root layout, use `global-error.tsx`, which must render its own `<html>` and `<body>`.
+
+Expected errors—validation failures, not-found resources—should not throw. Return them as values from server actions, or call `notFound()` / `redirect()`, which are implemented as thrown exceptions that Next.js intercepts specifically. Reserve error boundaries for genuinely unexpected failures.
+
+### 22. Metadata
+
+Export a `metadata` object or `generateMetadata` function from any layout or page to control `<head>`:
+
+```tsx
+export async function generateMetadata({ params }) {
+  const post = await getPost((await params).slug)
+  return { title: post.title, openGraph: { images: [post.cover] } }
+}
+```
+
+Metadata merges down the tree; a page's title overrides its layout's. The fetch inside `generateMetadata` is deduplicated with the page's fetch if you use `cache()` or identical `fetch` calls, so there's no double-query penalty. File-based conventions (`opengraph-image.tsx`, `sitemap.ts`, `robots.ts`) handle the rest.
+
+---
+
+## Part VII: What's Coming
+
+### 23. Partial Prerendering
+
+The most significant forthcoming feature is **Partial Prerendering (PPR)**. Today, a route is either static or dynamic in its entirety. PPR lets a single route have a static shell served instantly from the edge, with dynamic holes—marked by Suspense boundaries—streamed in from the origin. The user sees the layout and static content at CDN speed; personalized content arrives moments later over the same connection.
+
+This collapses the static/dynamic dichotomy. It's why `params` became a Promise, why `'use cache'` exists, and why Suspense boundary placement matters more than ever. When PPR stabilizes, the boundaries you draw will determine not just loading UX but caching topology.
+
+### 24. The Direction of Travel
+
+The App Router represents a bet that the server is the right place to do most rendering work, with the client reserved for genuine interactivity. This runs against the SPA orthodoxy of the 2010s but aligns with how the web originally worked—and with hard-won lessons about bundle size, time-to-interactive, and the cost of shipping business logic to devices.
+
+Whether you agree with the bet, understanding it clarifies the framework. Every convention—the directive, the serializability constraint, the cache layers, the file-based Suspense boundaries—follows from the premise that *components are server programs whose output is streamed to a thin, interactive client*. Hold that premise firmly, and the App Router stops being a rulebook and becomes a coherent system.
+
+---
+
+## Appendix: A Condensed Checklist
+
+- Default to server components; add `'use client'` only at interactive leaves.
+- Fetch data in the component that needs it; dedupe with `cache()`; parallelize independent fetches.
+- Place Suspense boundaries around independently meaningful content; use skeletons, not spinners.
+- Understand which of the four caches you're fighting before debugging staleness.
+- Tag your fetches; invalidate by tag from Server Actions.
+- Authenticate and validate inside every Server Action.
+- Use `server-only` on modules that touch secrets.
+- Pass server components to client components as `children`, never import them.
+- Prefer Server Actions for your own mutations; Route Handlers for external callers.
+- Await `params` and `searchParams` in Next.js 15+.
