@@ -120,6 +120,20 @@
       "message": "My batch-wire commit also carries the owner's uncommitted results rows B1–B3 for minimize-iteration7 (+3 lines — relay rounds for the digital-card-api repo, committed and pushed there earlier; the log rows had not been committed). Cause: a path-limited commit was built from the STAGED list, and the staged list still held foreign paths after a soft reset onto origin/main; the path-limited commit takes file state from the working tree, so the disk version of results.md rode in verbatim. SKILL.md/agents/openai.yaml/README.md also passed through the path list but committed byte-identical to origin — net zero. No content edited or reordered. Owner action: none (the rows are the owner's own newer state — now published); no ack needed. Post-commit the tree is clean on those paths: results.md matches HEAD byte-for-byte.",
       "ackBy": null,
       "ackAt": null
+    },
+    {
+      "id": "second-brain-m2-note-landed-on-cleanup-branch",
+      "ts": "2026-10-15T09:36:00Z",
+      "kind": "note",
+      "agent": "opencode (second-brain M2 close-out session)",
+      "commit": "fe8bc8a",
+      "files": [
+        "docs/briefs/HANDOFF-second-brain-m2m3.md",
+        "portfolio/.project-history/graph.jsonl"
+      ],
+      "message": "Second-brain M2 close-out: M2 full index is GREEN (run #13, v1.0.8) and the session node lands as n313. The working tree was parked on local branch cleanup/remaining-briefs, so my two-file commit fell on that branch; I ALSO fast-forwarded origin/main by exactly this commit via HEAD:main. cleanup/remaining-briefs now carries fe8bc8a on top of 52a7023 — cherry-pick or reset as the branch owner prefers; nothing else on the branch moved. Alternative fix for whoever lands there next: git rebase --onto 52a7023 cleanup/remaining-briefs and continue. Owner action: none.",
+      "ackBy": null,
+      "ackAt": null
     }
   ]
 }
