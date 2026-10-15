@@ -6,8 +6,8 @@ Read this, then `docs/briefs/DESIGN-second-brain-v1.md` (verbatim accepted desig
 ## Where things live
 
 - Work repo: `/Users/vasilij/Documents/quiet-index` (public; tags carry versions; push with `/usr/bin/git`).
-- Vault repo: `/Users/vasilij/Documents/vasyapym-Vault` (private; the workflow lives at `.github/workflows/second-brain-index.yml`; tools ref currently **v1.0.8**).
-- Relay chat format: `minimize-iteration7` shape (question + decided-facts + verbatim contract + "code at the end", ASCII-only, no repo references); evidence rows in `skills/in-progress/minimize-iteration7/results.md` (B1 shared layer, B2 parsing, B3 runner).
+- Vault repo: `/Users/vasilij/Documents/vasyapym-Vault` (private; the workflow lives at `.github/workflows/second-brain-index.yml`; tools ref currently **v1.0.9**).
+- Relay chat format: normal orchestrate brief (task/constraints/context/acceptance/output contract, ASCII-only, no repo references) — owner moved M3 rounds off the `minimize-iteration7` shape; evidence rows B1–B3 stay in `skills/in-progress/minimize-iteration7/results.md` (historical).
 - This luna2 workspace: handoff + briefs (`docs/briefs/BRIEF-second-brain-m2a/m2b/m2c.md`) + `second-brain-index.workflow.yml` (the copy the owner pasted into the private vault).
 
 ## M2 DONE — full index GREEN (Oct 15, 2026)
@@ -34,17 +34,21 @@ Read this, then `docs/briefs/DESIGN-second-brain-v1.md` (verbatim accepted desig
 2. Verify the UptimeRobot monitor on `/` is green.
 3. Later/hygiene: rotate the Neon owner password (it and the brain_indexer password appeared in chat), then update `DATABASE_URL`+`DIRECT_URL` on Render in one calm window; update the `BRAIN_DB_URL` secret in one go if rotated.
 
-## Next: M3 — OWNER PICKED "GO"; start with round 1 in the NEXT session
+## M3 ROUND 1 DONE — backend auth (Oct 15, 2026)
+
+- Tag `v1.0.9` (`3980642`): `src/second-brain/auth/` — `session.service` (HMAC `sb_session`, base64url `{iat,exp}`, `timingSafeEqual` with length pre-check, fails closed), `session.guard` (`SESSION_COOKIE`/`SESSION_MAX_AGE`, `sanitizeNext` (only `/brain`/`/brain/…`, rejects `//` and `\`), `UnauthenticatedException` 401 carrying next — round 2 filter turns it into 303), `login-throttle` (5/15/15 min, in-memory, Injectable Clock from `src/common/clock`), `passphrase.service` (argone2 verify wrapped: malformed PHC -> false, never throws), `hash-passphrase.ts` CLI (argon2id, m=65536 t=3 p=1; TTY raw read, Ctrl-C=130, empty=2, piped=EOF).
+- 212/212 tests green (47 new), build clean, ASCII-checked; CLI exercised live end-to-end (piped + pty by the relay model).
+- Nothing wired yet on purpose: no Nest module, no AppModule edit, no controller — the app's runtime behavior is unchanged until round 2.
+
+## Next: M3 Round 2 (web) — start in the NEXT session
 
 Open with the ritual (same rules as every session):
 1. `git pull --ff-only origin main` in BOTH `quiet-index` and `vasyapym-Vault` (use `/usr/bin/git`); read this handoff, then the DESIGN sections listed below (verbatim contract — quote from them, don't restate).
 2. Exact anchors in `DESIGN-second-brain-v1.md`: `§8.1` routes (L425), `§8.2` auth (L438) — `BRAIN_PASSPHRASE_HASH` argon2id PHC produced by `node dist/second-brain/auth/hash-passphrase.js` (stdin, no echo), `BRAIN_SESSION_SECRET` rotation signs out sessions; `§8.3` headers (L465), `§8.4` error filter (L480), `§8.5` views (L489), `§9` search / hybrid SQL+keyword fallback (L507), `§10` reader (L558; `markdown.ts` landed in M2a, `link-keys` in M2b; §10.3 three indexed queries), `§11` privacy (L609), `§13` tests (L644), `§16` acceptance (L700). Line numbers valid at the Oct 15 file state.
 
-Round 1 (auth, backend-only, no UI):
-- `src/second-brain/auth/`: `session.service` (HMAC cookie sessions signed by `BRAIN_SESSION_SECRET`), `session.guard`, `login-throttle`, `passphrase.service` verify via `@node-rs/argon2` against the PHC hash, `hash-passphrase.js` CLI.
-- Specs per `§13`: session round-trip, wrong passphrase, throttle lock window, tampered cookie, PHC parse. Base: 165/165 green at v1.0.8 — keep them green.
-- Relay brief: `minimize-iteration7` shape (question + decided-facts + verbatim contract + "code at the end", ASCII-only, no repo refs). After the reply: salvage line-by-line against real schema/env names (M2 lesson), wire, `npm test` + `npm run build` clean, tag `v1.0.9` on acceptance, push (pre-approved delivery), update this handoff "Done".
-Round 2 (web): `brain.controller` routes (DB-free until auth passes; note-id is a 16-hex gate that 404s BEFORE any query), `security-headers.ts` per §8.3, `brain-exception.filter` per §8.4, views per §8.5 (layout/login/home/search/note, `h()` escape, no JS, CSP no-script). Owner env actions ONCE web lands: generate `BRAIN_SESSION_SECRET`, run hash-passphrase CLI for the real passphrase, set both on Render (exact commands go in the handoff then).
+Round 1 (DONE, see above): auth backend only, no UI.
+
+Round 2 (web): `brain.controller` routes (DB-free until auth passes; note-id is a 16-hex gate that 404s BEFORE any query), `second-brain.module.ts` registering the module in AppModule only when `BRAIN_ENABLED=true` (auth providers exist, controller+filter join), `security-headers.ts` per §8.3, `brain-exception.filter` per §8.4 (maps `UnauthenticatedException` from `session.guard` to the 303 login redirect), views per §8.5 (layout/login/home/search/note, `h()` escape, no JS, CSP no-script). Login POST needs the §8.2 request checks: Origin matching when present, throttle check BEFORE argon2, success resets throttle. Search/home views render counts from `brain_meta` — DB call only on session-protected routes (invariant 1). Owner env actions ONCE web lands: generate `BRAIN_SESSION_SECRET` (`openssl rand -base64 48`), run hash-passphrase CLI from v1.0.9 for the real passphrase, set both on Render in one calm window.
 Round 3 (search+reader): `notes.repository`, hybrid search SQL §9 behind `BRAIN_ENABLED` + signature gates, link resolution + auto-backlinks §10.3. Then M4 = memory gate (docker `--memory=512m`, RSS ≤ 420 MB logged once) before `BRAIN_SEMANTIC=true`.
 Optional polish queue stays parked: batched-embed "blocking" store variant; README quickstart; repo rename (only after M3 — remember workflow `repository:` field + Render check).
 
