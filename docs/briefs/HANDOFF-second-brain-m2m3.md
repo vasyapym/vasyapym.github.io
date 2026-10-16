@@ -69,7 +69,17 @@ Read this, then `docs/briefs/DESIGN-second-brain-v1.md` (verbatim accepted desig
 - IF the Render build OOMs again after v1.0.12: next levers in order: (1) skip the integ probe only inside Docker (`--testPathIgnorePatterns brain.controller.integ.spec.ts` - it still runs in the vault CI), (2) `NODE_OPTIONS=--max-old-space-size=1536` in the build stage, (3) move `npm test` out of the image build entirely (design 13 needs re-litigating first). Ask for the build-log STEP attribution before picking: the OOM line in the full log names the step that died.
 - Reminder: v1.0.10/v1.0.11/v1.0.12 all ship code-only while `BRAIN_ENABLED=false` on Render; the card path is unaffected by any of this.
 
-## Next: M4 — memory gate, then `BRAIN_SEMANTIC=true`
+## M4 DONE — memory gate ran, FAIL (Oct 16)
+
+- Telemetry shipped first: `v1.0.15` (`bd6b5ee`) — `search/query-embedder.provider.ts` wraps the shared embedder web-side; ONE-OFF `brain: embedder loaded rss=<n> mb` after the first SUCCESSFUL query embed (failed loads stay silent; a later success logs; Math.ceil). 7 specs, 331/331 green. The shared class stays logging-free (the CI indexer reuses it). The line is dormant in prod until semantic search ever runs.
+- Gate run (per design 7.3, all steps honored): fresh colima VM (2 CPU/4GB RAM), image built 24/24 with the pinned model sha256-verified; `docker run --memory=512m --memory-swap=512m -p 3000:3000` with the REAL Render env (`DATABASE_URL`/`DIRECT_URL`/`BRAIN_SESSION_SECRET`/`BRAIN_PASSPHRASE_HASH`, `BRAIN_ENABLED=true`) and local `BRAIN_SEMANTIC=true`. CLI login (Origin=Host), 20 searches RU/EN over the live index: 20/20 HTTP 200, **0 notices** (every search ran the hybrid path), real hits returned.
+- **Verdict: FAIL.** The line read `brain: embedder loaded rss=470 mb`; cgroup steady 486 MiB of 512 (95%). Bar is 420 MB (design 7.3). The container survived all 20 searches (no OOM kill), but ~26 MB headroom is far below the required ~90 MB.
+- Arena probe (host, bare transformers.js, scratch): disabling the ORT CPU memory arena does NOT help (after load 531 vs 554 MB; after 10 embeds 586 vs 545). The footprint is ORT runtime + int8 weights + inference buffers + the 17 MB tokenizer.json parse. NOTE the discrepancy: design 7.2 says "CPU memory arena disabled" but `transformers-embedder.ts` never passes `enableCpuMemArena:false` — recorded, NOT churned, because the probe shows the fix would not flip the verdict.
+- Decision (design 7.3 fail path): **`BRAIN_SEMANTIC` stays `false` on Render** — keyword-only fallback A stays live; prod never had the flag on, nothing to roll back. Fallback B (Gemini embeddings) remains a separate explicit decision (content would leave GitHub and Neon).
+- Teardown: container removed (background job's exit 137 was our own `docker rm -f`, not an OOM); colima deleted — `colima delete` left a stray 4.4 GB in `~/.colima`, removed manually; host disk back to ~7.5 GB free. `.env.gate` (owner-written, mode 600, REAL Render env + the plain passphrase) was DELETED after the run — recreate from the Render dashboard if the gate is ever re-run.
+- If M4 is ever revisited: the lever is a re-litigated memory budget (design 7.2/13), not config tweaks; a re-run needs colima plus a ~6-7 GB host disk peak and the v1.0.15 line does the measuring.
+
+## Next: M4 — SETTLED (see "M4 DONE" above)
 
 Open with the ritual: `git pull --ff-only origin main` in BOTH repos (`/usr/bin/git`); read this handoff, then the DESIGN anchors for THIS stage: `§7.1-7.3` (L388-417: model identity, the in-app embedder, the gate procedure), `§15.1` (OOM risk), `§14` (memory rows), `§17` runbook. Line numbers valid at the Oct 15 file state.
 
@@ -89,7 +99,7 @@ Rounds 1-3 are all DONE (see above); M3 is complete and live.
 
 1. DONE: `BRAIN_ENABLED=true` + `BRAIN_SESSION_SECRET` + `BRAIN_PASSPHRASE_HASH` are set on Render; login works from the browser; keyword-only search live.
 2. STILL OPEN: verify the UptimeRobot monitor on `/` is green (the card path is untouched, but the check was never confirmed by the owner).
-3. STILL OPEN (do it after M4, one calm window): rotate the Neon owner + `brain_indexer` passwords, then update Render `DATABASE_URL`/`DIRECT_URL` and the vault workflow secret `BRAIN_DB_URL` if rotated.
+3. STILL OPEN (unblocked — M4 settled Oct 16; one calm window): rotate the Neon owner + `brain_indexer` passwords, then update Render `DATABASE_URL`/`DIRECT_URL` and the vault workflow secret `BRAIN_DB_URL` if rotated.
 4. Optional polish queue stays parked: batched-embed "blocking" store variant; README quickstart; repo rename (remember workflow `repository:` field + Render check).
 
 ## House rules (unchanged)
