@@ -54,6 +54,14 @@ Read this, then `docs/briefs/DESIGN-second-brain-v1.md` (verbatim accepted desig
 - 321/321 tests green (51 new), build clean, ASCII-checked; runtime probe extended: search `no matches` -> 303-on-empty-q -> 404 bad-hex -> note page flows through the real guard->filter->HTML pipeline.
 - **`BRAIN_SEMANTIC` stays `false`** — search serves keyword-only with the notice; the hybrid path is written and tested but M4's memory gate (docker `--memory=512m`, RSS <= 420 MB) comes first.
 
+## Build/Deploy watch: Render free OOM (Oct 16, 2026)
+
+- Render's Docker build OOM'd ("Over Of memory (used over 8Gi)") on v1.0.10+; the prod card stayed on the last green image meanwhile (no user-facing break).
+- Root cause theory (deploy-fix shipped as `v1.0.12`, `066274f`): the Dockerfile runs `npm test` INSIDE the build stage; jest forks one ts-jest worker per CPU core, every worker carries the full type graph (prisma + nest + argon2 + transformers typings), and the M3 web rounds grew both the suite count and the per-worker graph until N workers crossed 8Gi on the Render builder. Local/CI (fewer cores, more RAM) never saw it.
+- Fix: `RUN npm test -- --maxWorkers=2 --workerIdleMemoryLimit=512MB` inside the Dockerfile only; local `npm test` keeps default workers. Validated locally: 321/321 green in ~15 s with the cap.
+- IF the Render build OOMs again after v1.0.12: next levers in order: (1) skip the integ probe only inside Docker (`--testPathIgnorePatterns brain.controller.integ.spec.ts` - it still runs in the vault CI), (2) `NODE_OPTIONS=--max-old-space-size=1536` in the build stage, (3) move `npm test` out of the image build entirely (design 13 needs re-litigating first). Ask for the build-log STEP attribution before picking: the OOM line in the full log names the step that died.
+- Reminder: v1.0.10/v1.0.11/v1.0.12 all ship code-only while `BRAIN_ENABLED=false` on Render; the card path is unaffected by any of this.
+
 ## Next: M4 — memory gate, then `BRAIN_SEMANTIC=true`
 
 Open with the ritual (same rules as every session):
