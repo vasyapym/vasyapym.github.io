@@ -54,6 +54,13 @@ Read this, then `docs/briefs/DESIGN-second-brain-v1.md` (verbatim accepted desig
 - 321/321 tests green (51 new), build clean, ASCII-checked; runtime probe extended: search `no matches` -> 303-on-empty-q -> 404 bad-hex -> note page flows through the real guard->filter->HTML pipeline.
 - **`BRAIN_SEMANTIC` stays `false`** — search serves keyword-only with the notice; the hybrid path is written and tested but M4's memory gate (docker `--memory=512m`, RSS <= 420 MB) comes first.
 
+## GO-LIVE DONE — the brain is live (Oct 16, 2026)
+
+- Render deploy GREEN again at `v1.0.13` (`757823a`) — the jest cap fixed the OOM; prod runs the M3 code.
+- Owner set the three env vars on Render and logged in from the browser: login + home + keyword-only search all working; the `KEYWORD_NOTICE` line shows as designed.
+- `v1.0.14` (`e37c63d`): the owner's browser hit the CSRF origin-gate 403 while same-Mac CLI probes with a matching Origin passed (client-side header rewriting suspected: VPN/proxy/extension). The gate is now proxy-tolerant: the origin host may match `Host` OR `X-Forwarded-Host` (first entry of a comma chain); a literal `null` Origin is treated as no claim. Cross-origin 403 unchanged (probe-verified live: no-origin 401, matching-origin 401, evil-origin 403).
+- `hash-passphrase` CLI prints a stderr `passphrase: ` prompt since v1.0.13 (the silent no-echo read looked hung; stdout stays hash-only).
+
 ## Build/Deploy watch: Render free OOM (Oct 16, 2026)
 
 - Render's Docker build OOM'd ("Over Of memory (used over 8Gi)") on v1.0.10+; the prod card stayed on the last green image meanwhile (no user-facing break).
@@ -64,25 +71,26 @@ Read this, then `docs/briefs/DESIGN-second-brain-v1.md` (verbatim accepted desig
 
 ## Next: M4 — memory gate, then `BRAIN_SEMANTIC=true`
 
-Open with the ritual (same rules as every session):
-1. `git pull --ff-only origin main` in BOTH `quiet-index` and `vasyapym-Vault` (use `/usr/bin/git`); read this handoff, then the DESIGN sections listed below (verbatim contract — quote from them, don't restate).
-2. Exact anchors in `DESIGN-second-brain-v1.md`: `§8.1` routes (L425), `§8.2` auth (L438) — `BRAIN_PASSPHRASE_HASH` argon2id PHC produced by `node dist/second-brain/auth/hash-passphrase.js` (stdin, no echo), `BRAIN_SESSION_SECRET` rotation signs out sessions; `§8.3` headers (L465), `§8.4` error filter (L480), `§8.5` views (L489), `§9` search / hybrid SQL+keyword fallback (L507), `§10` reader (L558; `markdown.ts` landed in M2a, `link-keys` in M2b; §10.3 three indexed queries), `§11` privacy (L609), `§13` tests (L644), `§16` acceptance (L700). Line numbers valid at the Oct 15 file state.
+Open with the ritual: `git pull --ff-only origin main` in BOTH repos (`/usr/bin/git`); read this handoff, then the DESIGN anchors for THIS stage: `§7.1-7.3` (L388-417: model identity, the in-app embedder, the gate procedure), `§15.1` (OOM risk), `§14` (memory rows), `§17` runbook. Line numbers valid at the Oct 15 file state.
 
-Round 1 (DONE, see above): auth backend only, no UI.
+The one buildable item left BEFORE the gate: the ONE-OFF RSS log line after the first embedder load — `brain: embedder loaded rss=<n> mb` (counts only; the embedder has no logging yet). The gate reads that line.
 
-Round 2 (DONE, see above): web shell — controller/filter/headers/views/module.
+Gate procedure (design 7.3 verbatim intent):
+1. `colima start` — recreates an empty VM (colima was deleted for disk space). WATCH HOST DISK: ~9 GiB free on Oct 16, the image is ~2-3 GB; free space first if tight.
+2. `docker build` the production image locally.
+3. `docker run --memory=512m --memory-swap=512m -p 3000:3000` with the REAL env from Render (`DATABASE_URL`/`DIRECT_URL`, `BRAIN_ENABLED=true`, `BRAIN_SESSION_SECRET`, `BRAIN_PASSPHRASE_HASH`) and LOCALLY `BRAIN_SEMANTIC=true` — the flag under test stays OFF in production until the gate passes.
+4. Log in, run ~20 searches over the real index, read the RSS line.
+5. PASS (steady RSS <= 420 MB): set `BRAIN_SEMANTIC=true` on Render — hybrid search goes live. FAIL: stay keyword-only (fallback A; fallback B = Gemini embeddings is a separate, explicit decision — it sends content to a provider).
+6. After M4: rotate the Neon owner + `brain_indexer` passwords calmly and update Render `DATABASE_URL`/`DIRECT_URL` (plus the vault workflow secret `BRAIN_DB_URL` if rotated) — both credentials appeared in chat during M2.
 
-Round 3 (DONE, see above): search + reader all landed at `v1.0.11`.
+Rounds 1-3 are all DONE (see above); M3 is complete and live.
 
-## Owner actions — M3 go-live checklist (ONE calm window after round 3, or now to smoke-test the shell)
+## Owner actions — go-live checklist (state after Oct 16)
 
-Round 2 already shipped the shell under the flag; nothing user-visible until the three env vars are set on Render:
-1. `openssl rand -base64 48` -> value to `BRAIN_SESSION_SECRET` on Render.
-2. From a clean checkout of quiet-index at v1.0.10: `npm run build && node dist/second-brain/auth/hash-passphrase.js` (type the real passphrase; prints only the PHC line) -> value to `BRAIN_PASSPHRASE_HASH` on Render.
-3. Set `BRAIN_ENABLED=true` on Render (strings: exactly `true`/`false`) — keep `BRAIN_SEMANTIC=false` (M4 gate comes later).
-4. Redeploy, then smoke from the phone: open `/brain/login` (dark page, no JS), sign in -> home shows the logout button and "not indexed yet" (search lands in round 3), wrong passphrase -> 401 page, back to `/brain` without cookie -> 303 back to login. UptimeRobot `/` and `/graphql` must stay green (the card path is untouched).
-5. Later hygiene (unchanged): rotate the Neon owner password calmly in the same window if desired.
-Optional polish queue stays parked: batched-embed "blocking" store variant; README quickstart; repo rename (only after M3 — remember workflow `repository:` field + Render check).
+1. DONE: `BRAIN_ENABLED=true` + `BRAIN_SESSION_SECRET` + `BRAIN_PASSPHRASE_HASH` are set on Render; login works from the browser; keyword-only search live.
+2. STILL OPEN: verify the UptimeRobot monitor on `/` is green (the card path is untouched, but the check was never confirmed by the owner).
+3. STILL OPEN (do it after M4, one calm window): rotate the Neon owner + `brain_indexer` passwords, then update Render `DATABASE_URL`/`DIRECT_URL` and the vault workflow secret `BRAIN_DB_URL` if rotated.
+4. Optional polish queue stays parked: batched-embed "blocking" store variant; README quickstart; repo rename (remember workflow `repository:` field + Render check).
 
 ## House rules (unchanged)
 
