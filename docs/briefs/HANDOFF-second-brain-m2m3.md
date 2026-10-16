@@ -6,7 +6,7 @@ Read this, then `docs/briefs/DESIGN-second-brain-v1.md` (verbatim accepted desig
 ## Where things live
 
 - Work repo: `/Users/vasilij/Documents/quiet-index` (public; tags carry versions; push with `/usr/bin/git`).
-- Vault repo: `/Users/vasilij/Documents/vasyapym-Vault` (private; the workflow lives at `.github/workflows/second-brain-index.yml`; tools ref currently **v1.0.9**).
+- Vault repo: `/Users/vasilij/Documents/vasyapym-Vault` (private; the workflow lives at `.github/workflows/second-brain-index.yml`; tools ref currently **v1.0.9** — fine: the indexer is byte-identical since v1.0.8 (M3 rounds 1-2 touch only the web app side); bump to v1.0.10 happens naturally with the next indexer change).
 - Relay chat format: normal orchestrate brief (task/constraints/context/acceptance/output contract, ASCII-only, no repo references) — owner moved M3 rounds off the `minimize-iteration7` shape; evidence rows B1–B3 stay in `skills/in-progress/minimize-iteration7/results.md` (historical).
 - This luna2 workspace: handoff + briefs (`docs/briefs/BRIEF-second-brain-m2a/m2b/m2c.md`) + `second-brain-index.workflow.yml` (the copy the owner pasted into the private vault).
 
@@ -40,7 +40,14 @@ Read this, then `docs/briefs/DESIGN-second-brain-v1.md` (verbatim accepted desig
 - 212/212 tests green (47 new), build clean, ASCII-checked; CLI exercised live end-to-end (piped + pty by the relay model).
 - Nothing wired yet on purpose: no Nest module, no AppModule edit, no controller — the app's runtime behavior is unchanged until round 2.
 
-## Next: M3 Round 2 (web) — start in the NEXT session
+## M3 ROUND 2 DONE — web shell (Oct 16, 2026)
+
+- Tag `v1.0.10` (`8f7b894`, 18 files): `src/second-brain/web/` — `brain.controller` (GET login + POST login [origin CSRF gate -> throttle lockout -> missing-passphrase 400 -> argon2 verify -> 401/303 + `Set-Cookie`], POST logout, GET home with the one `brain_meta` freshness query), `brain-exception.filter` (scoped: guard-401 -> 303 to login carrying sanitized next; 404 plain page; generic HttpException pages; unknown errors -> one `brain: error name=… code=…` log line, message/stack/URL never logged), `security-headers` (the five from design 8.3), `meta.service` (`SELECT key, value FROM brain_meta WHERE key = ANY($1::text[])`, keys `last_indexed_at`/`notes_count`, fails closed to nulls, safe-integer bounded). `src/second-brain/views/` — `layout` (dark default + prefers-color-scheme light override, 42rem column, system font stack shared with the card, `escapeHtml` from `src/common/html.util`), `login.view` + `home.view` (fragments; NO search form this round by design). `second-brain.module.ts` registers the controller + 9 providers via 3 factories (`BRAIN_SESSION_SECRET`/`BRAIN_PASSPHRASE_HASH` via `getOrThrow`, `systemClock`); `app.module.ts` conditions the import on `process.env.BRAIN_ENABLED === 'true'`, spread AFTER `ConfigModule.forRoot` (left-to-right evaluation; with the flag off the DI graph is byte-identical to today).
+- The auth round-1 edit: `readCookie` in `session.guard.ts` gained `export` (contract share with the controller).
+- 270/270 tests green (58 new: 10 security-headers+meta, 7 layout, 17 login/home views, 7 filter, 15 controller unit + 2 RUNTIME probe). `brain.controller.integ.spec.ts` boots the real Nest app on 127.0.0.1:0 with fetch (`redirect: manual`): proves guard -> controller-scoped filter -> HTML 303 (NOT a JSON 401), full cycle CSRF-403 -> login -> cookie -> home -> login-shortcut -> logout, `getSetCookie()` handling, `app.close()` tidy.
+- Splitting lesson (owner override for the 15-min chat timeout): the round went as SIX small relays (P1 headers+meta, P2 layout, P3 login/home partials, P4 filter, P5a controller source, P5b specs+probe, P6 module+wiring) with the orchestrator doing the cross-piece API integration; two model-side path fixes (view import roots, `systemClock` from `src/common/clock`).
+
+## Next: M3 Round 3 (search + reader) — the last M3 round
 
 Open with the ritual (same rules as every session):
 1. `git pull --ff-only origin main` in BOTH `quiet-index` and `vasyapym-Vault` (use `/usr/bin/git`); read this handoff, then the DESIGN sections listed below (verbatim contract — quote from them, don't restate).
@@ -48,8 +55,19 @@ Open with the ritual (same rules as every session):
 
 Round 1 (DONE, see above): auth backend only, no UI.
 
-Round 2 (web): `brain.controller` routes (DB-free until auth passes; note-id is a 16-hex gate that 404s BEFORE any query), `second-brain.module.ts` registering the module in AppModule only when `BRAIN_ENABLED=true` (auth providers exist, controller+filter join), `security-headers.ts` per §8.3, `brain-exception.filter` per §8.4 (maps `UnauthenticatedException` from `session.guard` to the 303 login redirect), views per §8.5 (layout/login/home/search/note, `h()` escape, no JS, CSP no-script). Login POST needs the §8.2 request checks: Origin matching when present, throttle check BEFORE argon2, success resets throttle. Search/home views render counts from `brain_meta` — DB call only on session-protected routes (invariant 1). Owner env actions ONCE web lands: generate `BRAIN_SESSION_SECRET` (`openssl rand -base64 48`), run hash-passphrase CLI from v1.0.9 for the real passphrase, set both on Render in one calm window.
+Round 2 (DONE, see above): web shell — controller/filter/headers/views/module.
+
+Round 3 (search+reader): `notes.repository`, hybrid search SQL §9 behind `BRAIN_ENABLED` + signature gates, link resolution + auto-backlinks §10.3, plus the two routes this round deliberately left OUT (`GET /brain/search?q=`, `GET /brain/n/:id` with the 16-hex gate that 404s BEFORE any query) and the `search.view`/`note.view` fragments with the search form appearing on home. Then M4 = memory gate (docker `--memory=512m`, RSS ≤ 420 MB logged once) before `BRAIN_SEMANTIC=true`.
 Round 3 (search+reader): `notes.repository`, hybrid search SQL §9 behind `BRAIN_ENABLED` + signature gates, link resolution + auto-backlinks §10.3. Then M4 = memory gate (docker `--memory=512m`, RSS ≤ 420 MB logged once) before `BRAIN_SEMANTIC=true`.
+
+## Owner actions — M3 go-live checklist (ONE calm window after round 3, or now to smoke-test the shell)
+
+Round 2 already shipped the shell under the flag; nothing user-visible until the three env vars are set on Render:
+1. `openssl rand -base64 48` -> value to `BRAIN_SESSION_SECRET` on Render.
+2. From a clean checkout of quiet-index at v1.0.10: `npm run build && node dist/second-brain/auth/hash-passphrase.js` (type the real passphrase; prints only the PHC line) -> value to `BRAIN_PASSPHRASE_HASH` on Render.
+3. Set `BRAIN_ENABLED=true` on Render (strings: exactly `true`/`false`) — keep `BRAIN_SEMANTIC=false` (M4 gate comes later).
+4. Redeploy, then smoke from the phone: open `/brain/login` (dark page, no JS), sign in -> home shows the logout button and "not indexed yet" (search lands in round 3), wrong passphrase -> 401 page, back to `/brain` without cookie -> 303 back to login. UptimeRobot `/` and `/graphql` must stay green (the card path is untouched).
+5. Later hygiene (unchanged): rotate the Neon owner password calmly in the same window if desired.
 Optional polish queue stays parked: batched-embed "blocking" store variant; README quickstart; repo rename (only after M3 — remember workflow `repository:` field + Render check).
 
 ## House rules (unchanged)
