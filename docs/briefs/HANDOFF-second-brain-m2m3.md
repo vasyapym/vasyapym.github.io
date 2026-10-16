@@ -47,7 +47,14 @@ Read this, then `docs/briefs/DESIGN-second-brain-v1.md` (verbatim accepted desig
 - 270/270 tests green (58 new: 10 security-headers+meta, 7 layout, 17 login/home views, 7 filter, 15 controller unit + 2 RUNTIME probe). `brain.controller.integ.spec.ts` boots the real Nest app on 127.0.0.1:0 with fetch (`redirect: manual`): proves guard -> controller-scoped filter -> HTML 303 (NOT a JSON 401), full cycle CSRF-403 -> login -> cookie -> home -> login-shortcut -> logout, `getSetCookie()` handling, `app.close()` tidy.
 - Splitting lesson (owner override for the 15-min chat timeout): the round went as SIX small relays (P1 headers+meta, P2 layout, P3 login/home partials, P4 filter, P5a controller source, P5b specs+probe, P6 module+wiring) with the orchestrator doing the cross-piece API integration; two model-side path fixes (view import roots, `systemClock` from `src/common/clock`).
 
-## Next: M3 Round 3 (search + reader) — the last M3 round
+## M3 ROUND 3 DONE — search + reader (Oct 16, 2026)
+
+- Tag `v1.0.11` (`c41abe7`, 16 files): `src/second-brain/search/` — `search.sql.ts` (KEYWORD_SQL/HYBRID_SQL/`HEADLINE_OPTS` with `\uE000/\uE001` markers verbatim from design 9, re-parameterized `$1/$2/$3`), `search.service.ts` (the 3-way gate: BRAIN_SEMANTIC -> stored `embed_signature` vs shared `SIGNATURE` -> embedder via `QUERY_EMBEDDER` token; failures downgrade to KEYWORD_NOTICE, signature mismatch to PAUSED_NOTICE; retry-once on P1001/P1017 with a 500 ms sleep; rows narrowed string-by-string). `src/second-brain/notes/` — `notes.repository.ts` (design 10.3: note-by-id -> `renderMarkdown` via a per-key pre-filtered resolver [NOT the naive full-set resolveWinner — a [[B]] must not resolve to c.md], `keys && $1::text[]` forward pass, backlinks where `resolveWinner` sees THIS note plus every fetched linker claiming the key [with `src_id <> $2` the self-inclusion is what makes the rule satisfiable]) and `note.view.ts`. `search.view.ts` (escape-first -> marker->`<mark>` swap, notices as meta lines, `no matches`) + the `/.hit-title/.snippet/mark` CSS tokens. Controller: `GET /brain/search` (q trim + cap 200 + empty -> 303 `/brain`) and `GET /brain/n/:id` (`^[0-9a-f]{16}$` gate -> `NotFoundException` BEFORE any query), home form now live (`autofocus` per design 8.5). Module gains `SEARCH`+reader providers and the `QUERY_EMBEDDER` factory (lazy `TransformersEmbedder.embedPassages([text]) -> rows[0]`).
+- Model-side catches that shaped the code (relay bots, both accepted): the backlink self-inclusion and the per-key scoped winner filtering.
+- 321/321 tests green (51 new), build clean, ASCII-checked; runtime probe extended: search `no matches` -> 303-on-empty-q -> 404 bad-hex -> note page flows through the real guard->filter->HTML pipeline.
+- **`BRAIN_SEMANTIC` stays `false`** — search serves keyword-only with the notice; the hybrid path is written and tested but M4's memory gate (docker `--memory=512m`, RSS <= 420 MB) comes first.
+
+## Next: M4 — memory gate, then `BRAIN_SEMANTIC=true`
 
 Open with the ritual (same rules as every session):
 1. `git pull --ff-only origin main` in BOTH `quiet-index` and `vasyapym-Vault` (use `/usr/bin/git`); read this handoff, then the DESIGN sections listed below (verbatim contract — quote from them, don't restate).
@@ -57,8 +64,7 @@ Round 1 (DONE, see above): auth backend only, no UI.
 
 Round 2 (DONE, see above): web shell — controller/filter/headers/views/module.
 
-Round 3 (search+reader): `notes.repository`, hybrid search SQL §9 behind `BRAIN_ENABLED` + signature gates, link resolution + auto-backlinks §10.3, plus the two routes this round deliberately left OUT (`GET /brain/search?q=`, `GET /brain/n/:id` with the 16-hex gate that 404s BEFORE any query) and the `search.view`/`note.view` fragments with the search form appearing on home. Then M4 = memory gate (docker `--memory=512m`, RSS ≤ 420 MB logged once) before `BRAIN_SEMANTIC=true`.
-Round 3 (search+reader): `notes.repository`, hybrid search SQL §9 behind `BRAIN_ENABLED` + signature gates, link resolution + auto-backlinks §10.3. Then M4 = memory gate (docker `--memory=512m`, RSS ≤ 420 MB logged once) before `BRAIN_SEMANTIC=true`.
+Round 3 (DONE, see above): search + reader all landed at `v1.0.11`.
 
 ## Owner actions — M3 go-live checklist (ONE calm window after round 3, or now to smoke-test the shell)
 
