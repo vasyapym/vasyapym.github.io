@@ -99,7 +99,7 @@ Rounds 1-3 are all DONE (see above); M3 is complete and live.
 
 1. DONE: `BRAIN_ENABLED=true` + `BRAIN_SESSION_SECRET` + `BRAIN_PASSPHRASE_HASH` are set on Render; login works from the browser; keyword-only search live.
 2. STILL OPEN: verify the UptimeRobot monitor on `/` is green (the card path is untouched, but the check was never confirmed by the owner).
-3. STILL OPEN (unblocked — M4 settled Oct 16; one calm window): rotate the Neon owner + `brain_indexer` passwords, then update Render `DATABASE_URL`/`DIRECT_URL` and the vault workflow secret `BRAIN_DB_URL` if rotated.
+3. CLOSED by owner decision (Oct 16): do NOT rotate the Neon owner + `brain_indexer` passwords — the chat-exposure risk is accepted as standing. Both credentials stay as-is on Render and in the vault workflow secret. Revisit only if the AI-account/chat logs themselves are ever exposed.
 4. Optional polish queue stays parked: batched-embed "blocking" store variant; README quickstart; repo rename (remember workflow `repository:` field + Render check).
 
 ## House rules (unchanged)
