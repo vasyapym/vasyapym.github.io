@@ -1,5 +1,5 @@
 import { configured, watchAuth, login, logout, watchNotes, pushNote } from "./firebase.js";
-import { loadLocal, saveLocal, makeNote, mergeRemote, normPath, safeName } from "./store.js";
+import { loadLocal, saveLocal, makeNote, applySnapshot, sweepLegacy, normPath, safeName } from "./store.js";
 import { render } from "./markdown.js";
 import { makeZip, download } from "./zip.js";
 import { initDrawer } from "./drawer.js";
@@ -51,7 +51,8 @@ const state = {
   uid: "local", user: null, notes: {}, activeId: null, filter: "",
   view: VIEWS.has(savedView) ? savedView : "split",
   sort: SORTS.has(savedSort) ? savedSort : "updated",
-  unsubNotes: null, openFolders: new Set(loadOpen())
+  unsubNotes: null, openFolders: new Set(loadOpen()),
+  loaded: true, carry: null // N040: loaded gates the "loading…" tree; carry = Map(id -> orphan updatedAt)
 };
 
 // max-width:760px is the single source of truth for "mobile" in JS too
@@ -68,7 +69,10 @@ const live = () => Object.values(state.notes).filter(n => !n.deleted);
 const active = () => state.notes[state.activeId] || null;
 const byTitle = t => live().find(n => n.title.trim().toLowerCase() === t.trim().toLowerCase());
 const setSync = (txt, cls = "") => { el.sync.textContent = txt; el.sync.className = "sync " + cls; };
-const persist = () => saveLocal(state.uid, state.notes);
+// N040: signed-in users keep NO notes blob in localStorage — Firestore owns the data.
+// Every existing persist() callsite (createNote/updateActive/deleteNotes/commit/Ctrl+S)
+// is therefore correct unchanged: it simply does nothing while signed in.
+const persist = () => { if (state.uid === "local") saveLocal("local", state.notes); };
 
 // Alphabetical = case/locale-insensitive, natural-numeric; empty → "Untitled";
 // ties fall back to most-recently-edited so order stays stable and useful.
@@ -82,6 +86,7 @@ function cmpNotes() {
 
 // ---------- sync ----------
 const pending = new Map();
+let inflight = 0; // N040: in-progress pushes, for the status line only
 function schedulePush(id) {
   if (!state.user) return;
   clearTimeout(pending.get(id));
@@ -91,30 +96,58 @@ async function flushPush(id) {
   pending.delete(id);
   const n = state.notes[id];
   if (!n || !state.user) return;
-  setSync("syncing…", "busy");
+  if (!n._dirty) return; // N040: LWW/snapshot may already have cleaned it
   const stamp = n.updatedAt;
+  inflight++;
   try {
     await pushNote(state.uid, n);
-    // Only clear the dirty flag if no local edit happened during the round-trip.
-    if (n.updatedAt === stamp) { n._dirty = false; persist(); }
-    setSync("synced", "ok"); renderTree();
-  } catch (e) { console.error(e); setSync("sync error", "err"); }
+    // Re-read: a snapshot may have replaced the object during the round-trip.
+    const cur = state.notes[id];
+    if (cur && cur.updatedAt === stamp) { cur._dirty = false; persist(); } // belt-and-braces; metadata snapshot is primary
+    renderTree();
+  } catch (e) {
+    console.error(e);
+    const cur = state.notes[id];
+    if (cur) cur._dirty = true; // keep it dirty, no auto-retry
+    setSync("sync error", "err");
+  } finally { inflight--; } // never set status here — the snapshot handler owns it
 }
-async function pushAllDirty() {
-  for (const n of Object.values(state.notes)) if (n._dirty) await flushPush(n.id);
+// N040: fire every pending debounce NOW (no await). Only for hide/pagehide/sign-out —
+// calling it from the 300ms persist path would collapse the 800ms push debounce.
+function flushPushes() {
+  for (const [id, t] of pending) { clearTimeout(t); flushPush(id); }
+  pending.clear();
 }
+// N040: non-serial — awaiting inside the loop would hang every later push while offline.
+function pushAllDirty() {
+  for (const n of Object.values(state.notes)) if (n._dirty) flushPush(n.id);
+}
+const carryDone = () => !state.carry || [...state.carry].every(([id, at]) => state.notes[id] && (state.notes[id].updatedAt || 0) >= at);
 
 function switchUser(user) {
+  const prevUser = state.user;
+  if (prevUser && !user) flushPushes(); // N040: push un-sent edits before we drop the identity
   state.user = user;
   state.unsubNotes?.(); state.unsubNotes = null;
   const uid = user ? user.uid : "local";
-
-  // First sign-in: carry local-only notes into the account.
-  const orphan = uid !== "local" ? loadLocal("local") : {};
   state.uid = uid;
-  state.notes = loadLocal(uid);
-  for (const n of Object.values(orphan)) if (!state.notes[n.id]) state.notes[n.id] = { ...n, _dirty: true };
-  if (Object.keys(orphan).length) { persist(); localStorage.removeItem("notes:local"); }
+
+  if (user) {
+    // N040: start empty; the snapshot fills us in. Carry local-only + legacy dirty notes up.
+    state.notes = {}; state.loaded = false; state.carry = null;
+    const orphan = loadLocal("local");
+    const legacy = sweepLegacy(uid);
+    const carry = new Map();
+    for (const n of [...Object.values(orphan), ...Object.values(legacy)]) {
+      if (!n || !n.id || state.notes[n.id]) continue;
+      state.notes[n.id] = { ...n, _dirty: true };
+      carry.set(n.id, n.updatedAt || 0);
+    }
+    if (carry.size) state.carry = carry; // notes:local stays until these land remotely
+  } else {
+    state.notes = loadLocal("local"); state.loaded = true; state.carry = null;
+    // Do NOT clear the SDK's IDB: un-acked mutations are per-uid and replay on next sign-in.
+  }
 
   el.user.innerHTML = user
     ? `<img src="${escapeHtml(user.photoURL || "")}" alt="">${escapeHtml(user.displayName || user.email || "")}`
@@ -128,13 +161,26 @@ function switchUser(user) {
 
   if (user) {
     setSync("connecting…", "busy");
-    state.unsubNotes = watchNotes(uid, remote => {
-      const { notes, changed } = mergeRemote(state.notes, remote);
+    let first = true;
+    state.unsubNotes = watchNotes(uid, snap => {
+      const { notes, changed } = applySnapshot(state.notes, snap.docs);
       state.notes = notes;
-      if (changed) { persist(); renderAll(); }
-      setSync("synced", "ok");
-    }, e => { console.error(e); setSync("offline", "err"); });
-    pushAllDirty();
+      const wasLoading = !state.loaded;
+      state.loaded = true;
+      if (changed || wasLoading) renderAll();
+      if (first) { first = false; pushAllDirty(); } // after LWW has arbitrated the carried seeds
+      if (state.carry && carryDone()) {
+        state.carry = null;
+        try { localStorage.removeItem("notes:local"); } catch {} // only durable copy until now
+      }
+      if (snap.hasPendingWrites || pending.size || inflight > 0) setSync(navigator.onLine ? "syncing…" : "queued offline", "busy");
+      else if (snap.fromCache) setSync("offline (cached)", "err");
+      else setSync("synced", "ok");
+    }, e => {
+      console.error(e);
+      state.loaded = true; renderAll(); // never leave the tree stuck on "loading…"
+      setSync("offline", "err");
+    });
   } else setSync(configured ? "local (signed out)" : "local only");
 }
 
@@ -143,6 +189,12 @@ function escapeHtml(s) { return s.replace(/[&<>"']/g, c => ({ "&": "&amp;", "<":
 
 function renderTree() {
   if (el.tree.querySelector("input.rename")) return; // inline naming open; its commit re-renders
+  // N040: signed-in boot renders "loading…" until the first snapshot (cache or server).
+  if (state.user && !state.loaded) {
+    el.tree.innerHTML = '<div class="tree-empty"><span>Loading notes…</span></div>';
+    el.count.textContent = "…";
+    return;
+  }
   const q = state.filter.toLowerCase();
   const all = live();
   const notes = all.filter(n => !q || (n.title + " " + n.path + " " + n.body).toLowerCase().includes(q)).sort(cmpNotes());
@@ -280,8 +332,8 @@ function flushPersist() {
   clearTimeout(persistTimer); persistTimer = 0;
   persist(); // synchronous full-notes localStorage write, now OFF the keystroke path
 }
-addEventListener("visibilitychange", () => { if (document.visibilityState === "hidden") flushPersist(); });
-addEventListener("pagehide", flushPersist);
+addEventListener("visibilitychange", () => { if (document.visibilityState === "hidden") { flushPersist(); flushPushes(); } }); // N040
+addEventListener("pagehide", () => { flushPersist(); flushPushes(); }); // N040: never from schedulePersist
 
 function updateActive(patch) {
   const n = active(); if (!n) return;
@@ -432,13 +484,15 @@ el.palette.addEventListener("close", () => { el.palette.style.top = ""; el.palLi
 // ---------- view ----------
 function cycleView() {
   state.view = { edit: "split", split: "view", view: "edit" }[state.view];
-  localStorage.setItem("view", state.view); renderEditor();
+  try { localStorage.setItem("view", state.view); } catch {} // N040
+  renderEditor();
 }
 // Mobile switcher: split collapses to the editor on phones, so a binary
 // Write⇄Preview toggle is unambiguous where the 3-way cycle would dead-tap.
 function toggleMobileView() {
   state.view = state.view === "view" ? "edit" : "view";
-  localStorage.setItem("view", state.view); renderEditor();
+  try { localStorage.setItem("view", state.view); } catch {} // N040
+  renderEditor();
 }
 
 // ---------- copy note content ----------
@@ -475,7 +529,7 @@ el.viewToggle.onclick = toggleMobileView;
 el.copyBtn.onclick = copyActive;
 el.sort.onchange = () => {
   state.sort = SORTS.has(el.sort.value) ? el.sort.value : "updated";
-  localStorage.setItem("sort", state.sort);
+  try { localStorage.setItem("sort", state.sort); } catch {} // N040
   renderTree();
 };
 el.title.oninput = () => { updateActive({ title: el.title.value }); renderTree(); };
@@ -550,7 +604,7 @@ document.addEventListener("keydown", e => {
   else if (e.key === "/" && !inText) { e.preventDefault(); focusEl(el.search); }
 });
 
-window.addEventListener("beforeunload", () => persist());
+window.addEventListener("beforeunload", () => { flushPersist(); flushPushes(); }); // N040
 const syncNet = () => document.body.classList.toggle("offline", !navigator.onLine);
 syncNet();
 window.addEventListener("online", () => { syncNet(); pushAllDirty(); });

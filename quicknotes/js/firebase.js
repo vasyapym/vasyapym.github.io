@@ -5,7 +5,7 @@ import {
 } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
 import {
   initializeFirestore, persistentLocalCache, persistentMultipleTabManager,
-  collection, doc, setDoc, onSnapshot
+  collection, doc, setDoc, onSnapshot, waitForPendingWrites
 } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
 import { firebaseConfig } from "./config.js";
 
@@ -83,11 +83,17 @@ export function logout() { return auth ? signOut(auth) : Promise.resolve(); }
 
 const notesCol = uid => collection(db, "users", uid, "notes");
 
-/** Subscribe to remote notes; cb receives array of note objects. */
+/** Subscribe to remote notes; cb receives {docs, fromCache, hasPendingWrites}. */
 export function watchNotes(uid, cb, onErr) {
   if (!db) return () => {};
-  return onSnapshot(notesCol(uid), snap => {
-    cb(snap.docs.map(d => ({ id: d.id, ...d.data() })));
+  // N040: includeMetadataChanges is MANDATORY — without it the write ack never
+  // produces a snapshot, so _dirty (hasPendingWrites) would never clear.
+  return onSnapshot(notesCol(uid), { includeMetadataChanges: true }, snap => {
+    cb({
+      docs: snap.docs.map(d => ({ id: d.id, ...d.data(), _pending: d.metadata.hasPendingWrites })),
+      fromCache: snap.metadata.fromCache,
+      hasPendingWrites: snap.metadata.hasPendingWrites
+    });
   }, onErr);
 }
 
@@ -97,3 +103,6 @@ export function pushNote(uid, note) {
   const { _dirty, ...clean } = note;
   return setDoc(doc(notesCol(uid), note.id), clean);
 }
+
+/** N040: resolves once the SDK's mutation queue is empty (all writes acked). */
+export const awaitPending = () => (db ? waitForPendingWrites(db) : Promise.resolve());
