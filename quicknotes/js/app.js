@@ -1041,6 +1041,9 @@ function mountDebugMeter() {
   ].join(";");
   document.body.appendChild(m);
   const vv = window.visualViewport, ds = document.documentElement, sty = ds.style;
+  // N039: the audit does probe writes, so it re-measures on a slow 5s clock
+  // instead of every frame; the first tick fills the lines immediately.
+  let lsCache = "", lsAt = 0;
   const tick = () => {
     try {
       const r = (el.body || document.body).getBoundingClientRect();
@@ -1051,13 +1054,14 @@ function mountDebugMeter() {
         const tvv = window.top !== window && window.top.visualViewport;
         if (tvv) topLine = `top.vv ${Math.round(tvv.height)}  top.off ${Math.round(tvv.offsetTop)}`;
       } catch (_) {}
+      if (!lsAt || Date.now() - lsAt > 5000) { lsCache = storageAudit(); lsAt = Date.now(); }
       m.textContent =
         `iH ${window.innerHeight}  cH ${document.documentElement.clientHeight}\n` +
         `vv ${vv ? Math.round(vv.height) : "-"}  off ${vv ? Math.round(vv.offsetTop) : "-"}  sc ${vv ? vv.scale.toFixed(2) : "-"}\n` +
         `${topLine}\n` +
         `ta.scroll ${el.body ? Math.round(el.body.scrollTop) : "-"} room ${el.body?.classList.contains("caret-room") ? 1 : 0}  scrollY ${Math.round(window.scrollY)}  scroll ${userScrolling ? 1 : 0}\n` +
         `ta.box ${Math.round(r.top)}/${Math.round(r.bottom)}/${Math.round(r.height)}\n` +
-        `kb ${sty.getPropertyValue("--kb-h").trim() || "0"}  app-v ${sty.getPropertyValue("--app-v").trim() || "-"}`;
+        `kb ${sty.getPropertyValue("--kb-h").trim() || "0"}  app-v ${sty.getPropertyValue("--app-v").trim() || "-"}\n` + lsCache;
     } catch (e) { m.textContent = "meter err: " + e.message; }
     if (!document.getElementById("qn-vv-meter")) return; // N033: unmounted by the toggle → stop the loop
     requestAnimationFrame(tick);
@@ -1070,6 +1074,55 @@ function toggleDebugMeter() {
   document.getElementById("qn-vv-meter")?.remove();
   try { if (!had) mountDebugMeter(); } catch (_) {}
 }
+// ---- N039 storage audit: how full is the shared localStorage pot? ----
+// One origin = one pot shared by quicknotes notes, practice-map lesson texts +
+// progress and the auth token; when it fills, every writer on the origin
+// silently degrades (progress falls back to session memory — NQ01). The meter
+// shows used bytes per tenant plus EMPIRICAL free space: a binary search for
+// the largest string that still fits, so the numbers hold no matter how the
+// engine counts quota units. Sizes are UTF-16 units (key + value lengths).
+const LS_GROUPS = [
+  ["notes:", "qn notes"], ["practice-map:free:", "fr texts"],
+  ["practice-map:scroll:", "fr scroll"], ["practice-map:progress", "fr progress"],
+  ["firebase:", "fb auth"], ["qn.", "qn ui"], ["qn:", "qn ui"],
+];
+const lsGroupOf = k =>
+  LS_GROUPS.find(([p]) => k.startsWith(p))?.[1] ?? (k === "view" || k === "sort" ? "qn ui" : "other");
+function storageAudit() {
+  try {
+    const used = {};
+    for (let i = 0; i < localStorage.length; i++) {
+      const k = localStorage.key(i);
+      if (k === "qn:probe") continue;
+      const label = lsGroupOf(k);
+      (used[label] ??= { u: 0, n: 0 });
+      used[label].u += k.length + (localStorage.getItem(k) || "").length;
+      used[label].n++;
+    }
+    // Probe first (heals a leftover key if a tab died mid-search), search, then
+    // remove; the pagehide listener below is the backstop for normal tab closes.
+    try { localStorage.removeItem("qn:probe"); } catch (_) {}
+    let lo = 0, hi = 16 * 1024 * 1024;
+    while (lo < hi) {
+      const mid = (lo + hi + 1) >> 1;
+      try { localStorage.setItem("qn:probe", "x".repeat(mid)); lo = mid; }
+      catch (_) { hi = mid - 1; }
+    }
+    try { localStorage.removeItem("qn:probe"); } catch (_) {}
+    let usedTotal = 0; const rows = [];
+    for (const [label, g] of Object.entries(used).sort((a, b) => b[1].u - a[1].u)) {
+      usedTotal += g.u;
+      rows.push(`  ${label} ${(g.u / 1024).toFixed(1)}K x${g.n}`);
+    }
+    return `LS used ${(usedTotal / 1024).toFixed(1)}K · free ${(lo / 1024).toFixed(1)}K · pot ${((usedTotal + lo) / 1024).toFixed(1)}K` +
+      (rows.length ? "\n" + rows.join("\n") : "");
+  } catch (e) { return "LS audit err: " + e.message; }
+}
+try {
+  window.addEventListener("pagehide", () => {
+    try { localStorage.removeItem("qn:probe"); } catch (_) {}
+  });
+} catch (_) { /* the meter must never block boot */ }
 // N033: six taps on the footer count line within 2.5s — the iOS-proof switch
 let meterTaps = 0, meterTapTimer = 0;
 el.status?.addEventListener("click", () => {
