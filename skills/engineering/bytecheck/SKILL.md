@@ -101,6 +101,12 @@ and a second copy in the chat is where a paraphrase gets pasted from.
    loads slowly on the old Mac.
 3. In the chat, give the file path and say to copy from the editor window — select
    all and copy there; the chat never carries a second copy of the text.
+4. Stale-buffer law: open the file only when its content is final. Never edit the
+   file after opening it — an editor holding the older buffer overwrites the newer
+   disk bytes on its next save. If the file changed since it was opened (by you or
+   anyone), close and reopen it yourself before telling the owner to copy, and state
+   the file's current size (lines/bytes) in the chat so the window can be checked
+   against the disk.
 
 ## Rules of conduct
 
