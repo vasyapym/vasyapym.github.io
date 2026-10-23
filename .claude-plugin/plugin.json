@@ -35,6 +35,7 @@
     "./skills/engineering/domain-modeling",
     "./skills/engineering/codebase-design",
     "./skills/engineering/code-review",
+    "./skills/engineering/bytecheck",
     "./skills/engineering/resolving-merge-conflicts",
     "./skills/engineering/wizard",
     "./skills/productivity/brainstorm",
