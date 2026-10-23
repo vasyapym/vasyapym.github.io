@@ -62,14 +62,24 @@ See [Capture](#capture-opencode-pastes-land-on-disk).
 
 ## Capture (opencode): pastes land on disk
 
-`opencode-capture.ts` ships beside this file: an opencode plugin. Installed, every
+`opencode-capture/` ships beside this file: an opencode V2 plugin. Installed, every
 message the human types or pastes into the chat is written to `.bytecheck/inbox/` in
-the project opencode runs in, one UTF-8 file per text part plus a `.sha256` sidecar,
-named `<timestamp>-<msgID>-pN.txt`. Assistant messages, synthetic parts and subagent
-prompts are not captured. Set `BYTECHECK_INBOX` to capture somewhere else.
+the project opencode runs in, one UTF-8 file per admitted prompt text plus a `.sha256`
+sidecar, named `<timestamp>-<sessionTail>-p1.txt`. Assistant messages, synthetic parts
+and subagent prompts are not captured. Set `BYTECHECK_INBOX` to capture somewhere else.
 
-Install once: copy `opencode-capture.ts` into `~/.config/opencode/plugins/` and
-restart opencode — plugins load at startup only.
+Install once (OpenCode V2): copy the directory into
+`~/.config/opencode/plugins/bytecheck-capture/`, declare that directory in the global
+`opencode.json(c)` `"plugins"` array (a configured local path must name a DIRECTORY — a
+`.ts` file is skipped with a log warning; the V1 field name was `plugin`, V2 renames it
+to `plugins`), and restart opencode — plugins load at startup only.
+
+Diagnosis of record (observed 2026-10-24, opencode 2.1.2): the shipped file was a V1
+plugin (an exported async function returning a `"chat.message"` hook, imported from
+`@opencode-ai/plugin`). V1 implementations do not run in V2 — the hook never
+registered, no inbox and no capture.log ever appeared anywhere, and the failure was
+silent. A session started before the install also captures nothing; verify with one
+typed message after the restart, then check the project's `.bytecheck/inbox/`.
 
 ## Harvest: received material comes from files
 
