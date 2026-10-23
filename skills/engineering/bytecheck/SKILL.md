@@ -88,6 +88,20 @@ the file is the evidence.
 5. When the harvest is verified and recorded, delete the inbox files
    (`--allow-delete '.bytecheck/inbox/**'`); the capture log stays.
 
+## Delivery: outgoing briefs open in the editor
+
+When you compose a brief or handoff the owner will paste into another tool (a relay
+specialist chat, a web form), the file on disk is the paste source — the same law as
+Harvest, in the outgoing direction: the transcript is a claim, the file is the evidence,
+and a second copy in the chat is where a paraphrase gets pasted from.
+
+1. Write the brief to its file (for example `docs/briefs/<slug>.md`).
+2. Open it in a plain text editor immediately: `open -e docs/briefs/<slug>.md`
+   (TextEdit). Do not use bare `open` — the owner's `.md` handler is VS Code, which
+   loads slowly on the old Mac.
+3. In the chat, give the file path and say to copy from the editor window — select
+   all and copy there; the chat never carries a second copy of the text.
+
 ## Rules of conduct
 
 - Never edit, regenerate, move or delete the manifest or the store.

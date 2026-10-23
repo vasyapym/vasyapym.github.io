@@ -22,6 +22,8 @@ The protocol itself lives in the skill; this is the shape, not the runbook.
 
 A reply that exists only in chat context cannot be verified: an agent asked to reproduce it produces a paraphrase, placeholders included. The capture plugin removes that step entirely — the paste is a file in the project's `.bytecheck/inbox/` the moment it enters the chat, with a hash sidecar recorded at write time. The harvest protocol then treats the file as the source of truth: hash it, read from it, place it, prove the placement byte-identical with `same`. Received code is never re-typed from the transcript; if no capture file exists, the agent says so instead of silently reconstructing.
 
+The same law runs in the outgoing direction. A brief the agent composes for you to paste into another tool is delivered from its file on disk, not from the chat: the agent writes the file and opens it in a plain text editor (`open -e`, TextEdit — deliberately not the default `.md` handler, VS Code, which loads slowly on the old Mac), and you copy from that editor window. The chat never carries a second copy, because a second copy is where a paraphrase gets pasted from.
+
 ## Common questions
 
 **Doesn't `git diff` already do this?**
