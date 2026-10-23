@@ -1,6 +1,6 @@
 ---
 name: bytecheck
-description: Byte-exact verification of what you changed on disk. Snapshot a directory before editing, verify it after against a policy of allowed, expected and denied paths, quote the verdict. Use when asked to "verify my changes", "prove you only edited X", "snapshot before editing", "check nothing else changed", "did the agent actually change it", "byte-exact", "no placeholders", or whenever you edit files for a user who wants evidence rather than a report.
+description: Byte-exact verification of what you changed on disk. Snapshot a directory before editing, verify it after against a policy of allowed, expected and denied paths, quote the verdict. Use when asked to "verify my changes", "prove you only edited X", "snapshot before editing", "check nothing else changed", "did the agent actually change it", "byte-exact", "no placeholders", or whenever you edit files for a user who wants evidence rather than a report. Also the home of paste capture: material pasted into opencode lands in `.bytecheck/inbox/` and is harvested from files, never re-typed from chat context.
 ---
 
 # bytecheck
@@ -12,6 +12,9 @@ Your report is a claim. The filesystem is the evidence. This skill produces the 
 `python3 bytecheck.py`. One file, standard library only, Python 3.8+. It never modifies
 the tree it checks. It writes only the manifest and the optional store, at the path
 you choose.
+
+`opencode-capture.ts` ships beside it too: a paste-capture plugin for opencode.
+See [Capture](#capture-opencode-pastes-land-on-disk).
 
 ## Protocol
 
@@ -57,9 +60,40 @@ you choose.
 - `--allow '**'` permits everything except deletions. That is a report, not a check. Use it
   only when the user asked for a report.
 
+## Capture (opencode): pastes land on disk
+
+`opencode-capture.ts` ships beside this file: an opencode plugin. Installed, every
+message the human types or pastes into the chat is written to `.bytecheck/inbox/` in
+the project opencode runs in, one UTF-8 file per text part plus a `.sha256` sidecar,
+named `<timestamp>-<msgID>-pN.txt`. Assistant messages, synthetic parts and subagent
+prompts are not captured. Set `BYTECHECK_INBOX` to capture somewhere else.
+
+Install once: copy `opencode-capture.ts` into `~/.config/opencode/plugins/` and
+restart opencode — plugins load at startup only.
+
+## Harvest: received material comes from files
+
+A specialist's reply, or any material pasted by the user, is processed from its
+capture file, never from chat context. Re-typing or regenerating received content
+produces a paraphrase with placeholders — prohibited. The transcript is a claim;
+the file is the evidence.
+
+1. `python3 bytecheck.py scan <capture>` — rules on the received text itself;
+   findings here are facts about the paste, not violations by you.
+2. `python3 bytecheck.py hash <capture> --expect $(cat <capture>.sha256)` — the file
+   is intact since it landed.
+3. Read the file. It is the source of truth for placement.
+4. Write it where the task needs it, then
+   `python3 bytecheck.py same <capture> <target>` must report identical.
+5. When the harvest is verified and recorded, delete the inbox files
+   (`--allow-delete '.bytecheck/inbox/**'`); the capture log stays.
+
 ## Rules of conduct
 
 - Never edit, regenerate, move or delete the manifest or the store.
+- Received material — specialist replies, pasted code, user data — is worked from its
+  capture file (see Harvest). Never re-type, regenerate or "fill in" received content
+  from chat context; if no capture file exists, say so.
 - Never widen `--allow`, add `--allow-delete`, add `--exclude`, or `--disable` a rule unless
   the user asked for it in this conversation. Narrowing is always fine.
 - Never make a FAIL disappear by re-snapshotting. A FAIL is information for the user.
