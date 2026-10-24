@@ -1,6 +1,6 @@
 ---
 name: bytecheck
-description: Byte-exact verification of what you changed on disk. Snapshot a directory before editing, verify it after against a policy of allowed, expected and denied paths, quote the verdict. Use when asked to "verify my changes", "prove you only edited X", "snapshot before editing", "check nothing else changed", "did the agent actually change it", "byte-exact", "no placeholders", or whenever you edit files for a user who wants evidence rather than a report. Also the home of paste capture: material pasted into opencode lands in `.bytecheck/inbox/` and is harvested from files, never re-typed from chat context.
+description: Byte-exact verification of what you changed on disk. Snapshot a directory before editing, verify it after against a policy of allowed, expected and denied paths, quote the verdict. Use when asked to "verify my changes", "prove you only edited X", "snapshot before editing", "check nothing else changed", "did the agent actually change it", "byte-exact", "no placeholders", or whenever you edit files for a user who wants evidence rather than a report. Also the home of paste capture: material pasted into opencode lands on disk in a bytecheck inbox and is harvested from files, never re-typed from chat context.
 ---
 
 # bytecheck
@@ -24,6 +24,9 @@ See [Capture](#capture-opencode-pastes-land-on-disk).
 
    If the user or orchestrator gave you a manifest path or a policy file, use theirs.
    If `.bytecheck/before.json` already exists, do not overwrite it: ask, or use a new name.
+   In a repository you do not own (cross-project work), snapshot to a manifest OUTSIDE
+   the repo (`-o /tmp/before.json` or your session scratch) so the foreign tree stays
+   free of `.bytecheck/` scratch; the verify's `--root` still points at the repo.
 
 2. Do the work.
 
@@ -63,23 +66,34 @@ See [Capture](#capture-opencode-pastes-land-on-disk).
 ## Capture (opencode): pastes land on disk
 
 `opencode-capture/` ships beside this file: an opencode V2 plugin. Installed, every
-message the human types or pastes into the chat is written to `.bytecheck/inbox/` in
-the project opencode runs in, one UTF-8 file per admitted prompt text plus a `.sha256`
-sidecar, named `<timestamp>-<sessionTail>-p1.txt`. Assistant messages, synthetic parts
-and subagent prompts are not captured. Set `BYTECHECK_INBOX` to capture somewhere else.
+message the human types or pastes into the chat is written to the GLOBAL inbox
+`~/.bytecheck/inbox/<project-slug>/`, one UTF-8 file per admitted prompt text plus a
+`.sha256` sidecar, named `<timestamp>-<sessionTail>-p1.txt`. `<project-slug>` is the
+project directory's basename plus six hex chars of the full path's sha256 — stable
+across sessions in the same directory, unique across same-named ones. Capture does not
+depend on where opencode runs: a session may sit in one repository while the work
+happens in another, and a foreign repository never receives `.bytecheck/` scratch.
+Assistant messages, synthetic parts and subagent prompts are not captured. Set
+`BYTECHECK_INBOX` to capture somewhere else (for example, into a repo's own
+`.bytecheck/inbox/` if the owner wants it there).
+
+Where to look: the inbox slug of the directory the opencode session runs in — not the
+repository the work targets. When working cross-project, harvest from the session's
+slug directory (or `BYTECHECK_INBOX`), never from the target repo.
 
 Install once (OpenCode V2): copy the directory into
 `~/.config/opencode/plugins/bytecheck-capture/`, declare that directory in the global
 `opencode.json(c)` `"plugins"` array (a configured local path must name a DIRECTORY — a
 `.ts` file is skipped with a log warning; the V1 field name was `plugin`, V2 renames it
-to `plugins`), and restart opencode — plugins load at startup only.
+to `plugins`), and restart opencode — plugins load at startup only. The installed copy
+is a COPY, not a symlink: after editing the source beside this file, re-copy it.
 
 Diagnosis of record (observed 2026-10-24, opencode 2.1.2): the shipped file was a V1
 plugin (an exported async function returning a `"chat.message"` hook, imported from
 `@opencode-ai/plugin`). V1 implementations do not run in V2 — the hook never
 registered, no inbox and no capture.log ever appeared anywhere, and the failure was
 silent. A session started before the install also captures nothing; verify with one
-typed message after the restart, then check the project's `.bytecheck/inbox/`.
+typed message after the restart, then check the inbox.
 
 ## Harvest: received material comes from files
 
@@ -95,8 +109,29 @@ the file is the evidence.
 3. Read the file. It is the source of truth for placement.
 4. Write it where the task needs it, then
    `python3 bytecheck.py same <capture> <target>` must report identical.
-5. When the harvest is verified and recorded, delete the inbox files
-   (`--allow-delete '.bytecheck/inbox/**'`); the capture log stays.
+5. When the harvest is verified and recorded, delete the inbox files; the capture
+   log stays.
+
+The flattened-paste law (observed 2026-10-24): verbatim material can arrive with
+collapsed newlines from the SOURCE. Two same-day facts settle the scope: opencode's
+paste admission preserves newlines (a 38-line paste landed line-intact), yet a 46 KB
+relay reply landed as 47 lines — fenced code blocks flattened to single lines, block
+boundaries intact. The flattening layer sits before opencode (the chat's rendering
+or its copy path); its mechanism is unsettled. What follows:
+
+- Before integrating received verbatim material, verify COMPLETENESS: run `scan`,
+  then count anchors (key identifiers, exports, braces, `MASKED-IN-BRIEF` markers)
+  against what the sender claimed. A flattened paste can still be complete — check,
+  do not assume.
+- Never treat a flattened paste as byte evidence for formatting-sensitive claims
+  (indentation, EOL, whitespace policies, template literals whose newlines are data).
+  Those need the material as a FILE — files never arrive flattened.
+- The cheapest law: ask for anything beyond a few lines of code as a file, not a
+  chat paste; and before copying from a specialist chat, look at the window — if
+  the text is already flattened there, no copy will save it.
+- When byte-copying is impossible because the paste is flattened, reconstructing
+  and reformatting the received code is permitted; the reconstruction stays suspect
+  until the project's own gates (typecheck, tests) pass. Prove it, then integrate.
 
 ## Delivery: outgoing briefs open in the editor
 

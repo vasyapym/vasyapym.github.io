@@ -2,7 +2,7 @@
 
 bytecheck verifies what actually changed on disk, byte for byte, against what was allowed to change. The agent snapshots the tree before it edits, works, then verifies after: every path outside the policy is a violation, every edit the task required but never produced is a miss, and the content rules catch the residue agents leave behind — placeholders, conflict markers, invisible characters, line-ending flips. It prints a verdict, `PASS` or `FAIL` plus a tree hash, and that verdict, not the agent's summary, is what you trust.
 
-The skill also ships paste capture: an opencode plugin that lands every message you type or paste into the chat on disk as a byte-exact file, so material that arrives through conversation — a specialist's reply, a pasted file — exists as evidence before the agent touches it.
+The skill also ships paste capture: an opencode plugin that lands every message you type or paste into the chat on disk as a byte-exact file in a global inbox (`~/.bytecheck/inbox/<project-slug>/`), so material that arrives through conversation — a specialist's reply, a pasted file — exists as evidence before the agent touches it. Capture does not depend on where opencode runs: a session may sit in one repository while the work happens in another, and a foreign repository never receives `.bytecheck/` scratch.
 
 The baseline manifest is written before any edit exists, so nothing the agent does afterwards — to the work, the report, or the diff — can change what verification compares against. The filesystem is the evidence; the agent's report is only a claim about it.
 
@@ -20,7 +20,9 @@ The protocol itself lives in the skill; this is the shape, not the runbook.
 
 ## Paste capture, harvest from files
 
-A reply that exists only in chat context cannot be verified: an agent asked to reproduce it produces a paraphrase, placeholders included. The capture plugin removes that step entirely — the paste is a file in the project's `.bytecheck/inbox/` the moment it enters the chat, with a hash sidecar recorded at write time. The harvest protocol then treats the file as the source of truth: hash it, read from it, place it, prove the placement byte-identical with `same`. Received code is never re-typed from the transcript; if no capture file exists, the agent says so instead of silently reconstructing.
+A reply that exists only in chat context cannot be verified: an agent asked to reproduce it produces a paraphrase, placeholders included. The capture plugin removes that step entirely — the paste is a file in the bytecheck inbox the moment it enters the chat, with a hash sidecar recorded at write time. The harvest protocol then treats the file as the source of truth: hash it, read from it, place it, prove the placement byte-identical with `same`. Received code is never re-typed from the transcript; if no capture file exists, the agent says so instead of silently reconstructing.
+
+One real-world wrinkle is written into the protocol: verbatim material can arrive with collapsed newlines from the source. The paste admission itself preserves newlines (verified: a 38-line paste landed line-intact), yet a 46 KB relay reply landed as 47 lines — fenced code blocks flattened, block boundaries intact. So before integrating, the agent verifies completeness by counting anchors — key identifiers, exports, markers — against what the sender claimed, and the cheapest law is: anything beyond a few lines of code is asked for as a file, not a chat paste. When a flattened paste makes byte-copying impossible, reformatting the received code is permitted, and the reconstruction stays suspect until the project's own gates pass.
 
 The same law runs in the outgoing direction. A brief the agent composes for you to paste into another tool is delivered from its file on disk, not from the chat: the agent writes the file and opens it in a plain text editor (`open -e`, TextEdit — deliberately not the default `.md` handler, VS Code, which loads slowly on the old Mac), and you copy from that editor window. The chat never carries a second copy, because a second copy is where a paraphrase gets pasted from.
 
@@ -35,13 +37,19 @@ It can try, and the design assumes it will. That is why the manifest is written 
 **Do pasted specialist replies get captured?**
 Yes — anything typed or pasted by a human enters the chat as a user message, and that is what the capture plugin writes down. The filters only remove machine-generated traffic that also travels as user-role: opencode's own synthetic messages and subagent prompts. Assistant messages stay out on purpose — the inbox is a trusted box of human bytes, and model-generated text carries no fidelity risk when re-read.
 
+**A reply arrived all on one line — what happened?**
+That is source-side flattening, not opencode's paste admission (which preserves newlines — verified against a controlled 38-line paste). Long verbatim replies can land with their internal newlines collapsed somewhere in the sending chat's rendering or copy path. The protocol's response: verify completeness by counting anchors, never treat the flattened paste as evidence about formatting, and ask for large code as a file — files never arrive flattened.
+
+**Where do I look for my pastes?**
+In the global inbox, `~/.bytecheck/inbox/<project-slug>/`, where the slug names the directory the opencode session runs in — not the repository the work targets. Set `BYTECHECK_INBOX` if you want captures somewhere specific, such as inside a particular repository.
+
 ## It's working if
 
 - The completion message ends with a verdict line and tree hash — `PASS 2 changes, 0 violations  a1b2c3d4e5f6 -> 0f9e8d7c6b5a` — and re-running the hash command reproduces the second hash.
 - An out-of-scope edit surfaces as a `VIOLATION` line, not a silent pass.
 - A claimed-but-missing edit surfaces as `expected change missing`.
 - Violations appear in the agent's message verbatim, never summarised into "minor issues".
-- A pasted reply is already on disk in `.bytecheck/inbox/` with a `.sha256` sidecar before the agent does anything, and `hash --expect` confirms it intact.
+- A pasted reply is already on disk in the bytecheck inbox with a `.sha256` sidecar before the agent does anything, and `hash --expect` confirms it intact.
 
 ## Where it fits
 

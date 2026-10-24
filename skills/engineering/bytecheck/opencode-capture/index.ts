@@ -2,7 +2,10 @@
 //
 // Every message the human types or pastes into the chat is written to disk
 // byte-exactly: one UTF-8 file per admitted prompt text, plus a .sha256
-// sidecar, into <project>/.bytecheck/inbox/ (or $BYTECHECK_INBOX when set).
+// sidecar, into the GLOBAL inbox ~/.bytecheck/inbox/<project-slug>/ (or
+// $BYTECHECK_INBOX when set). Capture does not depend on where opencode
+// runs: a session may sit in one repository while the work happens in
+// another, and a foreign repository never receives .bytecheck/ scratch.
 // The chat transcript is a claim; the inbox file is the evidence.
 //
 // Ships with the bytecheck skill.
@@ -53,8 +56,12 @@ function tailId(s: string, max: number): string {
 function resolveInbox(directory: string | undefined): string {
   const env = process.env.BYTECHECK_INBOX?.trim();
   if (env) return env;
-  if (directory) return join(directory, ".bytecheck", "inbox");
-  return join(homedir(), ".bytecheck", "inbox");
+  // Global inbox by default: stable across sessions in the same project
+  // directory, unique across same-named ones (basename + 6 hex chars of the
+  // full path's sha256).
+  const full = directory ?? join(homedir(), "unknown-opencode-cwd");
+  const slug = `${tailId(basename(full), 32)}-${createHash("sha256").update(full).digest("hex").slice(0, 6)}`;
+  return join(homedir(), ".bytecheck", "inbox", slug);
 }
 
 export default Plugin.define({
