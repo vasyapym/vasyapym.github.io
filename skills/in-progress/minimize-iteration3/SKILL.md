@@ -1,6 +1,7 @@
 ---
 name: minimize-iteration3
-description: Use when delegating to the randomized routing chat model or when a relay prompt failed — reframe the delegation as a question-form refinement, one question sentence then everything in one code block. Verified fallback shape for the relay (2026-10-04).
+description: For delegations to the randomized routing chat model, or when a relay prompt failed — reframe the delegation as a question-form refinement, one question sentence then everything in one code block. Verified fallback shape for the relay (2026-10-04).
+disable-model-invocation: true
 ---
 
 # Minimize iteration 3 — question-form refinement

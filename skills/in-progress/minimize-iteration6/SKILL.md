@@ -1,6 +1,7 @@
 ---
 name: minimize-iteration6
-description: Use for small minimal-change relays to the chat model — pure-ASCII freedom-grant orchestrator brief (anchors quoted by ASCII tokens, non-ASCII material transliterated, serialization phrased mechanically); routed well 2026-10-08 (www3 /about map infoblock-56 brief) after two pre-send cleanups survived an earlier safety rejection of the strict iteration-4 draft. Heavy artifact contract: minimize-iteration4; fallback when a prompt failed: minimize-iteration3.
+description: For small minimal-change relays to the chat model — pure-ASCII freedom-grant orchestrator brief (anchors quoted by ASCII tokens, non-ASCII material transliterated, serialization phrased mechanically); routed well 2026-10-08 (www3 /about map infoblock-56 brief) after two pre-send cleanups survived an earlier safety rejection of the strict iteration-4 draft. Heavy artifact contract: minimize-iteration4; fallback when a prompt failed: minimize-iteration3.
+disable-model-invocation: true
 ---
 
 # Minimize iteration 6 — ASCII freedom-grant brief (minimal-change relay)

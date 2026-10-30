@@ -1,6 +1,7 @@
 ---
 name: minimize-iteration2
 description: Relay self-contained design/code briefs to the owner's chat model and integrate the replies — with a strict minimal-log rule for the results file.
+disable-model-invocation: true
 ---
 
 # minimize-iteration2 — chat-model relay

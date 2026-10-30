@@ -1,3 +1,5 @@
 interface:
   display_name: "Minimize Iteration 4"
   short_description: "Orchestrator brief: dense unmasked relay for real work"
+policy:
+  allow_implicit_invocation: false

@@ -1,6 +1,7 @@
 ---
 name: minimize-iteration
-description: Use when work is about to be delegated to a separate chat model — compress the task into the shortest prompt that still carries it, because the router sends shorter prompts to stronger models (length is routing).
+description: For work about to be delegated to a separate chat model — compress the task into the shortest prompt that still carries it, because the router sends shorter prompts to stronger models (length is routing).
+disable-model-invocation: true
 ---
 
 # Minimize iteration

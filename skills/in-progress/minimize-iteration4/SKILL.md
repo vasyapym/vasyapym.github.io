@@ -1,6 +1,7 @@
 ---
 name: minimize-iteration4
-description: Use when real design/code work is relayed to the chat model and the reply must land as finished artifacts — write the orchestrator brief (TASK / CONTEXT / verbatim material / HARD CONSTRAINTS / OUTPUT CONTRACT) in plain unmasked prose; routed well on its first draw (2026-10-04). Lighter one-shot crossings: minimize-iteration; fallback when a prompt failed: minimize-iteration3.
+description: For real design/code work relayed to the chat model when the reply must land as finished artifacts — the orchestrator brief (TASK / CONTEXT / verbatim material / HARD CONSTRAINTS / OUTPUT CONTRACT) in plain unmasked prose; routed well on its first draw (2026-10-04). Lighter one-shot crossings: minimize-iteration; fallback when a prompt failed: minimize-iteration3.
+disable-model-invocation: true
 ---
 
 # Minimize iteration 4 — the orchestrator brief

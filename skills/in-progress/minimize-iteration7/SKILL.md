@@ -1,6 +1,7 @@
 ---
 name: minimize-iteration7
-description: Use for question-form relays whose payload must be large verbatim material — whole working files or whole design documents — and for new-build design asks where a decided-facts section (session decisions shipped as facts that win where the source document differs) replaces the working draft; founding draws 2026-10-12 (clean: PHP orphans delete page rework with an ~800-line draft verbatim; partial: second-brain v1 design into a NestJS app). Small question-form reworks: minimize-iteration3; heavy sectioned contracts: minimize-iteration4; ASCII-constrained minimal edits: minimize-iteration6.
+description: For question-form relays whose payload must be large verbatim material — whole working files or whole design documents — and for new-build design asks where a decided-facts section (session decisions shipped as facts that win where the source document differs) replaces the working draft; founding draws 2026-10-12 (clean: PHP orphans delete page rework with an ~800-line draft verbatim; partial: second-brain v1 design into a NestJS app). Small question-form reworks: minimize-iteration3; heavy sectioned contracts: minimize-iteration4; ASCII-constrained minimal edits: minimize-iteration6.
+disable-model-invocation: true
 ---
 
 # Minimize iteration 7 — decided-facts relay (large verbatim payloads)

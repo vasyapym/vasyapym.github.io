@@ -19,12 +19,12 @@ Reachable only when you type them (Claude Code: `disable-model-invocation: true`
 - **[teach](./teach/SKILL.md)** — Teach the user a new skill or concept over multiple sessions, using the current directory as a stateful teaching workspace.
 - **[to-questionnaire](./to-questionnaire/SKILL.md)** — Turn a decision you can't answer alone into a Markdown questionnaire for the one person who can — filled in async, or together over a meeting.
 - **[wait-what](./wait-what/SKILL.md)** — Fire this the moment a message doesn't land. The agent re-pitches it with the context you're missing, in plain English, using your `CONTEXT.md` vocabulary.
+- **[minimize-iteration](./minimize-iteration/SKILL.md)** — Compress a task into the shortest prompt that still delegates it to a chat model.
 
 ## Model-invoked
 
 Model- or user-reachable (rich trigger phrasing so the model can reach for them).
 
 - **[grilling](./grilling/SKILL.md)** — Interview the user relentlessly about a plan, decision, or idea until every branch of the design tree is resolved.
-- **[minimize-iteration](./minimize-iteration/SKILL.md)** — Compress a task into the shortest prompt that still delegates it to a chat model.
 - **[orchestrate](./orchestrate/SKILL.md)** — Run the relay loop around a designated specialist chat: one self-contained brief at a time, salvage-integrated replies, rounds until done.
 - **[writing-for-agents](./writing-for-agents/SKILL.md)** — Writing documents for agents: skills, AGENTS.md/CLAUDE.md, and any doc an agent reaches by a pointer.
