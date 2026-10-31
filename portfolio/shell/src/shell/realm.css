@@ -7,21 +7,19 @@
    the single interactive signal. */
 
 /* ── in-flow threshold: soft-ended lines, rounded lower ground, no frame ── */
-/* f — The same seven */
+/* f — beneath the surface */
 .realm-threshold.rt-f {
   /* Approved abyss alias, retuned only within this threshold. */
   --ink-abyss: #080f12;
 
-  --rt-f-pad-block: 20px;
+  /* Upper ground: an empty "surface" strip, i.e. the seam's offset from the top. */
+  --rt-f-surface: 40px;
+  /* Seam to the top of the row's line box (same 12px gap the old row 2 had). */
+  --rt-f-sink: 12px;
   --rt-f-line-height: 26px;
-  --rt-f-crossing: 24px;
-  --rt-f-half-crossing: 12px;
-  --rt-f-seam:
-    calc(
-      var(--rt-f-pad-block) +
-      var(--rt-f-line-height) +
-      var(--rt-f-half-crossing)
-    );
+  /* Below the row, to the lower ground's rounded bottom. */
+  --rt-f-pad-end: 20px;
+  --rt-f-seam: var(--rt-f-surface);
 
   display: block;
   position: relative;
@@ -34,8 +32,9 @@
   /* Shell-wide and in flow; decoration adds no layout height. */
   margin: clamp(12px, 2vw, 24px) 0 0;
   padding:
-    var(--rt-f-pad-block)
-    clamp(16px, 2vw, 24px);
+    calc(var(--rt-f-surface) + var(--rt-f-sink))
+    clamp(16px, 2vw, 24px)
+    var(--rt-f-pad-end);
 
   /* No enclosing frame or clipping silhouette. */
   border: 0;
@@ -150,10 +149,6 @@
   white-space: nowrap;
 }
 
-.realm-threshold.rt-f .rt-f-below {
-  margin-top: var(--rt-f-crossing);
-}
-
 .realm-threshold.rt-f .rt-f-phrase {
   display: block;
   flex: 0 0 auto;
@@ -198,6 +193,8 @@
 
 /*
  * The 44px control is centred on the seam.
+ * It is positioned against .rt-f-inner, which starts at surface + sink,
+ * so the seam sits at -(sink) inside it and the control's top at -(sink + 22px).
  * Its 22px hard stop coincides exactly with the lower ground's top edge.
  * This is a seam mask, not a button plate.
  */
@@ -205,12 +202,7 @@
   appearance: none;
   display: flex;
   position: absolute;
-  top:
-    calc(
-      var(--rt-f-line-height) +
-      var(--rt-f-half-crossing) -
-      22px
-    );
+  top: calc((var(--rt-f-sink) + 22px) * -1);
   right: 0;
   bottom: auto;
   left: auto;
@@ -342,10 +334,12 @@
 
 @media (max-width: 767px) {
   .realm-threshold.rt-f {
-    --rt-f-pad-block: 16px;
+    --rt-f-surface: 34px;
+    /* = half the control, so its lower half ends exactly at the row's top
+       (narrow widths can put the row under the button horizontally). */
+    --rt-f-sink: 22px;
     --rt-f-line-height: 24px;
-    --rt-f-crossing: 44px;
-    --rt-f-half-crossing: 22px;
+    --rt-f-pad-end: 16px;
   }
 
   .realm-threshold.rt-f h2 {

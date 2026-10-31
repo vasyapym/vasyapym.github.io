@@ -981,18 +981,10 @@ export default function LandingPage({
           <div className="rt-f-inner">
             <h2
               id="realm-threshold-title"
-              aria-label={`the same ${projects.length} works, beneath the surface — ${projects.length} doors into the same catalogue.`}
+              aria-label={`beneath the surface — ${projects.length} doors`}
             >
-              <span className="rt-f-line rt-f-above">
-                <span className="rt-f-phrase">the same work,</span>
-
-                <span className="rt-f-register" aria-hidden="true">
-                  <span className="rt-f-count">{String(projects.length).padStart(2, "0")}</span>
-                  <span className="rt-f-noun">works</span>
-                </span>
-              </span>{" "}
-              <span className="rt-f-line rt-f-below">
-                <span className="rt-f-phrase">beneath the surface.</span>
+              <span className="rt-f-line">
+                <span className="rt-f-phrase">beneath the surface</span>
 
                 <span className="rt-f-register" aria-hidden="true">
                   <span className="rt-f-count">{String(projects.length).padStart(2, "0")}</span>
