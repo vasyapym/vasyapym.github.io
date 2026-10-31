@@ -22,10 +22,8 @@ const project = (id: string, text: string) => ({
 export const aboutCopy: AboutCopy = {
   home: { to: "/", label: "Vasily Argounov" },
   lead: [
-    ["I love making systems work."],
-    ["Eight projects live on vasyapym.github.io, and each one stands on its own: open it and it runs."],
     [
-      "If you'd rather meet them in the dark, switch on ",
+      "If you'd rather meet projects in the dark, switch on ",
       { to: "/deep", deep: true, text: "the deep" },
       " and they'll come to your lantern.",
     ],
@@ -67,9 +65,6 @@ export const aboutCopy: AboutCopy = {
   ],
   // the sign-off: unnumbered like the lead — the ¶ rail stops at 06 (owner)
   closing: [
-    [
-      "That's all eight. Where speed mattered I reached for Rust or Go and compiled to WebAssembly; where looks mattered, the GPU.",
-    ],
     [
       "If one of them caught your light, I'm at vasyapym@gmail.com.",
     ],

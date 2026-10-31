@@ -933,7 +933,7 @@ export default function LandingPage({
             </p>
           </div>
           <div className="signal-index-graphic signal-index-beneath">
-            <span className="signal-index-beneath-label">beneath the surface</span>
+            <span className="signal-index-beneath-label">projects</span>
             {projects.slice(0, 6).map((project, index) => (
               <a
                 className="signal-index-beneath-row"
@@ -1021,7 +1021,7 @@ export default function LandingPage({
           data-section-reveal=""
         >
           <div className="signal-index-grid">
-            {projects.map((project, index) => (
+            {projects.map((project) => (
               <a
                 className={`signal-index-card${revealReady && revealedProjects.has(project.id) ? " is-revealed" : ""}`}
                 id={`project-${project.id}`}
@@ -1042,17 +1042,10 @@ export default function LandingPage({
                   <ProjectArtwork project={project} />
                 </div>
                 <div className="gem-card-copy">
-                  <p className="gem-card-topline">
-                    {String(index + 1).padStart(2, "0")}
-                    {project.tag ? ` · ${project.tag}` : ""}
-                  </p>
                   <h3 className="gem-card-title">{project.title}</h3>
                   <p className="gem-card-desc">{project.description}</p>
                   <div className="gem-card-footer">
                     <span className="gem-card-tech">{project.technologies.join(" · ")}</span>
-                    <span className="gem-card-open">
-                      open <span aria-hidden="true">↗</span>
-                    </span>
                   </div>
                 </div>
               </a>

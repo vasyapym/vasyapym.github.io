@@ -1166,16 +1166,8 @@ body:has(.ab) { background: #0b1317; }
   display: flex;
   flex-direction: column;
   gap: 8px;
-  min-height: 160px;
+  min-height: 134px;
   padding: 24px;}
-
-.gem-card-topline {
-  margin: 0;
-  font-family: var(--mono);
-  font-size: 12px;
-  font-weight: 500;
-  letter-spacing: 0.02em;
-  color: var(--ink-accent);}
 
 .gem-card-title {
   margin: 0;
@@ -1217,18 +1209,6 @@ body:has(.ab) { background: #0b1317; }
   -webkit-box-orient: vertical;
   overflow: hidden;}
 
-.gem-card-open {
-  flex: none;
-  font-family: var(--mono);
-  font-size: 12px;
-  color: var(--ink-accent);
-  white-space: nowrap;}
-
-.gem-card-open span {
-  display: inline-block;
-  transition: transform 180ms ease-out;}
-
-
 /* -- hover / focus (colour + lift; svg never transformed) -- */
 .signal-index-card:hover,
 .signal-index-card:focus-visible {
@@ -1242,10 +1222,6 @@ body:has(.ab) { background: #0b1317; }
 .signal-index-card:hover .gem-halo,
 .signal-index-card:focus-visible .gem-halo {
   opacity: calc(var(--halo-opacity, 0.2) + 0.1);}
-
-.signal-index-card:hover .gem-card-open span,
-.signal-index-card:focus-visible .gem-card-open span {
-  transform: translateX(3px);}
 
 .signal-index-card:focus-visible {
   outline: 2px solid var(--ink-accent-bright);
@@ -1328,10 +1304,6 @@ body:has(.ab) { background: #0b1317; }
 
   .signal-index-card:hover,
   .signal-index-card:focus-visible {
-    transform: none;}
-
-  .signal-index-card:hover .gem-card-open span,
-  .signal-index-card:focus-visible .gem-card-open span {
     transform: none;}
 
   .signal-index-beneath-more:hover span,
@@ -1472,7 +1444,7 @@ body:has(.ab) { background: #0b1317; }
 
   .gem-card-copy {
     padding: 20px;                         /* was 24px */
-    min-height: 152px;                     /* was 160px */
+    min-height: 126px;                     /* was 152px */
   }
 }
 
