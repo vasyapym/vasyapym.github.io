@@ -150,8 +150,76 @@
 }
 
 .realm-threshold.rt-f .rt-f-phrase {
+  appearance: none;
   display: block;
+  position: relative;
   flex: 0 0 auto;
+
+  box-sizing: border-box;
+  width: auto;
+  min-width: 0;
+  margin: 0;
+  padding: 0;
+
+  border: 0;
+  border-radius: 0;
+  background: none;
+  box-shadow: none;
+
+  color: var(--ink-text);
+  font: inherit;
+  letter-spacing: inherit;
+  text-align: left;
+  text-transform: inherit;
+  white-space: nowrap;
+
+  text-decoration-line: underline;
+  text-decoration-style: solid;
+  text-decoration-thickness: 1px;
+  text-decoration-color: var(--ink-accent);
+  text-underline-offset: 5px;
+
+  visibility: visible;
+  opacity: 1;
+  filter: none;
+  transform: none;
+  animation: none;
+  transition: none;
+  cursor: pointer;
+  touch-action: manipulation;
+}
+
+/* Invisible tap-target extension: 26px line → 46px desktop (24 → 44 mobile).
+   No layout or paint change; stays below the seam (sink ≥ 12px). */
+.realm-threshold.rt-f .rt-f-phrase::after {
+  content: "";
+  position: absolute;
+  inset: -10px 0;
+}
+
+/* Same focus language as .rt-f-entry-copy. */
+.realm-threshold.rt-f
+  .rt-f-phrase:focus-visible:not(:disabled) {
+  outline: none;
+  text-decoration-style: double;
+  text-decoration-color: var(--ink-accent-bright);
+}
+
+.realm-threshold.rt-f
+  .rt-f-phrase:active:not(:disabled) {
+  color: var(--ink-accent-deep);
+  text-decoration-color: currentColor;
+}
+
+/* Mirrors the enter control: fully visible, rest look, only the cursor changes. */
+.realm-threshold.rt-f .rt-f-phrase:disabled {
+  visibility: visible;
+  opacity: 1;
+  filter: none;
+  color: var(--ink-text);
+  -webkit-text-fill-color: currentColor;
+  text-decoration-color: var(--ink-accent);
+  cursor: default;
 }
 
 .realm-threshold.rt-f .rt-f-register {
@@ -328,6 +396,15 @@
 
   .realm-threshold.rt-f
     .realm-threshold-enter:hover:active:not(:disabled) {
+    color: var(--ink-accent-deep);
+  }
+
+  .realm-threshold.rt-f .rt-f-phrase:hover:not(:disabled) {
+    color: var(--ink-accent-bright);
+    text-decoration-color: currentColor;
+  }
+
+  .realm-threshold.rt-f .rt-f-phrase:hover:active:not(:disabled) {
     color: var(--ink-accent-deep);
   }
 }

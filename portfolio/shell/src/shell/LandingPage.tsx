@@ -984,7 +984,15 @@ export default function LandingPage({
               aria-label={`beneath the surface — ${projects.length} doors`}
             >
               <span className="rt-f-line">
-                <span className="rt-f-phrase">beneath the surface</span>
+                <button
+                  className="rt-f-phrase"
+                  type="button"
+                  onClick={handleRealmEnter}
+                  disabled={realmOpen}
+                  aria-label="beneath the surface — enter the immersive realm"
+                >
+                  beneath the surface
+                </button>
 
                 <span className="rt-f-register" aria-hidden="true">
                   <span className="rt-f-count">{String(projects.length).padStart(2, "0")}</span>
