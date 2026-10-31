@@ -26,6 +26,18 @@ type LandingPageProps = {
   registerExternalRealmExitHandler?: (handler: (() => void) | null) => void;
 };
 
+/* The hero kicker reads the commit count of the source repository. The deploy
+   workflow bakes it into the build as VITE_COMMITS_COUNT (one API call — the
+   checked-out clone stays shallow so the 200 MiB history never transfers).
+   Without it (local dev) the fallback text stands in, honest but stale. */
+function commitCountLabel(): string {
+  const count = Number(import.meta.env.VITE_COMMITS_COUNT);
+  if (Number.isInteger(count) && count > 0) {
+    return `${String(count).replace(/\B(?=(\d{3})+(?!\d))/g, " ")} commits so far`;
+  }
+  return "1 095 commits so far";
+}
+
 function documentOffsetTop(element: HTMLElement) {
   let y = 0;
   let node: HTMLElement | null = element;
@@ -893,7 +905,7 @@ export default function LandingPage({
 
           <HeroFluid />
           <div className="signal-index-hero-copy">
-            <p className="signal-index-hero-kicker">prototypes</p>
+            <p className="signal-index-hero-kicker">{commitCountLabel()}</p>
             <h1
               id="signal-index-title"
               className="signal-index-hero-headline"
