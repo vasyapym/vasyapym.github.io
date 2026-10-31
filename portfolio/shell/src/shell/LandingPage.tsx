@@ -33,9 +33,9 @@ type LandingPageProps = {
 function commitCountLabel(): string {
   const count = Number(import.meta.env.VITE_COMMITS_COUNT);
   if (Number.isInteger(count) && count > 0) {
-    return `${String(count).replace(/\B(?=(\d{3})+(?!\d))/g, " ")} commits so far`;
+    return `${count} commits`;
   }
-  return "1 095 commits so far";
+  return "1095 commits";
 }
 
 function documentOffsetTop(element: HTMLElement) {
