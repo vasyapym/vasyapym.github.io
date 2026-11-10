@@ -26,5 +26,5 @@ Reachable only when you type them (Claude Code: `disable-model-invocation: true`
 Model- or user-reachable (rich trigger phrasing so the model can reach for them).
 
 - **[grilling](./grilling/SKILL.md)** — Interview the user relentlessly about a plan, decision, or idea until every branch of the design tree is resolved.
-- **[orchestrate](./orchestrate/SKILL.md)** — Run the relay loop around a designated specialist chat: one self-contained brief at a time, salvage-integrated replies, rounds until done.
+- **[orchestrate](./orchestrate/SKILL.md)** — Run the relay loop around a specialist chat: briefs in, salvage-integrated replies out; byte-exact proof (bytecheck) and an end-of-round review are bundled inside.
 - **[writing-for-agents](./writing-for-agents/SKILL.md)** — Writing documents for agents: skills, AGENTS.md/CLAUDE.md, and any doc an agent reaches by a pointer.
