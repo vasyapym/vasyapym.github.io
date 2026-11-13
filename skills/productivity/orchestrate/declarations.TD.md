@@ -17,7 +17,7 @@ collapsed paste: eaten line breaks are never guessed back in the main session; t
 
 sonnet 5.5: takes about 60 KB per brief; split longer relays by deliverable.
 
-reply carriage: any specialist's reply may travel as ONE physical line — every break written as the marker character the brief dictates (⏎ has served) — and the orchestrator decodes it mechanically after the cut; ask for it in the brief's output contract. TD — the traktorodetal.ru project, the spares/Bitrix catalog work — carries it as the standing shape: name TD for the session or brief and the artifacts travel this way. A creative usually writes in one line anyway — simply ask it. Without the carriage the reply shape is the standard marker-line contract.
+reply carriage: any specialist's artifacts may travel as ONE physical line — every break the marker character the brief dictates (⏎ has served) — decoded mechanically after the cut; standing for TD (traktorodetal.ru), a simple ask for a creative.
 
 ## Project lines
 
