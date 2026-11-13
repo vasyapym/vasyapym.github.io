@@ -22,7 +22,7 @@ import stat
 import sys
 import unicodedata
 from datetime import datetime, timezone
-__version__ = "0.2.0"
+__version__ = "0.3.0"
 # ----------------------------------------------------------------------------
 # constants
 # ----------------------------------------------------------------------------
@@ -977,6 +977,8 @@ def read_exclude_file(path):
             out.append(line)
     return out
 def run_snapshot(args, result):
+    if args.plan and (args.output is not None or args.store is not None):
+        raise BytecheckError("--plan writes nothing: it takes neither -o nor --store")
     root = args.root
     if not os.path.isdir(root):
         raise BytecheckError("root %s is not a directory" % root)
@@ -987,7 +989,28 @@ def run_snapshot(args, result):
     for p in extra:
         if p not in excludes:
             excludes.append(p)
-    out = args.output
+    if args.plan:
+        tops = {}
+        count = total = 0
+        for rel, kind, _abs_path, st in walk(root, Excluder(excludes), errors=result.errors):
+            size = st.st_size if kind == "file" else 0
+            top = rel.split("/", 1)[0] if "/" in rel else "."
+            n, b = tops.get(top, (0, 0))
+            tops[top] = (n + 1, b + size)
+            count += 1
+            total += size
+        result.incomplete = bool(result.errors)
+        rows = sorted(tops.items(), key=lambda item: (-item[1][1], item[0]))
+        result.data.update({"plan": True, "root": to_posix(os.path.normpath(root)), "excludes": excludes,
+                            "dirs": [{"dir": d, "files": n, "bytes": b} for d, (n, b) in rows],
+                            "store_bytes": total})
+        result.summary.update({"files": count, "bytes": total})
+        width = max([len(plural(n, "file")) for _d, (n, _b) in rows] or [0])
+        for d, (n, b) in rows:
+            result.lines.append(" %9s %*s %s" % (human_size(b), width, plural(n, "file"), d))
+        result.lines.append("plan %s, %s store %s -> nothing written" % (plural(count, "file"), human_size(total), human_size(total)))
+        return
+    out = args.output if args.output is not None else DEFAULT_MANIFEST
     store_dir = store_rel = None
     if args.store is not None:
         if args.store is True:
@@ -1027,10 +1050,10 @@ def run_snapshot(args, result):
     result.data.update({"manifest": None if out == "-" else to_posix(out), "store": store_rel,
                         "root": manifest["root"], "tree_hash": manifest["tree_hash"], "excludes": excludes})
     result.summary.update({"files": len(files), "bytes": total_bytes})
-    line = "snapshot %s, %s  tree %s  -> %s" % (plural(len(files), "file"), human_size(total_bytes),
-                                               short(manifest["tree_hash"]), "stdout" if out == "-" else to_posix(out))
+    line = "snapshot %s, %s tree %s -> %s" % (plural(len(files), "file"), human_size(total_bytes),
+                                              short(manifest["tree_hash"]), "stdout" if out == "-" else to_posix(out))
     if store_rel:
-        line += "  (store: %s)" % store_rel
+        line += " (store: %s)" % store_rel
     result.lines.append(line)
 def baseline_bytes(entry, path, store_dir, baseline_dir, errors):
     digest = entry.get("sha256")
@@ -1718,6 +1741,135 @@ def run_blocks(args, result):
     result.data["blocks"] = [block_json(b) for b in blocks]
     result.lines.extend(block_row(b) for b in blocks)
     result.lines.append(plural(len(blocks), "block"))
+
+
+# cut: the bytes between two marker lines
+_FENCE_RE = re.compile(rb"^(`{3,}|~{3,})(.*)$")
+
+
+def line_text(line):
+    """A physical line without its terminator (LF, CRLF or lone CR); the line itself is never altered."""
+    if line.endswith(b"\r\n"):
+        return line[:-2]
+    if line.endswith((b"\n", b"\r")):
+        return line[:-1]
+    return line
+
+
+def line_list(indexes):
+    shown = ", ".join(str(i + 1) for i in indexes[:8])
+    return shown + (", ..." if len(indexes) > 8 else "")
+
+
+def find_marker(lines, text, which, result):
+    """Index of the one line equal to TEXT (terminator aside). Anything else refuses, listing what was found."""
+    if text == "":
+        raise BytecheckError("--%s must not be empty" % which)
+    if "\n" in text or "\r" in text:
+        raise BytecheckError("--%s must be one line: no CR or LF in a marker" % which)
+    marker = to_bytes(text)
+    whole = [i for i, line in enumerate(lines) if line_text(line) == marker]
+    inside = [i for i, line in enumerate(lines) if marker in line and line_text(line) != marker]
+    result.data.setdefault("markers", {})[which] = {"text": text, "lines": [i + 1 for i in whole],
+                                                    "contained_in": [i + 1 for i in inside]}
+    if len(whole) == 1:
+        return whole[0]
+    found = "%s as a whole line" % plural(len(whole), "time")
+    if whole:
+        found += " (lines %s)" % line_list(whole)
+    if inside:
+        found += "; %s contain it (%s)" % (plural(len(inside), "line"), line_list(inside))
+    raise BytecheckError("--%s marker %r occurs %s; it must occur exactly once" % (which, text, found))
+
+
+def fence_open(text):
+    """(fence, info) when TEXT opens a CommonMark code fence at column 0, else None."""
+    m = _FENCE_RE.match(text)
+    if m is None:
+        return None
+    fence, info = m.group(1), m.group(2).strip()
+    if fence[:1] == b"`" and b"`" in info:
+        return None
+    return fence, info
+
+
+def closes_fence(text, fence):
+    m = _FENCE_RE.match(text)
+    return (m is not None and m.group(1)[:1] == fence[:1] and len(m.group(1)) >= len(fence)
+            and m.group(2).strip() == b"")
+
+
+def run_cut(args, result):
+    as_json = getattr(args, "json", False)
+    quiet = getattr(args, "quiet", False)
+    to_stdout = args.to in (None, "-")
+    if to_stdout and (as_json or quiet):
+        raise BytecheckError("cut puts the bytes on stdout; with --json or --quiet give --to PATH")
+    if args.file == "-":
+        data = getattr(sys.stdin, "buffer", sys.stdin).read()
+    else:
+        try:
+            data = read_file(args.file)
+        except OSError as exc:
+            raise BytecheckError("cannot read %s: %s" % (args.file, exc))
+    if not to_stdout and os.path.exists(args.to):
+        try:
+            if os.path.samefile(args.file, args.to):
+                raise BytecheckError("--to is the input file; the source is never overwritten")
+        except OSError:
+            pass
+    result.data["file"] = args.file
+    lines = data.splitlines(True)
+    start = find_marker(lines, args.start, "start", result)
+    end = len(lines) if args.end is None else find_marker(lines, args.end, "end", result)
+    if end <= start:
+        raise BytecheckError("--end marker (line %d) does not follow --start marker (line %d)" % (end + 1, start + 1))
+    lo, hi = start + 1, end  # the cut is lines[lo:hi]
+    if args.body:
+        before = after = 0
+        while lo < hi and not line_text(lines[lo]).strip():
+            lo, before = lo + 1, before + 1
+        while hi > lo and not line_text(lines[hi - 1]).strip():
+            hi, after = hi - 1, after + 1
+        body = {"blank_before": before, "blank_after": after, "fence": None}
+        opened = fence_open(line_text(lines[lo])) if hi - lo >= 2 else None
+        if opened is not None:
+            fence, info = opened
+            closers = [i for i in range(lo + 1, hi) if closes_fence(line_text(lines[i]), fence)]
+            if closers == [hi - 1]:
+                body["fence"] = {"chars": fence.decode("ascii"), "info": info.decode("utf-8", "replace"),
+                                 "open_line": lo + 1, "close_line": hi}
+                lo, hi = lo + 1, hi - 1
+        text = "body: trimmed %s before, %d after" % (plural(before, "blank line"), after)
+        if body["fence"] is None:
+            text += "; not exactly one fenced block, nothing unwrapped"
+        else:
+            text += "; unwrapped %s%s fence (lines %d-%d)" % (body["fence"]["chars"], body["fence"]["info"],
+                                                             body["fence"]["open_line"], body["fence"]["close_line"])
+        result.data["body"] = body
+        result.lines.append(text)
+    if lo >= hi:
+        span = ("between lines %d and %d" % (start + 1, end + 1)) if args.end is not None else "after line %d" % (start + 1)
+        raise BytecheckError("cut is empty: %s %s" % ("only blank lines or an empty fence" if args.body else "nothing", span))
+    out = b"".join(lines[lo:hi])
+    digest = hash_bytes(out)
+    offset = sum(len(line) for line in lines[:lo])
+    result.data["span"] = {"lines": [lo + 1, hi], "offset": offset, "end": offset + len(out)}
+    result.data.update({"bytes": len(out), "sha256": digest})
+    result.summary.update({"lines": hi - lo, "bytes": len(out)})
+    line = "cut lines %d-%d %s sha256 %s" % (lo + 1, hi, plural(len(out), "byte"), digest)
+    if to_stdout:
+        result.stdout_override = out  # bytes: render() hands them to emit_bytes, or --report FILE receives them
+    else:
+        try:
+            write_atomic(args.to, out)
+        except OSError as exc:
+            raise BytecheckError("cannot write %s: %s" % (args.to, exc))
+        result.data["to"] = args.to
+        line += " -> %s" % args.to
+    result.lines.append(line)
+
+
 COMMANDS = {
     "snapshot": run_snapshot,
     "verify": run_verify,
@@ -1726,6 +1878,7 @@ COMMANDS = {
     "delta": run_delta,
     "scan": run_scan,
     "blocks": run_blocks,
+    "cut": run_cut,
 }
 # ----------------------------------------------------------------------------
 # CLI
@@ -1766,11 +1919,15 @@ def build_parser():
                         description="Walk ROOT, hash every regular file, record symlink targets and exec bits, "
                                     "write the manifest. Run this before the agent touches anything.")
     sp.add_argument("root", nargs="?", default=".", help="tree to snapshot (default: .)")
-    sp.add_argument("-o", "--output", default=DEFAULT_MANIFEST, metavar="FILE",
-                    help="manifest path, or - for stdout (default: %(default)s). With -, the manifest is the only stdout output.")
+    sp.add_argument("-o", "--output", default=None, metavar="FILE",
+                    help="manifest path, or - for stdout (default: %s). With -, the manifest is the only stdout output." % DEFAULT_MANIFEST)
     sp.add_argument("--store", nargs="?", const=True, default=None, metavar="DIR",
                     help="also copy file bytes into a content-addressed store so verify can show hunks and "
                          "enforce --within (default DIR: <manifest stem>.objects/ beside the manifest)")
+    sp.add_argument("--plan", action="store_true",
+                    help="measure only: walk ROOT under the excludes and print the file count, the bytes, a rollup per "
+                         "top-level directory (largest first) and the projected store size; writes nothing, so neither "
+                         "-o nor --store may be given")
     sp.add_argument("--exclude", action="append", default=[], metavar="GLOB", help="exclude matching paths (repeatable)")
     sp.add_argument("--exclude-from", metavar="FILE", help="read exclude globs from FILE, one per line")
     sp.add_argument("--no-default-excludes", action="store_true", help="do not exclude .git/ and .bytecheck/")
@@ -1863,6 +2020,23 @@ def build_parser():
                          "stdout (then --json and --quiet are refused, and --report FILE receives the bytes)")
     bp.add_argument("--same", nargs="?", const=".", default=None, metavar="ROOT",
                     help="compare each block with ROOT/<label> (default ROOT: .): identical, differs at byte N, or no file")
+    kp = sub.add_parser("cut", parents=[common], help="copy the exact bytes between two marker lines of a file",
+                        description="The bytes of FILE (- for stdin) between a start marker line and an end marker line: "
+                                    "each is a whole physical line (line ending aside) that must occur exactly once, else "
+                                    "exit 2 listing the lines found; without --end the cut runs to end of file. No "
+                                    "re-encoding, no newline translation; an empty cut is refused. Prints the cut's "
+                                    "line span, byte count and sha256.")
+    kp.add_argument("file", metavar="FILE", help="text file, or - for stdin")
+    kp.add_argument("--start", required=True, metavar="LINE",
+                    help="the start marker line, exactly, without its line ending")
+    kp.add_argument("--end", metavar="LINE",
+                    help="the end marker line, same rule (default: the cut runs to end of file)")
+    kp.add_argument("--body", action="store_true",
+                    help="drop blank lines at both edges of the cut, then, when what remains is exactly one fenced code "
+                         "block opened at column 0, unwrap it; what was dropped is reported")
+    kp.add_argument("--to", metavar="PATH",
+                    help="write the bytes to PATH (atomically; parents created); - or omitted: raw bytes on stdout "
+                         "(then --json and --quiet are refused, and --report FILE receives the bytes)")
     return parser
 
 

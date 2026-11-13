@@ -17,6 +17,7 @@ Type `/orchestrate`, or the agent starts the loop itself when you name the speci
 - A transformation that is already settled, such as a mechanical rewrite across a fixed set of files, where the specialist should follow a declared shape and a script decides whether each batch passes.
 - Any moment you hold a specialist's answer and want it integrated against the repo rather than pasted wholesale.
 - Rounds where "trust me, I only edited X" is not enough. The bundled bytecheck proves the scope, and the bundled review hunts what the change would break before any gate runs.
+- A tree you apply to yourself: under hand integration the agent writes every deliverable as a copy into the round folder and never edits that tree.
 
 If the whole task fits one prompt and one reply, [minimize-iteration](https://aihero.dev/skills-minimize-iteration) is the cheaper tool.
 
@@ -36,12 +37,12 @@ The agent never reads that material wholesale itself: [subagents](https://www.ai
 
 ## Acquire once, from a stored source
 
-A reply is acquired once, from a stored source, and everything after works from that file. The agent tries these in order and stops at the first usable one:
+A reply is acquired once, from a stored source, and everything after works from that file. The brief fixes the reply's shape — a `reply <n>-<slug>` first line, marker lines around every artifact, an end sentinel — which is what makes the harvest mechanical rather than interpretive. The agent tries these in order and stops at the first usable one:
 
 |Rung|Source|Note|
 |---|---|---|
 |1|The capture plugin's inbox|Used when the plugin saved that message; the digest is checked.|
-|2|The session database, via `extract-reply.py`|Finds the pasted reply by an identifying phrase and the reply's expected markers. Ambiguity returns a candidate report, never a guess.|
+|2|The session database, via `extract-reply.py`|Finds the pasted reply by the brief's declared first line, scoped to messages after the brief's hand-over time. Ambiguity returns a candidate report, never a guess.|
 |3|A file you save|Raw reply, one per file. This costs you one save step.|
 |4|Chat transcription|Degraded last resort. It counts as the agent's own edit, is marked unverified, and is never filed as a received reply.|
 
@@ -57,20 +58,27 @@ A reply written blind contains good reasoning wrapped around guesses. The agent 
 
 Disk is authoritative: after any external write, the agent re-reads the file and never saves an old editor buffer over it. In Executor mode, acceptance follows the frozen contract and the scripted verifier, not an improvised rewrite of either.
 
+## Who applies the change
+
+Session opening settles who applies the change — and so which trees the agent may write at all:
+
+|The agent integrates|The default: it edits the working tree, bytecheck proves the scope, and the gates run when they are ready.|
+|You integrate by hand|Every deliverable lands as a copy in the round folder, never in the tree. Byte-check proves the tree untouched and renders the deliverable's diff book, and the gates run after you apply the change.|
+
 ## Close the round
 
 A round ends in order:
 
 1. A review pass: a fresh reviewer hunts what the change would break, before any gate.
 2. Byte-exact verification of the recorded policy, if you asked for it. Verification reads the files on disk, not an editor's buffers.
-3. The gates themselves, with an expected wait.
-4. A report of what was integrated, rejected, and left unvalidated.
+3. The gates themselves, with an expected wait — under hand integration, only after you have applied the change.
+4. A report of what was integrated, rejected, where the deliverables lie, and what was left unvalidated.
 
 Review findings get dispositions (fixed, declined, deferred, unconfirmed), and disagreements reach you unresolved.
 
 ## Common questions
 
-**Why did a specialist's reply arrive as one line, and does it matter?** Replies pasted back sometimes arrive with every line break collapsed while the inline markers stay intact, and extraction preserves what was stored. Prose tolerates the collapse. Code and other exact artifacts never travel by paste: they are acquired from the plugin inbox, the session database, or a file you saved, and placed from there, so the collapse stops mattering.
+**Why did a specialist's reply arrive as one line, and does it matter?** If your declarations declare a reply carriage, one physical line is the intended shape: every break travels as a declared marker character and the agent decodes it mechanically after the cut, so even exact artifacts can travel by paste. Without a declared carriage, eaten line breaks are never guessed back in the session: prose tolerates the collapse, exact artifacts are acquired from the plugin inbox, the session database, or a file you saved, and a restore attempt is itself a briefed job carrying the byte-authoritative originals.
 
 **Does bytecheck run without orchestrate?** Ask for it by name and the skill runs that part alone: byte-exact verification of any tree, or a standalone review pass. On a machine where the bytecheck skill is installed by itself, that copy works independently.
 
@@ -85,6 +93,7 @@ Review findings get dispositions (fixed, declined, deferred, unconfirmed), and d
 - Replies are fetched from a capture, the session database, or a file you saved, rather than retyped. If the agent did work from chat text, it says so and marks the result unverified.
 - Code reaches disk by copy from the saved reply, not retyping, and with byte-checking on the copy is hash-proven.
 - A round closes with a review pass and, when byte-checking is on, a quoted verdict line plus tree hash before anything is committed.
+- Under hand integration the deliverables sit in the round folder, the tree hash reads untouched, and no gate runs before you applied the change.
 - The agent names what it could not validate instead of letting it pass silently.
 
 ## Where it fits
