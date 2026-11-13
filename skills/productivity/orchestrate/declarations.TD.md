@@ -17,9 +17,7 @@ collapsed paste: eaten line breaks are never guessed back in the main session; t
 
 sonnet 5.5: takes about 60 KB per brief; split longer relays by deliverable.
 
-TD (reply carriage): TD means the traktorodetal.ru project — the spares/Bitrix catalog work — when the user names TD for the session or brief, every artifact to be placed is carried as ONE physical line — every break written as the marker character the brief dictates (⏎ has served) — and the orchestrator decodes it mechanically after the cut; without TD the reply shape is the standard marker-line contract with no carriage.
-
-creative (reply carriage): a creative usually writes in one line anyway — we can simply ask it to write the reply that way: ONE physical line, every break the marker character (⏎ has served), decoded mechanically after the cut; no project name needed.
+reply carriage: any specialist's reply may travel as ONE physical line — every break written as the marker character the brief dictates (⏎ has served) — and the orchestrator decodes it mechanically after the cut; ask for it in the brief's output contract. TD — the traktorodetal.ru project, the spares/Bitrix catalog work — carries it as the standing shape: name TD for the session or brief and the artifacts travel this way. A creative usually writes in one line anyway — simply ask it. Without the carriage the reply shape is the standard marker-line contract.
 
 ## Project lines
 
