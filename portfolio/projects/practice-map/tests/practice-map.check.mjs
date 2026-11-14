@@ -325,6 +325,21 @@ try {
   const offParagraphs = await page.$$eval(".practice-reader-section p", (els) => els.length);
   check(offParagraphs > 0, `passive mode renders rich prose (${offParagraphs} paragraphs)`);
 
+  // the callout is a quiet titled block: the marginal ochre rule is gone
+  // (owner's word, 2026-11) and the text joins the shared 0.75rem edge
+  const calloutLaws = await page.evaluate(() => {
+    const callout = document.querySelector(".practice-reader-section > .practice-callout");
+    if (!callout) return null;
+    const cs = getComputedStyle(callout);
+    return { borderLeft: cs.borderLeftWidth, pad: cs.paddingLeft };
+  });
+  check(
+    calloutLaws !== null
+      && (calloutLaws.borderLeft === "0px" || calloutLaws.borderLeft === "none")
+      && calloutLaws.pad === "12px",
+    `callout is a quiet block: no ochre rule, 0.75rem text edge (${calloutLaws?.borderLeft}/${calloutLaws?.pad})`,
+  );
+
   await page.click(".fr-controls button");
   check(await appears(".fr .fr-area"), "free reading mounts a real textarea");
   check(await appears(".fr-count"), "section progress counter renders");
@@ -574,6 +589,176 @@ try {
   );
   check(noOverflowCode, "no horizontal overflow in code mode at 1440px");
 
+  // --- anchor helpers: shared by the posture legs and the reflow legs -------
+
+  const measureAnchor = () => page.evaluate(() => {
+    const scroller = document.querySelector(".practice-lesson-scroll");
+    const edge = scroller.getBoundingClientRect().top;
+    for (const el of scroller.querySelectorAll("[data-section-index]")) {
+      const r = el.getBoundingClientRect();
+      if (r.bottom <= edge) continue;
+      if (r.top > edge) break;
+      return {
+        index: el.dataset.sectionIndex,
+        topVisible: r.top >= edge - 0.5,
+        offset: r.top - edge,
+        fraction: (edge - r.top) / r.height,
+      };
+    }
+    return null;
+  });
+  const measureRestored = (idx) => page.evaluate((idx) => {
+    const scroller = document.querySelector(".practice-lesson-scroll");
+    const edge = scroller.getBoundingClientRect().top;
+    const el = scroller.querySelector(`[data-section-index="${idx.index}"]`);
+    const r = el.getBoundingClientRect();
+    return {
+      topVisible: idx.topVisible,
+      value: idx.topVisible ? r.top - edge : (edge - r.top) / r.height,
+      height: r.height,
+    };
+  }, idx);
+  // the chip's smooth scroll can outlive a fixed wait — settle on a stable
+  // scrollTop before measuring (a late tick would displace the landing)
+  const scrollSettled = async () => {
+    for (let i = 0; i < 20; i++) {
+      const a = await page.$eval(".practice-lesson-scroll", (el) => el.scrollTop);
+      await wait(120);
+      const b = await page.$eval(".practice-lesson-scroll", (el) => el.scrollTop);
+      if (Math.abs(a - b) < 0.5) return true;
+    }
+    return false;
+  };
+
+  // --- the size control (styleguide §8.1): one token, four readings ---------
+
+  // default: github-exact, the attribute always present on the overlay
+  const readSize = () => page.evaluate(() => ({
+    attr: document.querySelector(".practice-lesson-overlay")?.getAttribute("data-code-size"),
+    fill: getComputedStyle(document.querySelector(".practice-reader-section.is-code > p")).fontSize,
+    pre: getComputedStyle(document.querySelector(".practice-reader-section.is-code .practice-example-code pre")).fontSize,
+  }));
+  check(await appears(".practice-lesson-tools .fr-size"), "the size pill renders while the code voice is on");
+  const pillLaws = await page.$eval(".fr-size", (el) => ({
+    label: el.getAttribute("aria-label"),
+    text: el.textContent?.trim() ?? "",
+  }));
+  check(
+    pillLaws.label === null && /size: (13\.6|14|15|16)/.test(pillLaws.text),
+    `the size pill names itself with its visible value (aria-label=${pillLaws.label}, text="${pillLaws.text}")`,
+  );
+  const sizeDefault = await readSize();
+  check(
+    sizeDefault.attr === "github" && near(parseFloat(sizeDefault.fill), 13.6),
+    `default size is github-exact (data-code-size=${sizeDefault.attr}, fill ${sizeDefault.fill})`,
+  );
+  await page.click(".fr-size");
+  await wait(100);
+  const size14 = await readSize();
+  check(size14.attr === "14" && near(parseFloat(size14.fill), 14), `size cycles to 14 (attr=${size14.attr}, fill ${size14.fill})`);
+  await page.click(".fr-size");
+  await wait(100);
+  const size15 = await readSize();
+  check(
+    size15.attr === "15" && near(parseFloat(size15.fill), 15) && near(parseFloat(size15.pre), 15, 0.1),
+    `size cycles to 15 and the pre rides the same voice (attr=${size15.attr}, fill ${size15.fill}, pre ${size15.pre})`,
+  );
+  await page.click(".fr-size");
+  await wait(100);
+  const size16 = await readSize();
+  check(size16.attr === "16" && near(parseFloat(size16.fill), 16), `size cycles to 16 (attr=${size16.attr}, fill ${size16.fill})`);
+  await page.click(".fr-size");
+  await wait(100);
+  const sizeWrap = await readSize();
+  check(
+    sizeWrap.attr === "github" && near(parseFloat(sizeWrap.fill), 13.6),
+    `size wraps back to github (attr=${sizeWrap.attr}, fill ${sizeWrap.fill})`,
+  );
+
+  // anchor parity for the size voice: cycling re-wraps the code-voice
+  // content, so the section keeps its place (posture-2 formula)
+  await page.click(".practice-reader-nav button:nth-child(6)");
+  check(await scrollSettled(), "the chip's smooth scroll settles before the size-anchor landing");
+  await page.evaluate(() => {
+    const scroller = document.querySelector(".practice-lesson-scroll");
+    const edge = scroller.getBoundingClientRect().top;
+    const el = scroller.querySelector('[data-section-index="5"]');
+    const r = el.getBoundingClientRect();
+    scroller.scrollTop += r.height * 0.4;
+  });
+  check(await scrollSettled(), "the mid-section push settles before the size flip");
+  const anchorSize = await measureAnchor();
+  check(
+    anchorSize != null && !anchorSize.topVisible && anchorSize.index === "5",
+    `size-anchor leg puts section ${anchorSize?.index} at fraction ${anchorSize?.fraction?.toFixed(2)}`,
+  );
+  await page.click(".fr-size"); // github → 14: the voice re-wraps
+  await wait(120);
+  const restoredSize = await measureRestored(anchorSize);
+  const sizeDelta = Math.abs(restoredSize.value - anchorSize.fraction) * restoredSize.height;
+  check(
+    sizeDelta <= 2,
+    `size reflow keeps the fraction (Δ ${sizeDelta.toFixed(2)}px of the restored ${restoredSize.height.toFixed(0)}px section)`,
+  );
+  // cycle back to github so the downstream legs see the default voice
+  await page.click(".fr-size");
+  await wait(100);
+  await page.click(".fr-size");
+  await wait(100);
+  await page.click(".fr-size");
+  await wait(100);
+  const sizeBack = await readSize();
+  check(
+    sizeBack.attr === "github" && near(parseFloat(sizeBack.fill), 13.6),
+    `the size-anchor leg leaves github (attr=${sizeBack.attr}, fill ${sizeBack.fill})`,
+  );
+
+  // cross-tab size write: a second page on the same origin writes the size
+  // record — the storage event fires in page1, the wrapper captures, the
+  // restore lands (the reader is already mid-section from the local leg)
+  const page2 = await browser.newPage();
+  attachConsole(page2);
+  await page2.setViewport({ width: 1440, height: 900 });
+  await page2.goto(`${BASE}/projects/practice-map`, { waitUntil: "domcontentloaded", timeout: 150000 });
+  const appears2 = (selector, timeout = 30000) =>
+    page2.waitForSelector(selector, { timeout }).then(() => true).catch(() => false);
+  check(await appears2(".pg-card"), "the second page mounts on the same origin");
+  check(await scrollSettled(), "page1 rests mid-section before the cross-tab write");
+  const anchorCross = await measureAnchor();
+  check(
+    anchorCross != null && !anchorCross.topVisible && anchorCross.index === "5",
+    `cross-tab leg measures section ${anchorCross?.index} at fraction ${anchorCross?.fraction?.toFixed(2)}`,
+  );
+  await page2.evaluate(() => {
+    localStorage.setItem(
+      "practice-map:code-size:v1",
+      JSON.stringify({ v: 1, size: "15", updatedAt: Date.now() }),
+    );
+  });
+  await wait(300); // the storage event → capture → render → restore
+  const restoredCross = await measureRestored(anchorCross);
+  const crossDelta = Math.abs(restoredCross.value - anchorCross.fraction) * restoredCross.height;
+  check(
+    crossDelta <= 2,
+    `a cross-tab size write keeps the fraction (Δ ${crossDelta.toFixed(2)}px of the restored ${restoredCross.height.toFixed(0)}px section)`,
+  );
+  const crossSize = await readSize();
+  check(
+    crossSize.attr === "15" && near(parseFloat(crossSize.fill), 15),
+    `the cross-tab write applied in page1 (attr=${crossSize.attr}, fill ${crossSize.fill})`,
+  );
+  await page2.close();
+  // cycle back to github so the downstream legs see the default voice
+  await page.click(".fr-size");
+  await wait(100);
+  await page.click(".fr-size");
+  await wait(100);
+  const crossBack = await readSize();
+  check(
+    crossBack.attr === "github" && near(parseFloat(crossBack.fill), 13.6),
+    `the cross-tab leg leaves github (attr=${crossBack.attr}, fill ${crossBack.fill})`,
+  );
+
   // composition (design D7): the pills are independent — free joins code,
   // code releases leave free alone, and both come back
   await page.click(".reading-modes button:nth-child(1)");
@@ -727,45 +912,6 @@ try {
   // (topVisible → px offset parity) and a deliberately mid-section position
   // (top above the edge → the fraction error converts to px via the
   // restored section height before the 2px tolerance)
-  const measureAnchor = () => page.evaluate(() => {
-    const scroller = document.querySelector(".practice-lesson-scroll");
-    const edge = scroller.getBoundingClientRect().top;
-    for (const el of scroller.querySelectorAll("[data-section-index]")) {
-      const r = el.getBoundingClientRect();
-      if (r.bottom <= edge) continue;
-      if (r.top > edge) break;
-      return {
-        index: el.dataset.sectionIndex,
-        topVisible: r.top >= edge - 0.5,
-        offset: r.top - edge,
-        fraction: (edge - r.top) / r.height,
-      };
-    }
-    return null;
-  });
-  const measureRestored = (idx) => page.evaluate((idx) => {
-    const scroller = document.querySelector(".practice-lesson-scroll");
-    const edge = scroller.getBoundingClientRect().top;
-    const el = scroller.querySelector(`[data-section-index="${idx.index}"]`);
-    const r = el.getBoundingClientRect();
-    return {
-      topVisible: idx.topVisible,
-      value: idx.topVisible ? r.top - edge : (edge - r.top) / r.height,
-      height: r.height,
-    };
-  }, idx);
-  // the chip's smooth scroll can outlive a fixed wait — settle on a stable
-  // scrollTop before measuring (a late tick would displace the landing)
-  const scrollSettled = async () => {
-    for (let i = 0; i < 20; i++) {
-      const a = await page.$eval(".practice-lesson-scroll", (el) => el.scrollTop);
-      await wait(120);
-      const b = await page.$eval(".practice-lesson-scroll", (el) => el.scrollTop);
-      if (Math.abs(a - b) < 0.5) return true;
-    }
-    return false;
-  };
-
   await page.click(".practice-reader-nav button:nth-child(6)");
   check(await scrollSettled(), "the chip's smooth scroll settles before the anchor landing");
   // posture 1: land section 5's top 0.25px inside the edge (crossing, top
@@ -858,6 +1004,14 @@ try {
     persisted?.v === 2 && persisted?.presentation === "code" && persisted?.free === false,
     `v2 record holds code after the toggles (${JSON.stringify(persisted)})`,
   );
+  // the size choice rides the same reload (§8.1 is a global record): land on
+  // 15 and expect it back after the reopen
+  await page.click(".fr-size");
+  await wait(100);
+  await page.click(".fr-size");
+  await wait(100);
+  const size15Set = await readSize();
+  check(size15Set.attr === "15" && near(parseFloat(size15Set.fill), 15), `size set to 15 for the persistence leg (attr=${size15Set.attr}, fill ${size15Set.fill})`);
   await page.reload({ waitUntil: "domcontentloaded", timeout: 150000 });
   check(await appears(".pg-card"), "map renders after reload");
   await page.click('[data-turn="next"]');
@@ -881,6 +1035,21 @@ try {
   check(
     (await page.$(".practice-reader-section.is-code")) !== null,
     "persisted code mode renders is-code sections after reload",
+  );
+  const sizeRestored = await readSize();
+  check(
+    sizeRestored.attr === "15" && near(parseFloat(sizeRestored.fill), 15) && near(parseFloat(sizeRestored.pre), 15, 0.1),
+    `the size choice survives the reload (attr=${sizeRestored.attr}, fill ${sizeRestored.fill}, pre ${sizeRestored.pre})`,
+  );
+  // cycle back to github so downstream legs stay default
+  await page.click(".fr-size");
+  await wait(100);
+  await page.click(".fr-size");
+  await wait(100);
+  const sizeReset = await readSize();
+  check(
+    sizeReset.attr === "github" && near(parseFloat(sizeReset.fill), 13.6),
+    `size cycled back to github for the downstream legs (attr=${sizeReset.attr}, fill ${sizeReset.fill})`,
   );
 
   // leave prose for the downstream (mobile) legs — a persisted code mode

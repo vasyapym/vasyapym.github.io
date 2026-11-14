@@ -23,6 +23,12 @@
   --reading-switch: 180ms;
 }
 
+/* §8.1 user size control: one token carries the reader's voice; default
+   absent/github keeps the exact 0.85rem */
+.practice-lesson-overlay[data-code-size="14"] { --gh-fs-code: 14px; }
+.practice-lesson-overlay[data-code-size="15"] { --gh-fs-code: 15px; }
+.practice-lesson-overlay[data-code-size="16"] { --gh-fs-code: 16px; }
+
 /* native scroll anchoring is OFF: the design assumed the fill's padding
    changes suppress it, but Chrome still adjusts (~one 1.5rem section gap
    measured) AFTER the explicit restore writes — the restore must be the
@@ -298,6 +304,9 @@
   .practice-lesson-tools { display: contents; }
   .practice-lesson-close { grid-column: 2; grid-row: 1; }
   .reading-modes { grid-column: 1 / -1; grid-row: 2; justify-self: start; }
+  /* the size control renders only in code mode, so phones get a third row
+     only there */
+  .fr-size { grid-column: 1 / -1; grid-row: 3; justify-self: start; }
 }
 
 /* ── code + free: the editable fill (both flags on) ─────────────────────────

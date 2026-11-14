@@ -11,7 +11,8 @@
   gap: 0.6rem;
 }
 
-.fr-controls button {
+.fr-controls button,
+.fr-size {
   border: 1px solid var(--ink-line-soft);
   /* Chrome-scale mono like every other overlay control; the wide sides and
      tracking give the label room instead of hugging the pill walls. */
@@ -26,7 +27,8 @@
   border-radius: 999px;
 }
 
-.fr-controls button:hover {
+.fr-controls button:hover,
+.fr-size:hover {
   border-color: var(--ink-accent);
 }
 
@@ -205,8 +207,10 @@
   }
 
   /* Narrow phones: the pill shares the header row with the close button —
-     trim its footprint so the lesson title keeps its reading width. */
-  .fr-controls button {
+     trim its footprint so the lesson title keeps its reading width. The
+     size pill trims with them (it joins the pair's row on its own row). */
+  .fr-controls button,
+  .fr-size {
     padding: 0.45rem 0.85rem;
     font-size: 0.62rem;
   }

@@ -78,7 +78,7 @@ function emit() {
   for (const l of listeners) l();
 }
 function onStorage(e: StorageEvent) {
-  if (e.key === null || e.key.startsWith(PREFIX)) emit(); // other tabs
+  if (e.key === null || e.key.startsWith(PREFIX) || e.key === CODE_SIZE_KEY) emit(); // other tabs
 }
 function subscribe(cb: () => void) {
   if (listeners.size === 0) window.addEventListener("storage", onStorage);
@@ -290,4 +290,81 @@ export function writeReadingMode(topicId: string, state: ReadingState) {
     free: state.free,
     updatedAt: Date.now(),
   });
+}
+
+/** The read-as-code text voice the reader picked (styleguide §8.1). */
+export type CodeTextSize = "github" | "14" | "15" | "16";
+
+// Global (not per lesson): one voice choice for the whole reader. The same
+// machinery — listeners, snapshot cache, memory fallback — serves it.
+const CODE_SIZE_KEY = "practice-map:code-size:v1";
+
+/** Cycle order: github (13.6, GitHub-exact) → 14 → 15 → 16 → github. */
+export const CODE_TEXT_SIZES: readonly CodeTextSize[] = ["github", "14", "15", "16"];
+
+export type CodeTextSizeRecord = {
+  readonly v: 1;
+  readonly size: CodeTextSize;
+  readonly updatedAt: number;
+};
+
+export function isCodeTextSizeRecord(x: unknown): x is CodeTextSizeRecord {
+  if (!x || typeof x !== "object") return false;
+  const o = x as Record<string, unknown>;
+  return (
+    o.v === 1 &&
+    (o.size === "github" || o.size === "14" || o.size === "15" || o.size === "16") &&
+    typeof o.updatedAt === "number"
+  );
+}
+
+function readCodeSizeRecord(): CodeTextSizeRecord | null {
+  const raw = getRaw(CODE_SIZE_KEY);
+  const cached = snapshotCache.get(CODE_SIZE_KEY);
+  if (cached && cached.raw === raw) return (cached.value as CodeTextSizeRecord | null) ?? null;
+
+  let value: CodeTextSizeRecord | null = null;
+  if (raw) {
+    try {
+      const parsed: unknown = JSON.parse(raw);
+      if (isCodeTextSizeRecord(parsed)) value = parsed;
+    } catch {
+      /* corrupt → absent */
+    }
+  }
+  snapshotCache.set(CODE_SIZE_KEY, { raw, value });
+  return value;
+}
+
+// Side-effect-free peek for hosts that must react to a store change before
+// React is notified (the anchor-parity subscribe wrapper): serves the
+// durable record or the memory fallback and guards it — no cache writes,
+// no emit. Same shape as peekReadingState.
+export function peekCodeTextSize(): CodeTextSize | null {
+  const raw = getRaw(CODE_SIZE_KEY);
+  if (!raw) return null;
+  try {
+    const parsed: unknown = JSON.parse(raw);
+    return isCodeTextSizeRecord(parsed) ? parsed.size : null;
+  } catch {
+    return null;
+  }
+}
+
+export function useCodeTextSize(): { size: CodeTextSize; hydrated: boolean } {  const record = useSyncExternalStore(
+    stableSubscribe,
+    () => readCodeSizeRecord(),
+    () => null, // server snapshot — renders as absent until hydrated
+  );
+  const hydrated = useSyncExternalStore(stableSubscribe, () => true, () => false);
+  return { size: record?.size ?? "github", hydrated };
+}
+
+export function writeCodeTextSize(size: CodeTextSize) {
+  writeRecord(CODE_SIZE_KEY, { v: 1, size, updatedAt: Date.now() });
+}
+
+export function nextCodeTextSize(current: CodeTextSize): CodeTextSize {
+  const at = CODE_TEXT_SIZES.indexOf(current);
+  return CODE_TEXT_SIZES[(at + 1) % CODE_TEXT_SIZES.length] ?? "github";
 }

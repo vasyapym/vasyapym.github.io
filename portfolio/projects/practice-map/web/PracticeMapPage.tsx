@@ -51,9 +51,14 @@ import {
   writeScrollProgress,
 } from "./lib/scrollProgress/storage";
 import {
+  nextCodeTextSize,
+  peekCodeTextSize,
   peekReadingState,
+  useCodeTextSize,
   useReadingMode,
+  writeCodeTextSize,
   writeReadingMode,
+  type CodeTextSize,
   type ReadingPresentation,
 } from "./lib/readingMode/storage";
 // last on purpose: after practice-map.css and freeReading.css, so the mode's
@@ -300,26 +305,34 @@ function LessonOverlay({
     };
   }, [topic]);
   const deep = topic.deepLesson ?? lazyDeep;
-  // presentationRef/freeRef carry the rendered state for the subscribe
-  // wrapper below: an external switch (another tab's write) must anchor
-  // like a local one, and the store callback fires BEFORE React re-renders
-  // — the DOM there is still the pre-change geometry. The refs ride the
-  // render (the useFreeReading textRef pattern).
+  // presentationRef/freeRef/codeSizeRef carry the rendered state for the
+  // subscribe wrapper below: an external switch (another tab's write) must
+  // anchor like a local one, and the store callback fires BEFORE React
+  // re-renders — the DOM there is still the pre-change geometry. The refs
+  // ride the render (the useFreeReading textRef pattern). Both record
+  // families (the per-lesson reading state and the global code voice) feed
+  // the same one-shot restore below.
   const presentationRef = useRef<ReadingPresentation | null>(null);
   const freeRef = useRef<boolean | null>(null);
+  const codeSizeRef = useRef<CodeTextSize | null>(null);
   const reading = useReadingMode(topic.id, () => {
     const next = peekReadingState(topic.id);
     const prev =
       presentationRef.current !== null && freeRef.current !== null
         ? { presentation: presentationRef.current, free: freeRef.current }
         : null;
-    if (
+    const stateTouchingCode =
       next !== null &&
       prev !== null &&
       (next.presentation !== prev.presentation || next.free !== prev.free) &&
-      (next.presentation === "code" || prev.presentation === "code") &&
-      scrollRef.current
-    ) {
+      (next.presentation === "code" || prev.presentation === "code");
+    const nextSize = peekCodeTextSize();
+    const sizeTouchingCode =
+      nextSize !== null &&
+      codeSizeRef.current !== null &&
+      nextSize !== codeSizeRef.current &&
+      presentationRef.current === "code";
+    if ((stateTouchingCode || sizeTouchingCode) && scrollRef.current) {
       readingAnchorRef.current = snapshotReadingAnchor(scrollRef.current);
     }
   });
@@ -327,6 +340,10 @@ function LessonOverlay({
   const free = reading.free;
   presentationRef.current = presentation;
   freeRef.current = free;
+  // The reader's code voice (styleguide §8.1) — global, not per lesson.
+  const codeSize = useCodeTextSize();
+  const size = codeSize.size;
+  codeSizeRef.current = size;
 
   const updateProgress = () => {
     const scroller = scrollRef.current;
@@ -399,6 +416,19 @@ function LessonOverlay({
       writeReadingMode(topic.id, next);
     }
   };
+  // Anchor parity for the code voice: a size change reflows the code-voice
+  // content — the fill children, and the example pre in the combined state —
+  // so the same capture applies while the presentation is code. In prose the
+  // size is inert: no capture. The cycle helper keeps the JSX pattern of
+  // directly-named handlers.
+  const changeCodeTextSize = (next: CodeTextSize) => {
+    const scroller = scrollRef.current;
+    if (scroller && presentation === "code") {
+      readingAnchorRef.current = snapshotReadingAnchor(scroller);
+    }
+    writeCodeTextSize(next);
+  };
+  const cycleCodeTextSize = () => changeCodeTextSize(nextCodeTextSize(codeSize.size));
 
   const goToSection = (target: number, scroll = true) => {
     const total = deep?.sections.length ?? 0;
@@ -620,9 +650,9 @@ function LessonOverlay({
   // holding the restored place. The delta is computed from live geometry,
   // so whatever the engine did between commit and read is absorbed. Both
   // capture paths (the local write and the external-switch wrapper) feed
-  // this one-shot restore. Keyed on both flags: a free flip inside code
-  // must restore too; ink-mode free flips never set an anchor, so the
-  // one-shot exits early.
+  // this one-shot restore. Keyed on all three flags: a free flip inside
+  // code and a code-voice size change must restore too; ink-mode free flips
+  // and prose size changes never set an anchor, so the one-shot exits early.
   useLayoutEffect(() => {
     const anchor = readingAnchorRef.current;
     if (!anchor) return; // prose↔free switches (and the first mount) never set one
@@ -639,7 +669,7 @@ function LessonOverlay({
       scroller.scrollTop += rect.top - edgeY + (anchor.fraction ?? 0) * rect.height;
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [presentation, free]);
+  }, [presentation, free, size]);
 
   useEffect(() => {
     const onHidden = () => {
@@ -670,7 +700,12 @@ function LessonOverlay({
   // ancestor (the card hover lift) would otherwise capture it as its
   // containing block and displace it out of the viewport.
   return createPortal(
-    <div className="practice-lesson-overlay" onClick={handleBackdropClick} role="presentation">
+    <div
+      className="practice-lesson-overlay"
+      data-code-size={codeSize.size}
+      onClick={handleBackdropClick}
+      role="presentation"
+    >
       {/* Stationary frame + keyed inner scroll body (the realm deep-reader
           repair): the panel itself never scrolls, so the header close button
           keeps its geometry on iOS Safari — content cannot run under it and
@@ -693,8 +728,11 @@ function LessonOverlay({
               presentation={presentation}
               free={free}
               hydrated={reading.hydrated}
+              size={codeSize.size}
+              sizeHydrated={codeSize.hydrated}
               onPresentation={changePresentation}
               onFree={changeFree}
+              onCycleSize={cycleCodeTextSize}
             />
             <button
               aria-label="Close lesson"

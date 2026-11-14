@@ -672,8 +672,10 @@
 
 /* free reading toggle (a guest button inside .fr-controls): the resting skin
    joins the register — bare label over a soft hairline. freeReading.css
-   untouched; these selectors outrank it. */
-.practice-lesson-tools .fr-controls button {
+   untouched; these selectors outrank it. The size pill shares the skin
+   (a .fr-size sibling in the tools slot, value-carrying: no aria-pressed). */
+.practice-lesson-tools .fr-controls button,
+.practice-lesson-tools .fr-size {
   min-height: 44px;
   border: 0;
   border-bottom: 1px solid var(--ink-line-soft);
@@ -684,7 +686,8 @@
   color: var(--ink-muted);
   transition: border-color 180ms ease, color 180ms ease;
 }
-.practice-lesson-tools .fr-controls button:hover {
+.practice-lesson-tools .fr-controls button:hover,
+.practice-lesson-tools .fr-size:hover {
   border-bottom-color: var(--ink-line);
   color: var(--ink-text);
 }
@@ -699,7 +702,8 @@
     height: 40px;
     min-width: 40px;
   }
-  .practice-lesson-tools .fr-controls button {
+  .practice-lesson-tools .fr-controls button,
+  .practice-lesson-tools .fr-size {
     min-height: 40px;
   }
 }
@@ -1056,16 +1060,20 @@
   font-size: 0.8em;
 }
 
-/* ---- callout: a marginal rule, not a box --------------------------------- */
+/* ---- callout: a quiet titled block ---------------------------------------
+   the marginal ochre rule is gone (owner's word, 2026-11): the muted ochre
+   title label carries the variant signal now, and the text joins the
+   section's shared 0.75rem edge (the F077 story). In read-as-code the
+   children keep the literal GitHub blockquote rule — governed by the fill,
+   untouched in readAsCode.css. */
 .practice-callout {
   --callout-mark: var(--lesson-mark);
   display: grid;
   gap: 0.4rem;
   min-width: 0;
   border: 0;
-  border-left: 2px solid var(--callout-mark);
   border-radius: 0;
-  padding: 0.1rem 0 0.15rem 0.9rem;
+  padding: 0.1rem 0 0.15rem 0.75rem;
   background: none;
 }
 
