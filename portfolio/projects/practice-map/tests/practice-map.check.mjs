@@ -109,10 +109,23 @@ try {
   // networkidle0 never settles on this dev app, and 45s of it times out.
   await page.goto(`${BASE}/projects/practice-map`, { waitUntil: "domcontentloaded", timeout: 150000 });
 
-  // The landing tier is muse-wonder-max (the owner ordered it FIRST; it is
-  // flat — 7 lessons < the 8+ fold threshold — so cards render directly).
-  // Folder-face coverage runs on the first foldered tier (astra-6-max).
+  // The landing tier is fable-5.2-max (the owner ordered it FIRST; it is flat —
+  // one lesson < the 8+ fold threshold — so cards render directly).
   check(await appears(".pg-card"), "map renders (first tier is flat — cards render directly)");
+  // The tier list PAGES at 5 rows (R040): 14 tiers → 3 pages (5/5/4); the pager
+  // is the last child, rows are picked by data-tier-id and exist only on their
+  // page (page 1 = rows 01–05, page 3 = the last four tiers).
+  check(await appears(".pg-tier-pager"), "tier list pages (pager renders)");
+  const pagerLabel = await page.$eval(".pg-tier-page-cue-text", (el) => el.textContent.trim());
+  check(pagerLabel === "page 1 of 3", `pager cue states the page (${pagerLabel})`);
+  const firstPageRows = await page.$$eval(".pg-tier-row", (rows) => rows.map((r) => r.querySelector(".pg-tier-index").textContent));
+  check(firstPageRows.join(",") === "01,02,03,04,05", `page 1 holds the first five global ordinals (${firstPageRows.join(" ")})`);
+  check(await page.$eval('[data-turn="prev"]', (el) => el.disabled), "prev arrow disabled on the first page");
+  // Folder-face coverage runs on the first foldered tier (astra-6-max, now on
+  // page 2 after the fable-first reorder).
+  await page.click('[data-turn="next"]');
+  await wait(300);
+  check((await page.$eval(".pg-tier-list", (el) => el.dataset.page)) === "2", "next turns to page 2");
   await page.click('.pg-tier-row[data-tier-id="astra-6-max"]');
   await wait(400);
   check(await appears(".pg-face-head"), "astra-6-max folds into folder faces");
@@ -122,18 +135,6 @@ try {
 
   // The thinking tier (opus-4.8-thinking) sorts LAST in the tier list — the
   // owner's fixed data order — and folds its 20 lessons into 5 volume faces.
-  // The tier list PAGES at 5 rows (R040): 12 tiers → 3 pages; the pager is the
-  // last child, rows are picked by data-tier-id and exist only on their page
-  // (page 1 = rows 01–05, page 3 = the last two tiers).
-  check(await appears(".pg-tier-pager"), "tier list pages (pager renders)");
-  const pagerLabel = await page.$eval(".pg-tier-page-cue-text", (el) => el.textContent.trim());
-  check(pagerLabel === "page 1 of 3", `pager cue states the page (${pagerLabel})`);
-  const firstPageRows = await page.$$eval(".pg-tier-row", (rows) => rows.map((r) => r.querySelector(".pg-tier-index").textContent));
-  check(firstPageRows.join(",") === "01,02,03,04,05", `page 1 holds the first five global ordinals (${firstPageRows.join(" ")})`);
-  check(await page.$eval('[data-turn="prev"]', (el) => el.disabled), "prev arrow disabled on the first page");
-  await page.click('[data-turn="next"]');
-  await wait(300);
-  check((await page.$eval(".pg-tier-list", (el) => el.dataset.page)) === "2", "next turns to page 2");
   await page.click('[data-turn="next"]');
   await wait(300);
   check((await page.$eval(".pg-tier-list", (el) => el.dataset.page)) === "3", "next turns to page 3");
@@ -150,19 +151,20 @@ try {
   check(cardCount === 4, `vol 01 renders its 4 lessons (${cardCount})`);
   // pagination invariants: the active tier's landing — with the thinking tier
   // active, the list rests on page 3; turning back shows the off-page cue
-  // suffix; the global ordinals never renumber. At 12 tiers the tail page
-  // holds TWO tiers (gpt-6-sol-max, opus-4.8-thinking) — no more 1-row stub.
+  // suffix; the global ordinals never renumber. At 14 tiers the tail page
+  // holds FOUR tiers (opus-5.5-medium, opus-5-max, gpt-6-sol-max,
+  // opus-4.8-thinking) — no 1-row stub.
   check((await page.$eval(".pg-tier-list", (el) => el.dataset.page)) === "3", "active tier's page is current (tail landing)");
   const tailRows = await page.$$eval(".pg-tier-row", (rows) => rows.map((r) => r.querySelector(".pg-tier-index").textContent));
-  check(tailRows.join(",") === "11,12", `tail page holds the last two global ordinals (${tailRows.join(" ")})`);
+  check(tailRows.join(",") === "11,12,13,14", `tail page holds the last four global ordinals (${tailRows.join(" ")})`);
   // the short-page air dial (MIN_ROWS=2) only shows on a 1-row tail page;
-  // at 12 tiers the tail page holds 2 rows = the floor → no air anywhere.
+  // at 14 tiers the tail page holds 4 rows → no air anywhere.
   const air = await page.evaluate(() => {
     const rowH = parseFloat(getComputedStyle(document.querySelector(".pg-tier-list")).getPropertyValue("--pg-tier-row-h"));
     const mt = parseFloat(getComputedStyle(document.querySelector(".pg-tier-pager")).marginTop);
     return { rowH, mt, pad: mt / rowH };
   });
-  check(air.pad < 0.02, `2-row tail page carries no air (${air.mt}px = ${air.pad} rows)`);
+  check(air.pad < 0.02, `4-row tail page carries no air (${air.mt}px = ${air.pad} rows)`);
   await page.click('[data-turn="prev"]');
   await wait(300);
   check((await page.$eval(".pg-tier-list", (el) => el.dataset.page)) === "2", "prev returns to page 2");
@@ -1286,12 +1288,15 @@ try {
 
   // curriculum[0] is the Go area: one flagship card whose deep lesson carries
   // the full 19-section course.
-  // The Go flagship lives in the fable-5.1-low tier (row 06, page 2 of TIERS
-  // data order since muse-wonder-max joined first — the astra run leads the
-  // list per the owner's request: astra-6-max first, astra-6-medium second;
-  // the fable run follows). One prev turns from page 3 to page 2.
+  // The Go flagship lives in the fable-5.1-low tier (row 04, page 1 of TIERS
+  // data order — the fable run leads the list per the owner's request:
+  // fable-5.2-max first, then the other fables, astra, kimi, and the rest).
+  // Two prevs turn from page 3 back to page 1.
   await page.click('[data-turn="prev"]');
   await wait(300);
+  await page.click('[data-turn="prev"]');
+  await wait(300);
+  check((await page.$eval(".pg-tier-list", (el) => el.dataset.page)) === "1", "prev prev returns to page 1 (fable run)");
   await page.click('.pg-tier-list .pg-tier-row[data-tier-id="fable-5.1-low"]');
   await wait(400);
   // The tier leads with the English Go lesson (owner's EN-first rule); the
@@ -1382,15 +1387,16 @@ try {
   // domcontentloaded returns before React mounts — wait for the map first
   // (networkidle0 used to buy this implicitly).
   check(await appears(".pg-card"), "map renders at 390px (first tier is flat — cards)");
-  // Folder faces are covered on the first foldered tier (astra-6-max).
+  // Folder faces are covered on the first foldered tier (astra-6-max, page 2
+  // after the fable-first reorder).
+  await page.tap('[data-turn="next"]');
+  await wait(300);
   await page.tap('.pg-tier-row[data-tier-id="astra-6-max"]');
   await wait(400);
   check(await appears(".pg-face-head"), "astra-6-max folds into folder faces at 390px");
   // The pinned-close / copy-button laws were tuned on the Linux deep reader:
   // reach it the way the tier design does — thinking tier (last row), vol 01.
-  // The tier list pages at 5 rows: page to page 3 first, then pick the row.
-  await page.tap('[data-turn="next"]');
-  await wait(300);
+  // The tier list pages at 5 rows: turn to page 3 first, then pick the row.
   await page.tap('[data-turn="next"]');
   await wait(300);
   await page.tap('.pg-tier-row[data-tier-id="opus-4.8-thinking"]');
@@ -1519,11 +1525,12 @@ try {
   check(noOverflowNarrow, "no horizontal overflow on the map at 320px");
 
   check(await appears(".pg-card"), "map renders at 320px (first tier is flat — cards)");
+  // astra-6-max sits on page 2 after the fable-first reorder.
+  await page.tap('[data-turn="next"]');
+  await wait(300);
   await page.tap('.pg-tier-row[data-tier-id="astra-6-max"]');
   await wait(400);
   check(await appears(".pg-face-head"), "astra-6-max folds into folder faces at 320px");
-  await page.tap('[data-turn="next"]');
-  await wait(300);
   await page.tap('[data-turn="next"]');
   await wait(300);
   await page.tap('.pg-tier-row[data-tier-id="opus-4.8-thinking"]');

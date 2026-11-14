@@ -6781,6 +6781,856 @@ whenNot: "Урок не про многопользовательский про
     },
   },
 ];
+
+const tenDaysInMayTopics: readonly TopicCard[] = [
+  {
+    id: "ten-days-in-may-full",
+    title: "Ten Days in May",
+    summary: "JavaScript's ten days in 1995: Eich kept functions-as-values from Scheme and prototype borrowing from Self, dressed it all in Java's clothes, and ported java.util.Date with its habits — then shipping froze it, because a language in a browser can only be added to, never fixed.",
+    concepts: [],
+    practicePrompt: "In a console, build 6 January 2026 as new Date(2026, 0, 6), ask it getMonth() and getYear(), and write one sentence explaining why the answers are 0 and 126. Then produce the same date with getFullYear() and an ISO string, and note what the modern path answers instead.",
+    checkPrompt: "Without notes: name the two inside choices (functions as values, objects borrowing from objects) and the research language each came from, list what Java put on the outside, and say why the 1997 committee could write down but not fix what shipped in 1995.",
+    tier: 1,
+    complexity: 4,
+    references: [
+
+    ],
+    lesson: {
+problem: "JavaScript's oddities feel arbitrary: without the origin story you cannot tell which strange behaviours are deliberate core, which are Java's clothes, and which are a hasty port showing through.",
+model: "The lesson reads JavaScript as something small and Scheme-like wearing Java's clothes, written in ten days of choosing rather than inventing: functions as values from Scheme, objects borrowing from objects from Self, a Java-shaped surface because that was management's one requirement, and a Date ported wholesale from java.util.Date. Shipping froze it: a language in a browser is used the day it ships, so everything since could only be added, and almost every famous oddity is one of those facts showing through.",
+mechanics: "Functions-as-values, taken from Scheme, means a function is a value you can keep in a variable, hand to another function, or give to a button to be called later — which is why callbacks work everywhere. Prototype delegation, taken from Self, means objects borrow directly from other objects with no classes, because the second language had to stay small. The Java surface — curly braces, semicolons, the word new — exists because management's single requirement was that it look like Java, which ruled out Scheme, Perl, Python and Tcl. The primitive-wrapper split, plain strings and numbers beside capital-letter String and Number objects, is Java's own split, one Eich later listed among his regrets. The Date object was ported straight from java.util.Date because that was the fastest way to have dates at all, and it carried Java's counting months from zero and reporting years as distance from 1900 — hence new Date(2026, 0, 6) and getYear() saying 126. And the ship-freeze: a language in a browser is used the day it ships by people who never read release notes, so the June 1997 standard could only write down what was already there — January still at zero, the name ECMAScript because Sun owned JavaScript, and getYear() deprecated but still answered because a page from 1996 still asks.",
+pitfalls: [
+  "Reading the Java resemblance as deep kinship when only the clothes are Java's: the core is Scheme-like, not class-based.",
+  "Blaming JavaScript for zero-based months as a home-grown decision: the Date object was ported from java.util.Date, and the habit arrived with it.",
+  "Assuming the language was built around the name JavaScript when the name came after the fact, chosen for the same marketing reason as the braces.",
+  "Treating getYear() as a bug waiting for a fix: it is deprecated but every browser still answers it, because a page from 1996 is still asking — compatibility, not oversight.",
+  "Thinking the ten days produced the whole language: they produced choices, and everything added since sits on top of them.",
+  "Believing ECMAScript is a different language: it is the standard's name, forced because Sun owned the word JavaScript.",
+  "Calling prototype delegation an accident of haste when it was a deliberate belief borrowed from Self, unfashionable in 1995 and still underneath everything.",
+  "Expecting standardisation to change old behaviour: the committee wrote down what already existed, January at zero included, so nothing was fixed retroactively."
+],
+whenNot: "This is an origin story, not a Date tutorial or a general history: it does not teach modern date APIs, and it does not claim every strange corner of the language traces to those ten days."
+    },
+  },
+];
+
+const sameAddressTopics: readonly TopicCard[] = [
+  {
+    id: "same-address-full",
+    title: "The Same Address",
+    summary: "A New Game button that will not reset a chess board exposes the address model: let board = start copied an address, not a board. The lesson follows where copies reach — spread, Object.freeze, structuredClone, function arguments — and ends with === asking one question: same address?",
+    concepts: [],
+    practicePrompt: "Reproduce the stuck New Game in a console: build const start with one inner array, let board = start, mutate board, and confirm start moved with it. Then try the spread copy [...start], watch the inner array stay shared, and finish with structuredClone(start), checking that board === start is now false while every square still agrees.",
+    checkPrompt: "Without peeking: say what a variable holds (a value or an address), why const does not protect the object at the other end, why the spread and Object.freeze are both shallow, and why a function handed board can move pieces but cannot re-point the caller's variable.",
+    tier: 1,
+    complexity: 4,
+    references: [
+
+    ],
+    lesson: {
+problem: "A reset button silently does nothing: reassigning the constant to the variable leaves the old pawn on e4, and nothing in the code looks wrong, because nothing tells you the assignment copied an address rather than a board.",
+model: "A variable holds either a value or the address of an object, and assignment copies only that: let board = start copied one address, so there was never a second board, and changing one name changes what both see. const guards the variable — start = [] throws — and never the nine arrays at the other end of the address.",
+mechanics: "Assignment copies the address and nothing else: the engine built the nine arrays once, gave start the address, and let board copied it, so there was never a second board and a move on one is a move on both. const guards only the variable: start = [] throws a TypeError on the spot, while the nine arrays at the other end were never its business. The spread builds a new outer array at a new address and copies eight addresses into it, so each rank is still the one rank — and Object.freeze freezes one array the same way, the eight behind it as writable as before. structuredClone follows every address it finds and builds a fresh object at the end of each (every browser since March 2022; before that, the JSON round-trip returned dates as strings). A parameter is one more variable holding the same address: play can move a piece the whole program will see, but cannot make the caller's board point anywhere else — Liskov's group at MIT named the arrangement call by sharing. And === compares strings as themselves — a string sits in the slot itself, and toLowerCase hands back a new one — while asking objects a single question, «same address?», which is why board === start was true during the bug and false after a clone that agrees on all sixty-four squares.",
+pitfalls: [
+  "Believing const freezes what it points at: it only stops re-pointing the variable; the arrays at the other end keep all their rights.",
+  "Calling the spread result a real copy: it is new on the outside only, and the eight inner ranks are still the one rank, shared.",
+  "Reaching for Object.freeze to protect a nested structure: it is shallow in exactly the same way as the spread.",
+  "Expecting two boards with equal contents to be ===: the operator asks «same address?», not same squares — a clone is deliberately false.",
+  "Assigning to a parameter and expecting the caller to see it: the callee can change what the address points at, but never where the caller's variable points.",
+  "Treating strings as objects at an address: a string sits in the slot itself, so copying the slot gives two of them and nothing can alter either.",
+  "Hunting for which name is the copy: there is no copy and no original — two variables hold one address, and that is the whole story.",
+  "Trusting the pre-2022 JSON workaround as lossless: dates came back as strings, and only what JSON could say survived the trip."
+],
+whenNot: "The lesson describes how the language actually behaves, not what to prefer: it does not rule that structuredClone is always the right reset, and it does not say how addresses are laid out in real memory."
+    },
+  },
+];
+
+const itNeverGuessesTopics: readonly TopicCard[] = [
+  {
+    id: "it-never-guesses-full",
+    title: "It Never Guesses",
+    summary: "A visit counter that turns 1 into 11 into 1111 shows JavaScript never guesses: mixed types meet a short fixed rulebook. The lesson walks the + rule, the numeric table behind minus, the two nothings null and undefined, the three rules of ==, and the eight falsy values of if.",
+    concepts: [],
+    practicePrompt: "Rebuild the counter bug in a console: read null under the key visits, run visits + 1 and write the result back as a string, three times, and watch 1 become 11 become 1111. Then repair it with Number(visits) + 1 and confirm that null still becomes 0, so the first visit counts as one.",
+    checkPrompt: "Without peeking: state the one question the + rule opens with, what the minus sign makes of '111', why null + 1 is 1 while an unset field + 1 is NaN, and recite at least five of the eight falsy values.",
+    tier: 1,
+    complexity: 4,
+    references: [
+
+    ],
+    lesson: {
+problem: "A counter that should show 1 shows 11, then 1111, and the results look like the engine guessing or malfunctioning — so you can neither predict them nor trust a fix until you know the rulebook it is reading.",
+model: "JavaScript never guesses: given two things of different types it follows a short, fixed rulebook, and the results people call weird are the rulebook working exactly as written. + has one preference, strings, because it does two jobs; every other arithmetic sign makes numbers via a table that keeps the two nothings apart — the deliberate null counts as zero, the accidental undefined is not a number at all.",
+mechanics: "The + rule opens with one question — «is either side a string?» — because + does two jobs, adding and joining, and a string on either side means joining; otherwise both sides become numbers from a table whose row for null says zero, which is how the first visit made null + 1 into 1. Every other arithmetic sign has one job and makes numbers of what it is handed, so '111' - 1 is 110, and Number(visits) is that very conversion asked for by name. The engine keeps the two nothings apart: null is a nothing someone put there on purpose and counts as zero, while undefined is what the engine itself hands over when nothing was ever put there, and undefined + 1 is NaN. typeof converts nothing and only reports, saying 'object' for null because the first implementation kept a kind tag in a value's lowest bits, objects had tag zero, and null was stored as the zero pointer — a correction proposed for the 2015 standard was turned down because pages depended on the answer. == reads a three-rule book: same types compare as === would, null and undefined equal each other and nothing else, and what remains compares as numbers, which is why the empty string equals 0 and '0' equals false. An if reads a shorter table of eight falsy values — false, 0, -0, 0n, the empty string, null, undefined and NaN — so an empty array, an empty object and the five-character string 'false' all count as true.",
+pitfalls: [
+  "Reading the growing 1111 as the engine misbehaving: the rulebook was applied with the same diligence each visit, and the string preference is the whole cause.",
+  "Trusting storage output as a number: the write-back stores the digits as a string, so the second read feeds a string into + and joining begins.",
+  "Assuming null and undefined are interchangeable in arithmetic: the deliberate nothing counts as zero, the accidental one is NaN, and they have never been confused.",
+  "Treating typeof null as a live bug to report: it is the tag-bits history, the 2015 correction was rejected, and pages depend on the answer.",
+  "Writing if (visits) over a stored '0' and expecting false: a string with a character in it is truthy, even when that character is a zero.",
+  "Believing empty containers are falsy: an empty array and an empty object are not on the eight-value list and count as true.",
+  "Testing for missing values against 0 or the empty string with ==: null and undefined equal each other and nothing else — visits == null is the line that catches both nothings.",
+  "Supposing the string 'false' counts as false: the engine sees five characters and does not read them.",
+  "Repairing the counter at the read alone: the conversion must happen before the +, which is why the fix is Number(visits) + 1."
+],
+whenNot: "The lesson explains the tables behind +, ==, typeof and if, not whether they are good design: it does not tell you to always reach for strict equality, and it does not cover every coercion corner in the language."
+    },
+  },
+];
+
+const whereItWasWrittenTopics: readonly TopicCard[] = [
+  {
+    id: "where-it-was-written-full",
+    title: "Where It Was Written",
+    summary: "cache.js runs in a millisecond, yet weeks later report returns millions: a function keeps the place it was written, and the place survives while anything can reach it. From Node's invisible file-wrapper to the var and let loop, to closures as the language's only privacy.",
+    concepts: [],
+    practicePrompt: "Put a counter and a getter inside a function, return both as closures, and confirm the count survives the call that created it — then hand a copy of the counter at startup instead and watch the getter still say zero. After that, push three arrow functions capturing i from a var loop and from a let loop, call them, and name the standard's mechanism for the difference.",
+    checkPrompt: "Without peeking: say what Node wraps every CommonJS file in, what a function holds when it is written (the record, not the values), why a resize handler that reads only a filename can retain eighty megabytes, and what CreatePerIterationEnvironment does for a let loop.",
+    tier: 1,
+    complexity: 4,
+    references: [
+
+    ],
+    lesson: {
+problem: "State written once at startup keeps counting weeks later, and every function pushed in a loop reports the same final i — nothing in the code shows who holds what, or for how long, so both the module pattern and the memory leak look like magic.",
+model: "A function keeps a reference to the place it was created — the engine's record of that call's variables — and can see it long after the call returned. The record is not thrown away because a call returned: things go when nothing can reach them, so get and report hold the same record, hits is one slot in it, and there is one hits, where it was written.",
+mechanics: "Node does not run a file as a file: it wraps the text in a function with the parameters exports, require, module, __filename and __dirname and calls it, so store and hits are local variables of a call that returned three weeks ago, not globals and not properties. When a call begins, the engine makes a record of that run's variables, and a function written during the run is given, along with its code, a reference to that record — not the values in it, the record. Nothing is thrown away because a call returned; things go when nothing can reach them, and three functions can reach this record, which is why report returns the number hits holds now rather than the zero it held at startup. The loop beginners are told is a bug is the same fact in one place: var gives that run one i, the three pushed functions each look up i where they were written and find 3, while let triggers CreatePerIterationEnvironment — a new record before each pass with the counter copied in — yielding 0, 1, 2. For most of the language's life this was its only privacy and its only module system — no modules until 2015, no private fields until 2022, Crockford's 2001 pattern, browser scripts wrapped and called on the spot, Node automating the wrap in 2009 — so a map becomes unreachable from outside the file except through its three functions. And the record is kept whole: the resize handler that mentions only the filename holds the entire place, so the eighty megabytes of rows live as long as the window, and the profiler is right.",
+pitfalls: [
+  "Saying a closure captures the variables it uses: it holds the entire record of the place it was written, including names it never mentions.",
+  "Believing a returned call's variables die with the call: things go when nothing can reach them, and the three functions can reach the record.",
+  "Handing get a copy of hits at startup and expecting real state: it would spend three weeks adding one to a private zero while report, with a copy of its own, says zero.",
+  "Blaming the pushed arrow functions for the var loop's 3, 3, 3: var gives the enclosing run one i, and each function finds it exactly where it was written.",
+  "Crediting let with scoping magic: the mechanism is CreatePerIterationEnvironment — a new record per pass with the counter copied into it.",
+  "Calling module state global or a property of something: store and hits are locals of a function call that returned, made so by Node's invisible wrapper.",
+  "Expecting a small function to release the big data around it: the resize handler that reads only the filename retains the whole record, eighty megabytes included.",
+  "Imagining a closure copies values at creation time: it holds a reference to the record, so it sees the number hits holds now, not the zero it held when the file ran.",
+  "Adding keywords for privacy where closures already give it: the map cannot be reached from outside the file except through its three functions, and nothing had to be declared private."
+],
+whenNot: "The lesson explains reachability and retention, not how to write ES modules or #private fields — it only notes when those arrived — and it does not claim a closure keeps a call's record forever, only for as long as any function holding it is reachable."
+    },
+  },
+];
+
+const theDotTopics: readonly TopicCard[] = [
+  {
+    id: "the-dot-full",
+    title: "The Dot",
+    summary: "A clock stops at zero because setInterval(clock.tick, 1000) detaches the method: the lesson follows the dot through its two jobs — finding tick up the prototype chain and deciding who this is for one call — and shows the arrow and bind repairs.",
+    concepts: [],
+    practicePrompt: "Rebuild the six-line Clock, hand setInterval(clock.tick, 1000) and watch window.seconds turn into NaN while the clock stays at 0; then repair it twice — once with an arrow that keeps the dot, once with bind — and verify that only clock.seconds counts.",
+    checkPrompt: "Be able, without notes, to name the two things the dot does in clock.tick() and the object each concerns; explain why a detached tick() puts the window on the left in non-strict code but throws in a class body; write both repairs from memory.",
+    tier: 1,
+    complexity: 4,
+    references: [
+
+    ],
+    lesson: {
+problem: "A page silently misbehaves: the timer runs, the console stays clean, and the count ends up on the window instead of on the clock — nothing in the code points at where it went wrong.",
+model: "A method is an ordinary function value that carries no note about the object it was found through; the dot does the finding and, at each call, decides that this means the thing on its left — for that one call only.",
+mechanics: "The search: clock has one own property, seconds, and a link to Clock.prototype, where the class put tick — one copy shared by every clock there will ever be — and the dot follows links one step up, and the next, until one points at nothing. The decision: as the dotted call begins, this means clock, the thing on the left where the search began, not the prototype where the function was found. The detachment: handing clock.tick to the timer passes the function alone, because a function is a value and records nothing about which object it was found on behalf of. The bare call: the timer's call has no dot, so the browser puts the window on the left, this.seconds reads undefined, and undefined + 1 writes NaN onto a property nobody asked for — while the clock's own seconds is never read or written, so it stays 0 because it is 0. The strictness: a class body is strict code, so const tick = clock.tick; tick() throws at once instead of inventing a receiver, while non-strict code substitutes the global object — which is how a generation of detached methods wrote their fields onto the window without a sound. The repairs: an arrow has no this of its own, settled where the arrow was written like any other name, so wrapping the dotted call loses nothing because it had nothing to lose; bind returns a new function that always puts the clock on the left.",
+pitfalls: [
+  "Saying the method forgot which clock it belonged to, when it never knew and nothing about it changed.",
+  "Expecting this inside tick to mean Clock.prototype, because that is where the dot found the function.",
+  "Believing each new Clock() gets its own copy of tick instead of borrowing one shared function on the prototype.",
+  "Reading setInterval(clock.tick, 1000) as a dotted call that merely runs later.",
+  "Treating the clean console and the clock stuck at 0 as proof the timer never ran.",
+  "Expecting an arrow handed to a timer to lose its this, when it had nothing to lose.",
+  "Calling the NaN on the window a bug in setInterval rather than the fate of a receiver-less call.",
+  "Treating class as a new runtime mechanism instead of a shorter way to write the prototype arrangement, taken from Self by way of classes removed from Smalltalk."
+],
+whenNot: "The lesson covers property lookup, this at call time and the two repairs; it does not explain constructors, super or private fields, and it does not claim an arrow is always the right fix."
+    },
+  },
+];
+
+const laterTopics: readonly TopicCard[] = [
+  {
+    id: "later-full",
+    title: "Later",
+    summary: "A refresh button becomes a tour of never waiting: fetch hands slow work to the host, await attaches the rest of the function to a promise and returns, and two queues — short for promise follow-ups, long for everything else — decide what the one thread does next.",
+    concepts: [],
+    practicePrompt: "Write the dim-then-fetch handler, add console.log notes between its pieces and around a setTimeout(refresh, 0), press Refresh while scrolling the page, and read the printed order to confirm the thread repainted and handled the scroll instead of waiting.",
+    checkPrompt: "Be able, without notes, to say what await does besides waiting, why the dimmed list is only seen to dim at the next repaint, and which queue promise follow-ups read ahead of clicks — and to write the one-line idiom for waiting a second and say who actually does the waiting.",
+    tier: 1,
+    complexity: 4,
+    references: [
+
+    ],
+    lesson: {
+problem: "Waiting looks like the one thing a single-threaded language cannot do: a naive mental model freezes the whole page during every request, and no line of code seems able to pause for a second.",
+model: "JavaScript does one thing at a time and never waits: anything slow is handed to the host it lives in, and the answer comes back as a note in a queue, read when the current work is finished — a promise is simply the object that stands in for the answer until it arrives.",
+mechanics: "The handoff: fetch is not JavaScript — the language has no network, no screen and no clock that can call it back — so the request goes to the browser's network code on its own threads, and what comes back at once is a promise with nothing in it yet. The attach: await does two things, neither waiting — it pins the rest of the function to the promise as what to do once it is settled, then returns, so the handler is over as far as the thread is concerned. The free thread: for the next two hundred milliseconds the queue is served — a repaint makes the dim visible, a scroll is handled — because the rest of the function is pinned to a promise, not to the thread, so there was nothing on the thread to freeze. The short queue: promise follow-ups are read to the end before the thread returns to the long one, so the rest of the handler runs ahead of any click that arrived meanwhile. The timing notes: a setTimeout note goes to the end of the queue when it is written, so zero milliseconds still means later — after whatever is already there. The sleep idiom: await new Promise(r => setTimeout(r, 1000)) asks the host for a note in a second, leaves, and the browser's clock — not JavaScript — does the waiting.",
+pitfalls: [
+  "Reading await as a pause that blocks the thread instead of attach the rest, then return.",
+  "Believing fetch performs the network work itself instead of handing the request to the host.",
+  "Expecting the dimming to appear at once rather than when the thread next repaints.",
+  "Assuming a setTimeout with zero milliseconds runs immediately, ahead of the work already queued.",
+  "Thinking clicks made during a long sort are dropped rather than written down and handled in order afterwards.",
+  "Placing the rest of an async function on the thread instead of pinned to a promise.",
+  "Calling the event loop part of the language, when the standard only requires follow-ups to run in order — the loop is the host's, libuv in Node.",
+  "Treating then-chains and await as different machinery when only the place the rest is written changed — underneath instead of inside."
+],
+whenNot: "The lesson covers one-thread scheduling for timers and fetches; it does not take up rejection handling, cancellation or workers, and it does not claim the two queues are the whole of the browser's ordering rules."
+    },
+  },
+];
+
+const theReaderTopics: readonly TopicCard[] = [
+  {
+    id: "the-reader-full",
+    title: "The Reader",
+    summary: "A red underline under amount: '12.50' introduces the compiler as a reader: it checks types against uses before anything runs, then erases every trace — which is why a Line[] annotation cannot vouch for JSON, and why enum and Node's space-stripping are the interesting edges.",
+    concepts: [],
+    practicePrompt: "Declare Line and total(lines: Line[]): number, break it with amount: '12.50' to see the underline, then run tsc and open the emitted invoice.js to find what became of the types; repeat with an enum and look for what got written into the output.",
+    checkPrompt: "Be able, without notes, to say why the browser loading invoice.js cannot check that an amount is a number; name the one famous exception to erasure and what it writes instead; and describe what Node does with : number in a .ts file since January 2025.",
+    tier: 1,
+    complexity: 4,
+    references: [
+
+    ],
+    lesson: {
+problem: "A red underline appears while nothing has run and the file has not been saved, and it is unclear who is reading the line as typed, what they know, and where the types go once the program actually runs.",
+model: "TypeScript is a reader, not a runtime: it reads the program as text before it runs, holds each declared type against every use it can see, argues about what could go wrong — and then removes every trace of itself, so the JavaScript that runs has never heard of the types.",
+mechanics: "The check: '12.50' has quotes, amount was declared a number, they cannot both be right — so the reader says so under the word, while having no view on whether 12.50 is the price of stamps. The split: objecting and writing the output are separate jobs joined only by a flag called noEmitOnError, so tsc would have written invoice.js even with the quotes still in. The erasure: the emitted function begins function total(lines) { — the types are not shortened, not encoded, not in it — which is why the browser that loads it cannot check an amount is a number. The hole: a parsed server response declared Line[] is accepted without argument, because what the server will send is not written anywhere the reader can read, so if the amounts arrive quoted the program adds strings end to end and nothing objects. The exception: enum Direction { Up, Down } needs an answer at run time, so the compiler writes a small object of its own, Direction[Direction[«Up»] = 0] = «Up», code that came from TypeScript rather than through it. The stripping: since 2025 Node blanks each type by overwriting it with spaces — no source map, because nothing has moved — keeps the columns so errors point at the character the author is looking at, stops at an enum, and TypeScript 5.8's erasableSyntaxOnly refuses the enum first so what reaches Node can be erased without being read.",
+pitfalls: [
+  "Expecting the reader to judge whether 12.50 is a sensible price; it checks type against use and nothing more.",
+  "Believing the emitted file carries the types in shortened or encoded form, when they are not in it at all.",
+  "Trusting a Line[] annotation to check the JSON at run time, when the check happened earlier, on text the browser will never see.",
+  "Assuming a type error stops emission by default, when objecting and writing are separate jobs joined only by noEmitOnError.",
+  "Forgetting the enum exception and expecting every construct to vanish without a trace.",
+  "Feeding Node an enum-bearing .ts file and expecting it to run; something must be put in place of the types rather than nothing, and Node stops.",
+  "Reading erasableSyntaxOnly as a correctness setting rather than a promise that what reaches Node can be blanked out without being read.",
+  "Assuming errors after stripping point into the file by luck, when the spaces keep the columns on purpose."
+],
+whenNot: "The lesson does not claim a provably correct type system — the designers named a balance between correctness and productivity — and it covers erasure and the JSON boundary, not generics, narrowing or build tooling."
+    },
+  },
+];
+
+const atLeastTheseTopics: readonly TopicCard[] = [
+  {
+    id: "at-least-these-full",
+    title: "At Least These",
+    summary: "A harbourmaster's fuel list becomes structural typing: a type is a set of possible values described by at-least-these property lists, longer lists mean smaller sets, and never, unknown, any and the fresh-literal extra-property check all fall out as harbour rules.",
+    concepts: [],
+    practicePrompt: "Define an interface with three required properties, pass an object literal that adds a misspelled fourth property and watch the excess-property warning appear; store the same object in a variable first and confirm the warning is gone once it is no longer fresh.",
+    checkPrompt: "Be able, without notes, to explain why a longer property list is a smaller set and which direction of assignment that allows; and to say at the harbour what never, unknown and any each admit, refuse, and cost.",
+    tier: 1,
+    complexity: 4,
+    references: [
+
+    ],
+    lesson: {
+problem: "With name-based typing in mind, TypeScript's approvals look arbitrary: an object full of extras passes, a misspelled key is suddenly an error, and never, unknown and any seem to obey different, unspoken rules.",
+model: "A type is a set of possible values, and an object type is the set of every object carrying at least the listed properties — at least these, not only these — so shape, not name, decides what fits, and a longer list means a smaller set.",
+mechanics: "The admission rule: the trawler, the yacht with a dishwasher and the lifeboat built by a yard that closed before the list existed all pass, because the list states what a boat must have aboard and nothing about what else she may carry. The subset rule: the overnight list is the fuel list plus an anchor, so every boat that may stay already qualifies for fuel and most boats at the pump may not stay — the smaller set lies entirely inside the larger, which fixes the direction of assignment. The shared list: the yacht club's board lists the same three things under its own heading, so two headings describe one set of boats and nobody telephones to confirm. The special sets: string | number is two sets put together; never is the berth for boats under four metres and over thirty, which picks out no boat at all — so whatever is tied there may move to any berth for free; unknown is the anchorage where everything may lie and nothing is admitted from it until someone rowed out and read the list. The day off: any is not a set but a decision not to look — fuelled and berthed by people who looked at nothing, yet still unable to reach the impossible berth. The fresh check: a boat being fitted out at the pump is also checked for what is not on the list, because a fresh literal built to a list has no reason to carry extras — a misspelling is the likeliest reading — and the moment she leaves the pump she may come back with a dishwasher.",
+pitfalls: [
+  "Reading a type as a club of named classes, when the lifeboat qualifies though nobody who built her ever saw the list.",
+  "Holding extra properties against a value the way the dishwasher was not held against the yacht.",
+  "Expecting the fresh-literal check to follow an object around after it has been assigned to a variable.",
+  "Taking the misspelling warning as noise rather than the checker's likeliest reading of an extra property on a fresh literal.",
+  "Believing a longer list is a bigger type, when more requirements admit fewer boats.",
+  "Assigning from the fuel set to the overnight set, the one direction the subset rule forbids.",
+  "Treating unknown as another any: everything may lie in the anchorage, but nothing leaves without inspection.",
+  "Calling any a set of values and forgetting that even the unexamined boat cannot be tied at the impossible berth.",
+  "Imagining the impossible berth holds some strange boat, when the two conditions together pick out no boat at all."
+],
+whenNot: "The lesson does not claim every extra property is an error — the yacht's dishwasher passes — and it covers object shapes and the four special sets, not every corner of how unions and functions behave."
+    },
+  },
+];
+
+const insideTheIfTopics: readonly TopicCard[] = [
+  {
+    id: "inside-the-if-full",
+    title: "Inside the If",
+    summary: "A lesson in control-flow narrowing: the compiler knows a value by the routes reaching a line, so an early typeof return proves the type below without braces. One deleted assertion was redundant; the other stood where a check should be, and only a real check survives a form with no name.",
+    concepts: [],
+    practicePrompt: "In a form handler that reads two fields with form.get, delete an `as string` sitting under a typeof guard and confirm the compiler reports nothing; then delete one with no guard above it and read both errors it raises. Replace the second with a single typeof check that returns early, and verify by hovering that the value below is a plain string.",
+    checkPrompt: "Be able, without notes, to say what the compiler believes about a value below a returning typeof check and why the braces are not the boundary; to explain why an assertion changes nothing in the emitted JavaScript; and to reproduce the one test that disposes of both null and File at once.",
+    tier: 1,
+    complexity: 4,
+    references: [
+
+    ],
+    lesson: {
+problem: "Two identical-looking `as string` lines behave oppositely: one is a redundant repeat of a proof, the other is standing where a check should be and hides a crash until a real request arrives. Without a model of what the compiler knows and when, you cannot tell which deletion is safe.",
+model: "The compiler knows a value only through the routes by which the program can reach a line: it reads upward, strikes out what each `if` on the way has ruled out, and inside the branch the type is exactly what has been proved — nothing more, nothing assumed.",
+mechanics: "Route-based narrowing is the engine: asked what a value is, the compiler starts at the line and reads upward along every route that could arrive there, and a branch below an `if` that returns is its else whether or not anyone wrote the word, because the routes were always the boundary. An assertion is a sentence addressed to the compiler alone: it inspects no value and is stripped with the types before the program runs, so the JavaScript is byte-identical with or without it — it can repeat a proof the compiler already made, or stand in for a check that never happens, and the TypeError arrives only when the missing field does. One typeof check disposes of two members at once because `typeof null` reports `object` and a File is an object too, so a test for not-a-string strikes out both `null` and `File`, leaving exactly a string. The remainder is exact: handle `null` in the else and what is left is File, handle that too and nothing is left — `never` — and a line there that accepts only `never` is how a program finds out, before it runs, that a type it owns has grown a fourth possibility. The three possibilities for form.get come from a declaration file, a description of the browser written out as types, not from the page: the compiler has never seen the form, so it can only know a field might be a text box, a file picker, or absent.",
+pitfalls: [
+  "Treating an assertion as a test that inspects the value when the program runs.",
+  "Deleting a guard-shaped assertion and assuming the check still exists somewhere in the emitted code.",
+  "Writing a null-only check and expecting the File member to disappear with it, because a file picker called name is unlikely.",
+  "Believing the braces mark where a narrowed type ends instead of the routes that reach the line.",
+  "Expecting the compiler to know what the form actually contains rather than what the declaration file says of FormData.",
+  "Writing the work inside `if (typeof name === 'string')` and assuming the compiler reads it differently from an early return.",
+  "Supposing a proved type says more than it does: a string may still be empty or nobody's name.",
+  "Reading `never` in the leftover branch as dead code rather than a tripwire that fires when the type grows a new member."
+],
+whenNot: "The lesson is about one form handler and two deleted lines, not a verdict on every assertion; it does not claim an `as` is always a bug, only that each must either repeat a proof the compiler already made or carry a reason of its own."
+    },
+  },
+];
+
+const holeInTheTypeTopics: readonly TopicCard[] = [
+  {
+    id: "hole-in-the-type-full",
+    title: "The Hole in the Type",
+    summary: "A lesson on generics — Hejlsberg objected to Java's erased casts in 2003, then TypeScript 0.9 erased its own anyway: a type parameter is a hole the compiler fills by inference, a constraint shapes it, one function runs for every call, and the typed promise reaches as far as reading can see.",
+    concepts: [],
+    practicePrompt: "Write a generic first function over an array and call it on arrays of two different element types without annotating either call, checking by hovering that each result carries the right element type. Then make the array empty, turn on noUncheckedIndexedAccess, and watch the same body refuse to compile until the return type admits undefined.",
+    checkPrompt: "Be able, without notes, to say what a type parameter promises and who usually fills the hole; why TypeScript erased its generics after Hejlsberg had criticized Java for erasure; and what one function at run time means next to a C++ template.",
+    tier: 1,
+    complexity: 4,
+    references: [
+
+    ],
+    lesson: {
+problem: "You write `<T>` and cannot say what it is, because nothing that runs is ever one — and TypeScript's own erasure looks exactly like the Java design Hejlsberg spent 2003 objecting to, so the idea seems to contradict its own history.",
+model: "A generic is a type with a hole in it: the parameter is not a type but the place a type will go, named in the angle brackets and used in the signature, and the promise is that whatever relationship goes in comes out intact — with the compiler, not you, filling the hole from the argument.",
+mechanics: "Inference fills the hole: given a playlist of Track[] laid against T[], the compiler sets T to Track, so the result is a Track, a wrong property like nowPlaying.second is an error, and nothing was annotated between the signature and the mistake because the signature is the edge. The shape of the declaration is the whole promise: a shuffle typed as `<T>(xs: T[]): T[]` says the same things come back reordered, with T used twice and nothing more written. A constraint gives the hole a shape: `<T extends { length: number }` accepts only things with a length, which is why .length may be used inside and a number is refused. Erasure deletes the hole with everything else: the compiler checks the T and then writes out JavaScript in which no T ever was — not even Java's inserted casts, there being nothing to insert them for — because the founding decision was that types add nothing to a language that since 1995 could only be added to. One function runs for every call there will ever be, not a copy per type as in C# or macro-like C++ templates, because a JavaScript function had always taken what it was given and `<T>` is merely the compiler's name for that whatever. The promise travels only as far as reading can see: on an empty playlist xs[0] is undefined yet typed Track, the compiler could demand T | undefined at every index in every loop, and noUncheckedIndexedAccess — added in November 2020, outside strict because it might be noisy — is the opt-in notch that makes first refuse to compile until its return type says so.",
+pitfalls: [
+  "Reading TypeScript's erased generics as the Java mistake repeated, without noticing there was nothing to insert casts for.",
+  "Writing first<Track>(playlist) by hand out of habit when inference already laid the argument against T[].",
+  "Expecting a separate version of the function to be manufactured for each type, the way a template would.",
+  "Trusting the Track on an empty array's first element as if the type guaranteed a value is there.",
+  "Believing the running program could inspect T, when the emitted JavaScript contains no T at all.",
+  "Reading an extends constraint as widening what is accepted rather than narrowing it to things with a length.",
+  "Calling the missing undefined on xs[0] an oversight instead of a chosen notch on the typing dial.",
+  "Calling the parameter a type rather than the place a type will go."
+],
+whenNot: "The lesson is the story of one design decision, not a generics tutorial; it does not cover conditional types, infer, or type-level programming, only the hole, its inference, its constraint, and its erasure."
+    },
+  },
+];
+
+const typescriptSeniorDefinitionsTopics: readonly TopicCard[] = [
+  {
+    id: "typescript-senior-definitions-full",
+    title: "Senior TypeScript: the definitions",
+    summary: "A compact glossary of senior TypeScript from the foundations — type as a set, erasure, structural typing, inference — through edge types, narrowing, generics, variance and soundness, classes, and the runtime boundary; each entry pairs a plain definition with the detail that marks a senior answer.",
+    concepts: [],
+    practicePrompt: "Pick five entries from different sections — say type erasure, discriminated union, `satisfies`, contravariance, and runtime validation — and write a two-sentence answer for each in your own words. Then compare against the entry and mark whether you included the senior detail: what is erased, what is merely checked, and what survives to run time.",
+    checkPrompt: "Be able, without notes, to define a type as a set of values and derive assignability, intersection, and never from that model; to say for any keyword whether it emits anything at run time; and to give the senior detail for the edge types — unknown as the top, never as the bottom, void versus undefined.",
+    tier: 1,
+    complexity: 4,
+    references: [
+
+    ],
+    lesson: {
+problem: "Knowing a keyword's name is not knowing the concept: a code review or interview asks what erasure, variance, or `satisfies` actually change, and a half-remembered definition collapses at exactly the point where the senior detail lives.",
+model: "One model carries the whole list: a type is the set of values it admits, so assignable means subset, an intersection demands more and therefore admits fewer, never is the empty set, and unknown is everything — and each entry adds the single detail that separates a junior answer from a senior one.",
+mechanics: "The set model does the arithmetic: `number` is all numbers, a literal type is a set of one member, A is assignable to B means A is a subset of B — which is why an intersection `A & B` looks like more but is a smaller set, and never vanishes from a union the way zero vanishes from a sum. Erasure is the master rule downstream of everything: TypeScript `private`, the readonly of `as const`, and a branded tag are compile-time bans the engine never enforces, while enums and `#name` fields emit real runtime objects — so which rules survive decides what you may rely on. Narrowing works by control-flow analysis: typeof, instanceof, `in`, equality and truthiness refine a value inside a region, a guard typed `value is T` is believed without the body being verified, and assigning the leftover branch to never turns exhaustiveness into a compile error the day someone adds a member. The type level is a small functional language: `keyof`, indexed access, mapped and conditional types with `infer` as pattern matching, distributivity running a conditional once per union member with a tuple wrapper to switch it off, and utility types like Partial as one-liners a senior candidate writes from scratch. Variance follows positions, not vibes: producers are covariant, consumers are contravariant, mutable arrays ought to be invariant but are treated covariant, method-syntax parameters stay bivariant for compatibility — and each of these, plus `any`, assertions, and unchecked index lookups, is a named place where TypeScript lets falsehoods through on purpose. The runtime boundary makes tooling necessary rather than optional: erasure is why `.d.ts` files describe JavaScript that lives elsewhere, why schema libraries like Zod define the validator once and derive the type from it so the two cannot drift, and why isolatedModules matters when esbuild and swc strip types per file without checking them, leaving `tsc --noEmit` as the separate checking step.",
+pitfalls: [
+  "Treating an intersection as a bigger set because the object ends up with more properties.",
+  "Expecting TypeScript `private` or a readonly property to protect anything once the JavaScript is running.",
+  "Reaching for `any` on data of uncertain origin instead of unknown, and letting it contaminate everything derived from it.",
+  "Being surprised that a value-returning arrow function is allowed where a void-returning callback is expected.",
+  "Trusting a type guard the compiler never verified, though a wrong guard is a lie it will believe.",
+  "Using `as` as if it were a cast that converts or checks anything at run time.",
+  "Confusing `satisfies` with an annotation, which would replace the precise inferred type with the declared one.",
+  "Assuming arrays must be invariant for safety while the compiler keeps treating them as covariant.",
+  "Shipping a type annotation as the only proof of network data, forgetting erasure leaves nothing to vouch for it at run time."
+],
+whenNot: "This is a glossary, not a course: it states definitions and their senior details without worked examples, and it explicitly does not claim the type system is sound — several entries exist precisely to name the places where that guarantee is given up."
+    },
+  },
+];
+
+const typescriptConceptsDefinedTopics: readonly TopicCard[] = [
+  {
+    id: "typescript-concepts-defined-full",
+    title: "TypeScript — The Concepts, Defined",
+    summary: "A full vocabulary of TypeScript, from erasure and structural typing to the type-level machinery, defined so each concept can be stated precisely in an interview — closing with the judgment layer: where the language deliberately stops proving and how to keep the seams few.",
+    concepts: [],
+    practicePrompt: "Choose five definitions you cannot yet say cleanly — for instance type erasure, bivariance, homomorphic mapped types, satisfies, and the gradual typing contract — and write each as two spoken sentences: what it is, and what consequence it causes. Then check against the compiler whether your example code actually behaves the way your sentence claims.",
+    checkPrompt: "Without notes, define any, unknown, never, and void in one sentence each, explain why method parameters stay bivariant while function-typed properties do not, and say what satisfies does that neither an annotation nor an assertion does.",
+    tier: 1,
+    complexity: 4,
+    references: [
+
+    ],
+    lesson: {
+problem: "Daily TypeScript use builds recognition, not definition: asked what never is or why declaration merging works, most people gesture at behavior they have seen rather than stating the concept precisely.",
+model: "The lesson treats TypeScript as a vocabulary where every definition has the same shape: what the thing is, what it causes, and which quirk of the language it explains. Types exist only at compile time and are then erased, so each feature is either a proof the compiler makes or a promise the author takes responsibility for. The goal is being able to say each definition aloud — precise enough for a compiler engineer, plain enough for a newcomer — and to know where the system deliberately stops proving.",
+mechanics: "Type erasure strips every annotation, interface and generic during compilation, leaving only constructs with runtime semantics like enums and parameter properties — which is why an interface cannot survive an instanceof check and why runtime validation libraries exist. Assignability is the engine's one core relation: the compiler's entire job reduces to checking, at every boundary, that every value of S can be used where a T is expected, decided by shape rather than name. Control-flow analysis keeps a per-point record of what has been proven about a variable, so a typeof or discriminant check refines the type only inside the branch where the proof holds. Variance is measured per type parameter: method parameters stay bivariant even in strict mode so that Array of Dog remains assignable to Array of Animal, while function-typed properties get true contravariance — which is why declaring callbacks as properties buys stricter checking. Distributive conditional types apply a naked type parameter to each union member separately, which is why Exclude filters unions and why wrapping the parameter in a one-element tuple switches distribution off. And satisfies validates an expression against a contract without widening it, preserving the literal types a plain annotation would have destroyed.",
+pitfalls: [
+  "Treating types as runtime objects and trying an instanceof check against an interface that erasure has already removed.",
+  "Reading readonly as a guarantee of immutability, when it is shallow, erased at runtime, and only a promise checked through one reference.",
+  "Assuming structural typing allows extra properties everywhere, forgetting that fresh object literals face the excess property check to catch typos.",
+  "Declaring callbacks with method shorthand, then wondering why strictFunctionTypes enforces no contravariance on them.",
+  "Confusing void and never: a void result may exist but be ignored by callers, while a never function cannot return at all.",
+  "Using a double assertion through unknown as a routine escape, when it exists to be suspicious and routes around the comparability check entirely.",
+  "Believing satisfies or a const assertion freezes or validates data, when both change only what the compiler infers and emit nothing.",
+  "Letting recursive conditional types and enormous unions spend the type-level complexity budget: slower builds and errors nobody can read later.",
+  "Treating enum as the default for finite sets, though numeric enums are bidirectionally mapped and historically unsound, while literal unions erase cleanly."
+],
+whenNot: "This is a definitions course, not a tutorial: it does not walk through beginner syntax or build setup, and it does not claim TypeScript is sound — it names the holes as deliberate seams of a gradually typed system."
+    },
+  },
+];
+
+const pythonConceptsCompactTopics: readonly TopicCard[] = [
+  {
+    id: "python-concepts-compact-full",
+    title: "Python: Concepts as Compact Definitions",
+    summary: "A tour of Python as one-breath definitions with one key detail each: the object model and memory, functions and closures, classes and dunder protocols, typing and variance, concurrency under the GIL, data structure costs, errors and tooling, and a closing design vocabulary.",
+    concepts: [],
+    practicePrompt: "Pick ten concepts from this lesson and write each as a one-breath definition plus its one key detail, purely from memory. Then check each against the lesson, rewrite the missed ones, and reproduce the mutable-default and is-versus-equals traps in a REPL, explaining each failure in one sentence.",
+    checkPrompt: "Be able to state any concept from the lesson without peeking and attach its one decisive detail: the None sentinel for mutable defaults, LEGB and UnboundLocalError, the __eq__/__hash__ contract, the MRO-based meaning of super(), why lists are invariant but Sequences covariant, and when to use threads versus processes versus asyncio.",
+    tier: 1,
+    complexity: 4,
+    references: [
+
+    ],
+    lesson: {
+problem: "Without this vocabulary you can run Python but cannot explain its behaviour: mutable defaults, late-binding closures and UnboundLocalError feel like random landmines rather than consequences of one model.",
+model: "Python is a small set of nameable mechanisms, and each concept here is a one-breath definition plus the single detail that separates a mid-level speaker from a beginner. Objects are bound to names, names resolve by LEGB, syntax hooks into dunder protocols, and type checks happen outside the interpreter.",
+mechanics: "The object model keeps state in name bindings: every value is a heap object with identity, type and value, so mutability belongs to the object not the name — a tuple can hold a mutating list — and a mutable default argument is evaluated once at definition time, which is why all calls share one list and the fix is a None sentinel. Memory management runs on a reference count that frees at zero deterministically, while cycles never reach zero, so a generational GC scans containers; interning of small ints and some strings makes identity comparison accidentally True, which is why it is reserved for singletons like None, True and False. Name resolution is decided at compile time: assignment makes a name local for the whole function body, which is why reading and then assigning a global raises UnboundLocalError, and closures capture variables by reference and late-bound, so lambdas created in a loop all see the final i. The data model wires syntax to dunder protocols: defining __eq__ without __hash__ sets hash to None and makes instances unhashable, data descriptors take precedence over the instance __dict__ (hence property overriding instance attributes), and the C3-computed MRO gives super() its meaning — the next class in the instance MRO, which is what makes cooperative multiple inheritance work. Typing state lives outside the interpreter: annotations are ignored at runtime and checked by tools like mypy and pyright, and variance follows mutability — lists are invariant because they are mutable, Sequences covariant because they are read-only. Under the GIL only one thread executes Python bytecode at a time, so I/O-bound work goes to threads or asyncio and CPU-bound work to processes, while compound operations like x += 1 stay non-atomic and need locks.",
+pitfalls: [
+  "Saying assignment copies the value: variables are names bound to objects, and copies made by slicing or dict() are shallow by default.",
+  "Using is to compare values: interning makes small ints and some strings look equal by accident, and it breaks elsewhere.",
+  "Sharing a mutable default argument across calls: the list is created once at definition time, so all calls mutate the same object.",
+  "Creating lambdas in a loop and expecting each to capture its own i: closures are late-bound by reference and all see the final value.",
+  "Defining __eq__ without __hash__ and then storing instances in a set: the class silently becomes unhashable by design.",
+  "Assuming super() means the direct parent: it means the next class in the instance MRO, and cooperative bases must each call super().__init__.",
+  "Believing annotations are enforced at runtime: the interpreter ignores them, and only external checkers look at them.",
+  "Expecting list[Dog] to be accepted where list[Animal] is required: lists are invariant because they are mutable.",
+  "Parallelizing CPU-bound Python with threads: the GIL lets only one thread run bytecode, so use processes for true parallelism."
+],
+whenNot: "This is vocabulary and interview framing, not a tutorial: it does not teach language basics, walk through the standard library step by step, or cover any framework. It also describes CPython defaults — the GIL and runtime-ignored annotations — that alternative builds and tools change."
+    },
+  },
+];
+
+const typescriptCoreDefinitionsTopics: readonly TopicCard[] = [
+  {
+    id: "typescript-core-definitions-full",
+    title: "TypeScript: Core Definitions & Concepts",
+    summary: "Core TypeScript definitions, each paired with the senior stance on its contested point — unknown over any, unions of literals over enums, inference at boundaries, strict mode non-negotiable — closing on configuration and tooling, where interview depth is actually tested.",
+    concepts: [],
+    practicePrompt: "Pick three contested pairs the essay takes a stance on — any versus unknown, enums versus unions of literals, annotation versus satisfies — and write the two-sided answer for each: what the weaker choice is still for, and why the senior stance prefers the other. Then open a real file in your project and find one place where your own code violates the stance you just wrote.",
+    checkPrompt: "Without notes, explain why one any contaminates everything it touches, why forEach accepts callbacks that return values, and what a wrong type predicate does to the compiler. State the interfaces-versus-aliases position and the reason satisfies exists.",
+    tier: 1,
+    complexity: 4,
+    references: [
+
+    ],
+    lesson: {
+problem: "Reciting feature names passes a junior interview but collapses at the contested points — variance, void, enums, satisfies — where the question is really whether you hold a position or just remember syntax.",
+model: "The lesson treats each definition as a claim plus a stance: what the concept is, and the senior answer about where it belongs. TypeScript is compile-time documentation that the compiler enforces and erases at runtime, so every senior stance traces back to that one fact. Interview depth shows in the nuance, not the inventory: method bivariance, the viral spread of any, and the boundary where runtime validation must replace static types.",
+mechanics: "any is bidirectionally assignable and viral: operations on it yield any again, so a single escape hatch contaminates every inferred return type downstream. unknown accepts everything but permits nothing until narrowed — it encodes the honest claim «I don't know what this is yet», which is why it belongs in catch clauses, JSON parsing, and untrusted input. never is the bottom type, and assigning a value to never in a switch default turns a missed union case into a compile error — exhaustiveness checking with no runtime cost. void promises only that callers will not use the result, so a function typed as returning void may actually return something, which is why forEach accepts callbacks that return values. Control-flow narrowing refines types per branch from evidence like typeof, instanceof, and truthiness, but a user-defined predicate is a trust boundary: the compiler believes a wrong guard and faithfully propagates the lie. And because types are erased, runtime boundaries need schema libraries such as Zod, io-ts, or Valibot whose schemas derive the static type — a single source of truth for both checks.",
+pitfalls: [
+  "Leaving any in place after a migration ends, treating the deliberate opt-out as a permanent habit.",
+  "Trusting a type predicate whose body checks too little: the compiler believes the guard and propagates the lie faithfully.",
+  "Choosing enum machinery where a union of string literals is zero-cost, erases cleanly, and composes with template literals.",
+  "Annotating every variable and losing literal precision, instead of annotating only at boundaries where widening would happen.",
+  "Reaching for the double assertion through unknown routinely, though it is the smell that signals a design problem.",
+  "Expecting excess property checks on every assignment, when only fresh object literals get the special typo-catching rule.",
+  "Missing the method bivariance exception: a callback declared with method shorthand escapes strictFunctionTypes checking.",
+  "Treating satisfies as cosmetic, rather than the resolution of the tension between annotation losing specificity and inference losing validation.",
+  "Assuming runtime data is safe because it compiles, ignoring that erasure means API responses need schema validation at the boundary."
+],
+whenNot: "The lesson is framed for interview preparation and review judgment, not for learning syntax from scratch, and its type-level programming coverage is a catalog of tools rather than a guide to composing them."
+    },
+  },
+];
+
+const emigrationArgentinaTopics: readonly TopicCard[] = [
+  {
+    id: "emigration-argentina-full",
+    title: "Эмиграция в Аргентину из России: один плотный урок",
+    summary: "Переезд из России в Аргентину как три несинхронизированных трека: миграционный статус, судебное гражданство, бытовая легализация. От входа и пророги до juicio de ciudadanía с arraigo, плюс документы, деньги, быт и экосистема посредников с устаревающими советами 2022 года.",
+    concepts: [],
+    practicePrompt: "Составь свою таблицу трёх треков: на каком основании откроешь residencia, что она даёт и чего не даёт, в какой юрисдикции судил бы гражданство и что вносишь в arraigo. Потом проверь каждый пункт на свежесть: пометь, что из него относится к эпохе 2022–2023 и могло устареть после смены курса правительства.",
+    checkPrompt: "Уметь без подсказок развести residencia и ciudadanía как разные вселенные, назвать arraigo с его составляющими, объяснить, почему «родил — получил паспорт» — маркер дилетанта, и посчитать реалистичный горизонт от въезда до паспорта, а не обещанный посредниками.",
+    tier: 1,
+    complexity: 4,
+    references: [
+
+    ],
+    lesson: {
+problem: "Без модели переезд видится лестницей виза → ВНЖ → паспорт, и решения принимаются по чатовым историям, половина которых уже legacy: человек не замечает, что гражданство — это суд, а не продолжение резиденции.",
+model: "Аргентина живёт тремя несинхронизированными треками: миграционный статус у Мигрáсьонес, гражданство только через федеральный суд, бытовая легализация отдельным слоем DNI, налогов и банка. После наплыва 2022–2023 система в фазе ужесточения, поэтому любая история успеха по умолчанию читается как устаревшая legacy-информация.",
+mechanics: "Модель трёх треков хранит residencia, ciudadanía и бытовую легализацию как несинхронизированные вселенные, поэтому ПМЖ годами не приближает к паспорту: гражданство ведает федеральный суд со своими судьями и прокурорами. Судебное дело имеет накопляемое состояние — стаж и репутация arraigo (работа, налоги, CUIL/CUIT, дети в школе, непрерывное присутствие): судья читает дни по миграционной базе, так что оверстей и длительные выезды вычитают из стажа, а monotributo платят как инвестицию в досье. Трактовка «два года» раскачивается между легальной и фактической резиденцией, и какой линии придерживается конкретный судья с fiscal, решает юрисдикция и эпоха — отсюда форум-шоппинг в провинции и развал дел при фиктивной регистрации. Прекария после подачи в RADEX легализует пребывание и право работать, но живёт только до ближайшего продления, поэтому «документы поданы» не значит «я в домике». Родовой трек держится на jus soli: ребёнок — гражданин с рождения, родителям это даёт permanente минуя temporaria, но не паспорт, а после parto ruso граница ужесточила вход и разворачивает беременных как «ложных туристок». Денежный слой живёт своим циклом: сепо с курсами official, blue, MEP породил пайплайн USDT через Lemon, Belo, Buenbit, а демонтаж сепо при Милее схлопывает спред, и валютные лайфхаки 2022–2023 устаревают на глазах.",
+pitfalls: [
+  "Верить, что «родил — получил паспорт»: родительство даёт ПМЖ, а гражданство родители получают только через суд.",
+  "Планировать паспорт за два года: судебный этап длится от года до трёх, честный горизонт — три-четыре года от въезда.",
+  "Сидеть в нелегале, потому что раньше оверстей закрывался штрафом на выезде: теперь это портит миграционную историю для судьи.",
+  "Забывать продлевать прекарию, решив, что «документы поданы, я в домике»: статус слетает незаметно.",
+  "Переносить советы 2022 года про аренду, обмен денег и свободный въезд беременных без проверки: смена курса и ужесточение делают их legacy.",
+  "Строить план на rentista или визу цифрового кочевника: первый для россиян почти не доказуем, вторая перекрыта безвизом.",
+  "Возить документы без апостилей и переводить их «Машей из чата»: нужен апостиль и присяжный переводчик с легализацией в CTPCBA.",
+  "Верить обещаниям «паспорт за два года гарантированно»: суд никто не гарантирует, а пакетники под уголовным делом.",
+  "Брать выводы из телеграм-чатов как статистику: «у меня прошло» не равно «так работает», это истории выживших."
+],
+whenNot: "Урок не заменяет миграционного адвоката и не даёт гарантий: правила, судьи и экономика меняются, и любой конкретный пункт требует проверки на свежесть перед применением. Он про Аргентину для россиян и ничего не утверждает о других странах."
+    },
+  },
+];
+
+const typescriptInterviewDefinitionsTopics: readonly TopicCard[] = [
+  {
+    id: "typescript-interview-definitions-full",
+    title: "Senior TypeScript Interview Definitions",
+    summary: "Senior TypeScript definitions organized around judgment: every term marks where the compiler stops proving and the engineer must decide — trust boundaries, variance exceptions, misleading configuration. Ends on the discipline of placing complexity and trust deliberately.",
+    concepts: [],
+    practicePrompt: "Mark every trust boundary in one of your modules — fetch responses, parsed JSON, message queues, config loading — and check whether each one is parsed by a schema once or merely asserted. Then enable a stricter flag you do not use yet, such as noUncheckedIndexedAccess, and count how many places quietly assumed an index or key exists.",
+    checkPrompt: "Without notes, explain why a branded type still needs runtime validation, why method parameters escape strictFunctionTypes, and why emitted JavaScript is not evidence that the program type-checked. State what @ts-expect-error guarantees that a suppression comment does not.",
+    tier: 1,
+    complexity: 4,
+    references: [
+
+    ],
+    lesson: {
+problem: "TypeScript's features are easy to list and easy to misuse: the same construct is honest in one place and a lie in another, and nothing in the compiler tells you which — the pain is not missing knowledge but missing judgment about where checking actually happens.",
+model: "The lesson models senior TypeScript as the disciplined placement of complexity and trust. The compiler proves what it can, but every construct — guards, assertions, brands, declaration files, config flags — carries a claim the compiler accepts without proof, so the craft is knowing exactly which claims you are making and keeping them few and explicit. Strong models make illegal states hard to represent, boundaries validate what the compiler cannot, and public APIs favor predictable inference over type-level spectacle.",
+mechanics: "Type erasure removes TypeScript-specific information at emit time, so a value cannot be inspected at runtime to recover its interface and an assertion cannot convert untrusted input into genuinely valid data — which is why trust has to be concentrated at explicit boundaries. Control-flow narrowing refines a value's type along each execution path, but the refinement is only as trustworthy as the condition performing it: a custom predicate checking one property becomes a polished mechanism for distributing false information. Exhaustiveness works through a never-based unreachable branch, so adding a new union variant turns silent feature drift into an explicit compile-time maintenance task. Variance formalizes substitutability — outputs preserve the assignment direction, inputs reverse it — yet method declarations keep a permissive exception under strictFunctionTypes, proving that syntax alone does not determine the checking rule. Transpilation and type checking are separate obligations: fast transpilers strip types without project-wide semantic checking, so a production pipeline must distinguish emitted JavaScript from a type-checked program. And type-level tests close the loop: a @ts-expect-error assertion fails when the expected error disappears, so rejected programs stay rejected.",
+pitfalls: [
+  "Treating an assertion or a brand as validation: neither checks the runtime value, so the claimed invariant must be established first.",
+  "Writing guards whose implementation the compiler blindly trusts, turning a check of one property into false information with good manners.",
+  "Tuning module and moduleResolution until the editor is quiet while package, extension, or interoperability assumptions remain wrong.",
+  "Reading a clean transpiler build as proof the program type-checked, when fast tools strip types without semantic checking.",
+  "Applying Partial to an update payload and thereby allowing every field to be omitted, including ones that should never change.",
+  "Adding genericity where a plain function would do: unnecessary type parameters make an API harder to understand without adding safety.",
+  "Building large Cartesian products of string unions in template-literal types and paying in compiler performance for little value.",
+  "Conflating const and readonly: one prevents reassignment of a binding, the other restricts writes through a type, and neither gives deep runtime immutability.",
+  "Changing exported types casually, forgetting that public types are a compatibility contract and can break consumers even when runtime code is unchanged."
+],
+whenNot: "The lesson is a judgment-oriented definitions course, not a migration guide: it does not teach framework setup step by step, and it does not claim TypeScript is completely sound — it treats the system as deliberately pragmatic, with trust concentrated at explicit boundaries."
+    },
+  },
+];
+
+const halloweenBasicsAdvancedTopics: readonly TopicCard[] = [
+  {
+    id: "halloween-basics-advanced-full",
+    title: "Halloween: the basics to the advanced",
+    summary: "Traces Halloween from the child's night of costumes and candy down to the layered ritual beneath: Celtic threshold and Allhallowtide, apotropaic masks, souling turned trick-or-treat, monster and fear-word taxonomies, the uncanny and carnival, and the poisoned-candy debunking.",
+    concepts: [],
+    practicePrompt: "Pick one artefact — the jack-o'-lantern, a costume, or the trick-or-treat bargain — and trace its three layers: original function, migration, transformation. Then check your account against the essay's own dates and name changes, from turnip to pumpkin and from souling and guising to a phrase in print by 1927.",
+    checkPrompt: "Without notes, explain how liminality and apotropaic magic describe the same night from two sides, and correct on demand the two classic errors: Samhain as a god of the dead and Dia de los Muertos as Mexican Halloween.",
+    tier: 1,
+    complexity: 4,
+    references: [
+
+    ],
+    lesson: {
+problem: "Asked what Halloween is, most people can only describe the surface — costumes, candy, a pumpkin — so the night reads as shallow fun and its actual machinery of threshold, protection and remembrance stays invisible.",
+model: "The lesson reads Halloween as one ritual seen at two altitudes: for the beginner it is dressing up, saying the line, carving a pumpkin and being safely scared; for the professional it is a calendar ritual at a seasonal hinge, a Christian-pagan-folk syncretism whose every symbol still performs an older function in disguise.",
+mechanics: "Liminality makes the night a threshold state: at dusk, between seasons, the mask-wearer is neither self nor monster, so ordinary order can be inverted for a while. Apotropaic magic turns decoration into defence: the carved face, the noise, the bonfire and the guising costume were meant to frighten or confuse the wandering dead, not attract them. The door-to-door bargain has a genealogy: souling traded prayers for soul cakes, guising traded a performance for food, and the 1920s and 1930s campaigns against vandalism crystallised trick-or-treat, whose trick survives as a fossilised threat. The monster taxonomy encodes fears by ontology: a poltergeist moves objects, a revenant returns bodily, a witch embodies policed knowledge, a zombie carries the dread of slavery. The atmosphere words are calibrations, not synonyms: spooky is playful, eerie is quiet wrongness, creepy implies a watching threat, macabre dwells on mortality. Underneath, the night works as a democratic memento mori and a fear simulation: costumes and haunts raise mortality salience, then let you master it in safety through benign masochism and designed arousal.",
+pitfalls: [
+  "Reading the carved pumpkin as an invitation to spirits when it began as an apotropaic device to scare them off.",
+  "Repeating that Samhain was a Celtic god of the dead, an 18th and 19th-century misreading the essay debunks.",
+  "Calling Dia de los Muertos Mexican Halloween instead of a distinct tradition with ofrendas and calaveras.",
+  "Assuming Halloween is an unbroken pagan survival rather than a documented syncretism, per the evidence argument of Ronald Hutton.",
+  "Treating monster words as synonyms instead of an ontology: a poltergeist moves objects, a revenant returns bodily.",
+  "Using spooky, eerie and creepy interchangeably when horror professionals calibrate them like dynamics.",
+  "Believing the poisoned candy panic: Joel Best found no stranger-sadism cases, and the famous 1974 case was the father.",
+  "Reading the trick in trick-or-treat as live mischief rather than a fossilised threat turned theatrical."
+],
+whenNot: "This is cultural literacy, not an event-planning guide, and it does not claim that pre-Christian Samhain rituals are well documented — the essay itself argues the direct evidence is thin."
+    },
+  },
+];
+
+const pythonSeniorRuTopics: readonly TopicCard[] = [
+  {
+    id: "python-senior-ru-full",
+    title: "Senior Python",
+    summary: "Собирает сеньорскую модель Python в десять разделов: объектная модель и имена-ярлыки, замыкания и декораторы, ООП с MRO, внутренности CPython и GIL, конкурентность и asyncio, типизация, тестирование, веб и архитектура, алгоритмы на интервью — и десять ловушек одной строкой.",
+    concepts: [],
+    practicePrompt: "Возьмите три пункта урока — например изменяемый дефолт, позднее связывание замыкания и неатомарность i += 1 под GIL — напишите для каждого мини-пример и запишите предсказание результата. Затем запустите код и сверьте фактический вывод с предсказанием, прежде чем перечитывать раздел.",
+    checkPrompt: "Без подсказок объясните, почему super() ведёт к следующему классу в MRO, а не к родителю; назовите правило выбора между потоками, процессами и asyncio и воспроизведите хотя бы пять из десяти ловушек одной строкой.",
+    tier: 1,
+    complexity: 4,
+    references: [
+
+    ],
+    lesson: {
+problem: "Мидл пишет работающий код, но объясняет язык фольклором: pass-by-reference, потоки для CPU, GIL делает всё безопасным — и на каждом глубоком вопросе собеседования такая модель ломается.",
+model: "Урок строит сеньорскую модель языка вокруг одной идеи: имя — это ярлык на объект, а поведение определяется протоколами модели данных. Через неё сходятся области видимости и замыкания, подсчёт ссылок и GIL внутри CPython, три модели конкурентности и выбор структуры данных по профилю операций, а не по привычке.",
+mechanics: "Имя — ярлык, а не ящик: присваивание перепривязывает ссылку, поэтому мутация объекта внутри функции видна снаружи, а переприсваивание локального имени — нет. Области видимости ищутся по LEGB, а замыкание захватывает свободную переменную по ссылке — отсюда позднее связывание, когда все лямбды цикла видят последнее i, и лечение через дефолтный аргумент. Модель данных ищет дандеры на типе, а не на экземпляре, а __eq__ без __hash__ делает класс нехешируемым; MRO строится C3-линеаризацией, и super() ведёт к следующему классу в ней, а не к родителю. Память CPython держится на подсчёте ссылок: ноль ссылок — немедленное уничтожение, а циклы ловит поколенческий GC, поэтому файлы и локи закрывают контекстными менеджерами. GIL оставляет один поток на байт-код, отпускается на I/O и не делает i += 1 атомарным — отсюда правило выбора: потоки для I/O, процессы для CPU, asyncio для тысяч соединений, где один блокирующий вызов останавливает весь цикл событий. Аннотации типов не проверяются в рантайме — это метаданные для mypy и Pydantic, который валидирует данные на границах системы.",
+pitfalls: [
+  "Сравнивать значения через is и полагаться на интернирование чисел от −5 до 256.",
+  "Хранить деньги во float вместо Decimal: 0.1 + 0.2 не равно 0.3.",
+  "Делать поверхностную копию вложенной структуры и считать, что скопировано всё.",
+  "Ожидать, что лямбды из цикла запомнят своё i, а не последнее значение.",
+  "Считать GIL гарантией потокобезопасности: i += 1 — это несколько байт-кодов.",
+  "Ставить синхронный вызов или time.sleep в корутину и замораживать весь цикл событий.",
+  "Писать голый except:, который ловит и KeyboardInterrupt через BaseException.",
+  "Ловить N+1 в ORM вместо select_related и prefetch_related.",
+  "Ждать, что аннотации типов проверятся в рантайме без mypy или Pydantic."
+],
+whenNot: "Это карта теории для собеседований, а не учебник с нуля; конкретные детали вроде free-threaded build 3.13 или TaskGroup 3.11 стоит сверять с документацией вашей версии Python."
+    },
+  },
+];
+
+const pythonMidplusCompactTopics: readonly TopicCard[] = [
+  {
+    id: "python-midplus-compact-full",
+    title: "Middle+ Python: Compact Definitions",
+    summary: "A compact question-and-answer map of the middle+ canon: the core language model, dunders and descriptors, functions and OOP design, memory and the GIL, the three concurrency models, and the engineering habits — testing, WSGI/ASGI, N+1, profiling — that separate middle from junior.",
+    concepts: [],
+    practicePrompt: "Take five pairs from the map — pass-by-assignment, is vs ==, shallow copy, the GIL, N+1 — and write a two-line example for each where the wrong mental model produces a visible bug. Then run it and confirm the failure you predicted.",
+    checkPrompt: "Without notes, answer each headline question in one sentence: why pass-by-assignment, what super() really means, which structure for which operation profile, and why a blocking call freezes the asyncio loop.",
+    tier: 1,
+    complexity: 4,
+    references: [
+
+    ],
+    lesson: {
+problem: "A middle developer can write working Python but answers the standard questions with folklore — pass-by-reference, threads for CPU, hints that enforce types — and no myth survives contact with the actual model.",
+model: "The lesson treats the middle+ canon as one connected model: types live on objects, behaviour comes from the data model of dunders and protocols, and every right answer is a trade-off — structure by operation profile, concurrency by workload, mocks where objects are looked up.",
+mechanics: "Pass-by-assignment binds the parameter to the same object: mutation is visible outside, rebinding is not, which is why lists change but reassigned integers do not. Identity and value split into is and ==, and CPython caching of small ints from -5 to 256 is an implementation detail you must not lean on. Hashability demands a stable hash consistent with equality: __eq__ without __hash__ makes a class unhashable, and a tuple holding a list inherits that unhashability. Dicts are hash tables preserving insertion order, so membership is O(1) average while in list is O(n). Generators suspend their frame at each yield, trading per-element overhead for O(1) memory on streams. The GIL lets one thread execute bytecode and releases it on I/O, so threads suit I/O-bound work, processes buy CPU parallelism at pickle cost, asyncio juggles thousands of connections — and one blocking call freezes the entire loop.",
+pitfalls: [
+  "Saying Python is pass-by-reference when mutation and rebinding behave differently.",
+  "Using is for numbers or strings because small-int caching made it work once.",
+  "Sharing a mutable default argument across calls instead of building the list inside.",
+  "Shallow-copying a nested structure and editing an object that is still shared.",
+  "Choosing threads for CPU-bound work, forgetting the GIL allows one bytecode thread.",
+  "Calling time.sleep or requests.get inside a coroutine and freezing the event loop.",
+  "Assuming type hints enforce anything at runtime without mypy or a runtime validator.",
+  "Leaving an N+1 in the ORM instead of eager loading with select_related or prefetch_related.",
+  "Patching where the object is defined instead of where it is looked up."
+],
+whenNot: "It is a definition map and interview prep, not a tutorial: it states rules without walking through a project, and version details like the 3.13 free-threaded build need checking against your own runtime."
+    },
+  },
+];
+
+const blackHolesTimeDilationTopics: readonly TopicCard[] = [
+  {
+    id: "black-holes-time-dilation-full",
+    title: "Black holes and gravitational time dilation",
+    summary: "Why a diver crosses the horizon on her own watch while the ship above sees her freeze and fade: proper time along each path, the hover ratio √(1 − rₛ/r), coordinate time as bookkeeping, and why bare clock readings cannot be added across different radii.",
+    concepts: [],
+    practicePrompt: "Set a probe at 2 rₛ and at 1.01 rₛ, compute √(1 − rₛ/r) for each, and convert 3 probe seconds into far seconds at both radii to see the two conversions disagree. Then say in one sentence whose seconds each bare number reports.",
+    checkPrompt: "Without notes, reproduce the hover ratio and its values at 2 rₛ and 1.01 rₛ, and explain why its zero coincides with the death of the hovering observer. Then say whose clock owns the frozen image at the edge and the arrival time of the last photon.",
+    tier: 1,
+    complexity: 4,
+    references: [
+
+    ],
+    lesson: {
+problem: "Two excellent clocks tell incompatible stories about one fall — the diver crosses at a definite reading, the ship sees her freeze at the edge forever — and neither can be dismissed as broken.",
+model: "A clock reports only proper time, the seconds along its own path, so two clocks on different paths can disagree while both stay right, like two odometers on different roads. The hover ratio is not a brokenness meter but a conversion factor between radii, and the far-away bookkeeping time is one chart among several, matching no clock near the horizon.",
+mechanics: "Proper time is the state a clock keeps: it counts seconds along its own path, so two aluminum clocks 33 cm apart in height already disagree measurably, and the gap widens wherever the field is stronger. The hover ratio √(1 − rₛ/r) is the conversion state: it depends only on the radius, reads about 0.71 at 2 rₛ and 0.10 at 1.01 rₛ, and reaches zero exactly where the thrust needed to hold station becomes infinite — a limit of an impossible observer, not a place anyone stands. Coordinate time is bookkeeping state: the t in the formula matches the far clock at infinity and no clock anywhere else, and the blow-up of the dr² term at rₛ is a fault of the chart, not of the geometry, since the later coordinates cover the crossing smoothly and curvature there is finite. The falling clock adds a motion state: for a diver dropped from rest far away dτ/dt = 1 − rₛ/r, and the missing square root comes from the Lorentz factor of her speed c√(rₛ/r) past each hovering observer she passes. The watcher's image is a light state: signals from closer to the horizon take longer to climb out and redshift exponentially in ship time with an e-folding time of 2rₛ/c, and only a finite number of photons leave before the crossing, so a last photon with a definite arrival time exists in the ship's log.",
+pitfalls: [
+  "Treating the slower tick of a lower clock as clockwork trouble; it applies equally to springs, quartz, atoms and heartbeats.",
+  "Adding a probe log of 3 seconds to a ship log of 3 seconds and believing the resulting 6 describes any real stretch of time.",
+  "Reading the zero of the hover ratio at the horizon as time stopping for someone who is there, though it describes a hover no rocket could maintain.",
+  "Mistaking the blow-up of the dr² term in Schwarzschild coordinates at rₛ for a physical singularity; curvature there is finite.",
+  "Trusting the type label alone: a ProbeSeconds taken at 2 rₛ and one taken at 1.01 rₛ are not the same second, since only the radius carries the rate.",
+  "Saying the diver never crosses the horizon; that never belongs to the ship's clock, hers reaches a definite reading and keeps going.",
+  "Taking the frozen image as photons arriving forever; only a finite number leave before the crossing, and the fading runs exponentially in the watcher's time.",
+  "Applying the hover ratio to a falling clock and losing the motion factor; the Lorentz term supplies an extra square root, so 0.71 hovering becomes 0.50 falling at 2 rₛ.",
+  "Assuming big holes are the dangerous ones for a diver: tidal forces destroy her well outside a 10-solar-mass horizon, while Sagittarius A* allows about 26 seconds from horizon to center."
+],
+whenNot: "The lesson covers a single spherical non-rotating mass in Schwarzschild geometry and classical light signals; it makes no claim about rotating holes, Hawking radiation, or what awaits at the center."
+    },
+  },
+];
+
+const hokkaidoFrontierTopics: readonly TopicCard[] = [
+  {
+    id: "hokkaido-frontier-full",
+    title: "Hokkaido: Japan's Northern Frontier",
+    summary: "How geography made Hokkaido unlike the rest of Japan: a deep strait and cold climate blocked rice farming, the Ainu kept their own arc until Meiji absorbed the island in 1869 on an American frontier model, and today's pantry, powder snow and depopulation still trace that chain.",
+    concepts: [],
+    practicePrompt: "Rebuild the causal chain from memory: name the strait that carries the Blakiston Line, explain why the Amur River lets sea ice reach 44°N, and connect the cold climate to the absence of rice farming and the survival of a distinct Ainu sequence. Then check the chain against the island's visible signatures — grid-planned Sapporo, dairy farms, -betsu place names — to see whether it predicts them.",
+    checkPrompt: "Without notes, explain why Hokkaido is the only dō among the 47 prefectures, what the Kaitakushi borrowed from the American frontier beyond farming techniques, and why Okinawan kitchens depend on kelp that cannot grow near Okinawa.",
+    tier: 1,
+    complexity: 4,
+    references: [
+
+    ],
+    lesson: {
+problem: "Hokkaido gets filed as a colder copy of Japan, so its grid city, dairy farms, brown bears and Ainu place names read as disconnected curiosities instead of consequences of one history.",
+model: "The lesson runs one chain of cause and effect. A deep strait and a cold continental climate kept the island outside the rice-based Japanese state for centuries, leaving room for an Ainu civilization whose language still names the map. Fear of Russia then drove Meiji absorption in 1869 on an explicitly American frontier model, whose inheritance spans food, cities and the slow reckoning with Ainu dispossession.",
+mechanics: "The Blakiston Line keeps a connection state: Ice Age land bridges linked Hokkaido to Sakhalin and the mainland while the deep Tsugaru Strait stayed open, so northern species — brown bear, Blakiston's fish owl — walked in and southern ones like macaques never arrived. Powder snow keeps an air state: Siberian high-pressure cold crosses the warm Sea of Japan, picks up heat and moisture, rises over the western mountains and drops it all as light, dry snow. Drift ice keeps a layering state: Amur River fresh water floats on the saltier Okhotsk water, refuses to mix, cools fast and freezes at latitudes where regular sea ice should not form. Climate keeps a political state: with no wet-rice farming, no rice-based centralized state took root, so the cultural sequence ran Jōmon, Satsumon and Ainu rather than rice provinces. The Kaitakushi keeps a transfer state: Capron and Clark brought large-scale farming, grid-planned Sapporo and tondenhei militias, and with them the American habit of declaring Indigenous land legally empty, codified in the 1899 act that lasted until 1997. The kombu road keeps a trade state: Edo merchant ships carried kelp south to Osaka and the Ryukyus, so Okinawan cooking leans on a crop its own warm seas cannot grow.",
+pitfalls: [
+  "Assuming Hokkaido was always Japan: it joined the state only in 1869, and before that the Japanese called it and its people Ezo.",
+  "Reading the dō suffix as a neutral administrative label when it was a political act, presenting a new frontier as part of the ancient classical order.",
+  "Explaining the Blakiston Line by temperature alone instead of by a strait too deep for Ice Age land bridges.",
+  "Wondering why sea ice forms at the latitude of southern France and missing the Amur River's fresh-water layer as the enabling mechanism.",
+  "Treating Ainu culture as a Japanese folk variant; the language is an isolate with no demonstrated relative, not a dialect.",
+  "Crediting farming techniques alone for the landscape when the American model also carried terra nullius and the 1899 act that stood until 1997.",
+  "Reading the 2019 Ainu Promotion Act as closure; critics note it stresses culture and tourism over land and collective rights.",
+  "Calling the 2018 blackout purely seismic; the island-wide cascade ran through dependence on the single Tomato-Atsuma coal plant.",
+  "Explaining Okinawan kombu by local waters when the kombu road carried it there from Hokkaido, feeding Osaka's soup stocks on the way."
+],
+whenNot: "The lesson is regional geography and history, not a travel itinerary, and it does not settle the Northern Territories dispute or judge modern Ainu policy; it only shows where both grew from the same chain."
+    },
+  },
+];
+
+const pythonCompactDefinitionsTopics: readonly TopicCard[] = [
+  {
+    id: "python-compact-definitions-full",
+    title: "Python: A Lesson in Compact Definitions",
+    summary: "One model explains most of Python: objects live on the heap, names are labels, and syntax dispatches to dunders on the type — unpacked through attribute lookup, closures, iteration, exceptions, CPython internals, concurrency, typing and the tooling working teams use today.",
+    concepts: [],
+    practicePrompt: "Write three deliberate bugs and predict each from the label model before running: mutate a parameter inside a function, capture i in [lambda: i for i in range(3)], and reuse a mutable default list across calls. Then run, check your predictions, and correct the model where it missed.",
+    checkPrompt: "Without notes, recite the attribute lookup order from data descriptors down to __getattr__, and explain why the GIL serializes bytecode but not compound logic. Then state the mocking rule: patch where the name is looked up, not where it is defined.",
+    tier: 1,
+    complexity: 4,
+    references: [
+
+    ],
+    lesson: {
+problem: "Python usually works, so its failures feel arbitrary: a list that refills itself between calls, three lambdas all returning 2, a counter that races under threads despite the GIL.",
+model: "Everything is an object on the heap; names are labels bound to objects; behaviour comes from protocols, the special methods the interpreter calls on your behalf. Almost every odd result falls out of that sentence, and the lesson pairs each feature with its cost and failure mode.",
+mechanics: "Name binding is heap state: assignment rebinds a label to an existing object, never copies, so mutating a parameter is visible to the caller while rebinding it is not. Dunder dispatch is type state: len(x) calls type(x).__len__(x), and a + b falls back to b.__radd__(a) only when a.__add__(b) returns NotImplemented, which is why setting __len__ on an instance does nothing. Attribute lookup is ordered-walk state: the MRO is scanned for data descriptors first, then the instance __dict__, then non-data descriptors like functions, whose __get__ builds the bound method carrying self. Scope is compile-time state: an assignment anywhere in a body makes the name local throughout, and closures capture cells holding variables rather than values, so three lambdas share one late-bound i. Memory is refcount state: an object frees at refcount zero, cycles need the separate collector, and the GIL exists because refcounting is not thread-safe — yet it serializes bytecode execution only, not compound logic, so counter += 1 still races.",
+pitfalls: [
+  "Debating pass by value or by reference; the working rule is call by sharing, where mutation leaks and rebinding does not.",
+  "Using is on numbers because small ints from −5 to 256 are cached; the shortcut fails for larger values and literals now draw a SyntaxWarning.",
+  "Calling a tuple containing a list immutable; the inner list can still be mutated and the tuple is unhashable because hashing recurses.",
+  "Writing [[]] * 3 for three empty lists and getting three references to the same inner list.",
+  "Raising NotImplementedError where NotImplemented belongs, or returning the value instead of raising, so the other operand never gets its turn.",
+  "Defining __eq__ without __hash__ and expecting instances to work in sets; Python then sets __hash__ to None.",
+  "Trusting the GIL to make counter += 1 atomic; a switch can land between bytecodes, and only a Lock settles it.",
+  "Putting lru_cache on a method for free speed; it pins self in the cache and quietly leaks memory.",
+  "Patching requests.get after a module did from requests import get; the patch must land where the name is looked up, app.get."
+],
+whenNot: "The lesson describes CPython 3 as it stands — 3.13 and 3.14 current, free-threading real but not the default build — and not PyPy or MicroPython; on contested ground such as async versus threads it names the deciding axis rather than a verdict."
+    },
+  },
+];
+
+const immigrationCanadaTopics: readonly TopicCard[] = [
+  {
+    id: "immigration-canada-full",
+    title: "Иммиграция в Канаду из России: урок для тех, кто хочет говорить на равных со знающими людьми",
+    summary: "Урок строит язык и модель канадской иммиграции: статус вместо визы, двухступенчатая система, иерархия правовых источников, механика подачи и проверок, специфика паспорта РФ и карта путей — от Express Entry до убежища, с ловушками A40 и R117(9)(d) и признаками человека в теме.",
+    concepts: [],
+    practicePrompt: "Соберите план иммиграционного случая: определите текущий и целевой статус, выберите путь и распишите цепочку этапов с каждым документом и сроком его действия; затем проверьте план — не истекает ли тест, ECA или медосмотр раньше следующего этапа и не съедает ли отсрочка подачи баллы возраста.",
+    checkPrompt: "Уметь без подсказок объяснить разницу визы и статуса, Express Entry как системы и FSW/CEC как программ, CRS как рейтинга и 67-балльной сетки как порога; назвать два главнейших риска — misrepresentation по A40 и неуказанный член семьи по R117(9)(d) — и почему каждая цифра сопровождается оговоркой о проверке на момент решения.",
+    tier: 1,
+    complexity: 4,
+    references: [
+
+    ],
+    lesson: {
+problem: "Новичок мыслит категорией «получить визу», читает прошлогодние гайды и путает рейтинг с порогом; отсюда стратегии, которые уже не работают, потерянные баллы и пятилетние запреты, которых можно было избежать.",
+model: "Канадская иммиграция — машина статусов и путей перехода между ними: виза лишь пускает к границе, статус выдаёт офицер, а отбор ведут программы, заданные сверху законом и трёхлетним планом приёма. Устойчивая часть системы — логика, право, механика; волатильная — квоты, пороги и политика, и эксперт всегда отличает одно от другого.",
+mechanics: "Виза и статус разделены: TRV лишь разрешает подъехать к границе, а статус и пермит выдаёт офицер CBSA, поэтому виза может истечь при действующем пермите — и законность пребывания зависит не от наклейки в паспорте. Система двухступенчатая: предпочтительный кандидат на ПМЖ уже пожил в Канаде через CEC или провинциальные потоки, но в 2024–2025 годах государство сжимает первую ступень, и маршрут учёба → PGWP → ПМЖ дорожает и сужается. Пул Express Entry ранжируется баллами CRS, а порог входа в программу задаёт отдельная 67-балльная сетка; возраст даёт пик в 20–29 лет и падает до нуля к 45, а баллы за LMIA-job offer в 2025-м убрали, поэтому откладывать подачу — значит терять баллы. GCMS помнит все прошлые заявления и сверяет их между собой, а с рядом стран есть обмен данными: расхождение с анкетой всплывает и даёт misrepresentation по A40 с пятилетним запретом. Для россиян отказ по R179(b) растёт из сомнений в связях при отъезде из страны, госслужба выше рядовой попадает под A35(1)(b) по самой должности без доказательства личной вины, а многолетняя проверка безопасности делает mandamus обычным инструментом. Все проверки и требования к документам описаны в публичных PDI: именно там лежит ответ, почему запросили ту или иную бумагу.",
+pitfalls: [
+  "Говорить «виза в Канаду»: виза лишь пускает к границе, а статус и пермит выдаёт офицер на въезде.",
+  "Считать Express Entry программой: это система управления заявками, программы внутри — FSW, CEC и FST.",
+  "Смешивать CRS и 67-балльную сетку: первая — рейтинг в пуле, вторая — порог входа в программу.",
+  "Доверять прошлогодним гайдам: баллы за job offer убраны, STEM-категории нет, PGWP после колледжа урезан.",
+  "Скрывать неудобное в анкетах: GCMS сверяет все прошлые заявления, несообщение даёт A40 и пять лет запрета.",
+  "Не указывать невыезжающего члена семьи: R117(9)(d) навсегда закрывает его спонсорство семейным классом.",
+  "Рассчитывать «приеду по гостевой и разберусь»: подача на рабочее разрешение изнутри в статусе посетителя закрыта.",
+  "Говорить «у меня NOC A»: классификатор давно TEER с пятизначными кодами, профессию определяют обязанности, а не должность.",
+  "Строить стратегию без levels plan: программа может существовать формально, но получать мизерную квоту."
+],
+whenNot: "Урок не даёт проверяемых на сегодня цифр, порогов и открытых программ: система волатильна, и всё конкретное проверяется на сайте IRCC в день решения. Он также не заменяет юриста в случаях с госслужбой, военной биографией, прошлыми отказами или убежищем."
+    },
+  },
+];
+
+const vietnamBaoLanhResidencyTopics: readonly TopicCard[] = [
+  {
+    id: "vietnam-bao-lanh-residency-full",
+    title: "Эмиграция в Вьетнам из России: лекция для того, кто хочет говорить на равных",
+    summary: "Урок строит модель вьетнамской жизни: у вас нет своего статуса — статус держится на поручителе, а лестница к паспорту — миф; дальше идут коды виз и форм, маршруты легализации, деньги и регистрация, реформа 2025 года и фут-ганы, по которым узнают новичка.",
+    concepts: [],
+    practicePrompt: "Опишите свою (или вымышленную) позицию в терминах системы: кто спонсор, какой код визы, какая карта и от какого разрешения она зависит; затем прогоните конструкцию стресс-тестом — что произойдёт с каждым элементом, если спонсор (компания, супруг, арендодатель) отвалится завтра, и не остаётся ли за вами налоговый долг или запрет на выезд.",
+    checkPrompt: "Уметь без подсказок отличить thẻ tạm trú от ВНЖ и от штампа на границе, заявленный капитал от внесённого через DICA, giấy phép lao động от подтверждения освобождения; назвать, кто держит статус, что делает компания при увольнении работника и почему закон един, а практика зависит от провинции.",
+    tier: 1,
+    complexity: 4,
+    references: [
+
+    ],
+    lesson: {
+problem: "Человек приезжает с рамкой «виза → ВНЖ → ПМЖ → паспорт», живёт на туристических петлях и номинальных схемах и теряет позицию вместе с работодателем, партнёром или арендодателем — или упирается в запрет на выезд из-за налогового долга заброшенной компании.",
+model: "Система пребывания построена вокруг bảo lãnh — поручительства: иностранец не субъект, а приложение к спонсору (компании, супругу, университету, отелю). Вьетнам — не иммиграционная страна по замыслу: строить лестницу к паспорту — ошибка дизайна, задача — сделать бессрочно продлеваемую временность устойчивой и дешёвой. Закон един, а практика провинциальна: применяет его PA08 конкретной провинции, и требования расходятся кратно.",
+mechanics: "Код визы задаёт весь правовой режим — кто спонсор, какой срок и есть ли карта: LĐ2 с разрешением на два года рождает карту на два года, ĐT4 ниже порога 3 млрд донгов не даёт карты вовсе, а выпадение спонсора аннулирует позицию. Карта временного пребывания — не статус, а удобство, привязанное к спонсору и к сроку разрешения на работу: увольнение — и компания обязана её сдать, поэтому «своего ВНЖ» здесь не существует. Уставный капитал вносится реально через DICA в 90-дневный срок: заявленный, но не внесённый капитал — штраф и проблемы при продлении, а заброшенная компания копит налоговый долг, который оборачивается запретом на выезд для законного представителя. Регистрация проживания — обязанность владельца жилья в первые 12 часов: без неё не продлят визу, не сделают карту и не откроют счёт, а арендодатели её саботируют, потому что регистрация делает аренду видимой налоговой. Земля принадлежит народу: у иностранца 50 лет на квартиры в коммерческих проектах с квотами, и оформление на номинала ничтожно — в споре вы не истец, а нарушитель. Переводы из России по SWIFT почти не работают, и каждый живой канал несёт вторичные риски, а вывод прибыли требует цепочки аудит → уведомление за семь дней → DICA.",
+pitfalls: [
+  "Считать TRC видом на жительство: это производная от спонсора, а не ваш собственный статус.",
+  "Искать визу цифрового кочевника: её нет, путают с 90-дневной e-visa.",
+  "Ждать резидентство от покупки квартиры: недвижимость не даёт миграционных прав.",
+  "Заявить капитал и забыть внести: без DICA-взноса в срок — штраф и проблемы при продлении карты.",
+  "Купить «готовую компанию» у соотечественника: покупаете чужую отчётность, налоговые долги и риск запрета на выезд.",
+  "Оформлять собственность на номинала: сделка ничтожна, и в споре вы нарушитель, а не истец.",
+  "Жить на визаранах годами и считать это правом: порога нет, есть дискреция офицера и накопленный паттерн.",
+  "Работать удалённо и думать, что вы «не работаете во Вьетнаме»: с 183 дня налогово это неверно.",
+  "Планировать подачи на февраль: вокруг Tết административная жизнь стоит две-три недели."
+],
+whenNot: "Урок не про ПМЖ и гражданство: это узкие двери для супругов граждан и людей с заслугами, а не горизонт русского без вьетнамских корней. Он также не даёт решений там, где честный ответ «зависит» — визаран, компания под визу и налоги удалёнщика определяются дискрецией и горизонтом."
+    },
+  },
+];
+
+const taiwanArtHistoryFramesTopics: readonly TopicCard[] = [
+  {
+    id: "taiwan-art-history-frames-full",
+    title: "Тайвань: история искусства как история сменяющихся рамок",
+    summary: "История тайваньского искусства как цепочка рамок: от цинских ремёсел и миньси через японское изобретение мэйшу, спор о гохуа и модернизм холодной войны к сянту, спору об идентичности после 1987 и австронезийскому повороту; канон делают институты отбора, а имена решают судьбу практик.",
+    concepts: [],
+    practicePrompt: "Возьми три имени — мэйшу, цзяоцайхуа, чжутисин — и для каждого опиши, какую разметку оно вводило (искусство против ремесла, японское против нейтрального, субъектность как цель), какой институт носил рамку и что перераспределил термин. Затем проверь себя: восстанови шесть тактов периодизации с датами разрывов 1895, 1945 и 1987 и назови для каждого действующую рамку.",
+    checkPrompt: "Уметь без подсказок восстановить шесть тактов с датами 1895, 1945 и 1987, назвать рамку и институт-носитель каждого, объяснить амбивалентность дифан сэцай обеими сторонами и показать, почему цзяоцайхуа стало условием выживания дисциплины, а государственная реконструкция канона после 2017 — объектом критики.",
+    tier: 1,
+    complexity: 4,
+    references: [
+
+    ],
+    lesson: {
+problem: "Без этой оптики тайваньское искусство рассыпается на несвязанные периоды: непонятно, почему каллиграфия то искусство, то нет, почему одно и то же наследие читается как японское, китайское или тайваньское, и кто вообще имел право проводить эти границы.",
+model: "Остров последовательно включали в чужие повествования — китайскую периферию, японскую колонию с местным колоритом, витрину свободного Китая, глобальную биеннальную сеть, австронезийскую прародину, — и каждая рамка порождала свой канон, периодизацию и умолчания. Канон на Тайване делают институты отбора: жюри, школы, журналы, премии, музеи, а не трактаты; поэтому 1895 и 1945 — эпистемологические разрывы, где меняется само определение искусства. Третий стержень — политика именований: смена термина почти всегда означает перераспределение ресурсов.",
+mechanics: "Канон делает процедура отбора: Тайтэн с двумя разделами и жюри отсеяли каллиграфию и литераторскую живопись из категории искусство, потому что право определять принадлежало колониальному жюри, а не местным обществам. Имя перераспределяет ресурсы: привозное мэйшу разметило практики на искусство и ремесло, а технологически нейтральное цзяоцайхуа в 1977 году вернуло клеевой живописи институциональное место, поскольку ярлык гохуа позволял обвинить её в японщине. Дифан сэцай работает амбивалентно: колония предписывает локальность как ориенталистскую квоту, но для художников это первый язык, на котором Тайвань можно изобразить как целое, — отсюда постколониальная структура амбивалентности, а не чистый ориентализм. Холодновойновая абстракция держится тройным компромиссом: современная тушевая живопись легитимируется возвратом к китайскому духу и потому устраивает государство, художников и USIS, а предел показывает доносная кампания против Цинь Суна. Бэньтухуа производит локальное в ответ на дипломатическую утрату: ценность старых улиц, наивов и ремёсел конструируется городским спросом в момент кризиса идентичности, а не исконностью. Государственная реконструкция канона с 2017 года канонизирует в логике национального строительства, поэтому сложная колониальная амбивалентность рискует спрямиться в линейный рассказ о пробуждении нации.",
+pitfalls: [
+  "Начинать рассказ с японского периода по привычке учебников: это идеологический жест, стёрший доисторический и цинский слои.",
+  "Считать канон продуктом трактатов и вкуса: на Тайване его автор — институт отбора, от жюри Тайтэна до аукционов.",
+  "Читать дифан сэцай однозначно — только как квоту метрополии или только как освобождение: концепт амбивалентен по устройству.",
+  "Обвинять художников японского периода в коллаборационизме или записывать их в подпольные националисты: обе ошибки симметричны и запрещены тезисом колониальной современности.",
+  "Воспринимать переименование в цзяоцайхуа как косметику терминологии: за именем стояло возвращение раздела и выживание дисциплины.",
+  "Оценивать миньси по ортодоксальной шкале грубости: словарь был уничижительным, а позже переработан в маркер региональной самостоятельности.",
+  "Повторять разметку коренных практик как этнографического артефакта: это колониальная категория, предмет деколониальной критики, а не нейтральная классификация.",
+  "Принимать австронезийский поворот за чистую историческую справедливость: рамка выгодна государству и требует анализа как геокультурный проект.",
+  "Читать реконструкцию истории искусства после 2017 года как нейтральное восстановление памятников: канонизация идёт в логике национального строительства с риском линейного рассказа."
+],
+whenNot: "Урок не учит разглядывать конкретные произведения и не заменяет корпус текстов и языковую подготовку (японский, классический китайский, мандарин). Он и не обещает нейтральной истории: на Тайване рамка всегда чья-то, и это часть предмета, а не дефект урока."
+    },
+  },
+];
+
+const vietnamEmigrationInsiderModelTopics: readonly TopicCard[] = [
+  {
+    id: "vietnam-emigration-insider-model-full",
+    title: "Эмиграция из России во Вьетнам: урок для тех, кто хочет говорить на равных со знающими людьми",
+    summary: "Урок собирает модель опытного человека: три сцепленных слоя — якорный статус, инфраструктура присутствия, денежные потоки; разрыв буквы закона и практики, экономика посредников и вторая юрисдикция; итог — умение говорить о вьетнамских статусах кодами и отличать свежие правила от устаревших.",
+    concepts: [],
+    practicePrompt: "Построй план первого года для выбранной траектории (например, удалённая работа в Дананге): назови якорный документ, что сломается без него, как ты регистрируешься и по какой цепочке идут деньги. Затем проверь себя вопросами знающих: по документам ты кто, тебя регистрируют, что ты уведомлял в России, и какие из твоих фактов устарели после реформы 2025 года.",
+    checkPrompt: "Уметь без подсказок различать визу и TRC, разрешение на работу и освобождение от него, назвать коды EV, DL, LĐ1/LĐ2, ĐT3/ĐT4, TT и водораздел в 3 млрд донгов; перечислить, что устарело (15 дней безвиза, продление через агентство, районные отделения), и объяснить, почему категоричное «так можно» выдаёт новичка или продавца услуги.",
+    tier: 1,
+    complexity: 4,
+    references: [
+
+    ],
+    lesson: {
+problem: "Новичок сводит переезд к вопросу визы и не видит, что счёт живёт ровно на срок визы, аренда не зарегистрирована, а деньги не доходят до банка; при этом он невидим для системы и не воспринимается всерьёз теми, кто прошёл процедуры, — говорит категориями «можно-нельзя» и устаревшими фактами.",
+model: "Переезд описывается тремя сцепленными слоями: правовой статус с якорным документом, инфраструктура присутствия (регистрация, счёт, сим, права) и денежные потоки между двумя юрисдикциями. Главный вопрос эксперта: какой документ якорный и что сломается, если его не станет. Закон на бумаге строг, применение избирательно по провинциям и кампаниям, а реальную механику держат посредники (dịch vụ), поэтому эксперт говорит вероятностями, провинцией и свежестью данных, а не категориями.",
+mechanics: "Статус якорит всё: банк держит счёт открытым на срок легального пребывания, арендодатель регистрирует вас по данным визы, поэтому истечение документа каскадом отключает инфраструктуру — от переводов в приложении до страховки при ДТП на скутере. Закон и практика разнесены: правило строгое на бумаге, применение избирательное по провинциям и отделениям и умеет ужесточаться кампаниями (отключение незарегистрированных сим-карт, новые штрафы ПДД с нулём промилле), поэтому эксперт говорит вероятностями и датой данных, а не «можно-нельзя». Реальную механику держат посредники: государство вы почти не трогаете напрямую, и качество агентства или бухгалтера весит больше буквы закона — большинство катастроф случается на этом стыке. Лестница статусов устроена водоразделами: 45 дней безвиза и e-visa на 90 дней живут туристической логикой с хвостовым риском отказа на границе, а TRC выдаётся под основание, где линия ĐT3/ĐT4 в 3 млрд донгов отделяет карту от годовых виз; постоянное проживание и гражданство практически недостижимы, поэтому эмиграция здесь — жизнь на возобновляемом временном статусе. Разрешение на работу принадлежит работодателю и позиции, а не человеку: впереди тест рынка труда, легализация документов вместо апостиля (договор 1998 года применяют неровно по провинциям), а TRC не переживает разрешение; освобождение от разрешения даёт визу LĐ1 против LĐ2 у полноценного разрешения. Денежная цепочка проходит через звенья, где можно потерять всё: наличные через ювелирные лавки формально незаконны, USDT через P2P грозит заморозкой счёта при встрече с мошенническими деньгами, счета в третьих странах закрываются; на российской стороне работают 183 дня резидентства, НДФЛ для удалёнщиков российских компаний, уведомления ФНС и воинский учёт.",
+pitfalls: [
+  "Строить многолетний план на визаранах с детьми в школе и арендой на год: серия безвизовых въездов — хвостовой риск отказа, который пограничник не обязан мотивировать.",
+  "Верить чату, что визу продлят на три месяца без выезда: после реформы e-visa 2023 года это либо устаревшие сведения, либо серая схема с фиктивным спонсором.",
+  "Подавать e-visa через красивый сайт, который выглядит государственным и берёт втрое-впятеро дороже: работает только официальный портал Иммиграционного департамента.",
+  "Считать, что российские права с категорией M покрывают скутеры 110–125 кубов: нужна A1, и страховка не заплатит при ДТП без надлежащей категории.",
+  "Расслабляться после пары дней оверстея: штраф растёт ступенчато до десятков миллионов донгов, а при выезде может понадобиться урегулирование до вылета.",
+  "Покупать квартиру на имя вьетнамца или в конотеле: юридически вы не владеете ничем, а у кондотелей часто нет полноценного сертификата собственности.",
+  "Рассчитывать на апостиль диплома и справки: Вьетнам не в Гаагской конвенции, и договор 1998 года принимают неровно — закладывайте консульскую легализацию.",
+  "Вести P2P-обмен USDT через основной счёт: пришедшие от контрагента мошеннические деньги заморозят счёт, и разбираться будете вы.",
+  "Не спрашивать арендодателя о регистрации пребывания: серая аренда выстрелит позже — при оформлении TRC, открытии счёта или смене статуса."
+],
+whenNot: "Урок не даёт пошагового плана переезда и не гарантирует актуальность сумм, сроков и номеров декретов: данные на 2025 год, и перед реальным шагом всё перепроверяется. Он также не легализует серые схемы и не обещает пути к вьетнамскому гражданству — тот в общем случае закрыт."
+    },
+  },
+];
 export const curriculum: readonly PracticeArea[] = [
   {
     id: "go",
@@ -8101,5 +8951,213 @@ export const curriculum: readonly PracticeArea[] = [
     tier: 1,
     dependencies: [],
     topics: quietIndexSemanticSearchTopics,
+  },
+  {
+    id: "ten-days-in-may",
+    title: "Ten Days in May",
+    description: "JavaScript's ten days in 1995: Eich kept functions-as-values from Scheme and prototype borrowing from Self, dressed it all in Java's clothes, and ported java.util.Date with its habits — then shipping froze it, because a language in a browser can only be added to, never fixed.",
+    tier: 1,
+    dependencies: [],
+    topics: tenDaysInMayTopics,
+  },
+  {
+    id: "same-address",
+    title: "The Same Address",
+    description: "A New Game button that will not reset a chess board exposes the address model: let board = start copied an address, not a board. The lesson follows where copies reach — spread, Object.freeze, structuredClone, function arguments — and ends with === asking one question: same address?",
+    tier: 1,
+    dependencies: [],
+    topics: sameAddressTopics,
+  },
+  {
+    id: "it-never-guesses",
+    title: "It Never Guesses",
+    description: "A visit counter that turns 1 into 11 into 1111 shows JavaScript never guesses: mixed types meet a short fixed rulebook. The lesson walks the + rule, the numeric table behind minus, the two nothings null and undefined, the three rules of ==, and the eight falsy values of if.",
+    tier: 1,
+    dependencies: [],
+    topics: itNeverGuessesTopics,
+  },
+  {
+    id: "where-it-was-written",
+    title: "Where It Was Written",
+    description: "cache.js runs in a millisecond, yet weeks later report returns millions: a function keeps the place it was written, and the place survives while anything can reach it. From Node's invisible file-wrapper to the var and let loop, to closures as the language's only privacy.",
+    tier: 1,
+    dependencies: [],
+    topics: whereItWasWrittenTopics,
+  },
+  {
+    id: "the-dot",
+    title: "The Dot",
+    description: "A clock stops at zero because setInterval(clock.tick, 1000) detaches the method: the lesson follows the dot through its two jobs — finding tick up the prototype chain and deciding who this is for one call — and shows the arrow and bind repairs.",
+    tier: 1,
+    dependencies: [],
+    topics: theDotTopics,
+  },
+  {
+    id: "later",
+    title: "Later",
+    description: "A refresh button becomes a tour of never waiting: fetch hands slow work to the host, await attaches the rest of the function to a promise and returns, and two queues — short for promise follow-ups, long for everything else — decide what the one thread does next.",
+    tier: 1,
+    dependencies: [],
+    topics: laterTopics,
+  },
+  {
+    id: "the-reader",
+    title: "The Reader",
+    description: "A red underline under amount: '12.50' introduces the compiler as a reader: it checks types against uses before anything runs, then erases every trace — which is why a Line[] annotation cannot vouch for JSON, and why enum and Node's space-stripping are the interesting edges.",
+    tier: 1,
+    dependencies: [],
+    topics: theReaderTopics,
+  },
+  {
+    id: "at-least-these",
+    title: "At Least These",
+    description: "A harbourmaster's fuel list becomes structural typing: a type is a set of possible values described by at-least-these property lists, longer lists mean smaller sets, and never, unknown, any and the fresh-literal extra-property check all fall out as harbour rules.",
+    tier: 1,
+    dependencies: [],
+    topics: atLeastTheseTopics,
+  },
+  {
+    id: "inside-the-if",
+    title: "Inside the If",
+    description: "A lesson in control-flow narrowing: the compiler knows a value by the routes reaching a line, so an early typeof return proves the type below without braces. One deleted assertion was redundant; the other stood where a check should be, and only a real check survives a form with no name.",
+    tier: 1,
+    dependencies: [],
+    topics: insideTheIfTopics,
+  },
+  {
+    id: "hole-in-the-type",
+    title: "The Hole in the Type",
+    description: "A lesson on generics — Hejlsberg objected to Java's erased casts in 2003, then TypeScript 0.9 erased its own anyway: a type parameter is a hole the compiler fills by inference, a constraint shapes it, one function runs for every call, and the typed promise reaches as far as reading can see.",
+    tier: 1,
+    dependencies: [],
+    topics: holeInTheTypeTopics,
+  },
+  {
+    id: "typescript-senior-definitions",
+    title: "Senior TypeScript: the definitions",
+    description: "A compact glossary of senior TypeScript from the foundations — type as a set, erasure, structural typing, inference — through edge types, narrowing, generics, variance and soundness, classes, and the runtime boundary; each entry pairs a plain definition with the detail that marks a senior answer.",
+    tier: 1,
+    dependencies: [],
+    topics: typescriptSeniorDefinitionsTopics,
+  },
+  {
+    id: "typescript-concepts-defined",
+    title: "TypeScript — The Concepts, Defined",
+    description: "A full vocabulary of TypeScript, from erasure and structural typing to the type-level machinery, defined so each concept can be stated precisely in an interview — closing with the judgment layer: where the language deliberately stops proving and how to keep the seams few.",
+    tier: 1,
+    dependencies: [],
+    topics: typescriptConceptsDefinedTopics,
+  },
+  {
+    id: "python-concepts-compact",
+    title: "Python: Concepts as Compact Definitions",
+    description: "A tour of Python as one-breath definitions with one key detail each: the object model and memory, functions and closures, classes and dunder protocols, typing and variance, concurrency under the GIL, data structure costs, errors and tooling, and a closing design vocabulary.",
+    tier: 1,
+    dependencies: [],
+    topics: pythonConceptsCompactTopics,
+  },
+  {
+    id: "typescript-core-definitions",
+    title: "TypeScript: Core Definitions & Concepts",
+    description: "Core TypeScript definitions, each paired with the senior stance on its contested point — unknown over any, unions of literals over enums, inference at boundaries, strict mode non-negotiable — closing on configuration and tooling, where interview depth is actually tested.",
+    tier: 1,
+    dependencies: [],
+    topics: typescriptCoreDefinitionsTopics,
+  },
+  {
+    id: "emigration-argentina",
+    title: "Эмиграция в Аргентину из России: один плотный урок",
+    description: "Переезд из России в Аргентину как три несинхронизированных трека: миграционный статус, судебное гражданство, бытовая легализация. От входа и пророги до juicio de ciudadanía с arraigo, плюс документы, деньги, быт и экосистема посредников с устаревающими советами 2022 года.",
+    tier: 1,
+    dependencies: [],
+    topics: emigrationArgentinaTopics,
+  },
+  {
+    id: "typescript-interview-definitions",
+    title: "Senior TypeScript Interview Definitions",
+    description: "Senior TypeScript definitions organized around judgment: every term marks where the compiler stops proving and the engineer must decide — trust boundaries, variance exceptions, misleading configuration. Ends on the discipline of placing complexity and trust deliberately.",
+    tier: 1,
+    dependencies: [],
+    topics: typescriptInterviewDefinitionsTopics,
+  },
+  {
+    id: "halloween-basics-advanced",
+    title: "Halloween: the basics to the advanced",
+    description: "Traces Halloween from the child's night of costumes and candy down to the layered ritual beneath: Celtic threshold and Allhallowtide, apotropaic masks, souling turned trick-or-treat, monster and fear-word taxonomies, the uncanny and carnival, and the poisoned-candy debunking.",
+    tier: 1,
+    dependencies: [],
+    topics: halloweenBasicsAdvancedTopics,
+  },
+  {
+    id: "python-senior-ru",
+    title: "Senior Python",
+    description: "Собирает сеньорскую модель Python в десять разделов: объектная модель и имена-ярлыки, замыкания и декораторы, ООП с MRO, внутренности CPython и GIL, конкурентность и asyncio, типизация, тестирование, веб и архитектура, алгоритмы на интервью — и десять ловушек одной строкой.",
+    tier: 1,
+    dependencies: [],
+    topics: pythonSeniorRuTopics,
+  },
+  {
+    id: "python-midplus-compact",
+    title: "Middle+ Python: Compact Definitions",
+    description: "A compact question-and-answer map of the middle+ canon: the core language model, dunders and descriptors, functions and OOP design, memory and the GIL, the three concurrency models, and the engineering habits — testing, WSGI/ASGI, N+1, profiling — that separate middle from junior.",
+    tier: 1,
+    dependencies: [],
+    topics: pythonMidplusCompactTopics,
+  },
+  {
+    id: "black-holes-time-dilation",
+    title: "Black holes and gravitational time dilation",
+    description: "Why a diver crosses the horizon on her own watch while the ship above sees her freeze and fade: proper time along each path, the hover ratio √(1 − rₛ/r), coordinate time as bookkeeping, and why bare clock readings cannot be added across different radii.",
+    tier: 1,
+    dependencies: [],
+    topics: blackHolesTimeDilationTopics,
+  },
+  {
+    id: "hokkaido-frontier",
+    title: "Hokkaido: Japan's Northern Frontier",
+    description: "How geography made Hokkaido unlike the rest of Japan: a deep strait and cold climate blocked rice farming, the Ainu kept their own arc until Meiji absorbed the island in 1869 on an American frontier model, and today's pantry, powder snow and depopulation still trace that chain.",
+    tier: 1,
+    dependencies: [],
+    topics: hokkaidoFrontierTopics,
+  },
+  {
+    id: "python-compact-definitions",
+    title: "Python: A Lesson in Compact Definitions",
+    description: "One model explains most of Python: objects live on the heap, names are labels, and syntax dispatches to dunders on the type — unpacked through attribute lookup, closures, iteration, exceptions, CPython internals, concurrency, typing and the tooling working teams use today.",
+    tier: 1,
+    dependencies: [],
+    topics: pythonCompactDefinitionsTopics,
+  },
+  {
+    id: "immigration-canada",
+    title: "Иммиграция в Канаду из России: урок для тех, кто хочет говорить на равных со знающими людьми",
+    description: "Урок строит язык и модель канадской иммиграции: статус вместо визы, двухступенчатая система, иерархия правовых источников, механика подачи и проверок, специфика паспорта РФ и карта путей — от Express Entry до убежища, с ловушками A40 и R117(9)(d) и признаками человека в теме.",
+    tier: 1,
+    dependencies: [],
+    topics: immigrationCanadaTopics,
+  },
+  {
+    id: "vietnam-bao-lanh-residency",
+    title: "Эмиграция в Вьетнам из России: лекция для того, кто хочет говорить на равных",
+    description: "Урок строит модель вьетнамской жизни: у вас нет своего статуса — статус держится на поручителе, а лестница к паспорту — миф; дальше идут коды виз и форм, маршруты легализации, деньги и регистрация, реформа 2025 года и фут-ганы, по которым узнают новичка.",
+    tier: 1,
+    dependencies: [],
+    topics: vietnamBaoLanhResidencyTopics,
+  },
+  {
+    id: "taiwan-art-history-frames",
+    title: "Тайвань: история искусства как история сменяющихся рамок",
+    description: "История тайваньского искусства как цепочка рамок: от цинских ремёсел и миньси через японское изобретение мэйшу, спор о гохуа и модернизм холодной войны к сянту, спору об идентичности после 1987 и австронезийскому повороту; канон делают институты отбора, а имена решают судьбу практик.",
+    tier: 1,
+    dependencies: [],
+    topics: taiwanArtHistoryFramesTopics,
+  },
+  {
+    id: "vietnam-emigration-insider-model",
+    title: "Эмиграция из России во Вьетнам: урок для тех, кто хочет говорить на равных со знающими людьми",
+    description: "Урок собирает модель опытного человека: три сцепленных слоя — якорный статус, инфраструктура присутствия, денежные потоки; разрыв буквы закона и практики, экономика посредников и вторая юрисдикция; итог — умение говорить о вьетнамских статусах кодами и отличать свежие правила от устаревших.",
+    tier: 1,
+    dependencies: [],
+    topics: vietnamEmigrationInsiderModelTopics,
   },
 ];
