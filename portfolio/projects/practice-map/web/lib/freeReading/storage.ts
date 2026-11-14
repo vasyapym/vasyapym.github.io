@@ -1,9 +1,8 @@
 import { useSyncExternalStore } from "react";
-import type { FreeHiddenExamples, FreeReadingSettings, FreeReadingText } from "./types";
+import type { FreeHiddenExamples, FreeReadingText } from "./types";
 
 const PREFIX = "practice-map:free:v2:";
 
-export const freeSettingsKey = (topicId: string) => `${PREFIX}${topicId}`;
 export const freeSectionKey = (topicId: string, sectionIndex: number) =>
   `${PREFIX}${topicId}#s${sectionIndex}`;
 
@@ -93,16 +92,6 @@ export function isHiddenExamplesRecord(x: unknown): x is FreeHiddenExamples {
   );
 }
 
-export function isSettingsRecord(x: unknown): x is FreeReadingSettings {
-  if (!x || typeof x !== "object") return false;
-  const o = x as Record<string, unknown>;
-  return (
-    o.v === 2 &&
-    typeof o.enabled === "boolean" &&
-    typeof o.updatedAt === "number"
-  );
-}
-
 export function isTextRecord(x: unknown): x is FreeReadingText {
   if (!x || typeof x !== "object") return false;
   const o = x as Record<string, unknown>;
@@ -127,18 +116,6 @@ function useStoredRecord<T>(key: string, isValid: (x: unknown) => x is T) {
 
 export function useFreeText(sectionKey: string) {
   return useStoredRecord(sectionKey, isTextRecord);
-}
-
-export function useFreeSettings(topicId: string) {
-  return useStoredRecord(freeSettingsKey(topicId), isSettingsRecord);
-}
-
-export function writeFreeSettings(topicId: string, enabled: boolean) {
-  writeRecord(freeSettingsKey(topicId), {
-    v: 2,
-    enabled,
-    updatedAt: Date.now(),
-  });
 }
 
 export function writeFreeText(

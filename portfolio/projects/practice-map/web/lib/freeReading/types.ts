@@ -1,9 +1,3 @@
-export type FreeReadingSettings = {
-  readonly v: 2;
-  readonly enabled: boolean;
-  readonly updatedAt: number;
-};
-
 /** Which of a section's code examples the reader removed while reading. */
 export type FreeHiddenExamples = {
   readonly v: 1;

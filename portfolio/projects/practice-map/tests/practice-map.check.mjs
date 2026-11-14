@@ -1,6 +1,7 @@
 // Browser check for Practice Map: deep-lesson reader, mobile overlay fit,
 // fragment-tab fallback, keyboard nav, touch-visible copy buttons,
-// shadow typing (interactive reading), saved scroll restore (ed2e302 regression).
+// shadow typing (interactive reading), saved scroll restore (ed2e302 regression),
+// read as code (GitHub-fill mode, F077 re-gate, anchor parity, migration).
 //
 //   node projects/practice-map/tests/practice-map.check.mjs   (from portfolio/)
 //
@@ -424,6 +425,347 @@ try {
   await page.keyboard.press("Escape");
   await wait(400);
   check((await page.$(".practice-lesson-overlay")) === null, "Escape closes after the free-reading leg");
+
+  // --- desktop: read as code (the GitHub-fill reading mode) ------------------
+
+  // D6 leg: two mutually exclusive pills; the fill's computed voice is the
+  // styleguide's §10 dark values; the F077 re-gate must not drift default ↔
+  // free; anchor parity across a code switch; per-lesson persistence.
+  // State premise: the free-reading leg above left lesson 01 (linux-cli-
+  // terminal) in prose mode through the new v1 record.
+  const premise = await page.evaluate(() => {
+    const rec = localStorage.getItem("practice-map:reading:v1:linux-cli-terminal");
+    return rec ? JSON.parse(rec) : null;
+  });
+  check(premise?.v === 1 && premise?.mode === "prose", `the free-reading toggles persisted as v1 records (${JSON.stringify(premise)})`);
+
+  // Seed the legacy free-reading settings record for the NEXT lesson — a
+  // fresh run never writes one (the new controls write v1 directly). The
+  // migration sub-leg at the end proves the read-time mapping.
+  await page.evaluate(() => {
+    window.localStorage.setItem(
+      "practice-map:free:v2:linux-filesystem-hierarchy",
+      JSON.stringify({ v: 2, enabled: true, updatedAt: 1 }),
+    );
+  });
+
+  await page.click(".pg-card .pg-pill");
+  check(await appears(".practice-reader-nav button"), "reader reopens for the read-as-code leg");
+  check((await page.$(".practice-reader-section.is-code")) === null, "prose baseline renders no is-code section");
+
+  // F077 default side: h3 slot + the shared text edge voice
+  const f077Default = await page.evaluate(() => {
+    const section = [...document.querySelectorAll(".practice-reader-section")]
+      .find((s) => s.querySelector(":scope > h3") && s.querySelector(":scope > p"));
+    if (!section) return null;
+    const cs = (el) => getComputedStyle(el);
+    return {
+      h3Pad: cs(section.querySelector(":scope > h3")).paddingBottom,
+      p: (({ paddingLeft, fontSize, lineHeight }) => ({ paddingLeft, fontSize, lineHeight }))(
+        cs(section.querySelector(":scope > p")),
+      ),
+    };
+  });
+  check(f077Default?.h3Pad === "35.2px", `F077 h3 slot intact in default mode (${f077Default?.h3Pad})`);
+  check(f077Default?.p.paddingLeft === "12px", `shared text edge at 0.75rem (${f077Default?.p.paddingLeft})`);
+
+  // toggle "read as code" on (the second pill)
+  await page.click(".reading-modes button:nth-child(2)");
+  check(await appears(".practice-reader-section.is-code"), "read as code mounts is-code sections");
+  await wait(300); // past the 180ms fill fade-in — colors settle before measuring
+  check(
+    (await page.$eval(".practice-lesson-scroll", (el) => el.dataset.reading)) === "code",
+    "scroller carries the data-reading=code hook",
+  );
+  const pressedOn = await page.$$eval(".reading-modes button", (b) => b.map((x) => x.getAttribute("aria-pressed")));
+  check(pressedOn.join(",") === "false,true", `pill states after code on (${pressedOn.join("/")})`);
+
+  const codeLaws = await page.evaluate(() => {
+    const sections = [...document.querySelectorAll(".practice-reader-section.is-code")];
+    const pick = sections.find((s) => s.querySelector(":scope > h3") && s.querySelector(":scope > p"));
+    if (!pick) return null;
+    const cs = (el) => getComputedStyle(el);
+    const fields = (el, names) => el ? Object.fromEntries(names.map((n) => [n, cs(el)[n]])) : null;
+    const fills = [...pick.children].filter((c) => !c.classList.contains("practice-reader-examples"));
+    return {
+      p: fields(pick.querySelector(":scope > p"), ["fontSize", "lineHeight", "backgroundColor", "color"]),
+      h3: fields(pick.querySelector(":scope > h3"), [
+        "paddingTop", "borderTopLeftRadius", "borderTopRightRadius",
+      ]),
+      last: fields(fills[fills.length - 1], [
+        "paddingBottom", "borderBottomLeftRadius", "borderBottomRightRadius",
+      ]),
+      pre: fields(
+        document.querySelector(".practice-reader-section.is-code .practice-example-code pre"),
+        ["whiteSpace", "overflow", "backgroundColor", "color", "paddingTop", "paddingRight", "paddingBottom", "paddingLeft", "borderTopLeftRadius"],
+      ),
+      inline: fields(
+        document.querySelector(".practice-reader-section.is-code > :not(.practice-reader-examples) code"),
+        ["color", "backgroundColor"],
+      ),
+      callout: fields(
+        document.querySelector(".practice-reader-section.is-code > .practice-callout"),
+        ["paddingLeft"],
+      ),
+    };
+  });
+  const near = (a, b, eps = 0.06) => Math.abs(a - b) <= eps;
+  check(!!codeLaws, "a code-mode section with heading and prose exists");
+  check(near(parseFloat(codeLaws.p.fontSize), 13.6), `fill text is 13.6px (${codeLaws.p.fontSize})`);
+  check(near(parseFloat(codeLaws.p.lineHeight), 19.72, 0.1), `fill pitch is 19.72px (${codeLaws.p.lineHeight})`);
+  check(codeLaws.p.backgroundColor === "rgb(21, 27, 35)", `fill ground is #151b23 (${codeLaws.p.backgroundColor})`);
+  check(codeLaws.p.color === "rgb(240, 246, 252)", `fill text is #f0f6fc (${codeLaws.p.color})`);
+  check(codeLaws.h3.paddingTop === "16px", `first fill child pads 16px on top (${codeLaws.h3.paddingTop})`);
+  check(
+    codeLaws.h3.borderTopLeftRadius === "6px" && codeLaws.h3.borderTopRightRadius === "6px",
+    `first fill child rounds its top corners (${codeLaws.h3.borderTopLeftRadius}/${codeLaws.h3.borderTopRightRadius})`,
+  );
+  check(codeLaws.last.paddingBottom === "16px", `last fill child pads 16px below (${codeLaws.last.paddingBottom})`);
+  check(
+    codeLaws.last.borderBottomLeftRadius === "6px" && codeLaws.last.borderBottomRightRadius === "6px",
+    `last fill child rounds its bottom corners (${codeLaws.last.borderBottomLeftRadius}/${codeLaws.last.borderBottomRightRadius})`,
+  );
+  check(
+    codeLaws.pre.whiteSpace === "pre" && codeLaws.pre.overflow === "auto",
+    `example pre keeps white-space: pre + overflow: auto (${codeLaws.pre?.whiteSpace}/${codeLaws.pre?.overflow})`,
+  );
+  check(
+    codeLaws.pre.backgroundColor === "rgb(21, 27, 35)" && codeLaws.pre.color === "rgb(240, 246, 252)",
+    `example pre wears the fill (${codeLaws.pre?.backgroundColor}/${codeLaws.pre?.color})`,
+  );
+  check(
+    codeLaws.pre.paddingTop === "16px" && codeLaws.pre.paddingRight === "16px"
+      && codeLaws.pre.paddingBottom === "16px" && codeLaws.pre.paddingLeft === "16px",
+    `example pre pads 16px on all sides (${codeLaws.pre?.paddingTop}/${codeLaws.pre?.paddingRight}/${codeLaws.pre?.paddingBottom}/${codeLaws.pre?.paddingLeft})`,
+  );
+  check(codeLaws.pre.borderTopLeftRadius === "6px", `example pre radius 6px (${codeLaws.pre?.borderTopLeftRadius})`);
+  check(
+    codeLaws.inline && codeLaws.inline.color === "rgb(121, 192, 255)"
+      && codeLaws.inline.backgroundColor === "rgba(0, 0, 0, 0)",
+    `inline code on the fill is flat constant blue (${codeLaws.inline?.color}/${codeLaws.inline?.backgroundColor})`,
+  );
+  check(
+    codeLaws.callout && codeLaws.callout.paddingLeft === "16px",
+    `callout keeps the fill's 16px gutter in code mode (${codeLaws.callout?.paddingLeft})`,
+  );
+
+  const noOverflowCode = await page.evaluate(
+    () => document.querySelector(".practice-lesson-overlay").scrollWidth <= window.innerWidth,
+  );
+  check(noOverflowCode, "no horizontal overflow in code mode at 1440px");
+
+  // mutual exclusivity: free wins, code releases — and back
+  await page.click(".reading-modes button:nth-child(1)");
+  check(await appears(".fr .fr-area"), "free reading mounts from code mode");
+  const exclusive = await page.evaluate(() => ({
+    pressed: [...document.querySelectorAll(".reading-modes button")].map((b) => b.getAttribute("aria-pressed")),
+    codeSections: document.querySelectorAll(".practice-reader-section.is-code").length,
+  }));
+  check(exclusive.pressed.join(",") === "true,false", `code pill releases when free wins (${exclusive.pressed.join("/")})`);
+  check(exclusive.codeSections === 0, "no is-code section while free reading is on");
+  await page.click(".reading-modes button:nth-child(2)");
+  check(await appears(".practice-reader-section.is-code"), "code returns from free mode");
+  const backPressed = await page.$$eval(".reading-modes button", (b) => b.map((x) => x.getAttribute("aria-pressed")));
+  check(backPressed.join(",") === "false,true", `pill states after returning to code (${backPressed.join("/")})`);
+
+  // F077 toggle parity through the re-gate: free adopts the prose voice and
+  // default returns to the same values after the code round-trip
+  await page.click(".reading-modes button:nth-child(2)"); // code → prose
+  await wait(300);
+  await page.click(".reading-modes button:nth-child(1)");
+  check(await appears(".fr .fr-area"), "free reading mounts for the F077 parity check");
+  const f077Free = await page.evaluate(() => {
+    const section = [...document.querySelectorAll(".practice-reader-section.is-fr")]
+      .find((s) => s.querySelector(":scope > h3") && s.querySelector(":scope > .fr"));
+    if (!section) return null;
+    const cs = (el) => getComputedStyle(el);
+    return {
+      h3Pad: cs(section.querySelector(":scope > h3")).paddingBottom,
+      area: (({ paddingLeft, fontSize, lineHeight }) => ({ paddingLeft, fontSize, lineHeight }))(
+        cs(section.querySelector(".fr .fr-area")),
+      ),
+    };
+  });
+  check(f077Free?.h3Pad === "0px", `is-fr releases the F077 h3 slot (${f077Free?.h3Pad})`);
+  check(
+    f077Free?.area.paddingLeft === f077Default.p.paddingLeft
+      && f077Free?.area.fontSize === f077Default.p.fontSize
+      && f077Free?.area.lineHeight === f077Default.p.lineHeight,
+    `free surface carries the prose voice (F077 parity: ${JSON.stringify(f077Free?.area)})`,
+  );
+  await page.click(".reading-modes button:nth-child(1)"); // free → prose
+  await wait(300);
+  const f077Back = await page.evaluate(() => {
+    const section = [...document.querySelectorAll(".practice-reader-section")]
+      .find((s) => s.querySelector(":scope > h3") && s.querySelector(":scope > p"));
+    if (!section) return null;
+    const cs = (el) => getComputedStyle(el);
+    return {
+      h3Pad: cs(section.querySelector(":scope > h3")).paddingBottom,
+      p: (({ paddingLeft, fontSize, lineHeight }) => ({ paddingLeft, fontSize, lineHeight }))(
+        cs(section.querySelector(":scope > p")),
+      ),
+    };
+  });
+  check(
+    JSON.stringify(f077Back) === JSON.stringify(f077Default),
+    `default values return unchanged after the re-gate (${JSON.stringify(f077Back)})`,
+  );
+
+  // anchor parity, two scroll postures: a section top exactly on the edge
+  // (topVisible → px offset parity) and a deliberately mid-section position
+  // (top above the edge → the fraction error converts to px via the
+  // restored section height before the 2px tolerance)
+  const measureAnchor = () => page.evaluate(() => {
+    const scroller = document.querySelector(".practice-lesson-scroll");
+    const edge = scroller.getBoundingClientRect().top;
+    for (const el of scroller.querySelectorAll("[data-section-index]")) {
+      const r = el.getBoundingClientRect();
+      if (r.bottom <= edge) continue;
+      if (r.top > edge) break;
+      return {
+        index: el.dataset.sectionIndex,
+        topVisible: r.top >= edge - 0.5,
+        offset: r.top - edge,
+        fraction: (edge - r.top) / r.height,
+      };
+    }
+    return null;
+  });
+  const measureRestored = (idx) => page.evaluate((idx) => {
+    const scroller = document.querySelector(".practice-lesson-scroll");
+    const edge = scroller.getBoundingClientRect().top;
+    const el = scroller.querySelector(`[data-section-index="${idx.index}"]`);
+    const r = el.getBoundingClientRect();
+    return {
+      topVisible: idx.topVisible,
+      value: idx.topVisible ? r.top - edge : (edge - r.top) / r.height,
+      height: r.height,
+    };
+  }, idx);
+  // the chip's smooth scroll can outlive a fixed wait — settle on a stable
+  // scrollTop before measuring (a late tick would displace the landing)
+  const scrollSettled = async () => {
+    for (let i = 0; i < 20; i++) {
+      const a = await page.$eval(".practice-lesson-scroll", (el) => el.scrollTop);
+      await wait(120);
+      const b = await page.$eval(".practice-lesson-scroll", (el) => el.scrollTop);
+      if (Math.abs(a - b) < 0.5) return true;
+    }
+    return false;
+  };
+
+  await page.click(".practice-reader-nav button:nth-child(6)");
+  check(await scrollSettled(), "the chip's smooth scroll settles before the anchor landing");
+  // posture 1: land section 5's top 0.25px inside the edge (crossing, top
+  // visible) — the restore's topVisible branch, px offset parity. The 0.25
+  // slack keeps the LayoutUnit snap (~1/64px) inside the window.
+  const edgeLanding = await page.evaluate(() => {
+    const scroller = document.querySelector(".practice-lesson-scroll");
+    const edge = scroller.getBoundingClientRect().top;
+    const el = scroller.querySelector('[data-section-index="5"]');
+    const r = el.getBoundingClientRect();
+    scroller.scrollTop += r.top - edge + 0.25;
+    return el.getBoundingClientRect().top - edge;
+  });
+  const anchorTop = await measureAnchor();
+  check(
+    anchorTop != null && anchorTop.topVisible,
+    `edge landing puts section 5 at ${edgeLanding?.toFixed(2)}px from the edge (anchor=${anchorTop?.index}, topVisible=${anchorTop?.topVisible})`,
+  );
+  await page.click(".reading-modes button:nth-child(2)"); // prose → code
+  await wait(120); // the restore is pre-paint; give the commit a beat
+  const restoredTop = await measureRestored(anchorTop);
+  const topDelta = Math.abs(restoredTop.value - anchorTop.offset);
+  check(topDelta <= 2, `topVisible path: section keeps its px offset across the code switch (Δ ${topDelta.toFixed(2)}px)`);
+
+  // posture 2: back to prose, then push the same section 40% through itself
+  // so its top sits above the edge — the restore's fractional branch
+  await page.click(".reading-modes button:nth-child(2)"); // code → prose
+  await wait(300);
+  await page.evaluate(() => {
+    const scroller = document.querySelector(".practice-lesson-scroll");
+    const edge = scroller.getBoundingClientRect().top;
+    const el = scroller.querySelector('[data-section-index="5"]');
+    const r = el.getBoundingClientRect();
+    scroller.scrollTop += r.height * 0.4;
+  });
+  check(await scrollSettled(), "the mid-section push settles before measuring");
+  const anchorMid = await measureAnchor();
+  check(
+    anchorMid != null && !anchorMid.topVisible && anchorMid.index === "5",
+    `mid-section scroll puts section ${anchorMid?.index} at fraction ${anchorMid?.fraction?.toFixed(2)} (topVisible=${anchorMid?.topVisible})`,
+  );
+  await page.click(".reading-modes button:nth-child(2)"); // prose → code
+  await wait(120);
+  const restoredMid = await measureRestored(anchorMid);
+  // the fraction error is unitless — scale it by the RESTORED section
+  // height so the 2px tolerance means the same thing on both paths
+  const midDelta = Math.abs(restoredMid.value - anchorMid.fraction) * restoredMid.height;
+  check(
+    midDelta <= 2,
+    `fraction path: the edge keeps its fraction through the section (Δ ${midDelta.toFixed(2)}px of the restored ${restoredMid.height.toFixed(0)}px section)`,
+  );
+
+  // persistence: the v1 record holds code, and a reload reopens in code
+  const persisted = await page.evaluate(() => {
+    const rec = localStorage.getItem("practice-map:reading:v1:linux-cli-terminal");
+    return rec ? JSON.parse(rec) : null;
+  });
+  check(persisted?.mode === "code", `v1 record holds code after the toggle (${JSON.stringify(persisted)})`);
+  await page.reload({ waitUntil: "domcontentloaded", timeout: 150000 });
+  check(await appears(".pg-card"), "map renders after reload");
+  await page.click('[data-turn="next"]');
+  await wait(300);
+  await page.click('[data-turn="next"]');
+  await wait(300);
+  await page.click('.pg-tier-row[data-tier-id="opus-4.8-thinking"]');
+  await wait(400);
+  await page.click(".pg-face-head");
+  await wait(400);
+  await page.click(".pg-card .pg-pill");
+  check(await appears(".practice-reader-nav button"), "reader reopens after reload");
+  const restoredMode = await page.evaluate(
+    () => document.querySelector(".practice-lesson-scroll")?.dataset.reading,
+  );
+  check(restoredMode === "code", `reopened lesson reads as code from storage (${restoredMode})`);
+  check(
+    (await page.$(".practice-reader-section.is-code")) !== null,
+    "persisted code mode renders is-code sections after reload",
+  );
+
+  // leave prose for the downstream (mobile) legs — a persisted code mode
+  // would otherwise follow lesson 01 into them
+  await page.click(".reading-modes button:nth-child(2)"); // code → prose
+  await wait(300);
+  check((await page.$(".practice-reader-section.is-code")) === null, "code releases for the downstream legs");
+  await page.keyboard.press("Escape");
+  await wait(400);
+  check((await page.$(".practice-lesson-overlay")) === null, "Escape closes after the read-as-code leg");
+
+  // migration: opening the seeded lesson maps the legacy settings record
+  // (enabled:true → free) onto a v1 record and removes only that record
+  const volCards = await page.$$(".pg-card .pg-pill");
+  await volCards[1].click();
+  check(await appears(".fr .fr-area"), "seeded lesson opens straight into free reading (migrated)");
+  const migratedRec = await page.evaluate(() => {
+    const legacyGone = Object.keys(localStorage).every(
+      (k) => k !== "practice-map:free:v2:linux-filesystem-hierarchy",
+    );
+    const rec = localStorage.getItem("practice-map:reading:v1:linux-filesystem-hierarchy");
+    return { legacyGone, rec: rec ? JSON.parse(rec) : null };
+  });
+  check(
+    migratedRec.legacyGone && migratedRec.rec?.v === 1 && migratedRec.rec?.mode === "free",
+    `legacy settings record migrated on read and removed (${JSON.stringify(migratedRec.rec)})`,
+  );
+  const migratedPressed = await page.$$eval(".reading-modes button", (b) => b.map((x) => x.getAttribute("aria-pressed")));
+  check(migratedPressed.join(",") === "true,false", `pills reflect the migrated free state (${migratedPressed.join("/")})`);
+  await page.click(".reading-modes button:nth-child(1)"); // free → prose
+  await wait(300);
+  await page.keyboard.press("Escape");
+  await wait(400);
+  check((await page.$(".practice-lesson-overlay")) === null, "Escape closes after the migration leg");
 
   // --- desktop: fragment fallback -------------------------------------------
 

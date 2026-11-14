@@ -916,14 +916,17 @@
    the stream separates blocks by one blank line = 1.72em of the prose voice.
    Gated on the section's own is-fr class (React knows the mode; the previous
    :has(.fr-row) gates made WebKit choke on the mega-lesson's scroll — every
-   frame re-walked subtrees). fr mode is untouched by these rules. */
-.practice-reader-section:not(.is-fr) > h3 {
+   frame re-walked subtrees). fr mode is untouched by these rules.
+   read-as-code re-gate: that mode paints its own panel (one contiguous fill,
+   spacing carried by the fill's own padding), so the slot governs prose and
+   free only. */
+.practice-reader-section:not(.is-fr):not(.is-code) > h3 {
   padding-bottom: calc(1.1rem + 0.15rem + 0.95rem);
 }
-.practice-reader-section:not(.is-fr) > :first-child:not(h3) {
+.practice-reader-section:not(.is-fr):not(.is-code) > :first-child:not(h3) {
   margin-top: calc(1.1rem + 0.15rem + 0.95rem);
 }
-.practice-reader-section:not(.is-fr)
+.practice-reader-section:not(.is-fr):not(.is-code)
   > :not(h3):not(.practice-reader-examples)
   + :not(h3):not(.practice-reader-examples) {
   margin-top: calc(1.72em - 0.95rem);

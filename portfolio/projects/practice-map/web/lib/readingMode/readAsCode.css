@@ -1,0 +1,291 @@
+/* ── read as code (the GitHub-fill reading mode) ────────────────────────────
+   Governing rule: what paints on the GitHub fill is GitHub; what sits on
+   the ink field stays ink — nothing GitHub-voiced floats on the field, and
+   nothing ink-voiced sits on the fill. Imported after practice-map.css and
+   freeReading.css so the ≤560px header grid and the .reading-modes values
+   win their same-specificity cascades. */
+
+/* ---- tokens: GitHub "Dark default", scoped to the overlay ---- */
+.practice-lesson-overlay {
+  --gh-bg-code: #151b23;
+  --gh-fg: #f0f6fc;
+  --gh-fg-muted: #9198a1;
+  --gh-border: #3d444d;
+  --gh-link: #4493f8;
+  --gh-syn-constant: #79c0ff;
+  --gh-syn-variable: #ffa657;
+  --gh-font-mono: ui-monospace, SFMono-Regular, "SF Mono", Menlo, Consolas, "Liberation Mono", monospace;
+  --gh-fs-code: 0.85rem; /* 13.6px at a 16px root */
+  --gh-lh-code: 1.45; /* 19.72px computed */
+  --gh-pad-code: 16px;
+  --gh-radius: 6px;
+  --reading-switch: 180ms;
+}
+
+/* native scroll anchoring is OFF: the design assumed the fill's padding
+   changes suppress it, but Chrome still adjusts (~one 1.5rem section gap
+   measured) AFTER the explicit restore writes — the restore must be the
+   single scroll writer or the reader's pinned place is overridden */
+.practice-lesson-scroll { overflow-anchor: none; }
+
+/* ---- switch easing: declared on both states so leaving the mode eases too ---- */
+.practice-reader-section:not(.is-fr) > :where(:not(.practice-reader-examples)),
+.practice-example-code pre {
+  transition: background-color var(--reading-switch) ease, color var(--reading-switch) ease;
+}
+@starting-style {
+  .practice-reader-section.is-code > :where(:not(.practice-reader-examples)),
+  .practice-reader-section.is-code .practice-example-code pre {
+    background-color: transparent;
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .practice-reader-section > :where(:not(.practice-reader-examples)),
+  .practice-example-code pre { transition: none; }
+}
+
+/* ---- the panel: one contiguous fill painted by the section's prose children ---- */
+.practice-reader-section.is-code { gap: 0; }
+
+.practice-reader-section.is-code > :where(:not(.practice-reader-examples)) {
+  margin: 0;
+  padding: 0 var(--gh-pad-code) calc(var(--gh-lh-code) * 1em); /* one blank line below */
+  border: 0;
+  border-radius: 0;
+  background-color: var(--gh-bg-code);
+  color: var(--gh-fg);
+  font-family: var(--gh-font-mono);
+  font-size: var(--gh-fs-code);
+  font-weight: 400;
+  font-style: normal;
+  line-height: var(--gh-lh-code);
+  letter-spacing: normal;
+  word-spacing: normal;
+  text-align: start;
+  text-indent: 0;
+  text-wrap: wrap;
+  hyphens: none;
+  font-variant-ligatures: none;
+  tab-size: 8;
+  white-space: pre-wrap;
+  overflow-wrap: anywhere;
+  -webkit-font-smoothing: auto;
+  -moz-osx-font-smoothing: auto;
+  text-rendering: auto;
+}
+
+.practice-reader-section.is-code > :first-child:not(.practice-reader-examples) {
+  padding-top: var(--gh-pad-code);
+  border-top-left-radius: var(--gh-radius);
+  border-top-right-radius: var(--gh-radius);
+}
+.practice-reader-section.is-code
+  > :not(.practice-reader-examples):is(:last-child, :has(+ .practice-reader-examples)) {
+  padding-bottom: var(--gh-pad-code);
+  border-bottom-left-radius: var(--gh-radius);
+  border-bottom-right-radius: var(--gh-radius);
+}
+
+/* ---- heading: "# 01 Heading" ---- */
+.practice-reader-section.is-code > h3 {
+  display: block;
+  font-weight: 600;
+}
+.practice-reader-section.is-code > h3::before {
+  /* the first declaration is the cascade fallback where the alt-text syntax is unsupported */
+  content: "# ";
+  content: "# " / ""; /* decorative: silent for assistive tech where supported */
+  color: var(--gh-fg-muted);
+  font-weight: 400;
+}
+.practice-reader-section.is-code > h3 span {
+  margin-right: 1ch;
+  color: var(--gh-fg-muted);
+  font-family: inherit;
+  font-size: inherit;
+  font-weight: 400;
+  letter-spacing: normal;
+}
+
+/* ---- lists: source-style markers hanging at the text edge ---- */
+.practice-reader-section.is-code > ul,
+.practice-reader-section.is-code > ol { gap: 0; }
+.practice-reader-section.is-code > ul {
+  list-style-type: "- ";
+  padding-left: calc(var(--gh-pad-code) + 2ch);
+}
+.practice-reader-section.is-code > ol {
+  list-style-type: decimal;
+  padding-left: calc(var(--gh-pad-code) + 3ch);
+}
+.practice-reader-section.is-code li {
+  color: inherit;
+  font-size: inherit;
+  line-height: inherit;
+}
+.practice-reader-section.is-code li::marker {
+  color: var(--gh-fg-muted);
+  font-family: inherit;
+  font-size: 1em;
+}
+
+/* ---- callout: a comment block behind a GitHub blockquote rule ---- */
+.practice-reader-section.is-code > .practice-callout {
+  --callout-mark: var(--gh-syn-constant);
+  gap: 0;
+  /* the ink callout box (2px token rule, 0.9rem pad) loses on specificity
+     to the shared fill child rule above, which supplies the 16px gutters
+     and the blank line; the children below carry the single .25em rule */
+}
+.practice-reader-section.is-code > .practice-callout.is-warning {
+  --callout-mark: var(--gh-syn-variable);
+}
+.practice-reader-section.is-code > .practice-callout > * {
+  margin: 0;
+  border-left: 0.25em solid var(--gh-border);
+  padding-left: calc(2ch - 0.25em);
+}
+.practice-reader-section.is-code .practice-callout-title {
+  color: var(--callout-mark);
+  font-family: inherit;
+  font-size: inherit;
+  letter-spacing: normal;
+}
+.practice-reader-section.is-code .practice-callout.is-warning .practice-callout-title::before {
+  content: "! ";
+}
+.practice-reader-section.is-code .practice-callout p {
+  color: var(--gh-fg-muted);
+  font-size: inherit;
+  /* one pitch everywhere on the fill (D3): the ink callout's 1.62 is tuned
+     for the field's 19.2px voice, not the fill's 13.6px one */
+  line-height: inherit;
+}
+
+/* ---- inline markup on the fill: flat tokens, one size ---- */
+.practice-reader-section.is-code > :not(.practice-reader-examples) code {
+  padding: 0;
+  border: 0;
+  border-radius: 0;
+  background: transparent;
+  color: var(--gh-syn-constant);
+  font-family: inherit;
+  font-size: 100%;
+  white-space: inherit;
+}
+.practice-reader-section.is-code > :not(.practice-reader-examples) strong {
+  color: var(--gh-fg);
+  font-weight: 600;
+}
+.practice-reader-section.is-code > :not(.practice-reader-examples) em {
+  color: inherit;
+  font-style: italic;
+}
+.practice-reader-section.is-code > :not(.practice-reader-examples) a {
+  color: var(--gh-link);
+  text-decoration: underline;
+}
+
+/* ---- examples: the pre is the literal GitHub pre; caption and explanation stay ink ---- */
+.practice-reader-section.is-code > .practice-reader-examples:not(:first-child) {
+  margin-top: 16px;
+}
+.practice-reader-section.is-code .practice-example-code {
+  padding: 0;
+  border: 0;
+  border-radius: var(--gh-radius);
+  background: none;
+}
+.practice-reader-section.is-code .practice-example-code pre {
+  margin: 0;
+  padding: var(--gh-pad-code);
+  overflow: auto;
+  border: 0;
+  border-radius: var(--gh-radius);
+  background-color: var(--gh-bg-code);
+  color: var(--gh-fg);
+  font-family: var(--gh-font-mono);
+  font-size: var(--gh-fs-code);
+  font-weight: 400;
+  line-height: var(--gh-lh-code);
+  letter-spacing: normal;
+  white-space: pre;
+  word-wrap: normal;
+  tab-size: 8;
+  font-variant-ligatures: none;
+  -webkit-font-smoothing: auto;
+  -moz-osx-font-smoothing: auto;
+}
+.practice-reader-section.is-code .practice-example-code pre > code {
+  display: inline;
+  margin: 0;
+  padding: 0;
+  overflow: visible;
+  border: 0;
+  background: transparent;
+  color: inherit;
+  font-family: inherit;
+  font-size: 100%;
+  line-height: inherit;
+  white-space: pre;
+  word-break: normal;
+  overflow-wrap: normal;
+}
+
+/* ---- focus: one focus language per overlay. Ochre governs; the styleguide lends only its geometry ---- */
+.practice-reader-section.is-code .practice-example-code pre:focus-visible {
+  outline: 2px solid var(--ink-accent);
+  outline-offset: -2px;
+}
+
+/* ---- header control: two existing pills; .fr-controls button rules apply verbatim ---- */
+.reading-modes {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.4rem;
+}
+.reading-mode-state {
+  display: inline-block;
+  min-width: calc(3ch + 0.24em); /* "on"/"off" swap never changes pill width */
+  text-align: left;
+}
+
+/* ---- integration: mode-scoped adjustments left to the wiring round ---- */
+
+/* the copy pill is a legibility mask over the fill, not ink chrome — it
+   adopts the fill voice inside the mode (governing rule above) */
+.practice-reader-section.is-code .practice-example-copy {
+  background: var(--gh-bg-code);
+  color: var(--gh-fg-muted);
+  border-bottom-color: var(--gh-border);
+}
+.practice-reader-section.is-code .practice-example-copy:hover,
+.practice-reader-section.is-code .practice-example-copy.is-copied {
+  color: var(--gh-fg);
+}
+
+/* the ink-field scroll fade would wash the fill with #0b1317 — re-tint to
+   the fill's own ground */
+.practice-reader-section.is-code .practice-example-code.is-scrollable::after {
+  background: linear-gradient(to left, var(--gh-bg-code), transparent);
+}
+
+/* styleguide §4: 16px between blocks */
+.practice-reader-section.is-code .practice-reader-examples {
+  gap: 16px;
+}
+
+/* phones: title + close on row 1, the pill pair on row 2 (assumes the header is a two-child row today) */
+@media (max-width: 560px) {
+  .practice-lesson-header {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) auto;
+    column-gap: 0.75rem;
+    row-gap: 0.6rem;
+    align-items: start;
+  }
+  .practice-lesson-header > div:first-child { grid-column: 1; grid-row: 1; }
+  .practice-lesson-tools { display: contents; }
+  .practice-lesson-close { grid-column: 2; grid-row: 1; }
+  .reading-modes { grid-column: 1 / -1; grid-row: 2; justify-self: start; }
+}

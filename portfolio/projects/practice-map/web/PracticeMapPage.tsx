@@ -29,7 +29,7 @@ import { TierPanel } from "./lib/tiers/TierPanel";
 import { Palette, type PaletteItem } from "./lib/tiers/Palette";
 import "./lib/tiers/tiers.css";
 import { Blocks, InlineText } from "./lib/format";
-import { FreeReadingControls } from "./lib/freeReading/FreeReadingControls";
+import { ReadingModeControls } from "./lib/readingMode/ReadingModeControls";
 
 // Touch devices never hover: their example figures carry the remove control
 // on the code itself (F079). Evaluated once at bundle load — a SPA, no SSR.
@@ -40,10 +40,8 @@ const TOUCH_LAYOUT =
 import { FreeReadingText } from "./lib/freeReading/FreeReadingText";
 import {
   freeSectionKey,
-  useFreeSettings,
   useHiddenExamples,
   removeHiddenExamples,
-  writeFreeSettings,
   writeHiddenExamples,
 } from "./lib/freeReading/storage";
 import { useFreeReading } from "./lib/freeReading/useFreeReading";
@@ -52,6 +50,16 @@ import {
   removeScrollProgress,
   writeScrollProgress,
 } from "./lib/scrollProgress/storage";
+import {
+  peekReadingMode,
+  useReadingMode,
+  writeReadingMode,
+  type ReadingMode,
+} from "./lib/readingMode/storage";
+// last on purpose: after practice-map.css and freeReading.css, so the mode's
+// ≤560px header grid and the .reading-modes values win their same-specificity
+// cascades
+import "./lib/readingMode/readAsCode.css";
 
 const LESSON_TABS = [
   { key: "problem", label: "problem" },
@@ -266,6 +274,9 @@ function LessonOverlay({
   const settleTimerRef = useRef<number>(undefined);
   const saveTimerRef = useRef<number>(undefined);
   const pendingScrollTopRef = useRef<number | null>(null);
+  // anchor parity: the top-edge section snapshot taken before a code-touching
+  // mode write, consumed once by the pre-paint restore below
+  const readingAnchorRef = useRef<ReadingAnchor | null>(null);
   const lesson = topic.lesson;
   // Legacy fast path (deepLesson inlined in the topic card) falls back to the
   // per-lesson chunk loader; while the chunk resolves the body stays empty
@@ -289,8 +300,26 @@ function LessonOverlay({
     };
   }, [topic]);
   const deep = topic.deepLesson ?? lazyDeep;
-  const free = useFreeSettings(topic.id);
-  const freeEnabled = free.value?.enabled ?? false;
+  // modeRef carries the rendered mode for the subscribe wrapper below: an
+  // external switch (another tab's write) must anchor like a local one, and
+  // the store callback fires BEFORE React re-renders — the DOM there is
+  // still the pre-change geometry. The ref rides the render (the
+  // useFreeReading textRef pattern).
+  const modeRef = useRef<ReadingMode | null>(null);
+  const reading = useReadingMode(topic.id, () => {
+    const next = peekReadingMode(topic.id);
+    const prev = modeRef.current;
+    if (
+      next !== null &&
+      next !== prev &&
+      (next === "code" || prev === "code") &&
+      scrollRef.current
+    ) {
+      readingAnchorRef.current = snapshotReadingAnchor(scrollRef.current);
+    }
+  });
+  const mode = reading.mode;
+  modeRef.current = mode;
 
   const updateProgress = () => {
     const scroller = scrollRef.current;
@@ -329,6 +358,20 @@ function LessonOverlay({
   const handleScroll = () => {
     updateProgress();
     scheduleScrollSave();
+  };
+
+  // Anchor parity, write side: snapshot the reader's place before the store
+  // write — the emit re-renders and the reflow happens in that commit, so
+  // the pre-write geometry is the place to keep. Only switches touching
+  // code reflow the column; prose↔free never sets an anchor. The subscribe
+  // wrapper above captures the same pre-change geometry for external
+  // (other-tab) switches — both paths feed the same one-shot restore below.
+  const changeReadingMode = (next: ReadingMode) => {
+    const scroller = scrollRef.current;
+    if (scroller && (next === "code" || mode === "code")) {
+      readingAnchorRef.current = snapshotReadingAnchor(scroller);
+    }
+    writeReadingMode(topic.id, next);
   };
 
   const goToSection = (target: number, scroll = true) => {
@@ -545,6 +588,32 @@ function LessonOverlay({
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [deep]);
 
+  // Anchor parity, restore side: runs pre-paint in the same commit that
+  // applied the new mode — before the 300ms debounced scroll save can
+  // persist the reflow's raw position, so the per-lesson record ends up
+  // holding the restored place. The delta is computed from live geometry,
+  // so whatever the engine did between commit and read is absorbed. Both
+  // capture paths (the local write and the external-switch wrapper) feed
+  // this one-shot restore.
+  useLayoutEffect(() => {
+    const anchor = readingAnchorRef.current;
+    if (!anchor) return; // prose↔free switches (and the first mount) never set one
+    readingAnchorRef.current = null; // one-shot
+    const scroller = scrollRef.current;
+    if (!scroller) return;
+    const el = scroller.querySelector<HTMLElement>(`[data-section-index="${anchor.index}"]`);
+    if (!el) return;
+    const edgeY = scroller.getBoundingClientRect().top;
+    const rect = el.getBoundingClientRect();
+    if (anchor.topVisible) {
+      scroller.scrollTop += rect.top - edgeY - (anchor.offsetPx ?? 0);
+    } else {
+      scroller.scrollTop += rect.top - edgeY + (anchor.fraction ?? 0) * rect.height;
+    }
+    // keyed on the mode only: the anchor itself is captured by the write side.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [mode]);
+
   useEffect(() => {
     const onHidden = () => {
       if (document.visibilityState === "hidden") flushScrollSave();
@@ -593,13 +662,11 @@ function LessonOverlay({
             <h2>{topic.title}</h2>
           </div>
           <div className="practice-lesson-tools">
-            {free.hydrated && (
-              <FreeReadingControls
-                enabled={freeEnabled}
-                hydrated={free.hydrated}
-                onToggle={(next) => writeFreeSettings(topic.id, next)}
-              />
-            )}
+            <ReadingModeControls
+              mode={mode}
+              hydrated={reading.hydrated}
+              onChange={changeReadingMode}
+            />
             <button
               aria-label="Close lesson"
               className="practice-lesson-close"
@@ -617,6 +684,7 @@ function LessonOverlay({
 
         <div
           className="practice-lesson-scroll"
+          data-reading={mode}
           key={topic.id}
           onScroll={handleScroll}
           ref={scrollRef}
@@ -660,7 +728,7 @@ function LessonOverlay({
                     sectionIndex={sectionId}
                     section={section}
                     topicId={topic.id}
-                    settings={{ enabled: freeEnabled }}
+                    settings={{ mode }}
                   />
                 ))}
               </div>
@@ -740,6 +808,44 @@ function sectionProse(section: LessonSection): string {
   return parts.filter(Boolean).join("\n\n");
 }
 
+// Anchor parity (design D7): a switch touching code reflows every glyph in
+// one frame, and the fill's padding changes suppress native scroll anchoring
+// — so keeping the reader's place is explicit. The section crossing the
+// scroll body's top edge is snapshotted before the write and pinned back
+// pre-paint after it: same px offset below the edge while its top is
+// visible, else the same fraction through the section. It reads scroll
+// geometry only and feeds no value into CSS.
+type ReadingAnchor = {
+  index: number;
+  /** true → offsetPx holds the px from the scroller's top edge to the section top */
+  topVisible: boolean;
+  offsetPx?: number;
+  /** top hidden → the edge sits this fraction through the section */
+  fraction?: number;
+};
+
+function snapshotReadingAnchor(scroller: HTMLDivElement): ReadingAnchor | null {
+  const scrollerRect = scroller.getBoundingClientRect();
+  if (scrollerRect.height === 0) return null;
+  const edgeY = scrollerRect.top;
+  // the last section fully above the edge: the fallback for when the edge
+  // sits in the gap between sections (fraction 1 = the reader finished it)
+  let lastPassed: ReadingAnchor | null = null;
+  for (const el of scroller.querySelectorAll<HTMLElement>("[data-section-index]")) {
+    const rect = el.getBoundingClientRect();
+    if (rect.bottom <= edgeY) {
+      lastPassed = { index: Number(el.dataset.sectionIndex), topVisible: false, fraction: 1 };
+      continue;
+    }
+    if (rect.top > edgeY) break; // first section below the edge — nothing crosses
+    const index = Number(el.dataset.sectionIndex);
+    return rect.top >= edgeY - 0.5
+      ? { index, topVisible: true, offsetPx: rect.top - edgeY }
+      : { index, topVisible: false, fraction: (edgeY - rect.top) / rect.height };
+  }
+  return lastPassed; // null when even the first section is still below the edge
+}
+
 function InteractiveSection({
   sectionIndex,
   section,
@@ -749,14 +855,18 @@ function InteractiveSection({
   sectionIndex: number;
   section: LessonSection;
   topicId: string;
-  settings: { enabled: boolean };
+  settings: { mode: ReadingMode };
 }) {
   const prose = sectionProse(section);
+  // Design D3: the fr condition stays the only branch — code mode renders
+  // the passive branch, so its DOM is byte-identical to default.
+  const isFree = settings.mode === "free" && Boolean(prose);
+  const isCode = settings.mode === "code";
   const sectionKey = freeSectionKey(topicId, sectionIndex);
   const fr = useFreeReading({
     sectionKey,
     original: prose,
-    enabled: settings.enabled,
+    enabled: settings.mode === "free",
   });
   // F078: code examples join the free-reading mechanic — the reader can
   // remove long figures from the reading surface; reset section restores them.
@@ -764,7 +874,7 @@ function InteractiveSection({
 
   return (
     <section
-      className={`practice-reader-section${settings.enabled && prose ? " is-fr" : ""}`}
+      className={`practice-reader-section${isFree ? " is-fr" : ""}${isCode ? " is-code" : ""}`}
       data-section-index={sectionIndex}
     >
       {section.heading && (
@@ -773,7 +883,7 @@ function InteractiveSection({
           {section.heading}
         </h3>
       )}
-      {settings.enabled && prose ? (
+      {isFree ? (
         <>
           <div className="fr-row">
             <span className="fr-count">
@@ -823,14 +933,14 @@ function InteractiveSection({
       {section.examples && section.examples.length > 0 && (
         <div className="practice-reader-examples">
           {section.examples.map((example, exampleIndex) => {
-            if (settings.enabled && hiddenExamples.includes(exampleIndex)) {
+            if (settings.mode === "free" && hiddenExamples.includes(exampleIndex)) {
               return null;
             }
             return (
               <ExampleFigure
                 example={example}
                 key={example.title}
-                hideable={settings.enabled}
+                hideable={settings.mode === "free"}
                 onHide={() =>
                   writeHiddenExamples(sectionKey, [
                     ...hiddenExamples,
