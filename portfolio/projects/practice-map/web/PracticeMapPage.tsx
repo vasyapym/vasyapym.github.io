@@ -796,7 +796,7 @@ function LessonOverlay({
                     sectionIndex={sectionId}
                     section={section}
                     topicId={topic.id}
-                    settings={{ presentation, free }}
+                    settings={{ presentation, free, size }}
                   />
                 ))}
               </div>
@@ -859,6 +859,11 @@ const plainText = (text: string) =>
     mark.startsWith("**") ? mark.slice(2, -2) : mark.slice(1, -1),
   );
 
+// Round 4 SKIP (confirmed): the stream string stays the fr mechanic's
+// identity — no sectionToMarkdown. Later-round path if the owner asks for
+// markdown-in-code: hash the lesson source, not the display string, and
+// count only letter-bearing tokens; then the markdown shape is one pure
+// function with zero contentHash churn for saved notes.
 function sectionProse(section: LessonSection): string {
   const blocks =
     section.blocks ??
@@ -923,7 +928,7 @@ function InteractiveSection({
   sectionIndex: number;
   section: LessonSection;
   topicId: string;
-  settings: { presentation: ReadingPresentation; free: boolean };
+  settings: { presentation: ReadingPresentation; free: boolean; size: CodeTextSize };
 }) {
   const prose = sectionProse(section);
   // Design D1/D6: both flags may be on — the classes co-exist; code-only
@@ -978,7 +983,7 @@ function InteractiveSection({
           <FreeReadingText
             fr={fr}
             label={`Section ${sectionIndex + 1} text — delete what you have read, type your notes freely`}
-            remeasureKey={settings.presentation}
+            remeasureKey={`${settings.presentation}:${settings.size}`}
           />
           {fr.stale && (
             <p className="fr-note" role="note">

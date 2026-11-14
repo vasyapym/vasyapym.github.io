@@ -15,19 +15,21 @@
   --gh-syn-constant: #79c0ff;
   --gh-syn-variable: #ffa657;
   --gh-font-mono: ui-monospace, SFMono-Regular, "SF Mono", Menlo, Consolas, "Liberation Mono", monospace;
-  --gh-fs-code: 0.85rem; /* 13.6px at a 16px root */
-  --gh-fs-edit: max(1rem, 16px); /* the editable fill: the iOS focus-zoom floor = the styleguide's 16px base */
+  --gh-fs-code: 0.85rem; /* 13.6px at a 16px root — the panel's ONE text voice, code-only and combined; the pill rewrites it, desktop only (below) */
   --gh-lh-code: 1.45; /* 19.72px computed */
   --gh-pad-code: 16px;
   --gh-radius: 6px;
   --reading-switch: 180ms;
 }
 
-/* §8.1 user size control: one token carries the reader's voice; default
-   absent/github keeps the exact 0.85rem */
-.practice-lesson-overlay[data-code-size="14"] { --gh-fs-code: 14px; }
-.practice-lesson-overlay[data-code-size="15"] { --gh-fs-code: 15px; }
-.practice-lesson-overlay[data-code-size="16"] { --gh-fs-code: 16px; }
+/* §8.1 user size control: the pill is a desktop fact — the mapping lives
+   under the pill's own query, so ≤560px the stored size is never read and
+   the token sits at its shipped 0.85rem; github has no mapping rule */
+@media (min-width: 561px) {
+  .practice-lesson-overlay[data-code-size="14"] { --gh-fs-code: 14px; }
+  .practice-lesson-overlay[data-code-size="15"] { --gh-fs-code: 15px; }
+  .practice-lesson-overlay[data-code-size="16"] { --gh-fs-code: 16px; }
+}
 
 /* native scroll anchoring is OFF: the design assumed the fill's padding
    changes suppress it, but Chrome still adjusts (~one 1.5rem section gap
@@ -304,29 +306,19 @@
   .practice-lesson-tools { display: contents; }
   .practice-lesson-close { grid-column: 2; grid-row: 1; }
   .reading-modes { grid-column: 1 / -1; grid-row: 2; justify-self: start; }
-  /* the size control renders only in code mode, so phones get a third row
-     only there */
-  .fr-size { grid-column: 1 / -1; grid-row: 3; justify-self: start; }
+  /* belt: the pill unmounts below 560px (the JS gate); if it is ever in the
+     tree here it does not render */
+  .fr-size { display: none; }
 }
 
 /* ── code + free: the editable fill (both flags on) ─────────────────────────
    One voice per box: every glyph on the panel (heading line, chrome row,
-   textarea, note) is 16px / 1.45 while the example pre keeps 13.6px; ochre
-   appears only as caret and focus — the declared presence exception. The
-   state is per lesson and every section shares it, so the shipped overlay
-   scope covers everything. */
-
-/* ---- lesson-wide size: one voice per panel while any section is code+free ---- */
-.practice-reader-section.is-code.is-fr > :where(:not(.practice-reader-examples)) {
-  font-size: var(--gh-fs-edit);
-}
-/* verified supplement: 11 prose-less sections exist across the archive
-   (heading, no body) — they carry is-code without is-fr, which the class
-   pair cannot see; the scroller's state hooks are the lesson-wide signal */
-.practice-lesson-scroll[data-reading="code"][data-free]
-  .practice-reader-section.is-code > :where(:not(.practice-reader-examples)) {
-  font-size: var(--gh-fs-edit);
-}
+   textarea, note) is the code voice — var(--gh-fs-code) / 1.45,
+   pill-governed on desktop, 13.6px on phones — while the example pre keeps
+   its own voice. The base .is-code children rule paints it; this state
+   adds no size. Ochre is the caret alone (the focus bar died in round 4).
+   The state is per lesson and every section shares it, so the shipped
+   overlay scope covers everything. */
 
 /* ---- header: "# 01 Heading" then the chrome row as line 2, then one blank
    line; in a heading-less section the fr-row is the first child and takes
@@ -377,28 +369,31 @@
 }
 
 /* ---- the editable surface: the wrapper paints the fill, the area carries
-   the 16px gutter; the bar moves to the area so it ends with the last text
-   line and never crosses the blank line or meets the 6px corner ---- */
+   the 16px gutter; the caret is the only presence mark ---- */
 .practice-reader-section.is-code.is-fr > .fr {
   padding-left: 0;
   box-shadow: none;
 }
+/* no floor (round 4, accepted): a phone's combined textarea computes 13.6px,
+   under the iOS focus-zoom threshold — the first focus MAY zoom ~1.18×. If
+   the owner's iPhone shows the zoom, the fallback ships with its guard, after
+   this rule (Sol R4: unguarded, it would floor desktop too and defeat the pill):
+   @media (max-width: 560px) and (pointer: coarse) {
+     .practice-reader-section.is-code.is-fr .fr-area { font-size: max(var(--gh-fs-code), 16px) }
+   } */
 .practice-reader-section.is-code.is-fr .fr-area {
   box-sizing: border-box;
   padding: 0 0 0 var(--gh-pad-code); /* text edge = the panel's 16px */
   box-shadow: none;
   color: var(--gh-fg);
-  caret-color: var(--ink-accent-bright); /* declared exception: presence stays ochre */
+  caret-color: var(--ink-accent-bright); /* declared exception: presence stays ochre — the caret alone now */
   font-family: inherit;
-  font-size: inherit; /* 16px */
+  font-size: inherit; /* the fill's voice: var(--gh-fs-code) — never clamped */
   font-weight: 400;
-  line-height: inherit; /* 1.45 → 23.2px */
+  line-height: inherit; /* 1.45 → 19.72px at the default */
   letter-spacing: normal;
   font-variant-ligatures: none;
   tab-size: 8;
-}
-.practice-reader-section.is-code.is-fr > .fr[data-focused] .fr-area {
-  box-shadow: inset 3px 0 0 var(--ink-accent); /* panel x 0–3px, 13px clear before the text */
 }
 
 /* ---- stale note: a muted comment line; size and pitch come from the fill

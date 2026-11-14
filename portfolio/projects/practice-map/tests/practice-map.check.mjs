@@ -632,10 +632,16 @@ try {
 
   // --- the size control (styleguide §8.1): one token, four readings ---------
 
-  // default: github-exact, the attribute always present on the overlay
+  // default: github-exact, the attribute always present on the overlay.
+  // The fill probe falls back to the h3: in the combined state the fr
+  // branch replaces the direct <p> children, and the heading is a fill
+  // child at the same voice in every code-voiced state.
   const readSize = () => page.evaluate(() => ({
     attr: document.querySelector(".practice-lesson-overlay")?.getAttribute("data-code-size"),
-    fill: getComputedStyle(document.querySelector(".practice-reader-section.is-code > p")).fontSize,
+    fill: getComputedStyle(
+      document.querySelector(".practice-reader-section.is-code > p")
+        ?? document.querySelector(".practice-reader-section.is-code > h3"),
+    ).fontSize,
     pre: getComputedStyle(document.querySelector(".practice-reader-section.is-code .practice-example-code pre")).fontSize,
   }));
   check(await appears(".practice-lesson-tools .fr-size"), "the size pill renders while the code voice is on");
@@ -804,13 +810,13 @@ try {
   });
   check(!!combinedLaws, "a combined-state section with heading and prose exists");
   check(
-    combinedLaws.h3.fontSize === "16px" && combinedLaws.row.fontSize === "16px" && combinedLaws.fr.fontSize === "16px",
-    `combined fill children take the 16px voice (${combinedLaws.h3.fontSize}/${combinedLaws.row.fontSize}/${combinedLaws.fr.fontSize})`,
+    combinedLaws.h3.fontSize === "13.6px" && combinedLaws.row.fontSize === "13.6px" && combinedLaws.fr.fontSize === "13.6px",
+    `combined fill children take the code voice (13.6px default) (${combinedLaws.h3.fontSize}/${combinedLaws.row.fontSize}/${combinedLaws.fr.fontSize})`,
   );
   check(
-    combinedLaws.area.fontSize === "16px" && combinedLaws.area.lineHeight === "23.2px"
+    combinedLaws.area.fontSize === "13.6px" && combinedLaws.area.lineHeight === "19.72px"
       && combinedLaws.area.color === "rgb(240, 246, 252)" && combinedLaws.area.paddingLeft === "16px",
-    `editable surface carries the fill voice (${combinedLaws.area.fontSize}/${combinedLaws.area.lineHeight}/${combinedLaws.area.color}/${combinedLaws.area.paddingLeft})`,
+    `editable surface rides the fill's voice (${combinedLaws.area.fontSize}/${combinedLaws.area.lineHeight}/${combinedLaws.area.color}/${combinedLaws.area.paddingLeft})`,
   );
   check(
     combinedLaws.mini.borderRadius === "0px" && combinedLaws.mini.borderTopWidth === "1px"
@@ -827,19 +833,63 @@ try {
     `heading-less section's first child takes the top edge (${combinedLaws.headingLess?.paddingTop}/${combinedLaws.headingLess?.borderTopLeftRadius})`,
   );
 
-  // the focus bar: ochre = presence (declared exception to the governing rule)
+  // the pill governs the combined state too — one voice, pill-governed on
+  // desktop (the owner's core ask); at 16 the fill is byte-identical to the
+  // pre-round-4 shipped state (16px / 23.2px)
+  const readCombinedVoice = () => page.evaluate(() => {
+    const el = document.querySelector(".practice-reader-section.is-code.is-fr .fr-area");
+    return {
+      attr: document.querySelector(".practice-lesson-overlay")?.getAttribute("data-code-size"),
+      h3: getComputedStyle(document.querySelector(".practice-reader-section.is-code.is-fr > h3")).fontSize,
+      areaSize: el ? getComputedStyle(el).fontSize : null,
+      areaLine: el ? getComputedStyle(el).lineHeight : null,
+      grows: el ? el.scrollHeight <= el.clientHeight + 1 : null,
+    };
+  });
+  await page.click(".fr-size");
+  await wait(100);
+  const c14 = await readCombinedVoice();
+  check(
+    c14.attr === "14" && c14.h3 === "14px" && c14.areaSize === "14px",
+    `the pill revoices the combined state to 14px (attr=${c14.attr}, h3 ${c14.h3}, area ${c14.areaSize})`,
+  );
+  await page.click(".fr-size");
+  await wait(100);
+  const c15 = await readCombinedVoice();
+  check(
+    c15.attr === "15" && c15.h3 === "15px" && c15.areaSize === "15px",
+    `the pill revoices the combined state to 15px (attr=${c15.attr}, h3 ${c15.h3}, area ${c15.areaSize})`,
+  );
+  await page.click(".fr-size");
+  await wait(100);
+  const c16 = await readCombinedVoice();
+  check(
+    c16.attr === "16" && c16.h3 === "16px" && c16.areaSize === "16px"
+      && c16.areaLine === "23.2px" && c16.grows === true,
+    `at 16 the combined fill is the shipped byte-image, auto-grow re-measured (attr=${c16.attr}, h3 ${c16.h3}, area ${c16.areaSize}/${c16.areaLine}, grows=${c16.grows})`,
+  );
+  await page.click(".fr-size");
+  await wait(100);
+  const cBack = await readSize();
+  check(
+    cBack.attr === "github" && near(parseFloat(cBack.fill), 13.6),
+    `the combined pill cycle returns to github (attr=${cBack.attr}, fill ${cBack.fill})`,
+  );
+
+  // presence is the caret alone: the focus bar died in round 4
   await page.$eval(".fr .fr-area", (el) => el.focus());
-  await wait(300); // the focus re-render paints the bar; settle before measuring
+  await wait(300); // the focus re-render settles before measuring
   const barLaws = await page.evaluate(() => {
     const el = document.querySelector(".fr .fr-area");
     return {
       focused: !!el && el.closest(".fr").hasAttribute("data-focused"),
       shadow: el ? getComputedStyle(el).boxShadow : "",
+      caret: el ? getComputedStyle(el).caretColor : "",
     };
   });
   check(
-    barLaws.focused && barLaws.shadow.includes("inset") && barLaws.shadow.includes("rgb(211, 155, 97)"),
-    `textarea focus paints the 3px ochre inset bar (${barLaws.shadow})`,
+    barLaws.focused && barLaws.shadow === "none" && barLaws.caret === "rgb(232, 181, 124)",
+    `presence is the caret alone on focus (shadow=${barLaws.shadow}, caret=${barLaws.caret})`,
   );
 
   // code releases, free stays
@@ -1355,6 +1405,27 @@ try {
   // the 180ms entry animation moves the panel 6px — let it settle before
   // asserting geometry (a bare appears() raced the animation mid-flight).
   await wait(300);
+
+  // round 4: the size control is a desktop fact — the pill is unmounted on
+  // phones and the stored size is never read (the CSS mapping's gate)
+  await page.evaluate(() => {
+    localStorage.setItem(
+      "practice-map:code-size:v1",
+      JSON.stringify({ v: 1, size: "16", updatedAt: 1 }),
+    );
+  });
+  check((await page.$(".fr-size")) === null, "the size pill is not rendered at the narrow viewport");
+  await page.tap(".reading-modes button:nth-child(2)"); // code voice on
+  check(await appears(".practice-reader-section.is-code"), "code voice mounts at the narrow viewport");
+  check((await page.$(".fr-size")) === null, "the size pill stays unmounted in code mode on phones");
+  const phoneFill = await page.$eval(
+    ".practice-reader-section.is-code > p",
+    (el) => getComputedStyle(el).fontSize,
+  );
+  check(near(parseFloat(phoneFill), 13.6), `the stored size is ignored on phones (fill ${phoneFill})`);
+  await page.tap(".reading-modes button:nth-child(2)"); // code voice off
+  await wait(300);
+  await page.evaluate(() => localStorage.removeItem("practice-map:code-size:v1"));
 
   const fitsMobile = await page.evaluate(() => {
     const rect = document.querySelector(".practice-lesson-panel").getBoundingClientRect();
