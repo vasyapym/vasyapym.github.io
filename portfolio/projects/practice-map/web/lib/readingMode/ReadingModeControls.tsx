@@ -1,32 +1,42 @@
-import type { ReadingMode } from "./storage";
+import type { ReadingPresentation } from "./storage";
 
 interface Props {
-  mode: ReadingMode;
+  presentation: ReadingPresentation;
+  free: boolean;
   hydrated: boolean;
-  onChange: (next: ReadingMode) => void;
+  onPresentation: (next: ReadingPresentation) => void;
+  onFree: (next: boolean) => void;
 }
 
-// The reading-mode pair (design D6): two pills in one group, the existing
-// fr-controls grammar verbatim, mutually exclusive, both off = default
-// prose. Nothing renders until hydrated — no wrong-state flash.
-export function ReadingModeControls({ mode, hydrated, onChange }: Props) {
+// The reading-modes pair (design D7): two pills in one group, the existing
+// fr-controls grammar verbatim. Each pill flips only its own flag — both
+// may be pressed at once, and the four states are the pills' four on/off
+// readings (no fifth label, no combined badge). Nothing renders until
+// hydrated — no wrong-state flash.
+export function ReadingModeControls({
+  presentation,
+  free,
+  hydrated,
+  onPresentation,
+  onFree,
+}: Props) {
   if (!hydrated) return null;
 
   return (
-    <div className="fr-controls reading-modes" role="group" aria-label="Reading mode">
+    <div className="fr-controls reading-modes" role="group" aria-label="Reading modes">
       <button
         type="button"
-        aria-pressed={mode === "free"}
-        onClick={() => onChange(mode === "free" ? "prose" : "free")}
+        aria-pressed={free}
+        onClick={() => onFree(!free)}
       >
-        free reading: <span className="reading-mode-state">{mode === "free" ? "on" : "off"}</span>
+        free reading: <span className="reading-mode-state">{free ? "on" : "off"}</span>
       </button>
       <button
         type="button"
-        aria-pressed={mode === "code"}
-        onClick={() => onChange(mode === "code" ? "prose" : "code")}
+        aria-pressed={presentation === "code"}
+        onClick={() => onPresentation(presentation === "code" ? "prose" : "code")}
       >
-        read as code: <span className="reading-mode-state">{mode === "code" ? "on" : "off"}</span>
+        read as code: <span className="reading-mode-state">{presentation === "code" ? "on" : "off"}</span>
       </button>
     </div>
   );

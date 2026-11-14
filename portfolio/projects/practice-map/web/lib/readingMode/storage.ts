@@ -1,28 +1,40 @@
 import { useRef, useState, useSyncExternalStore } from "react";
 
-export type ReadingMode = "prose" | "free" | "code";
+/** How the lesson is presented — the "read as code" pill's two readings. */
+export type ReadingPresentation = "prose" | "code";
 
-const PREFIX = "practice-map:reading:v1:";
-// The superseded free-reading settings record (an on/off toggle). Read once
-// for migration, then removed — the per-section free text and hidden-example
-// records share the legacy prefix and stay untouched.
-const LEGACY_PREFIX = "practice-map:free:v2:";
+/** The reading state: the presentation flag plus the free-reading flag. */
+export type ReadingState = {
+  presentation: ReadingPresentation;
+  free: boolean;
+};
+
+const PREFIX = "practice-map:reading:v2:";
+// Superseded sources, read once for migration then removed: the v1
+// single-mode record and the older free-reading settings record. The
+// per-section free text and hidden-example records share the legacy free
+// prefix and stay untouched.
+const V1_PREFIX = "practice-map:reading:v1:";
+const LEGACY_FREE_PREFIX = "practice-map:free:v2:";
 
 export const readingModeKey = (topicId: string) => `${PREFIX}${topicId}`;
-const legacySettingsKey = (topicId: string) => `${LEGACY_PREFIX}${topicId}`;
+const v1ModeKey = (topicId: string) => `${V1_PREFIX}${topicId}`;
+const legacyFreeSettingsKey = (topicId: string) => `${LEGACY_FREE_PREFIX}${topicId}`;
 
-export type ReadingModeRecord = {
-  readonly v: 1;
-  readonly mode: ReadingMode;
+export type ReadingStateRecord = {
+  readonly v: 2;
+  readonly presentation: ReadingPresentation;
+  readonly free: boolean;
   readonly updatedAt: number;
 };
 
-export function isReadingModeRecord(x: unknown): x is ReadingModeRecord {
+export function isReadingStateRecord(x: unknown): x is ReadingStateRecord {
   if (!x || typeof x !== "object") return false;
   const o = x as Record<string, unknown>;
   return (
-    o.v === 1 &&
-    (o.mode === "prose" || o.mode === "free" || o.mode === "code") &&
+    o.v === 2 &&
+    (o.presentation === "prose" || o.presentation === "code") &&
+    typeof o.free === "boolean" &&
     typeof o.updatedAt === "number"
   );
 }
@@ -81,10 +93,38 @@ function subscribe(cb: () => void) {
 // useSyncExternalStore doesn't unsubscribe/resubscribe on every render.
 const stableSubscribe = (cb: () => void) => subscribe(cb);
 
-type LegacySettings = { v: 2; enabled: boolean; updatedAt: number };
+type V1ModeRecord = {
+  readonly v: 1;
+  readonly mode: "prose" | "free" | "code";
+  readonly updatedAt: number;
+};
 
-function readLegacySettings(topicId: string): LegacySettings | null {
-  const raw = getRaw(legacySettingsKey(topicId));
+function isV1ModeRecord(x: unknown): x is V1ModeRecord {
+  if (!x || typeof x !== "object") return false;
+  const o = x as Record<string, unknown>;
+  return (
+    o.v === 1 &&
+    (o.mode === "prose" || o.mode === "free" || o.mode === "code") &&
+    typeof o.updatedAt === "number"
+  );
+}
+
+function readV1Mode(topicId: string): V1ModeRecord | null {
+  const raw = getRaw(v1ModeKey(topicId));
+  if (!raw) return null;
+  try {
+    const parsed: unknown = JSON.parse(raw);
+    if (isV1ModeRecord(parsed)) return parsed;
+  } catch {
+    /* corrupt → absent */
+  }
+  return null;
+}
+
+type LegacyFreeSettings = { v: 2; enabled: boolean; updatedAt: number };
+
+function readLegacyFreeSettings(topicId: string): LegacyFreeSettings | null {
+  const raw = getRaw(legacyFreeSettingsKey(topicId));
   if (!raw) return null;
   try {
     const parsed: unknown = JSON.parse(raw);
@@ -95,7 +135,7 @@ function readLegacySettings(topicId: string): LegacySettings | null {
       typeof (parsed as Record<string, unknown>).enabled === "boolean" &&
       typeof (parsed as Record<string, unknown>).updatedAt === "number"
     ) {
-      return parsed as LegacySettings;
+      return parsed as LegacyFreeSettings;
     }
   } catch {
     /* corrupt → absent */
@@ -103,50 +143,93 @@ function readLegacySettings(topicId: string): LegacySettings | null {
   return null;
 }
 
-function readModeRecord(topicId: string): ReadingModeRecord | null {
+function readStateRecord(topicId: string): ReadingStateRecord | null {
   const key = readingModeKey(topicId);
   const raw = getRaw(key);
   const cached = snapshotCache.get(key);
-  if (cached && cached.raw === raw) return (cached.value as ReadingModeRecord | null) ?? null;
+  if (cached && cached.raw === raw) return (cached.value as ReadingStateRecord | null) ?? null;
 
-  let value: ReadingModeRecord | null = null;
+  let value: ReadingStateRecord | null = null;
   if (raw) {
     try {
       const parsed: unknown = JSON.parse(raw);
-      if (isReadingModeRecord(parsed)) value = parsed;
+      if (isReadingStateRecord(parsed)) value = parsed;
     } catch {
-      /* corrupt → absent; the legacy record below can still supply a mode */
+      /* corrupt → absent; the superseded records below can still supply one */
     }
   }
-  // Migration on read: a lesson with no v1 record but a legacy free-reading
-  // settings one maps enabled → free/prose, writes the v1 record and drops
-  // the settings record (only that one). No emit here — this runs inside a
+  // Migration on read: a lesson with no v2 record maps the newest superseded
+  // source onto a fresh one — the v1 single-mode record strictly supersedes
+  // the free-reading settings record. No emit here — this runs inside a
   // getSnapshot, and the migrated value is exactly what every same-tab
   // subscriber reads through the cache below.
   if (!value) {
-    const legacy = readLegacySettings(topicId);
-    if (legacy) {
-      value = {
-        v: 1,
-        mode: legacy.enabled ? "free" : "prose",
-        updatedAt: legacy.updatedAt,
-      };
-      const migrated = JSON.stringify(value);
-      setRaw(key, migrated);
-      // Durability rule: the legacy settings record stays the durable copy
-      // until the replacement is proven durable — read the key back through
+    const v1 = readV1Mode(topicId);
+    const legacyFree = v1 ? null : readLegacyFreeSettings(topicId);
+    const migrated: ReadingStateRecord | null = v1
+      ? {
+          v: 2,
+          presentation: v1.mode === "code" ? "code" : "prose",
+          free: v1.mode === "free",
+          updatedAt: v1.updatedAt,
+        }
+      : legacyFree
+        ? {
+            v: 2,
+            presentation: "prose",
+            free: legacyFree.enabled,
+            updatedAt: legacyFree.updatedAt,
+          }
+        : null;
+    if (migrated) {
+      // Invariant: a migration promotes legacy state; it never overwrites a
+      // newer v2 choice. Another tab may complete its own migration and take
+      // a user write between this tab's read of the legacy records and now —
+      // so re-read the key directly through localStorage right before the
+      // write (getRaw would serve this tab's memory fallback and mask that
+      // write) and adopt a valid newer v2 record instead. Adopting skips the
+      // superseded-record removals deliberately: the other tab's migration
+      // owns them. The residual race window is the gap between this re-read
+      // and setRaw — two adjacent statements in one synchronous block; a
+      // per-topic lock (Web Locks API) is async and cannot wrap the
+      // synchronous getSnapshot, so that deeper refactor stays out of scope.
+      let foreignRaw: string | null = null;
+      try {
+        foreignRaw = window.localStorage.getItem(key);
+      } catch {
+        /* blocked storage → nothing to adopt */
+      }
+      if (foreignRaw) {
+        try {
+          const parsed: unknown = JSON.parse(foreignRaw);
+          if (isReadingStateRecord(parsed)) {
+            snapshotCache.set(key, { raw: foreignRaw, value: parsed });
+            return parsed;
+          }
+        } catch {
+          /* corrupt foreign raw → fall through and write the migration */
+        }
+      }
+      const migratedRaw = JSON.stringify(migrated);
+      setRaw(key, migratedRaw);
+      // Durability rule: the superseded records stay the durable copy until
+      // the replacement is proven durable — read the key back through
       // localStorage directly (getRaw would serve the memory fallback the
-      // write just populated). On quota the v1 value serves this session
-      // from memory while the legacy record survives for the next one.
+      // write just populated). On quota the migrated value serves this
+      // session from memory while the superseded records survive for the
+      // next one.
       let durable: string | null = null;
       try {
         durable = window.localStorage.getItem(key);
       } catch {
         /* blocked storage → not durable */
       }
-      if (durable === migrated) removeRaw(legacySettingsKey(topicId));
-      snapshotCache.set(key, { raw: getRaw(key), value });
-      return value;
+      if (durable === migratedRaw) {
+        removeRaw(v1ModeKey(topicId));
+        removeRaw(legacyFreeSettingsKey(topicId)); // a fossil when v1 was the source
+      }
+      snapshotCache.set(key, { raw: getRaw(key), value: migrated });
+      return migrated;
     }
   }
   snapshotCache.set(key, { raw, value });
@@ -157,12 +240,14 @@ function readModeRecord(topicId: string): ReadingModeRecord | null {
 // React is notified (the anchor-parity subscribe wrapper): serves the
 // durable record or the memory fallback and guards it — no migration, no
 // cache writes, no emit.
-export function peekReadingMode(topicId: string): ReadingMode | null {
+export function peekReadingState(topicId: string): ReadingState | null {
   const raw = getRaw(readingModeKey(topicId));
   if (!raw) return null;
   try {
     const parsed: unknown = JSON.parse(raw);
-    return isReadingModeRecord(parsed) ? parsed.mode : null;
+    return isReadingStateRecord(parsed)
+      ? { presentation: parsed.presentation, free: parsed.free }
+      : null;
   } catch {
     return null;
   }
@@ -171,7 +256,7 @@ export function peekReadingMode(topicId: string): ReadingMode | null {
 export function useReadingMode(
   topicId: string,
   beforeNotify?: () => void,
-): { mode: ReadingMode; hydrated: boolean } {
+): ReadingState & { hydrated: boolean } {
   // beforeNotify runs before React is told about a store change — the host
   // captures pre-change geometry there (anchor parity for external,
   // other-tab switches). The ref keeps the wrapper's identity stable so the
@@ -187,17 +272,22 @@ export function useReadingMode(
   );
   const record = useSyncExternalStore(
     wrappedSubscribe,
-    () => readModeRecord(topicId),
+    () => readStateRecord(topicId),
     () => null, // server snapshot — renders as absent until hydrated
   );
   const hydrated = useSyncExternalStore(stableSubscribe, () => true, () => false);
-  return { mode: record?.mode ?? "prose", hydrated };
+  return {
+    presentation: record?.presentation ?? "prose",
+    free: record?.free ?? false,
+    hydrated,
+  };
 }
 
-export function writeReadingMode(topicId: string, mode: ReadingMode) {
+export function writeReadingMode(topicId: string, state: ReadingState) {
   writeRecord(readingModeKey(topicId), {
-    v: 1,
-    mode,
+    v: 2,
+    presentation: state.presentation,
+    free: state.free,
     updatedAt: Date.now(),
   });
 }

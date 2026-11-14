@@ -13,20 +13,27 @@ interface Props {
   className?: string;
   /** Distinguishes the section for screen readers (heading or number). */
   label?: string;
+  /** Flips exactly when the surface's font can change (the presentation):
+      the auto-grow must re-measure in that commit or the height goes stale
+      (a blank tail or the safety scrollbar). */
+  remeasureKey?: string;
 }
 
-export function FreeReadingText({ fr, className, label }: Props) {
+export function FreeReadingText({ fr, className, label, remeasureKey }: Props) {
   const [focused, setFocused] = useState(false);
   const liveId = useId();
 
   // Auto-grow: the textarea is the section body, so its height follows the
-  // content (auto → scrollHeight) on every text or layout change.
+  // content (auto → scrollHeight) on every text or layout change. The
+  // remeasure key rides the presentation flip: the font changes without a
+  // value change there, and the anchor restore reads geometry in the same
+  // commit — a stale height would misplace it.
   useLayoutEffect(() => {
     const el = fr.areaRef.current;
     if (!el) return;
     el.style.height = "auto";
     el.style.height = `${el.scrollHeight}px`;
-  }, [fr.text, fr.areaRef]);
+  }, [fr.text, fr.areaRef, remeasureKey]);
 
   // iOS virtual keyboard shrinks the visual viewport without scrolling the
   // page; when the focused surface drifts out of view, bring it back once.

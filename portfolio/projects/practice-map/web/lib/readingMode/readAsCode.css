@@ -16,6 +16,7 @@
   --gh-syn-variable: #ffa657;
   --gh-font-mono: ui-monospace, SFMono-Regular, "SF Mono", Menlo, Consolas, "Liberation Mono", monospace;
   --gh-fs-code: 0.85rem; /* 13.6px at a 16px root */
+  --gh-fs-edit: max(1rem, 16px); /* the editable fill: the iOS focus-zoom floor = the styleguide's 16px base */
   --gh-lh-code: 1.45; /* 19.72px computed */
   --gh-pad-code: 16px;
   --gh-radius: 6px;
@@ -28,9 +29,16 @@
    single scroll writer or the reader's pinned place is overridden */
 .practice-lesson-scroll { overflow-anchor: none; }
 
-/* ---- switch easing: declared on both states so leaving the mode eases too ---- */
+/* ---- switch easing: one declaration carrying every surface's source —
+   the code-state children, the free-state children (paint-inert while
+   free-only: no fill to fade there, but code+free exits ease), the example
+   pre, and the editable area. The reduce block below is LAST and matches
+   each source's specificity — the shipped reduce rule (0,1,0) lost to the
+   transition rule (0,2,0), so the children kept easing under reduce. ---- */
 .practice-reader-section:not(.is-fr) > :where(:not(.practice-reader-examples)),
-.practice-example-code pre {
+.practice-reader-section.is-fr > :where(:not(.practice-reader-examples)),
+.practice-example-code pre,
+.fr-area {
   transition: background-color var(--reading-switch) ease, color var(--reading-switch) ease;
 }
 @starting-style {
@@ -40,8 +48,10 @@
   }
 }
 @media (prefers-reduced-motion: reduce) {
-  .practice-reader-section > :where(:not(.practice-reader-examples)),
-  .practice-example-code pre { transition: none; }
+  .practice-reader-section:not(.is-fr) > :where(:not(.practice-reader-examples)),
+  .practice-reader-section.is-fr > :where(:not(.practice-reader-examples)),
+  .practice-example-code pre,
+  .fr-area { transition: none; }
 }
 
 /* ---- the panel: one contiguous fill painted by the section's prose children ---- */
@@ -288,4 +298,107 @@
   .practice-lesson-tools { display: contents; }
   .practice-lesson-close { grid-column: 2; grid-row: 1; }
   .reading-modes { grid-column: 1 / -1; grid-row: 2; justify-self: start; }
+}
+
+/* ── code + free: the editable fill (both flags on) ─────────────────────────
+   One voice per box: every glyph on the panel (heading line, chrome row,
+   textarea, note) is 16px / 1.45 while the example pre keeps 13.6px; ochre
+   appears only as caret and focus — the declared presence exception. The
+   state is per lesson and every section shares it, so the shipped overlay
+   scope covers everything. */
+
+/* ---- lesson-wide size: one voice per panel while any section is code+free ---- */
+.practice-reader-section.is-code.is-fr > :where(:not(.practice-reader-examples)) {
+  font-size: var(--gh-fs-edit);
+}
+/* verified supplement: 11 prose-less sections exist across the archive
+   (heading, no body) — they carry is-code without is-fr, which the class
+   pair cannot see; the scroller's state hooks are the lesson-wide signal */
+.practice-lesson-scroll[data-reading="code"][data-free]
+  .practice-reader-section.is-code > :where(:not(.practice-reader-examples)) {
+  font-size: var(--gh-fs-edit);
+}
+
+/* ---- header: "# 01 Heading" then the chrome row as line 2, then one blank
+   line; in a heading-less section the fr-row is the first child and takes
+   the 16px top and top radii from the shipped type-agnostic rules ---- */
+.practice-reader-section.is-code.is-fr > h3 {
+  padding-bottom: 0;
+}
+
+.practice-reader-section.is-code.is-fr > .fr-row {
+  gap: 0 1ch;
+  min-height: 0;
+  color: var(--gh-fg-muted);
+}
+.practice-reader-section.is-code.is-fr .fr-count {
+  color: var(--gh-fg-muted);
+  font-family: inherit;
+  font-size: inherit;
+  letter-spacing: normal;
+}
+.practice-reader-section.is-code.is-fr .fr-progress {
+  flex: 1 1 3rem;
+  min-width: 3rem;
+  max-width: 7rem; /* the shipped width wherever the row has room */
+  accent-color: var(--gh-fg-muted);
+}
+.practice-reader-section.is-code.is-fr .fr-mini {
+  box-sizing: border-box;
+  height: calc(var(--gh-lh-code) * 1em); /* one line: 23.2px */
+  padding: 0 1ch;
+  border: 1px solid var(--gh-border);
+  border-radius: 0;
+  background: transparent;
+  color: var(--gh-fg-muted);
+  font-family: inherit;
+  font-size: inherit;
+  font-weight: 400;
+  line-height: calc(var(--gh-lh-code) * 1em - 2px);
+  letter-spacing: normal;
+  text-transform: none;
+}
+.practice-reader-section.is-code.is-fr .fr-mini:hover:not(:disabled) {
+  border-color: var(--gh-fg-muted);
+  color: var(--gh-fg);
+}
+.practice-reader-section.is-code.is-fr .fr-mini:focus-visible {
+  outline: 2px solid var(--ink-accent); /* ochre = presence */
+  outline-offset: -2px;
+}
+
+/* ---- the editable surface: the wrapper paints the fill, the area carries
+   the 16px gutter; the bar moves to the area so it ends with the last text
+   line and never crosses the blank line or meets the 6px corner ---- */
+.practice-reader-section.is-code.is-fr > .fr {
+  padding-left: 0;
+  box-shadow: none;
+}
+.practice-reader-section.is-code.is-fr .fr-area {
+  box-sizing: border-box;
+  padding: 0 0 0 var(--gh-pad-code); /* text edge = the panel's 16px */
+  box-shadow: none;
+  color: var(--gh-fg);
+  caret-color: var(--ink-accent-bright); /* declared exception: presence stays ochre */
+  font-family: inherit;
+  font-size: inherit; /* 16px */
+  font-weight: 400;
+  line-height: inherit; /* 1.45 → 23.2px */
+  letter-spacing: normal;
+  font-variant-ligatures: none;
+  tab-size: 8;
+}
+.practice-reader-section.is-code.is-fr > .fr[data-focused] .fr-area {
+  box-shadow: inset 3px 0 0 var(--ink-accent); /* panel x 0–3px, 13px clear before the text */
+}
+
+/* ---- stale note: a muted comment line; size and pitch come from the fill
+   rule and the lesson-wide size ---- */
+.practice-reader-section.is-code.is-fr > .fr-note {
+  color: var(--gh-fg-muted);
+}
+
+/* ---- every example hidden: no orphan 16px gap under the panel ---- */
+.practice-reader-section.is-code.is-fr > .practice-reader-examples:empty {
+  display: none;
 }

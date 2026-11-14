@@ -428,23 +428,39 @@ try {
 
   // --- desktop: read as code (the GitHub-fill reading mode) ------------------
 
-  // D6 leg: two mutually exclusive pills; the fill's computed voice is the
-  // styleguide's §10 dark values; the F077 re-gate must not drift default ↔
-  // free; anchor parity across a code switch; per-lesson persistence.
+  // D leg: two independent pills (the four states are their on/off
+  // readings); the fill's computed voice is the styleguide's §10 dark
+  // values; code+free composes at 16px with the pre at 13.6px; the F077
+  // re-gate must not drift default ↔ free; anchor parity across every
+  // code-touching change (including free flips inside code); per-lesson
+  // persistence; v1/fossil migrations.
   // State premise: the free-reading leg above left lesson 01 (linux-cli-
-  // terminal) in prose mode through the new v1 record.
+  // terminal) in prose mode through the new v2 record.
   const premise = await page.evaluate(() => {
-    const rec = localStorage.getItem("practice-map:reading:v1:linux-cli-terminal");
+    const rec = localStorage.getItem("practice-map:reading:v2:linux-cli-terminal");
     return rec ? JSON.parse(rec) : null;
   });
-  check(premise?.v === 1 && premise?.mode === "prose", `the free-reading toggles persisted as v1 records (${JSON.stringify(premise)})`);
+  check(
+    premise?.v === 2 && premise?.presentation === "prose" && premise?.free === false,
+    `the free-reading toggles persisted as v2 records (${JSON.stringify(premise)})`,
+  );
 
-  // Seed the legacy free-reading settings record for the NEXT lesson — a
-  // fresh run never writes one (the new controls write v1 directly). The
-  // migration sub-leg at the end proves the read-time mapping.
+  // Seed the superseded records for the NEXT lessons — a fresh run never
+  // writes them (the new controls write v2 directly). The migration sub-leg
+  // at the end proves the read-time mappings: lesson 02 carries a v1 code
+  // record plus the stale free:v2 settings fossil (v1 strictly supersedes
+  // it — both must go), lesson 03 only the fossil.
   await page.evaluate(() => {
     window.localStorage.setItem(
+      "practice-map:reading:v1:linux-filesystem-hierarchy",
+      JSON.stringify({ v: 1, mode: "code", updatedAt: 1 }),
+    );
+    window.localStorage.setItem(
       "practice-map:free:v2:linux-filesystem-hierarchy",
+      JSON.stringify({ v: 2, enabled: true, updatedAt: 1 }),
+    );
+    window.localStorage.setItem(
+      "practice-map:free:v2:linux-shell-fundamentals",
       JSON.stringify({ v: 2, enabled: true, updatedAt: 1 }),
     );
   });
@@ -473,9 +489,13 @@ try {
   await page.click(".reading-modes button:nth-child(2)");
   check(await appears(".practice-reader-section.is-code"), "read as code mounts is-code sections");
   await wait(300); // past the 180ms fill fade-in — colors settle before measuring
+  const hookedOn = await page.$eval(".practice-lesson-scroll", (el) => ({
+    reading: el.dataset.reading,
+    free: el.dataset.free,
+  }));
   check(
-    (await page.$eval(".practice-lesson-scroll", (el) => el.dataset.reading)) === "code",
-    "scroller carries the data-reading=code hook",
+    hookedOn.reading === "code" && hookedOn.free === undefined,
+    `scroller carries the state hooks (reading=${hookedOn.reading}, free=${hookedOn.free})`,
   );
   const pressedOn = await page.$$eval(".reading-modes button", (b) => b.map((x) => x.getAttribute("aria-pressed")));
   check(pressedOn.join(",") === "false,true", `pill states after code on (${pressedOn.join("/")})`);
@@ -554,19 +574,110 @@ try {
   );
   check(noOverflowCode, "no horizontal overflow in code mode at 1440px");
 
-  // mutual exclusivity: free wins, code releases — and back
+  // composition (design D7): the pills are independent — free joins code,
+  // code releases leave free alone, and both come back
   await page.click(".reading-modes button:nth-child(1)");
-  check(await appears(".fr .fr-area"), "free reading mounts from code mode");
-  const exclusive = await page.evaluate(() => ({
+  check(await appears(".fr .fr-area"), "free reading joins code (the combined state)");
+  const combined = await page.evaluate(() => ({
     pressed: [...document.querySelectorAll(".reading-modes button")].map((b) => b.getAttribute("aria-pressed")),
     codeSections: document.querySelectorAll(".practice-reader-section.is-code").length,
+    reading: document.querySelector(".practice-lesson-scroll")?.dataset.reading,
+    free: document.querySelector(".practice-lesson-scroll")?.dataset.free,
   }));
-  check(exclusive.pressed.join(",") === "true,false", `code pill releases when free wins (${exclusive.pressed.join("/")})`);
-  check(exclusive.codeSections === 0, "no is-code section while free reading is on");
+  check(combined.pressed.join(",") === "true,true", `both pills pressed in the combined state (${combined.pressed.join("/")})`);
+  check(combined.codeSections > 0 && combined.reading === "code" && combined.free === "true", `code stays on while free joins (${combined.codeSections} is-code, reading=${combined.reading}, free=${combined.free})`);
+
+  await wait(300); // past the fill fade — the combined voice settles before measuring
+
+  // combined laws: one voice per box — the panel is 16px/1.45, the example
+  // pre keeps 13.6px; ochre appears only as caret and focus
+  const combinedLaws = await page.evaluate(() => {
+    const cs = (el) => getComputedStyle(el);
+    const fields = (el, names) => el ? Object.fromEntries(names.map((n) => [n, cs(el)[n]])) : null;
+    const sections = [...document.querySelectorAll(".practice-reader-section.is-code.is-fr")];
+    const pick = sections.find((s) => s.querySelector(":scope > h3") && s.querySelector(":scope > .fr"));
+    if (!pick) return null;
+    const headingLess = sections.find((s) => !s.querySelector(":scope > h3") && s.querySelector(":scope > .fr-row"));
+    return {
+      h3: fields(pick.querySelector(":scope > h3"), ["fontSize"]),
+      row: fields(pick.querySelector(":scope > .fr-row"), ["fontSize", "height"]),
+      fr: fields(pick.querySelector(":scope > .fr"), ["fontSize"]),
+      area: fields(pick.querySelector(".fr .fr-area"), [
+        "fontSize", "lineHeight", "color", "backgroundColor", "paddingLeft",
+      ]),
+      mini: fields(pick.querySelector(":scope > .fr-row .fr-mini"), [
+        "borderRadius", "borderTopWidth", "borderTopColor", "height",
+      ]),
+      pre: fields(
+        document.querySelector(".practice-reader-section.is-code.is-fr .practice-example-code pre"),
+        ["fontSize", "lineHeight"],
+      ),
+      headingLess: headingLess
+        ? fields(headingLess.firstElementChild, ["paddingTop", "borderTopLeftRadius"])
+        : null,
+    };
+  });
+  check(!!combinedLaws, "a combined-state section with heading and prose exists");
+  check(
+    combinedLaws.h3.fontSize === "16px" && combinedLaws.row.fontSize === "16px" && combinedLaws.fr.fontSize === "16px",
+    `combined fill children take the 16px voice (${combinedLaws.h3.fontSize}/${combinedLaws.row.fontSize}/${combinedLaws.fr.fontSize})`,
+  );
+  check(
+    combinedLaws.area.fontSize === "16px" && combinedLaws.area.lineHeight === "23.2px"
+      && combinedLaws.area.color === "rgb(240, 246, 252)" && combinedLaws.area.paddingLeft === "16px",
+    `editable surface carries the fill voice (${combinedLaws.area.fontSize}/${combinedLaws.area.lineHeight}/${combinedLaws.area.color}/${combinedLaws.area.paddingLeft})`,
+  );
+  check(
+    combinedLaws.mini.borderRadius === "0px" && combinedLaws.mini.borderTopWidth === "1px"
+      && combinedLaws.mini.borderTopColor === "rgb(61, 68, 77)",
+    `reset control is a square with the 1px gh border (${combinedLaws.mini.borderRadius}/${combinedLaws.mini.borderTopWidth}/${combinedLaws.mini.borderTopColor})`,
+  );
+  check(
+    near(parseFloat(combinedLaws.pre.fontSize), 13.6) && near(parseFloat(combinedLaws.pre.lineHeight), 19.72, 0.1),
+    `example pre keeps the 13.6px voice in the combined state (${combinedLaws.pre.fontSize}/${combinedLaws.pre.lineHeight})`,
+  );
+  check(
+    combinedLaws.headingLess && combinedLaws.headingLess.paddingTop === "16px"
+      && combinedLaws.headingLess.borderTopLeftRadius === "6px",
+    `heading-less section's first child takes the top edge (${combinedLaws.headingLess?.paddingTop}/${combinedLaws.headingLess?.borderTopLeftRadius})`,
+  );
+
+  // the focus bar: ochre = presence (declared exception to the governing rule)
+  await page.$eval(".fr .fr-area", (el) => el.focus());
+  await wait(300); // the focus re-render paints the bar; settle before measuring
+  const barLaws = await page.evaluate(() => {
+    const el = document.querySelector(".fr .fr-area");
+    return {
+      focused: !!el && el.closest(".fr").hasAttribute("data-focused"),
+      shadow: el ? getComputedStyle(el).boxShadow : "",
+    };
+  });
+  check(
+    barLaws.focused && barLaws.shadow.includes("inset") && barLaws.shadow.includes("rgb(211, 155, 97)"),
+    `textarea focus paints the 3px ochre inset bar (${barLaws.shadow})`,
+  );
+
+  // code releases, free stays
   await page.click(".reading-modes button:nth-child(2)");
-  check(await appears(".practice-reader-section.is-code"), "code returns from free mode");
-  const backPressed = await page.$$eval(".reading-modes button", (b) => b.map((x) => x.getAttribute("aria-pressed")));
-  check(backPressed.join(",") === "false,true", `pill states after returning to code (${backPressed.join("/")})`);
+  check(await appears(".practice-reader-section.is-fr"), "ink free surface remains after code releases");
+  const released = await page.evaluate(() => ({
+    pressed: [...document.querySelectorAll(".reading-modes button")].map((b) => b.getAttribute("aria-pressed")),
+    codeSections: document.querySelectorAll(".practice-reader-section.is-code").length,
+    reading: document.querySelector(".practice-lesson-scroll")?.dataset.reading,
+    free: document.querySelector(".practice-lesson-scroll")?.dataset.free,
+  }));
+  check(released.pressed.join(",") === "true,false", `code pill releases alone (${released.pressed.join("/")})`);
+  check(released.codeSections === 0 && released.reading === "prose" && released.free === "true", `free stays on after code releases (${released.codeSections} is-code, reading=${released.reading}, free=${released.free})`);
+  // code returns — combined again
+  await page.click(".reading-modes button:nth-child(2)");
+  check(await appears(".practice-reader-section.is-code.is-fr"), "code rejoins the free state");
+  const rejoined = await page.$$eval(".reading-modes button", (b) => b.map((x) => x.getAttribute("aria-pressed")));
+  check(rejoined.join(",") === "true,true", `both pills pressed again (${rejoined.join("/")})`);
+  // release free — code-only again (the §10 voice)
+  await page.click(".reading-modes button:nth-child(1)");
+  await wait(300);
+  check(await appears(".practice-reader-section.is-code"), "code-only state returns after free releases");
+  check((await page.$(".fr .fr-area")) === null, "the editable surface leaves with the free flag");
 
   // F077 toggle parity through the re-gate: free adopts the prose voice and
   // default returns to the same values after the code round-trip
@@ -707,12 +818,46 @@ try {
     `fraction path: the edge keeps its fraction through the section (Δ ${midDelta.toFixed(2)}px of the restored ${restoredMid.height.toFixed(0)}px section)`,
   );
 
-  // persistence: the v1 record holds code, and a reload reopens in code
+  // anchor parity inside code: a free flip reflows the editable surface
+  // (voice/size change plus a body remount) — the section must keep its
+  // place across the flip too
+  await page.click(".reading-modes button:nth-child(1)"); // free joins code (anchored)
+  check(await appears(".fr .fr-area"), "combined state mounts for the in-code anchor leg");
+  check(await scrollSettled(), "the combined flip settles");
+  await page.evaluate(() => {
+    const scroller = document.querySelector(".practice-lesson-scroll");
+    const edge = scroller.getBoundingClientRect().top;
+    const el = scroller.querySelector('[data-section-index="5"]');
+    const r = el.getBoundingClientRect();
+    scroller.scrollTop += r.height * 0.4;
+  });
+  check(await scrollSettled(), "the in-code mid-section push settles before measuring");
+  const anchorCode = await measureAnchor();
+  check(
+    anchorCode != null && !anchorCode.topVisible && anchorCode.index === "5",
+    `in-code mid-section puts section ${anchorCode?.index} at fraction ${anchorCode?.fraction?.toFixed(2)}`,
+  );
+  await page.click(".reading-modes button:nth-child(1)"); // free leaves, code stays (anchored)
+  await wait(120);
+  const restoredCode = await measureRestored(anchorCode);
+  // the fraction error is unitless — scale it by the RESTORED section
+  // height so the 2px tolerance means the same thing as the px path
+  const codeDelta = Math.abs(restoredCode.value - anchorCode.fraction) * restoredCode.height;
+  check(
+    codeDelta <= 2,
+    `in-code fraction path: the edge keeps its fraction across the free flip (Δ ${codeDelta.toFixed(2)}px of the restored ${restoredCode.height.toFixed(0)}px section)`,
+  );
+
+  // persistence: the v2 record holds code (free left inside the in-code
+  // anchor leg), and a reload reopens in code
   const persisted = await page.evaluate(() => {
-    const rec = localStorage.getItem("practice-map:reading:v1:linux-cli-terminal");
+    const rec = localStorage.getItem("practice-map:reading:v2:linux-cli-terminal");
     return rec ? JSON.parse(rec) : null;
   });
-  check(persisted?.mode === "code", `v1 record holds code after the toggle (${JSON.stringify(persisted)})`);
+  check(
+    persisted?.v === 2 && persisted?.presentation === "code" && persisted?.free === false,
+    `v2 record holds code after the toggles (${JSON.stringify(persisted)})`,
+  );
   await page.reload({ waitUntil: "domcontentloaded", timeout: 150000 });
   check(await appears(".pg-card"), "map renders after reload");
   await page.click('[data-turn="next"]');
@@ -725,10 +870,14 @@ try {
   await wait(400);
   await page.click(".pg-card .pg-pill");
   check(await appears(".practice-reader-nav button"), "reader reopens after reload");
-  const restoredMode = await page.evaluate(
-    () => document.querySelector(".practice-lesson-scroll")?.dataset.reading,
+  const restoredHooks = await page.$eval(".practice-lesson-scroll", (el) => ({
+    reading: el.dataset.reading,
+    free: el.dataset.free,
+  }));
+  check(
+    restoredHooks.reading === "code" && restoredHooks.free === undefined,
+    `reopened lesson reads as code from storage (reading=${restoredHooks.reading}, free=${restoredHooks.free})`,
   );
-  check(restoredMode === "code", `reopened lesson reads as code from storage (${restoredMode})`);
   check(
     (await page.$(".practice-reader-section.is-code")) !== null,
     "persisted code mode renders is-code sections after reload",
@@ -736,36 +885,163 @@ try {
 
   // leave prose for the downstream (mobile) legs — a persisted code mode
   // would otherwise follow lesson 01 into them
-  await page.click(".reading-modes button:nth-child(2)"); // code → prose
+  await page.click(".reading-modes button:nth-child(2)"); // code → prose (free already off)
   await wait(300);
   check((await page.$(".practice-reader-section.is-code")) === null, "code releases for the downstream legs");
   await page.keyboard.press("Escape");
   await wait(400);
   check((await page.$(".practice-lesson-overlay")) === null, "Escape closes after the read-as-code leg");
 
-  // migration: opening the seeded lesson maps the legacy settings record
-  // (enabled:true → free) onto a v1 record and removes only that record
+  // migration: the seeded v1 record strictly supersedes the free:v2 fossil —
+  // opening lesson 02 migrates to v2 code and removes BOTH superseded records
   const volCards = await page.$$(".pg-card .pg-pill");
   await volCards[1].click();
-  check(await appears(".fr .fr-area"), "seeded lesson opens straight into free reading (migrated)");
-  const migratedRec = await page.evaluate(() => {
-    const legacyGone = Object.keys(localStorage).every(
-      (k) => k !== "practice-map:free:v2:linux-filesystem-hierarchy",
-    );
-    const rec = localStorage.getItem("practice-map:reading:v1:linux-filesystem-hierarchy");
-    return { legacyGone, rec: rec ? JSON.parse(rec) : null };
+  check(await appears(".practice-reader-nav button"), "lesson 02 opens for the migration leg");
+  check(
+    (await page.$(".practice-reader-section.is-code")) !== null,
+    "the v1 code record migrates — the reader opens as code",
+  );
+  check((await page.$(".fr .fr-area")) === null, "the migrated code state mounts no editable surface");
+  const migrated02 = await page.evaluate(() => {
+    const keys = Object.keys(localStorage);
+    const read = (k) => {
+      const r = localStorage.getItem(k);
+      return r ? JSON.parse(r) : null;
+    };
+    return {
+      v1Gone: keys.every((k) => k !== "practice-map:reading:v1:linux-filesystem-hierarchy"),
+      fossilGone: keys.every((k) => k !== "practice-map:free:v2:linux-filesystem-hierarchy"),
+      rec: read("practice-map:reading:v2:linux-filesystem-hierarchy"),
+    };
   });
   check(
-    migratedRec.legacyGone && migratedRec.rec?.v === 1 && migratedRec.rec?.mode === "free",
-    `legacy settings record migrated on read and removed (${JSON.stringify(migratedRec.rec)})`,
+    migrated02.v1Gone && migrated02.fossilGone
+      && migrated02.rec?.v === 2 && migrated02.rec?.presentation === "code" && migrated02.rec?.free === false,
+    `v1 code record migrates to v2 and removes both superseded records (${JSON.stringify(migrated02.rec)})`,
   );
-  const migratedPressed = await page.$$eval(".reading-modes button", (b) => b.map((x) => x.getAttribute("aria-pressed")));
-  check(migratedPressed.join(",") === "true,false", `pills reflect the migrated free state (${migratedPressed.join("/")})`);
+  const pressed02 = await page.$$eval(".reading-modes button", (b) => b.map((x) => x.getAttribute("aria-pressed")));
+  check(pressed02.join(",") === "false,true", `pills reflect the migrated code state (${pressed02.join("/")})`);
+  // release lesson 02 from code before leaving — downstream legs must see
+  // no surprise state (they only open lesson 01, but the record stays tidy)
+  await page.click(".reading-modes button:nth-child(2)"); // code → prose (free already off)
+  await wait(300);
+  check((await page.$(".practice-reader-section.is-code")) === null, "lesson 02 released to prose before closing");
+  await page.keyboard.press("Escape");
+  await wait(400);
+  check((await page.$(".practice-lesson-overlay")) === null, "Escape closes after the lesson-02 migration leg");
+
+  // lesson 03: only the free:v2 fossil — migrates to prose+free on read
+  const volCards2 = await page.$$(".pg-card .pg-pill");
+  await volCards2[2].click();
+  check(await appears(".fr .fr-area"), "the free:v2 fossil migrates — lesson 03 opens straight into free reading");
+  const migrated03 = await page.evaluate(() => {
+    const keys = Object.keys(localStorage);
+    const rec = localStorage.getItem("practice-map:reading:v2:linux-shell-fundamentals");
+    return {
+      fossilGone: keys.every((k) => k !== "practice-map:free:v2:linux-shell-fundamentals"),
+      rec: rec ? JSON.parse(rec) : null,
+    };
+  });
+  check(
+    migrated03.fossilGone && migrated03.rec?.v === 2
+      && migrated03.rec?.presentation === "prose" && migrated03.rec?.free === true,
+    `free:v2 fossil migrates to v2 prose+free and is removed (${JSON.stringify(migrated03.rec)})`,
+  );
+  const pressed03 = await page.$$eval(".reading-modes button", (b) => b.map((x) => x.getAttribute("aria-pressed")));
+  check(pressed03.join(",") === "true,false", `pills reflect the migrated free state (${pressed03.join("/")})`);
   await page.click(".reading-modes button:nth-child(1)"); // free → prose
   await wait(300);
   await page.keyboard.press("Escape");
   await wait(400);
-  check((await page.$(".practice-lesson-overlay")) === null, "Escape closes after the migration leg");
+  check((await page.$(".practice-lesson-overlay")) === null, "Escape closes after the lesson-03 migration leg");
+
+  // --- the race guard: a migration adopts a newer v2 instead of overwriting it
+
+  // Cross-tab race, simulated deterministically: A reads no v2 record and
+  // computes the migration from a v1 record; B's newer user choice lands in
+  // durable storage before A's guard re-read. Seed lesson 01 with the v1
+  // record, reload (fresh module state and snapshot cache), then hide B's
+  // raw from A's FIRST read only — the guard's re-read must see and adopt it.
+  await page.evaluate(() => {
+    const v2key = "practice-map:reading:v2:linux-cli-terminal";
+    window.localStorage.removeItem(v2key);
+    window.localStorage.setItem(
+      "practice-map:reading:v1:linux-cli-terminal",
+      JSON.stringify({ v: 1, mode: "code", updatedAt: 1 }),
+    );
+  });
+  await page.reload({ waitUntil: "domcontentloaded", timeout: 150000 });
+  check(await appears(".pg-card"), "map renders after the race-guard reload");
+  await page.click('[data-turn="next"]');
+  await wait(300);
+  await page.click('[data-turn="next"]');
+  await wait(300);
+  await page.click('.pg-tier-row[data-tier-id="opus-4.8-thinking"]');
+  await wait(400);
+  await page.click(".pg-face-head");
+  await wait(400);
+  // the stub: an own property on the storage instance (the prototype method
+  // stays intact for the restore) — call 1 hides B, every later read passes
+  // through; B's newer write lands right after the stub takes effect
+  await page.evaluate(() => {
+    const v2key = "practice-map:reading:v2:linux-cli-terminal";
+    const foreign = JSON.stringify({
+      v: 2,
+      presentation: "code",
+      free: true,
+      updatedAt: 9999999999999,
+    });
+    const original = window.localStorage.getItem.bind(window.localStorage);
+    let calls = 0;
+    window.localStorage.getItem = function (k) {
+      if (k === v2key && calls++ === 0) return null; // A's stale first read
+      return original(k);
+    };
+    window.localStorage.setItem(v2key, foreign); // B's newer choice lands
+  });
+  await page.click(".pg-card .pg-pill");
+  check(await appears(".practice-reader-nav button"), "reader opens for the race-guard leg");
+  const raceHooks = await page.$eval(".practice-lesson-scroll", (el) => ({
+    reading: el.dataset.reading,
+    free: el.dataset.free,
+  }));
+  check(
+    raceHooks.reading === "code" && raceHooks.free === "true",
+    `a migration adopts a newer v2 instead of overwriting it — the adopted state renders (reading=${raceHooks.reading}, free=${raceHooks.free})`,
+  );
+  check(await appears(".fr .fr-area"), "the adopted free flag mounts the editable surface");
+  const racePressed = await page.$$eval(".reading-modes button", (b) => b.map((x) => x.getAttribute("aria-pressed")));
+  check(racePressed.join(",") === "true,true", `pills reflect the adopted state (${racePressed.join("/")})`);
+  const raceRecords = await page.evaluate(() => {
+    const rec = localStorage.getItem("practice-map:reading:v2:linux-cli-terminal");
+    return {
+      stored: rec ? JSON.parse(rec) : null,
+      raw: rec,
+      v1Still: localStorage.getItem("practice-map:reading:v1:linux-cli-terminal") !== null,
+    };
+  });
+  check(
+    raceRecords.stored?.v === 2 && raceRecords.stored?.presentation === "code"
+      && raceRecords.stored?.free === true && raceRecords.stored?.updatedAt === 9999999999999,
+    `the stored v2 key holds the foreign raw verbatim (no overwrite: ${raceRecords.raw})`,
+  );
+  check(
+    raceRecords.v1Still,
+    "the adopt path leaves the superseded v1 record to its owner (removal skipped)",
+  );
+  // cleanup: remove the stub (the own property — the prototype method
+  // returns) and put lesson 01 back to prose so downstream legs stay clean
+  await page.evaluate(() => {
+    delete window.localStorage.getItem;
+    window.localStorage.setItem(
+      "practice-map:reading:v2:linux-cli-terminal",
+      JSON.stringify({ v: 2, presentation: "prose", free: false, updatedAt: Date.now() }),
+    );
+    window.localStorage.removeItem("practice-map:reading:v1:linux-cli-terminal");
+  });
+  await page.keyboard.press("Escape");
+  await wait(400);
+  check((await page.$(".practice-lesson-overlay")) === null, "Escape closes after the race-guard leg");
 
   // --- desktop: fragment fallback -------------------------------------------
 

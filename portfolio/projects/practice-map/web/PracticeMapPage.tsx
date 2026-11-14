@@ -51,10 +51,10 @@ import {
   writeScrollProgress,
 } from "./lib/scrollProgress/storage";
 import {
-  peekReadingMode,
+  peekReadingState,
   useReadingMode,
   writeReadingMode,
-  type ReadingMode,
+  type ReadingPresentation,
 } from "./lib/readingMode/storage";
 // last on purpose: after practice-map.css and freeReading.css, so the mode's
 // ≤560px header grid and the .reading-modes values win their same-specificity
@@ -300,26 +300,33 @@ function LessonOverlay({
     };
   }, [topic]);
   const deep = topic.deepLesson ?? lazyDeep;
-  // modeRef carries the rendered mode for the subscribe wrapper below: an
-  // external switch (another tab's write) must anchor like a local one, and
-  // the store callback fires BEFORE React re-renders — the DOM there is
-  // still the pre-change geometry. The ref rides the render (the
-  // useFreeReading textRef pattern).
-  const modeRef = useRef<ReadingMode | null>(null);
+  // presentationRef/freeRef carry the rendered state for the subscribe
+  // wrapper below: an external switch (another tab's write) must anchor
+  // like a local one, and the store callback fires BEFORE React re-renders
+  // — the DOM there is still the pre-change geometry. The refs ride the
+  // render (the useFreeReading textRef pattern).
+  const presentationRef = useRef<ReadingPresentation | null>(null);
+  const freeRef = useRef<boolean | null>(null);
   const reading = useReadingMode(topic.id, () => {
-    const next = peekReadingMode(topic.id);
-    const prev = modeRef.current;
+    const next = peekReadingState(topic.id);
+    const prev =
+      presentationRef.current !== null && freeRef.current !== null
+        ? { presentation: presentationRef.current, free: freeRef.current }
+        : null;
     if (
       next !== null &&
-      next !== prev &&
-      (next === "code" || prev === "code") &&
+      prev !== null &&
+      (next.presentation !== prev.presentation || next.free !== prev.free) &&
+      (next.presentation === "code" || prev.presentation === "code") &&
       scrollRef.current
     ) {
       readingAnchorRef.current = snapshotReadingAnchor(scrollRef.current);
     }
   });
-  const mode = reading.mode;
-  modeRef.current = mode;
+  const presentation = reading.presentation;
+  const free = reading.free;
+  presentationRef.current = presentation;
+  freeRef.current = free;
 
   const updateProgress = () => {
     const scroller = scrollRef.current;
@@ -362,16 +369,35 @@ function LessonOverlay({
 
   // Anchor parity, write side: snapshot the reader's place before the store
   // write — the emit re-renders and the reflow happens in that commit, so
-  // the pre-write geometry is the place to keep. Only switches touching
-  // code reflow the column; prose↔free never sets an anchor. The subscribe
-  // wrapper above captures the same pre-change geometry for external
-  // (other-tab) switches — both paths feed the same one-shot restore below.
-  const changeReadingMode = (next: ReadingMode) => {
+  // the pre-write geometry is the place to keep. The presentation being
+  // code before or after the change reflows the column (a free flip inside
+  // code resizes and remounts the editable surface too); prose↔free with
+  // the presentation off reflows nothing (F074/F077) and never anchors. The
+  // subscribe wrapper above captures the same pre-change geometry for
+  // external (other-tab) switches — both paths feed the same one-shot
+  // restore below.
+  const changePresentation = (nextPresentation: ReadingPresentation) => {
+    changeReadingState({ presentation: nextPresentation, free });
+  };
+  const changeFree = (nextFree: boolean) => {
+    changeReadingState({ presentation, free: nextFree });
+  };
+  const changeReadingState = (next: {
+    presentation: ReadingPresentation;
+    free: boolean;
+  }) => {
     const scroller = scrollRef.current;
-    if (scroller && (next === "code" || mode === "code")) {
+    const changed = next.presentation !== presentation || next.free !== free;
+    if (
+      scroller &&
+      changed &&
+      (next.presentation === "code" || presentation === "code")
+    ) {
       readingAnchorRef.current = snapshotReadingAnchor(scroller);
     }
-    writeReadingMode(topic.id, next);
+    if (changed) {
+      writeReadingMode(topic.id, next);
+    }
   };
 
   const goToSection = (target: number, scroll = true) => {
@@ -589,12 +615,14 @@ function LessonOverlay({
   }, [deep]);
 
   // Anchor parity, restore side: runs pre-paint in the same commit that
-  // applied the new mode — before the 300ms debounced scroll save can
+  // applied the new state — before the 300ms debounced scroll save can
   // persist the reflow's raw position, so the per-lesson record ends up
   // holding the restored place. The delta is computed from live geometry,
   // so whatever the engine did between commit and read is absorbed. Both
   // capture paths (the local write and the external-switch wrapper) feed
-  // this one-shot restore.
+  // this one-shot restore. Keyed on both flags: a free flip inside code
+  // must restore too; ink-mode free flips never set an anchor, so the
+  // one-shot exits early.
   useLayoutEffect(() => {
     const anchor = readingAnchorRef.current;
     if (!anchor) return; // prose↔free switches (and the first mount) never set one
@@ -610,9 +638,8 @@ function LessonOverlay({
     } else {
       scroller.scrollTop += rect.top - edgeY + (anchor.fraction ?? 0) * rect.height;
     }
-    // keyed on the mode only: the anchor itself is captured by the write side.
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [mode]);
+  }, [presentation, free]);
 
   useEffect(() => {
     const onHidden = () => {
@@ -663,9 +690,11 @@ function LessonOverlay({
           </div>
           <div className="practice-lesson-tools">
             <ReadingModeControls
-              mode={mode}
+              presentation={presentation}
+              free={free}
               hydrated={reading.hydrated}
-              onChange={changeReadingMode}
+              onPresentation={changePresentation}
+              onFree={changeFree}
             />
             <button
               aria-label="Close lesson"
@@ -684,7 +713,8 @@ function LessonOverlay({
 
         <div
           className="practice-lesson-scroll"
-          data-reading={mode}
+          data-reading={presentation}
+          data-free={free || undefined}
           key={topic.id}
           onScroll={handleScroll}
           ref={scrollRef}
@@ -728,7 +758,7 @@ function LessonOverlay({
                     sectionIndex={sectionId}
                     section={section}
                     topicId={topic.id}
-                    settings={{ mode }}
+                    settings={{ presentation, free }}
                   />
                 ))}
               </div>
@@ -855,18 +885,18 @@ function InteractiveSection({
   sectionIndex: number;
   section: LessonSection;
   topicId: string;
-  settings: { mode: ReadingMode };
+  settings: { presentation: ReadingPresentation; free: boolean };
 }) {
   const prose = sectionProse(section);
-  // Design D3: the fr condition stays the only branch — code mode renders
-  // the passive branch, so its DOM is byte-identical to default.
-  const isFree = settings.mode === "free" && Boolean(prose);
-  const isCode = settings.mode === "code";
+  // Design D1/D6: both flags may be on — the classes co-exist; code-only
+  // keeps the passive branch's DOM (byte-identical to default).
+  const isFree = settings.free && Boolean(prose);
+  const isCode = settings.presentation === "code";
   const sectionKey = freeSectionKey(topicId, sectionIndex);
   const fr = useFreeReading({
     sectionKey,
     original: prose,
-    enabled: settings.mode === "free",
+    enabled: settings.free,
   });
   // F078: code examples join the free-reading mechanic — the reader can
   // remove long figures from the reading surface; reset section restores them.
@@ -910,6 +940,7 @@ function InteractiveSection({
           <FreeReadingText
             fr={fr}
             label={`Section ${sectionIndex + 1} text — delete what you have read, type your notes freely`}
+            remeasureKey={settings.presentation}
           />
           {fr.stale && (
             <p className="fr-note" role="note">
@@ -933,14 +964,14 @@ function InteractiveSection({
       {section.examples && section.examples.length > 0 && (
         <div className="practice-reader-examples">
           {section.examples.map((example, exampleIndex) => {
-            if (settings.mode === "free" && hiddenExamples.includes(exampleIndex)) {
+            if (settings.free && hiddenExamples.includes(exampleIndex)) {
               return null;
             }
             return (
               <ExampleFigure
                 example={example}
                 key={example.title}
-                hideable={settings.mode === "free"}
+                hideable={settings.free}
                 onHide={() =>
                   writeHiddenExamples(sectionKey, [
                     ...hiddenExamples,
