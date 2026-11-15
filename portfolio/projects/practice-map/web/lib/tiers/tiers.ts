@@ -19,7 +19,7 @@ export type Tier = {
 export type { TopicCard };
 
 export const TIERS: readonly Tier[] = [
-  { id: "fable-5.2-max", name: "fable-5.2-max", band: "max", areas: ["typescript-senior-definitions"] },
+  { id: "fable-5.2-max", name: "fable-5.2-max", band: "max", areas: ["typescript-senior-definitions", "the-second-tube"] },
   { id: "fable-5.1-max", name: "fable-5.1-max", band: "max", areas: ["hole-in-the-type", "inside-the-if", "at-least-these", "the-reader", "later", "the-dot", "where-it-was-written", "it-never-guesses", "same-address", "ten-days-in-may", "semiconductor-physics", "ibs-spasm-contracted", "dopamine-ibs", "ai-resilient-fixed-points", "docker", "pytorch-concepts-mindset"],
     volumes: [
     { name: "JS & TS - conceptual lessons", topicIds: ["ten-days-in-may-full", "same-address-full", "it-never-guesses-full", "where-it-was-written-full", "the-dot-full", "later-full", "the-reader-full", "at-least-these-full", "inside-the-if-full", "hole-in-the-type-full"] },

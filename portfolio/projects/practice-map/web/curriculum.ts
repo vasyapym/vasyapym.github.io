@@ -7631,6 +7631,38 @@ whenNot: "Урок не даёт пошагового плана переезд�
     },
   },
 ];
+
+const theSecondTubeTopics: readonly TopicCard[] = [
+  {
+    id: "the-second-tube-full",
+    title: "The Second Tube",
+    summary: "Elizabeth Holmes promised hundreds of lab tests from one drop of blood; the drop explains why that was never an engineering problem — a story about loud versus silent failure, and about asking for the second tube.",
+    concepts: [],
+    practicePrompt: "Pick one system you rely on that reports a number or a status: a backup job, a model's accuracy score, a home blood-pressure cuff. Write down what a wrong output would look like and who would notice, then run one «second tube» check against an independent reference (restore a file, score a hand-labelled sample, compare with a second device) and record whether the two agree.",
+    checkPrompt: "Without notes, explain why a faked software demo tends to get corrected and a faked blood test does not, using the difference between loud and silent failure. Name three things a finger-prick drop takes away from a lab (spare volume for a repeat, a clean venous sample, a valid calibration) and three alarms a lab installs to make silent error audible (known-answer controls, comparison across labs, a published method-comparison study).",
+    tier: 1,
+    complexity: 4,
+    references: [
+
+    ],
+    lesson: {
+problem: "People treat «fake it till you make it» as a universal rule and assume a wrong measurement will announce itself. Without the loud-versus-silent distinction, Theranos reads as a story about one liar rather than the predictable result of stripping checks from a field that depends on them.",
+model: "Every claim has a failure signature: what the world looks like when the claim is false. In loud domains (a demo, a web page, a payment) falsity appears as a crash and corrects the claim early and cheaply. In silent domains (a diagnostic result, a backup, a benchmark) falsity appears as a plausible output, so correction has to be built on purpose from outside: a known-answer control, an independent reference, a repeat. Trust should track those alarms, not the confidence of the person making the claim.",
+mechanics: "1) Volume: a finger prick gives microlitres where a venous tube gives millilitres; the surplus pays for reruns, and a single run cannot show whether a result is a signal or an accident. 2) Sample quality: capillary blood carries tissue fluid, hemolysed red cells and early clotting, which shift some results before any instrument is involved (pre-analytical error). 3) Calibration: an assay is validated for one analyzer, one reagent and one concentration range; diluting a small sample pushes the signal toward the noisy bottom of that range, and multiplying the answer back up multiplies the error too. 4) Failure signature: a failed assay still returns a normal-looking number and a missed marker returns nothing, so the error cannot be seen in the output. 5) Base rates: most people tested are healthy, so even a poor test agrees with reality most of the time and complaints never accumulate; the errors that matter sit in the rare true cases. 6) Alarms: known-answer controls, one specimen compared across labs, and method-comparison studies against a reference turn silent error into visible disagreement, cheaply; removing them (secrecy, NDAs, no peer review, a board without diagnostics expertise) only moves the alarm outside, later and at a far higher price.",
+pitfalls: [
+  "Reading the story as one person's dishonesty instead of a system whose alarms had been removed.",
+  "Assuming a cleverer box would have fixed it, when much of the limit sat in the sample before it reached any box.",
+  "Treating «fake it till you make it» as wrong everywhere rather than safe only where failure is loud.",
+  "Expecting a wrong lab result to look wrong, when it looks exactly like a right one.",
+  "Counting famous backers, press coverage or a valuation as verification, though none of them compared a result with a reference.",
+  "Thinking secrecy guards only the trade secret, when it also blocks the comparison that would expose the error.",
+  "Taking high overall agreement or the absence of complaints as evidence of accuracy, when most patients are healthy and the harmed ones cannot see the error.",
+  "Concluding that finger-prick testing can never work, when narrow capillary tests validated against a reference, such as glucose meters, are routine."
+],
+whenNot: "The lesson does not say that demos, prototypes or bold promises are fraud, or that small-sample diagnostics are impossible. The loud-versus-silent model says nothing about intent or legal guilt, and it adds little where feedback is already fast and visible, as in most consumer software. It does not replace validation in a given field; it only tells you when to demand it."
+    },
+  },
+];
 export const curriculum: readonly PracticeArea[] = [
   {
     id: "go",
@@ -9159,5 +9191,13 @@ export const curriculum: readonly PracticeArea[] = [
     tier: 1,
     dependencies: [],
     topics: vietnamEmigrationInsiderModelTopics,
+  },
+  {
+    id: "the-second-tube",
+    title: "The Second Tube",
+    description: "Elizabeth Holmes promised hundreds of lab tests from one drop of blood; the drop explains why that was never an engineering problem — a story about loud versus silent failure, and about asking for the second tube.",
+    tier: 1,
+    dependencies: [],
+    topics: theSecondTubeTopics,
   },
 ];
