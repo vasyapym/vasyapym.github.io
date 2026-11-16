@@ -112,33 +112,121 @@ try {
   // The landing tier is fable-5.2-max (the owner ordered it FIRST; it is flat —
   // one lesson < the 8+ fold threshold — so cards render directly).
   check(await appears(".pg-card"), "map renders (first tier is flat — cards render directly)");
-  // The tier list PAGES at 5 rows (R040): 14 tiers → 3 pages (5/5/4); the pager
-  // is the last child, rows are picked by data-tier-id and exist only on their
-  // page (page 1 = rows 01–05, page 3 = the last four tiers).
-  check(await appears(".pg-tier-pager"), "tier list pages (pager renders)");
-  const pagerLabel = await page.$eval(".pg-tier-page-cue-text", (el) => el.textContent.trim());
-  check(pagerLabel === "page 1 of 3", `pager cue states the page (${pagerLabel})`);
-  const firstPageRows = await page.$$eval(".pg-tier-row", (rows) => rows.map((r) => r.querySelector(".pg-tier-index").textContent));
-  check(firstPageRows.join(",") === "01,02,03,04,05", `page 1 holds the first five global ordinals (${firstPageRows.join(" ")})`);
-  check(await page.$eval('[data-turn="prev"]', (el) => el.disabled), "prev arrow disabled on the first page");
-  // Folder-face coverage runs on the first foldered tier (astra-6-max, now on
-  // page 2 after the fable-first reorder).
-  await page.click('[data-turn="next"]');
+  // The list is a two-level nav now: it shows ONE family at a time — the fable
+  // folder (5 tier rows under a head row naming the family, global ordinals
+  // 01–05; opus follows at 06–09, the catch-all at 10–14). The paging dial is
+  // dormant (PAGE_SIZE 5): no family reaches 6 tiers and the index holds 3
+  // families, so no pager renders anywhere yet.
+  check(await appears(".pg-family-head"), "the folder renders under a family head row");
+  const headLabel = await page.$eval(".pg-family-label", (el) => el.textContent.trim());
+  check(headLabel === "claude fable models", `the head names the active family (${headLabel})`);
+  const headCue = await page.$eval(".pg-family-cue", (el) => el.textContent.trim());
+  check(headCue === "family 1 of 3", `the head cue counts the families (${headCue})`);
+  const listState = await page.$eval(".pg-tier-list", (el) => `${el.dataset.view}/${el.dataset.familyId}`);
+  check(listState === "folder/fable", `the list states its view (${listState})`);
+  const folderRows = await page.$$eval(".pg-tier-row", (rows) => rows.map((r) => r.querySelector(".pg-tier-index").textContent));
+  check(folderRows.join(",") === "01,02,03,04,05", `the fable folder holds the first five global ordinals (${folderRows.join(" ")})`);
+  check((await page.$(".pg-tier-pager")) === null, "no pager while every view fits one page (dormant dial)");
+  // Family-switch route: the head opens the index — one row per family with
+  // its own ordinal (01–03) — and picking a family folds its folder open with
+  // the family's first tier auto-activated. Folder-face coverage runs on the
+  // first catch-all tier (astra-6-max).
+  await page.click(".pg-family-head");
   await wait(300);
-  check((await page.$eval(".pg-tier-list", (el) => el.dataset.page)) === "2", "next turns to page 2");
-  await page.click('.pg-tier-row[data-tier-id="astra-6-max"]');
+  check((await page.$eval(".pg-tier-list", (el) => el.dataset.view)) === "index", "the head row opens the index");
+  const indexRows = await page.$$eval(".pg-tier-row", (rows) => rows.map((r) => r.querySelector(".pg-tier-index").textContent));
+  check(indexRows.join(",") === "01,02,03", `the index ordinals its families (${indexRows.join(" ")})`);
+  const indexCounts = await page.$$eval(".pg-tier-row .pg-tier-count", (els) => els.map((el) => el.textContent.trim()));
+  check(indexCounts.join(",") === "5 tiers,4 tiers,5 tiers", `each family row counts its tiers (${indexCounts.join(" | ")})`);
+  const fableRowActive = await page.$eval('.pg-tier-row[data-family-id="fable"]', (el) => el.getAttribute("aria-pressed"));
+  check(fableRowActive === "true", "the family holding the active tier is marked in the index");
+  await page.click('.pg-tier-row[data-family-id="other"]');
   await wait(400);
+  const otherState = await page.$eval(".pg-tier-list", (el) => `${el.dataset.view}/${el.dataset.familyId}`);
+  check(otherState === "folder/other", `picking a family folds its folder (${otherState})`);
+  const astraActive = await page.$eval('.pg-tier-row[data-tier-id="astra-6-max"]', (el) => el.getAttribute("aria-pressed"));
+  check(astraActive === "true", "the family's first tier is auto-activated");
   check(await appears(".pg-face-head"), "astra-6-max folds into folder faces");
   await page.click(".pg-face-head");
   await wait(400);
   check(await appears(".pg-card"), "first folder opens into cards");
 
-  // The thinking tier (opus-4.8-thinking) sorts LAST in the tier list — the
-  // owner's fixed data order — and folds its 20 lessons into 5 volume faces.
-  await page.click('[data-turn="next"]');
+  // Escape inside the index is component-local: it folds back to the folder
+  // underneath (the page's global keys — volume view, palette — stay out).
+  await page.click(".pg-family-head");
   await wait(300);
-  check((await page.$eval(".pg-tier-list", (el) => el.dataset.page)) === "3", "next turns to page 3");
-  check(await page.$eval('[data-turn="next"]', (el) => el.disabled), "next arrow disabled on the last page");
+  check((await page.$eval(".pg-tier-list", (el) => el.dataset.view)) === "index", "index reopens for the escape leg");
+  await page.keyboard.press("Escape");
+  await wait(300);
+  const escapedState = await page.$eval(".pg-tier-list", (el) => `${el.dataset.view}/${el.dataset.familyId}`);
+  check(escapedState === "folder/other", `escape folds the index back to the folder (${escapedState})`);
+  // the focused family row unmounts with the index — the head row takes
+  // focus back, so keyboard nav continues from the folder.
+  const escapeFocus = await page.evaluate(() => document.activeElement?.getAttribute("aria-label") ?? "");
+  check(escapeFocus === "model families", `escape hands focus back to the head row (${escapeFocus})`);
+
+  // Back to the fable folder through the index (the family pick of the CURRENT
+  // family needs it underneath).
+  await page.click(".pg-family-head");
+  await wait(300);
+  await page.click('.pg-tier-row[data-family-id="fable"]');
+  await wait(400);
+  check((await page.$eval(".pg-tier-list", (el) => el.dataset.familyId)) === "fable", "the fable folder reopens from the index");
+  // Picking the CURRENT family changes nothing but the view: the index closes,
+  // the folder and the active tier stay put.
+  await page.click(".pg-family-head");
+  await wait(300);
+  await page.click('.pg-tier-row[data-family-id="fable"]');
+  await wait(300);
+  const sameState = await page.$eval(".pg-tier-list", (el) => `${el.dataset.view}/${el.dataset.familyId}`);
+  check(sameState === "folder/fable", `picking the current family just closes the index (${sameState})`);
+  const landingRowActive = await page.$eval('.pg-tier-row[data-tier-id="fable-5.2-max"]', (el) => el.getAttribute("aria-pressed"));
+  check(landingRowActive === "true", "the active tier is unchanged after the current-family pick");
+  const sameFocus = await page.evaluate(() => document.activeElement?.getAttribute("aria-label") ?? "");
+  check(sameFocus === "model families", `the current-family pick hands focus back to the head row (${sameFocus})`);
+
+  // ⌘k palette jump across families: from the fable folder, jumping to an opus
+  // lesson snaps the folder to the jump's family. The palette's result order
+  // puts the tier row first and its lessons after (stable score sort), so the
+  // first lesson of opus-4.8-thinking is one arrow-down away.
+  await page.keyboard.down("Meta");
+  await page.keyboard.press("k");
+  await page.keyboard.up("Meta");
+  check(await appears(".pg-palette"), "the palette opens over the map");
+  await wait(100);
+  await page.keyboard.type("opus-4.8-thinking");
+  await page.keyboard.press("ArrowDown");
+  await page.keyboard.press("Enter");
+  await wait(400);
+  const jumpedFamily = await page.$eval(".pg-tier-list", (el) => el.dataset.familyId);
+  check(jumpedFamily === "opus", `a palette jump lands in the jumped tier's family (${jumpedFamily})`);
+
+  // Same-tier palette jump: with the index open, a jump to the ACTIVE tier's
+  // own lesson still navigates — the tier id doesn't change, so a jump
+  // signal, not the id, folds the index back to the folder.
+  await page.click(".pg-family-head");
+  await wait(300);
+  check((await page.$eval(".pg-tier-list", (el) => el.dataset.view)) === "index", "index reopens for the same-tier jump leg");
+  await page.keyboard.down("Meta");
+  await page.keyboard.press("k");
+  await page.keyboard.up("Meta");
+  await wait(100);
+  await page.keyboard.type("opus-4.8-thinking");
+  await page.keyboard.press("ArrowDown");
+  await page.keyboard.press("Enter");
+  await wait(400);
+  const sameJumpState = await page.$eval(".pg-tier-list", (el) => `${el.dataset.view}/${el.dataset.familyId}`);
+  check(sameJumpState === "folder/opus", `a same-tier palette jump still folds the index (${sameJumpState})`);
+
+  // The thinking tier (opus-4.8-thinking) lives in the opus family (global
+  // ordinals 06–09 — the fable five take 01–05) and folds its 20 lessons into
+  // 5 volume faces. The index route: head row → pick the family → pick the row.
+  await page.click(".pg-family-head");
+  await wait(300);
+  await page.click('.pg-tier-row[data-family-id="opus"]');
+  await wait(400);
+  const opusRows = await page.$$eval(".pg-tier-row", (rows) => rows.map((r) => r.querySelector(".pg-tier-index").textContent));
+  check(opusRows.join(",") === "06,07,08,09", `the opus folder keeps the global ordinals (${opusRows.join(" ")})`);
   await page.click('.pg-tier-row[data-tier-id="opus-4.8-thinking"]');
   await wait(400);
   const faceCount = await page.$$eval(".pg-face-head", (faces) => faces.length);
@@ -149,36 +237,11 @@ try {
   await wait(400);
   const cardCount = await page.$$eval(".pg-card", (cards) => cards.length);
   check(cardCount === 4, `vol 01 renders its 4 lessons (${cardCount})`);
-  // pagination invariants: the active tier's landing — with the thinking tier
-  // active, the list rests on page 3; turning back shows the off-page cue
-  // suffix; the global ordinals never renumber. At 14 tiers the tail page
-  // holds FOUR tiers (opus-5.5-medium, opus-5-max, gpt-6-sol-max,
-  // opus-4.8-thinking) — no 1-row stub.
-  check((await page.$eval(".pg-tier-list", (el) => el.dataset.page)) === "3", "active tier's page is current (tail landing)");
-  const tailRows = await page.$$eval(".pg-tier-row", (rows) => rows.map((r) => r.querySelector(".pg-tier-index").textContent));
-  check(tailRows.join(",") === "11,12,13,14", `tail page holds the last four global ordinals (${tailRows.join(" ")})`);
-  // the short-page air dial (MIN_ROWS=2) only shows on a 1-row tail page;
-  // at 14 tiers the tail page holds 4 rows → no air anywhere.
-  const air = await page.evaluate(() => {
-    const rowH = parseFloat(getComputedStyle(document.querySelector(".pg-tier-list")).getPropertyValue("--pg-tier-row-h"));
-    const mt = parseFloat(getComputedStyle(document.querySelector(".pg-tier-pager")).marginTop);
-    return { rowH, mt, pad: mt / rowH };
-  });
-  check(air.pad < 0.02, `4-row tail page carries no air (${air.mt}px = ${air.pad} rows)`);
-  await page.click('[data-turn="prev"]');
-  await wait(300);
-  check((await page.$eval(".pg-tier-list", (el) => el.dataset.page)) === "2", "prev returns to page 2");
-  const midCue = await page.$eval(".pg-tier-page-cue-text", (el) => el.textContent.trim());
-  check(midCue === "page 2 of 3", `cue states the bare page (${midCue})`);
-  check(await page.evaluate(() => parseFloat(getComputedStyle(document.querySelector(".pg-tier-pager")).marginTop) < 1), "full pages carry no air");
-  // restore the tuned state: thinking tier + vol 01 (the free-reading and
-  // fragment legs below run on the Linux deep reader's note sections).
-  await page.click('[data-turn="next"]');
-  await wait(300);
-  await page.click('.pg-tier-row[data-tier-id="opus-4.8-thinking"]');
-  await wait(400);
-  await page.click(".pg-face-head");
-  await wait(400);
+  // Paging legs parked: the PAGE_SIZE 5 dial is dormant until a family grows
+  // past 5 tiers (or the index past 5 families) — the old tail-page ordinals,
+  // short-page air and prev/next-cue legs have no pager to press. The tuned
+  // state (thinking tier + vol 01) is this leg's landing, so the old restore
+  // leg folds away with them.
 
   await page.click(".pg-card .pg-pill");
   check(await appears(".practice-reader"), "deep reader opens for lesson 01");
@@ -1066,10 +1129,12 @@ try {
   check(size15Set.attr === "15" && near(parseFloat(size15Set.fill), 15), `size set to 15 for the persistence leg (attr=${size15Set.attr}, fill ${size15Set.fill})`);
   await page.reload({ waitUntil: "domcontentloaded", timeout: 150000 });
   check(await appears(".pg-card"), "map renders after reload");
-  await page.click('[data-turn="next"]');
+  // the reload lands on the fable folder again — route back to the thinking
+  // tier through the index (family row, then tier row, then vol 01)
+  await page.click(".pg-family-head");
   await wait(300);
-  await page.click('[data-turn="next"]');
-  await wait(300);
+  await page.click('.pg-tier-row[data-family-id="opus"]');
+  await wait(400);
   await page.click('.pg-tier-row[data-tier-id="opus-4.8-thinking"]');
   await wait(400);
   await page.click(".pg-face-head");
@@ -1193,10 +1258,11 @@ try {
   });
   await page.reload({ waitUntil: "domcontentloaded", timeout: 150000 });
   check(await appears(".pg-card"), "map renders after the race-guard reload");
-  await page.click('[data-turn="next"]');
+  // back to the thinking tier through the index (the reload resets the folder)
+  await page.click(".pg-family-head");
   await wait(300);
-  await page.click('[data-turn="next"]');
-  await wait(300);
+  await page.click('.pg-tier-row[data-family-id="opus"]');
+  await wait(400);
   await page.click('.pg-tier-row[data-tier-id="opus-4.8-thinking"]');
   await wait(400);
   await page.click(".pg-face-head");
@@ -1288,15 +1354,16 @@ try {
 
   // curriculum[0] is the Go area: one flagship card whose deep lesson carries
   // the full 19-section course.
-  // The Go flagship lives in the fable-5.1-low tier (row 04, page 1 of TIERS
-  // data order — the fable run leads the list per the owner's request:
-  // fable-5.2-max first, then the other fables, astra, kimi, and the rest).
-  // Two prevs turn from page 3 back to page 1.
-  await page.click('[data-turn="prev"]');
+  // The Go flagship lives in the fable-5.1-low tier (the fable family's fourth
+  // row, global ordinal 04 — the fable run leads the list per the owner's
+  // request: fable-5.2-max first, then the other fables, then opus, then the
+  // catch-all). The folder rests on opus after the legs above, so the index
+  // routes back to fable first — then the row is picked directly, no paging.
+  await page.click(".pg-family-head");
   await wait(300);
-  await page.click('[data-turn="prev"]');
-  await wait(300);
-  check((await page.$eval(".pg-tier-list", (el) => el.dataset.page)) === "1", "prev prev returns to page 1 (fable run)");
+  await page.click('.pg-tier-row[data-family-id="fable"]');
+  await wait(400);
+  check((await page.$eval(".pg-tier-list", (el) => el.dataset.familyId)) === "fable", "the index routes back to the fable folder");
   await page.click('.pg-tier-list .pg-tier-row[data-tier-id="fable-5.1-low"]');
   await wait(400);
   // The tier leads with the English Go lesson (owner's EN-first rule); the
@@ -1387,18 +1454,21 @@ try {
   // domcontentloaded returns before React mounts — wait for the map first
   // (networkidle0 used to buy this implicitly).
   check(await appears(".pg-card"), "map renders at 390px (first tier is flat — cards)");
-  // Folder faces are covered on the first foldered tier (astra-6-max, page 2
-  // after the fable-first reorder).
-  await page.tap('[data-turn="next"]');
+  // Folder faces are covered on the first catch-all tier (astra-6-max): the
+  // head opens the index, picking the family folds its folder open with the
+  // first tier auto-activated.
+  await page.tap(".pg-family-head");
   await wait(300);
-  await page.tap('.pg-tier-row[data-tier-id="astra-6-max"]');
+  await page.tap('.pg-tier-row[data-family-id="other"]');
   await wait(400);
   check(await appears(".pg-face-head"), "astra-6-max folds into folder faces at 390px");
   // The pinned-close / copy-button laws were tuned on the Linux deep reader:
-  // reach it the way the tier design does — thinking tier (last row), vol 01.
-  // The tier list pages at 5 rows: turn to page 3 first, then pick the row.
-  await page.tap('[data-turn="next"]');
+  // reach it the way the tier design does — thinking tier (opus family, last
+  // row 09), vol 01. The index route replaces the old page-3 turn.
+  await page.tap(".pg-family-head");
   await wait(300);
+  await page.tap('.pg-tier-row[data-family-id="opus"]');
+  await wait(400);
   await page.tap('.pg-tier-row[data-tier-id="opus-4.8-thinking"]');
   await wait(400);
   await page.tap(".pg-face-head");
@@ -1525,14 +1595,17 @@ try {
   check(noOverflowNarrow, "no horizontal overflow on the map at 320px");
 
   check(await appears(".pg-card"), "map renders at 320px (first tier is flat — cards)");
-  // astra-6-max sits on page 2 after the fable-first reorder.
-  await page.tap('[data-turn="next"]');
+  // astra-6-max: head → index → family pick (the folder route, no pager).
+  await page.tap(".pg-family-head");
   await wait(300);
-  await page.tap('.pg-tier-row[data-tier-id="astra-6-max"]');
+  await page.tap('.pg-tier-row[data-family-id="other"]');
   await wait(400);
   check(await appears(".pg-face-head"), "astra-6-max folds into folder faces at 320px");
-  await page.tap('[data-turn="next"]');
+  // thinking tier through the index again (opus family, then the row).
+  await page.tap(".pg-family-head");
   await wait(300);
+  await page.tap('.pg-tier-row[data-family-id="opus"]');
+  await wait(400);
   await page.tap('.pg-tier-row[data-tier-id="opus-4.8-thinking"]');
   await wait(400);
   await page.tap(".pg-face-head");

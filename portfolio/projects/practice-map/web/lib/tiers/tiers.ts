@@ -58,26 +58,6 @@ export const TIERS: readonly Tier[] = [
     { name: "science", topicIds: ["darwin-mechanism"] },
     { name: "film", topicIds: ["spielberg-craft-layers-full"] }
   ] },
-  { id: "astra-6-max", name: "astra-6-max", band: "max", areas: ["render-neon-portfolio", "go-concurrency-saturation", "typescript-static-to-scale", "linkedin-evidence-package", "ibs-visceral-course", "new-york-culture", "park-chan-wook", "contracted-gut-visceral-hs", "wong-kar-wai", "rsi-first-principles", "akira-kurosawa-vocabulary", "kubernetes-first-principles", "subconscious-basics-to-advanced", "ddos", "lanthimos", "zeitgeist", "japan", "discourse", "frankenstein-concepts", "universe-connected-map", "kyrgyzstan-concepts", "terraform-state-plan-model"],
-    volumes: [
-    { name: "tech", topicIds: ["rsi-first-principles-full", "kubernetes-first-principles", "ddos-resource-management", "typescript-static-to-scale-full", "terraform-state-plan-model-full", "go-concurrency-saturation-full", "render-neon-portfolio-full"] },
-    { name: "film", topicIds: ["park-chan-wook-full", "wong-kar-wai-full", "akira-kurosawa-vocabulary", "lanthimos-cinema-anatomy"] },
-    { name: "health", topicIds: ["ibs-visceral-course-full", "contracted-gut-visceral-hs-full"] },
-    { name: "places", topicIds: ["new-york-culture-full", "japan-trip-systems", "kyrgyzstan-concepts-full"] },
-    { name: "mind", topicIds: ["subconscious-basics-to-advanced"] },
-    { name: "career", topicIds: ["linkedin-evidence-package-full"] },
-    { name: "society", topicIds: ["zeitgeist-historicity-of-thought", "discourse-language-meaning-action"] },
-    { name: "literature", topicIds: ["frankenstein-concepts-full"] },
-    { name: "science", topicIds: ["universe-connected-map-full"] }
-  ] },
-  { id: "astra-6-medium", name: "astra-6-medium", band: "medium", areas: ["rust", "php-frameworks"] },
-  { id: "kimi-k3.1-pro-max", name: "kimi-k3.1-pro-max", band: "max", areas: ["typescript-interview-definitions"] },
-  { id: "muse-wonder-max", name: "muse-wonder-max", band: "max", areas: ["python-midplus-compact", "halloween-basics-advanced", "laravel-taught-like-practitioner", "symfony-one-deep-lesson", "typescript-senior-practitioner", "laravel-horizon-redis-queues", "laravel-horizon-production-model", "laravel-multi-tenancy-one-lesson", "elden-ring-complete-guide", "python-senior-ru"],
-    volumes: [
-    { name: "tech", topicIds: ["laravel-taught-like-practitioner-full", "symfony-one-deep-lesson-full", "typescript-senior-practitioner-full", "laravel-horizon-redis-queues-full", "laravel-horizon-production-model-full", "laravel-multi-tenancy-one-lesson-full", "python-midplus-compact-full", "python-senior-ru-full"] },
-    { name: "games", topicIds: ["elden-ring-complete-guide-full"] },
-    { name: "society", topicIds: ["halloween-basics-advanced-full"] },
-  ] },
   { id: "opus-5.5-high", name: "opus-5.5-high", band: "high", areas: ["python-compact-definitions", "hokkaido-frontier", "black-holes-time-dilation", "typescript-taught-by-practitioner", "italian-neorealism-lesson", "internal-developer-portals-backstage", "caching-redis-cdn-app-level", "serverless-faas-advanced-patterns", "profile-as-search-result", "typescript-ground-up-type-level", "cloud-native-first-principles", "megapolis-culture", "cannabis-first-principles", "langchain-abstractions-leak", "st-petersburg-paradox", "future-of-humanity", "discworld-made-of-story", "hbm-stacking", "gut-ibs-condensed", "erykah-badu-analog-priestess", "go-first-principles-internals", "laravel-symfony-field-guide", "visceral-hypersensitivity-gut", "roland-barthes-guide", "zach-cregger", "kazakhstan-research-disputes", "milky-way-outline", "rene-clement-guide", "react-19-next-16", "multicloud-hybrid-strategies-expert", "immigration-canada"],
     volumes: [
     { name: "tech", topicIds: ["langchain-abstractions-leak-full", "hbm-stacking-full", "go-first-principles-internals", "laravel-symfony-field-guide", "react-19-next-16-full", "cloud-native-first-principles-full", "typescript-ground-up-type-level-full", "serverless-faas-advanced-patterns-full", "caching-redis-cdn-app-level-full", "internal-developer-portals-backstage-full", "multicloud-hybrid-strategies-expert-full", "typescript-taught-by-practitioner-full"] },
@@ -108,7 +88,6 @@ export const TIERS: readonly Tier[] = [
     { name: "literature", topicIds: ["project-hail-mary-guide"] },
     { name: "games", topicIds: ["dark-souls-design-myth-dying-well-full"] }
   ] },
-  { id: "gpt-6-sol-max", name: "gpt-6-sol-max", band: "max", areas: ["sinners-2025-coogler", "project-hail-mary-film"] },
   {
     id: "opus-4.8-thinking",
     name: "opus-4.8-thinking",
@@ -122,7 +101,68 @@ export const TIERS: readonly Tier[] = [
       { name: "vol 05 — packages", topicIds: ["linux-package-management", "linux-apt-debian", "linux-rpm-dnf"] },
     ],
   },
+  { id: "astra-6-max", name: "astra-6-max", band: "max", areas: ["render-neon-portfolio", "go-concurrency-saturation", "typescript-static-to-scale", "linkedin-evidence-package", "ibs-visceral-course", "new-york-culture", "park-chan-wook", "contracted-gut-visceral-hs", "wong-kar-wai", "rsi-first-principles", "akira-kurosawa-vocabulary", "kubernetes-first-principles", "subconscious-basics-to-advanced", "ddos", "lanthimos", "zeitgeist", "japan", "discourse", "frankenstein-concepts", "universe-connected-map", "kyrgyzstan-concepts", "terraform-state-plan-model"],
+    volumes: [
+    { name: "tech", topicIds: ["rsi-first-principles-full", "kubernetes-first-principles", "ddos-resource-management", "typescript-static-to-scale-full", "terraform-state-plan-model-full", "go-concurrency-saturation-full", "render-neon-portfolio-full"] },
+    { name: "film", topicIds: ["park-chan-wook-full", "wong-kar-wai-full", "akira-kurosawa-vocabulary", "lanthimos-cinema-anatomy"] },
+    { name: "health", topicIds: ["ibs-visceral-course-full", "contracted-gut-visceral-hs-full"] },
+    { name: "places", topicIds: ["new-york-culture-full", "japan-trip-systems", "kyrgyzstan-concepts-full"] },
+    { name: "mind", topicIds: ["subconscious-basics-to-advanced"] },
+    { name: "career", topicIds: ["linkedin-evidence-package-full"] },
+    { name: "society", topicIds: ["zeitgeist-historicity-of-thought", "discourse-language-meaning-action"] },
+    { name: "literature", topicIds: ["frankenstein-concepts-full"] },
+    { name: "science", topicIds: ["universe-connected-map-full"] }
+  ] },
+  { id: "astra-6-medium", name: "astra-6-medium", band: "medium", areas: ["rust", "php-frameworks"] },
+  { id: "kimi-k3.1-pro-max", name: "kimi-k3.1-pro-max", band: "max", areas: ["typescript-interview-definitions"] },
+  { id: "muse-wonder-max", name: "muse-wonder-max", band: "max", areas: ["python-midplus-compact", "halloween-basics-advanced", "laravel-taught-like-practitioner", "symfony-one-deep-lesson", "typescript-senior-practitioner", "laravel-horizon-redis-queues", "laravel-horizon-production-model", "laravel-multi-tenancy-one-lesson", "elden-ring-complete-guide", "python-senior-ru"],
+    volumes: [
+    { name: "tech", topicIds: ["laravel-taught-like-practitioner-full", "symfony-one-deep-lesson-full", "typescript-senior-practitioner-full", "laravel-horizon-redis-queues-full", "laravel-horizon-production-model-full", "laravel-multi-tenancy-one-lesson-full", "python-midplus-compact-full", "python-senior-ru-full"] },
+    { name: "games", topicIds: ["elden-ring-complete-guide-full"] },
+    { name: "society", topicIds: ["halloween-basics-advanced-full"] },
+  ] },
+  { id: "gpt-6-sol-max", name: "gpt-6-sol-max", band: "max", areas: ["sinners-2025-coogler", "project-hail-mary-film"] },
 ] as const;
+
+/**
+ * Families group the tier list for the two-level nav: the folder shows one
+ * family at a time (a head row naming it + its tier rows), the index lists
+ * them all. Tiers join by id prefix — first match wins — and the registry
+ * ends with the catch-all that takes the rest. Derived data only: no tier
+ * entry changes shape, file order stays display order.
+ */
+export type Family = {
+  readonly id: string;
+  readonly label: string; // display label, lowercase
+  readonly prefix?: string; // tiers whose id starts with this join here; first match wins
+  readonly catchAll?: boolean; // the trailing group for tiers no family claims
+};
+
+export const FAMILIES: readonly Family[] = [
+  { id: "fable", label: "claude fable models", prefix: "fable-" },
+  { id: "opus", label: "claude opus models", prefix: "opus-" },
+  { id: "other", label: "other models", catchAll: true },
+];
+
+/** the family a tier belongs to: the first registry entry whose prefix matches, else the catch-all. */
+export function familyOfTier(tierId: string): Family {
+  for (const family of FAMILIES) {
+    if (family.prefix && tierId.startsWith(family.prefix)) return family;
+  }
+  // nothing claimed the id: the catch-all takes it (the registry ends with one)
+  return FAMILIES.find((f) => f.catchAll) ?? FAMILIES[FAMILIES.length - 1];
+}
+
+export type FamilyGroup = { family: Family; tiers: readonly Tier[] };
+
+/** groups in registry order, each holding its tiers in TIERS order; derived once at module level. */
+export const FAMILY_GROUPS: readonly FamilyGroup[] = FAMILIES.map((family) => ({
+  family,
+  tiers: TIERS.filter((t) => familyOfTier(t.id).id === family.id),
+}));
+
+/** every tier in display order: registry-order families, TIERS order inside each. */
+export const DISPLAY_TIERS: readonly Tier[] = FAMILY_GROUPS.flatMap((group) => group.tiers);
 
 /** chrome helpers (mono/lowercase chrome text is inline per the artifact) */
 export const pad = (n: number): string => String(n).padStart(2, "0");

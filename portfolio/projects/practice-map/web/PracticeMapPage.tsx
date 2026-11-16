@@ -23,7 +23,13 @@ import {
   type PracticeState,
 } from "./progress";
 import "./practice-map.css";
-import { TIERS, orderedTopicsForTier, plural } from "./lib/tiers/tiers";
+import {
+  DISPLAY_TIERS,
+  FAMILY_GROUPS,
+  familyOfTier,
+  orderedTopicsForTier,
+  plural,
+} from "./lib/tiers/tiers";
 import { TierList } from "./lib/tiers/TierList";
 import { TierPanel } from "./lib/tiers/TierPanel";
 import { Palette, type PaletteItem } from "./lib/tiers/Palette";
@@ -77,13 +83,16 @@ const LESSON_TABS = [
 type LessonTabKey = (typeof LESSON_TABS)[number]["key"];
 
 export default function PracticeMapPage() {
-  const [activeTierId, setActiveTierId] = useState(TIERS[0]?.id ?? "");
+  const [activeTierId, setActiveTierId] = useState(DISPLAY_TIERS[0]?.id ?? "");
   const [state, setState] = useState<PracticeState>(() => loadPracticeState(curriculum));
   const [query, setQuery] = useState("");
   const [activeVolume, setActiveVolume] = useState<string | null>(null);
   const [flashTopicId, setFlashTopicId] = useState<string | null>(null);
   const [openLessonId, setOpenLessonId] = useState<string | null>(null);
   const [paletteOpen, setPaletteOpen] = useState(false);
+  // bumped by every palette jump: the nav folds its index even when the jump
+  // lands on the already-active tier (a signal, not an id comparison).
+  const [jumpCount, setJumpCount] = useState(0);
 
   useEffect(() => {
     savePracticeState(state);
@@ -97,25 +106,25 @@ export default function PracticeMapPage() {
     return map;
   }, []);
 
-  const activeTier = TIERS.find((tier) => tier.id === activeTierId) ?? TIERS[0];
+  const activeTier = DISPLAY_TIERS.find((tier) => tier.id === activeTierId) ?? DISPLAY_TIERS[0];
   const tierTopics = useMemo(
     () => (activeTier ? orderedTopicsForTier(activeTier, topicsById).map(({ topic, index }) => ({ ...topic, index })) : []),
     [activeTier, topicsById],
   );
 
   const lessonCount = useCallback((tierId: string) => {
-    const tier = TIERS.find((t) => t.id === tierId);
+    const tier = DISPLAY_TIERS.find((t) => t.id === tierId);
     return tier ? orderedTopicsForTier(tier, topicsById).length : 0;
   }, [topicsById]);
 
   const sampleTitle = useCallback((tierId: string) => {
-    const tier = TIERS.find((t) => t.id === tierId);
+    const tier = DISPLAY_TIERS.find((t) => t.id === tierId);
     return tier ? (orderedTopicsForTier(tier, topicsById)[0]?.topic.title ?? "") : "";
   }, [topicsById]);
 
   const paletteItems = useMemo<PaletteItem[]>(() => {
     const items: PaletteItem[] = [];
-    for (const tier of TIERS) {
+    for (const tier of DISPLAY_TIERS) {
       const ordered = orderedTopicsForTier(tier, topicsById);
       items.push({
         kind: "tier",
@@ -123,7 +132,7 @@ export default function PracticeMapPage() {
         sub: tier.band + " · " + plural(ordered.length, "lesson"),
         tierId: tier.id,
         topicId: null,
-        hay: tier.name + " " + tier.band,
+        hay: tier.name + " " + tier.band + " " + familyOfTier(tier.id).label,
       });
       for (const { topic } of ordered) {
         items.push({
@@ -169,7 +178,8 @@ export default function PracticeMapPage() {
 
   const jump = useCallback((tierId: string, topicId: string | null) => {
     setActiveTierId(tierId);
-    const tier = TIERS.find((t) => t.id === tierId);
+    setJumpCount((c) => c + 1);
+    const tier = DISPLAY_TIERS.find((t) => t.id === tierId);
     if (topicId && tier?.volumes) {
       const vol = tier.volumes.find((v) => v.topicIds.includes(topicId));
       setActiveVolume(vol ? vol.name : null);
@@ -197,8 +207,9 @@ export default function PracticeMapPage() {
 
         <div className="pg-layout">
           <TierList
-            tiers={TIERS}
+            groups={FAMILY_GROUPS}
             activeTierId={activeTier?.id ?? ""}
+            jumpSignal={jumpCount}
             onSelect={(tierId) => {
               setActiveTierId(tierId);
               setActiveVolume(null);

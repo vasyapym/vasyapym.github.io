@@ -190,6 +190,44 @@
 @media (pointer: coarse){ .pg-tier-pager{min-height:44px} }
 @media (prefers-reduced-motion: reduce){ .pg-tier-page{transition:none} }
 
+/* ---------- 2b. family head + index view — the two-level list ----------
+   the nav shows one family at a time: the head row names it (crumb idiom —
+   accent ← that slides on hover, muted tabular cue on the right), pressing
+   it folds the folder into the index, which lists every family as a ruled
+   record row under a static title. same separator grammar as the rows —
+   no new device. */
+.pg-family-head{
+  width:100%; display:flex; align-items:baseline; gap:.6rem; text-align:left;
+  border:0; border-bottom:1px solid var(--ink-line-soft); border-radius:0;
+  background:transparent; cursor:pointer; padding:.92rem 1rem;
+  transition:border-color 180ms ease, color 180ms ease;
+}
+.pg-family-head:hover{border-bottom-color:var(--ink-line)}
+.pg-family-head:focus-visible{outline:1px solid var(--ink-accent); outline-offset:2px}
+.pg-family-arrow{color:var(--ink-accent); font-size:1rem; line-height:1; transition:transform 180ms ease, color 180ms ease}
+.pg-family-head:hover .pg-family-arrow{transform:translateX(-3px); color:var(--ink-accent-bright)}
+.pg-family-head:focus-visible .pg-family-arrow{color:var(--ink-accent-bright)}
+.pg-family-label{
+  min-width:0; overflow:hidden; text-overflow:ellipsis; white-space:nowrap;
+  font-family:var(--sans); font-size:1rem; font-weight:600;
+  letter-spacing:0; line-height:1.15; color:var(--ink-text); text-transform:none;
+}
+.pg-family-cue{
+  margin-left:auto; flex:0 1 auto; min-width:0; overflow:hidden; text-overflow:ellipsis; white-space:nowrap;
+  font-family:var(--mono); font-size:.72rem; letter-spacing:.04em; text-transform:lowercase;
+  color:var(--ink-faint); font-variant-numeric:tabular-nums; line-height:1.15;
+}
+.pg-family-title{
+  display:flex; align-items:baseline; gap:.6rem; padding:.92rem 1rem;
+  border-bottom:1px solid var(--ink-line-soft);
+  font-family:var(--mono); font-size:.72rem; letter-spacing:.04em; text-transform:lowercase;
+  color:var(--ink-muted); line-height:1.15;
+}
+.pg-family-title span{
+  margin-left:auto; min-width:0; overflow:hidden; text-overflow:ellipsis; white-space:nowrap;
+  color:var(--ink-faint); font-variant-numeric:tabular-nums;
+}
+
 
 /* ---------- 5a. search — a bare ledger field, not a widget (F038/F039) ----
    the rounded fill + adjacent button silhouette IS the template; drop the
@@ -415,6 +453,7 @@
      band, full-width, no centering trick (iOS-safe). */
   .pg-search{width:100%; max-width:none; margin-inline:0; padding-block:.35rem}
   .pg-tier-row{grid-template-columns:auto minmax(0,1fr) auto; padding:.81rem .85rem; min-height:44px}  /* F057 ×1.08 */
+  .pg-family-head{min-height:44px}                     /* the head is a pressable row too — same touch floor */
   .pg-tier-count{justify-self:end}
   .pg-tier-list{--pg-tier-row-h:67.8px}
   .pg-card{padding:.95rem}
