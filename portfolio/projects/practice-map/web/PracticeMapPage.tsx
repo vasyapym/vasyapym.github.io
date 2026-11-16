@@ -214,6 +214,7 @@ export default function PracticeMapPage() {
             groups={FAMILY_GROUPS}
             activeTierId={activeTier?.id ?? ""}
             jumpSignal={jumpCount}
+            keysOwned={Boolean(openLessonId) || paletteOpen}
             onSelect={(tierId) => {
               setActiveTierId(tierId);
               setActiveVolume(null);

@@ -17,6 +17,9 @@ type TierListProps = {
   /** bumped by every palette jump — even a jump to the already-active tier
    * must leave the index, so a signal, not the tier id, carries it. */
   jumpSignal: number;
+  /** true while the lesson overlay or the palette is up — they own every
+   * key, and this list stays out of Escape's way entirely. */
+  keysOwned: boolean;
   onSelect: (tierId: string) => void;
   lessonCount: (tierId: string) => number;
   sampleTitle: (tierId: string) => string;
@@ -28,7 +31,7 @@ type AfterTurn = { focusId?: string; focusFamilyId?: string; focusHead?: boolean
 
 const ord = (n: number) => String(n).padStart(2, "0");
 
-export function TierList({ groups, activeTierId, jumpSignal, onSelect, lessonCount, sampleTitle }: TierListProps) {
+export function TierList({ groups, activeTierId, jumpSignal, keysOwned, onSelect, lessonCount, sampleTitle }: TierListProps) {
   // global display order: registry-order families, TIERS order inside each. a
   // tier's global ordinal is its index here — ordinals never renumber when a
   // different family's folder is open (fable reads 01–05, opus 06–09, other 10–14).
@@ -95,6 +98,26 @@ export function TierList({ groups, activeTierId, jumpSignal, onSelect, lessonCou
   const pagerRef = useRef<HTMLDivElement>(null);
   const afterTurn = useRef<AfterTurn>(null);
 
+  // Escape folds the index back to the folder — owned at the window in the
+  // capture phase so it works however the index was opened (a pointer press
+  // leaves focus on the page, where the nav's own keydown would never fire)
+  // and so the press never reaches the page's volume-close handler beneath.
+  // The overlay and the palette own every key while they are up: the page
+  // says so via keysOwned, and this listener is simply not attached then.
+  useEffect(() => {
+    if (!indexOpen || keysOwned) return;
+    const onKey = (e: globalThis.KeyboardEvent) => {
+      if (e.key !== "Escape") return;
+      e.stopPropagation();
+      // the focused family row unmounts with the index — the head row
+      // takes the thread back, so keyboard nav continues from the folder.
+      afterTurn.current = { focusHead: true };
+      setIndexOpen(false);
+    };
+    window.addEventListener("keydown", onKey, true);
+    return () => window.removeEventListener("keydown", onKey, true);
+  }, [indexOpen, keysOwned]);
+
   useEffect(() => {
     const job = afterTurn.current;
     if (!job) return;
@@ -108,44 +131,53 @@ export function TierList({ groups, activeTierId, jumpSignal, onSelect, lessonCou
     // head row, even when the clamped page number doesn't change.
   }, [current, indexOpen]);
 
-  function turn(delta: -1 | 1) {
+  function turn(delta: -1 | 1, keyboard: boolean) {
     const next = current + delta;
     if (next < 0 || next >= pageCount) return;
-    // focus stays on the pressed arrow and the live cue announces the page — unless the arrow
-    // dies on arrival at an edge page (a disabled control can't hold focus): then focus moves
-    // to the first row of the new page (a tier row in the folder, a family row in the index).
-    const pressedDies = delta < 0 ? next === 0 : next === pageCount - 1;
-    if (pressedDies) {
-      afterTurn.current = showIndex
-        ? { focusFamilyId: groups[next * PAGE_SIZE]?.family.id }
-        : { focusId: folderTiers[next * PAGE_SIZE]?.id };
-    } else {
-      afterTurn.current = { revealPager: true };
+    // focus jobs ride KEYBOARD turns only (activation clicks from Enter carry
+    // detail 0): a pointer turn leaves focus where the pointer put it, so the
+    // ochre focus wake never paints for a mouse. the focus stays on the
+    // pressed arrow and the live cue announces the page — unless the arrow
+    // dies on arrival at an edge page (a disabled control can't hold focus):
+    // then focus moves to the first row of the new page (a tier row in the
+    // folder, a family row in the index).
+    if (keyboard) {
+      const pressedDies = delta < 0 ? next === 0 : next === pageCount - 1;
+      if (pressedDies) {
+        afterTurn.current = showIndex
+          ? { focusFamilyId: groups[next * PAGE_SIZE]?.family.id }
+          : { focusId: folderTiers[next * PAGE_SIZE]?.id };
+      } else {
+        afterTurn.current = { revealPager: true };
+      }
     }
     setPage(next);
   }
 
-  function openIndex() {
+  function openIndex(keyboard: boolean) {
     if (!activeGroup) return; // the index is already the view with no family chosen
     // the index opens on the page that holds the current family's row — the
     // page dial is shared by both views, and the folder may have left it
-    // anywhere (dormant today: 3 families fit page 1).
-    afterTurn.current = { focusFamilyId: activeGroup.family.id };
+    // anywhere (dormant today: 3 families fit page 1). the focus handoff to
+    // that row rides keyboard activation only; a pointer press needs none.
+    if (keyboard) afterTurn.current = { focusFamilyId: activeGroup.family.id };
     setPage(Math.floor(familyOrdinal / PAGE_SIZE));
     setIndexOpen(true);
   }
 
-  function pickFamily(group: FamilyGroup) {
+  function pickFamily(group: FamilyGroup, keyboard: boolean) {
     if (activeGroup && group.family.id === activeGroup.family.id) {
       // the current family just folds back to its folder, tier unchanged —
-      // and the focused family row unmounts, so the head takes focus back.
-      afterTurn.current = { focusHead: true };
+      // and on keyboard the focused family row unmounts, so the head takes
+      // the thread back; a pointer press leaves focus on the page.
+      if (keyboard) afterTurn.current = { focusHead: true };
       setIndexOpen(false);
       return;
     }
     // the family's first tier takes over: the panel follows because the page
     // re-derives, and the snap above closes the index and lands its folder.
-    afterTurn.current = { focusId: group.tiers[0]?.id };
+    // keyboard keeps the thread on the new row; pointer leaves it on the page.
+    if (keyboard) afterTurn.current = { focusId: group.tiers[0]?.id };
     onSelect(group.tiers[0]?.id ?? "");
   }
 
@@ -167,19 +199,6 @@ export function TierList({ groups, activeTierId, jumpSignal, onSelect, lessonCou
       data-family-id={showIndex ? undefined : activeGroup?.family.id}
       data-page={current + 1}
       data-pages={pageCount}
-      onKeyDown={(e) => {
-        // component-local escape: the index folds back to the folder without
-        // touching the page's global keys — a volume view underneath stays put,
-        // so the press must not reach the window handler. with no family
-        // chosen the index is the floor view: there is nothing to close.
-        if (e.key === "Escape" && indexOpen && activeGroup) {
-          e.stopPropagation();
-          // the focused family row unmounts with the index — the head row
-          // takes focus back, so keyboard nav continues from the folder.
-          afterTurn.current = { focusHead: true };
-          setIndexOpen(false);
-        }
-      }}
     >
       {showIndex ? (
         <>
@@ -200,7 +219,7 @@ export function TierList({ groups, activeTierId, jumpSignal, onSelect, lessonCou
                 className={`pg-tier-row${active ? " is-active" : ""}`}
                 aria-pressed={active}
                 data-family-id={group.family.id}
-                onClick={() => pickFamily(group)}
+                onClick={(e) => pickFamily(group, e.detail === 0)}
               >
                 <span className="pg-tier-index" aria-hidden="true">{ord(i + 1)}</span>
                 <span className="pg-tier-name">{group.family.label}</span>
@@ -217,7 +236,7 @@ export function TierList({ groups, activeTierId, jumpSignal, onSelect, lessonCou
             className="pg-family-head"
             aria-label="model families"
             ref={headRef}
-            onClick={openIndex}
+            onClick={(e) => openIndex(e.detail === 0)}
           >
             <span className="pg-family-arrow" aria-hidden="true">←</span>
             <span className="pg-family-label">{activeGroup.family.label}</span>
@@ -262,7 +281,7 @@ export function TierList({ groups, activeTierId, jumpSignal, onSelect, lessonCou
             data-turn="prev"
             disabled={onFirst}
             aria-label={onFirst ? "previous page" : `previous page, ${rangeLabel(current - 1)}`}
-            onClick={() => turn(-1)}
+            onClick={(e) => turn(-1, e.detail === 0)}
           >
             <span className="pg-tier-page-glyph" aria-hidden="true">{"<"}</span>
           </button>
@@ -275,7 +294,7 @@ export function TierList({ groups, activeTierId, jumpSignal, onSelect, lessonCou
             data-turn="next"
             disabled={onLast}
             aria-label={onLast ? "next page" : `next page, ${rangeLabel(current + 1)}`}
-            onClick={() => turn(1)}
+            onClick={(e) => turn(1, e.detail === 0)}
           >
             <span className="pg-tier-page-glyph" aria-hidden="true">{">"}</span>
           </button>

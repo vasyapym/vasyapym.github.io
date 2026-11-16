@@ -194,8 +194,21 @@ try {
   check(sameState === "folder/fable", `picking the current family just closes the index (${sameState})`);
   const landingRowActive = await page.$eval('.pg-tier-row[data-tier-id="fable-5.2-max"]', (el) => el.getAttribute("aria-pressed"));
   check(landingRowActive === "true", "the active tier is unchanged after the current-family pick");
-  const sameFocus = await page.evaluate(() => document.activeElement?.getAttribute("aria-label") ?? "");
-  check(sameFocus === "model families", `the current-family pick hands focus back to the head row (${sameFocus})`);
+  const sameFocus = await page.evaluate(() => document.activeElement === document.body);
+  check(sameFocus, "a pointer pick closes the index without moving focus (no ochre wake)");
+
+  // The keyboard chain keeps the thread (activation clicks carry detail 0):
+  // Enter on the head re-opens the index and hands focus to the current
+  // family's row; Enter again picks it and the head takes focus back.
+  await page.focus(".pg-family-head");
+  await page.keyboard.press("Enter");
+  await wait(300);
+  const keyboardOpenFocus = await page.evaluate(() => document.activeElement?.getAttribute("data-family-id") ?? "");
+  check(keyboardOpenFocus === "fable", `keyboard-open hands focus to the current family's row (${keyboardOpenFocus})`);
+  await page.keyboard.press("Enter");
+  await wait(300);
+  const keyboardPickFocus = await page.evaluate(() => document.activeElement?.getAttribute("aria-label") ?? "");
+  check(keyboardPickFocus === "model families", `a keyboard pick hands focus back to the head row (${keyboardPickFocus})`);
 
   // ⌘k palette jump across families: from the fable folder, jumping to an opus
   // lesson snaps the folder to the jump's family. The palette's result order
