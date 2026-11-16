@@ -7728,6 +7728,39 @@ whenNot: "Урок не предлагает смотреть так любое 
     },
   },
 ];
+
+const ibsEatingBeforeSleepTopics: readonly TopicCard[] = [
+  {
+    id: "ibs-eating-before-sleep-full",
+    title: "Late dinner, lying down",
+    summary: "An objective evaluation of the folk rule «no food 3–4 hours before bed» for IBS and visceral hypersensitivity: the meal's loud phase is real, the paperweight is not, the number is borrowed — and the harm, where it happens, runs mostly through lost sleep.",
+    concepts: [],
+    practicePrompt: "Log seven ordinary days first, then for fourteen days change one thing only: finish your last full meal at least three hours before lights out, with the same food and the same portions. Each morning score from 0 to 10 how long you took to fall asleep, night-time belly discomfort and next-day pain, then compare the two periods; if nothing moves, restore the clock and test portion size or fat instead.",
+    checkPrompt: "Without notes, say which phrases of the folk rule stand, which are queried and which are deleted: what lying down really changes, what «presses» really means, why «all night» is wrong and where the 3–4 hour figure comes from. Then give the verdict in one sentence, including what has never been tested in IBS.",
+    tier: 1,
+    complexity: 4,
+    references: [
+
+    ],
+    lesson: {
+problem: "People with IBS are told not to eat within three or four hours of bed, usually with a story about food pressing on the gut all night. Without knowing which parts of that story are measured, they either obey a rule with a borrowed number or dismiss a habit that may be costing them sleep.",
+model: "A meal has a loud phase of a few hours: stomach stretch, the colon's response to eating, fat-driven sensitisation, then gas from fermentation. Lying down does not press on the gut; it slows gas clearance and favours reflux, and bed removes every distraction from a circuit that already over-reports stretch. The 3–4 hour gap is a way to keep the loud phase out of bed — a mechanism-based guess with no IBS trial behind it. Where harm occurs it runs largely through lost sleep, which predicts more pain the next day.",
+mechanics: "1) Stretch, not weight: visceral pain endings in the gut wall respond to distension from inside; hypersensitivity is shown by rectal balloon distension felt as discomfort at volumes healthy people tolerate. 2) Gastrocolic response: eating raises colonic activity within minutes, more after large and fatty meals, and is stronger or more strongly felt in IBS; fat in the upper small intestine also lowers discomfort thresholds in the lower bowel, more in IBS than in controls. 3) Emptying time: the standard low-fat test meal counts as normal with no more than a tenth left in the stomach at four hours; real dinners take longer and evening emptying of solids appears slower. 4) Posture and gas: infused gas leaves the gut faster upright than supine in healthy volunteers, and IBS patients retain and feel a gas load more; fermentable food starts reaching the colon a few hours after eating, so gas from a late dinner arrives during sleep. 5) The night programme: the colon is nearly silent in sleep, and the fasting small intestine runs the migrating motor complex roughly every 90–120 minutes; a late meal postpones it, with unproven consequences. 6) Sleep link: in diary data from women with IBS a poor night predicted more pain next day, and sleep loss lowers pain thresholds generally.",
+pitfalls: [
+  "Picturing food or body weight lying on the gut like a paperweight, when the relevant stimulus is stretch from inside.",
+  "Assuming digestion needs gravity, so that lying down stops food from moving.",
+  "Treating «3–4 hours» as an IBS research finding, when it is borrowed from reflux advice and stomach-emptying time.",
+  "Believing the gut is busiest at night, when the colon is at its quietest during sleep.",
+  "Reading the absence of a trial as proof the rule is useless, or the plausible mechanisms as proof that it works.",
+  "Watching only the clock while ignoring meal size, fat and fermentable content, which the mechanisms suggest matter more.",
+  "Stretching the gap into a long hungry evening, against first-line advice to avoid long gaps between meals.",
+  "Accepting pain or diarrhoea that regularly wakes you as ordinary IBS instead of having it checked.",
+  "Changing timing, portion and menu at once and then crediting the clock."
+],
+whenNot: "This is an evaluation of a claim, not medical advice: it does not say a pre-sleep gap treats IBS, only that it is a reasonable self-experiment. It does not cover symptoms that wake you at night, bleeding, unexplained weight loss or fever, which need a clinician, and it does not suit people who must eat late for medical reasons, shift workers whose night is their day, or anyone for whom rigid food-timing rules feed disordered eating. Reflux has its own, somewhat better, evidence for the gap and is only touched on here."
+    },
+  },
+];
 export const curriculum: readonly PracticeArea[] = [
   {
     id: "go",
@@ -9280,5 +9313,13 @@ export const curriculum: readonly PracticeArea[] = [
     tier: 1,
     dependencies: [],
     topics: pierrotLeFouTopics,
+  },
+  {
+    id: "ibs-eating-before-sleep",
+    title: "Late dinner, lying down",
+    description: "An objective evaluation of the folk rule «no food 3–4 hours before bed» for IBS and visceral hypersensitivity: the meal's loud phase is real, the paperweight is not, the number is borrowed — and the harm, where it happens, runs mostly through lost sleep.",
+    tier: 1,
+    dependencies: [],
+    topics: ibsEatingBeforeSleepTopics,
   },
 ];
