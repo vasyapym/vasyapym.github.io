@@ -83,7 +83,9 @@ const LESSON_TABS = [
 type LessonTabKey = (typeof LESSON_TABS)[number]["key"];
 
 export default function PracticeMapPage() {
-  const [activeTierId, setActiveTierId] = useState(DISPLAY_TIERS[0]?.id ?? "");
+  // no tier is active until a family is picked: the page loads on the index,
+  // the panel stays out, and the first pick activates the family's first tier.
+  const [activeTierId, setActiveTierId] = useState("");
   const [state, setState] = useState<PracticeState>(() => loadPracticeState(curriculum));
   const [query, setQuery] = useState("");
   const [activeVolume, setActiveVolume] = useState<string | null>(null);
@@ -106,7 +108,9 @@ export default function PracticeMapPage() {
     return map;
   }, []);
 
-  const activeTier = DISPLAY_TIERS.find((tier) => tier.id === activeTierId) ?? DISPLAY_TIERS[0];
+  // no fallback: with no family chosen the panel simply doesn't render —
+  // `{activeTier && …}` below keeps the right column out of the layout.
+  const activeTier = DISPLAY_TIERS.find((tier) => tier.id === activeTierId);
   const tierTopics = useMemo(
     () => (activeTier ? orderedTopicsForTier(activeTier, topicsById).map(({ topic, index }) => ({ ...topic, index })) : []),
     [activeTier, topicsById],

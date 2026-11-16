@@ -109,24 +109,36 @@ try {
   // networkidle0 never settles on this dev app, and 45s of it times out.
   await page.goto(`${BASE}/projects/practice-map`, { waitUntil: "domcontentloaded", timeout: 150000 });
 
-  // The landing tier is fable-5.2-max (the owner ordered it FIRST; it is flat —
-  // one lesson < the 8+ fold threshold — so cards render directly).
-  check(await appears(".pg-card"), "map renders (first tier is flat — cards render directly)");
-  // The list is a two-level nav now: it shows ONE family at a time — the fable
-  // folder (5 tier rows under a head row naming the family, global ordinals
-  // 01–05; opus follows at 06–09, the catch-all at 10–14). The paging dial is
-  // dormant (PAGE_SIZE 5): no family reaches 6 tiers and the index holds 3
-  // families, so no pager renders anywhere yet.
-  check(await appears(".pg-family-head"), "the folder renders under a family head row");
+  // The page loads with NO family chosen: the nav opens on the index — one row
+  // per family, counts in LESSONS (the archive's unit), no row marked — and
+  // the panel stays out of the layout until a family is picked.
+  check(await appears(".pg-family-title"), "map renders (the index, no family chosen)");
+  const landingView = await page.$eval(".pg-tier-list", (el) => el.dataset.view);
+  check(landingView === "index", `the list opens on the index (${landingView})`);
+  const landingRows = await page.$$eval(".pg-tier-row", (rows) => rows.map((r) => r.querySelector(".pg-tier-index").textContent));
+  check(landingRows.join(",") === "01,02,03", `the index ordinals its families (${landingRows.join(" ")})`);
+  const landingCounts = await page.$$eval(".pg-tier-row .pg-tier-count", (els) => els.map((el) => el.textContent.trim()));
+  check(landingCounts.join(",") === "92 lessons,84 lessons,37 lessons", `each family row counts its lessons (${landingCounts.join(" | ")})`);
+  const landingTitle = await page.$eval(".pg-family-title span", (el) => el.textContent.trim());
+  check(landingTitle === "213 lessons", `the index title counts all lessons (${landingTitle})`);
+  const markedLanding = await page.$$eval(".pg-tier-row.is-active", (rows) => rows.length);
+  check(markedLanding === 0, "no family row is marked with none chosen");
+  check((await page.$(".pg-main")) === null, "the panel stays out until a family is picked");
+  check((await page.$(".pg-card")) === null, "no cards with no family chosen");
+  // Picking a family folds its folder open and activates its first tier
+  // (fable-5.2-max is flat — cards render directly).
+  await page.click('.pg-tier-row[data-family-id="fable"]');
+  await wait(400);
+  const listState = await page.$eval(".pg-tier-list", (el) => `${el.dataset.view}/${el.dataset.familyId}`);
+  check(listState === "folder/fable", `the family pick folds its folder (${listState})`);
   const headLabel = await page.$eval(".pg-family-label", (el) => el.textContent.trim());
   check(headLabel === "claude fable models", `the head names the active family (${headLabel})`);
   const headCue = await page.$eval(".pg-family-cue", (el) => el.textContent.trim());
   check(headCue === "family 1 of 3", `the head cue counts the families (${headCue})`);
-  const listState = await page.$eval(".pg-tier-list", (el) => `${el.dataset.view}/${el.dataset.familyId}`);
-  check(listState === "folder/fable", `the list states its view (${listState})`);
   const folderRows = await page.$$eval(".pg-tier-row", (rows) => rows.map((r) => r.querySelector(".pg-tier-index").textContent));
   check(folderRows.join(",") === "01,02,03,04,05", `the fable folder holds the first five global ordinals (${folderRows.join(" ")})`);
   check((await page.$(".pg-tier-pager")) === null, "no pager while every view fits one page (dormant dial)");
+  check(await appears(".pg-card"), "the first tier is flat — cards render directly");
   // Family-switch route: the head opens the index — one row per family with
   // its own ordinal (01–03) — and picking a family folds its folder open with
   // the family's first tier auto-activated. Folder-face coverage runs on the
@@ -137,7 +149,7 @@ try {
   const indexRows = await page.$$eval(".pg-tier-row", (rows) => rows.map((r) => r.querySelector(".pg-tier-index").textContent));
   check(indexRows.join(",") === "01,02,03", `the index ordinals its families (${indexRows.join(" ")})`);
   const indexCounts = await page.$$eval(".pg-tier-row .pg-tier-count", (els) => els.map((el) => el.textContent.trim()));
-  check(indexCounts.join(",") === "5 tiers,4 tiers,5 tiers", `each family row counts its tiers (${indexCounts.join(" | ")})`);
+  check(indexCounts.join(",") === "92 lessons,84 lessons,37 lessons", `each family row counts its lessons (${indexCounts.join(" | ")})`);
   const fableRowActive = await page.$eval('.pg-tier-row[data-family-id="fable"]', (el) => el.getAttribute("aria-pressed"));
   check(fableRowActive === "true", "the family holding the active tier is marked in the index");
   await page.click('.pg-tier-row[data-family-id="other"]');
@@ -793,7 +805,7 @@ try {
   await page2.goto(`${BASE}/projects/practice-map`, { waitUntil: "domcontentloaded", timeout: 150000 });
   const appears2 = (selector, timeout = 30000) =>
     page2.waitForSelector(selector, { timeout }).then(() => true).catch(() => false);
-  check(await appears2(".pg-card"), "the second page mounts on the same origin");
+  check(await appears2(".pg-family-title"), "the second page mounts on the same origin");
   check(await scrollSettled(), "page1 rests mid-section before the cross-tab write");
   const anchorCross = await measureAnchor();
   check(
@@ -1128,11 +1140,9 @@ try {
   const size15Set = await readSize();
   check(size15Set.attr === "15" && near(parseFloat(size15Set.fill), 15), `size set to 15 for the persistence leg (attr=${size15Set.attr}, fill ${size15Set.fill})`);
   await page.reload({ waitUntil: "domcontentloaded", timeout: 150000 });
-  check(await appears(".pg-card"), "map renders after reload");
-  // the reload lands on the fable folder again — route back to the thinking
-  // tier through the index (family row, then tier row, then vol 01)
-  await page.click(".pg-family-head");
-  await wait(300);
+  // the reload resets to the neutral index — route back to the thinking tier
+  // through the opus family row, then the tier row, then vol 01
+  check(await appears(".pg-family-title"), "map renders after reload (the index, no family chosen)");
   await page.click('.pg-tier-row[data-family-id="opus"]');
   await wait(400);
   await page.click('.pg-tier-row[data-tier-id="opus-4.8-thinking"]');
@@ -1257,10 +1267,9 @@ try {
     );
   });
   await page.reload({ waitUntil: "domcontentloaded", timeout: 150000 });
-  check(await appears(".pg-card"), "map renders after the race-guard reload");
-  // back to the thinking tier through the index (the reload resets the folder)
-  await page.click(".pg-family-head");
-  await wait(300);
+  // back to the thinking tier through the index (the reload resets to the
+  // neutral index, so the opus family row comes first)
+  check(await appears(".pg-family-title"), "map renders after the race-guard reload (the index)");
   await page.click('.pg-tier-row[data-family-id="opus"]');
   await wait(400);
   await page.click('.pg-tier-row[data-tier-id="opus-4.8-thinking"]');
@@ -1453,12 +1462,9 @@ try {
 
   // domcontentloaded returns before React mounts — wait for the map first
   // (networkidle0 used to buy this implicitly).
-  check(await appears(".pg-card"), "map renders at 390px (first tier is flat — cards)");
+  check(await appears(".pg-family-title"), "map renders at 390px (the index, no family chosen)");
   // Folder faces are covered on the first catch-all tier (astra-6-max): the
-  // head opens the index, picking the family folds its folder open with the
-  // first tier auto-activated.
-  await page.tap(".pg-family-head");
-  await wait(300);
+  // family pick folds its folder open with the first tier auto-activated.
   await page.tap('.pg-tier-row[data-family-id="other"]');
   await wait(400);
   check(await appears(".pg-face-head"), "astra-6-max folds into folder faces at 390px");
@@ -1594,10 +1600,8 @@ try {
   );
   check(noOverflowNarrow, "no horizontal overflow on the map at 320px");
 
-  check(await appears(".pg-card"), "map renders at 320px (first tier is flat — cards)");
-  // astra-6-max: head → index → family pick (the folder route, no pager).
-  await page.tap(".pg-family-head");
-  await wait(300);
+  check(await appears(".pg-family-title"), "map renders at 320px (the index, no family chosen)");
+  // astra-6-max: family pick straight off the index (the folder route, no pager).
   await page.tap('.pg-tier-row[data-family-id="other"]');
   await wait(400);
   check(await appears(".pg-face-head"), "astra-6-max folds into folder faces at 320px");
@@ -1719,11 +1723,16 @@ try {
   const items = await quotaPage.evaluate(() => window.localStorage.length);
   check(parked === 13 && items > 1, `storage at quota with a small valid progress blob (blob ${parked}B, ${items} keys)`);
   await quotaPage.goto(`${BASE}/projects/practice-map`, { waitUntil: "domcontentloaded", timeout: 150000 });
-  await quotaPage.waitForSelector(".pg-card", { timeout: 30000 }).catch(() => {});
-  const opened = await appears(".pg-card");
+  // the marker waits on quotaPage itself — the shared `appears` helper closes
+  // over the desktop page, which is deep in another flow by now.
+  const opened = await quotaPage
+    .waitForSelector(".pg-family-title", { timeout: 30000 })
+    .then(() => true)
+    .catch(() => false);
   if (!opened) {
     // failure diagnostics: what actually rendered under a full storage
     const dump = await quotaPage.evaluate(() => ({
+      titleCount: document.querySelectorAll(".pg-family-title").length,
       cardCount: document.querySelectorAll(".pg-card").length,
       crashCount: document.querySelectorAll(".project-crash").length,
       crashDetail: document.querySelector(".project-crash-detail")?.textContent?.trim()?.slice(0, 200) ?? null,

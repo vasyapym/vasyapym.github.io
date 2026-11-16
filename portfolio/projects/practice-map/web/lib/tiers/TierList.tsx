@@ -33,21 +33,29 @@ export function TierList({ groups, activeTierId, jumpSignal, onSelect, lessonCou
   // tier's global ordinal is its index here — ordinals never renumber when a
   // different family's folder is open (fable reads 01–05, opus 06–09, other 10–14).
   const display = groups.flatMap((g) => g.tiers);
-  // the folder always shows the active tier's family — the family is derived,
-  // never stored, so an outside jump (⌘k palette) drags the folder along.
-  const activeGroup = groups.find((g) => g.tiers.some((t) => t.id === activeTierId)) ?? groups[0];
-  const familyOrdinal = groups.findIndex((g) => g.family.id === activeGroup.family.id);
+  // the folder shows the active tier's family — derived, never stored, so an
+  // outside jump (⌘k palette) drags the folder along. no tier is active until
+  // a family is picked: the list then opens on the index and no family row is
+  // marked.
+  const activeGroup = activeTierId
+    ? groups.find((g) => g.tiers.some((t) => t.id === activeTierId)) ?? groups[0]
+    : undefined;
+  const familyOrdinal = activeGroup
+    ? groups.findIndex((g) => g.family.id === activeGroup.family.id)
+    : -1;
 
   // two views over one nav: the folder (head row + the family's tier rows) and
-  // the index (one row per family). each view pages its own rows.
+  // the index (one row per family). each view pages its own rows. with no
+  // family chosen the index IS the view — there is no folder to fold back to.
   const [indexOpen, setIndexOpen] = useState(false);
+  const showIndex = !activeGroup || indexOpen;
 
   // manual page state with a derived override: whenever the active tier changes
   // (initial load, row click, ⌘k palette jump from outside), the page snaps to
   // wherever that tier lives in its family and the index closes. adjusting
   // state during render is React's documented pattern for "react to a prop
   // change" without an effect-frame flash of the wrong page.
-  const folderTiers = activeGroup.tiers;
+  const folderTiers = activeGroup?.tiers ?? [];
   const folderIndex = folderTiers.findIndex((t) => t.id === activeTierId);
   const activePage = folderIndex >= 0 ? Math.floor(folderIndex / PAGE_SIZE) : -1;
 
@@ -66,14 +74,14 @@ export function TierList({ groups, activeTierId, jumpSignal, onSelect, lessonCou
     setSnappedJump(jumpSignal);
     setIndexOpen(false);
   }
-  const total = indexOpen ? groups.length : folderTiers.length;
+  const total = showIndex ? groups.length : folderTiers.length;
   const pageCount = Math.max(1, Math.ceil(total / PAGE_SIZE));
   const current = Math.min(Math.max(0, page), pageCount - 1); // clamp if data shrinks
   const paged = pageCount > 1;
   const start = current * PAGE_SIZE;
   const pageTiers = folderTiers.slice(start, start + PAGE_SIZE);
   const pageGroups = groups.slice(start, start + PAGE_SIZE);
-  const padRows = Math.max(0, MIN_ROWS - (indexOpen ? pageGroups.length : pageTiers.length)); // empty air above the pager on short pages
+  const padRows = Math.max(0, MIN_ROWS - (showIndex ? pageGroups.length : pageTiers.length)); // empty air above the pager on short pages
   const onFirst = current === 0;
   const onLast = current === pageCount - 1;
   // the folder's rows keep GLOBAL ordinals — its first tier's display index is
@@ -108,7 +116,7 @@ export function TierList({ groups, activeTierId, jumpSignal, onSelect, lessonCou
     // to the first row of the new page (a tier row in the folder, a family row in the index).
     const pressedDies = delta < 0 ? next === 0 : next === pageCount - 1;
     if (pressedDies) {
-      afterTurn.current = indexOpen
+      afterTurn.current = showIndex
         ? { focusFamilyId: groups[next * PAGE_SIZE]?.family.id }
         : { focusId: folderTiers[next * PAGE_SIZE]?.id };
     } else {
@@ -118,6 +126,7 @@ export function TierList({ groups, activeTierId, jumpSignal, onSelect, lessonCou
   }
 
   function openIndex() {
+    if (!activeGroup) return; // the index is already the view with no family chosen
     // the index opens on the page that holds the current family's row — the
     // page dial is shared by both views, and the folder may have left it
     // anywhere (dormant today: 3 families fit page 1).
@@ -127,7 +136,7 @@ export function TierList({ groups, activeTierId, jumpSignal, onSelect, lessonCou
   }
 
   function pickFamily(group: FamilyGroup) {
-    if (group.family.id === activeGroup.family.id) {
+    if (activeGroup && group.family.id === activeGroup.family.id) {
       // the current family just folds back to its folder, tier unchanged —
       // and the focused family row unmounts, so the head takes focus back.
       afterTurn.current = { focusHead: true };
@@ -145,8 +154,8 @@ export function TierList({ groups, activeTierId, jumpSignal, onSelect, lessonCou
   function rangeLabel(p: number) {
     const first = p * PAGE_SIZE + 1;
     const last = Math.min(total, first + PAGE_SIZE - 1);
-    const label = (n: number) => ord(indexOpen ? n : displayOffset + n);
-    const noun = indexOpen ? "family" : "tier";
+    const label = (n: number) => ord(showIndex ? n : displayOffset + n);
+    const noun = showIndex ? "family" : "tier";
     return first === last ? `${noun} ${label(first)}` : `${noun}s ${label(first)}–${label(last)}`;
   }
 
@@ -154,15 +163,16 @@ export function TierList({ groups, activeTierId, jumpSignal, onSelect, lessonCou
     <nav
       className="pg-tier-list"
       aria-label="model tiers"
-      data-view={indexOpen ? "index" : "folder"}
-      data-family-id={indexOpen ? undefined : activeGroup.family.id}
+      data-view={showIndex ? "index" : "folder"}
+      data-family-id={showIndex ? undefined : activeGroup?.family.id}
       data-page={current + 1}
       data-pages={pageCount}
       onKeyDown={(e) => {
         // component-local escape: the index folds back to the folder without
         // touching the page's global keys — a volume view underneath stays put,
-        // so the press must not reach the window handler.
-        if (e.key === "Escape" && indexOpen) {
+        // so the press must not reach the window handler. with no family
+        // chosen the index is the floor view: there is nothing to close.
+        if (e.key === "Escape" && indexOpen && activeGroup) {
           e.stopPropagation();
           // the focused family row unmounts with the index — the head row
           // takes focus back, so keyboard nav continues from the folder.
@@ -171,12 +181,14 @@ export function TierList({ groups, activeTierId, jumpSignal, onSelect, lessonCou
         }
       }}
     >
-      {indexOpen ? (
+      {showIndex ? (
         <>
-          <div className="pg-family-title">model families <span>{plural(display.length, "tier")}</span></div>
+          {/* the index reads in lessons — the archive's unit (owner, 2026-11-16):
+              each family counts the lessons of its tiers, the title the total. */}
+          <div className="pg-family-title">model families <span>{plural(display.reduce((sum, t) => sum + lessonCount(t.id), 0), "lesson")}</span></div>
           {pageGroups.map((group, j) => {
             const i = start + j; // view-local index; family ordinals start at 01 per view
-            const active = group.family.id === activeGroup.family.id;
+            const active = activeGroup?.family.id === group.family.id;
             return (
               <button
                 key={group.family.id}
@@ -192,7 +204,7 @@ export function TierList({ groups, activeTierId, jumpSignal, onSelect, lessonCou
               >
                 <span className="pg-tier-index" aria-hidden="true">{ord(i + 1)}</span>
                 <span className="pg-tier-name">{group.family.label}</span>
-                <span className="pg-tier-count">{plural(group.tiers.length, "tier")}</span>
+                <span className="pg-tier-count">{plural(group.tiers.reduce((sum, t) => sum + lessonCount(t.id), 0), "lesson")}</span>
                 <span className="pg-tier-sample">{group.tiers[0]?.name ?? ""}</span>
               </button>
             );
@@ -241,7 +253,7 @@ export function TierList({ groups, activeTierId, jumpSignal, onSelect, lessonCou
           ref={pagerRef}
           className="pg-tier-pager"
           role="group"
-          aria-label={indexOpen ? "family pages" : "tier pages"}
+          aria-label={showIndex ? "family pages" : "tier pages"}
           style={{ "--pg-tier-pad": padRows } as CSSProperties}
         >
           <button
