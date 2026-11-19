@@ -7761,6 +7761,39 @@ whenNot: "This is an evaluation of a claim, not medical advice: it does not say 
     },
   },
 ];
+
+const emigrationUsaTopics: readonly TopicCard[] = [
+  {
+    id: "emigration-usa-full",
+    title: "The Queue and the Gate: Ranking the Ways to Emigrate to the USA as a Russian Citizen, 2026",
+    summary: "America has no form for “I would like to move, please.” It has doors, each cut for one kind of person. Ranked by a single measure — of the people who can honestly start down a route, how many end up with a green card, and how soon — the order for a Russian citizen in late 2026 is: close family of a US citizen, self-petitioned talent, investment, an employer, the student ladder, the lottery, and asylum. The order is steadier than the news; the news is dated below.",
+    concepts: [],
+    practicePrompt: "Write down the seven routes and cross out every one whose category does not describe you today. For each route left, list every stranger who must say yes (an employer, an officer, a lottery drum) and count the gates. Then check one dated item from the lesson (the pause, a fee, whether the lottery is open) at the official address the lesson names.",
+    checkPrompt: "Without looking: name the three locks and say which one favours a Russian citizen and which works against one. State the ranking’s measure, give the seven routes in order, and explain why the lottery is sixth by certainty but first by price.",
+    tier: 1,
+    complexity: 4,
+    references: [
+
+    ],
+    lesson: {
+problem: "People look for the best visa as if the US had one application for immigrants and one answer for every nationality. It has closed categories instead, and advice written for other nationalities ranks the routes in the wrong order for Russians.",
+model: "Every route passes three locks: a category written in statute, a queue of annual caps that goes by country of birth, and a gate, meaning an officer plus the policy of the day, that goes by passport and residence. A Russian citizen is well placed in the queue and badly placed at the gate, so routes with fewer gates rank higher. The measure is reliability: of those who can honestly start a route, how many end with a green card, and how soon.",
+mechanics: "1) Spouses, unmarried children under 21 and parents of adult US citizens are exempt from annual caps. 2) Capped categories limit each country of birth to seven percent, which leaves Russians in the general line rather than a national backlog. 3) Most temporary visas presume the applicant intends to immigrate and require proof of the opposite, while immigrant petitions and the H-1B and L-1 allow the intention to stay. 4) Russians are interviewed outside Russia, by passport and residence: as of November 2026 in Warsaw for immigrant visas and in Warsaw or Astana for temporary ones. 5) Lottery selection exceeds the number of visas, and unissued lottery visas expire on 30 September of their fiscal year. 6) Asylum can be requested only on US soil or at the border, never at an embassy.",
+pitfalls: [
+  "Treating a tourist or student visa as a quiet first step: on those forms the wish to stay is the ground for refusal, and concealing it can bring a permanent bar.",
+  "Following ladder-first advice written for Indian or Chinese applicants, whose problem is the queue, when a Russian’s problem is the gate.",
+  "Confusing being drawn in the lottery with holding a visa, and forgetting that the visa must be issued by 30 September.",
+  "Entering the lottery anywhere but the State Department’s own site, or paying an intermediary for a form that officially costs a dollar.",
+  "Assuming a Russian passport means a Russian queue: queues and lottery eligibility go by country of birth, pauses and consulates by passport and residence.",
+  "Reading a pause, a fee or a court ruling as permanent, or acting on this lesson’s dated items without rechecking them.",
+  "Buying a “guaranteed” talent petition: the decision is an officer’s judgement and nobody can guarantee it.",
+  "Planning an investor case around the amount of money rather than around its documented origin and its path out of Russia.",
+  "Counting on a marriage of convenience: it is a federal crime and bars later petitions for life."
+],
+whenNot: "This is a judged ranking for a Russian citizen starting from outside the US, not a published statistic and not legal advice for an individual case; a person already in the US, a dual citizen or someone in danger faces a different order. The mechanics come from memory that is firm to about January 2026; court dates and fee changes from later in 2026 come from notes gathered on 19 November 2026 that could not be verified. Check the Visa Bulletin, travel.state.gov, uscis.gov and dvprogram.state.gov, and a licensed immigration lawyer, before acting."
+    },
+  },
+];
 export const curriculum: readonly PracticeArea[] = [
   {
     id: "go",
@@ -9321,5 +9354,13 @@ export const curriculum: readonly PracticeArea[] = [
     tier: 1,
     dependencies: [],
     topics: ibsEatingBeforeSleepTopics,
+  },
+  {
+    id: "emigration-usa",
+    title: "The Queue and the Gate: Ranking the Ways to Emigrate to the USA as a Russian Citizen, 2026",
+    description: "America has no form for “I would like to move, please.” It has doors, each cut for one kind of person. Ranked by a single measure — of the people who can honestly start down a route, how many end up with a green card, and how soon — the order for a Russian citizen in late 2026 is: close family of a US citizen, self-petitioned talent, investment, an employer, the student ladder, the lottery, and asylum. The order is steadier than the news; the news is dated below.",
+    tier: 1,
+    dependencies: [],
+    topics: emigrationUsaTopics,
   },
 ];
