@@ -1,5 +1,7 @@
 # Orchestrate declarations — one file for every machine
 
+(Despite the name, this file is not limited to the TD project — it is the declarations master for every machine and every project. Owner, 2026-11-19.)
+
 The orchestrator reads declarations from `~/.config/orchestrate/declarations.md`
 on each machine. That file has two parts, in this order:
 
@@ -22,6 +24,8 @@ cite, don't paraphrase: when the owner's phrasing is clear, quote it — as phra
 no topic anchors: the orchestrator does not add topic fact lists («topic anchors») to briefs on its own — only when the owner asks; a creative reads them as something more desirable even when they are not instructions (owner, 2026-11-15).
 
 reply carriage: creative capacities (creative: Fable 5.1; gentle: Astra-6) carry the artifact between the markers ALWAYS as ONE physical line — every break replaced by the marker character the brief dictates (⏎ has served) — decoded mechanically after the cut; other capacities keep the conditional one-line repair (only when the transport eats line breaks); standing for TD (traktorodetal.ru), a simple ask for a creative. (owner, 2026-11-14: mandatory for creative — collapsed pastes are the common transport; a collapsed one-line artifact loses nothing.)
+
+docs text: documentation and handoff texts — English, very minimal; the agent is usually overly verbose and bad at words (owner, 2026-11-19).
 
 ## Project lines
 
@@ -67,3 +71,7 @@ reply carriage: creative capacities (creative: Fable 5.1; gentle: Astra-6) carry
 ### Declarations on GitHub (standing)
 
 - every declaration addition is mirrored into this master (`declarations.TD.md`) and pushed right after the edit — the machines adopt by pulling; the master's repository: https://github.com/vasyapym/orchestrate (its local clone: ~/Documents/orchestrate)
+
+### Git delivery (standing, 2026-11-19)
+
+- git: vasyapym.github.io (local folder C:\Users\v.argunov\Desktop\agent2\vasyapym.github.io) — the agent commits and pushes it automatically, without asking; every other project folder on this machine stays hands-off (owner, 2026-11-19).
