@@ -25,7 +25,7 @@ Standing discipline: task stated briefly; *why, not what* wherever judgment is a
 - **Why** — what the owner said about this topic, verbatim, if anything. The format spec carries the standing why; it is not paraphrased.
 - **Format** — `lesson-format.md` verbatim, labelled current; or the owner's format in the owner's words.
 - **Honesty** — the block below, plus this topic's stakes (money, health, legal status) named as why.
-- **Facts** — what the author cannot know: the site shows the H1 as the title and the first paragraph as the card summary, renders `##` sections as the lesson's parts, and feeds the payload into the lesson's practice and theory cards; sibling lessons (paths, titles; their openings verbatim where they would change the author's choices); the lesson's language if not English.
+- **Facts** — what the author cannot know: the site shows the H1 as the title and the first paragraph as the card summary, renders `##` sections as the lesson's parts, and feeds the payload into the lesson's practice and theory cards; current verified facts when the topic is volatile (dated, sourced); the lesson's language if not English. Other lessons are never taken into account — no paths, titles or openings from the lessons corpus enter a brief, and the orchestrator adds no commentary of its own (owner, 2026-11-19).
 - **Assumptions / open questions** — labelled, real ones only (scope, the reader's situation). Nothing invented.
 - **Output contract** — the block below, `<n>` (the brief's number in the relay sequence) and `<slug>` filled in.
 - **Challenge** — the closing line.
