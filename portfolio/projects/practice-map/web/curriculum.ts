@@ -7794,6 +7794,69 @@ whenNot: "This is a judged ranking for a Russian citizen starting from outside t
     },
   },
 ];
+
+const emigrationUsaRiskTopics: readonly TopicCard[] = [
+  {
+    id: "emigration-usa-risk-full",
+    title: "Ranking the Ways to Emigrate to the USA as a Russian Citizen in 2026",
+    summary: "If you ask ten people how a Russian citizen can move permanently to the United States in 2026, you will get an alphabet soup of visa codes and at least three contradictory Telegram rumors. The cleaner way to see the landscape is to rank pathways by **expected control per unit of risk** — how much depends on your own assets rather than a lottery, an employer, or a court docket, weighed against how long you stay exposed to consular bottlenecks and what failure costs you. …",
+    concepts: [],
+    practicePrompt: "Inventory your real assets across five rows (qualifying US citizen family, publishable or commercial merit for EB-1A/NIW/O-1A, path to a year at a multinational affiliate outside Russia, budget for a US STEM degree, and cleanly documented capital) and identify your highest-ranked feasible pathway plus one concrete 2026 bottleneck you would need to neutralize first.",
+    checkPrompt: "Without looking back, name the ranking criterion used in this lesson, list the eight pathways in order from highest to lowest control, and explain the Russian paradox—why a Russian birth certificate helps in the statutory Visa Bulletin queue yet creates heavy operational friction in 2026.",
+    tier: 1,
+    complexity: 4,
+    references: [
+
+    ],
+    lesson: {
+problem: "Beginners treat US emigration as an alphabetical list of visa letters or chase viral shortcuts like asylum and lotteries, while overlooking how Russia’s favorable statutory queue interacts with severe 2026 consular and policy friction.",
+model: "Rank US emigration pathways for a Russian citizen by expected control per unit of risk: personal agency and policy resilience divided by consular exposure and downside cost. Separate the slow-moving statutory skeleton (INA categories, country-of-birth chargeability, dual-intent rules) from fast-moving 2026 executive and judicial friction so you anchor your plan to what lasts.",
+mechanics: "Country of birth sets Rest-of-World Visa Bulletin chargeability, avoiding multi-decade India/China backlogs; lack of Embassy Moscow routine services pushes consular cases to third-country posts like Warsaw or Astana with Schengen, travel, and security-vetting friction; immediate relatives bypass annual caps completely; self-petitions (EB-1A/EB-2 NIW) remove employer dependency and PERM delays, with O-1A bridging legal work status during NIW waits; L-1A and H-1B carry explicit dual intent while F-1 requires non-immigrant intent; capital routes face Russian sanctions and source-of-funds forensics, while asylum requires physical presence and genuine persecution.",
+pitfalls: [
+  "Confusing an approved EB-2 NIW or I-140 petition with permission to live or work in the US while waiting for a priority date.",
+  "Assuming non-immediate family sponsorship like a US-citizen sibling moves as fast as an immediate relative.",
+  "Treating F-1 student status or a tourist visa as an immigrant visa while ignoring non-immigrant intent rules and J-1 two-year home-residency traps.",
+  "Entering the H-1B pipeline without accounting for wage-weighted selection, layoff risk during PERM, or cap-exempt research alternatives.",
+  "Assuming EB-5 or the Gold Card guarantees fast approval without considering Russian source-of-funds documentation, sanctions screening, and unchanged EB-1/EB-2 queues.",
+  "Using asylum as a general relocation tactic without genuine statutory persecution grounds, risking multi-year limbo, loss of travel home, or a fraud bar.",
+  "Planning life decisions around the Diversity Visa lottery instead of treating it as a zero-agency side ticket."
+],
+whenNot: "This lesson is a strategic orientation, not legal advice, and does not cover individual inadmissibility bars, sanctions designations, prior visa overstays, or tax exit planning. Statutory mechanics are durable, but all volatile 2026 details (litigation over immigrant-visa pauses and USCIS holds, H-1B fee rulemaking and wage-weighted cap rules, Gold Card data, DV-2027 opening, consular posts, and vetting/fee rollouts) reflect reporting as of November 19, 2026 and must be verified against live official sources and an immigration attorney before acting."
+    },
+  },
+];
+
+const emigrationUsaBasisTopics: readonly TopicCard[] = [
+  {
+    id: "emigration-usa-basis-full",
+    title: "Six routes to a U.S. green card, ranked for a Russian citizen in 2026",
+    summary: "You can hold an approved U.S. immigration petition in one hand and a Moscow lease renewal in the other, and signing the lease can still be the sensible choice. For a Russian citizen planning a move in 2026, there are two questions: what gives you a durable basis for U.S. permanent residence, and can you actually use it from where you live?",
+    concepts: [],
+    practicePrompt: "Take the two highest-ranked routes for which you might qualify. For each, name one document that supports your case, one decision outside your control, and the official source you would check before spending money. If neither route fits, identify the missing fact instead of assuming it away.",
+    checkPrompt: "Without looking, explain why an approved petition and an interview notice may still leave a Russian citizen unable to move. Give one concrete fact that would put a lower-ranked route ahead of a higher-ranked one.",
+    tier: 1,
+    complexity: 4,
+    references: [
+
+    ],
+    lesson: {
+problem: "People compare ways to reach America as if each arrival offered the same right to stay. Even a sound permanent-residence case can be blocked at a later step.",
+model: "Rank fresh cases from abroad by how much can be established before moving, weighing sponsor dependence, numerical queues, chance, and capital at risk. Eliminate routes you cannot qualify for, then reorder the rest using your evidence, your family’s needs, and any priority date you already hold. Check whether a consulate can issue the visa separately from whether the petition has merit.",
+mechanics: "A family or employment petition can establish a basis without granting residence. Immediate relatives of U.S. citizens are outside the annual preference caps, while capped categories require an available number. Birthplace usually determines which country is counted for that number, not the passport or interview post. Some employment categories permit self-petitioning; many others require employer recruitment and labor certification. For the ordinary overseas route, a consulate must issue the immigrant visa and the United States must then admit the applicant on it.",
+pitfalls: [
+  "Treating every family relationship as uncapped.",
+  "Assuming a petition for a spouse automatically includes the children.",
+  "Using citizenship or interview location in place of country of chargeability.",
+  "Reading an available visa number as a promised appointment or permission to move.",
+  "Mistaking temporary work sponsorship for a permanent-residence commitment.",
+  "Paying an investment deposit before documenting the funds and checking the transfer.",
+  "Building a family timetable around a lottery selection.",
+  "Treating news of an appeal as proof that visa issuance has stopped or resumed."
+],
+whenNot: "Legal framework used from memory: June 2024. November 19, 2026 is the decision date, not a live verification date; operative restrictions, post assignments, entry windows, and fees need current official confirmation. This ranking does not assess protection claims, adjustment of status inside the United States, individual admissibility, or anyone’s odds or processing time."
+    },
+  },
+];
 export const curriculum: readonly PracticeArea[] = [
   {
     id: "go",
@@ -9362,5 +9425,21 @@ export const curriculum: readonly PracticeArea[] = [
     tier: 1,
     dependencies: [],
     topics: emigrationUsaTopics,
+  },
+  {
+    id: "emigration-usa-risk",
+    title: "Ranking the Ways to Emigrate to the USA as a Russian Citizen in 2026",
+    description: "If you ask ten people how a Russian citizen can move permanently to the United States in 2026, you will get an alphabet soup of visa codes and at least three contradictory Telegram rumors. The cleaner way to see the landscape is to rank pathways by **expected control per unit of risk** — how much depends on your own assets rather than a lottery, an employer, or a court docket, weighed against how long you stay exposed to consular bottlenecks and what failure costs you. …",
+    tier: 1,
+    dependencies: [],
+    topics: emigrationUsaRiskTopics,
+  },
+  {
+    id: "emigration-usa-basis",
+    title: "Six routes to a U.S. green card, ranked for a Russian citizen in 2026",
+    description: "You can hold an approved U.S. immigration petition in one hand and a Moscow lease renewal in the other, and signing the lease can still be the sensible choice. For a Russian citizen planning a move in 2026, there are two questions: what gives you a durable basis for U.S. permanent residence, and can you actually use it from where you live?",
+    tier: 1,
+    dependencies: [],
+    topics: emigrationUsaBasisTopics,
   },
 ];

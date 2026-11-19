@@ -101,6 +101,7 @@ export const TIERS: readonly Tier[] = [
       { name: "vol 05 — packages", topicIds: ["linux-package-management", "linux-apt-debian", "linux-rpm-dnf"] },
     ],
   },
+  { id: "astra-6.2-max", name: "astra-6.2-max", band: "max", areas: ["emigration-usa-basis"] },
   { id: "astra-6-max", name: "astra-6-max", band: "max", areas: ["render-neon-portfolio", "go-concurrency-saturation", "typescript-static-to-scale", "linkedin-evidence-package", "ibs-visceral-course", "new-york-culture", "park-chan-wook", "contracted-gut-visceral-hs", "wong-kar-wai", "rsi-first-principles", "akira-kurosawa-vocabulary", "kubernetes-first-principles", "subconscious-basics-to-advanced", "ddos", "lanthimos", "zeitgeist", "japan", "discourse", "frankenstein-concepts", "universe-connected-map", "kyrgyzstan-concepts", "terraform-state-plan-model"],
     volumes: [
     { name: "tech", topicIds: ["rsi-first-principles-full", "kubernetes-first-principles", "ddos-resource-management", "typescript-static-to-scale-full", "terraform-state-plan-model-full", "go-concurrency-saturation-full", "render-neon-portfolio-full"] },
@@ -114,6 +115,7 @@ export const TIERS: readonly Tier[] = [
     { name: "science", topicIds: ["universe-connected-map-full"] }
   ] },
   { id: "astra-6-medium", name: "astra-6-medium", band: "medium", areas: ["rust", "php-frameworks"] },
+  { id: "gemini-4-neon-xhigh", name: "gemini-4-neon-xhigh", band: "max", areas: ["emigration-usa-risk"] },
   { id: "kimi-k3.1-pro-max", name: "kimi-k3.1-pro-max", band: "max", areas: ["typescript-interview-definitions"] },
   { id: "muse-wonder-max", name: "muse-wonder-max", band: "max", areas: ["python-midplus-compact", "halloween-basics-advanced", "laravel-taught-like-practitioner", "symfony-one-deep-lesson", "typescript-senior-practitioner", "laravel-horizon-redis-queues", "laravel-horizon-production-model", "laravel-multi-tenancy-one-lesson", "elden-ring-complete-guide", "python-senior-ru"],
     volumes: [
