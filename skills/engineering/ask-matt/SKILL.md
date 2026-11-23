@@ -17,10 +17,10 @@ The route most work travels. You have an idea and want it built.
 1. **`/grill-with-docs`** — sharpen the idea by interview. Start here whenever you are **working in a working directory**: it's stateful, retaining what it learns in `CONTEXT.md` and ADRs. (No working directory? Use `/grill-me` — see Standalone. Both run the same `/grilling` primitive; `grill-with-docs` is the one that leaves a paper trail, which makes it the better of the two whenever a repo is there to leave it in.)
 2. **`/design-planning`** — for any non-trivial visual, interaction, or architecture choice, compare two genuinely different directions against explicit criteria and wait for the user's choice. It is the recovered home for the old "iterate, simplify, and think twice before executing" principles. When the choice lands, it appends a `decision` node to the area's project graph.
 3. **`/planning`** — turn the approved direction into a deterministic implementation sequence, named seam, and verification matrix. It stops for approval; it does not edit production code or perform delivery. An approved plan lands as a `milestone` node in the same graph.
-4. **Branch — can you settle every question in conversation?** If a question needs a runnable answer (state, business logic, a UI you have to see), detour through a prototype, bridged by **`/handoff`** in both directions (a prototype lives in its own directory, which is exactly what `/handoff` is for — see Phase boundaries):
-   - **`/handoff`** out, then open a fresh session against that file,
+4. **Branch — can you settle every question in conversation?** If a question needs a runnable answer (state, business logic, a UI you have to see), detour through a prototype, bridged by **orchestrate's hand-off part** in both directions (a prototype lives in its own directory, which is exactly what a hand-off crossing is for — see Phase boundaries):
+   - **hand off** out (`/orchestrate`, the part by name), then open a fresh session against that document,
    - **`/prototype`** to answer the question with throwaway code,
-   - **`/handoff`** back what you learned, and reference it from the original idea thread.
+   - **hand off** back what you learned (`follows` names the outgoing document), and reference it from the original idea thread.
 5. **Branch — is this a multi-session build?**
    - **Yes** → **`/to-spec`** (turn the thread into a spec), then **`/to-tickets`** to split it into tracer-bullet tickets, each declaring its **blocking edges**. On a local tracker that's one file per ticket under `.scratch/<feature>/issues/`, worked blockers-first by hand; on a real tracker the edges become native blocking links, so any ticket whose blockers are done can be grabbed — kick off **`/implement`** per ticket, **`/clear`ing context between each one**. Each ticket is self-contained, so the last one's context is disposable.
    - **No** → **`/implement`** right here, in the same context window.
@@ -66,7 +66,7 @@ A **phase** is a chunk of work inside a session — the grilling, the implementa
 
 - **Continue** — stay put. Costs nothing, loses nothing.
 - **`/clear`** — empty the window, when nothing here matters to what's next.
-- **`/handoff`** — write a portable markdown file. Narrow: only for a **new harness**, a **new directory**, a **colleague**, or forking a side task **mid-phase**. What it buys is portability.
+- **Hand off** (orchestrate's hand-off part) — leave a hand-off document a fresh session picks up; it runs alone when the loop is not open. Narrow: only for a **new harness**, a **new directory**, a **colleague**, or forking a side task **mid-phase**. What it buys is a frame for the next session, not a compressed transcript.
 - **Subagent** — send a tightly-scoped task to its own window and get a report back.
 - **`/compact`** — compress this context and seed a fresh session with it. The **default**, at the bottom of the tree rather than the first reach.
 

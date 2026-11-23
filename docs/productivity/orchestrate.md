@@ -2,15 +2,18 @@
 
 `/orchestrate` turns the coding agent into the orchestrator of a relay: the agent keeps the repo, the tools, and the final say; a non-agentic specialist in a separate chat supplies the reasoning, design, and code. The agent writes one self-contained brief, you carry it out and bring the reply back, and the agent salvage-integrates it against the actual repo. It keeps what survives, corrects or rejects the rest, and validates before the next brief. Everything the specialist needs must cross inside that brief, because the specialist has no tools, no repo access, and no memory between briefs.
 
-Three parts are bundled inside the same skill:
+Six parts are bundled inside the same skill:
 
+- `decision` asks a specialist how something should be shaped before anything is built on it: options compared, one recommended, the user decides.
+- `correction` stops something that keeps going wrong in the repository; it acts only on friction that has already recurred.
 - `bytecheck` is byte-exact self-verification: a snapshot before the work, a policy-checked verdict after, and a tree hash anyone can recompute.
 - `review` is the end-of-round bug-finding pass: a fresh reviewer sees the change and the task, ranks what would break, and the agent disposes of each finding before any gate runs.
 - `executor` is a mode for settled work: a declared-shape rewrite against a frozen corpus, checked by a scripted verifier. The specialist executes the transformation rather than redesigning it, and any declared specialist may fill the role.
+- `handoff` leaves a hand-off document when the session ends — goal, decisions, state, what is open — that a fresh session picks up; asked for by name in a session that never opened the loop, it runs alone.
 
 ## When to reach for it
 
-Type `/orchestrate`, or the agent starts the loop itself when you name the specialist, hand back a specialist reply to integrate, or when a task is too large or design-heavy to cross into a specialist chat in one pass. Asking for the byte-check, the review, or the executor mode by name runs that part alone.
+Type `/orchestrate`, or the agent starts the loop itself when you name the specialist, hand back a specialist reply to integrate, or when a task is too large or design-heavy to cross into a specialist chat in one pass. Asking for any part by name — decision, correction, byte-check, review, executor, hand-off — runs that part alone.
 
 - Design decisions with real alternatives, where a stronger non-agentic model should think hard without being able to touch files.
 - Work that only fits in sequential deliverables, each built from the validated result of the last.
@@ -98,4 +101,4 @@ Review findings get dispositions (fixed, declined, deferred, unconfirmed), and d
 
 ## Where it fits
 
-`/orchestrate` neighbours [minimize-iteration](https://aihero.dev/skills-minimize-iteration), the single compressed crossing for work small enough to delegate in one prompt; orchestrate takes over when one crossing cannot carry it. [handoff](https://aihero.dev/skills-handoff) compacts a whole conversation to resume it elsewhere rather than delegate a piece of it to a specialist that keeps nothing. For the router over the whole set, see [ask-matt](https://aihero.dev/skills-ask-matt).
+`/orchestrate` neighbours [minimize-iteration](https://aihero.dev/skills-minimize-iteration), the single compressed crossing for work small enough to delegate in one prompt; orchestrate takes over when one crossing cannot carry it. Its own hand-off part serves the other crossing: when the whole session's work must move — to a fresh session, a new directory, a colleague — a hand-off document carries it, rather than delegate a piece of it to a specialist that keeps nothing. For the router over the whole set, see [ask-matt](https://aihero.dev/skills-ask-matt).

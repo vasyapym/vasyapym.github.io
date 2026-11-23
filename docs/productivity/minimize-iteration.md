@@ -11,7 +11,7 @@ You can invoke it by typing `/minimize-iteration` whenever a task is about to cr
 | Situation | Reach for |
 | --- | --- |
 | A task must be delegated to a separate chat model | `/minimize-iteration` |
-| A whole conversation must move to another agent or harness | [handoff](https://aihero.dev/skills-handoff) |
+| A whole conversation must move to another agent or harness | [hand off](https://aihero.dev/skills-orchestrate) — orchestrate's hand-off part |
 
 ## The method
 
@@ -73,4 +73,4 @@ In a deepening round. Tasks that need the real evidence — a design to settle, 
 
 ## Where it fits
 
-`minimize-iteration` is a **reach-for-it-anytime standalone** for one specific crossing: a task leaving this session for a chat model with a [context window](https://www.aihero.dev/ai-coding-dictionary/context-window) and a token-based router. Its closest neighbour is [handoff](https://aihero.dev/skills-handoff), which compacts a whole conversation for portability — the skill here compresses a single delegation prompt for routing. [ask-matt](https://aihero.dev/skills-ask-matt) routes over the whole set.
+`minimize-iteration` is a **reach-for-it-anytime standalone** for one specific crossing: a task leaving this session for a chat model with a [context window](https://www.aihero.dev/ai-coding-dictionary/context-window) and a token-based router. Its closest neighbour is [orchestrate](https://aihero.dev/skills-orchestrate)'s hand-off part, which frames a whole conversation for the session that picks it up — the skill here compresses a single delegation prompt for routing. [ask-matt](https://aihero.dev/skills-ask-matt) routes over the whole set.

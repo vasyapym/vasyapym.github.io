@@ -23,7 +23,7 @@ Source of truth for every machine. A machine's `~/.config/orchestrate/declaratio
 
 ### 1.3 Replies and transport
 - collapsed paste: eaten line breaks are never guessed back in the main session; the restore is briefed to Sonnet 5.5 (a chat model like the Creative relay) with the collapsed bytes and the byte-authoritative originals in the brief; a raw-file export from the chat stays the preferred path when it exists. Relay pastes arrive collapsed (3/3 on 2026-11-19): plan the restore round by default; the restored artifact returns as ONE line with ⏎ break markers, decoded mechanically after the cut.
-- reply carriage: creative capacities (creative, gentle) ALWAYS carry the artifact between the markers as ONE physical line, every break replaced by the marker character the brief dictates (⏎ has served), decoded mechanically after the cut; a simple ask for a creative, and a one-line artifact loses nothing. Other capacities: one-line repair only when the transport eats line breaks (owner, 2026-11-14).
+- reply carriage: creative capacities (creative, gentle) ALWAYS carry the artifact between the markers as ONE physical line, every break replaced by the marker character the brief dictates (⏎ has served), decoded mechanically after the cut; a simple ask for a creative, and a one-line artifact loses nothing. ALL capacities now carry artifacts the same ONE-line way (the transport eats line breaks 4/4 — 2026-11-23, the sq-facade round; the owner's word); a normal-text reply is the exception only for trivial asks with nothing to place (owner, 2026-11-14, 2026-11-23).
 - reply file: a reply returned as a file is written by the owner into the brief's own file (same path, replacing the brief); the orchestrator takes it as the acquired reply (Harvest's file rung) and moves it into `round-<k>/replies/`; the replaced brief needs no copy, cleanup deletes it anyway (standing, 2026-11-12).
 
 ### 1.4 Integration and verification
@@ -39,7 +39,8 @@ Source of truth for every machine. A machine's `~/.config/orchestrate/declaratio
 
 ### 1.6 Declarations
 - mirror: every declaration addition goes into the master `declarations.master.md` right after the edit; the orchestrator writes the local clone itself; machines adopt by pulling. Repository: https://github.com/vasyapym/orchestrate.
-- skill repos (vasyapym/orchestrate, vasyapym/bytecheck): the owner commits and pushes them himself, or asks for it explicitly.
+- skill repos (vasyapym/orchestrate, vasyapym/bytecheck): the owner commits and pushes them himself, or asks for it explicitly; vasyapym/orchestrate: the agent commits and pushes always (owner, 2026-11-23).
+- runner (Windows TD): `C:\Users\v.argunov\agent-runner\` — the worker script + the clone; Scheduled Task `AgentRunner` fires every ~20 min (interactive logon, one instance, 4 h cap); mailbox: private `vasyapym/agent-jobs` (`jobs/open` → `jobs/done`). Unrestricted shell jobs by the owner's design (2026-11-23): per-command timeout (default 180 min), audit-echo of every command, `jobs/PAUSED` stop, the `%JOB%` token. Heavy work (e2e/bakes/agent sessions) is delegated here from the owner's MacBook via the mailbox.
 
 ## 2. Machines
 Keys read at session open: `briefs` (default brief folder; empty: the skill asks each session), `rounds` (unset: the brief folder; may name another directory), `bytecheck` (tool path), `byte-check` (standing answer always | never; unset: the skill asks), `obsidian` (vault).
@@ -48,6 +49,7 @@ Keys read at session open: `briefs` (default brief folder; empty: the skill asks
 - projects: TD, vasyapym.github.io.
 - master clone: `C:\Users\v.argunov\Documents\GitHub\orchestrate`
 - subagents: opencode-go/glm-5.3-flash only; every sub-agent runs on it; other models are chat models (relay targets), not sub-agent models (owner, 2026-11-13).
+- powershell scripts: plain ASCII .ps1 files, no nested @() array literals (they flatten); count occurrences with IndexOf/LastIndexOf, never Split; PS 5.1 reads BOM-less .ps1 as ANSI, so no non-ASCII literals (owner, 2026-11-23). Native stdout through a pipeline re-encodes UTF-8 as cp1251/866 — byte-copy diffs via cmd `>` + UTF8.GetString, never `git diff | Out-String` (owner, 2026-11-23).
 - obsidian: `C:\Users\v.argunov\Desktop\TD Vault git\`
 - briefs (any non-TD work): `C:\Users\v.argunov\Desktop\TD Vault git\03-1_projects\briefs` (owner, 2026-11-20). Brief numbering is one lineage across all brief folders.
 - bytecheck: (unset)
@@ -58,12 +60,21 @@ Keys read at session open: `briefs` (default brief folder; empty: the skill asks
  - project trees (traktorodetal.ru's git, www3, every other project folder on this computer): never.
  - mimo (`C:\Users\v.argunov\Documents\mimo`): normal git; the agent commits and pushes at session end.
  - vasyapym.github.io: the agent commits and pushes at round close, without asking (§3.2).
- - skill repos: the owner (§1.6).
+ - skill repos: the owner (§1.6); vasyapym/orchestrate — the agent commits and pushes always (owner, 2026-11-23).
 
 ### 2.2 Mac: `/Users/vasilij`
 - master clone: `~/Documents/orchestrate`
 - briefs: `/Users/vasilij/Documents/vasyapym-Vault/03_projects`. Each session works in a per-project, per-date subfolder (`<project>-<date>`, created on first use); round folders (`round-<k>/replies/`) live beside the briefs there; the subfolder IS the session's working directory: code excerpts, probe/reproduction outputs, brief source scratch and every other session file live there; repos stay free of session scratch (2026-11-13).
 - bytecheck: `/Users/vasilij/Documents/bytecheck/bytecheck.py`
+- byte-check: (unset)
+- rounds: (unset)
+
+### 2.3 Mac (new laptop): `/Users/vasyapym`
+- new laptop (owner, 2026-11-24): all projects live here over time; §2.2 is the previous Mac.
+- master clone: `~/Documents/orchestrate`
+- obsidian: `/Users/vasyapym/Documents/vasyapym-Vault`
+- briefs: `/Users/vasyapym/Documents/vasyapym-Vault/03-1_projects` (owner, 2026-11-24). Sessions work in per-project, per-date subfolders beside the briefs; the subfolder IS the session's working directory: code excerpts, probe outputs, brief scratch; repos stay free of session scratch.
+- bytecheck: (unset — the tool is not installed on this laptop yet)
 - byte-check: (unset)
 - rounds: (unset)
 
@@ -79,7 +90,15 @@ Keys read at session open: `briefs` (default brief folder; empty: the skill asks
 
 ### 3.2 vasyapym.github.io
 - tree: Windows TD `C:\Users\v.argunov\Desktop\agent2\vasyapym.github.io`; Mac `~/Documents/luna2/luna2`.
+- tree (new Mac, 2026-11-24): `~/Documents/vasyapym.io` — the same repo (`vasyapym/vasyapym.github.io`), folder renamed on the new laptop; all projects live there over time (owner).
 - obsidian (Windows TD): `C:\Users\v.argunov\Desktop\TD Vault git\03-1_projects` (owner, 2026-11-19).
 - briefs (Windows TD): the non-TD folder (§2.1), since brief 21 (owner, 2026-11-19).
 - delivery: every round close commits and pushes its own paths plus the project-graph node WITHOUT waiting for an owner request: «make it so that you always commit and push in this repository» (owner, 2026-11-16). Staging stays by path name; unrelated foreign changes are never touched; failures, conflicts or missing auth stop and report instead of forcing the delivery.
 - lesson briefs: other lessons are never taken into account: no paths, titles or openings from the lessons corpus enter a lesson brief, and the orchestrator adds no commentary of its own to a brief (owner, 2026-11-19, after the sibling-openings experiment in brief 25).
+
+### 3.3 hermitage-3d
+- tree: Windows TD `C:\Users\v.argunov\Desktop\agent2\hermitage-3d` (a real git repo with CI on push).
+- new Mac (owner, 2026-11-24): sessions and briefs already run from this laptop's vault; the tree moves here over time (all projects live on the new laptop). First clone pending.
+- briefs (Windows TD): the non-TD folder (§2).
+- delivery: the round's own paths committed and pushed at round close, without asking (owner, 2026-11-23, after a session left the round undelivered and a second agent read it as foreign unaccepted changes). Staging stays by path name; unrelated foreign changes are never touched; failures, conflicts or missing auth stop and report.
+- windows: the repo's Ops laws are the Mac reference machine's — here the win64 shell with NO override; the chain needs ZIMNY_BLENDER + the ktx bin on PATH (agent2 dirs, owner, 2026-11-23).

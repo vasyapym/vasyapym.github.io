@@ -1,6 +1,6 @@
 # executor — the executor mode of orchestrate
 
-Use this mode for declared-shape rewriting against a frozen corpus with a scripted verifier. The transformation is settled; the specialist executes it, not redesigns it. A template is law within the task the user authorized, not permission to override that task. If sources, configuration and grammar disagree, stop the affected unit and name the conflict; never silently choose one. Open design questions belong in a separate decision brief, within the user's consultation budget.
+Use this mode for declared-shape rewriting against a frozen corpus with a scripted verifier. The transformation is settled; the specialist executes it, not redesigns it. A template is law within the task the user authorized, not permission to override that task. If sources, configuration and grammar disagree, stop the affected unit and name the conflict; never silently choose one. Open design questions belong in a separate decision brief (`decision.md`), within the user's consultation budget.
 
 Executor is a mode, not a model profile. Keep the declared specialist's actual memory, input budget, output cap and timeout; do not infer them from the role name. Each batch brief is self-contained even when a thread has memory. The core's opener, numbering, hand-over, capture and staging rules still apply. Its closing challenge asks the Executor to find contract contradictions and failure cases, not to substitute another design.
 

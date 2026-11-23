@@ -22,7 +22,7 @@ A canonical state-machine label applied to an **Issue** during triage (e.g. `nee
 A project's append-only history log (`.project-history/graph.jsonl`) of nodes (iterations, milestones, decisions) and typed edges, queried and extended through `scripts/project-graph`. `code-iteration` and `design-iteration` read it to orient and append to it when a pass completes. _Avoid_: decision graph (that is the prose section inside a design handoff), history file.
 
 **Handoff**:
-An explicit crossing of work between two skills in the **Project graph**, offered by the sender (`project-graph handoff`), acknowledged by the receiver (`ack`), and closed by the receiver's first node (`--via-handoff`). Carries rationale, expected artifacts, and the receiving skill's continuation note. _Avoid_: handoff document (a `/handoff` transit file — different thing).
+An explicit crossing of work between two skills in the **Project graph**, offered by the sender (`project-graph handoff`), acknowledged by the receiver (`ack`), and closed by the receiver's first node (`--via-handoff`). Carries rationale, expected artifacts, and the receiving skill's continuation note. _Avoid_: handoff document (a hand-off transit file — different thing).
 
 ## Relationships
 

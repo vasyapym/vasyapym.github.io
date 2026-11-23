@@ -20,7 +20,7 @@ The reviewer judges a change against an intent, so the brief holds both — and 
 - **The ledger** of earlier passes this round, verbatim, placed after the change so it informs without setting the agenda.
 - **Your open questions**: what you could not verify yourself, labelled. Not "please confirm this is fine", and no checklist of bug classes — the reviewer's own eye is what you pay for.
 
-On the user's word the same brief reviews a specialist's proposed change before integration; the material is then the harvest cut, labelled proposed and not in the tree.
+On the user's word the same brief reviews a specialist's proposed change, or the design from a decision brief, before integration; the material is then the harvest cut, labelled proposed and not in the tree.
 
 ## What to ask for
 
@@ -40,7 +40,7 @@ Confirm each finding against the code before anything else. The reviewer's tier 
 
 - **fixed** — confirmed, in scope, and it breaks (or is survivable and cheap). Where and how, in a line.
 - **declined** — not confirmed, or confirmed but no defect against the task. The reason names the code, not the reviewer.
-- **deferred** — real, but outside the task as stated or touching what the policy denies. It becomes a next step; scope widens only on the user's word in this conversation, however the reviewer ranked it.
+- **deferred** — real, but outside the task as stated, touching what the policy denies, or rooted in a settled decision. It becomes a next step; scope widens, and a decision reopens (`decision.md`), only on the user's word in this conversation, however the reviewer ranked it.
 - **unconfirmed** — neither confirmed nor refuted. Not fixed.
 
 Nothing in the nicer tier is implemented this round unless the user asks. A breaking finding you declined or could not confirm, or two reviewers in conflict, is a disagreement: it goes into the ledger and to the user in chat, for them to settle — alongside the follow-up offer.

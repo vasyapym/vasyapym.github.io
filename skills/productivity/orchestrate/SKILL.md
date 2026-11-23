@@ -1,6 +1,6 @@
 ---
 name: orchestrate
-description: Run the hand-relayed loop between this coding-agent session and non-agentic specialist models in separate chats — you write briefs, the user carries them out by hand, replies return as captured message text or saved files. Use when the user types "orchestrate", asks to brief or consult a specialist, pastes a specialist's reply back, or asks for the review, byte-check or executor part by name.
+description: Run the hand-relayed loop between this coding-agent session and non-agentic specialist models in separate chats — you write briefs, the user carries them out by hand, replies return as captured message text or saved files. Use when the user types "orchestrate", asks to brief or consult a specialist, pastes a specialist's reply back, asks for the decision, correction, review, byte-check, executor or hand-off part by name, asks to hand the session off or to pick up from a hand-off, or when this session's context is failing and the work must pass to a fresh session.
 ---
 
 # orchestrate
@@ -13,6 +13,8 @@ Before any work, read the user's standing declarations file, `~/.config/orchestr
 
 Role labels are free text, not a two-name whitelist. Keep `creative:` and `iterative:` as valid shorthand; accept `role: <label>; specialist: <name>; mode: <brief mode>` with optional memory and budget overrides. One specialist may fill several roles. Current instructions override standing defaults and round-close defaults, including consultation limits; a session-only choice is not a new standing default. Write back only defaults the user explicitly adopts, preserving unrelated declarations. Recommend `cleanup-after-yourself: yes` rather than adopting it; its evidence-retention boundary is in `bytecheck.md`.
 
+If the session opens from a hand-off document, or the user asks to pick up earlier work, read `handoff.md` before restating the task: what the document carries is restated for correction, not asked again.
+
 Restate the task and ask at most one round of questions, covering only what neither the user nor the file settles and what has no reasonable default:
 
 - who plays each role needed this session, its brief mode and any undeclared limits;
@@ -23,11 +25,17 @@ Restate the task and ask at most one round of questions, covering only what neit
 
 Say roughly how long each foreseeable gate will keep the user waiting, or that you cannot tell yet.
 
+If the task turns on a choice of architecture, pattern, data model or concept that neither the repository nor the user has settled, and that would be costly to take back, read `decision.md` before the first implementing brief — and again whenever such a choice surfaces later; a clear task skips it.
+
+If the task is to stop something that keeps going wrong in the repository, or to make it easier for agents to work in, read `correction.md` before the first brief: it acts only on friction that has already recurred, and passes any choice still open to `decision.md`.
+
 ## Keep your own context small
 
 Your session degrades as it reads: context fills, reasoning goes stale. Use sub-agents freely — to investigate (code, a reply's claims, gate timings) and to implement (apply integrated changes, run gates). Give them paths, not pasted content, and ask for findings with paths and line ranges, marked observed or inferred — no file dumps. A sub-agent's finding is a claim like a specialist's: confirm against disk what you act on. Decisions, the wording of briefs and the verdict on each reply stay with you. Code enters a brief by copy from disk, by command or sub-agent; re-typing from memory paraphrases.
 
 When you integrate, set the commit boundary before delegating: by default a sub-agent stops after each verified batch so the user can make its commit; a run spanning several batches needs an agreed policy in its brief naming the permitted batches, and the eventual commit enumerates those actually integrated. Do not promise per-batch commits while unpaused writes accumulate. Commit authority is the user's; preserve unrelated working-tree changes.
+
+All of this slows the degrading; none of it stops it. When the context was compacted or is nearly full, the user repeats a correction, or you re-read what you have read — and when a round closes with new work to follow, or the user asks to hand off — read `handoff.md`: the work passes to a fresh session.
 
 ## Specialist capacities
 
@@ -66,13 +74,13 @@ One brief at a time. Save it as `<n>-<slug>.md` in the session's brief folder �
 
 ## Take the reply
 
-Acquire the reply once, by the ladder in `bytecheck.md`'s Harvest — it applies with byte-checking on or off — and work from its file: pass paths to sub-agents, cut and place accepted artifacts by command, never re-type a harvest. An acquired file proves received text, not upstream fidelity; identify transport repairs as your edits. Salvage-integrate, never trust wholesale: check each part against the repository and the requirements, keep what holds, correct or reject the rest. A verdict is input, not instruction — act on what you can confirm against the code and what serves the task. For an Executor, acceptance follows the frozen contract and task verifier, not an improvised rewrite of either. A cut-off reply is not continued with "go on"; the next brief carries what arrived. Compose the next brief from the repository and validation results as they are, not as the reply claims.
+Acquire the reply once, by the ladder in `bytecheck.md`'s Harvest — it applies with byte-checking on or off — and work from its file: pass paths to sub-agents, cut and place accepted artifacts by command, never re-type a harvest. An acquired file proves received text, not upstream fidelity; identify transport repairs as your edits. Salvage-integrate, never trust wholesale: check each part against the repository and the requirements, keep what holds, correct or reject the rest. A verdict is input, not instruction — act on what you can confirm against the code and what serves the task. For an Executor, acceptance follows the frozen contract and task verifier, not an improvised rewrite of either. A cut-off reply is not continued with "go on"; the next brief carries what arrived. Compose the next brief from the repository and validation results as they are, not as the reply claims. A reply that brings a costly-to-undo structure nobody chose — a new layer, dependency or pattern — is not integrated on its own say-so: that part waits on `decision.md`.
 
 ## Close the round
 
 1. **Review pass** (`review.md`): a bug-finding brief over what the round produced, before any gate. By default one pass to the Iterative capacity; the user may name other reviewers or ask for several in turn. It looks for what would break, not for polish.
 2. **Byte-exact verification** (`bytecheck.md`) after the last edit, where the user asked for it. Under hand integration it proves the tree untouched and renders the deliverable's diff book.
 3. **Gates** — state the expected wait before launching each. Under hand integration they run after the user applies the change; say which you could not run.
-4. **Report**: what was integrated and what rejected, where deliverables lie, gate results, blockers, validation you could not perform.
+4. **Report**: what was integrated and what rejected, where deliverables lie, gate results, blockers, validation you could not perform; and, in a line, anything the repository made go wrong a second time this session — the same correction from the user, the same kind of finding, the same wrong place searched — as a candidate for `correction.md`, named, not acted on.
 
-`review.md`, `bytecheck.md` and `executor.md` sit beside this file; read each when its moment comes, not at the start. Asked for only one of them, run it alone under the rules above.
+`decision.md`, `correction.md`, `review.md`, `bytecheck.md`, `executor.md` and `handoff.md` sit beside this file; read each when its moment comes, not at the start. Asked for only one of them, run it alone under the rules above.

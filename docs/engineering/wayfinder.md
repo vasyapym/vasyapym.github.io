@@ -16,7 +16,7 @@ It is the heaviest, densest flow in the set, so the trigger is narrow: the effor
 | A greenfield project, or a build spanning many sessions, with the route still unclear | `/wayfinder` |
 | A thread where the deciding is already done | [to-spec](https://aihero.dev/skills-to-spec) — skip straight past the map |
 | A cleared wayfinder map | [to-spec](https://aihero.dev/skills-to-spec), then [to-tickets](https://aihero.dev/skills-to-tickets) and [implement](https://aihero.dev/skills-implement) |
-| An existing session that has already grown too big | say "hand off to `/wayfinder`" — [handoff](https://aihero.dev/skills-handoff) bridges into a map as well as out of one |
+| An existing session that has already grown too big | say "hand off to `/wayfinder`" — [orchestrate](https://aihero.dev/skills-orchestrate)'s hand-off part bridges into a map as well as out of one |
 
 Greenfield is not a requirement. Wayfinder is used routinely on legacy and half-built codebases, and it is arguably sharper there, because a lot of the fog is "what is already true here" rather than "what should we do".
 
@@ -100,4 +100,4 @@ It is this skill, renamed to `wayfinder` in v1.1 and invoked as `/wayfinder`. "D
 
 `wayfinder` is a **situational on-ramp**, not the default front door. The grill-led idea → ship chain is still where most work starts; wayfinder is what you climb onto when the idea is too big to hold in one session, and it merges back onto that chain at [to-spec](https://aihero.dev/skills-to-spec), because a cleared map hands off rather than builds.
 
-Underneath, it is mostly other skills wearing wayfinder's scheduling: [grilling](https://aihero.dev/skills-grilling) and [domain-modeling](https://aihero.dev/skills-domain-modeling) resolve the default ticket type, [prototype](https://aihero.dev/skills-prototype) resolves the tickets that talking cannot, and [research](https://aihero.dev/skills-research) runs as a subagent so its reading never lands in your session. [handoff](https://aihero.dev/skills-handoff) is the bridge in and out — into a map from a conversation that outgrew itself, out of one when a side quest appears mid-session. For anything else, [ask-matt](https://aihero.dev/skills-ask-matt) routes over the whole set.
+Underneath, it is mostly other skills wearing wayfinder's scheduling: [grilling](https://aihero.dev/skills-grilling) and [domain-modeling](https://aihero.dev/skills-domain-modeling) resolve the default ticket type, [prototype](https://aihero.dev/skills-prototype) resolves the tickets that talking cannot, and [research](https://aihero.dev/skills-research) runs as a subagent so its reading never lands in your session. [orchestrate](https://aihero.dev/skills-orchestrate)'s hand-off part is the bridge in and out — into a map from a conversation that outgrew itself, out of one when a side quest appears mid-session. For anything else, [ask-matt](https://aihero.dev/skills-ask-matt) routes over the whole set.

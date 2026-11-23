@@ -17,7 +17,7 @@ Reach for it when the learning is the project: a language, a framework, a codeba
 | The agent's last message re-pitched because it didn't land | [wait-what](https://aihero.dev/skills-wait-what) |
 | To sharpen thinking you already have, rather than acquire new material | [grill-me](https://aihero.dev/skills-grill-me) |
 | A background agent to read [primary sources](https://www.aihero.dev/ai-coding-dictionary/primary-source) and leave you a cited document | [research](https://aihero.dev/skills-research) |
-| To learn something that came up mid-grilling, without derailing the [grilling](https://www.aihero.dev/ai-coding-dictionary/grilling) | [handoff](https://aihero.dev/skills-handoff) out to a teaching workspace, then `teach` there |
+| To learn something that came up mid-grilling, without derailing the [grilling](https://www.aihero.dev/ai-coding-dictionary/grilling) | [hand off](https://aihero.dev/skills-orchestrate) out to a teaching workspace — orchestrate's hand-off part — then `teach` there |
 
 ## Prerequisites
 
@@ -94,4 +94,4 @@ There is no canonical answer, and the reported differences are large. Higher [re
 
 `teach` is a **reach-for-it-anytime standalone**. It is not a step in a build chain and shares no artifacts with the engineering flow; it owns its directory and lives there for as long as the topic lasts.
 
-Its one real neighbour is [handoff](https://aihero.dev/skills-handoff), through the composition Matt named as the answer to "what do I do if I'm being grilled about something I don't understand?": don't stop the grilling to learn — `/handoff` to a teaching workspace, learn it there with `/teach`, then go back and pick up where you left off. The nearby alternative is [research](https://aihero.dev/skills-research), for when what you want is a cited document rather than lessons and retention. When you are not sure which skill or flow fits, [ask-matt](https://aihero.dev/skills-ask-matt) routes you over the whole set.
+Its one real neighbour is [orchestrate](https://aihero.dev/skills-orchestrate)'s hand-off part, through the composition Matt named as the answer to "what do I do if I'm being grilled about something I don't understand?": don't stop the grilling to learn — hand off to a teaching workspace (the part runs alone when the loop is not open), learn it there with `/teach`, then go back and pick up where you left off. The nearby alternative is [research](https://aihero.dev/skills-research), for when what you want is a cited document rather than lessons and retention. When you are not sure which skill or flow fits, [ask-matt](https://aihero.dev/skills-ask-matt) routes you over the whole set.
